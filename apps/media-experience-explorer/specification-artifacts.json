@@ -1015,6 +1015,13 @@
     "title": "Semantic State Grammar"
   },
   {
+    "artifactId": "ART-P2-SOURCE-AUDIT-INTERFACE-REVIEW",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/source-audit-interface-review.json",
+    "title": "Source Audit Interface Review"
+  },
+  {
     "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-TRUST-PROVENANCE-GRAMMAR-YAML",
     "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
@@ -1349,6 +1356,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/declarative-production-experience.yaml",
     "title": "Declarative Production Experience"
+  },
+  {
+    "artifactId": "ART-P3-DEMO-RECORDING-STANDARD",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/demo-recording-standard.yaml",
+    "title": "Demo Recording Standard"
   },
   {
     "artifactId": "ART-MEDIA-6DEC24896131",
@@ -1986,6 +2000,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml",
     "title": "Project List Observation Contracts"
+  },
+  {
+    "artifactId": "ART-P3-MANAGE-REUSABLE-RULES-PROPOSAL-JOURNEY",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml",
+    "title": "Manage Reusable Rules Proposal"
   },
   {
     "artifactId": "ART-P3-PUBLIC-EFFECT-FINALITY-TAXONOMY",

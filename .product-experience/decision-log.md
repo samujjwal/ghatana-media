@@ -2623,3 +2623,235 @@ This source-currentness record claims no owner approval, independent
 acceptance, implementation, runtime admission, qualification, closure, or
 Delivery readiness. Its explicit source fingerprints are retained in
 `docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json`.
+
+### PXD-219 — Accept the original PDP-0 A–Q audit taxonomy crosswalk only
+
+**Authority:** The user explicitly delegated Media app-owner and approval
+decisions in this task. This is a bounded decision recorded by Codex in that
+delegated capacity; it is not an independent review or another repository's
+owner decision.
+
+**Decision:** Accept the 17 A–Q cluster assignments for the 428 original audit
+rows as a traceability/index classification only. The two source-pinned review
+slices contain 427 rows classified `BOUND_EXISTING`; retain `AUD-OPS-020` as a
+PDP-0-excluded Build handoff. Keep all 428 rows visible. The 73 third-pass rows
+remain outside the A–Q taxonomy. The accepted taxonomy labels are Source ingest,
+Software demo and presentation capture, Media projects / ingest, Professional
+editing, Voice input / ASR, Voice output / synthesis, Voice cloning and design,
+Dubbing/localization, Audio engineering, Autonomous director/editor, Visual
+generation, Vision and smart video, Motion/2D/3D and simulation, Interactive
+stories/player, Review/quality/compliance, Render/publish/distribute, and
+Operations/API/agents.
+
+This decision does not accept blueprint prose as new product requirements,
+adopt any capability proposal, accept the separate 462 capability-to-cluster
+recommendations, or fill the 230 missing exact audit-to-capability traces. It
+does not supply obligation-to-surface or executable case mappings, proof
+producers, observers, oracles, independent review, Lifecycle admission,
+receipts, or phase closure. PDP-0 case and exact surface bindings remain open.
+
+**Source evidence:** `docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-cluster-review-original-001-214.json`
+(SHA-256 `d85a982d8bc41c75e45b7f5a74091d341d59d19dc983f11d2c68d3860ede1596`),
+`.../pdp0-aq-cluster-review-original-215-428.json` (SHA-256
+`20652e073e865244f3d43280bf7ad093af7da5226c132efda274c7395cff93cc`), and
+`.../pdp0-501-disposition-crosswalk.json` (SHA-256
+`82343cdb98eb123207a0e22f8c3daa3c353cc4041ec2e0d769d4d2c7e0b34c12`).
+
+### PXD-220 — Bound PDP-0 taxonomy recommendations and future-version proposals
+
+**Authority:** The user delegated Media app-owner decisions for this task. This
+records a bounded owner disposition; it is not independent acceptance or a
+decision by Lifecycle, Tools, Kernel, or an external product owner.
+
+**A–Q taxonomy disposition:** Accept the primary and related cluster labels as
+an indexing classification for source-order rows 1–58 and 65–462 of the
+462-leaf PDP-0 capability population (456 rows). Defer classification of rows
+59–64—`media.profile.discover`, `media.profile.validate`,
+`media.capability.discover`, `media.capability.check-declared-options`,
+`media.capability.execution.compatibility`, and
+`media.health.readiness.inspect`—to a later governed PDP-0 cycle because their
+recommendations use a closest-fit cluster without a dedicated A–Q category.
+This does not change the six canonical capability meanings, add requirements,
+or adopt blueprint target scope. The 428-row original audit disposition in
+PXD-219 remains unchanged.
+
+**Current-version scope:** Keep the six PXD-207 definition-extension proposals
+`media.recipe.specification.compile`, `media.project.scene.patch-merge`,
+`media.quality.audio.content-similarity.assess`,
+`media.generate.video.preset.manage`, `media.generate.video.shot-condition`,
+and `media.job.schedule.manage` as future-version proposals, not current Media
+requirements. Preserve their source records and proposal acceptance cases;
+do not promote them into the current-version requirement denominator. Their
+previously defined meanings and applicability candidates remain available for
+a later governed PDP-0 cycle. This does not defer the separate
+`media.master.audio.creative-effect.apply` decision or alter the historical
+462-leaf owner-adjudication denominator.
+
+No Lifecycle obligation-deferral records are created: the exact Media
+ClosureSurface/obligation membership is not admitted, and gtool requires those
+exact identities for a valid deferral. The owner disposition therefore does
+not clear PDP-0 closure. The current candidate still has one aggregate surface,
+3,990 PDP-0 obligations without case IDs, zero executable PDP-0 L-02 links,
+and unresolved exact surface/case bindings. AP-02 contract-distribution and
+AP-03 tracked-source-snapshot admission also remain external Lifecycle
+prerequisites. No proof producer, observer, oracle, acceptance receipt,
+independent review, phase closure, or Delivery readiness is asserted.
+
+**Reviewed recommendation records:**
+`docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json`
+(SHA-256 `1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5`),
+`.../pdp0-aq-capability-review-155-308.json` (SHA-256
+`078e306341dc7ec44c41514bc9fb2550cf06ee16668e7fe5eda07ca14db4c723`), and
+`.../pdp0-aq-capability-review-309-462.json` (SHA-256
+`d3ed598b6e3b1c9e36e681585163432d5efa293a1a40774c51670af0e8543bb3`). These
+recommendations are classification inputs only and do not establish current
+PDP-0 completion, independent acceptance, or closure. The first and third
+records explicitly report a stale PDP-0 requirements pin.
+
+### PXD-221 — Defer the creative-effect extension from the current PDP-0 version
+
+**Authority:** The user delegated Media app-owner and approval decisions in
+this task. This is a bounded coordinator decision under that delegation; it is
+not independent acceptance or a decision by Lifecycle, Tools, Kernel, or an
+external product owner.
+
+**Decision:** Defer `media.master.audio.creative-effect.apply` to a later
+governed PDP-0 version alongside the six definition-extension proposals already
+deferred by PXD-220. Keep its source definition, PXD-207 trace, channel
+applicability proposal, and acceptance-case reference intact. Do not count this
+extension as a current-version requirement or capability leaf. The current
+version remains the 462 historically owner-adjudicated capability leaves; the
+source inventory continues to retain all 469 definitions, of which seven are
+future-version proposals.
+
+**Basis:** The PXD-218 quality-currentness record reviewed exactly the 462
+canonical capability leaves and explicitly excluded all seven definition
+extensions. Including the creative-effect extension in the current version
+would expand the quality applicability population beyond that reviewed source
+cut. Deferral keeps the current-version scope aligned with the reviewed 462-leaf
+baseline without changing any capability meaning, requirement, quality
+disposition, or source acceptance case. Reconsider the proposal only in a later
+governed PDP-0 cycle with its applicable quality and downstream reviews.
+
+**A–Q indexing correction:** On current-source review, remove related cluster P
+(`Render/publish/distribute`) from row 371, `media.compose.safe-area`, while
+retaining primary cluster D (`Professional editing`). Its current source
+meaning is local overlay placement and does not define rendered delivery. This
+supersedes PXD-220 only for that one related-cluster label; its other accepted
+indexing classifications and the six deferred rows 59–64 remain unchanged.
+The correction is recorded in the bounded current-source recheck for rows
+309–462; the original recommendation record remains historical input.
+
+PXD-220 remains the source decision for the other six deferred proposals; this
+decision supersedes only PXD-220's statement that the separate creative-effect
+decision is not deferred. It creates no Lifecycle obligation-deferral record
+and supplies no case-to-surface mapping, proof producer, observer, oracle,
+receipt, independent review, phase closure, implementation, or Delivery
+readiness. PDP-0 closure remains governed by the admitted gtool obligations and
+their required proofs.
+
+### PXD-222 — Refresh PDP-0 quality source currentness after PXD-221
+
+**Authority:** The user delegated Media app-owner and approver judgment for this
+bounded decision. This is a source-currentness refresh only; it does not create
+new semantic review, owner approval, independent acceptance, or an acceptance
+effect.
+
+**Decision:** Preserve PXD-216 as the semantic review authority and PXD-218 as
+the prior currentness record. Refresh the source pins to the current complete
+capabilities file and relevant PDP-0 product and decision inputs, including
+PXD-221 and this PXD-222 decision section. The PXD-218 quality cohort remains
+462 canonical capability leaves, six quality dimensions, 16 metrics, 2,772
+dimension dispositions, and 7,392 metric dispositions. All seven definition
+extensions remain excluded. The same three capability/quality/trust/goal joins
+remain in scope and unchanged. This refresh does not make a new semantic
+judgment about their meaning.
+
+**Boundary:** `NO_NEW_SEMANTIC_REVIEW`; measurement and qualification remain
+`NOT_EVALUATED`. No owner approval, independent acceptance, acceptance effect,
+implementation verification, phase closure, or release qualification is
+claimed. This currentness record does not assert PDP-0 `DEV_COMPLETE` or
+acceptance. The source fingerprints and preserved review references are in
+`docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json`.
+
+### PXD-223 — Reconcile PXD-216 currentness after the PXD-221 version deferral
+
+**Authority:** The user delegated Media app-owner and approver judgment for
+bounded Media source-currentness decisions. This decision refreshes source
+currentness only and does not create semantic approval, owner acceptance,
+independent acceptance, or an acceptance effect.
+
+**Decision:** Preserve PXD-216 as the semantic review authority for its exact
+20 capability IDs and preserve its original source pins as historical evidence.
+The current `capabilities.yaml` file has a different full-file digest after the
+PXD-221 future-version deferral, so a source-slice comparison records the
+currentness of those same 20 reviewed records against the live file. The exact
+20-record projection is identical after canonical YAML parsing and JSON
+serialization. The seven PXD-221 proposal records retain their existing IDs and
+definitions but change scope status from `TARGET` to `DEFERRED`; they remain
+outside the current 462-leaf denominator.
+PXD-221 remains the authority for that version disposition.
+
+Refresh the PXD-0 source-currentness consumers that depend on the changed
+capabilities and campaign-extension bytes, including the 501-row disposition
+crosswalk and its generated A–Q traceability projection. Preserve their row
+IDs, source wording, dispositions, joins, recommendation semantics, and
+non-acceptance boundaries. The successor reconciliation is
+`docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json`.
+
+**Boundary:** `PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW`.
+No owner approval, independent acceptance, implementation verification,
+runtime admission, qualification, phase closure, or Delivery readiness is
+claimed. This currentness reconciliation does not assert PDP-0 `DEV_COMPLETE`.
+
+### PXD-224 — Adopt the first narrated PDP-3 Explorer demonstration edition
+
+**Authority:** The user delegated Media app-owner and approval decisions for
+this task and approved the requested changes. This is a bounded Media source
+decision; it is not an independent review or a decision by Kernel, Tools,
+Lifecycle, or another product owner.
+
+**Decision:** Adopt `media.pdp3.demo-recording.v1` as a versioned, Media-local
+PDP-3 completion criterion. For the first edition, require one actual narrated
+Experience Explorer capture of the source-owned J-03 corrected-captions
+scenario, including its J-01/J-02/J-20 support beats. The seven scene IDs,
+source contract, centrally mocked fixtures, captions, capture timeline,
+simulation disclosure and file digests are bound in
+`.product-experience/pdp-3-product-experience/demo-recording-standard.yaml`
+and its referenced evidence bundle. Record that criterion as P3-11 in the
+native Media PDP-3 development status; retain the existing 54-surface
+denominator.
+
+The J-03 Explorer recording is evidence of the intended simulated experience
+only. It is not implementation, a real business receipt, owner acceptance,
+independent acceptance, Build recording, semantic equivalence, Lifecycle
+closure, film approval, or release qualification. The Build twin remains
+`NOT_RECORDED`; semantic equivalence remains `NOT_VERIFIED`.
+
+**Version scope and deferrals:** Defer standalone narrated recordings and rich
+Explorer seeds for J-04–J-19 and J-21–J-30 to a later governed version. These
+journeys retain their existing source-linked definition oracles; their missing
+rich simulation seeds are not reclassified as N/A and do not expand this first
+edition's selected scenario. Defer general reusable recorder integration and
+external film approval as well. The captured bundle remains internal Discovery
+evidence; do not externally publish it without the applicable voice-rights,
+privacy, and quality reviews. These source scope deferrals do not create
+Lifecycle obligation-deferral records and do not waive any gtool prerequisite
+for phase closure.
+
+**Cross-repository boundary:** This adopts Media's source and evidence
+requirement for version 1. Kernel/Tools gate migration and Lifecycle gtool
+admission remain pending and must be reconciled through their own current source
+and proof producer contracts. This decision does not retrofit any other
+repository or assert gtool closure.
+
+**Evidence source review:** The capture contains seven ordered scenes; sampled
+frames show the actual Explorer projection and persistent simulated/no-live-
+operation disclosure. Video/audio metadata, WebVTT scene IDs/timing, and the
+bundle checksums are validated separately. The only source pin changed after
+capture was `.product-experience/pdp-0-product-truth/capabilities.yaml`:
+PXD-220/PXD-221 changed scope on seven future-version capability extensions
+from `TARGET` to `DEFERRED`. J-03's transcription, caption, journey and selected
+fixture definitions were unchanged. The recording manifest preserves the
+capture pins and records the current source revalidation; voice-license and
+external publication approval remain unreviewed.

@@ -49,15 +49,18 @@ test('PDP-0 joins, family scope, implementation handoffs, and A–Q recommendati
   assert.deepEqual(artifact.clusters, expected.clusters);
   assert.deepEqual(artifact.denominators, expected.denominators);
   assert.equal(artifact.clusters.length, expected.denominators.blueprintClusters);
-  assert.ok(artifact.clusters.every(cluster => cluster.mappingStatus === 'COORDINATOR_RECOMMENDATION_PENDING_OWNER_ACCEPTANCE'));
+  assert.ok(artifact.clusters.every(cluster => cluster.mappingStatus === 'ACCEPTED_AS_INDEXING_ONLY'
+    && cluster.decisionRef === '.product-experience/decision-log.md#PXD-219'));
   assert.equal(artifact.denominators.originalRowsWithClusterRecommendation,
-    artifact.rows.filter(row => row.clusterMembership.status === 'COORDINATOR_RECOMMENDATION_PENDING_OWNER_ACCEPTANCE').length);
+    artifact.rows.filter(row => row.clusterMembership.status === 'ACCEPTED_AS_INDEXING_ONLY').length);
   assert.equal(artifact.denominators.focusedRowsOutsideClusterTaxonomy,
     artifact.rows.filter(row => row.clusterMembership.status === 'EXPLICIT_OUTSIDE_ORIGINAL_AQ_AUDIT_SCOPE').length);
   assert.equal(artifact.denominators.canonicalCapabilityLeaves, artifact.capabilityMappings.length);
   assert.equal(artifact.denominators.proposalExtensionLeaves, artifact.definitionExtensions.length);
   assert.equal(artifact.denominators.capabilityLeavesWithClusterRecommendation + artifact.denominators.capabilityLeavesWithoutClusterRecommendation,
     artifact.capabilityMappings.length);
+  assert.equal(artifact.denominators.capabilityLeavesAcceptedAsIndexClassification, 456);
+  assert.equal(artifact.denominators.capabilityLeavesDeferredFromIndexClassification, 6);
   assert.equal(artifact.denominators.capabilityLeavesWithExactAuditClusterTrace + artifact.denominators.capabilityLeavesWithoutExactAuditClusterTrace,
     artifact.capabilityMappings.length);
   assert.equal(artifact.denominators.rowsWithCoordinatorProposalDefinitionJoin,
@@ -79,16 +82,43 @@ test('PDP-0 joins, family scope, implementation handoffs, and A–Q recommendati
   assert.ok(artifact.definitionExtensions.every(item => item.disposition === 'COORDINATOR_AUTHORED_PROPOSAL_PENDING_OWNER_REVIEW'
     && item.ownerApproval === 'NOT_CLAIMED' && item.independentAcceptance === 'NOT_CLAIMED'
     && item.admittedToHistoricalOwnerAdjudication === false && item.executionAdmission === 'NOT_ADMITTED'
+    && item.versionScopeDisposition === 'DEFERRED_TO_LATER_GOVERNED_PDP0_VERSION'
     && item.acceptanceCaseRefs.length > 0 && item.sourceAuditIds.length > 0 && item.sourceAuditRefs.length === item.sourceAuditIds.length));
+  assert.equal(artifact.definitionExtensions.filter(item => item.versionDecisionRef === '.product-experience/decision-log.md#PXD-220').length, 6);
+  assert.equal(artifact.definitionExtensions.filter(item => item.versionDecisionRef === '.product-experience/decision-log.md#PXD-221').length, 1);
   assert.deepEqual(artifact.capabilityMappings.map(item => item.sourceOrder1Based), Array.from({length: artifact.capabilityMappings.length}, (_, index) => index + 1));
   assert.equal(new Set(artifact.capabilityMappings.map(item => item.capabilityId)).size, artifact.capabilityMappings.length);
   assert.ok(artifact.capabilityMappings.every(item => item.capabilitySourceRef === `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${item.capabilityId}`));
   assert.ok(artifact.capabilityMappings.every(item => item.parentRequirementSourceRef === `.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=${item.parentRequirementId}`));
-  assert.ok(artifact.capabilityMappings.every(item => item.status === 'COORDINATOR_MAPPING_RECOMMENDATION_PENDING_OWNER_ACCEPTANCE' && item.ownerAcceptance === 'NOT_CLAIMED'));
+  assert.ok(artifact.capabilityMappings.every(item => item.ownerAcceptance === 'NOT_CLAIMED'
+    && item.capabilityMeaningOwnerApproval === 'NOT_CLAIMED'));
+  assert.ok(artifact.capabilityMappings.filter(item => item.sourceOrder1Based <= 58 || item.sourceOrder1Based >= 65)
+    .every(item => item.classificationDisposition.startsWith('ACCEPTED_') && item.classificationDecisionRef));
+  assert.deepEqual(artifact.capabilityMappings.filter(item => item.classificationDisposition === 'DEFERRED_TO_LATER_GOVERNED_PDP0_CYCLE')
+    .map(item => [item.sourceOrder1Based, item.capabilityId]), [
+    [59, 'media.profile.discover'],
+    [60, 'media.profile.validate'],
+    [61, 'media.capability.discover'],
+    [62, 'media.capability.check-declared-options'],
+    [63, 'media.capability.execution.compatibility'],
+    [64, 'media.health.readiness.inspect'],
+  ]);
+  const safeArea = artifact.capabilityMappings.find(item => item.sourceOrder1Based === 371);
+  assert.equal(safeArea.capabilityId, 'media.compose.safe-area');
+  assert.equal(safeArea.primaryCluster, 'D');
+  assert.deepEqual(safeArea.relatedClusters, []);
+  assert.deepEqual(safeArea.sourceRecommendedRelatedClusters, ['P']);
+  assert.deepEqual(safeArea.removedRelatedClusterIds, ['P']);
+  assert.equal(safeArea.classificationDecisionRef, '.product-experience/decision-log.md#PXD-221');
+  for (const decisionId of ['PXD-219', 'PXD-220', 'PXD-221']) {
+    assert.ok(artifact.sourceBaseline.decisionSections[`.product-experience/decision-log.md#${decisionId}-section`]);
+  }
   assert.ok(artifact.capabilityMappings.filter(item => !item.auditIds.length).every(item => item.auditTraceStatus === 'NO_EXACT_AUDIT_CAPABILITY_REFERENCE'));
   assert.ok(artifact.clusters.every(cluster => cluster.recommendedCapabilityIds.length > 0));
   assert.ok(artifact.rows.filter(row => row.sourcePartition === 'originalAudit').every(row =>
-    row.clusterMembership.primaryCluster && row.clusterMembership.rationale && row.clusterMembership.ownerAcceptance === 'NOT_CLAIMED'));
+    row.clusterMembership.status === 'ACCEPTED_AS_INDEXING_ONLY'
+      && row.clusterMembership.decisionRef === '.product-experience/decision-log.md#PXD-219'
+      && row.clusterMembership.primaryCluster && row.clusterMembership.rationale && row.clusterMembership.ownerAcceptance === 'NOT_CLAIMED'));
   assert.ok(artifact.rows.filter(row => row.sourcePartition === 'focusedAudit').every(row =>
     row.clusterMembership.status === 'EXPLICIT_OUTSIDE_ORIGINAL_AQ_AUDIT_SCOPE'
       && /excludes it only from that original cluster taxonomy/u.test(row.clusterMembership.rationale)
@@ -165,8 +195,10 @@ test('traceability validator verifies source pins and source disposition ledger'
   assert.equal(result.stats.blockedRows, 0);
   assert.equal(result.stats.unresolvedExactJoinRows, 0);
   const expected = buildPdp0AuditAqTraceability();
-  assert.equal(result.stats.clusterMappingsPendingOwnerAcceptance, expected.clusters.length);
+  assert.equal(result.stats.clusterMappingsAcceptedIndexingOnly, expected.clusters.length);
   assert.equal(result.stats.capabilityLeaves, expected.capabilityMappings.length);
+  assert.equal(result.stats.capabilityLeavesAcceptedAsIndexClassification, 456);
+  assert.equal(result.stats.capabilityLeavesDeferredFromIndexClassification, 6);
   assert.equal(result.stats.proposalExtensionLeaves, expected.definitionExtensions.length);
   assert.equal(result.stats.dispositionCrosswalkValid, true);
   const modified = buildPdp0AuditAqTraceability();

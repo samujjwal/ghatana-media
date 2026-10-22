@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "media.pdp0.aq-capability-current-source-review.v1",
+  "review": {
+    "reviewType": "AI-assisted read-only semantic recheck",
+    "campaignScope": "Recheck existing PDP-0 A-Q capability mapping recommendations for source-order rows 1-154 against current Media capability definitions and Blueprint V3 section 2.",
+    "phase": "PDP-0 Product Truth",
+    "macroStage": "DISCOVERY",
+    "repository": "ghatana-media",
+    "branch": "main",
+    "headAtReview": "b3f11733d2b997c12f0438d95b5330d1516c4f1d",
+    "sourceOrderRange": {
+      "startIndex": 1,
+      "endIndex": 154,
+      "count": 154,
+      "indexing": "1-based YAML list order"
+    },
+    "readOnly": true,
+    "phaseReadinessRerun": false,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentReview": "NOT_CLAIMED",
+    "limitations": "This is an AI-assisted semantic recheck of existing recommendations. It does not establish owner acceptance, independent review, PDP source currentness, native closure, or implementation status.",
+    "currentnessRefresh": {
+      "refreshKind": "CURRENT_SOURCE_FINGERPRINT_ONLY",
+      "refreshDate": "2026-10-21",
+      "priorCapabilitySourceSha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+      "currentCapabilitySourceSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "currentRequirementsSourceSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "currentBlueprintV3Sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947",
+      "recommendationFileSha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5",
+      "sliceEvidence": {
+        "sourceOrderRange": {
+          "startIndex": 1,
+          "endIndex": 154,
+          "count": 154,
+          "indexing": "1-based YAML list order"
+        },
+        "liveCapabilityCount": 469,
+        "historicalCanonicalRowsComparedToPriorSource": 462,
+        "historicalCanonicalRowsUnchanged": true,
+        "sliceCapabilityIdsAndOrderMatch": true,
+        "sliceParentRequirementIdsResolveAndMatch": true,
+        "semanticFindingsPreserved": {
+          "supported": 148,
+          "ambiguous": 6,
+          "mismatched": 0
+        }
+      },
+      "decisionBoundary": "The capability-source delta is confined to definition-extension rows 463-469; exact parsed records 1-462 are unchanged from the prior source. This refresh updates current-source pins and provenance only. It does not alter recommendation rows, findings, meanings, taxonomy assignments, acceptance, or closure claims."
+    }
+  },
+  "materialInputs": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+      "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "liveCapabilityCount": 469,
+      "previouslyReviewedSha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+    },
+    ".product-experience/pdp-0-product-truth/requirements.yaml": {
+      "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+    },
+    "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": {
+      "section": "§2 Capability completeness ledger",
+      "sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+    },
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json": {
+      "sha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5",
+      "recordedCapabilityFingerprintIsCurrent": false,
+      "recordedRequirementsFingerprintIsCurrent": false
+    }
+  },
+  "structuralResults": {
+    "recommendationEntryCount": 154,
+    "sourceOrderIndexesAreExactly1Through154": true,
+    "allRecommendationCapabilityIdsUnique": true,
+    "duplicateCapabilityIds": [],
+    "allCapabilityIdsMatchLiveSourceAtRecordedOrder": true,
+    "missingParentRequirementIds": [],
+    "capabilityParentRequirementLinkMismatches": [],
+    "result": "PASS"
+  },
+  "semanticDisposition": {
+    "supportedRecommendationCount": 148,
+    "ambiguousRecommendationCount": 6,
+    "mismatchedRecommendationCount": 0,
+    "ambiguousCapabilityIds": [
+      "media.profile.discover",
+      "media.profile.validate",
+      "media.capability.discover",
+      "media.capability.check-declared-options",
+      "media.capability.execution.compatibility",
+      "media.health.readiness.inspect"
+    ],
+    "mismatchedCapabilityIds": [],
+    "changedOutcomeRowsSinceRecommendationBaseline": [
+      {
+        "sourceOrderIndex": 5,
+        "capabilityId": "media.project.organize",
+        "recheckedPrimaryClusterId": "C"
+      },
+      {
+        "sourceOrderIndex": 20,
+        "capabilityId": "media.artifact.import",
+        "recheckedPrimaryClusterId": "A"
+      },
+      {
+        "sourceOrderIndex": 22,
+        "capabilityId": "media.artifact.search",
+        "recheckedPrimaryClusterId": "C"
+      },
+      {
+        "sourceOrderIndex": 25,
+        "capabilityId": "media.artifact.derive",
+        "recheckedPrimaryClusterId": "C"
+      },
+      {
+        "sourceOrderIndex": 112,
+        "capabilityId": "media.multimodal.describe",
+        "recheckedPrimaryClusterId": "L"
+      },
+      {
+        "sourceOrderIndex": 113,
+        "capabilityId": "media.multimodal.summarize",
+        "recheckedPrimaryClusterId": "L"
+      },
+      {
+        "sourceOrderIndex": 126,
+        "capabilityId": "media.audio.analysis.detect.beat-onset",
+        "recheckedPrimaryClusterId": "I"
+      }
+    ],
+    "changedOutcomeRowDisposition": "The current meanings remain consistent with the existing primary cluster and related-cluster recommendations."
+  },
+  "sourceCurrentnessCaveat": "Current-source review fingerprints are refreshed for the live capability, requirement, Blueprint V3, and recommendation files listed above. The recommendation record itself retains its older declared capability and requirements baseline, as reflected by recordedCapabilityFingerprintIsCurrent=false and recordedRequirementsFingerprintIsCurrent=false; this provenance refresh does not rewrite or upgrade that recommendation record. The recheck remains limited to rows 1-154 and makes no owner-acceptance, independent-acceptance, implementation, qualification, or closure claim."
+}

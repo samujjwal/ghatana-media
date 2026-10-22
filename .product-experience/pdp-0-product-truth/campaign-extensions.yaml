@@ -11,7 +11,45 @@ currentDefinitionPopulation:
   currentCapabilityDefinitions: 469
   definitionExtensionCapabilityLeaves: 7
   ownerAdjudications: 462
-  extensionDisposition: SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_WITH_DELEGATED_PDP0_APPLICABILITY_DECISIONS; ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED
+  extensionDisposition: SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED
+  versionDisposition:
+    decisionRefs:
+      - .product-experience/decision-log.md#PXD-220
+      - .product-experience/decision-log.md#PXD-221
+    historicalCanonicalCapabilityLeaves: 462
+    currentVersionCapabilityLeaves: 462
+    futureVersionProposalCapabilityLeaves: 7
+    totalSourceCapabilityDefinitions: 469
+    currentVersionExtensionCapabilityIds: []
+    futureVersionProposals:
+      - capabilityId: media.recipe.specification.compile
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.project.scene.patch-merge
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.quality.audio.content-similarity.assess
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.generate.video.preset.manage
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.generate.video.shot-condition
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.job.schedule.manage
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.master.audio.creative-effect.apply
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-221
   ownerApproval: NOT_CLAIMED
   independentAcceptance: NOT_CLAIMED
   records:

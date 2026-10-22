@@ -108,7 +108,7 @@ This document is one **non-normative implementation-planning bridge**. The sole 
 
 ## Current source reconciliation — October 18, 2026
 
-The source-owned successor in progress is tracked in [the unified PDP-0–3 reconciliation](MEDIA-UNIFIED-PDP0-3-CURRENT-SOURCE-RECONCILIATION-2026-10-18.md). It integrates both October 17 user-supplied blueprints, the 428+73 feature audit taxonomy, 32 GharBatai DX tasks, and the canonical 61 declarative acceptance specializations in PDP-0, with typed PDP-1, interface PDP-2 and experience PDP-3 projections. The planning handoff remains informative: old phase DEV_COMPLETE assertions apply only to their recorded historical source cuts; native source-current successor acceptance is unproven.
+At the time this October 17 plan was written, a source-owned successor was in progress and was linked through the October 18 reconciliation index. That index is now an archived redirect to the canonical PDP source/status index and current implementation index. The historical source analysis remains useful context; its 428+73 audit taxonomy, 32 GharBatai DX tasks and 61 PDP-0 specializations are not current execution authority, PDP status or native closure evidence.
 
 ## Exact October 18 source preservation and controlling worklist
 

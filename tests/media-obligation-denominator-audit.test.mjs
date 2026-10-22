@@ -74,9 +74,11 @@ test('refreshes the nine operation-source fingerprints only after their semantic
   assert.equal(createHash('sha256').update(historicalOperationText).digest('hex'), reviewedOperationDigest,
     'PXD-094 remains tied to its exact historical operation bytes');
   const directCriteria = readJson('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json');
-  const currentP001 = directCriteria.records.find(({ taskId }) => taskId === 'P0-01')?.currentCorrectiveReview;
+  const p001Record = directCriteria.records.find(({ taskId }) => taskId === 'P0-01');
+  const currentP001 = p001Record?.currentSourceReview;
   assert.equal(currentP001?.status, 'APPROVED_CURRENT_SOURCE_REVIEW');
-  assert.equal(currentP001?.decisionRef, '.product-experience/decision-log.md#PXD-171');
+  assert.equal(currentP001?.decisionRef, '.product-experience/decision-log.md#PXD-223');
+  assert.equal(p001Record?.currentCorrectiveReview?.decisionRef, '.product-experience/decision-log.md#PXD-216');
   const historicalP106 = directCriteria.records.find(({ taskId }) => taskId === 'P0-01')
     ?.historicalCorrectiveReviews.find(({ decisionRef }) => decisionRef === '.product-experience/decision-log.md#PXD-106');
   assert.equal(historicalP106?.status, 'APPROVED_CURRENT_CORRECTION');
@@ -241,7 +243,11 @@ test('PXD-032 adds only the required source-proposal obligation for the progress
   const item = obligations.find(({ id }) => id === 'media.pdp-2.requirement.media.component.progress-indicator');
   assert.ok(item);
   assert.equal(item.disposition, 'REQUIRED');
-  assert.deepEqual(item.phaseSemantics, { applicableIn: ['PDP-2'], blockingIn: ['PDP-2'], affects: ['PDP-2'] });
+  assert.deepEqual(item.phaseSemantics, {
+    applicableIn: ['media.design-interface-system.definition-acceptance'],
+    blockingIn: ['media.design-interface-system.definition-acceptance'],
+    affects: ['media.design-interface-system.definition-acceptance'],
+  });
   assert.deepEqual(item.caseIds, ['media.definition-case.component-binding.progress-indicator']);
   assert.deepEqual(item.observerIds, []);
   assert.deepEqual(item.oracleIds, []);
@@ -262,7 +268,7 @@ test('PXD-032 adds only the required source-proposal obligation for the progress
 
 test('flags duplicate IDs, phase contradictions, and duplicate or missing selected membership', () => {
   const data = input();
-  data.obligations[0].phaseSemantics.applicableIn = ['PDP-1'];
+  data.obligations[0].phaseSemantics.applicableIn = ['media.canonical-domain-data.definition-acceptance'];
   data.obligations[1].id = data.obligations[0].id;
   data.program.phases[0].obligationIds.pop();
   data.program.phases[0].obligationIds.push(data.obligations[0].id, data.obligations[0].id);

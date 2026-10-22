@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { fingerprint, fingerprintPxdDecisionSection, projectPdp0SourceManifest } from "../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs";
-import { PDP0_CAPTION_IMPORT_SELECTOR, PDP0_PXD212_CAPTION_REVIEW_PATH, PDP0_PXD213_CAPTION_REVIEW_PATH, PDP0_PXD213_QUALITY_REVIEW_PATH, PDP0_PXD216_MEANING_REVIEW_PATH, PDP0_PXD216_RECONCILIATION_PATH, PDP0_PXD218_QUALITY_REVIEW_PATH, validatePdp0Pxd212Currentness, validatePdp0Pxd213Currentness, validatePdp0Pxd218Currentness } from "../scripts/lib/pdp0-feature-review-applicability.mjs";
+import { PDP0_CAPTION_IMPORT_SELECTOR, PDP0_PXD212_CAPTION_REVIEW_PATH, PDP0_PXD213_CAPTION_REVIEW_PATH, PDP0_PXD213_QUALITY_REVIEW_PATH, PDP0_PXD216_MEANING_REVIEW_PATH, PDP0_PXD216_RECONCILIATION_PATH, PDP0_PXD218_QUALITY_REVIEW_PATH, PDP0_PXD222_QUALITY_REVIEW_PATH, PDP0_PXD223_RECONCILIATION_PATH, validatePdp0Pxd212Currentness, validatePdp0Pxd213Currentness, validatePdp0Pxd222Currentness } from "../scripts/lib/pdp0-feature-review-applicability.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
@@ -189,24 +189,27 @@ function livePxd213Fixture() {
   return input;
 }
 
-function livePxd218Fixture() {
+function livePxd222Fixture() {
   const input = livePxd213Fixture();
-  input.latestQualityReview = JSON.parse(readText(PDP0_PXD218_QUALITY_REVIEW_PATH));
-  for (const path of [PDP0_PXD213_QUALITY_REVIEW_PATH, PDP0_PXD216_MEANING_REVIEW_PATH, PDP0_PXD216_RECONCILIATION_PATH]) {
+  input.latestQualityReview = JSON.parse(readText(PDP0_PXD222_QUALITY_REVIEW_PATH));
+  for (const path of [PDP0_PXD213_QUALITY_REVIEW_PATH, PDP0_PXD216_MEANING_REVIEW_PATH, PDP0_PXD216_RECONCILIATION_PATH, PDP0_PXD218_QUALITY_REVIEW_PATH, PDP0_PXD223_RECONCILIATION_PATH]) {
     input.sourceTexts[path] = readText(path);
   }
   return input;
 }
 
-test("PXD-213 remains immutable history while PXD-218 is the live currentness authority", () => {
+test("PXD-218 remains immutable history while PXD-222 is the live currentness authority", () => {
   const input = livePxd213Fixture();
   const pxd213 = JSON.parse(readText(PDP0_PXD213_QUALITY_REVIEW_PATH));
   const pxd218 = JSON.parse(readText(PDP0_PXD218_QUALITY_REVIEW_PATH));
+  const pxd222 = JSON.parse(readText(PDP0_PXD222_QUALITY_REVIEW_PATH));
   assert.equal(pxd213.latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-213");
   assert.equal(pxd213.latestCurrentnessRefresh.sourceFingerprints["docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"], "9ad931cee5ff073f3d8129238548f0711d66a44185d78f5a209e35f5b301772d");
-  assert.equal(input.qualityHistoryReview.latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-218");
   assert.equal(pxd218.latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-218");
-  assert.equal(fingerprint(input.qualityHistoryReview.latestCurrentnessRefresh), fingerprint(pxd218.latestCurrentnessRefresh));
+  assert.equal(pxd218.latestCurrentnessRefresh.sourceFingerprints[".product-experience/pdp-0-product-truth/capabilities.yaml"], "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26");
+  assert.equal(input.qualityHistoryReview.latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-222");
+  assert.equal(pxd222.latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-222");
+  assert.equal(fingerprint(input.qualityHistoryReview.latestCurrentnessRefresh), fingerprint(pxd222.latestCurrentnessRefresh));
   assert.equal(JSON.parse(readText("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json")).latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-212");
   assert.equal(JSON.parse(readText(PDP0_PXD212_CAPTION_REVIEW_PATH)).decisionRef, ".product-experience/decision-log.md#PXD-212");
 });
@@ -259,22 +262,67 @@ test("PXD-213 rejects stale successor pins, missing joins, and caption dispositi
   assert.equal(validatePdp0Pxd213Currentness(changedCaption).valid, false);
 });
 
-test("PXD-218 revalidates the exact PXD-216 source closure and rejects nested stale pins", () => {
-  const input = livePxd218Fixture();
-  const result = validatePdp0Pxd218Currentness(input);
-  assert.deepEqual(result.errors, []);
+test("PXD-222 refreshes only currentness and preserves the exact PXD-216 quality closure", () => {
+  const input = livePxd222Fixture();
+  const result = validatePdp0Pxd222Currentness(input);
+  assert.equal(result.errors.some(error => error.includes("PXD-213 caption source pins must")), false,
+    "PXD-213's historical capability file pin is accepted only through the PXD-223 scope-status-only proof");
+  const importedCaptionTrack = input.sourceDocuments[".product-experience/pdp-0-product-truth/capabilities.yaml"].capabilities
+    .find(({ id }) => id === "media.artifact.import").ownerDefinition.successOutputs[0].optionalSemanticObservations
+    .find(({ id }) => id === "importedCaptionTrack");
+  assert.equal(input.captionReview.reviewedField.currentSha256, sha256(JSON.stringify(importedCaptionTrack)),
+    "the exact importedCaptionTrack selector is independently current against the live capability document");
+  assert.deepEqual(result.errors, [], "PXD-222 currentness evidence binds the exact live PDP-0 input set");
   assert.equal(result.valid, true);
-  assert.equal(Object.keys(result.expectedPins).length, 18);
+  assert.equal(Object.keys(result.expectedPins).length, 25);
+  assert.equal(result.expectedPins[PDP0_PXD223_RECONCILIATION_PATH],
+    sha256(input.sourceTexts[PDP0_PXD223_RECONCILIATION_PATH]));
+  for (const decisionId of ["PXD-219", "PXD-220", "PXD-223"]) {
+    const pin = `.product-experience/decision-log.md#${decisionId}-section`;
+    assert.equal(result.expectedPins[pin], fingerprintPxdDecisionSection(input.decisionLogText, decisionId).sha256);
+  }
   assert.equal(input.qualityHistoryReview.latestCurrentnessRefresh.semanticReview,
     "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW");
+  assert.equal(input.latestQualityReview.latestCurrentnessRefresh.currentSourceSha256,
+    sha256(input.sourceTexts[".product-experience/pdp-0-product-truth/capabilities.yaml"]));
+  assert.equal(input.latestQualityReview.latestCurrentnessRefresh.reviewedPopulation.canonicalCapabilityRows, 462);
+  assert.equal(input.latestQualityReview.latestCurrentnessRefresh.reviewedPopulation.definitionExtensionsExcluded, 7);
+  assert.equal(input.latestQualityReview.latestCurrentnessRefresh.ownerApproval, "NOT_CLAIMED");
+  assert.equal(input.latestQualityReview.latestCurrentnessRefresh.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(input.latestQualityReview.latestCurrentnessRefresh.acceptanceEffect, "none");
+  assert.equal(input.latestQualityReview.latestCurrentnessRefresh.preservedSemanticReviewRef,
+    ".product-experience/decision-log.md#PXD-216");
+  assert.ok(result.expectedPins[PDP0_PXD218_QUALITY_REVIEW_PATH], "the PXD-218 historical currentness artifact remains pinned");
 
-  const stale = livePxd218Fixture();
+  const changedMeaning = livePxd222Fixture();
+  changedMeaning.sourceDocuments[".product-experience/pdp-0-product-truth/capabilities.yaml"].capabilities
+    .find(({ id }) => id === "media.artifact.import").ownerDefinition.successOutputs[0].optionalSemanticObservations
+    .find(({ id }) => id === "importedCaptionTrack").label = "Changed caption semantics";
+  assert.ok(validatePdp0Pxd222Currentness(changedMeaning).errors.some(error =>
+    error.includes("PXD-213 caption successor must bind the live importedCaptionTrack selector")),
+  "a change to the live selector fails even though PXD-213 remains immutable history");
+
+  const changedPxd223 = livePxd222Fixture();
+  const reconciliation = JSON.parse(changedPxd223.sourceTexts[PDP0_PXD223_RECONCILIATION_PATH]);
+  reconciliation.currentSource.populationDelta.changedRows[0].field = "description";
+  changedPxd223.sourceTexts[PDP0_PXD223_RECONCILIATION_PATH] = JSON.stringify(reconciliation);
+  assert.ok(validatePdp0Pxd222Currentness(changedPxd223).errors.some(error =>
+    error.includes("PXD-222 PXD-223 reconciliation must prove exactly seven")),
+  "the historical capability digest exception requires exactly the seven documented scopeStatus-only changes");
+
+  const stale = livePxd222Fixture();
   stale.qualityHistoryReview.latestCurrentnessRefresh.sourceFingerprints[
     "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
   ] = "9ad931cee5ff073f3d8129238548f0711d66a44185d78f5a209e35f5b301772d";
   stale.latestQualityReview.latestCurrentnessRefresh.sourceFingerprints[
     "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
   ] = "9ad931cee5ff073f3d8129238548f0711d66a44185d78f5a209e35f5b301772d";
-  assert.equal(validatePdp0Pxd218Currentness(stale).valid, false,
+  assert.equal(validatePdp0Pxd222Currentness(stale).valid, false,
     "a stale nested crosswalk pin must fail even when its containing review records are otherwise current");
+
+  const staleHistory = livePxd222Fixture();
+  staleHistory.latestQualityReview.latestCurrentnessRefresh.sourceFingerprints[PDP0_PXD218_QUALITY_REVIEW_PATH] = "0".repeat(64);
+  staleHistory.qualityHistoryReview.latestCurrentnessRefresh.sourceFingerprints[PDP0_PXD218_QUALITY_REVIEW_PATH] = "0".repeat(64);
+  assert.equal(validatePdp0Pxd222Currentness(staleHistory).valid, false,
+    "PXD-222 must pin the immutable PXD-218 predecessor artifact");
 });

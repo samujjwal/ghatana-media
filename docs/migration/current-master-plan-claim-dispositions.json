@@ -373,10 +373,17 @@
       "classification": "clarified",
       "reason": "This exact changed semantic text is routed to the current owner for the applicable PDP phase; the disposition records source meaning only and does not claim owner review or acceptance.",
       "ownerRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "ownerValueSha256": "facdb81ba11e2484ee6923b3dd3a9f910ce651ee20b6e3bed62c3db7db57ce15",
+      "ownerValueSha256": "7311582327f6c06b0e7848bfb90507bf0995f6a9217fb5c3769dded187a9b1b5",
       "ownerRole": "current semantic/execution owner for clarified residual",
       "validationRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "acceptanceEffect": "none"
+      "acceptanceEffect": "none",
+      "semanticEvidence": {
+        "method": "current owner value source hash refreshed; this records current-source evidence only and does not claim semantic review or acceptance",
+        "currentOwner": {
+          "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "sha256": "7311582327f6c06b0e7848bfb90507bf0995f6a9217fb5c3769dded187a9b1b5"
+        }
+      }
     },
     {
       "residualId": "MSR-021-RESIDUAL-01",

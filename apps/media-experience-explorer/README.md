@@ -9,16 +9,16 @@ commands against the same fixture state and reducer. It is not the generic
 connect to the Media runtime, Shared identity, a project service, or a processing
 provider.
 
-## Two-pass demo recording — planned PDP-3 adoption
+## Two-pass demo recording — Media v1 adopted; cross-repository admission pending
 
 The target PDP-3 standard is to **record the actual frontend-only Explorer scenario with audible narration and synchronized captions using the deterministic, centrally mocked data**, then reuse the **same source-owned scenario, semantic beat IDs and narrative intent** in BUILD to record the real product's business flow. These are **two separate recordings**, with independent source/capture hashes, evidence, review and truth labels:
 
 - `EXPLORER_SIMULATED`: record this app's real Product/Explore or headless view while its central synthetic fixtures run. Show a visible simulation disclosure and never claim login, upload, model execution, saved artifacts or real provider effects.
 - `PRODUCT_EXECUTED`: later capture an actual authorized product host, verified state transitions and owner effect/terminal readbacks. Narration may describe a completed result only once actually observed; never reuse mock finality as business evidence.
 
-The shared scenario belongs to the product's source-current PDP-0 through PDP-3 definitions; the generic recorder mechanics reuse the existing Gharbatai product-neutral recorder where qualified. PDP-3's **new proposed completion gate includes the actual Explorer video, voice track, captions and source-bound film manifest**, not just fixtures or a storyboarding proposal. BUILD's actual film and semantic parity report are separate evidence.
+The Media v1 edition adopts one source-owned J-03 scenario with an actual narrated Explorer capture as criterion P3-11. The Media PDP-3 source standard and decision are in `demo-recording-standard.yaml` and PXD-224. The generic Ghatana/Kernel/Tools/Lifecycle gate and impact review remain pending in those repositories; this Media decision does not retrofit other products or phases. The Build film and semantic equivalence report remain separate evidence.
 
-**Current status:** this is an implementation target, **not a recording that already exists**. This Explorer currently has richer seeded experience coverage for J-01/J-02/J-03/J-20, not verified narrated films across all 30 journeys. Do not treat source-only mock video as real runtime behavior or claim the stronger PDP-3 rule has been adopted retroactively.
+**Current evidence (2026-10-21):** the J-03 `EXPLORER_SIMULATED` r2 recording exists at [`recording-manifest.json`](../../docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json), with seven narrated scenes, synchronized captions and a checksum manifest. It demonstrates deterministic simulated state only. Media source/content-truth review is recorded; voice rights, external publication, formal privacy certification and general film approval are not claimed. It does not establish implementation, Build behavior or PDP closure. The r1 bundle is retained as superseded provenance. The real-product Build recording is `NOT_RECORDED` and semantic equivalence is `NOT_VERIFIED`. The 26 unseeded journeys are explicitly deferred to later Media editions, not classified N/A.
 
 See the [single canonical plan](../../docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5b-two-pass-pdp-3-explorer--build-product-recording-standard) and [first paired scenario recording profile](../../docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json).
 
@@ -82,6 +82,13 @@ relation authority, and verification status. Lifecycle-generated fingerprints
 and currentness remain explicitly pending until their owner binding is available.
 These previews make the source contracts inspectable without implementing their
 views or closing PDP-2 or PDP-3 acceptance.
+
+The three CLI registries have distinct roles: `cli-command-registry.yaml` is the
+authored product command proposal; `cli/command-registry.yaml` describes the
+11-command synthetic Explorer simulator; and
+`cli/production-command-registry.yaml` describes the separately configured,
+read-only production-host query. Similar command names are intentional
+crosswalks between those roles, not interchangeable execution authorities.
 
 The Tools Review tab (`#tools-review`) loads the Media package binding and the
 actual indexed Product Truth, domain, presentation, screen, journey, action, and

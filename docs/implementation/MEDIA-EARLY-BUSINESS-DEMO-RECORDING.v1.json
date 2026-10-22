@@ -2,7 +2,7 @@
   "schemaVersion": "media.build-early-business-demo-recording.v1",
   "productId": "media",
   "purpose": "PLAN_ONLY_PDP3_EXPLORER_SIMULATED_PLUS_BUILD_REAL_TWIN_RECORDING",
-  "status": "PLANNED_BOTH_RECORDINGS_NOT_CAPTURED_UNVERIFIED",
+  "status": "EXPLORER_CAPTURED_AND_CONTENT_REVIEWED_BUILD_NOT_RECORDED_EQUIVALENCE_NOT_VERIFIED",
   "planAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5a-early-pdp-source-derived-recording-of-the-first-complete-business-outcome",
   "sourceTruth": {
     "rule": "All product outcomes, operations, guards, UI semantics, journeys, scenario steps and media recording requirements come from current source-pinned PDP-0 to PDP-3; this file is a replaceable Build execution projection and editorial overlay, never a normative duplicate.",
@@ -164,8 +164,10 @@
           "captionsNotYetGenerated": true,
           "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
         },
-        "pdp3CaptureStatus": "NOT_RECORDED",
-        "buildCaptureStatus": "NOT_RECORDED"
+        "pdp3CaptureStatus": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
+        "buildCaptureStatus": "NOT_RECORDED",
+        "captureTruthLabel": "EXPLORER_SIMULATED",
+        "requiredProofDisposition": "NOT_ASSERTED_BY_THIS_EXPLORER_CAPTURE"
       },
       {
         "id": "s02",
@@ -184,8 +186,10 @@
           "captionsNotYetGenerated": true,
           "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
         },
-        "pdp3CaptureStatus": "NOT_RECORDED",
-        "buildCaptureStatus": "NOT_RECORDED"
+        "pdp3CaptureStatus": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
+        "buildCaptureStatus": "NOT_RECORDED",
+        "captureTruthLabel": "EXPLORER_SIMULATED",
+        "requiredProofDisposition": "NOT_ASSERTED_BY_THIS_EXPLORER_CAPTURE"
       },
       {
         "id": "s03",
@@ -204,8 +208,10 @@
           "captionsNotYetGenerated": true,
           "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
         },
-        "pdp3CaptureStatus": "NOT_RECORDED",
-        "buildCaptureStatus": "NOT_RECORDED"
+        "pdp3CaptureStatus": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
+        "buildCaptureStatus": "NOT_RECORDED",
+        "captureTruthLabel": "EXPLORER_SIMULATED",
+        "requiredProofDisposition": "NOT_ASSERTED_BY_THIS_EXPLORER_CAPTURE"
       },
       {
         "id": "s04",
@@ -225,8 +231,10 @@
           "captionsNotYetGenerated": true,
           "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
         },
-        "pdp3CaptureStatus": "NOT_RECORDED",
-        "buildCaptureStatus": "NOT_RECORDED"
+        "pdp3CaptureStatus": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
+        "buildCaptureStatus": "NOT_RECORDED",
+        "captureTruthLabel": "EXPLORER_SIMULATED",
+        "requiredProofDisposition": "NOT_ASSERTED_BY_THIS_EXPLORER_CAPTURE"
       },
       {
         "id": "s05",
@@ -245,8 +253,10 @@
           "captionsNotYetGenerated": true,
           "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
         },
-        "pdp3CaptureStatus": "NOT_RECORDED",
-        "buildCaptureStatus": "NOT_RECORDED"
+        "pdp3CaptureStatus": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
+        "buildCaptureStatus": "NOT_RECORDED",
+        "captureTruthLabel": "EXPLORER_SIMULATED",
+        "requiredProofDisposition": "NOT_ASSERTED_BY_THIS_EXPLORER_CAPTURE"
       },
       {
         "id": "s06",
@@ -265,8 +275,10 @@
           "captionsNotYetGenerated": true,
           "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
         },
-        "pdp3CaptureStatus": "NOT_RECORDED",
-        "buildCaptureStatus": "NOT_RECORDED"
+        "pdp3CaptureStatus": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
+        "buildCaptureStatus": "NOT_RECORDED",
+        "captureTruthLabel": "EXPLORER_SIMULATED",
+        "requiredProofDisposition": "NOT_ASSERTED_BY_THIS_EXPLORER_CAPTURE"
       },
       {
         "id": "s07",
@@ -286,8 +298,10 @@
           "captionsNotYetGenerated": true,
           "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
         },
-        "pdp3CaptureStatus": "NOT_RECORDED",
-        "buildCaptureStatus": "NOT_RECORDED"
+        "pdp3CaptureStatus": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
+        "buildCaptureStatus": "NOT_RECORDED",
+        "captureTruthLabel": "EXPLORER_SIMULATED",
+        "requiredProofDisposition": "NOT_ASSERTED_BY_THIS_EXPLORER_CAPTURE"
       }
     ]
   },
@@ -372,10 +386,10 @@
     "automaticReRecording": "On source/product UI changes, compare semantic and visual anchors to invalidate only affected scenes while preserving approved manual edits and immutable old film versions.",
     "approvalBoundary": "Recording may be captured after conditions are met; 'APPROVED_FILM' requires real file inspection and reviewer disposition; no film or external publication is currently approved."
   },
-  "successPolicy": "TWO_PASS_TARGET: PDP3 records narrated Explorer simulated scenario with static seeded data; Build replays and records the same scenario against the real product when its actual business outcome works. Historical phase DEV_COMPLETE does not prove new Explorer video. Do not delay already-ready Build outcomes for unrelated scenario backfill.",
+  "successPolicy": "Two-pass target for the selected scenario: PDP-3 v1 records the narrated Explorer simulation; BUILD later records the same scenario against an admitted real product channel after its actual business result is observed. The source-local P3-11 gate applies only to the selected v1 scenario; additional journey recordings, Build execution, equivalence, external film approval and Lifecycle closure remain separate.",
   "dualStageRecording": {
     "governingSection": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5b-two-pass-pdp-3-explorer--build-product-recording-standard",
-    "designDisposition": "OWNER_SELECTED_MEDIA_TARGET; CROSS_REPOSITORY_KERNEL_TOOLS_LIFECYCLE_GATE_NOT_YET_ADMITTED",
+    "designDisposition": "MEDIA_OWNER_ADOPTED_SCOPED_DEMO_V1; CROSS_REPOSITORY_KERNEL_TOOLS_LIFECYCLE_GATE_ADMISSION_PENDING",
     "scenarioIdentity": {
       "demoScenarioId": "media.demo.j03.corrected-captions.v1",
       "normativePdp3Journey": "J-03",
@@ -395,7 +409,8 @@
         "s07"
       ],
       "semanticsAuthority": "Current PDP-0..3 sources only; this is a derivative identifier, not a new P0 capability or normative operation",
-      "scenarioRevision": "PLANNED_REQUIRES_SOURCE_FINGERPRINT_ADMISSION"
+      "scenarioRevision": "media-pdp3-demo-v1",
+      "scenarioRevisionStatus": "MEDIA_SOURCE_ADOPTED; CAPTURE_SOURCE_REVALIDATED; KERNEL_TOOLS_LIFECYCLE_GATE_ADMISSION_PENDING"
     },
     "sourceOfTruth": "One source-owned PDP-3 scenario/fixture/ordered-step/narration intent; Build only substitutes real adapters, data and observations. Media recorder capability semantics are independently governed by Media PDP-0..3.",
     "passes": [
@@ -403,7 +418,7 @@
         "id": "pdp3-explorer",
         "mode": "EXPLORER_SIMULATED",
         "stage": "PDP-3",
-        "state": "NOT_RECORDED",
+        "state": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
         "host": "apps/media-experience-explorer/ frontend-only product/explore projection",
         "realBackendAllowed": false,
         "fixtureAuthority": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
@@ -420,11 +435,13 @@
           "CURRENT_DIGEST_MANIFEST"
         ],
         "evidenceClass": "DEFINITION_EXPLORER_DEMONSTRATION_NOT_PRODUCT_IMPLEMENTATION",
-        "recordingRef": null,
-        "audioNarrationRef": null,
-        "captionsRef": null,
+        "recordingRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/media-pdp3-j03-explorer-simulated-2026-10-21-r2.mov",
+        "audioNarrationRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/ (narration-s01.aiff through narration-s07.aiff; final MOV also contains AAC narration)",
+        "captionsRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/narration-captions.vtt",
         "qualityReportRef": null,
-        "manifestRef": null
+        "manifestRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json",
+        "reviewRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json#sourceRevalidation",
+        "sourceStandardRef": ".product-experience/pdp-3-product-experience/demo-recording-standard.yaml"
       },
       {
         "id": "build-product",
@@ -491,6 +508,42 @@
       "reportRef": null
     },
     "recapture": "Invalidate only affected shared scenes or one mode's footage based on semantic/source/fixture/host/narration fingerprint; preserve previous immutable records and manual edits",
-    "historicalState": "All four PDP phase status records are pre-standard development evidence; none proves the new PDP3 narrated recording requirement"
+    "historicalState": "PDP-0, PDP-1 and PDP-2 status records retain their prior criteria. PDP-3 status now includes P3-11 for the selected media-pdp3-demo-v1 J-03 Explorer scenario; it does not establish Build, film publication approval or Lifecycle closure.",
+    "scopeDisposition": {
+      "currentPdp3Edition": "media-pdp3-demo-v1",
+      "requiredExplorerScenarioIds": [
+        "media.demo.j03.corrected-captions.v1"
+      ],
+      "deferredToLaterVersion": "Standalone narrated coverage and rich exact Explorer seeds for the other 26 unseeded journeys; reusable product-neutral recorder integration and automated recapture.",
+      "deferralAuthorityRef": ".product-experience/decision-log.md#PXD-224",
+      "notClaimed": [
+        "all 30 journeys have narrated films",
+        "Build real-product recording",
+        "semantic equivalence",
+        "gtool closure",
+        "external film approval"
+      ]
+    }
+  },
+  "recordingEvidence": {
+    "explorer": {
+      "status": "RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED",
+      "truthLabel": "EXPLORER_SIMULATED",
+      "manifest": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json",
+      "video": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/media-pdp3-j03-explorer-simulated-2026-10-21-r2.mov",
+      "captions": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/narration-captions.vtt",
+      "qualityDisposition": "SOURCE_AND_CONTENT_TRUTH_REVIEWED; AUDIO_FIDELITY_NOT_REVIEWED",
+      "rightsDisposition": "NOT_REVIEWED; NO_EXTERNAL_PUBLICATION",
+      "privacyDisposition": "SYNTHETIC_FIXTURES_VISUALLY_REVIEWED; FORMAL_PRIVACY_CERTIFICATION_NOT_CLAIMED",
+      "audioNarrationRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/",
+      "qualityReportRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json#sourceRevalidation",
+      "currentSourceRevalidationRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json#sourceRevalidation"
+    },
+    "build": {
+      "status": "NOT_RECORDED"
+    },
+    "semanticEquivalence": {
+      "status": "NOT_VERIFIED"
+    }
   }
 }

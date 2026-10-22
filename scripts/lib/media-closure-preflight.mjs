@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { MEDIA_SOURCE_PDP_PHASES, readMediaSourcePhaseMapping } from './media-closure-phase-map.mjs';
 
 /**
  * A source-input check, not a Lifecycle closure verifier. Allows a recorded
@@ -8,15 +9,17 @@ import assert from 'node:assert/strict';
 export function validateMediaClosureInputState({
   consumer, program, surface, binding, obligations, pending,
 }) {
-  const phaseIds = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
-  const dependencies = {
+  const sourceToClosurePhaseId = readMediaSourcePhaseMapping(program);
+  const phaseIds = MEDIA_SOURCE_PDP_PHASES.map((sourcePhase) => sourceToClosurePhaseId[sourcePhase]);
+  const dependenciesBySourcePhase = {
     'PDP-0': [],
     'PDP-1': ['PDP-0'],
     'PDP-2': ['PDP-0', 'PDP-1'],
     'PDP-3': ['PDP-0', 'PDP-1', 'PDP-2'],
   };
 
-  assert.deepEqual(program.phases.map((phase) => phase.id), phaseIds);
+  assert.equal(program.phases.length, phaseIds.length);
+  assert.deepEqual([...program.phases.map((phase) => phase.id)].sort(), [...phaseIds].sort());
   assert.equal(surface.phaseProgramRef, program.programId);
   assert.equal(surface.phaseBindingRef, binding.bindingId);
   assert.equal(binding.closureSurfaceId, surface.id);
@@ -37,9 +40,11 @@ export function validateMediaClosureInputState({
     }
   }
 
-  for (const phaseId of phaseIds) {
+  for (const sourcePhaseId of MEDIA_SOURCE_PDP_PHASES) {
+    const phaseId = sourceToClosurePhaseId[sourcePhaseId];
     const phase = program.phases.find((item) => item.id === phaseId);
-    assert.deepEqual(phase.dependsOn ?? [], dependencies[phaseId]);
+    assert.deepEqual(phase.dependsOn ?? [], dependenciesBySourcePhase[sourcePhaseId]
+      .map((dependency) => sourceToClosurePhaseId[dependency]));
     const selected = phase.obligationIds ?? [];
     assert.ok(selected.length > 0, `${phaseId} needs at least one obligation`);
     const overlay = binding.phases[phaseId];
@@ -52,11 +57,11 @@ export function validateMediaClosureInputState({
       const obligation = byId.get(id);
       assert.ok(obligation, `${phaseId} missing obligation ${id}`);
       assert.equal(obligation.disposition, 'REQUIRED');
-      assert.ok(obligation.phaseSemantics.applicableIn.includes(phaseId),
+      assert.deepEqual(obligation.phaseSemantics.applicableIn, [phaseId],
         `${id} lacks applicableIn ${phaseId}`);
-      assert.ok(obligation.phaseSemantics.blockingIn.includes(phaseId),
+      assert.deepEqual(obligation.phaseSemantics.blockingIn, [phaseId],
         `${id} lacks blockingIn ${phaseId}`);
-      assert.ok(obligation.phaseSemantics.affects.includes(phaseId),
+      assert.deepEqual(obligation.phaseSemantics.affects, [phaseId],
         `${id} lacks affects ${phaseId}`);
     }
   }

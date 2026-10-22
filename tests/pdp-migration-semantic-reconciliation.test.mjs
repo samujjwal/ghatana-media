@@ -677,10 +677,10 @@ test("PXD-196 and PXD-211 remain immutable historical predecessors", () => {
   }
 });
 
-test("PXD-214 retains its source cut while PXD-216 binds current PDP-0 capability meaning", () => {
+test("PXD-214 and PXD-216 retain historical source cuts while PXD-223 binds current PDP-0 capability meaning", () => {
   const successor = readPxd214Successor();
   const currentReview = JSON.parse(readFileSync(resolve(root,
-    "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json"), "utf8"));
+    "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"), "utf8"));
   const requirementsPath = ".product-experience/pdp-0-product-truth/requirements.yaml";
   const capabilitiesPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
   const requirementsSha = sha(readFileSync(resolve(root, requirementsPath)));
@@ -704,8 +704,8 @@ test("PXD-214 retains its source cut while PXD-216 binds current PDP-0 capabilit
     "PXD-214 retains its exact capability source-cut fingerprint");
   assert.notEqual(successor.sourceFingerprints[capabilitiesPath], capabilitiesSha,
     "PXD-214 remains bound to its earlier capability source cut");
-  assert.equal(currentReview.sourceFingerprints[capabilitiesPath], capabilitiesSha,
-    "PXD-216 binds the exact live capabilities source bytes");
+  assert.equal(currentReview.currentSource.capabilitiesSha256, capabilitiesSha,
+    "PXD-223 binds the exact live capabilities source bytes");
   const predecessorRefs = collectStringValues(successor.predecessorRefs);
   assert.ok(predecessorRefs.some((ref) => ref.includes("pdp0-migration-current-source-successor-pxd196.json")),
     "PXD-214 retains PXD-196 as historical predecessor");

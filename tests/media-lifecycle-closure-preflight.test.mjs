@@ -2,19 +2,32 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateMediaClosureInputState } from '../scripts/lib/media-closure-preflight.mjs';
 
-const phases = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
+const sourcePdpPhases = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
+const sourcePhaseToClosurePhaseId = {
+  'PDP-0': 'media.product-truth.definition-acceptance',
+  'PDP-1': 'media.canonical-domain-data.definition-acceptance',
+  'PDP-2': 'media.design-interface-system.definition-acceptance',
+  'PDP-3': 'media.complete-product-experience.definition-acceptance',
+};
+const phases = sourcePdpPhases.map((phase) => sourcePhaseToClosurePhaseId[phase]);
 function fixture() {
-  const obligations = phases.map((phase, i) => ({
+  const obligations = sourcePdpPhases.map((sourcePhase, i) => ({
     id: `media.pdp-${i}.specific-requirement`,
     disposition: 'REQUIRED',
-    phaseSemantics: { applicableIn: [phase], blockingIn: [phase], affects: [phase] },
+    phaseSemantics: {
+      applicableIn: [sourcePhaseToClosurePhaseId[sourcePhase]],
+      blockingIn: [sourcePhaseToClosurePhaseId[sourcePhase]],
+      affects: [sourcePhaseToClosurePhaseId[sourcePhase]],
+    },
     requirementIds: [`MEDIA-REQ-PDP-${i}`],
     caseIds: [], observerIds: [], oracleIds: [],
   }));
   const program = {
     programId: 'media.program.v1',
+    metadata: { mediaSourcePhaseMapping: { sourcePhaseToClosurePhaseId } },
     phases: phases.map((id, i) => ({
       id,
+      metadata: { sourcePdpPhaseId: sourcePdpPhases[i] },
       dependsOn: phases.slice(0, i),
       obligationIds: [obligations[i].id],
     })),
@@ -76,7 +89,7 @@ test('allows additional requirement-specific obligations without one-per-phase c
   const extra = { ...structuredClone(input.obligations[0]), id: 'media.pdp-0.extra' };
   input.obligations.push(extra);
   input.program.phases[0].obligationIds.push(extra.id);
-  input.binding.phases['PDP-0'].obligationIds.push(extra.id);
+  input.binding.phases[phases[0]].obligationIds.push(extra.id);
   input.surface.obligationIds.push(extra.id);
   assert.equal(validateMediaClosureInputState(input).obligationCount, 5);
 });
@@ -144,8 +157,14 @@ test('rejects hidden missing obligations and inconsistent phase selectors', () =
   input.surface.obligationIds.pop();
   assert.throws(() => validateMediaClosureInputState(input), /inventory/);
   const other = fixture();
-  other.binding.phases['PDP-1'].obligationIds = [other.obligations[0].id];
+  other.binding.phases[phases[1]].obligationIds = [other.obligations[0].id];
   assert.throws(() => validateMediaClosureInputState(other), /diverge/);
+});
+
+test('rejects source PDP labels reused as Lifecycle Closure phase IDs', () => {
+  const input = fixture();
+  input.program.phases[0].id = 'PDP-0';
+  assert.throws(() => validateMediaClosureInputState(input), /distinct from Media source PDP labels/u);
 });
 
 test('rejects artificial green status with unaddressed owner blockers', () => {

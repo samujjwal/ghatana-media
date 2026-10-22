@@ -2868,8 +2868,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "sha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
-      "bytes": 7998296,
+      "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "bytes": 7998310,
       "format": "yaml",
       "schemaVersion": "media.capabilities.v1",
       "authority": "prospective-Phase-0-definition; not runtime authority or qualification evidence",
@@ -4935,8 +4935,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
-      "sha256": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-      "bytes": 110363,
+      "sha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+      "bytes": 112087,
       "format": "yaml",
       "schemaVersion": "media.pdp0-campaign-extensions.v1",
       "authority": null,
@@ -6468,8 +6468,8 @@
     },
     {
       "sourceRef": ".product-experience/source-manifest.yaml",
-      "sha256": "87d2ce2cfa1d7e0130fcc7d11dc0b79e00fdc15950749afd20ea5d9f28731b14",
-      "bytes": 725739,
+      "sha256": "c076129f4d1e39109fe7e3c66ce5e8e16ef06e4011039fcdfec48d2d2c112ace",
+      "bytes": 731022,
       "format": "yaml",
       "schemaVersion": "media.source-manifest.v2",
       "authority": null,
@@ -7373,14 +7373,14 @@
     },
     {
       "sourceRef": ".product-experience/decision-log.md",
-      "sha256": "b258b651165094987bfa5325dc26f785d5ec4a177eaaef8bd445febe6e65584f",
-      "bytes": 382326,
+      "sha256": "3cbd89db92982d50d0f150c1f81fc4b1f7a658e623fe6372c5fc07792b371f68",
+      "bytes": 396595,
       "format": "markdown"
     },
     {
       "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-      "sha256": "82343cdb98eb123207a0e22f8c3daa3c353cc4041ec2e0d769d4d2c7e0b34c12",
-      "bytes": 1801416,
+      "sha256": "6b01fea74bc26c25fea97e5108073025cbc1284a4753a98e74b9994c70342a95",
+      "bytes": 1806917,
       "format": "yaml",
       "schemaVersion": "ghatana.media.pdp0-disposition-crosswalk.v1",
       "authority": null,
@@ -7423,8 +7423,8 @@
     },
     {
       "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
-      "sha256": "6b269d54f93ed86de5220fc4ed0e286089b53a0a23ef53fdd18da97cc418ce04",
-      "bytes": 5445663,
+      "sha256": "3477ab23c6aa2e46c435e7324ce8bb531cbda19d61a4c77bba0c202a96468691",
+      "bytes": 5688459,
       "format": "yaml",
       "schemaVersion": "ghatana.media.pdp0-audit-aq-traceability.v1",
       "authority": null,
@@ -7617,6 +7617,42 @@
       "topLevelFields": [
         "latestCurrentnessRefresh",
         "schemaVersion"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json",
+      "sha256": "ef5ab4153eb150531a64406895c6dcbb625689459eb4f07a0408ceabd6e01f73",
+      "bytes": 9083,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.quality-currentness-successor.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "latestCurrentnessRefresh",
+        "schemaVersion"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
+      "sha256": "33b9da4aef5c83f6f8c3695494fba9f012954bec0059708fccc584ad1775cfd6",
+      "bytes": 3643,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.current-source-reconciliation.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "authority",
+        "currentSource",
+        "decisionEffect",
+        "decisionRef",
+        "decisionSectionSha256",
+        "phaseScope",
+        "preservedSemanticReview",
+        "reviewKind",
+        "schemaVersion",
+        "sourceCut"
       ],
       "declaredIds": []
     },
@@ -9419,8 +9455,8 @@
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
-      "sha256": "29a2b6dae1d50bb80ef5cb8d8210149b320f7dbf66de31af0c861ce61fb99abf",
-      "bytes": 36071,
+      "sha256": "a9373535178a7040425e5f40f31951f7359abfb4aa64daf37157ef539b443b3c",
+      "bytes": 37042,
       "format": "yaml",
       "schemaVersion": "media.pdp0.quality-current-source-review.v1",
       "authority": null,

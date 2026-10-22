@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "media.pdp0.current-source-reconciliation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-223",
+  "phaseScope": "PDP-0",
+  "reviewKind": "COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION",
+  "sourceCut": {
+    "repositoryHead": "b3f11733d2b997c12f0438d95b5330d1516c4f1d",
+    "workingTree": "MODIFIED_SOURCE_CUT",
+    "sourceCount": 2
+  },
+  "authority": {
+    "phaseScope": "PDP-0",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "implementation": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "preservedSemanticReview": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-216",
+    "artifactRef": "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json",
+    "historicalCapabilitiesSha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+    "historicalReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+    "currentReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+    "reviewedCapabilityCount": 20,
+    "changedReviewedCapabilityIds": [],
+    "semanticReviewStatus": "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW"
+  },
+  "currentSource": {
+    "capabilitiesPath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "currentCapabilityRecordCount": 469,
+    "populationDelta": {
+      "addedRecordCount": 0,
+      "removedRecordCount": 0,
+      "changedRecordCount": 7,
+      "changedRows": [
+        {
+          "capabilityId": "media.recipe.specification.compile",
+          "field": "scopeStatus",
+          "from": "TARGET",
+          "to": "DEFERRED"
+        },
+        {
+          "capabilityId": "media.project.scene.patch-merge",
+          "field": "scopeStatus",
+          "from": "TARGET",
+          "to": "DEFERRED"
+        },
+        {
+          "capabilityId": "media.quality.audio.content-similarity.assess",
+          "field": "scopeStatus",
+          "from": "TARGET",
+          "to": "DEFERRED"
+        },
+        {
+          "capabilityId": "media.generate.video.preset.manage",
+          "field": "scopeStatus",
+          "from": "TARGET",
+          "to": "DEFERRED"
+        },
+        {
+          "capabilityId": "media.generate.video.shot-condition",
+          "field": "scopeStatus",
+          "from": "TARGET",
+          "to": "DEFERRED"
+        },
+        {
+          "capabilityId": "media.job.schedule.manage",
+          "field": "scopeStatus",
+          "from": "TARGET",
+          "to": "DEFERRED"
+        },
+        {
+          "capabilityId": "media.master.audio.creative-effect.apply",
+          "field": "scopeStatus",
+          "from": "TARGET",
+          "to": "DEFERRED"
+        }
+      ],
+      "otherCapabilityFieldsChanged": false,
+      "sourceDecisionRef": ".product-experience/decision-log.md#PXD-221",
+      "disposition": "FUTURE_VERSION_DEFERRED; NOT_ASSERTED_APPROVED_OR_CURRENT"
+    }
+  },
+  "decisionSectionSha256": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206",
+  "decisionEffect": "PDP-0 current-source reconciliation only. PXD-216 remains the semantic review for its exact 20 capability IDs. No new semantic review, owner approval, independent acceptance, implementation verification, runtime admission, qualification, phase closure, or Delivery readiness is claimed."
+}

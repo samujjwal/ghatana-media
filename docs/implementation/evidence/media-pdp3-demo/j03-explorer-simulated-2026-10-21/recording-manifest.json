@@ -1,0 +1,276 @@
+{
+  "schemaVersion": "media.pdp3.explorer-recording-evidence.v1",
+  "evidenceId": "media.demo.j03.corrected-captions.v1.explorer.2026-10-21",
+  "truthLabel": "EXPLORER_SIMULATED",
+  "evidenceDisposition": "CAPTURED_UNREVIEWED_PROPOSAL_EVIDENCE_ONLY",
+  "sourceBaseline": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "b3f11733d2b997c12f0438d95b5330d1516c4f1d",
+    "workingTreeSourcePathsClean": true,
+    "profileGitBlobBeforeEvidenceUpdate": "85e224c2c5cdafc2c99371340a08a7e4b9eab7aa",
+    "sourcePins": [
+      {
+        "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "gitBlob": "dad44a6feb5abf9152bb88d97800ef7b9e9e7515",
+        "sha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        "pinnedGitBlob": null,
+        "pinMatches": null
+      },
+      {
+        "path": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        "gitBlob": "84482a1f1fa69a8da32a3488289a56b4b033e498",
+        "sha256": "db98413dfc314d85528d87515e8e7b100afe12276bfc8a73ca5401bbc92355eb",
+        "pinnedGitBlob": "84482a1f1fa69a8da32a3488289a56b4b033e498",
+        "pinMatches": true
+      },
+      {
+        "path": ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
+        "gitBlob": "2a6699172c0cb1bd8baabd050b32a8ee475d9eec",
+        "sha256": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+        "pinnedGitBlob": "2a6699172c0cb1bd8baabd050b32a8ee475d9eec",
+        "pinMatches": true
+      },
+      {
+        "path": ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
+        "gitBlob": "f449204f0faaf248313fe6544c7c161260e9fee9",
+        "sha256": "cb37e443d3f7fcce968399d8ed3e0bb5b27535f0954ac70da21bd376d9c40cb2",
+        "pinnedGitBlob": "f449204f0faaf248313fe6544c7c161260e9fee9",
+        "pinMatches": true
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+        "gitBlob": "a27d73377e170eea73bdbdc04e5e51e79f5aab52",
+        "sha256": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
+        "pinnedGitBlob": "a27d73377e170eea73bdbdc04e5e51e79f5aab52",
+        "pinMatches": true
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+        "gitBlob": "999fe23a670e64baafd6b6355176bd16145dcf59",
+        "sha256": "3d32bebd2328c105133280a66e5cdbab1098e1ea36d1b0b3a9b0990e973bb196",
+        "pinnedGitBlob": "999fe23a670e64baafd6b6355176bd16145dcf59",
+        "pinMatches": true
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml",
+        "gitBlob": "c0ac0c19fd12e431ac976e7a0a2f422325b88e63",
+        "sha256": "cba49c08faf46a1e793f1d80763d3fc4e8606467e047eb7da6806977aa859973",
+        "pinnedGitBlob": null,
+        "pinMatches": null
+      },
+      {
+        "path": "apps/media-experience-explorer/src/main.ts",
+        "gitBlob": "84a7932b4400ba850a189737973bfd978d1fd25a",
+        "sha256": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
+        "pinnedGitBlob": null,
+        "pinMatches": null
+      },
+      {
+        "path": "apps/media-experience-explorer/src/product-review.tsx",
+        "gitBlob": "9d50d56a09f6e9ec1c115f2df719cdda9479c179",
+        "sha256": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "pinnedGitBlob": null,
+        "pinMatches": null
+      },
+      {
+        "path": "libs/media-experience-simulation/src/fixtures.ts",
+        "gitBlob": "68b44470814b210960a07ab62a69fad2836526e9",
+        "sha256": "6ae3e7367f085592561456f3db73b1f878bfec0b7ae79b25f5586c581f737d85",
+        "pinnedGitBlob": null,
+        "pinMatches": null
+      },
+      {
+        "path": "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
+        "gitBlob": "0491b35166511fb418d81f6e840e5fae69471694",
+        "sha256": "298229ec5101c181981eb4e4c3b9c79fb61b4c2ce4b1e7ca602964faaca91776",
+        "pinnedGitBlob": null,
+        "pinMatches": null
+      }
+    ]
+  },
+  "historicalExternalProfileChecksum": {
+    "path": "docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json",
+    "recordedSha256": "8c00d2581c0a66f01b62cb47ba9e787f62efeb328873dee079ffa434f4e599c5",
+    "verificationStatus": "UNVERIFIED_HISTORICAL_REFERENCE",
+    "reason": "The r1 checksum list referenced a profile outside this evidence bundle. The current canonical profile does not match the recorded digest, and the referenced historical profile bytes are not retained here. The digest is preserved as an original recorded value, not claimed as revalidated evidence."
+  },
+  "scenario": {
+    "id": "media.demo.j03.corrected-captions.v1",
+    "journeyId": "J-03",
+    "supportJourneyIds": [
+      "J-01",
+      "J-02",
+      "J-20"
+    ],
+    "profile": "docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json",
+    "sourceContract": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#terminalSuccess",
+    "sceneIds": [
+      "s01",
+      "s02",
+      "s03",
+      "s04",
+      "s05",
+      "s06",
+      "s07"
+    ]
+  },
+  "capture": {
+    "startedAtUtc": "2026-10-21T22:38:26.185Z",
+    "recordedElapsedSeconds": 83.318,
+    "container": "QuickTime MOV",
+    "videoMetadata": [
+      "duration=82.393",
+      "mediaType=vide duration=82.393 width=3420.0 height=2214.0",
+      "mediaType=soun duration=82.392 width=0.0 height=0.0"
+    ],
+    "audioMetadata": {
+      "containerTrack": "AAC",
+      "channels": 2,
+      "sampleRateHz": 48000,
+      "measuredDurationSeconds": 82.389333
+    },
+    "recorder": "/usr/sbin/screencapture -g -v",
+    "displayCapture": "full visible display; browser window foreground; OS menu bar and Dock visible",
+    "narrationMethod": "macOS Samantha text-to-speech clips played via afplay through MacBook Air speakers and recorded with default microphone input",
+    "captionFormat": "WebVTT sidecar; not embedded or burned into the MOV",
+    "voiceRightsDisposition": "NOT_REVIEWED",
+    "audioQualityDisposition": "NOT_REVIEWED",
+    "privacyQualityDisposition": "NOT_REVIEWED",
+    "persistentDisclosure": "Visible throughout: Synthetic fixture badge in Explore; Product Preview keeps the CANDIDATE · NOT ADMITTED banner and Simulation fixture only toolbar."
+  },
+  "sceneCoverage": [
+    {
+      "sceneId": "s01",
+      "startSeconds": 0.255,
+      "endSeconds": 9.686,
+      "truth": "SIMULATED",
+      "sourceBeat": "Business problem and source-bound outcome"
+    },
+    {
+      "sceneId": "s02",
+      "startSeconds": 11.953,
+      "endSeconds": 21.013,
+      "truth": "SIMULATED",
+      "sourceBeat": "Authorized workspace and project"
+    },
+    {
+      "sceneId": "s03",
+      "startSeconds": 23.221,
+      "endSeconds": 32.988,
+      "truth": "SIMULATED",
+      "sourceBeat": "Original audio integrity and source attachment"
+    },
+    {
+      "sceneId": "s04",
+      "startSeconds": 36.355,
+      "endSeconds": 44.851,
+      "truth": "SIMULATED",
+      "sourceBeat": "STT submission, progress, uncertainty handling"
+    },
+    {
+      "sceneId": "s05",
+      "startSeconds": 47.38,
+      "endSeconds": 56.249,
+      "truth": "SIMULATED",
+      "sourceBeat": "Review and correct transcript words and caption timing"
+    },
+    {
+      "sceneId": "s06",
+      "startSeconds": 57.657,
+      "endSeconds": 67.091,
+      "truth": "SIMULATED",
+      "sourceBeat": "Register and inspect immutable reviewable caption version"
+    },
+    {
+      "sceneId": "s07",
+      "startSeconds": 70.127,
+      "endSeconds": 79.606,
+      "truth": "SIMULATED",
+      "sourceBeat": "Optional safe failure and recovery evidence"
+    }
+  ],
+  "simulatedActions": [
+    {
+      "sceneId": "s02",
+      "fixtureId": "media.scenario.first-use-empty",
+      "effect": "none; sample project/workspace only"
+    },
+    {
+      "sceneId": "s03",
+      "fixtureId": "media.scenario.upload-verified-available",
+      "effect": "none; metadata illustration only; no file bytes"
+    },
+    {
+      "sceneId": "s04",
+      "fixtureId": "media.scenario.job-running",
+      "effect": "none; job state illustration only; no provider"
+    },
+    {
+      "sceneId": "s05",
+      "fixtureId": "media.scenario.transcript-ready",
+      "actions": [
+        "media.action.correct-caption",
+        "media.action.align-caption-timing",
+        "media.action.save-caption-version"
+      ],
+      "effect": "fixture state only; source-v1; no persisted product effect",
+      "captionCorrection": {
+        "segmentId": "segment-001",
+        "before": "When the signal returns, record the time.",
+        "after": "When the signal returns, note the time.",
+        "sourceArtifactVersion": "source-v1",
+        "sourceClock": "source-presentation-time",
+        "beforeTicks": {
+          "start": 0,
+          "end": 3100
+        },
+        "afterTicks": {
+          "start": 0,
+          "end": 3300
+        },
+        "purpose": "Illustrative J-03 correction",
+        "expectedFixtureVersionId": "simulation-transcript-ready-caption-v2",
+        "versionDisposition": "simulation fixture version only; not a product receipt"
+      }
+    },
+    {
+      "sceneId": "s06",
+      "effect": "synthetic caption version inspection only; not published or approved"
+    },
+    {
+      "sceneId": "s07",
+      "fixtureId": "media.scenario.job-outcome-unknown",
+      "effect": "synthetic uncertainty/recovery only; no real denied or unknown observation"
+    }
+  ],
+  "explicitNonClaims": [
+    "No Build/product execution",
+    "No real project, file transfer, transcription provider, external service, persisted business effect or owner receipt",
+    "No quality, legal/voice-rights or privacy approval",
+    "No PDP-3 adoption, native closure, acceptance, or release qualification",
+    "Semantic equivalence NOT_VERIFIED"
+  ],
+  "buildRecordingStatus": "NOT_RECORDED",
+  "semanticEquivalenceStatus": "NOT_VERIFIED",
+  "reviewerDisposition": "UNREVIEWED",
+  "files": {
+    "media-pdp3-j03-explorer-simulated-2026-10-21.mov": "a867632441f31ed0b36706bf2ba567d4897e42662c315e5ee2a783835d10db8f",
+    "narration-captions.vtt": "6cc0c05ea33012fcc0ff7cc77e1598e6b623e2dbcd73cd934d006ed99100fd6a",
+    "capture-timeline.json": "f0ac1be3da4ee3a4de552a5f77ec4353774582bf68eb0b5f088e699085ea38b0",
+    "narration-s01.aiff": "d8f8bd8b485b1f5b16b7b6eb895928c4496ed0f734a49801a2118f7244cc11bd",
+    "narration-s02.aiff": "5aa91237f1953bcf010a7a9dd199b3fc2f0b7e0b9915367e2f76f73b8932be11",
+    "narration-s03.aiff": "b6612cd4288c9be18a7a9f24474c47dced2cec8c809dded1ddad3ac9e6787f77",
+    "narration-s04.aiff": "ec13d38ad868b75c847dd4742c5ac310e1391692334e62049a25fbeed5ad2dcb",
+    "narration-s05.aiff": "8a30a9fd363cf733d21b0669246d47f852c9e0a049df3ecd011f4bff435767a4",
+    "narration-s06.aiff": "9dc11b77935097e53048893f7cc08918db8423d2692737c6c03aa0cfc2a607c6",
+    "narration-s07.aiff": "4d992896e4c4a00e4f2f6ef01f2185fe117b371dfd7db6bfaf33abb91578df6a"
+  },
+  "durationVerification": {
+    "avFoundationVideoSeconds": 82.393,
+    "afinfoAudioSeconds": 82.389333,
+    "lastVttCueEndSeconds": 79.806,
+    "vttCueCount": 7,
+    "allCuesWithinVideo": true
+  }
+}

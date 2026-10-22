@@ -1,0 +1,79 @@
+schemaVersion: media.pdp3-demo-recording-standard.v1
+productId: media
+standardId: media.pdp3.demo-recording.v1
+status: MEDIA_OWNER_ADOPTED_VERSIONED_DEMO_SCOPE; CROSS_REPOSITORY_KERNEL_TOOLS_LIFECYCLE_ADMISSION_PENDING
+authority:
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-224
+  owningPhase: PDP-3
+  evidenceOwner: ghatana-media-product-owners
+  lifecycleClosureAuthority: ghatana-lifecycle-owner
+  kernelToolsGateAdmission: PENDING
+  lifecycleGtoolAdmission: PENDING
+scope:
+  edition: media-pdp3-demo-v1
+  rule: One complete source-owned demonstration scenario is required for this edition. Add coverage incrementally in later editions; this edition does not claim that every Media journey has an Explorer recording.
+  scenarioId: media.demo.j03.corrected-captions.v1
+  journeyRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+  terminalRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#terminalSuccess
+  journeyIds:
+    - J-03
+    - J-01
+    - J-02
+    - J-20
+  orderedSceneIds: [s01, s02, s03, s04, s05, s06, s07]
+  staticFixtureAuthority: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
+  fixtureIds:
+    - media.scenario.first-use-empty
+    - media.scenario.upload-verified-available
+    - media.scenario.job-running
+    - media.scenario.transcript-ready
+    - media.scenario.job-outcome-unknown
+  sourceOnlyExecution: The actual Experience Explorer frontend uses centrally mocked static fixtures. No product service, model, provider, login, upload bytes, or persisted business operation is invoked.
+  deferredScenarioCoverage:
+    disposition: DEFERRED_TO_LATER_VERSION; NOT_NOT_APPLICABLE
+    journeysWithoutRichExactSimulationSeeds: [J-04, J-05, J-06, J-07, J-08, J-09, J-10, J-11, J-12, J-13, J-14, J-15, J-16, J-17, J-18, J-19, J-21, J-22, J-23, J-24, J-25, J-26, J-27, J-28, J-29, J-30]
+    rationale: All 30 journeys retain source-linked definition oracles. The 26 listed journeys have no exact rich simulation seed; authoring those seeds and recording additional standalone journeys is a later-version coverage increment, not a silent omission or a defect in this selected J-03 scenario.
+    sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#journeyCoverage
+  deferredReusableRecorder:
+    disposition: DEFERRED_TO_LATER_VERSION; SINGLE_CAPTURE_PROOF_ONLY
+    rationale: This edition accepts a documented headed capture of the actual Explorer for its one selected scenario. Reusable product-neutral recorder integration, multi-scenario orchestration, and automated recapture remain separate tooling work.
+  deferredExternalFilmApproval:
+    disposition: NOT_CLAIMED
+    rationale: The recording is internal Discovery evidence. Voice licensing, publication clearance, and formal film approval are not inferred; do not externally publish this capture until those reviews are recorded.
+captures:
+  explorer:
+    truthLabel: EXPLORER_SIMULATED
+    evidenceClass: PDP3_INTENDED_EXPERIENCE_DEMONSTRATION; NOT_PRODUCT_IMPLEMENTATION_OR_BUSINESS_RECEIPT
+    status: RECORDED_SIMULATED_CONTENT_REVIEWED; FILM_APPROVAL_NOT_CLAIMED
+    manifestRef: docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json
+    videoRef: docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/media-pdp3-j03-explorer-simulated-2026-10-21-r2.mov
+    audioNarrationRef: docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/
+    captionRef: docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/narration-captions.vtt
+    timelineRef: docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/capture-timeline.json
+    checksumRef: docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/SHA256SUMS.txt
+    captureMechanism: Actual headed Experience Explorer capture using macOS screen capture, with a clearly disclosed evidence-only overlay; the overlay is not product UI.
+    persistentSimulationDisclosure: EVIDENCE-ONLY OVERLAY | SIMULATED FIXTURE | NO LIVE PRODUCT OPERATIONS
+  build:
+    truthLabel: PRODUCT_EXECUTED
+    status: NOT_RECORDED
+    evidenceClass: BUILD_IMPLEMENTATION_AND_REAL_BUSINESS_OUTCOME
+    requirement: Reuse the same source scenario and beat IDs against one admitted real product channel, with actual operation and business outcome receipts before describing successful processing.
+  semanticEquivalence:
+    status: NOT_VERIFIED
+    comparison: Compare source scenario, ordered beats, actions, expected outcomes, state transitions, failure and recovery semantics. Pixel comparison is not the acceptance method.
+acceptance:
+  criterionId: P3-11
+  requires:
+    - exact source-owned scenario identity and journey/scene references
+    - actual running Explorer UI using the centrally mocked fixtures named above
+    - playable captured video with audible narration and synchronized WebVTT captions for every selected scene
+    - persistent simulated-data disclosure in the video
+    - exact scene coverage, duration metadata, source pins and verified artifact checksums
+    - explicit separation from Build recording, real business receipts, approval, lifecycle closure, and release
+  evidenceRef: docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json
+  doesNotRequire:
+    - real product or provider execution
+    - Build recording or semantic equivalence report
+    - coverage of journeys deferred to a later edition
+    - external publication, legal/voice-rights approval, product-owner acceptance, or Lifecycle closure
+  recordingReviewBoundary: Artifact integrity, scene coverage, simulation disclosure, and the source relationship are reviewed. This criterion does not approve the film for external publication or assert voice-license, independent, or specialist review.

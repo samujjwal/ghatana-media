@@ -31,6 +31,7 @@ test("P0 capability semantic review pins current source checks without claiming 
   const pxd212QualityReview = JSON.parse(read("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json").toString("utf8"));
   const pxd213QualityCurrentness = JSON.parse(read("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json").toString("utf8"));
   const pxd216Review = JSON.parse(read("docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json").toString("utf8"));
+  const pxd223Currentness = JSON.parse(read("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json").toString("utf8"));
   const adjudications = leafReview.ownerCapabilityLeafAdjudication.records;
   const byId = new Map(leaves.map((leaf) => [leaf.id, leaf]));
   const adjudicationIdSet = new Set(adjudications.map(({ capabilityRef }) => capabilityRef));
@@ -61,9 +62,18 @@ test("P0 capability semantic review pins current source checks without claiming 
   assert.equal(pxd216Review.ownerApproval, "NOT_CLAIMED");
   assert.equal(pxd216Review.independentAcceptance, "NOT_CLAIMED");
   assert.equal(pxd216Review.acceptanceEffect, "none");
-  for (const [path, digest] of Object.entries(pxd216Review.sourceFingerprints)) {
+  for (const [path, digest] of Object.entries(pxd216Review.sourceFingerprints).filter(([path]) => path !== sourcePath)) {
     assert.equal(sha(read(path)), digest, `${path} PXD-216 current source pin`);
   }
+  assert.equal(pxd216Review.sourceFingerprints[sourcePath], pxd223Currentness.preservedSemanticReview.historicalCapabilitiesSha256,
+    "PXD-216's full-file pin remains historical evidence after the PXD-221 deferral");
+  assert.equal(sha(read(sourcePath)), pxd223Currentness.currentSource.capabilitiesSha256,
+    "PXD-223 binds the current capabilities source bytes");
+  assert.equal(pxd223Currentness.preservedSemanticReview.semanticReviewStatus,
+    "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW");
+  assert.deepEqual(pxd223Currentness.preservedSemanticReview.changedReviewedCapabilityIds, []);
+  assert.equal(pxd223Currentness.authority.ownerApproval, "NOT_CLAIMED");
+  assert.equal(pxd223Currentness.authority.independentAcceptance, "NOT_CLAIMED");
   assert.equal(pxd213QualityCurrentness.latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-213");
   assert.equal(pxd213QualityCurrentness.latestCurrentnessRefresh.status, "CURRENTNESS_REFRESH_ONLY");
   assert.equal(pxd213QualityCurrentness.latestCurrentnessRefresh.semanticReview,

@@ -116,6 +116,8 @@ const definitions = [
       "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json",
       "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json",
       "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json",
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json",
+      "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
       ".product-experience/pdp-1-domain-data/decisions.yaml",
       ".product-experience/pdp-1-domain-data/events.yaml",
       ".product-experience/pdp-1-domain-data/evidence.yaml",
@@ -198,8 +200,8 @@ const definitions = [
       const qualityCurrentSourceReview = JSON.parse(qualityCurrentSourceReviewText);
       const captionImportCurrentSourceReviewText = textSource("p0-caption-import-current-source-review-pxd209.json");
       const captionImportCurrentSourceReview = JSON.parse(captionImportCurrentSourceReviewText);
-      const pxd218QualityCurrentSourceReviewText = textSource("p0-quality-current-source-review-pxd218.json");
-      const pxd218QualityCurrentSourceReview = JSON.parse(pxd218QualityCurrentSourceReviewText);
+      const pxd222QualityCurrentSourceReviewText = textSource("p0-quality-current-source-review-pxd222.json");
+      const pxd222QualityCurrentSourceReview = JSON.parse(pxd222QualityCurrentSourceReviewText);
       const pxd213CaptionImportCurrentSourceReviewText = textSource("p0-caption-import-current-source-review-pxd213.json");
       const pxd213CaptionImportCurrentSourceReview = JSON.parse(pxd213CaptionImportCurrentSourceReviewText);
       const qualityCurrentSourceFingerprintPaths = [
@@ -219,7 +221,7 @@ const definitions = [
       for (const decisionId of ["PXD-207", "PXD-208", "PXD-209"]) qualityCurrentSourceFingerprints.push([
         `.product-experience/decision-log.md#${decisionId}-section`, fingerprintPxdDecisionSection(decisionLogText, decisionId).sha256,
       ]);
-      const pxd218CurrentSourcePaths = [
+      const pxd222CurrentSourcePaths = [
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         ".product-experience/pdp-0-product-truth/quality-policy.yaml",
         ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
@@ -232,11 +234,13 @@ const definitions = [
         "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json",
         "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json",
         "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json",
+        "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json",
+        "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
       ];
-      const pxd218CurrentSourceTexts = Object.fromEntries(pxd218CurrentSourcePaths.map((sourceRef) => [sourceRef, textSource(sourceRef.split("/").at(-1))]));
-      pxd218CurrentSourceTexts[".product-experience/source-manifest.yaml"] = textSource("source-manifest.yaml");
-      pxd218CurrentSourceTexts[".product-experience/pdp-0-product-truth/reuse-decisions.yaml"] = textSource("reuse-decisions.yaml");
-      pxd218CurrentSourceTexts[".product-experience/decision-log.md"] = decisionLogText;
+      const pxd222CurrentSourceTexts = Object.fromEntries(pxd222CurrentSourcePaths.map((sourceRef) => [sourceRef, textSource(sourceRef.split("/").at(-1))]));
+      pxd222CurrentSourceTexts[".product-experience/source-manifest.yaml"] = textSource("source-manifest.yaml");
+      pxd222CurrentSourceTexts[".product-experience/pdp-0-product-truth/reuse-decisions.yaml"] = textSource("reuse-decisions.yaml");
+      pxd222CurrentSourceTexts[".product-experience/decision-log.md"] = decisionLogText;
       const qualificationPolicyObservationText = textSource("feature-review-qualification-policy-current-source-observation.json");
       const qualificationPolicyObservation = JSON.parse(qualificationPolicyObservationText);
       const qualificationPolicySourceText = textSource("qualification-policy.yaml");
@@ -266,7 +270,7 @@ const definitions = [
         applicability: featureReviewSource.ownerFeatureReviewApplicability,
         requirements,
         capabilities,
-        requirePxd218Currentness: true,
+        requirePxd222Currentness: true,
         capabilityCrosswalk: source("capability-leaf-review.yaml").ownerCapabilityLeafAdjudication,
         channels: [...featureReviewSource.channels, ...featureReviewSource.ownerDefinedChannels.records],
         sourceDocuments: Object.fromEntries(sources.filter((entry) => entry.sourceRef.endsWith(".yaml")).map((entry) => [entry.sourceRef, entry.content])),
@@ -290,11 +294,11 @@ const definitions = [
         qualityCurrentSourceFingerprints,
         captionImportCurrentSourceReview,
         captionImportCurrentSourceReviewText,
-        pxd218QualityCurrentSourceReview,
-        pxd218QualityCurrentSourceReviewText,
+        pxd222QualityCurrentSourceReview,
+        pxd222QualityCurrentSourceReviewText,
         pxd213CaptionImportCurrentSourceReview,
         pxd213CaptionImportCurrentSourceReviewText,
-        pxd218CurrentSourceTexts,
+        pxd222CurrentSourceTexts,
         requirementsSourceText: textSource("requirements.yaml"),
         decisionLogSourceText: textSource("decision-log.md"),
         animationRelationshipObservation,

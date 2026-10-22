@@ -4,7 +4,7 @@
   "closureSurfaceId": "media.product-definition",
   "programId": "media.product-definition.v1",
   "phases": {
-    "PDP-0": {
+    "media.product-truth.definition-acceptance": {
       "applicability": "APPLICABLE",
       "obligationIds": [
         "media.pdp-0.requirement.media-req-cap-animation",
@@ -4037,7 +4037,7 @@
         "media.pdp-0.requirement.quality-metric-video-temporal-defects"
       ]
     },
-    "PDP-1": {
+    "media.canonical-domain-data.definition-acceptance": {
       "applicability": "APPLICABLE",
       "obligationIds": [
         "media.pdp-1.requirement.media-attempt",
@@ -4794,6 +4794,7 @@
         "media.pdp-1.requirement.media.logical-producer.media-rights-and-consent.v1",
         "media.pdp-1.requirement.media.logical-producer.media-stream-session.v1",
         "media.pdp-1.requirement.media.logical-producer.media-upload-and-artifact.v1",
+        "media.pdp-1.requirement.media.observation-contract.candidate-metric-pair.v1",
         "media.pdp-1.requirement.media.observation-contract.consent-revision-current-read.v1",
         "media.pdp-1.requirement.media.observation-contract.declared-options.v1",
         "media.pdp-1.requirement.media.observation-contract.delegated-integration-result-context.v1",
@@ -5420,6 +5421,7 @@
         "media.pdp-1.requirement.media.operation.project.export.v1",
         "media.pdp-1.requirement.media.operation.provider-diagnostics.inspect.v1",
         "media.pdp-1.requirement.media.operation.request-snapshot.inspect.v1",
+        "media.pdp-1.requirement.media.operation.spatial-export.execute.v1",
         "media.pdp-1.requirement.media.operation.speaker-reference.resolve-version.v1",
         "media.pdp-1.requirement.media.operation.stream-session",
         "media.pdp-1.requirement.media.operation.stream-session.inspect-execution-recovery.v1",
@@ -6131,6 +6133,7 @@
         "media.pdp-1.requirement.media.typed-input.authorized-outcome-evidence-reference",
         "media.pdp-1.requirement.media.typed-input.authorized-source-speaker-recording",
         "media.pdp-1.requirement.media.typed-input.authorized-speaker-reference",
+        "media.pdp-1.requirement.media.typed-input.authorized-speaker-reference-or-ordered-segment-speaker-map",
         "media.pdp-1.requirement.media.typed-input.authorized-workspace-and-optional-project-reference",
         "media.pdp-1.requirement.media.typed-input.candidate-artifacts-or-execution-observation",
         "media.pdp-1.requirement.media.typed-input.canonical-profileid-and-profileversion",
@@ -6146,6 +6149,7 @@
         "media.pdp-1.requirement.media.typed-input.declared-content-metadata-and-purpose",
         "media.pdp-1.requirement.media.typed-input.declared-source-and-target-color-context",
         "media.pdp-1.requirement.media.typed-input.delivery-and-loudness-context",
+        "media.pdp-1.requirement.media.typed-input.delivery-target-channel-layout-and-loudness-context",
         "media.pdp-1.requirement.media.typed-input.domain-model-and-initial-conditions",
         "media.pdp-1.requirement.media.typed-input.edit-intent",
         "media.pdp-1.requirement.media.typed-input.edit-intent-and-preservation-policy",
@@ -6293,6 +6297,10 @@
         "media.pdp-1.requirement.media.typed-output.import-observation-and-source-resolution-evidence",
         "media.pdp-1.requirement.media.typed-output.integrity-and-lifecycle-disposition",
         "media.pdp-1.requirement.media.typed-output.language-and-recognition-evidence-when-provided",
+        "media.pdp-1.requirement.media.typed-output.local-inpaint-candidate-or-draft",
+        "media.pdp-1.requirement.media.typed-output.local-matte-candidate-or-draft",
+        "media.pdp-1.requirement.media.typed-output.local-timing-edit-candidate-with-explicit-source-time-mapping",
+        "media.pdp-1.requirement.media.typed-output.local-versioned-composition-candidate",
         "media.pdp-1.requirement.media.typed-output.mastered-audio-candidate-with-measurements",
         "media.pdp-1.requirement.media.typed-output.media-job-status-snapshot",
         "media.pdp-1.requirement.media.typed-output.minimized-provenance-record-or-disclosure",
@@ -6370,7 +6378,7 @@
         "media.pdp-1.requirement.media.workflow-contract.spatial-export-boundary.v1"
       ]
     },
-    "PDP-2": {
+    "media.design-interface-system.definition-acceptance": {
       "applicability": "APPLICABLE",
       "obligationIds": [
         "media.pdp-2.requirement.media.a11y.keyboard-equivalence",
@@ -6649,6 +6657,7 @@
         "media.pdp-2.requirement.media.gui.composition-region.template.workbench",
         "media.pdp-2.requirement.media.gui.composition-region.template.workspace-settings",
         "media.pdp-2.requirement.media.gui.composition-rule.accessibility.keyboard",
+        "media.pdp-2.requirement.media.gui.composition-rule.accessibility.motion",
         "media.pdp-2.requirement.media.gui.composition-rule.accessibility.screenfocus",
         "media.pdp-2.requirement.media.gui.composition-rule.accessibility.unknownfinality",
         "media.pdp-2.requirement.media.gui.composition-rule.link.component",
@@ -6792,6 +6801,7 @@
         "media.pdp-2.requirement.media.p2.rule.repeat-safe-step-disclosure.v1",
         "media.pdp-2.requirement.media.p2.rule.responsive-content-and-order.v1",
         "media.pdp-2.requirement.media.p2.rule.responsive-keyboard-equivalence.v1",
+        "media.pdp-2.requirement.media.p2.rule.rule-management-proposal-not-a-lifecycle.v1",
         "media.pdp-2.requirement.media.p2.rule.same-revision-editor-projections.v1",
         "media.pdp-2.requirement.media.p2.rule.ui-behavior-preserving-relocation.v1",
         "media.pdp-2.requirement.media.p2.rule.ui-no-semantic-dummy-input.v1",
@@ -6809,7 +6819,7 @@
         "media.pdp-2.requirement.media.token.trust.recognized"
       ]
     },
-    "PDP-3": {
+    "media.complete-product-experience.definition-acceptance": {
       "applicability": "APPLICABLE",
       "obligationIds": [
         "media.pdp-3.requirement.j-01",
@@ -7689,7 +7699,7 @@
         "media.pdp-3.requirement.media.step-semantic-definition.j-19-step-01.v1",
         "media.pdp-3.requirement.media.step-semantic-definition.j-19-step-02.v1",
         "media.pdp-3.requirement.media.step-semantic-definition.j-19-step-03.v1",
-        "media.pdp-3.requirement.media.step-semantic-definition.j-19-step-04.v1",
+        "media.pdp-3.requirement.media.step-semantic-definition.j-19-step-05.v1",
         "media.pdp-3.requirement.media.step-semantic-definition.j-20-step-01.v1",
         "media.pdp-3.requirement.media.step-semantic-definition.j-20-step-02.v1",
         "media.pdp-3.requirement.media.step-semantic-definition.j-20-step-03.v1",
@@ -7887,24 +7897,20 @@
         "media.pdp-3.requirement.media.step-version-object-binding.j-03-08.caption-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-04-02.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-04-03.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-04-03.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-04-04.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-05-01.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-05-02.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-05-03.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-05-03.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-05-04.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-05-04.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-06-01.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-06-01.provenance-manifest.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-06-02.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-07-03.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-07-03.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-07-04.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-08-01.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-08-02.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-08-03.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-08-03.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-08-04.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-08-04.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-09-02.artifact-version.v1",
@@ -7916,11 +7922,8 @@
         "media.pdp-3.requirement.media.step-version-object-binding.j-10-04.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-10-04.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-10-05.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-10-05.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-11-03.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-11-03.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-12-02.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-12-02.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-12-03.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-13-04.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-14-02.simulation-world.v1",
@@ -7931,13 +7934,11 @@
         "media.pdp-3.requirement.media.step-version-object-binding.j-15-03.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-15-03.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-15-04.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-15-04.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-16-01.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-16-03.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-16-03.caption-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-16-03.transcript-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-16-05.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-16-05.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-17-03.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-17-03.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-17-04.artifact-version.v1",
@@ -7949,7 +7950,6 @@
         "media.pdp-3.requirement.media.step-version-object-binding.j-19-01.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-19-02.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-19-03.artifact-version.v1",
-        "media.pdp-3.requirement.media.step-version-object-binding.j-19-03.quality-assessment.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-20-01.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-20-02.artifact-version.v1",
         "media.pdp-3.requirement.media.step-version-object-binding.j-20-03.artifact-version.v1",

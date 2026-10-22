@@ -138618,7 +138618,7 @@ capabilities:
         runtimeAvailability: UNKNOWN
         executionAdmission: NOT_ADMITTED
   - id: media.recipe.specification.compile
-    scopeStatus: TARGET
+    scopeStatus: DEFERRED
     familyId: media.recipe.template
     operation: specification.compile
     label: Compile declarative production specification
@@ -138887,7 +138887,7 @@ capabilities:
     coverageRationale: Coordinator-authored source proposal at user direction; owner approval and independent acceptance
       are not claimed.
   - id: media.project.scene.patch-merge
-    scopeStatus: TARGET
+    scopeStatus: DEFERRED
     familyId: media.project
     operation: scene.patch-merge
     label: Prepare scene patch merge proposal
@@ -139142,7 +139142,7 @@ capabilities:
         runtimeAvailability: UNKNOWN
         executionAdmission: NOT_ADMITTED
   - id: media.quality.audio.content-similarity.assess
-    scopeStatus: TARGET
+    scopeStatus: DEFERRED
     familyId: media.quality
     operation: content-similarity.assess
     label: Assess bounded audio content similarity
@@ -139253,7 +139253,7 @@ capabilities:
       recovery: Re-observe only under current authorized scope; preserve unavailable evidence and make no rights inference.
       availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
   - id: media.generate.video.preset.manage
-    scopeStatus: TARGET
+    scopeStatus: DEFERRED
     familyId: media.generate.video
     operation: preset.manage
     label: Manage versioned video generation presets
@@ -139360,7 +139360,7 @@ capabilities:
       recovery: Re-read exact source settings after unknown persistence; do not infer job dispatch or output change.
       availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
   - id: media.generate.video.shot-condition
-    scopeStatus: TARGET
+    scopeStatus: DEFERRED
     familyId: media.generate.video
     operation: shot-condition
     label: Bind video generation conditions to shots
@@ -139467,7 +139467,7 @@ capabilities:
       recovery: Re-read exact shot/timebase and condition versions after unknown persistence; never infer dispatch or output.
       availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
   - id: media.job.schedule.manage
-    scopeStatus: TARGET
+    scopeStatus: DEFERRED
     familyId: media.job
     operation: schedule.manage
     label: Manage versioned watch and recurrence schedules
@@ -139573,7 +139573,7 @@ capabilities:
       recovery: Reconcile schedule version and submitted child jobs independently; pausing never implies child cancellation.
       availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
   - id: media.master.audio.creative-effect.apply
-    scopeStatus: TARGET
+    scopeStatus: DEFERRED
     familyId: media.master.audio
     operation: creative-effect.apply
     label: Prepare a creative audio effect candidate

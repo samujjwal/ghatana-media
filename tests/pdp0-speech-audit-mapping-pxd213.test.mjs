@@ -38,7 +38,7 @@ const cap = id => `.product-experience/pdp-0-product-truth/capabilities.yaml#cap
 const ac = (family, id) => `.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=${family}/acceptanceCases/@id=${family}-${id}`;
 const decisionRef = `${decisionPath}#PXD-213`;
 
-test('PXD-213 speech and dubbing joins remain exact historical row decisions under current PXD-216 review', () => {
+test('PXD-213 speech and dubbing joins remain exact historical row decisions under current PXD-223 review', () => {
   const ledger = JSON.parse(read(crosswalkPath).toString('utf8'));
   const rows = new Map(ledger.rows.map(row => [row.auditId, row]));
   const expected = new Map([
@@ -72,17 +72,17 @@ test('PXD-213 speech and dubbing joins remain exact historical row decisions und
   ]);
   assert.equal(ledger.rows.length, 501);
   assert.deepEqual(ledger.dispositionCounts, {BOUND_EXISTING: 499, PDP0_MEANING_CHANGE_REQUIRED: 0, EXPLICIT_NOT_APPLICABLE: 0, POST_PDP_IMPLEMENTATION_ONLY: 2, BLOCKED_EXTERNAL_OWNER_DECISION: 0});
-  assert.equal(ledger.coordinatorReview.decisionRef, 'PXD-216');
-  assert.equal(ledger.coordinatorReview.priorDecisionRef, 'PXD-215');
+  assert.equal(ledger.coordinatorReview.decisionRef, 'PXD-223');
+  assert.equal(ledger.coordinatorReview.priorDecisionRef, 'PXD-216');
   assert.equal(ledger.coordinatorReview.ownerApproval, 'NOT_CLAIMED');
   const historicalPxd213 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-213');
   assert.ok(historicalPxd213, 'PXD-213 remains in source review history');
   assert.equal(historicalPxd213.priorDecisionRef, 'PXD-212');
-  const pins = currentPdp0PhaseScopedSourceFingerprints('PXD-216');
+  const pins = currentPdp0PhaseScopedSourceFingerprints('PXD-223');
   assert.deepEqual(ledger.coordinatorReview.sourceFingerprints, pins);
   assert.deepEqual(ledger.sourceBaseline.phaseScopedSourceFingerprintsSha256, pins);
   assert.deepEqual(ledger.coordinatorReview.phaseScopedSourceFingerprintsSha256, pins);
-  assert.equal(ledger.sourceBaseline.phaseScopedSourceFingerprintsSha256[`${decisionPath}#PXD-216-section`], pins[`${decisionPath}#PXD-216-section`]);
+  assert.equal(ledger.sourceBaseline.phaseScopedSourceFingerprintsSha256[`${decisionPath}#PXD-223-section`], pins[`${decisionPath}#PXD-223-section`]);
   for (const [auditId, refs] of expected) {
     const row = rows.get(auditId);
     assert.ok(row, `${auditId} exists in the full denominator`);
@@ -114,7 +114,7 @@ test('PXD-213 speech and dubbing joins remain exact historical row decisions und
   assert.match(decisionLog, /No audible distinction, successful synchronization/u);
 });
 
-test('current PXD-216 crosswalk source baseline retains the PXD-213 audit test and source inputs', () => {
+test('current PXD-223 crosswalk source baseline retains the PXD-213 audit test and source inputs', () => {
   const ledger = JSON.parse(read(crosswalkPath).toString('utf8'));
   const pins = ledger.sourceBaseline.workingTreeSourceFingerprintsSha256;
   assert.equal(pins['tests/pdp0-speech-audit-mapping-pxd213.test.mjs'], sha(read('tests/pdp0-speech-audit-mapping-pxd213.test.mjs')));

@@ -39,8 +39,17 @@ const decisionId = decisionRef.match(/#(PXD-\d{3})$/)?.[1];
 if (!decisionId) throw new Error('PDP-0 extension applicability must bind one exact PXD decision section.');
 const decisionSectionPin = `.product-experience/decision-log.md#${decisionId}-section`;
 if (!projectedPins[decisionSectionPin]) throw new Error(`Missing current PDP-0 section pin for ${decisionRef}.`);
+const versionDecisionRefs = authority.campaignExtensions.currentDefinitionPopulation.versionDisposition.decisionRefs;
+const versionDecisionSectionPins = versionDecisionRefs.map((ref) => {
+  const id = ref.match(/#(PXD-\d{3})$/)?.[1];
+  if (!id) throw new Error(`Malformed version disposition decision reference: ${ref}`);
+  const pin = `.product-experience/decision-log.md#${id}-section`;
+  if (!projectedPins[pin]) throw new Error(`Missing current PDP-0 section pin for ${ref}.`);
+  return pin;
+});
 const sourceFingerprints = Object.fromEntries(sourcePaths.map((sourcePath) => [sourcePath, sha256(sourcePath)]));
 sourceFingerprints[decisionSectionPin] = projectedPins[decisionSectionPin];
+for (const pin of versionDecisionSectionPins) sourceFingerprints[pin] = projectedPins[pin];
 const sourceFingerprintSetSha256 = digest(JSON.stringify(Object.entries(sourceFingerprints).sort(([a], [b]) => a.localeCompare(b))));
 const staleSourcePins = Object.entries(status.sourceShaSet ?? {}).flatMap(([sourceRef, expectedSha256]) => {
   const projectionPin = sourceRef.includes('#');
@@ -87,6 +96,11 @@ matrix.phaseSourceCurrentness = phaseSourceCurrentness;
 matrix.definitionExtensionApplicability = {
   status: projection.status,
   extensionCount: 7,
+  currentVersionExtensionCount: projection.versionDisposition.currentVersionExtensionCount,
+  currentVersionExtensionCapabilityIds: projection.versionDisposition.currentVersionExtensionCapabilityIds,
+  futureVersionProposalCount: projection.versionDisposition.futureVersionProposalCount,
+  futureVersionProposalCapabilityIds: projection.versionDisposition.futureVersionProposalCapabilityIds,
+  versionDispositionDecisionRefs: projection.versionDisposition.decisionRefs,
   surfaceIdentityCount: 54,
   channelCount: projection.channelCount,
   surfaceCellCount: projection.surfaceCellCount,
@@ -140,6 +154,8 @@ for (const row of matrix.surfaces) {
       featureId: extension.sourceAuditIds[0],
       definitionExtensionId: cell.capabilityRef,
       capabilityRef: cell.capabilityRef,
+      versionScopeStatus: cell.versionScopeStatus,
+      versionDispositionRef: cell.versionDispositionRef,
       decisionRef: authority.applications.coordinatorDefinitionExtensionApplicability.decisionRef,
       sourceRef,
       sourceAuditIds: extension.sourceAuditIds,
@@ -175,6 +191,7 @@ for (const row of matrix.surfaces) {
     '.product-experience/pdp-0-product-truth/campaign-extensions.yaml',
     '.product-experience/pdp-0-product-truth/capabilities.yaml',
     authority.applications.coordinatorDefinitionExtensionApplicability.decisionRef,
+    ...versionDecisionRefs,
     ...featureRows.map((item) => item.sourceRef),
   ])].sort();
   const priorRowSourceFingerprints = {...(row.sourceFingerprints ?? {})};
@@ -185,6 +202,7 @@ for (const row of matrix.surfaces) {
     '.product-experience/pdp-0-product-truth/campaign-extensions.yaml': sourceFingerprints['.product-experience/pdp-0-product-truth/campaign-extensions.yaml'],
     '.product-experience/pdp-0-product-truth/capabilities.yaml': sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'],
     [decisionSectionPin]: sourceFingerprints[decisionSectionPin],
+    ...Object.fromEntries(versionDecisionSectionPins.map((pin) => [pin, sourceFingerprints[pin]])),
   };
   row.sourceCurrent = phaseSourceCurrentness.status === 'CURRENT';
   row.sourceCurrentBasis = phaseSourceCurrentness.status === 'CURRENT'

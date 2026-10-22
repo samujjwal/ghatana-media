@@ -9,6 +9,8 @@ export const PDP0_PXD212_QUALITY_HISTORY_PATH = "docs/implementation/verificatio
 export const PDP0_PXD216_MEANING_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json";
 export const PDP0_PXD216_RECONCILIATION_PATH = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json";
 export const PDP0_PXD218_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json";
+export const PDP0_PXD222_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json";
+export const PDP0_PXD223_RECONCILIATION_PATH = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json";
 export const PDP0_CAPTION_IMPORT_SELECTOR = ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs/0/optionalSemanticObservations/@id=importedCaptionTrack";
 
 const sha256 = value => createHash("sha256").update(value).digest("hex");
@@ -149,6 +151,8 @@ function validatePdp0QualityCurrentnessSuccessor({ qualityHistoryReview, latestQ
   preservedReviewPath,
   additionalPins = {},
   semanticReview,
+  allowHistoricalCaptionCapabilityPin = false,
+  historicalCaptionCapabilityPinProofValid = false,
 }) {
   const errors = [];
   const fail = message => errors.push(message);
@@ -261,6 +265,9 @@ function validatePdp0QualityCurrentnessSuccessor({ qualityHistoryReview, latestQ
   const optionalObservation = importOutputs?.[0]?.optionalSemanticObservations?.find(({ id }) => id === "importedCaptionTrack");
   const ac08 = sourceDocuments[reqPath]?.requirements?.find(({ id }) => id === "MEDIA-REQ-CAP-ARTIFACT")?.acceptanceCases?.find(({ id }) => id === "MEDIA-REQ-CAP-ARTIFACT-AC-08");
   const captionPins = caption?.sourceFingerprints;
+  if (allowHistoricalCaptionCapabilityPin && !historicalCaptionCapabilityPinProofValid) {
+    fail("PXD-222 PXD-223 reconciliation must prove exactly seven TARGET-to-DEFERRED scopeStatus-only changes with no added, removed, or other changed capability fields");
+  }
   if (caption?.schemaVersion !== "media.pdp0.caption-import-current-source-review.v1"
       || caption?.decisionRef !== ".product-experience/decision-log.md#PXD-213"
       || caption?.reviewedField?.sourceRef !== PDP0_CAPTION_IMPORT_SELECTOR
@@ -275,10 +282,23 @@ function validatePdp0QualityCurrentnessSuccessor({ qualityHistoryReview, latestQ
       || caption?.reviewBoundary?.acceptanceEffect !== "none") {
     fail("PXD-213 caption successor must bind the live importedCaptionTrack selector and AC-08 while recording no semantic/import/type/quality disposition change or acceptance");
   }
-  if (!captionPins || captionPins[capPath] !== expectedPins[capPath]
+  let historicalCaptionCapabilityPin;
+  if (allowHistoricalCaptionCapabilityPin) {
+    try {
+      const pxd218 = JSON.parse(sourceTexts[PDP0_PXD218_QUALITY_REVIEW_PATH] ?? "{}");
+      historicalCaptionCapabilityPin = pxd218.latestCurrentnessRefresh?.sourceFingerprints?.[capPath];
+    } catch {
+      historicalCaptionCapabilityPin = undefined;
+    }
+  }
+  if (!captionPins || (allowHistoricalCaptionCapabilityPin
+        ? !historicalCaptionCapabilityPin || captionPins[capPath] !== historicalCaptionCapabilityPin
+        : captionPins[capPath] !== expectedPins[capPath])
       || captionPins[reqPath] !== expectedPins[reqPath]
       || captionPins[".product-experience/decision-log.md#PXD-213-section"] !== expectedPins[".product-experience/decision-log.md#PXD-213-section"]) {
-    fail("PXD-213 caption source pins must bind current capability, AC-08 requirement, and decision section");
+    fail(allowHistoricalCaptionCapabilityPin
+      ? "PXD-213 caption source pins must retain the PXD-218 historical capabilities digest and bind current AC-08 requirement and decision section"
+      : "PXD-213 caption source pins must bind current capability, AC-08 requirement, and decision section");
   }
   return { valid: errors.length === 0, errors, expectedPins };
 }
@@ -293,20 +313,58 @@ export function validatePdp0Pxd213Currentness(input) {
   });
 }
 
-/** Validate the post-PXD-216 currentness refresh; PXD-213 remains immutable history. */
-export function validatePdp0Pxd218Currentness(input) {
+/** Validate the post-PXD-221 currentness refresh while preserving PXD-218 history. */
+export function validatePdp0Pxd222Currentness(input) {
   const decisionPath = ".product-experience/decision-log.md";
+  const reconciliationPath = PDP0_PXD223_RECONCILIATION_PATH;
+  let reconciliation;
+  try {
+    reconciliation = JSON.parse(input?.sourceTexts?.[reconciliationPath] ?? "{}");
+  } catch {
+    reconciliation = {};
+  }
+  const delta = reconciliation.currentSource?.populationDelta;
+  const expectedDeferredIds = [
+    "media.recipe.specification.compile",
+    "media.project.scene.patch-merge",
+    "media.quality.audio.content-similarity.assess",
+    "media.generate.video.preset.manage",
+    "media.generate.video.shot-condition",
+    "media.job.schedule.manage",
+    "media.master.audio.creative-effect.apply",
+  ];
+  const changedRows = delta?.changedRows;
+  const exactDeferralDelta = delta?.addedRecordCount === 0
+    && delta?.removedRecordCount === 0
+    && delta?.changedRecordCount === expectedDeferredIds.length
+    && delta?.otherCapabilityFieldsChanged === false
+    && delta?.sourceDecisionRef === ".product-experience/decision-log.md#PXD-221"
+    && Array.isArray(changedRows)
+    && JSON.stringify(changedRows.map(row => row.capabilityId).sort()) === JSON.stringify([...expectedDeferredIds].sort())
+    && changedRows.every(row => row.field === "scopeStatus" && row.from === "TARGET" && row.to === "DEFERRED")
+    && new Set(changedRows.map(row => row.capabilityId)).size === expectedDeferredIds.length
+    && reconciliation.currentSource?.capabilitiesPath === ".product-experience/pdp-0-product-truth/capabilities.yaml"
+    && reconciliation.currentSource?.capabilitiesSha256 === sha256(input?.sourceTexts?.[".product-experience/pdp-0-product-truth/capabilities.yaml"] ?? "");
   return validatePdp0QualityCurrentnessSuccessor(input, {
-    successorId: "PXD-218",
+    successorId: "PXD-222",
     preservedReviewId: "PXD-216",
     preservedReviewPath: PDP0_PXD216_MEANING_REVIEW_PATH,
     semanticReview: "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
+    allowHistoricalCaptionCapabilityPin: true,
+    historicalCaptionCapabilityPinProofValid: exactDeferralDelta,
     additionalPins: {
       [PDP0_PXD213_QUALITY_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD213_QUALITY_REVIEW_PATH),
+      [PDP0_PXD218_QUALITY_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD218_QUALITY_REVIEW_PATH),
       [PDP0_PXD216_MEANING_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD216_MEANING_REVIEW_PATH),
       [PDP0_PXD216_RECONCILIATION_PATH]: sourceDigestFromInput(input, PDP0_PXD216_RECONCILIATION_PATH),
+      [PDP0_PXD223_RECONCILIATION_PATH]: sourceDigestFromInput(input, PDP0_PXD223_RECONCILIATION_PATH),
+      [`${decisionPath}#PXD-219-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-219").sha256,
+      [`${decisionPath}#PXD-220-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-220").sha256,
       [`${decisionPath}#PXD-216-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-216").sha256,
       [`${decisionPath}#PXD-218-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-218").sha256,
+      [`${decisionPath}#PXD-221-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-221").sha256,
+      [`${decisionPath}#PXD-222-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-222").sha256,
+      [`${decisionPath}#PXD-223-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-223").sha256,
     },
   });
 }
@@ -386,7 +444,7 @@ function resolveSelector(ref, sourceDocuments) {
 }
 
 /** Resolve the full definition-only 15×38 dimension and 462-leaf applicability join. */
-export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, qualityCurrentSourceFingerprints, captionImportCurrentSourceReview, captionImportCurrentSourceReviewText, pxd218QualityCurrentSourceReview, pxd218QualityCurrentSourceReviewText, pxd213CaptionImportCurrentSourceReview, pxd213CaptionImportCurrentSourceReviewText, pxd218CurrentSourceTexts, requirePxd218Currentness = false, requirementsSourceText, decisionLogSourceText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
+export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, qualityCurrentSourceFingerprints, captionImportCurrentSourceReview, captionImportCurrentSourceReviewText, pxd222QualityCurrentSourceReview, pxd222QualityCurrentSourceReviewText, pxd213CaptionImportCurrentSourceReview, pxd213CaptionImportCurrentSourceReviewText, pxd222CurrentSourceTexts, requirePxd222Currentness = false, requirementsSourceText, decisionLogSourceText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
   const fail = (reason) => { throw new Error(`Invalid PDP-0 feature applicability: ${reason}`); };
   const dimensions = applicability?.dimensions;
   const requirementRows = requirements?.requirements;
@@ -404,7 +462,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
       || extensionPopulation?.currentCapabilityDefinitions !== capabilityRows.length
       || extensionPopulation?.definitionExtensionCapabilityLeaves !== extensionRows.length
       || extensionPopulation?.ownerAdjudications !== leafRows.length
-      || extensionPopulation?.extensionDisposition !== "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_WITH_DELEGATED_PDP0_APPLICABILITY_DECISIONS; ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED"
+      || extensionPopulation?.extensionDisposition !== "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED"
       || extensionPopulation?.ownerApproval !== "NOT_CLAIMED"
       || extensionPopulation?.independentAcceptance !== "NOT_CLAIMED") {
     fail("current definitions must distinguish the 462 owner-adjudicated leaves from seven delegated definition extensions");
@@ -655,16 +713,16 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && typeof qualityCurrentSourceReviewText === "string"
     && JSON.stringify(JSON.parse(qualityCurrentSourceReviewText)) === JSON.stringify(qualitySourceReview);
   if (!qualitySourceReviewValid) fail(`P0 quality current-source review is absent, stale, or has an invalid acceptance boundary (PXD-208 historical pins=${qualityFingerprintMapValid}; PXD-209 currentness pins=${qualityCurrentnessFingerprintMapValid}; live capability=${qualitySourceReview?.sources?.capabilities?.currentSha256 === createHash("sha256").update(capabilitiesSourceText ?? "").digest("hex")}; caption artifact=${qualitySourceReview?.postReviewCurrentnessRefresh?.reviewArtifactSha256 === createHash("sha256").update(captionImportCurrentSourceReviewText ?? "").digest("hex")})`);
-  if (requirePxd218Currentness) {
-    const pxd218Validation = validatePdp0Pxd218Currentness({
+  if (requirePxd222Currentness) {
+    const pxd222Validation = validatePdp0Pxd222Currentness({
       qualityHistoryReview: qualitySourceReview,
-      latestQualityReview: pxd218QualityCurrentSourceReview,
+      latestQualityReview: pxd222QualityCurrentSourceReview,
       captionReview: pxd213CaptionImportCurrentSourceReview,
       sourceDocuments,
-      sourceTexts: pxd218CurrentSourceTexts ?? {},
+      sourceTexts: pxd222CurrentSourceTexts ?? {},
       decisionLogText: decisionLogSourceText,
     });
-    if (!pxd218Validation.valid) fail(pxd218Validation.errors[0]);
+    if (!pxd222Validation.valid) fail(pxd222Validation.errors[0]);
   }
   const approvedCurrentSourceObservation = new Map();
   const qualificationObservationSha256 = "ea9f6acde7310f6b306c39ad1bd32f1ad9031aaac7e43b0db586984c7231df6c";

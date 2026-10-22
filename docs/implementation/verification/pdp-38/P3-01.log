@@ -2,199 +2,199 @@ TAP version 13
 # Subtest: J-03 binds only existing save and exact-pair compare operations, preserving the global experience population
 ok 1 - J-03 binds only existing save and exact-pair compare operations, preserving the global experience population
   ---
-  duration_ms: 1644.780159
+  duration_ms: 754.954333
   type: 'test'
   ...
 # Subtest: J-03 source bindings reject swapped lineage, unsafe request replay, promoted runtime, and provenance export
 ok 2 - J-03 source bindings reject swapped lineage, unsafe request replay, promoted runtime, and provenance export
   ---
-  duration_ms: 19.775407
+  duration_ms: 21.308041
   type: 'test'
   ...
 # Subtest: PXD-060 preserves the exact immutable-registration effect and taxonomy candidates stay non-admitted without Boolean coercion
 ok 3 - PXD-060 preserves the exact immutable-registration effect and taxonomy candidates stay non-admitted without Boolean coercion
   ---
-  duration_ms: 53.913185
+  duration_ms: 42.964
   type: 'test'
   ...
 # Subtest: J-01 keeps its four ordered steps and five registered screens without expanding the denominator
 ok 4 - J-01 keeps its four ordered steps and five registered screens without expanding the denominator
   ---
-  duration_ms: 926.051202
+  duration_ms: 801.096875
   type: 'test'
   ...
 # Subtest: each ordered step binds only its exact project query or create operation and applies no state transition
 ok 5 - each ordered step binds only its exact project query or create operation and applies no state transition
   ---
-  duration_ms: 0.765528
+  duration_ms: 0.741917
   type: 'test'
   ...
 # Subtest: screen links distinguish trusted identity, scoped project views, and optional post-journey continuation
 ok 6 - screen links distinguish trusted identity, scoped project views, and optional post-journey continuation
   ---
-  duration_ms: 35.897236
+  duration_ms: 32.768959
   type: 'test'
   ...
 # Subtest: create finality is receipt-bound; project reads do not claim reversible remote effects
 ok 7 - create finality is receipt-bound; project reads do not claim reversible remote effects
   ---
-  duration_ms: 5.479757
+  duration_ms: 17.107708
   type: 'test'
   ...
 # Subtest: PXD-055 cannot authorize unrelated actions or substitute another operation or source decision
 ok 8 - PXD-055 cannot authorize unrelated actions or substitute another operation or source decision
   ---
-  duration_ms: 1.908791
+  duration_ms: 1.295584
   type: 'test'
   ...
 # Subtest: J-02 source definitions preserve the original population and bind only existing identities
 ok 9 - J-02 source definitions preserve the original population and bind only existing identities
   ---
-  duration_ms: 2358.598296
+  duration_ms: 989.09975
   type: 'test'
   ...
 # Subtest: conditional upload effects and read observations are not coerced to public undo booleans
 ok 10 - conditional upload effects and read observations are not coerced to public undo booleans
   ---
-  duration_ms: 0.692151
+  duration_ms: 0.479667
   type: 'test'
   ...
 # Subtest: attachment definition maps only its supported immutable project-reference effect
 ok 11 - attachment definition maps only its supported immutable project-reference effect
   ---
-  duration_ms: 5.556679
+  duration_ms: 3.136667
   type: 'test'
   ...
 # Subtest: existing recovery records remain manual, source-defined, and non-admitted
 ok 12 - existing recovery records remain manual, source-defined, and non-admitted
   ---
-  duration_ms: 3.448267
+  duration_ms: 1.077041
   type: 'test'
   ...
 # Subtest: J-03 binds the existing transcript review step without changing the journey or action population
 ok 13 - J-03 binds the existing transcript review step without changing the journey or action population
   ---
-  duration_ms: 1724.671878
+  duration_ms: 832.892125
   type: 'test'
   ...
 # Subtest: transcript identity, read selector, source link, availability, and errors match PDP-1
 ok 14 - transcript identity, read selector, source link, availability, and errors match PDP-1
   ---
-  duration_ms: 0.789308
+  duration_ms: 0.650209
   type: 'test'
   ...
 # Subtest: review screen binds only the exact query while local playback actions remain separate
 ok 15 - review screen binds only the exact query while local playback actions remain separate
   ---
-  duration_ms: 0.493693
+  duration_ms: 0.627
   type: 'test'
   ...
 # Subtest: read action stays UNKNOWN for reversibility and cannot forge a public Boolean
 ok 16 - read action stays UNKNOWN for reversibility and cannot forge a public Boolean
   ---
-  duration_ms: 16.164496
+  duration_ms: 17.168041
   type: 'test'
   ...
 # Subtest: PXD-064 cannot be reused for a different action, operation, authority, decision, or admission
 ok 17 - PXD-064 cannot be reused for a different action, operation, authority, decision, or admission
   ---
-  duration_ms: 106.683878
+  duration_ms: 27.636834
   type: 'test'
   ...
 # Subtest: experience candidate projects the exact PXD-083 Media required-prop source set
 ok 18 - experience candidate projects the exact PXD-083 Media required-prop source set
   ---
-  duration_ms: 8.258181
+  duration_ms: 1.097291
   type: 'test'
   ...
 # Subtest: existing public prop projection remains exactly source-bound
 ok 19 - existing public prop projection remains exactly source-bound
   ---
-  duration_ms: 0.565679
+  duration_ms: 0.170708
   type: 'test'
   ...
 # Subtest: PDP-3 component projection preserves contract-only and observed export identity as separate dispositions
 ok 20 - PDP-3 component projection preserves contract-only and observed export identity as separate dispositions
   ---
-  duration_ms: 3.844021
+  duration_ms: 0.61175
   type: 'test'
   ...
 # Subtest: component source disposition rejects missing, overlapping, and implementation-promoting records
 ok 21 - component source disposition rejects missing, overlapping, and implementation-promoting records
   ---
-  duration_ms: 17.676761
+  duration_ms: 2.894584
   type: 'test'
   ...
 # Subtest: PDP-3 typed action semantics project only exact owner definitions
 ok 22 - PDP-3 typed action semantics project only exact owner definitions
   ---
-  duration_ms: 37.504599
+  duration_ms: 6.067166
   type: 'test'
   ...
 # Subtest: PDP-3 typed action mapping rejects stale decision, effect, role, and operation identities
 ok 23 - PDP-3 typed action mapping rejects stale decision, effect, role, and operation identities
   ---
-  duration_ms: 40.428505
+  duration_ms: 24.94275
   type: 'test'
   ...
 # Subtest: PDP-3 external-owner exceptions fail closed when the exact role, no-mutation, or non-admission boundary drifts
 ok 24 - PDP-3 external-owner exceptions fail closed when the exact role, no-mutation, or non-admission boundary drifts
   ---
-  duration_ms: 34.756744
+  duration_ms: 24.288459
   type: 'test'
   ...
 # Subtest: projects a P1 ordered workflow with a separate supporting observation
 ok 25 - projects a P1 ordered workflow with a separate supporting observation
   ---
-  duration_ms: 15.430924
+  duration_ms: 6.256958
   type: 'test'
   ...
 # Subtest: keeps a passive consent read as supporting observation without turning it into a mutating action
 ok 26 - keeps a passive consent read as supporting observation without turning it into a mutating action
   ---
-  duration_ms: 0.948946
+  duration_ms: 0.1845
   type: 'test'
   ...
 # Subtest: keeps Media's identity handoff as a bound single action while Shared wire mapping stays separate
 ok 27 - keeps Media's identity handoff as a bound single action while Shared wire mapping stays separate
   ---
-  duration_ms: 0.462382
+  duration_ms: 0.118083
   type: 'test'
   ...
 # Subtest: projects user-selected capability alternatives without defaulting a branch
 ok 28 - projects user-selected capability alternatives without defaulting a branch
   ---
-  duration_ms: 0.556534
+  duration_ms: 0.150209
   type: 'test'
   ...
 # Subtest: fails closed for missing or untyped source operation identities
 ok 29 - fails closed for missing or untyped source operation identities
   ---
-  duration_ms: 0.486749
+  duration_ms: 0.078875
   type: 'test'
   ...
 # Subtest: projects only the exact per-step version definition refs
 ok 30 - projects only the exact per-step version definition refs
   ---
-  duration_ms: 0.593447
+  duration_ms: 0.121334
   type: 'test'
   ...
 # Subtest: reference resolution is scoped to the exact public journey-step owner
 ok 31 - reference resolution is scoped to the exact public journey-step owner
   ---
-  duration_ms: 0.400253
+  duration_ms: 0.069625
   type: 'test'
   ...
 # Subtest: the only projected transition is the exact successful upload-finalization edge
 ok 32 - the only projected transition is the exact successful upload-finalization edge
   ---
-  duration_ms: 2.400137
+  duration_ms: 2.244875
   type: 'test'
   ...
 # Subtest: foreign operations, actions, states, edge outcomes, and unreviewed additions are rejected
 ok 33 - foreign operations, actions, states, edge outcomes, and unreviewed additions are rejected
   ---
-  duration_ms: 75.369391
+  duration_ms: 75.026667
   type: 'test'
   ...
 1..33
@@ -205,4 +205,4 @@ ok 33 - foreign operations, actions, states, edge outcomes, and unreviewed addit
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 17349.743863
+# duration_ms 11387.258959

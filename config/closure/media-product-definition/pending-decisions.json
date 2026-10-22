@@ -7,20 +7,35 @@
     {
       "id": "MEDIA-PDP-OWNER-ADJUDICATION",
       "status": "PENDING",
-      "blocks": ["PDP-0", "PDP-1", "PDP-2", "PDP-3"],
-      "reason": "Requirement-scoped obligation IDs now trace to PDP source records. Semantic completeness, source acceptance, and exact cross-phase requirement applicability remain open; owner policy approval is not phase semantic acceptance."
+      "blocks": [
+        "media.product-truth.definition-acceptance",
+        "media.canonical-domain-data.definition-acceptance",
+        "media.design-interface-system.definition-acceptance",
+        "media.complete-product-experience.definition-acceptance"
+      ],
+      "reason": "Delegated Media owner decisions PXD-219 and PXD-220 accept the original 427 source-bound A–Q audit taxonomy mappings and 456 of 462 capability taxonomy classifications; AUD-OPS-020 remains a PDP-0-excluded Build handoff, the 73 third-pass rows remain outside the original taxonomy, and six closest-fit capability mappings are deferred to a later PDP-0 cycle. Six unadopted definition-extension proposals are retained for a future version, not current requirements. None of these taxonomy or scope decisions is semantic phase acceptance or a gtool obligation deferral. Exact obligation-to-surface applicability and executable case membership remain open: 3,990 PDP-0 obligations have no case IDs and the current L-02 set has zero executable PDP-0 links."
     },
     {
       "id": "MEDIA-PDP-PROOF-PRODUCERS",
       "status": "PENDING",
-      "blocks": ["PDP-0", "PDP-1", "PDP-2", "PDP-3"],
-      "reason": "The obligation case memberships identify source-authored PDP-0 acceptance cases and selected PDP-3 fixtures, but no publicly admitted Lifecycle proof producer, provider binding, proof-class decision, executable proof-case admission, observer, or oracle has been supplied. The installed Evidence Contracts RC1 package is marked UNLICENSED, and the canonical provider registry is still resolved through a sibling Lifecycle source root rather than an admitted versioned public Lifecycle artifact. Technical isolated-consumer admission is not distribution or provider qualification. The consumer deliberately declares no provider bindings."
+      "blocks": [
+        "media.product-truth.definition-acceptance",
+        "media.canonical-domain-data.definition-acceptance",
+        "media.design-interface-system.definition-acceptance",
+        "media.complete-product-experience.definition-acceptance"
+      ],
+      "reason": "Lifecycle gtool provider health is PASS for the canonical ghatana-tools.evidence-generator / produce-evidence route (semantic fingerprint sha256:c92b98db1138e88883ffa41153077ab5c97db7796a127080b69f0ce451dcbb05), proving provider availability only. No Media-specific proof-class or case-scope binding, observer, oracle, or native receipt is admitted; exact-main closure validation remains blocked by AP-02 contract-distribution and AP-03 tracked-source-snapshot authority. Keep consumer providerBindings empty; provider health is not evidence for any Media obligation."
     },
     {
       "id": "MEDIA-PDP-REQUIREMENT-AND-CASE-BINDINGS",
       "status": "PENDING",
-      "blocks": ["PDP-0", "PDP-1", "PDP-2", "PDP-3"],
-      "reason": "PDP-0 acceptance-case IDs and the exact PDP-3 journey/screen fixture links are recorded; PDP-1/PDP-2 records have scoped source requirement IDs but no admitted semantic case memberships. Owner-authorized independent observers, oracles, and required proof methods remain unavailable and must be provided by Lifecycle and the applicable independent reviewers."
+      "blocks": [
+        "media.product-truth.definition-acceptance",
+        "media.canonical-domain-data.definition-acceptance",
+        "media.design-interface-system.definition-acceptance",
+        "media.complete-product-experience.definition-acceptance"
+      ],
+      "reason": "Source PDP-0 acceptance-case refs and PDP-3 journey/screen fixture candidates exist, but L-02 currently has 65 candidate links covering 44 obligations, zero executable PDP-0 links, and 8,620 unmapped obligations. PDP-1/PDP-2 have scoped source requirement IDs but no admitted semantic case memberships. Owner-authorized independent observers, oracles, and required proof methods remain unavailable; exact source-to-case bindings and independent assignments are still required."
     }
   ],
   "receiptAuthority": "ghatana-lifecycle",

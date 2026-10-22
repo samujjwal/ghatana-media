@@ -48,6 +48,11 @@ export function pdp0PhaseScopedSourcePins() {
   // Bind the quality-currentness successor by its exact decision section so
   // downstream records do not depend on unrelated later decision-log edits.
   addDecisionId('.product-experience/decision-log.md#PXD-218');
+  // Pin the explicit Media scope-disposition decisions independently from
+  // PXD-207 applicability; future-version membership is source authority.
+  addDecisionId('.product-experience/decision-log.md#PXD-220');
+  addDecisionId('.product-experience/decision-log.md#PXD-221');
+  addDecisionId('.product-experience/decision-log.md#PXD-222');
   const pins = {
     [pdp0SourceProjectionPinName]: fingerprint(projectPdp0SourceManifest(
       parseYaml(read('.product-experience/source-manifest.yaml')),
@@ -127,6 +132,7 @@ const suites = {
   'P3-08': ['tests/pdp-3-examples.test.mjs'],
   'P3-09': ['tests/pdp-design-responsive-comprehension.test.mjs', 'tests/pdp-design-responsive-rendered-references.test.mjs', 'tests/pdp-design-accessibility-text-spacing-target-size.test.mjs', 'tests/pdp2-media-renderer-dom.test.mjs'],
   'P3-10': ['tests/pdp-3-overview-denominator.test.mjs', 'tests/pdp-experience-definition-mapping.test.mjs', 'tests/pdp-experience-action-reconciliation-contract.test.mjs', 'tests/pdp-experience-transition-edge-bindings.test.mjs', 'tests/pdp-experience-view-state-binding.test.mjs', 'tests/pdp-experience-journey-purpose-bindings.test.mjs', 'tests/pdp-experience-step-version-binding-contracts.test.mjs', 'tests/pdp-experience-journey-scenario-bindings.test.mjs', 'tests/media-pdp-p3-dev-status.test.mjs', 'tests/pdp3-j03-decision-crosswalk.test.mjs'],
+  'P3-11': ['tests/media-pdp3-demo-recording.test.mjs'],
 };
 export const p103VerificationSuites = {
   'bounded-owner-contracts': {files:[
@@ -162,7 +168,7 @@ suites['P1-03'] = [...new Set([
 const p0Criteria = ['P0-01','P0-02','P0-03','P0-04','P0-05','P0-06','P0-07','P0-08'];
 export const p2Criteria = Array.from({length: 9}, (_, i) => `P2-${String(i + 1).padStart(2, '0')}`);
 export const p2SuiteFiles = Object.fromEntries(p2Criteria.map(id => [id, [...(suites[id] ?? [])]]));
-export const p3Criteria = Array.from({length: 10}, (_, i) => `P3-${String(i + 1).padStart(2, '0')}`);
+export const p3Criteria = Array.from({length: 11}, (_, i) => `P3-${String(i + 1).padStart(2, '0')}`);
 export const p3SuiteFiles = Object.fromEntries(p3Criteria.map(id => [id, [...(suites[id] ?? [])]]));
 export function isExplicitVerificationTestPath(file) {
   if (typeof file !== 'string' || !file.endsWith('.test.mjs') || file.includes('\\')) return false;
@@ -639,6 +645,11 @@ export const p1SourceRoots = [
 ];
 export const p2SourceRoots = [
   '.product-experience/pdp-2-design-interface-system',
+  '.product-experience/pdp-0-product-truth/capabilities.yaml',
+  'docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json',
+  'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json',
+  'docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json',
+  'docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json',
   '.product-experience/surface-registry.yaml',
   '.product-experience/surfaces/media-physical-topology.v1.json',
   '.product-experience/explorer/EXPERIENCE-EXPLORER.md',
@@ -657,6 +668,7 @@ export const p2SourceRoots = [
 ];
 export const p2DirectScripts = [
   'scripts/generate-media-phase-projections.mjs',
+  'scripts/report-media-pdp-readiness.mjs',
   'scripts/check-media-design-conformance.mjs',
   'scripts/check-media-presentation-architecture.mjs',
   'scripts/check-media-recorder-studio-definitions.mjs',
@@ -686,6 +698,8 @@ export const p3SourceRoots = [
   'libs/media-experience-simulation/src',
   'apps/media-experience-explorer/src',
   'apps/media-experience-explorer/specification-artifacts.json',
+  'docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json',
+  'docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2',
 ];
 export const p3DirectScripts = [
   'scripts/generate-media-phase-projections.mjs',
@@ -1746,6 +1760,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     'docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json',
+    'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json',
     'docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json',

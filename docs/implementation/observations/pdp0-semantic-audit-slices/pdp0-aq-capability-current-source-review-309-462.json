@@ -1,0 +1,406 @@
+{
+  "schemaVersion": "media.pdp0.aq-capability-current-source-review.v1",
+  "review": {
+    "reviewType": "AI-assisted read-only semantic recheck",
+    "campaignScope": "Recheck existing PDP-0 A–Q capability recommendations for source-order rows 309–462 against current capability definitions, requirements, and Blueprint V3 section 2.",
+    "phase": "PDP-0 Product Truth",
+    "macroStage": "DISCOVERY",
+    "repository": "ghatana-media",
+    "branch": "main",
+    "headAtReview": "b3f11733d2b997c12f0438d95b5330d1516c4f1d",
+    "sourceOrderRange": {
+      "startIndex": 309,
+      "endIndex": 462,
+      "count": 154,
+      "indexing": "1-based YAML list order"
+    },
+    "readOnly": true,
+    "phaseReadinessRerun": false,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentReview": "NOT_CLAIMED",
+    "limitations": "Bounded semantic recheck only. It does not establish PDP source currentness, owner acceptance, independent review, native closure, implementation, or delivery."
+  },
+  "materialInputs": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+      "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "liveCapabilityCount": 469
+    },
+    ".product-experience/pdp-0-product-truth/requirements.yaml": {
+      "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "liveRequirementCount": 38
+    },
+    "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": {
+      "section": "§2 Capability completeness ledger",
+      "sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+    },
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-309-462.json": {
+      "sha256": "d3ed598b6e3b1c9e36e681585163432d5efa293a1a40774c51670af0e8543bb3",
+      "recommendationDeclaredCapabilitiesSha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+      "recommendationBaselineCommit": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+      "actualBaselineCommitFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+      "recommendationPinMatchesBaselineCommitBytes": false
+    }
+  },
+  "identityAndLinkResults": {
+    "recommendationRows": 154,
+    "sourceOrderRangeMatches": true,
+    "allRecommendationOrdersMatchCurrentCapabilitySlice": true,
+    "recommendationCapabilityIdsUnique": true,
+    "recommendationCapabilityIdsMatchCurrentSourceOrder": 154,
+    "recommendationCapabilityIdsMismatched": 0,
+    "currentCapabilityPopulation": 469,
+    "currentCapabilityIdsUnique": true,
+    "currentRequirementPopulation": 38,
+    "currentRequirementIdsUnique": true,
+    "allParentRequirementIdsExist": true,
+    "parentRequirementLinksMatchingCurrentCapabilityRequirementIds": 154,
+    "parentRequirementLinksMismatched": 0
+  },
+  "semanticAssessment": {
+    "assessmentBasis": "Compared all row identities and parent joins, and rechecked each taxonomy label against live capability meaning and Blueprint V3 section 2. The nine changed source records were identified by exact semantic-field comparison with the recommendation baseline commit.",
+    "primaryClusterRecommendationsSupported": 154,
+    "relatedClusterCorrections": 1,
+    "mismatchedPrimaryRecommendations": [],
+    "correctedRelatedClusterLabels": [
+      {
+        "sourceOrderIndex": 371,
+        "capabilityId": "media.compose.safe-area",
+        "previousRelatedClusterIds": [
+          "P"
+        ],
+        "currentRelatedClusterIds": [],
+        "primaryClusterId": "D",
+        "decisionRef": ".product-experience/decision-log.md#PXD-221",
+        "disposition": "PXD-221 supersedes PXD-220 only for this related-cluster label; accepted row remains in the 456-row set by primary D."
+      }
+    ],
+    "changedSemanticRows": [
+      {
+        "sourceOrderIndex": 340,
+        "capabilityId": "media.edit.inpaint",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/339",
+        "recommendationPrimaryClusterId": "D",
+        "recommendationRelatedClusterIds": [
+          "K"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-EDIT"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outputArtifactTypes",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "18f7df55ed0d8029d86bbded7a7281d59cc4e96ae138ba03e4d527f8ccd001c0",
+        "currentSemanticProjectionSha256": "fd0115edaaefa00f2cc97c9faddb17274e648c0748ef2a25288e4114a2b45bcc",
+        "priorOutcome": "P0 defines the inpaint image/video result as a local candidate or draft whose intended operation is to fill selected regions of the source image or video; it does not define a canonical artifact or project change.",
+        "currentOutcome": "P0 defines the inpaint image/video result as a local candidate or draft whose intended operation is to fill selected regions of the source image or video; it does not define a canonical artifact or project change.",
+        "currentOutputArtifactTypes": [
+          "local-inpaint-candidate-or-draft"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "D",
+          "relatedClusterIds": [
+            "K"
+          ],
+          "disposition": "RECOMMENDATION_REMAINS_SEMANTICALLY_SUPPORTED",
+          "rationale": "Local image/video region-fill candidate; selected region and source version remain bounded; no canonical artifact or project change."
+        }
+      },
+      {
+        "sourceOrderIndex": 346,
+        "capabilityId": "media.edit.matte",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/345",
+        "recommendationPrimaryClusterId": "D",
+        "recommendationRelatedClusterIds": [
+          "K"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-EDIT"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outputArtifactTypes",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "55834464ccf9e7350bc76d9c310d9ada7c1f3d158de7f9f16c8530c6c78b1e62",
+        "currentSemanticProjectionSha256": "e2707ae1d0d16886544d6655b1eec945abc046610ea31bdec529ea55f9266d5d",
+        "priorOutcome": "P0 defines the edit matte result as a local candidate or draft whose intended operation is to produce a matte representation for the source media; it does not define a canonical artifact or project change.",
+        "currentOutcome": "P0 defines the edit matte result as a local candidate or draft whose intended operation is to produce a matte representation for the source media; it does not define a canonical artifact or project change.",
+        "currentOutputArtifactTypes": [
+          "local-matte-candidate-or-draft"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "D",
+          "relatedClusterIds": [
+            "K"
+          ],
+          "disposition": "RECOMMENDATION_REMAINS_SEMANTICALLY_SUPPORTED",
+          "rationale": "Local matte representation candidate for source media; remains a professional editing operation with no canonical artifact or project change."
+        }
+      },
+      {
+        "sourceOrderIndex": 351,
+        "capabilityId": "media.edit.retime-slow-motion-speed-ramp",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/350",
+        "recommendationPrimaryClusterId": "D",
+        "recommendationRelatedClusterIds": [
+          "M"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-EDIT"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outcome",
+          "outputArtifactTypes",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "ec58c2be9e9c6ac2d7b96e8613aa2d9a66bd2fed26ce810c827b7e672a5bade7",
+        "currentSemanticProjectionSha256": "3967e9a89d471fdb51d792ff256b531a00781519c80ccb63391441b43d75156f",
+        "priorOutcome": "P0 defines the retime/slow-motion/speed-ramp result as a local candidate or draft whose intended operation is to change source-media timing, including slow motion or a speed ramp; it does not define a canonical artifact or project change.",
+        "currentOutcome": "P0 defines source-timing edits as a local candidate or draft, including retime/speed changes, a freeze-frame hold over a declared output-time interval, and reverse playback whose output-time interval maps to an explicitly reversed source-time interval. Freeze and reverse are distinct operations from ordinary retiming. Bind each candidate to the exact source version, timebase, source/output intervals, and preservation policy; unresolved mappings remain UNKNOWN or CONFLICT. No canonical artifact, project change, or universal playback/quality guarantee is implied.",
+        "currentOutputArtifactTypes": [
+          "local-timing-edit-candidate-with-explicit-source-time-mapping"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "D",
+          "relatedClusterIds": [
+            "M"
+          ],
+          "disposition": "RECOMMENDATION_REMAINS_SEMANTICALLY_SUPPORTED",
+          "rationale": "Timing candidate distinguishes retime, freeze hold, and reverse source/output interval mapping; D remains editing fit and M remains motion-related index."
+        }
+      },
+      {
+        "sourceOrderIndex": 365,
+        "capabilityId": "media.compose.multitrack-timeline",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/364",
+        "recommendationPrimaryClusterId": "D",
+        "recommendationRelatedClusterIds": [
+          "C"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-COMPOSE"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outcome",
+          "outputArtifactTypes",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "ef9a6f6e661c9cf91bf00be11c16edb014f8455597e0772b86aed74b9fe3328b",
+        "currentSemanticProjectionSha256": "7bd806f17593246620ea7dd69c23c10424e06df83417ab99fdac65907cd4db2d",
+        "priorOutcome": "The multitrack-timeline result is a local composition candidate or draft for arranging selected media. It may include a reviewable active-speaker multicamera cut proposal linked to speaker-turn and camera-source evidence, with missing links and uncertainty explicit; the proposal does not commit a project edit or create a rendered delivery.",
+        "currentOutcome": "Produce a local reviewable composition candidate or draft for selected versioned media. Declared composition intent may include gain, pan, and time-varying automation, sample-time speech-region edits with boundary and crossfade intent, ADR or room-tone placement, and explicit distinction between captured and generated audio. Keep exact source references, timebase, and uncertainty. This does not commit a project edit, create a rendered delivery, or assert the candidate is feasible.",
+        "currentOutputArtifactTypes": [
+          "local-versioned-composition-candidate"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "D",
+          "relatedClusterIds": [
+            "C"
+          ],
+          "disposition": "RECOMMENDATION_REMAINS_SEMANTICALLY_SUPPORTED",
+          "rationale": "Reviewable local composition includes audio gain/pan/automation, sample-time speech edits, ADR/room-tone, and captured-versus-generated distinction; D is primary and C remains composition/project context."
+        }
+      },
+      {
+        "sourceOrderIndex": 371,
+        "capabilityId": "media.compose.safe-area",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/370",
+        "recommendationPrimaryClusterId": "D",
+        "recommendationRelatedClusterIds": [
+          "P"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-COMPOSE"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outcome",
+          "outputArtifactTypes",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "1c28f978289e424dac356f13fc741f98e9c5be86a87e7aa8367c99a79b4abe4d",
+        "currentSemanticProjectionSha256": "6384d02e05d7096d632f99a75c92547088916fe77e9b7be561e165a0234a6063",
+        "priorOutcome": "P0 defines the apply safe areas result as a local composition candidate or draft whose intended operation is to apply declared safe-area constraints to composition elements; it does not define a committed project change or rendered delivery.",
+        "currentOutcome": "Produce a local reviewable overlay-placement candidate based on declared safe areas and any supplied visual free-space observations. Each proposed placement is tied to exact source/version, time/context, and evidence; uncertain or inferred free space remains labeled with uncertainty. A declared safe area is not proof that a location is visually free. No project commit or rendered delivery is implied.",
+        "currentOutputArtifactTypes": [
+          "local-versioned-composition-candidate"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "D",
+          "previousRelatedClusterIds": [
+            "P"
+          ],
+          "currentRelatedClusterIds": [],
+          "disposition": "REMOVE_UNSUPPORTED_RELATED_CLUSTER; RETAIN_PRIMARY_D",
+          "rationale": "Reviewable overlay-placement candidate uses declared safe areas and visual free-space evidence; D remains primary; P is unsupported because this is neither render, publish, nor distribute."
+        }
+      },
+      {
+        "sourceOrderIndex": 372,
+        "capabilityId": "media.compose.reusable-composition",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/371",
+        "recommendationPrimaryClusterId": "D",
+        "recommendationRelatedClusterIds": [
+          "C"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-COMPOSE"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outcome",
+          "outputArtifactTypes",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "8e942e1085af003272b97ae7a8314f05160d1afc5e353bfa3e4016936d45f374",
+        "currentSemanticProjectionSha256": "9d25738854643c8db25d46bfea076a45a8fb3ca21c9cd131328aae25f284e673",
+        "priorOutcome": "P0 defines the create reusable composition result as a local composition candidate or draft whose intended operation is to define a reusable composition structure from selected project assets; it does not define a committed project change or rendered delivery.",
+        "currentOutcome": "Produce a local reviewable reusable composition candidate from selected project assets. The candidate may include editable branded motion-template bindings whose brand assets and motion parameters are typed and traceable to exact selected sources, or a versioned reusable audio-effects-chain candidate scoped to an exact voice track. An audio chain binds selected existing master-audio effects and exact chain version/provenance to that track; it does not infer speaker identity or imply speech enhancement. Preserve unsupported or unresolved bindings explicitly; a candidate does not establish preview/render parity, project commit, or rendered delivery.",
+        "currentOutputArtifactTypes": [
+          "local-versioned-composition-candidate"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "D",
+          "relatedClusterIds": [
+            "C"
+          ],
+          "disposition": "RECOMMENDATION_REMAINS_SEMANTICALLY_SUPPORTED",
+          "rationale": "Local reusable composition may bind branded motion templates or versioned effect chains to exact sources; D remains primary and C remains project/reuse context."
+        }
+      },
+      {
+        "sourceOrderIndex": 394,
+        "capabilityId": "media.master.audio.stereo-width",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/393",
+        "recommendationPrimaryClusterId": "I",
+        "recommendationRelatedClusterIds": [
+          "O"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-MASTER-AUDIO"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outcome",
+          "inputArtifactTypes",
+          "explicitUnsupportedCases",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "2612d68985c5d928f736c09388117350f4089089769e8578834ee7824adedffc",
+        "currentSemanticProjectionSha256": "e174c2e3b6e1d66f29af81c5af50c9335b40341674862ce40ccd3d2c95e54a0a",
+        "priorOutcome": "The supplied audio receives stereo width processing under its delivery and loudness context, producing a mastered-audio candidate with measurements.",
+        "currentOutcome": "The supplied audio receives stereo-width processing under its declared delivery, target channel-layout, and loudness context, producing a local mastered-audio candidate with measurements. The target layout is explicit in the request and returned candidate; this stereo-width leaf does not define 5.1 processing, and unsupported or unresolved layouts remain explicit with no silent stereo fallback.",
+        "currentOutputArtifactTypes": [
+          "mastered-audio-candidate-with-measurements"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "I",
+          "relatedClusterIds": [
+            "O"
+          ],
+          "disposition": "RECOMMENDATION_REMAINS_SEMANTICALLY_SUPPORTED",
+          "rationale": "Mastering candidate binds declared delivery, loudness, and explicit target layout; unsupported layouts remain explicit without stereo fallback."
+        }
+      },
+      {
+        "sourceOrderIndex": 402,
+        "capabilityId": "media.quality.rank",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/401",
+        "recommendationPrimaryClusterId": "O",
+        "recommendationRelatedClusterIds": [
+          "J"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-QUALITY"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outcome",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "d7315d42cd599fa7922656768e5d37c17aec4a5e39390e8c5b919a582f4bb7c2",
+        "currentSemanticProjectionSha256": "e9ab720800533c4b15b34ab2f7ab1ce64a51259c19f27e0c27e25a16d1b81cb2",
+        "priorOutcome": "Return a candidate ordering only when the request declares the eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling required by quality policy; otherwise return only supported quality observations or an explicit unresolved ranking disposition. No default total score or tie-break rule is implied.",
+        "currentOutcome": "Return candidate ordering only when the request declares eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling; otherwise return supported observations or an unresolved ranking disposition. This includes highlight candidates bound to exact source-time spans and a user-declared defensible ranking objective, and candidate variants bound to exact source candidate, declared audience/channel, and ranking objective. No default memorable score, total score, or tie-break rule is implied; ranking never establishes eligibility or approval.",
+        "currentOutputArtifactTypes": [
+          "quality-observation-or-bounded-repair-plan"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "O",
+          "relatedClusterIds": [
+            "J"
+          ],
+          "disposition": "RECOMMENDATION_REMAINS_SEMANTICALLY_SUPPORTED",
+          "rationale": "Ranking requires a declared objective, scope, missing-value and uncertainty handling; highlights and variants remain objective-bound, with no default score or approval."
+        }
+      },
+      {
+        "sourceOrderIndex": 456,
+        "capabilityId": "media.deliver.subtitles",
+        "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/455",
+        "recommendationPrimaryClusterId": "P",
+        "recommendationRelatedClusterIds": [
+          "H",
+          "E"
+        ],
+        "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+        "currentCapabilityRequirementIds": [
+          "MEDIA-REQ-CAP-DELIVER"
+        ],
+        "parentRequirementExists": true,
+        "parentRequirementJoinMatches": true,
+        "changedFields": [
+          "outcome",
+          "ownerDefinition"
+        ],
+        "priorSemanticProjectionSha256": "09f2e5b2a900caa362fd3605034a78788a37f2d129c97a967aa7f9e4cbfc10f7",
+        "currentSemanticProjectionSha256": "81c639867a769d796865fdd97ecfe459731f88933c0a341c9d293e102657d919",
+        "priorOutcome": "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result; the output distinguishes a produced package from an explicit outcome.",
+        "currentOutcome": "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result. A produced package may export an authorized subtitle track as a declared sidecar or embedded form with source/version and timing provenance; distinguish that package from an explicit no-package outcome, and do not imply subtitle correctness, supported container compatibility, or successful delivery absent evidence.",
+        "currentOutputArtifactTypes": [
+          "delivery-package-or-explicit-delivery-outcome"
+        ],
+        "currentMeaningAssessment": {
+          "primaryClusterId": "P",
+          "relatedClusterIds": [
+            "H",
+            "E"
+          ],
+          "disposition": "RECOMMENDATION_REMAINS_SEMANTICALLY_SUPPORTED",
+          "rationale": "Delivery profile may carry an authorized subtitle sidecar or embedded track with timing provenance; subtitle correctness or successful delivery is not implied."
+        }
+      }
+    ],
+    "unchangedRecommendationRows": 145,
+    "sourceMeaningChangeCount": 9,
+    "limitation": "Taxonomy fit only. No requirements are added and the 462-leaf historical denominator is unchanged.",
+    "relatedClusterRowsUnchanged": 153,
+    "relatedClusterLabelsRetained": 166
+  },
+  "authority": {
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentReview": "NOT_CLAIMED",
+    "implementationProof": "NOT_CLAIMED",
+    "lifecycleAdmissionOrClosure": "NOT_CLAIMED"
+  }
+}

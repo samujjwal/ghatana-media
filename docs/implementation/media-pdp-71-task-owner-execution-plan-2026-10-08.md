@@ -1,7 +1,10 @@
 # Ghatana Media — Owner adjudication and 71-task completion program
+
+> **Historical task-plan snapshot — not the active PDP campaign or closure authority.** The 71 IDs and original Done criteria below are retained for provenance; embedded statuses and execution directions are not current. Follow [the canonical PDP source index](../../.product-experience/README.md), the four phase status records (`pdp-0` through `pdp-3`), and [the current implementation plan](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md). Native acceptance and closure are owned by Lifecycle through gtool.
+
 **Review date:** 2026-10-08  **Verified Media base:** `main@09d37469fe8a093f1827c7382e2a38730273ddf7`  
 **Decision scope:** User-delegated Media product-owner decisions **only**. This document is a prescriptive execution and review directive, not a fifth PDP phase, a Lifecycle result, or an alternative authority to the files named below.  
-**Normative task inventory:** `.product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json` (71 exact IDs, original plan task/Done requirements retained).  
+**Historical task inventory:** `.product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json` (71 exact IDs and original plan task/Done requirements retained; statuses are not current).
 **Prior owner record:** `.product-experience/decision-log.md` PXD-026 through PXD-033.  
 **Operational tracker:** [Media issue #3](https://github.com/samujjwal/ghatana-media/issues/3).
 

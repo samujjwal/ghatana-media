@@ -330,7 +330,7 @@ export function validateBusinessMeasureDefinitions(goals, capabilities, profiles
         || extensionPopulation?.currentCapabilityDefinitions !== allIds.length
         || extensionPopulation?.definitionExtensionCapabilityLeaves !== extensionIds.length
         || extensionPopulation?.ownerAdjudications !== canonicalIds.length
-        || extensionPopulation?.extensionDisposition !== "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_WITH_DELEGATED_PDP0_APPLICABILITY_DECISIONS; ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED"
+        || extensionPopulation?.extensionDisposition !== "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED"
         || extensionPopulation?.ownerApproval !== "NOT_CLAIMED"
         || extensionPopulation?.independentAcceptance !== "NOT_CLAIMED"
         || allIds.length !== canonicalIds.length + extensionIds.length

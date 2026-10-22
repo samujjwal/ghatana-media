@@ -2,78 +2,78 @@ TAP version 13
 # Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
 ok 1 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
   ---
-  duration_ms: 12449.777936
+  duration_ms: 7659.265291
   type: 'test'
   ...
 # Subtest: P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes
 ok 2 - P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes
   ---
-  duration_ms: 11386.822051
+  duration_ms: 3872.656583
   type: 'test'
   ...
 # Subtest: same-count substitution, duplicates and stale binding projections are rejected
 ok 3 - same-count substitution, duplicates and stale binding projections are rejected
   ---
-  duration_ms: 1.780267
+  duration_ms: 0.753
   type: 'test'
   ...
 # Subtest: unknown applicability, missing evidence and invented measurements remain errors
 ok 4 - unknown applicability, missing evidence and invented measurements remain errors
   ---
-  duration_ms: 0.773394
+  duration_ms: 0.270625
   type: 'test'
   ...
 1..0
-# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
-ok 2 - /home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
+# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
+ok 2 - /Users/samujjwal/Development/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
   ---
-  duration_ms: 140.451016
+  duration_ms: 183.743375
   type: 'test'
   ...
 # Subtest: P0 quality applicability is complete from capability intent and semantic artifact types alone
 ok 6 - P0 quality applicability is complete from capability intent and semantic artifact types alone
   ---
-  duration_ms: 63.990242
+  duration_ms: 108.836625
   type: 'test'
   ...
 # Subtest: P0 quality checks reject foreign semantic types and missing applicability decisions
 ok 7 - P0 quality checks reject foreign semantic types and missing applicability decisions
   ---
-  duration_ms: 80.186602
+  duration_ms: 52.806167
   type: 'test'
   ...
 # Subtest: P0-06 maps all measures to stable capability meaning without inventing measured results
 ok 8 - P0-06 maps all measures to stable capability meaning without inventing measured results
   ---
-  duration_ms: 4726.563673
+  duration_ms: 2981.889875
   type: 'test'
   ...
 1..0
-# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
-ok 5 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
+# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
+ok 5 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
   ---
-  duration_ms: 121.18663
+  duration_ms: 197.903042
   type: 'test'
   ...
 1..0
-# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
-ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
+# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
+ok 6 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
   ---
-  duration_ms: 119.635017
+  duration_ms: 201.302
   type: 'test'
   ...
 1..0
-# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs
-ok 7 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs
+# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs
+ok 7 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs
   ---
-  duration_ms: 148.796455
+  duration_ms: 214.108042
   type: 'test'
   ...
 1..0
-# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
-ok 8 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
+# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
+ok 8 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
   ---
-  duration_ms: 143.040315
+  duration_ms: 226.157292
   type: 'test'
   ...
 1..12
@@ -84,4 +84,4 @@ ok 8 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-sou
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 24093.636745
+# duration_ms 11784.521167

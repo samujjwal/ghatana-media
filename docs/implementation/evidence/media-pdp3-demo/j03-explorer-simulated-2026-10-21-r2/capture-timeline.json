@@ -1,0 +1,122 @@
+{
+  "captureStartUtc": "2026-10-21T22:38:26.185Z",
+  "events": [
+    {
+      "sceneId": "s01",
+      "startedAtSeconds": 0.255,
+      "endedAtSeconds": 9.686,
+      "narrationSeconds": 8.85746
+    },
+    {
+      "sceneId": "s02",
+      "fixtureId": "media.scenario.first-use-empty",
+      "proofDisposition": "illustrative only; no sign-in or project effect"
+    },
+    {
+      "sceneId": "s02",
+      "startedAtSeconds": 11.953,
+      "endedAtSeconds": 21.013,
+      "narrationSeconds": 8.335329
+    },
+    {
+      "sceneId": "s03",
+      "fixtureId": "media.scenario.upload-verified-available",
+      "proofDisposition": "illustrative metadata only; no file bytes transferred"
+    },
+    {
+      "sceneId": "s03",
+      "startedAtSeconds": 23.221,
+      "endedAtSeconds": 32.988,
+      "narrationSeconds": 8.886168
+    },
+    {
+      "sceneId": "s04",
+      "fixtureId": "media.scenario.job-running",
+      "proofDisposition": "simulated job state only; no provider or service call"
+    },
+    {
+      "sceneId": "s04",
+      "startedAtSeconds": 36.355,
+      "endedAtSeconds": 44.851,
+      "narrationSeconds": 7.374014
+    },
+    {
+      "sceneId": "s05",
+      "fixtureId": "media.scenario.transcript-ready",
+      "sourceArtifactVersion": "source-v1",
+      "sourceClock": "source-presentation-time"
+    },
+    {
+      "sceneId": "s05",
+      "startedAtSeconds": 47.38,
+      "endedAtSeconds": 56.249,
+      "narrationSeconds": 7.696553
+    },
+    {
+      "sceneId": "s06",
+      "resultDisposition": "fixture caption version only; not published or approved"
+    },
+    {
+      "sceneId": "s06",
+      "startedAtSeconds": 57.657,
+      "endedAtSeconds": 67.091,
+      "narrationSeconds": 8.776508
+    },
+    {
+      "sceneId": "s07",
+      "fixtureId": "media.scenario.job-outcome-unknown",
+      "proofDisposition": "synthetic UNKNOWN/recovery only; no real denied/unknown observation"
+    },
+    {
+      "sceneId": "s07",
+      "startedAtSeconds": 70.127,
+      "endedAtSeconds": 79.606,
+      "narrationSeconds": 8.194014
+    }
+  ],
+  "cues": [
+    {
+      "id": "s01",
+      "start": 0,
+      "end": 9.886,
+      "text": "This is a simulated view of a creator’s journey from an audio recording to corrected, timed captions. All data shown in this Explorer demonstration is illustrative."
+    },
+    {
+      "id": "s02",
+      "start": 11.503,
+      "end": 21.213,
+      "text": "The Explorer demonstrates the intended authorized workspace and project experience using sample data. No real sign-in or project creation occurs here."
+    },
+    {
+      "id": "s03",
+      "start": 22.771,
+      "end": 33.188,
+      "text": "Here, representative asset metadata illustrates the intended upload and source-verification experience. The Explorer is not transferring real file bytes."
+    },
+    {
+      "id": "s04",
+      "start": 35.904999999999994,
+      "end": 45.051,
+      "text": "The simulated job states illustrate submission, progress and uncertainty. No speech-recognition provider is called by the Explorer."
+    },
+    {
+      "id": "s05",
+      "start": 46.93,
+      "end": 56.449000000000005,
+      "text": "This example transcript and its timing can be corrected in the simulated experience. The changes affect only the Explorer fixture state."
+    },
+    {
+      "id": "s06",
+      "start": 57.206999999999994,
+      "end": 67.291,
+      "text": "The Explorer shows how a reviewable caption version is intended to appear. This is a simulated terminal outcome, not a published or approved product artifact."
+    },
+    {
+      "id": "s07",
+      "start": 69.67699999999999,
+      "end": 79.806,
+      "text": "An unavailable or uncertain result remains visible in the Explorer, illustrating the intended safe recovery path. No external effect has occurred."
+    }
+  ],
+  "totalElapsedSeconds": 83.318
+}

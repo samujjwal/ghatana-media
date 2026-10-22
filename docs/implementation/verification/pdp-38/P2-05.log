@@ -2,139 +2,139 @@ TAP version 13
 # Subtest: missing admissions pass with zero exact identities proven
 ok 1 - missing admissions pass with zero exact identities proven
   ---
-  duration_ms: 9.786256
+  duration_ms: 7.716041
   type: 'test'
   ...
 # Subtest: the review host imports the exact candidate product-renderer export intended for production
 ok 2 - the review host imports the exact candidate product-renderer export intended for production
   ---
-  duration_ms: 6.125221
+  duration_ms: 7.303292
   type: 'test'
   ...
 # Subtest: public Explorer render binding carries typed ports and the Tools Product viewport consumes it
 ok 3 - public Explorer render binding carries typed ports and the Tools Product viewport consumes it
   ---
-  duration_ms: 2.831354
+  duration_ms: 16.231875
   type: 'test'
   ...
 # Subtest: admitted Web record passes only with identical public export and resolvable PDP-2 provenance
 ok 4 - admitted Web record passes only with identical public export and resolvable PDP-2 provenance
   ---
-  duration_ms: 3.759827
+  duration_ms: 9.720416
   type: 'test'
   ...
 # Subtest: rejects missing host identity and unresolved design provenance
 ok 5 - rejects missing host identity and unresolved design provenance
   ---
-  duration_ms: 4.725479
+  duration_ms: 5.358833
   type: 'test'
   ...
 # Subtest: rejects an admitted symbol absent from the representation export map
 ok 6 - rejects an admitted symbol absent from the representation export map
   ---
-  duration_ms: 4.697896
+  duration_ms: 10.592792
   type: 'test'
   ...
 # Subtest: rejects presentation-to-review dependencies and production scenario fixtures
 ok 7 - rejects presentation-to-review dependencies and production scenario fixtures
   ---
-  duration_ms: 2.54112
+  duration_ms: 4.377666
   type: 'test'
   ...
 # Subtest: rejects deep source imports and package subpaths absent from exports
 ok 8 - rejects deep source imports and package subpaths absent from exports
   ---
-  duration_ms: 2.998042
+  duration_ms: 8.541542
   type: 'test'
   ...
 # Subtest: validates declared screen-to-token design links and reports broken candidate links
 ok 9 - validates declared screen-to-token design links and reports broken candidate links
   ---
-  duration_ms: 1.252459
+  duration_ms: 1.119416
   type: 'test'
   ...
 # Subtest: counts a resolved admitted screen design chain
 ok 10 - counts a resolved admitted screen design chain
   ---
-  duration_ms: 6.626954
+  duration_ms: 16.635875
   type: 'test'
   ...
 # Subtest: an unresolved admitted screen design link is a hard failure
 ok 11 - an unresolved admitted screen design link is a hard failure
   ---
-  duration_ms: 4.265358
+  duration_ms: 15.251625
   type: 'test'
   ...
 # Subtest: unresolved candidate screen design links remain nonfatal
 ok 12 - unresolved candidate screen design links remain nonfatal
   ---
-  duration_ms: 4.584856
+  duration_ms: 28.813541
   type: 'test'
   ...
 # Subtest: a missing pattern nested under an admitted screen template is a hard failure
 ok 13 - a missing pattern nested under an admitted screen template is a hard failure
   ---
-  duration_ms: 4.72113
+  duration_ms: 4.002042
   type: 'test'
   ...
 # Subtest: a missing pattern nested under a candidate screen template stays nonfatal
 ok 14 - a missing pattern nested under a candidate screen template stays nonfatal
   ---
-  duration_ms: 4.232568
+  duration_ms: 5.113417
   type: 'test'
   ...
 # Subtest: a template pattern with an unresolved component source fails only when admitted
 ok 15 - a template pattern with an unresolved component source fails only when admitted
   ---
-  duration_ms: 4.745516
+  duration_ms: 16.823125
   type: 'test'
   ...
 # Subtest: PDP-2 recipe review keeps recipe identity distinct from template, pattern, and layout IDs
 ok 16 - PDP-2 recipe review keeps recipe identity distinct from template, pattern, and layout IDs
   ---
-  duration_ms: 2751.942609
+  duration_ms: 1820.234042
   type: 'test'
   ...
 # Subtest: PDP-2 rejects stale, duplicate, and cross-domain chain references
 ok 17 - PDP-2 rejects stale, duplicate, and cross-domain chain references
   ---
-  duration_ms: 1.575598
+  duration_ms: 1.439333
   type: 'test'
   ...
 # Subtest: PDP-2 reusable composition catalogs preserve the exact template/layout/recipe/pattern populations
 ok 18 - PDP-2 reusable composition catalogs preserve the exact template/layout/recipe/pattern populations
   ---
-  duration_ms: 9.92778
+  duration_ms: 4.54975
   type: 'test'
   ...
 # Subtest: PDP-2 reusable composition validator rejects broken reciprocal and semantic chains
 ok 19 - PDP-2 reusable composition validator rejects broken reciprocal and semantic chains
   ---
-  duration_ms: 48.686044
+  duration_ms: 31.48375
   type: 'test'
   ...
 # Subtest: every GUI semantic binding resolves component identities and task-flow rules bind to its canonical contract
 ok 20 - every GUI semantic binding resolves component identities and task-flow rules bind to its canonical contract
   ---
-  duration_ms: 3.135368
+  duration_ms: 2.151041
   type: 'test'
   ...
 # Subtest: semantic binding source rejects missing or unresolved component identities
 ok 21 - semantic binding source rejects missing or unresolved component identities
   ---
-  duration_ms: 1.721268
+  duration_ms: 1.163125
   type: 'test'
   ...
 # Subtest: motion-bearing GUI compositions link reduced-motion source requirements and preserve state, progress, and focus
 ok 22 - motion-bearing GUI compositions link reduced-motion source requirements and preserve state, progress, and focus
   ---
-  duration_ms: 10.079677
+  duration_ms: 7.912209
   type: 'test'
   ...
 # Subtest: motion source rule rejects missing source links or loss of preserved semantics
 ok 23 - motion source rule rejects missing source links or loss of preserved semantics
   ---
-  duration_ms: 1.612839
+  duration_ms: 4.453208
   type: 'test'
   ...
 1..23
@@ -145,4 +145,4 @@ ok 23 - motion source rule rejects missing source links or loss of preserved sem
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2928.80675
+# duration_ms 1946.015125

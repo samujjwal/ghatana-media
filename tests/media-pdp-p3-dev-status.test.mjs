@@ -114,6 +114,23 @@ test("PDP-3 development status requires every source-pinned suite, stable source
   assert.equal(status.deferredAcceptance.some(item => item.includes("Lifecycle")), true);
 });
 
+test("PDP-3 cannot complete the adopted demo edition when its narrated Explorer evidence suite is missing", () => {
+  const verification = passingVerification();
+  delete verification["P3-11"];
+  const status = buildPdp3DevStatus({
+    mainSha: "0".repeat(40),
+    sourceShaSet: {},
+    verification,
+    sourceCensus: buildPdp3SourceCensus(),
+    sourceCutStable: true,
+    projectionCheck: passingProjection(),
+  });
+  assert.equal(p3Criteria.includes("P3-11"), true);
+  assert.equal(status.status, "IN_PROGRESS");
+  assert.equal(status.directDevelopmentCriteria["P3-11"].testStatus, "NOT_RUN");
+  assert.ok(status.outstandingMeaningIds.includes("P3-11:focused-development-tests-not-green-or-source-pinned"));
+});
+
 test("PDP-3 census does not create channel-edge tasks for source-backed deferred dependencies", () => {
   const sourceCensus = buildPdp3SourceCensus();
   const status = buildPdp3DevStatus({

@@ -149,6 +149,413 @@
       },
       "supersessionReason": "Superseded by the current J-08 step 02 guard binding.",
       "activeSuccessor": "media.pdp-3.requirement.media.pdp3.step-guard-binding.j-08-j-08-step-02.v1"
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-semantic-definition.j-19-step-04.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-semantic-definition.j-19-step-04.v1; source proposal: undefined.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-semantic-definition.j-19-step-04.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml#/journeys/16/steps/3/canonicalBindings",
+            "recordId": "media.step-semantic-definition.j-19-step-04.v1",
+            "sourceDigest": "sha256:411eecbe43f5c7bb2a56f4fd640e3bf4545e0acb5cce18ce70052cad3dfb155d"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 corrected the J-19 step identity from step-04 to step-05 at the same canonicalBindings source location under PXD-075; this retires only the old candidate identity and does not establish execution or acceptance.",
+      "activeSuccessor": "media.pdp-3.requirement.media.step-semantic-definition.j-19-step-05.v1"
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-04-03.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-04-03.quality-assessment.v1; source proposal: media.step-version-object-binding.j-04-03.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-04-03.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/13/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-04-03.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-05-04.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-05-04.quality-assessment.v1; source proposal: media.step-version-object-binding.j-05-04.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-05-04.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/3/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-05-04.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-07-03.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-07-03.quality-assessment.v1; source proposal: media.step-version-object-binding.j-07-03.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-07-03.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/21/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-07-03.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-08-03.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-08-03.quality-assessment.v1; source proposal: media.step-version-object-binding.j-08-03.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-08-03.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/93/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-08-03.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-10-05.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-10-05.quality-assessment.v1; source proposal: media.step-version-object-binding.j-10-05.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-10-05.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/67/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-10-05.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-11-03.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-11-03.quality-assessment.v1; source proposal: media.step-version-object-binding.j-11-03.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-11-03.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/50/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-11-03.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-12-02.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-12-02.quality-assessment.v1; source proposal: media.step-version-object-binding.j-12-02.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-12-02.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/9/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-12-02.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-15-04.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-15-04.quality-assessment.v1; source proposal: media.step-version-object-binding.j-15-04.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-15-04.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/90/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-15-04.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-16-05.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-16-05.quality-assessment.v1; source proposal: media.step-version-object-binding.j-16-05.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-16-05.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/120/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-16-05.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.step-version-object-binding.j-19-03.quality-assessment.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "journey-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.step-version-object-binding.j-19-03.quality-assessment.v1; source proposal: media.step-version-object-binding.j-19-03.quality-assessment.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.step-version-object-binding.j-19-03.quality-assessment.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#/records/70/versionFieldBindings/0",
+            "recordId": "media.step-version-object-binding.j-19-03.quality-assessment.v1",
+            "sourceDigest": "sha256:835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86"
+          }
+        }
+      },
+      "supersessionReason": "PDP-3 source update 83395e52664c7323dd155b1eb4895c995dfd1fa0 removed this quality-assessment version-field binding while resolving the compare-candidate request to exact artifact-version fields under PXD-119; this retires only the obsolete candidate obligation and does not establish runtime behavior or acceptance.",
+      "activeSuccessor": null
     }
   ]
 }

@@ -4,26 +4,26 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-1",
-    "sourceBaselineCommit": "d75ae0c8079c9faea83c3460d351b462a363c76f",
+    "sourceBaselineCommit": "b3f11733d2b997c12f0438d95b5330d1516c4f1d",
     "status": "DEV_COMPLETE"
   },
   "generatedAt": "2026-10-19T23:10:52.997053Z",
   "statusRecordRef": "docs/implementation/pdp-1-phase-dev-status.json",
-  "statusRecordSha256": "0a080c7313072512f3d50749bb04397c81e3e05ca1bd6c697bff14a5160a8957",
+  "statusRecordSha256": "48c2c97093a1958310480f3d6b1690b443d7ce73982060e9e59654f9709a41cc",
   "semanticReviewRef": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
-  "semanticReviewSha256": "fe079ccb4da53d9937302d9744aeb14b6ec2a6c1a8d7cca37ddc3491bb52182d",
+  "semanticReviewSha256": "69c751b075acc5a86397dbcc10cef5d266711dd135db17d0c0d6289795c7013a",
   "pdp0PredecessorStatusRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "pdp0PredecessorStatusSha256": "fe52d0061e3e6edbcfe8012ef6ac833d1835577d102a362a066a289b2fae22c1",
-  "sourceFingerprintSetSha256": "906c791ec8027c69935b65dd4c3bc94bcb2d3b820a406de995993b0d8c209588",
+  "pdp0PredecessorStatusSha256": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
+  "sourceFingerprintSetSha256": "924cbd6f38f03736bb31add527d17f100931b49437962dbe1fea3f5188de46e8",
   "sourceFingerprints": {
-    ".product-experience/artifact-identities.yaml": "2f2b0503b3ccb455e58afc21dca66469e8da2b12974ab0b68df5212113f5573e",
+    ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
     ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
-    ".product-experience/decision-log.md": "b258b651165094987bfa5325dc26f785d5ec4a177eaaef8bd445febe6e65584f",
+    ".product-experience/decision-log.md": "3cbd89db92982d50d0f150c1f81fc4b1f7a658e623fe6372c5fc07792b371f68",
     ".product-experience/interface-parity/README.md": "367de42d6811606adc3a23d367a153fb5c35a0644477f15011b1f23c874cb5e8",
-    ".product-experience/interface-parity/current-source-review.json": "785698c833ab16c86cc23eded587da0e30994dee6df2db9dde09114e67d18c20",
+    ".product-experience/interface-parity/current-source-review.json": "abd5c404aef7c7630cff0fe7f8f5878f32b435afaff7ff35ccf359be4c60e4bf",
     ".product-experience/interface-parity/operation-parity.yaml": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
     ".product-experience/interface-parity/typed-contract-bindings.json": "402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143",
-    ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
     ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
     ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
     ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
@@ -61,15 +61,15 @@
     ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml": "b85d1034c61e22a76a2e8f7baf5ad4fab3f01ec7f18412cc3a1cb3a5984f3873",
     ".product-experience/pdp-3-product-experience/sdk/client-architecture.yaml": "7edcc105f89d82ef6ca3f0154bbb1fabac9eb60f36ef203584318064db7ec92d",
     ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml": "25ec48a642e012265f7b77dec4ae68c94025335caa4ccb6aaa01acfecb3973c4",
-    ".product-experience/source-manifest.yaml": "87d2ce2cfa1d7e0130fcc7d11dc0b79e00fdc15950749afd20ea5d9f28731b14",
+    ".product-experience/source-manifest.yaml": "c076129f4d1e39109fe7e3c66ce5e8e16ef06e4011039fcdfec48d2d2c112ace",
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
     ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
     ".product-experience/traceability.yaml": "90fc9960e880e3d26c20d5fc0aa12309799f25218f4b7440d59a4413eb112725",
     "contracts/openapi/media.yaml": "fedd60d8a04ce320f28c143406110b6ccf14ab94afd00f8d2445bfeb1637b1ef",
-    "docs/implementation/pdp-0-phase-dev-status.json": "fe52d0061e3e6edbcfe8012ef6ac833d1835577d102a362a066a289b2fae22c1",
-    "docs/implementation/pdp-1-phase-dev-status.json": "0a080c7313072512f3d50749bb04397c81e3e05ca1bd6c697bff14a5160a8957",
-    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "a4c1b55f5687de6deed2e81bcf373c4e92e78c646e8acd57d727d51ed3b3c1f9",
-    "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json": "fe079ccb4da53d9937302d9744aeb14b6ec2a6c1a8d7cca37ddc3491bb52182d",
+    "docs/implementation/pdp-0-phase-dev-status.json": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
+    "docs/implementation/pdp-1-phase-dev-status.json": "48c2c97093a1958310480f3d6b1690b443d7ce73982060e9e59654f9709a41cc",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "6269984ee4c44e953f15e1eed6db0c46d0fa367f58eb8912c51bd8d37a8fa38a",
+    "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json": "69c751b075acc5a86397dbcc10cef5d266711dd135db17d0c0d6289795c7013a",
     "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json": "ddacf6712c2396ee183b865c268e450cf2fea584bdecf9011f2bb201a489b208",
     "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java": "501e6b57b21ad9e558bcd3a54c594eb0b2709633a2ff2eaa92e15e427e05edad",
     "libs/audio-video-client/src/__tests__/AudioVideoClient.integration.test.ts": "32ff96088e5b8f0054166c15a86364ccfaaea145f3278ffefede7305dc17576b",
@@ -1833,7 +1833,7 @@
       "sourceFingerprints": {
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",
@@ -1892,7 +1892,7 @@
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
         "modules/speech/stt-service/src/main/proto/stt_service.proto": "250f6c301bb406a93dbb5f6de727b52cf346dbc5685cb9446451ecf5ef2360c6",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",
@@ -1947,7 +1947,7 @@
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
         "modules/speech/tts-service/src/main/proto/tts_service.proto": "79cb7f271b9720aecc63a3e46adef8137330b9fe53875c883c83fc7751b501b6",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",
@@ -2002,7 +2002,7 @@
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
         "modules/vision/vision-service/src/main/proto/vision_service.proto": "7452112bd784c3881388d263e736bc9ca697fb6c418544eb93903678a30b4df0",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",
@@ -2057,7 +2057,7 @@
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
         "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto": "6936aa8e02c91a33457ac1f6d334345c6803661ea287ba184ac9362afca04b98",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",
@@ -2169,7 +2169,7 @@
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
         ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",
@@ -2510,7 +2510,7 @@
       "sourceFingerprints": {
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/source-manifest.yaml": "87d2ce2cfa1d7e0130fcc7d11dc0b79e00fdc15950749afd20ea5d9f28731b14"
+        ".product-experience/source-manifest.yaml": "c076129f4d1e39109fe7e3c66ce5e8e16ef06e4011039fcdfec48d2d2c112ace"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",

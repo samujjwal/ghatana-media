@@ -1,0 +1,29 @@
+WEBVTT
+
+s01
+00:00:00.000 --> 00:00:09.886
+This is a simulated view of a creator’s journey from an audio recording to corrected, timed captions. All data shown in this Explorer demonstration is illustrative.
+
+s02
+00:00:11.503 --> 00:00:21.213
+The Explorer demonstrates the intended authorized workspace and project experience using sample data. No real sign-in or project creation occurs here.
+
+s03
+00:00:22.771 --> 00:00:33.188
+Here, representative asset metadata illustrates the intended upload and source-verification experience. The Explorer is not transferring real file bytes.
+
+s04
+00:00:35.905 --> 00:00:45.051
+The simulated job states illustrate submission, progress and uncertainty. No speech-recognition provider is called by the Explorer.
+
+s05
+00:00:46.930 --> 00:00:56.449
+This example transcript and its timing can be corrected in the simulated experience. The changes affect only the Explorer fixture state.
+
+s06
+00:00:57.207 --> 00:01:07.291
+The Explorer shows how a reviewable caption version is intended to appear. This is a simulated terminal outcome, not a published or approved product artifact.
+
+s07
+00:01:09.677 --> 00:01:19.806
+An unavailable or uncertain result remains visible in the Explorer, illustrating the intended safe recovery path. No external effect has occurred.

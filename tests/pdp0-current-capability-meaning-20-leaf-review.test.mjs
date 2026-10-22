@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
+import { fingerprintPxdDecisionSection } from "../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
@@ -90,9 +92,12 @@ test("PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review", () 
   assert.equal(changedFieldsById.size, expected.length, "PXD-216 changed-field coverage contains exactly the reviewed leaves");
 
   const documents = sourceDocuments();
-  for (const path of Object.values(paths)) {
+  for (const path of Object.values(paths).filter(path => path !== paths.capabilities)) {
     assert.equal(review.sourceFingerprints?.[path], sha256(readText(path)), `${path} is pinned to current bytes`);
   }
+  const pxd216HistoricalCapabilities = execFileSync("git", ["show", `HEAD:${paths.capabilities}`], { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
+  assert.equal(review.sourceFingerprints?.[paths.capabilities], sha256(pxd216HistoricalCapabilities),
+    "PXD-216 retains its historical full-file source pin; PXD-223 establishes currentness for the unchanged reviewed slice");
   assert.equal(review.sourceFingerprints?.[`${paths.capabilities}#PXD-216-reviewed-capability-rows`], undefined,
     "source pins are file-current; the reviewed ID set is asserted separately");
 
@@ -161,6 +166,60 @@ test("PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review", () 
     assert.equal(capability.supportDimensions?.runtimeAvailability, "UNKNOWN");
     assert.equal(capability.supportDimensions?.qualificationState, "NOT_EVALUATED");
   }
+});
+
+test("PXD-223 refreshes only source currentness for the preserved PXD-216 20-leaf review", () => {
+  const currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"));
+  const review = JSON.parse(readText(reviewPath));
+  const liveBytes = readText(paths.capabilities);
+  const historicalBytes = execFileSync("git", ["show", `HEAD:${paths.capabilities}`], { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
+  const historical = parse(historicalBytes);
+  const live = parse(liveBytes);
+  const ids = review.reviewedCapabilityIds;
+  const project = document => ids.map(id => {
+    const rows = document.capabilities.filter(row => row.id === id);
+    assert.equal(rows.length, 1, `${id} occurs exactly once`);
+    return rows[0];
+  });
+  const historicalSlice = project(historical);
+  const liveSlice = project(live);
+  const sliceHash = rows => sha256(JSON.stringify(rows));
+
+  assert.equal(currentness.decisionRef, ".product-experience/decision-log.md#PXD-223");
+  assert.equal(currentness.authority.ownerApproval, "NOT_CLAIMED");
+  assert.equal(currentness.authority.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(currentness.authority.acceptanceEffect, "none");
+  assert.equal(currentness.authority.closure, "NOT_CLAIMED");
+  assert.equal(currentness.currentSource.capabilitiesSha256, sha256(liveBytes));
+  assert.equal(currentness.currentSource.capabilitiesSha256, "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac");
+  assert.equal(sha256(historicalBytes), currentness.preservedSemanticReview.historicalCapabilitiesSha256);
+  assert.equal(currentness.preservedSemanticReview.historicalCapabilitiesSha256, "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26");
+  assert.equal(sliceHash(historicalSlice), currentness.preservedSemanticReview.historicalReviewedRowsSha256);
+  assert.equal(sliceHash(liveSlice), currentness.preservedSemanticReview.currentReviewedRowsSha256);
+  assert.deepEqual(liveSlice, historicalSlice);
+  assert.deepEqual(currentness.preservedSemanticReview.changedReviewedCapabilityIds, []);
+
+  const historicalById = new Map(historical.capabilities.map(row => [row.id, row]));
+  const liveById = new Map(live.capabilities.map(row => [row.id, row]));
+  const changedRows = live.capabilities.flatMap(row => {
+    const prior = historicalById.get(row.id);
+    if (!prior || JSON.stringify(prior) === JSON.stringify(row)) return [];
+    const priorOtherFields = { ...prior }; delete priorOtherFields.scopeStatus;
+    const liveOtherFields = { ...row }; delete liveOtherFields.scopeStatus;
+    assert.deepEqual(liveOtherFields, priorOtherFields, `${row.id} changes only scopeStatus`);
+    return [{ capabilityId: row.id, field: "scopeStatus", from: prior.scopeStatus, to: row.scopeStatus }];
+  });
+  assert.deepEqual(live.capabilities.map(row => row.id).filter(id => !historicalById.has(id)), []);
+  assert.deepEqual(historical.capabilities.map(row => row.id).filter(id => !liveById.has(id)), []);
+  assert.deepEqual(currentness.currentSource.populationDelta.changedRows, changedRows);
+  assert.equal(changedRows.length, 7);
+  assert.equal(currentness.currentSource.populationDelta.addedRecordCount, 0);
+  assert.equal(currentness.currentSource.populationDelta.removedRecordCount, 0);
+  assert.equal(currentness.currentSource.populationDelta.otherCapabilityFieldsChanged, false);
+  assert.equal(currentness.currentSource.populationDelta.disposition, "FUTURE_VERSION_DEFERRED; NOT_ASSERTED_APPROVED_OR_CURRENT");
+
+  const decisionLog = readText(".product-experience/decision-log.md");
+  assert.equal(fingerprintPxdDecisionSection(decisionLog, "PXD-223").sha256, currentness.decisionSectionSha256);
 });
 
 test("the 20 current meanings retain source, uncertainty, trust, candidate and fallback invariants", () => {

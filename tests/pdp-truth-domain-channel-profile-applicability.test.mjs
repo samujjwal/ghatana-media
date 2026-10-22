@@ -251,8 +251,13 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   assert.equal(extensionPopulation.currentCapabilityDefinitions, 469);
   assert.equal(extensionPopulation.historicalCapabilityLeavesPreserved, 462);
   assert.equal(extensionPopulation.definitionExtensionCapabilityLeaves, 7);
+  assert.equal(extensionPopulation.versionDisposition.currentVersionCapabilityLeaves, 462);
+  assert.equal(extensionPopulation.versionDisposition.futureVersionProposalCapabilityLeaves, 7);
+  assert.equal(extensionPopulation.versionDisposition.totalSourceCapabilityDefinitions, 469);
+  assert.deepEqual(extensionPopulation.versionDisposition.currentVersionExtensionCapabilityIds, []);
+  assert.equal(extensionPopulation.versionDisposition.futureVersionProposals.length, 7);
   assert.equal(extensionPopulation.extensionDisposition,
-    "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_WITH_DELEGATED_PDP0_APPLICABILITY_DECISIONS; ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED");
+    "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED");
   assert.equal(extensionPopulation.ownerApproval, "NOT_CLAIMED");
   assert.equal(extensionPopulation.independentAcceptance, "NOT_CLAIMED");
   assert.equal(dimensionRows.length, 15);

@@ -2,37 +2,37 @@ TAP version 13
 # Subtest: PDP-2 disclosure density mapping follows the selected simple/guided/expert taxonomy
 ok 1 - PDP-2 disclosure density mapping follows the selected simple/guided/expert taxonomy
   ---
-  duration_ms: 1.837994
+  duration_ms: 0.742834
   type: 'test'
   ...
 # Subtest: PDP-2 recovery and accessibility projections preserve their authored scope
 ok 2 - PDP-2 recovery and accessibility projections preserve their authored scope
   ---
-  duration_ms: 0.577279
+  duration_ms: 0.166458
   type: 'test'
   ...
 # Subtest: PDP-2 projects exact owner-approved recipe identities while admission stays pending
 ok 3 - PDP-2 projects exact owner-approved recipe identities while admission stays pending
   ---
-  duration_ms: 0.366856
+  duration_ms: 0.109542
   type: 'test'
   ...
 # Subtest: Tools public ExperienceLanguage validator accepts the current candidate using Media source registries
 ok 4 - Tools public ExperienceLanguage validator accepts the current candidate using Media source registries
   ---
-  duration_ms: 9.371144
+  duration_ms: 3.011708
   type: 'test'
   ...
 # Subtest: Tools public ExperienceLanguage validator rejects duplicate recipe-binding identities
 ok 5 - Tools public ExperienceLanguage validator rejects duplicate recipe-binding identities
   ---
-  duration_ms: 1.303886
+  duration_ms: 0.534166
   type: 'test'
   ...
 # Subtest: Tools public ExperienceLanguage validator rejects an unregistered recipe reference
 ok 6 - Tools public ExperienceLanguage validator rejects an unregistered recipe reference
   ---
-  duration_ms: 0.863007
+  duration_ms: 0.459041
   type: 'test'
   ...
 1..6
@@ -43,4 +43,4 @@ ok 6 - Tools public ExperienceLanguage validator rejects an unregistered recipe 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 803.922064
+# duration_ms 333.16475

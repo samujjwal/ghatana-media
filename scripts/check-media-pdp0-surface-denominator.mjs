@@ -150,6 +150,42 @@ export function validatePdp0SurfaceDenominator(registry, topology, authority = r
     error(findings, 'PDP0_EXTENSION_DEFINITION_DENOMINATOR', 'PDP-0', 'The seven definition extensions must remain separate from the exact 462-leaf owner-adjudication denominator.');
     globalScopeIntegrity = false;
   }
+  const versionDisposition = authority?.campaignExtensions?.currentDefinitionPopulation?.versionDisposition;
+  const expectedFutureVersionIds = [
+    'media.recipe.specification.compile',
+    'media.project.scene.patch-merge',
+    'media.quality.audio.content-similarity.assess',
+    'media.generate.video.preset.manage',
+    'media.generate.video.shot-condition',
+    'media.job.schedule.manage',
+    'media.master.audio.creative-effect.apply',
+  ];
+  const expectedDecisionRefs = [
+    '.product-experience/decision-log.md#PXD-220',
+    '.product-experience/decision-log.md#PXD-221',
+  ];
+  const actualDecisionRefs = versionDisposition?.decisionRefs ?? [];
+  const expectedCurrentExtensionIds = [];
+  const actualFutureVersionRows = versionDisposition?.futureVersionProposals ?? [];
+  const actualFutureVersionIds = actualFutureVersionRows.map((row) => row.capabilityId);
+  const actualCurrentExtensionIds = versionDisposition?.currentVersionExtensionCapabilityIds ?? [];
+  const versionPartitionValid = JSON.stringify(actualDecisionRefs) === JSON.stringify(expectedDecisionRefs)
+    && authority?.campaignExtensions?.currentDefinitionPopulation?.extensionDisposition
+      === 'SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED'
+    && versionDisposition?.historicalCanonicalCapabilityLeaves === 462
+    && versionDisposition?.currentVersionCapabilityLeaves === 462
+    && versionDisposition?.futureVersionProposalCapabilityLeaves === 7
+    && versionDisposition?.totalSourceCapabilityDefinitions === 469
+    && JSON.stringify(actualFutureVersionIds) === JSON.stringify(expectedFutureVersionIds)
+    && JSON.stringify(actualCurrentExtensionIds) === JSON.stringify(expectedCurrentExtensionIds)
+    && actualFutureVersionRows.every((row) => row.scopeStatus === 'DEFERRED' && row.version === 'later-governed-version'
+      && expectedDecisionRefs.includes(row.decisionRef))
+    && expectedFutureVersionIds.every((id) => capabilityById.get(id)?.scopeStatus === 'DEFERRED')
+    && expectedCurrentExtensionIds.length === 0;
+  if (!versionPartitionValid) {
+    error(findings, 'PDP0_VERSION_SCOPE_PARTITION', 'PDP-0', 'PXD-220/PXD-221 must partition exactly seven DEFERRED proposal leaves from the 462-leaf current-version baseline while preserving the 469-record source catalog.');
+    globalScopeIntegrity = false;
+  }
   for (const extension of definitionExtensions) {
     const capability = capabilityById.get(extension.capabilityId);
     const requirementId = extension.requirementRef?.match(/@id=([^/]+)/u)?.[1];
@@ -542,6 +578,9 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
   const source = authority?.applications?.coordinatorDefinitionExtensionApplicability;
   const records = source?.records ?? [];
   const campaigns = authority?.campaignExtensions?.currentDefinitionPopulation?.records ?? [];
+  const versionDisposition = authority?.campaignExtensions?.currentDefinitionPopulation?.versionDisposition;
+  const futureVersionById = new Map((versionDisposition?.futureVersionProposals ?? []).map((row) => [row.capabilityId, row]));
+  const currentVersionExtensionIds = new Set(versionDisposition?.currentVersionExtensionCapabilityIds ?? []);
   const channels = [
     ...(authority?.applications?.channels ?? []).map((row) => row.id),
     ...(authority?.applications?.ownerDefinedChannels?.records ?? []).map((row) => row.id),
@@ -582,6 +621,17 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
   }
   if (records.length !== 7 || JSON.stringify(recordIds) !== JSON.stringify(extensions) || new Set(recordIds).size !== 7) {
     findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_DENOMINATOR', owner: 'PDP-0', message: 'PXD-207 must decide each of the seven current definition extensions exactly once.' });
+  }
+  if (JSON.stringify(versionDisposition?.decisionRefs ?? []) !== JSON.stringify([
+        '.product-experience/decision-log.md#PXD-220',
+        '.product-experience/decision-log.md#PXD-221',
+      ])
+      || versionDisposition?.futureVersionProposalCapabilityLeaves !== 7
+      || versionDisposition?.currentVersionCapabilityLeaves !== 462
+      || futureVersionById.size !== 7 || currentVersionExtensionIds.size !== 0
+      || [...futureVersionById.keys()].some((id) => !campaignById.has(id) || capabilityById.get(id)?.scopeStatus !== 'DEFERRED')
+      || [...currentVersionExtensionIds].some((id) => !campaignById.has(id) || capabilityById.get(id)?.scopeStatus !== 'TARGET')) {
+    findings.push({ code: 'PDP0_VERSION_SCOPE_PARTITION', owner: 'PDP-0', message: 'PXD-220/PXD-221 future-version proposal and current-version extension memberships must exactly cover the seven extension records.' });
   }
   if (!source?.dispositionRule?.explicitExclusions?.includes('NOT_APPLICABLE_OWNER_DECISION')
       || !source?.dispositionRule?.derivedAggregate?.includes('DERIVED_AGGREGATE_OWNER_DECISION')
@@ -642,7 +692,8 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
         || JSON.stringify(sourceProposalRefs) !== JSON.stringify(expectedProposalRefs)
         || auditOwnerSurfaces.some((surfaceId) => surfaceId !== sourceOwner)
         || (decision.excludedSurfaceRefs ?? []).some((row) => !row.rationale?.trim())
-        || (decision.excludedChannelRefs ?? []).some((row) => !row.rationale?.trim())) {
+        || (decision.excludedChannelRefs ?? []).some((row) => !row.rationale?.trim())
+        || (!futureVersionById.has(id) && !currentVersionExtensionIds.has(id))) {
       findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_RECORD', owner: id, message: 'PXD-207 needs an exact single-channel/surface positive set, complete rationale-backed channel/surface exclusion sets, valid source links, and current topology derivation.' });
     }
     for (const ref of [...sourceRefs, ...sourceProposalRefs]) {
@@ -665,6 +716,11 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
         sourceAuditIds: campaign.sourceAuditIds ?? [], decisionRef: sourceDecisionRef,
         sourceRef: `${SOURCE_PATHS.applications}#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=${id}/decision`,
         ownerApproval: 'NOT_CLAIMED', independentAcceptance: 'NOT_CLAIMED', executionAdmission: 'NOT_ADMITTED', rationale: surfaceRationale });
+      const futureVersionProposal = futureVersionById.get(id);
+      const versionScopeStatus = futureVersionProposal?.scopeStatus ?? (currentVersionExtensionIds.has(id) ? 'CURRENT_VERSION_EXTENSION' : 'UNRESOLVED');
+      const versionDispositionRef = futureVersionProposal
+        ? `${futureVersionProposal.decisionRef}; ${futureVersionProposal.version}`
+        : currentVersionExtensionIds.has(id) ? '.product-experience/decision-log.md#PXD-207' : null;
       for (const channelRef of channels) {
         let disposition = surfaceDisposition;
         let rationale = surfaceRationale;
@@ -680,6 +736,7 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
         }
         if (!nonblank(rationale)) findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_RATIONALE', owner: id, message: `Missing explicit rationale for ${channelRef} × ${surface.surfaceId}.` });
         cellRows.push({ capabilityRef: id, surfaceId: surface.surfaceId, surfaceType: surface.surfaceType, channelRef, disposition,
+          versionScopeStatus, versionDispositionRef,
           sourceAuditIds: campaign.sourceAuditIds ?? [], decisionRef: sourceDecisionRef,
           sourceRef: `${SOURCE_PATHS.applications}#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=${id}/decision`,
           ownerApproval: 'NOT_CLAIMED', independentAcceptance: 'NOT_CLAIMED', executionAdmission: 'NOT_ADMITTED', rationale,
@@ -693,7 +750,10 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
   if (JSON.stringify(counts) !== JSON.stringify({ OWNER_DECIDED_APPLICABLE: 14, DERIVED_AGGREGATE_OWNER_DECISION: 21, NOT_APPLICABLE_OWNER_DECISION: 3430, NOT_APPLICABLE_SUPPORT: 616, NOT_APPLICABLE_ARCHIVED: 77 })) {
     findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_PARTITION', owner: 'PDP-0', message: `PXD-207 must partition all 4,158 cells exactly (actual ${JSON.stringify(counts)}).` });
   }
-  return { ok: findings.length === 0, status: 'SOURCE_CURRENT_OWNER_DECISIONS_COMPLETE', channelCount: channels.length, surfaceCellCount: surfaceRows.length, counts, surfaceCounts, records: cellRows, surfaceRecords: surfaceRows, findings };
+  return { ok: findings.length === 0, status: 'SOURCE_CURRENT_OWNER_DECISIONS_COMPLETE', channelCount: channels.length, surfaceCellCount: surfaceRows.length, counts, surfaceCounts,
+    versionDisposition: { currentVersionExtensionCount: currentVersionExtensionIds.size, currentVersionExtensionCapabilityIds: [...currentVersionExtensionIds].sort(),
+      futureVersionProposalCount: futureVersionById.size, futureVersionProposalCapabilityIds: [...futureVersionById.keys()].sort(), decisionRefs: versionDisposition?.decisionRefs ?? [] },
+    records: cellRows, surfaceRecords: surfaceRows, findings };
 }
 
 export function readSources(root = ROOT) {

@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import { projectPdp0DefinitionExtensionApplicability, readSources } from '../scripts/check-media-pdp0-surface-denominator.mjs';
+import { pdp0PhaseScopedSourcePins } from '../scripts/report-media-pdp-readiness.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const require = createRequire(resolve(root, '../ghatana-tools/package.json'));
@@ -32,6 +33,32 @@ test('PXD-207 source records bind seven exact feature decisions and complete exp
   assert.equal(campaignRecords.length, 7);
   assert.equal(campaign.currentDefinitionPopulation.currentCapabilityDefinitions, 469);
   assert.equal(campaign.currentDefinitionPopulation.definitionExtensionCapabilityLeaves, 7);
+  const versionDisposition = campaign.currentDefinitionPopulation.versionDisposition;
+  assert.deepEqual(versionDisposition.decisionRefs, [`${decisionPath}#PXD-220`, `${decisionPath}#PXD-221`]);
+  assert.equal(versionDisposition.historicalCanonicalCapabilityLeaves, 462);
+  assert.equal(versionDisposition.currentVersionCapabilityLeaves, 462);
+  assert.equal(versionDisposition.futureVersionProposalCapabilityLeaves, 7);
+  assert.equal(versionDisposition.totalSourceCapabilityDefinitions, 469);
+  assert.deepEqual(versionDisposition.currentVersionExtensionCapabilityIds, []);
+  assert.deepEqual(versionDisposition.futureVersionProposals.map(item => item.capabilityId), [
+    'media.recipe.specification.compile',
+    'media.project.scene.patch-merge',
+    'media.quality.audio.content-similarity.assess',
+    'media.generate.video.preset.manage',
+    'media.generate.video.shot-condition',
+    'media.job.schedule.manage',
+    'media.master.audio.creative-effect.apply',
+  ]);
+  const capabilities = parseYaml(read('.product-experience/pdp-0-product-truth/capabilities.yaml')).capabilities;
+  const capabilityById = new Map(capabilities.map(item => [item.id, item]));
+  for (const proposal of versionDisposition.futureVersionProposals) {
+    assert.equal(proposal.scopeStatus, 'DEFERRED');
+    assert.equal(proposal.version, 'later-governed-version');
+    assert.equal(capabilityById.get(proposal.capabilityId).scopeStatus, 'DEFERRED');
+    const campaignRecord = campaignRecords.find(item => item.capabilityId === proposal.capabilityId);
+    assert.ok(campaignRecord.acceptanceCaseRefs.length > 0, `${proposal.capabilityId} retains its proposal case refs`);
+  }
+  assert.equal(capabilityById.get('media.master.audio.creative-effect.apply').scopeStatus, 'DEFERRED');
   assert.equal(applications.coordinatorDefinitionExtensionApplicability.decisionRef, `${decisionPath}#PXD-207`);
   assert.equal(applications.coordinatorDefinitionExtensionApplicability.ownerApproval, 'NOT_CLAIMED');
   assert.equal(applications.coordinatorDefinitionExtensionApplicability.independentAcceptance, 'NOT_CLAIMED');
@@ -67,6 +94,19 @@ test('PDP-0 matrix projection resolves all 4,158 channel-by-surface cells from P
   assert.deepEqual(matrix.definitionExtensionApplicability, {
     status: 'SOURCE_CURRENT_OWNER_DECISIONS_COMPLETE',
     extensionCount: 7,
+    currentVersionExtensionCount: 0,
+    currentVersionExtensionCapabilityIds: [],
+    futureVersionProposalCount: 7,
+    futureVersionProposalCapabilityIds: [
+      'media.generate.video.preset.manage',
+      'media.generate.video.shot-condition',
+      'media.job.schedule.manage',
+      'media.master.audio.creative-effect.apply',
+      'media.project.scene.patch-merge',
+      'media.quality.audio.content-similarity.assess',
+      'media.recipe.specification.compile',
+    ],
+    versionDispositionDecisionRefs: [`${decisionPath}#PXD-220`, `${decisionPath}#PXD-221`],
     surfaceIdentityCount: 54,
     channelCount: 11,
     surfaceCellCount: 378,
@@ -88,7 +128,7 @@ test('PDP-0 matrix projection resolves all 4,158 channel-by-surface cells from P
     for (const item of evidence) {
       const cell = expected.get(`${surface.surfaceId}\u0000${item.capabilityRef}\u0000${item.channelRef}`);
       assert.ok(cell, `${surface.surfaceId}/${item.capabilityRef}/${item.channelRef} exists`);
-      for (const field of ['disposition', 'decisionRef', 'ownerApproval', 'independentAcceptance', 'executionAdmission', 'rationale']) {
+      for (const field of ['disposition', 'versionScopeStatus', 'versionDispositionRef', 'decisionRef', 'ownerApproval', 'independentAcceptance', 'executionAdmission', 'rationale']) {
         assert.equal(item[field], cell[field]);
       }
       assert.deepEqual(item.channelRefs, cell.channelRefs);
@@ -114,7 +154,12 @@ test('support-only topology changes invalidate the source decision instead of pr
 test('PDP-0 surface matrix pins PXD-207 applicability source fingerprints', () => {
   const matrix = JSON.parse(read(matrixPath));
   assert.equal(matrix.sourceFingerprints[extensionPath], sha256(read(extensionPath)));
-  assert.equal(matrix.sourceFingerprints[decisionPath], sha256(read(decisionPath)));
+  const decisionSectionPin = `${decisionPath}#PXD-207-section`;
+  assert.equal(matrix.sourceFingerprints[decisionSectionPin], pdp0PhaseScopedSourcePins()[decisionSectionPin]);
+  for (const decisionId of ['PXD-220', 'PXD-221']) {
+    const pin = `${decisionPath}#${decisionId}-section`;
+    assert.equal(matrix.sourceFingerprints[pin], pdp0PhaseScopedSourcePins()[pin]);
+  }
   assert.equal(matrix.sourceFingerprints[appPath], sha256(read(appPath)));
   const serialized = JSON.stringify(Object.entries(matrix.sourceFingerprints).sort(([a], [b]) => a.localeCompare(b)));
   assert.equal(matrix.sourceFingerprintSetSha256, sha256(serialized));

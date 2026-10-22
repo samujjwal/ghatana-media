@@ -7,7 +7,10 @@ import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { getMediaSourceEnumerationDescriptors } from '../scripts/lib/media-obligation-denominator-audit.mjs';
+import {
+  enumerateExpectedMediaObligations,
+  getMediaSourceEnumerationDescriptors,
+} from '../scripts/lib/media-obligation-denominator-audit.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const generator = path.join(repo, 'scripts/generate-media-lifecycle-source-inputs.mjs');
@@ -15,6 +18,13 @@ const { parse, stringify } = createRequire(path.resolve(repo, '../ghatana-tools/
 const sourceEnumerationDescriptors = getMediaSourceEnumerationDescriptors();
 const phaseSourcePaths = [...new Set(sourceEnumerationDescriptors.map(([, sourcePath]) => sourcePath))];
 const singletonFixtureCount = sourceEnumerationDescriptors.filter((descriptor) => descriptor[7]).length;
+const sourcePdpPhases = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
+const sourcePhaseToClosurePhaseId = {
+  'PDP-0': 'media.product-truth.definition-acceptance',
+  'PDP-1': 'media.canonical-domain-data.definition-acceptance',
+  'PDP-2': 'media.design-interface-system.definition-acceptance',
+  'PDP-3': 'media.complete-product-experience.definition-acceptance',
+};
 
 function setFixtureCollection(document, collection, descriptor) {
   const segments = collection.split('.');
@@ -61,8 +71,19 @@ function fixture() {
   const base = 'config/closure/media-product-definition';
   const json = (relativePath, value) => put(`${base}/${relativePath}`, `${JSON.stringify(value, null, 2)}\n`);
   json('obligations.json', []);
-  json('phase-program.json', { phases: ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'].map((id) => ({ id, obligationIds: [] })) });
-  json('phase-binding.json', { phases: Object.fromEntries(['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'].map((id) => [id, { obligationIds: [] }])) });
+  json('historical-obligation-supersessions.json', { records: [] });
+  json('phase-program.json', {
+    metadata: { mediaSourcePhaseMapping: { sourcePhaseToClosurePhaseId } },
+    phases: sourcePdpPhases.map((sourcePdpPhaseId, index) => ({
+      id: sourcePhaseToClosurePhaseId[sourcePdpPhaseId],
+      metadata: { sourcePdpPhaseId },
+      dependsOn: sourcePdpPhases.slice(0, index).map((phase) => sourcePhaseToClosurePhaseId[phase]),
+      obligationIds: [],
+    })),
+  });
+  json('phase-binding.json', {
+    phases: Object.fromEntries(sourcePdpPhases.map((phase) => [sourcePhaseToClosurePhaseId[phase], { obligationIds: [] }])),
+  });
   json('surface.json', { obligationIds: [] });
   json('l02-source-case-links.json', { candidateLinks: [], obligationIds: [], unmappedObligationIds: [] });
   json('l03-proof-route-candidates.json', { l02CaseLinkReview: {}, routes: [] });
@@ -165,6 +186,66 @@ test('check mode detects stale source fingerprints and output drift without writ
     assert.notEqual(check.status, 0);
     assert.match(check.stderr, /Lifecycle source-input drift/u);
     assert.deepEqual(snapshot(f.root), before);
+  } finally { f.cleanup(); }
+});
+
+test('generator maps source PDP groups to distinct Lifecycle phase identities', () => {
+  const f = fixture();
+  try {
+    const source = phaseSourcePaths.find((sourcePath) => sourcePath.endsWith('/requirements.yaml'));
+    const document = f.readSource(source);
+    document.requirements = [{ id: 'requirement.phase-map-fixture' }];
+    f.writeSource(source, document);
+    const expected = enumerateExpectedMediaObligations({ root: f.root, parseYaml: parse }).records
+      .find((record) => record.recordId === 'requirement.phase-map-fixture');
+
+    const result = run(f.root);
+    assert.equal(result.status, 0, result.stderr);
+    const base = path.join(f.root, 'config/closure/media-product-definition');
+    const obligations = JSON.parse(fs.readFileSync(path.join(base, 'obligations.json'), 'utf8'));
+    const generated = obligations.find(({ id }) => id.endsWith('requirement.phase-map-fixture'));
+    assert.ok(generated);
+    assert.deepEqual(generated.phaseSemantics, {
+      applicableIn: [sourcePhaseToClosurePhaseId['PDP-0']],
+      blockingIn: [sourcePhaseToClosurePhaseId['PDP-0']],
+      affects: [sourcePhaseToClosurePhaseId['PDP-0']],
+    });
+    assert.equal(generated.id, expected.obligationId);
+    assert.ok(!JSON.stringify(JSON.parse(fs.readFileSync(path.join(base, 'phase-program.json'), 'utf8')))
+      .includes('"id": "PDP-0"'));
+  } finally { f.cleanup(); }
+});
+
+test('generator retires stale source obligations only with explicit supersession evidence', () => {
+  const f = fixture();
+  try {
+    const source = phaseSourcePaths.find((sourcePath) => sourcePath.endsWith('/requirements.yaml'));
+    const document = f.readSource(source);
+    document.requirements = [{ id: 'requirement.retired-fixture' }];
+    f.writeSource(source, document);
+    assert.equal(run(f.root).status, 0);
+
+    const base = path.join(f.root, 'config/closure/media-product-definition');
+    const obligationPath = path.join(base, 'obligations.json');
+    const obligations = JSON.parse(fs.readFileSync(obligationPath, 'utf8'));
+    const retired = obligations.find(({ id }) => id.endsWith('requirement.retired-fixture'));
+    assert.ok(retired);
+    document.requirements = [];
+    f.writeSource(source, document);
+    const before = snapshot(f.root);
+    const refused = run(f.root);
+    assert.notEqual(refused.status, 0);
+    assert.match(refused.stderr, /has no historical supersession record/u);
+    assert.deepEqual(snapshot(f.root), before);
+
+    const historyPath = path.join(base, 'historical-obligation-supersessions.json');
+    const history = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
+    history.records.push({ supersededObligation: retired, supersessionReason: 'The source identity was explicitly retired for this fixture.', activeSuccessor: null });
+    fs.writeFileSync(historyPath, `${JSON.stringify(history, null, 2)}\n`);
+    const generated = run(f.root);
+    assert.equal(generated.status, 0, generated.stderr);
+    const active = JSON.parse(fs.readFileSync(obligationPath, 'utf8'));
+    assert.equal(active.some(({ id }) => id === retired.id), false);
   } finally { f.cleanup(); }
 });
 

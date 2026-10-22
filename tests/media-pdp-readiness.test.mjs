@@ -38,35 +38,66 @@ test('current PDP-0 corrective source fingerprints exclude generated verificatio
   }
  }
 });
-test('PXD-216 and PXD-196 bind current PDP-0 reviews while older P0-01 pins remain historical',()=>{
+test('PXD-223 refreshes only P0-01 currentness while preserving PXD-216 semantic review',()=>{
+ const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
+ const record=artifact.records.find(({taskId})=>taskId==='P0-01');
+ const pxd216=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json','utf8'));
+ const pxd223=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json','utf8'));
+ const sourcePin=file=>pdp0PhaseScopedSourcePins()[file]??createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+ assert.equal(record.currentCorrectiveReview.decisionRef,'.product-experience/decision-log.md#PXD-216');
+ assert.equal(record.currentSourceReview.decisionRef,'.product-experience/decision-log.md#PXD-223');
+ assert.equal(record.currentSourceReview.reviewKind,'COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION');
+ assert.equal(record.currentSourceReview.ownerApproval,'NOT_CLAIMED');
+ assert.equal(record.currentSourceReview.acceptanceEffect,'none');
+ assert.match(record.currentSourceReview.acceptanceBoundary,/PXD-216 remains the semantic review/u);
+ assert.equal(pxd223.preservedSemanticReview.changedReviewedCapabilityIds.length,0);
+ assert.equal(pxd223.preservedSemanticReview.reviewedCapabilityCount,20);
+ assert.equal(pxd223.preservedSemanticReview.semanticReviewStatus,'PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW');
+ assert.equal(pxd216.reviewedCapabilityIds.length,20);
+ assert.equal(pxd223.decisionSectionSha256,sourcePin('.product-experience/decision-log.md#PXD-223-section'));
+ for(const [file,digest] of Object.entries(record.currentSourceReview.sourceFingerprints))
+  assert.equal(digest,sourcePin(file),`P0-01 PXD-223 currentness pin ${file}`);
+ assert.equal(resolveCriterionReviewSourceCut(record,sourcePin,sourceOwnerPhase).sourceCutCurrent,true);
+ const historicalOnly={...record,currentCorrectiveReview:undefined,currentSourceReview:undefined,currentSourcePinRefresh:undefined};
+ assert.equal(resolveCriterionReviewSourceCut(historicalOnly,sourcePin,sourceOwnerPhase).sourceCutCurrent,false);
+});
+test('PXD-223 refreshes P0-01 currentness while preserving PXD-216 semantic review and PXD-196 history',()=>{
  const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
  const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
  const sourcePin=file=>pdp0PhaseScopedSourcePins()[file]??sha(file);
   const byId=new Map(artifact.records.map(record=>[record.taskId,record]));
  const pxd216=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json','utf8'));
+ const pxd223=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json','utf8'));
   for(const id of ['P0-01','P0-02','P0-05','P0-06','P0-07']){
   const record=byId.get(id);
-  const current=record.currentCorrectiveReview;
+  const current=record.currentSourceReview ?? record.currentCorrectiveReview;
   const currentDecisionRef=id==='P0-01'
    ?'.product-experience/decision-log.md#PXD-216'
+   :id==='P0-05'?'.product-experience/decision-log.md#PXD-208'
    :'.product-experience/decision-log.md#PXD-196';
   const reviewEvidence=id==='P0-01'?pxd216:current;
   assert.equal(reviewEvidence.decisionRef,currentDecisionRef);
   assert.equal(reviewEvidence.phaseScope,'PDP-0');
   assert.equal(reviewEvidence.ownerApproval,'NOT_CLAIMED');
   if(id==='P0-01') {
-   assert.equal(reviewEvidence.reviewKind,'COORDINATOR_AUTHORED_CURRENT_SOURCE_SEMANTIC_REVIEW');
-   assert.equal(reviewEvidence.result.status,'PASS');
-   assert.equal(reviewEvidence.independentAcceptance,'NOT_CLAIMED');
-   assert.equal(reviewEvidence.acceptanceEffect,'none');
+   assert.equal(reviewEvidence.decisionRef,'.product-experience/decision-log.md#PXD-216');
+   assert.deepEqual(pxd223.preservedSemanticReview.changedReviewedCapabilityIds,[]);
+   assert.equal(pxd223.preservedSemanticReview.reviewedCapabilityCount,20);
+   assert.equal(pxd223.preservedSemanticReview.semanticReviewStatus,'PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW');
+   assert.equal(current.decisionRef,'.product-experience/decision-log.md#PXD-223');
+   assert.equal(current.reviewKind,'COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION');
+   assert.equal(current.ownerApproval,'NOT_CLAIMED');
+   assert.equal(current.acceptanceEffect,'none');
+   assert.match(current.acceptanceBoundary,/PXD-216 remains the semantic review/u);
+   assert.deepEqual(Object.keys(current.sourceFingerprints).sort(),['.product-experience/decision-log.md#PXD-223-section','.product-experience/pdp-0-product-truth/capabilities.yaml'].sort());
    assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-209'),
     'PXD-209 remains preserved as its historical correction record');
-   for(const [file,digest] of Object.entries(reviewEvidence.sourceFingerprints))assert.equal(digest,sourcePin(file),`P0-01 current PXD-216 source pin ${file}`);
+   for(const [file,digest] of Object.entries(current.sourceFingerprints))assert.equal(digest,sourcePin(file),`P0-01 PXD-223 currentness pin ${file}`);
    assert.equal(resolveCriterionReviewSourceCut(record,sourcePin,sourceOwnerPhase).sourceCutCurrent,true,
-    'the current PXD-216 review establishes P0-01 source currentness');
+    'the PXD-223 currentness layer establishes P0-01 source currentness while PXD-216 remains semantic authority');
    const historicalOnly={...record,currentCorrectiveReview:undefined,currentSourceReview:undefined,currentSourcePinRefresh:undefined};
    assert.equal(resolveCriterionReviewSourceCut(historicalOnly,sourcePin,sourceOwnerPhase).sourceCutCurrent,false,
-    'historical PXD-209 pins do not establish current P0-01 source currentness');
+    'historical PXD-209 and PXD-216 pins do not establish current P0-01 source currentness');
   } else {
   assert.equal(current.status,'APPROVED_CURRENT_SOURCE_REVIEW');
   assert.match(current.acceptanceBoundary,/Coordinator-authored PDP-0 source review only/u);
@@ -94,6 +125,7 @@ test('PXD-216 and PXD-196 bind current PDP-0 reviews while older P0-01 pins rema
  assert.equal(productTruth.reviewKind,'CURRENT_SOURCE_DEFINITION_REVIEW');
  assert.match(productTruth.scope,/20 capability leaves with materially changed PDP-0 meaning fields/u);
  assert.match(productTruth.scope,/all 462 canonical lane records/u);
+ assert.equal(byId.get('P0-01').currentSourceReview.decisionRef,'.product-experience/decision-log.md#PXD-223');
  const rightsReview=byId.get('P0-01').historicalCorrectiveReviews.find(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-209');
  assert.ok(rightsReview,'PXD-209 rights and import review remains in its source-cut history');
  assert.match(rightsReview.scope,/media\.artifact\.search/u);
@@ -142,8 +174,8 @@ test('PXD-216 and PXD-196 bind current PDP-0 reviews while older P0-01 pins rema
  assert.match(applicability.scope,/CLI runtime admission remains NOT_ADMITTED/u);
  assert.match(applicability.scope,/54 registered identities/u);
  assert.match(applicability.scope,/owner approval and independent acceptance remain NOT_CLAIMED/u);
- assert.equal(crosswalk.coordinatorReview.decisionRef,'PXD-216');
- assert.equal(crosswalk.coordinatorReview.priorDecisionRef,'PXD-215');
+ assert.equal(crosswalk.coordinatorReview.decisionRef,'PXD-223');
+ assert.equal(crosswalk.coordinatorReview.priorDecisionRef,'PXD-216');
  assert.equal(crosswalk.coordinatorReview.ownerApproval,'NOT_CLAIMED');
  assert.ok(!crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-195'));
  assert.ok(crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-194'));

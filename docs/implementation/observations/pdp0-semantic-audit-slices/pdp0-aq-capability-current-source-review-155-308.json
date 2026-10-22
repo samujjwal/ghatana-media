@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "1.0.0",
+  "recordKind": "PDP0_AQ_CAPABILITY_CURRENT_SOURCE_SEMANTIC_RECHECK",
+  "status": "READ_ONLY_SEMANTIC_RECHECK",
+  "reviewMethod": "AI-assisted, read-only comparison of the recommendation slice against current capability and requirement sources and the cited Blueprint section. This is not owner acceptance, independent review, or proof of implementation or closure.",
+  "reviewScope": {
+    "sourceOrderFirst1Based": 155,
+    "sourceOrderLast1Based": 308,
+    "expectedRowCount": 154,
+    "recommendationFile": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-155-308.json",
+    "capabilitySource": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "requirementSource": ".product-experience/pdp-0-product-truth/requirements.yaml",
+    "taxonomySource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#section-2"
+  },
+  "sourceFingerprints": {
+    "algorithm": "SHA-256 of exact file bytes",
+    "currentSources": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+    },
+    "recommendationFile": {
+      "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-155-308.json",
+      "sha256": "078e306341dc7ec44c41514bc9fb2550cf06ee16668e7fe5eda07ca14db4c723"
+    },
+    "recommendationDeclaredBaseline": {
+      "capabilitiesYamlSha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+      "requirementsYamlSha256": "b5b0bca96a6ba0ba26661976ea309021a20cb1192956fa69198b8c81427426bd",
+      "blueprintSha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947",
+      "baselineCurrentness": "Capability and requirement hashes in the recommendation file differ from the current source hashes above; this record rechecks the recommendations against the current sources."
+    }
+  },
+  "identityAndLinkResults": {
+    "recommendationRows": 154,
+    "sourceOrderRangeMatches": true,
+    "allRecommendationOrdersMatchCurrentCapabilitySlice": true,
+    "recommendationCapabilityIdsUnique": true,
+    "recommendationCapabilityIdsMatchCurrentSourceOrder": 154,
+    "recommendationCapabilityIdsMismatched": 0,
+    "currentCapabilityPopulation": 469,
+    "currentCapabilityIdsUnique": true,
+    "currentRequirementPopulation": 38,
+    "currentRequirementIdsUnique": true,
+    "allParentRequirementIdsExist": true,
+    "parentRequirementLinksMatchingCurrentCapabilityRequirementIds": 154,
+    "parentRequirementLinksMismatched": 0,
+    "allRowsRemainTargetInScopeDraft": true
+  },
+  "semanticAssessment": {
+    "assessmentBasis": "Compared each current capability ID and declared meaning with its recommended primary/related A-Q cluster and rationale against Blueprint v3 section 2 cluster descriptions. Assessment is limited to taxonomy/index fit.",
+    "supported": 154,
+    "ambiguous": 0,
+    "mismatched": 0,
+    "notableSecondaryFitsReviewed": [
+      "Voice conditioning, authorized cloning, and conversion: G with F related.",
+      "Speech localization and dubbing: H with F related.",
+      "Spatial audio generation: I with M related.",
+      "Animation editing: M with D related.",
+      "Recipe templates: J with M related.",
+      "Face restoration: K with O related.",
+      "Temporal video enhancement: K with L related."
+    ],
+    "limitation": "Semantic fit does not adopt new product requirements, establish owner acceptance, prove implementation, or supply obligation-to-surface, case, proof-producer, observer, oracle, or closure bindings."
+  },
+  "authority": {
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentReview": "NOT_CLAIMED",
+    "implementationProof": "NOT_CLAIMED",
+    "lifecycleAdmissionOrClosure": "NOT_CLAIMED"
+  },
+  "currentnessRefresh": {
+    "kind": "CURRENTNESS_ONLY_REFRESH",
+    "note": "PXD-221 changed only seven appended extension records after canonical capability order 462. The raw capability YAML bytes for orders 155-308 and 1-462 are identical to the previous whole-file source. Rechecked all 154 recommendation rows against current source order, capability IDs, TARGET scope, and parent requirement links. Requirements, Blueprint V3, and recommendation inputs are unchanged. Existing semantic findings and all non-acceptance limitations are reused unchanged; this refresh adds no owner-acceptance, independent-review, implementation, admission, or closure claim.",
+    "capabilitySource": {
+      "priorWholeFileSha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+      "currentWholeFileSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "priorAndCurrentRawBytesIdenticalForReviewedOrders155To308": true,
+      "priorAndCurrentRawBytesIdenticalForCanonicalOrders1To462": true,
+      "changedOrdersOutsideCanonicalRange": [
+        {
+          "order": 463,
+          "capabilityId": "media.recipe.specification.compile"
+        },
+        {
+          "order": 464,
+          "capabilityId": "media.project.scene.patch-merge"
+        },
+        {
+          "order": 465,
+          "capabilityId": "media.quality.audio.content-similarity.assess"
+        },
+        {
+          "order": 466,
+          "capabilityId": "media.generate.video.preset.manage"
+        },
+        {
+          "order": 467,
+          "capabilityId": "media.generate.video.shot-condition"
+        },
+        {
+          "order": 468,
+          "capabilityId": "media.job.schedule.manage"
+        },
+        {
+          "order": 469,
+          "capabilityId": "media.master.audio.creative-effect.apply"
+        }
+      ]
+    },
+    "unchangedInputs": {
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-155-308.json": "078e306341dc7ec44c41514bc9fb2550cf06ee16668e7fe5eda07ca14db4c723"
+    },
+    "currentSliceEvidence": {
+      "recommendationRows": 154,
+      "sourceOrderAndCapabilityIdsMatch": true,
+      "allRowsRemainTarget": true,
+      "parentRequirementIdsExistAndMatchCapabilityLinks": true,
+      "mismatchedRows": 0
+    }
+  }
+}

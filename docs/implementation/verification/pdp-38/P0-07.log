@@ -2,63 +2,63 @@ TAP version 13
 # Subtest: every active P0 capability adjudication has an exact channel disposition, with unsupported admission left explicit
 ok 1 - every active P0 capability adjudication has an exact channel disposition, with unsupported admission left explicit
   ---
-  duration_ms: 9145.866724
+  duration_ms: 4529.306875
   type: 'test'
   ...
 # Subtest: P0-07 exact declarative acceptance-case scope resolves all 61 case-to-surface-leaf pairs
 ok 2 - P0-07 exact declarative acceptance-case scope resolves all 61 case-to-surface-leaf pairs
   ---
-  duration_ms: 358.03224
+  duration_ms: 135.527667
   type: 'test'
   ...
 # Subtest: P0-07 rejects missing, duplicate, unknown, cross-surface, and channel-inapplicable declarative case bindings
 ok 3 - P0-07 rejects missing, duplicate, unknown, cross-surface, and channel-inapplicable declarative case bindings
   ---
-  duration_ms: 1470.179577
+  duration_ms: 441.944417
   type: 'test'
   ...
 # Subtest: all 462 leaves have exact profile-channel applicability or a source-backed exclusion
 ok 4 - all 462 leaves have exact profile-channel applicability or a source-backed exclusion
   ---
-  duration_ms: 25.42283
+  duration_ms: 27.892416
   type: 'test'
   ...
 # Subtest: channel rules keep protocol and product-interaction semantics separate
 ok 5 - channel rules keep protocol and product-interaction semantics separate
   ---
-  duration_ms: 0.308544
+  duration_ms: 0.489209
   type: 'test'
   ...
 # Subtest: 15 review dimensions resolve every requirement type and all 462 exact leaf joins
 ok 6 - 15 review dimensions resolve every requirement type and all 462 exact leaf joins
   ---
-  duration_ms: 6359.064863
+  duration_ms: 2426.73575
   type: 'test'
   ...
 # Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
 ok 7 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 8265.186738
+  duration_ms: 4430.68125
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 8 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 630.044714
+  duration_ms: 229.736208
   type: 'test'
   ...
 1..0
-# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-campaign-extension-surface-matrix.test.mjs
-ok 5 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-campaign-extension-surface-matrix.test.mjs
+# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-campaign-extension-surface-matrix.test.mjs
+ok 5 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-campaign-extension-surface-matrix.test.mjs
   ---
-  duration_ms: 173.04356
+  duration_ms: 327.685084
   type: 'test'
   ...
 1..0
-# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-feature-review-current-source-observation.test.mjs
-ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-feature-review-current-source-observation.test.mjs
+# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-feature-review-current-source-observation.test.mjs
+ok 6 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-feature-review-current-source-observation.test.mjs
   ---
-  duration_ms: 127.544014
+  duration_ms: 121.997125
   type: 'test'
   ...
 1..10
@@ -69,4 +69,4 @@ ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-feature-review-curr
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 15889.840268
+# duration_ms 7050.386791

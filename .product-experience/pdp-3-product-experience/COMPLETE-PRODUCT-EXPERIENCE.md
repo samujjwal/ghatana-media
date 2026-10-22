@@ -1,7 +1,7 @@
 # Media Product Experience Specification
 
 **Authority:** Canonical Media PDP-3 experience definitions consuming PDP-0, PDP-1, and PDP-2.
-**Development status:** The prior 47-screen / 30-journey / 130-step population was `DEV_COMPLETE` at its recorded *historical* source cut. The Recorder/Studio successor introduced afterward (four additional logical consumers, 84 scoped acceptance steps, 52 manual edit paths) remains `SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS`, **not PDP-3 DEV_COMPLETE**. Independent acceptance and runtime/channel admission are separate.
+**Development status:** The prior 47-screen / 30-journey / 130-step population was `DEV_COMPLETE` at its recorded *historical* source cut. The Recorder/Studio successor introduced afterward (four additional logical consumers, 84 scoped acceptance steps, 52 manual edit paths) remains `SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS`, **not PDP-3 DEV_COMPLETE**. The Media v1 narrated Explorer edition adds one bounded J-03 scenario criterion (P3-11), documented in `demo-recording-standard.yaml`; its native status is regenerated against current sources. Independent acceptance and runtime/channel admission are separate.
 
 **Historical development completion only:** `docs/implementation/pdp-3-phase-dev-status.json` records all 10 criteria passing for the 47-screen/30-journey/130-step population, with strict current projections, valid schemas/public validators, and zero field-mapping blockers. The terminal cross-phase and full development suite are repository integration checks; they do not establish product-owner or independent acceptance, runtime admission, Lifecycle receipts or closure, or release qualification.\
 **Detailed work slices:** J-01 project setup, J-02 artifact intake, J-20 job observation/recovery, and `media.lane.transcribe-and-correct-captions`
@@ -139,8 +139,13 @@ ordinary workflow.
 
 ## Phase status
 
-The PDP-3 development gate is `DEV_COMPLETE`; its 10 criteria, source cut, and
-strict current projection are pinned in the phase status artifact. That status
+The PDP-3 development gate includes P3-01 through P3-11 for the Media v1
+edition: the existing experience-definition criteria plus one source-bound,
+narrated J-03 Explorer demonstration with seven ordered scenes. The 26
+journeys without rich exact simulation seeds are deferred to a later edition,
+not marked N/A; their source-linked definition oracles remain in scope. The
+P3-11 recording demonstrates deterministic simulated state only. The native
+status artifact pins the current source cut and strict projection. That status
 is not product-owner acceptance or an acceptance-gate receipt. The generated
 candidate remains a definition projection, not a runtime or release artifact.
 J-01 and J-02 have baseline-view and journey contracts; J-20 has a

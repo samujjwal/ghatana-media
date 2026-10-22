@@ -1,8 +1,9 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { MEDIA_SOURCE_PDP_PHASES, readMediaSourcePhaseMapping } from './media-closure-phase-map.mjs';
 
-const PHASES = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
+const PHASES = MEDIA_SOURCE_PDP_PHASES;
 const parsedSources = new Map();
 function readSourceEntry(absolutePath, parseYaml) {
   const text = fs.readFileSync(absolutePath, 'utf8');
@@ -365,6 +366,12 @@ function compareMembership(label, expectedIds, selectedIds, issues) {
 
 export function auditMediaObligationDenominator({ root, obligations, program, binding, surface, traceability, parseYaml }) {
   const issues = [];
+  let sourcePhaseToClosurePhaseId;
+  try { sourcePhaseToClosurePhaseId = readMediaSourcePhaseMapping(program); }
+  catch (error) {
+    addIssue(issues, 'INVALID_PHASE_SOURCE_MAPPING', error.message);
+    sourcePhaseToClosurePhaseId = {};
+  }
   const sourceEnumeration = enumerateExpectedMediaObligations({ root, parseYaml });
   issues.push(...sourceEnumeration.issues);
   const expectedById = new Map(sourceEnumeration.records.map((record) => [record.obligationId, record]));
@@ -398,13 +405,14 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
     if (record?.disposition !== 'REQUIRED') addIssue(issues, 'DISPOSITION', `${record?.id ?? `index ${i}`} has disposition ${String(record?.disposition)}; exactly one REQUIRED disposition is expected in this source set`);
     if (record?.disposition === undefined) addIssue(issues, 'MISSING_DISPOSITION', `${record?.id ?? `index ${i}`} has no disposition`);
     const applicable = record?.phaseSemantics?.applicableIn ?? [];
-    const phase = record?.id?.match(/^media\.(pdp-[0-3])\./u)?.[1]?.toUpperCase();
-    if (applicable.length !== 1 || applicable[0] !== phase) {
-      addIssue(issues, 'CONTRADICTORY_PHASE', `${record?.id ?? `index ${i}`} phase ID=${phase ?? 'unknown'} applicableIn=${JSON.stringify(applicable)}`);
+    const sourcePhase = record?.id?.match(/^media\.(pdp-[0-3])\./u)?.[1]?.toUpperCase();
+    const closurePhase = sourcePhaseToClosurePhaseId[sourcePhase];
+    if (!closurePhase || applicable.length !== 1 || applicable[0] !== closurePhase) {
+      addIssue(issues, 'CONTRADICTORY_PHASE', `${record?.id ?? `index ${i}`} source phase=${sourcePhase ?? 'unknown'} expected Lifecycle phase=${closurePhase ?? 'unmapped'} applicableIn=${JSON.stringify(applicable)}`);
     }
     for (const field of ['blockingIn', 'affects']) {
       const values = record?.phaseSemantics?.[field] ?? [];
-      if (!Array.isArray(values) || values.some((value) => !PHASES.includes(value))) {
+      if (!Array.isArray(values) || values.length !== 1 || values[0] !== closurePhase) {
         addIssue(issues, 'CONTRADICTORY_PHASE', `${record?.id ?? `index ${i}`} has invalid ${field}=${JSON.stringify(values)}`);
       }
     }
@@ -414,7 +422,8 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
     sourceEnumeration.records.filter((record) => record.phase === phase).map((record) => record.obligationId)]));
   const expectedPhaseCounts = Object.fromEntries(PHASES.map((phase) => [phase, expectedIdsByPhase[phase].length]));
   const phaseCounts = Object.fromEntries(PHASES.map((phase) => [phase,
-    obligations.filter((record) => record?.phaseSemantics?.applicableIn?.length === 1 && record.phaseSemantics.applicableIn[0] === phase).length]));
+    obligations.filter((record) => record?.phaseSemantics?.applicableIn?.length === 1
+      && record.phaseSemantics.applicableIn[0] === sourcePhaseToClosurePhaseId[phase]).length]));
   for (const [phase, expected] of Object.entries(expectedPhaseCounts)) {
     if (phaseCounts[phase] !== expected) addIssue(issues, 'PHASE_COUNT', `${phase} count ${phaseCounts[phase]} != source-enumerated ${expected}`);
   }
@@ -425,8 +434,9 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
   const selectedByPhase = Object.fromEntries(PHASES.map((phase) => [phase,
     expectedIdsByPhase[phase]]));
   for (const phase of PHASES) {
-    compareMembership(`phase-program ${phase}`, selectedByPhase[phase], program?.phases?.find((item) => item.id === phase)?.obligationIds, issues);
-    compareMembership(`phase-binding ${phase}`, selectedByPhase[phase], binding?.phases?.[phase]?.obligationIds, issues);
+    const closurePhase = sourcePhaseToClosurePhaseId[phase];
+    compareMembership(`phase-program ${closurePhase ?? phase}`, selectedByPhase[phase], program?.phases?.find((item) => item.id === closurePhase)?.obligationIds, issues);
+    compareMembership(`phase-binding ${closurePhase ?? phase}`, selectedByPhase[phase], binding?.phases?.[closurePhase]?.obligationIds, issues);
   }
   compareMembership('closure-surface', sourceEnumeration.records.map((record) => record.obligationId), surface?.obligationIds, issues);
 
@@ -485,7 +495,11 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
       addIssue(issues, 'MISSING_SOURCE_FINGERPRINT', `${record.id} has no persisted sourceDigest`);
     }
   }
-  if (!traceability || traceability.status !== 'partial-authored-links; independent-P0-010-semantic-closure-pending') {
+  if (!traceability
+    || traceability.status !== 'authored-relations; current-PDP-0-development-status-is-recorded-in-the-source-bound-phase-status; owner-acceptance-and-independent-P0-010-review-pending'
+    || traceability.coverageSemantics?.completeness !== 'partial'
+    || traceability.coverageSemantics?.independentReviewRequired !== true
+    || traceability.coverageSemantics?.closureStatus !== 'not-assessed-by-independent-P0-010-review') {
     addIssue(issues, 'TRACEABILITY_STATE', 'traceability source is missing or no longer declares partial authored links / pending independent review');
   }
   return {
