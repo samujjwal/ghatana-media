@@ -1,0 +1,1056 @@
+{
+  "schemaVersion": "media.build-source-bridge-blocker-inventory.v1",
+  "recordKind": "GENERATED_READ_ONLY_EXACT_SOURCE_JOIN_BLOCKERS_NOT_PDP_MEANING_AUTHORITY",
+  "sourceBridge": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+  "sourceBridgeStatus": "INCOMPLETE_SOURCE_RELATIONS",
+  "stage": "BUILD",
+  "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+  "selectedTaskId": "M-BLD-F00.T02",
+  "census": {
+    "traceIdentityCount": 3186,
+    "sourceBridgeEdgeCount": 8578,
+    "unresolvedSourceIdentityCount": 65,
+    "p1OperationMissingReferenceCount": 93,
+    "uniqueMissingP1OperationCount": 17,
+    "unresolvedCrossLayerRelationCount": 8,
+    "unresolvedHandoffSelectorCount": 1,
+    "otherReasonCount": 0
+  },
+  "exactMissingP1Operations": [
+    {
+      "operationId": "media.operation-slice.append-upload-chunk",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload.resume"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-artifact-upload-resume",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.http-api.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.sdk.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.web.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j02-step-03.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.append-upload-chunk"
+        }
+      ],
+      "occurrenceCount": 6,
+      "referencingPackageIds": [
+        "M-BLD-V02"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.begin-upload",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.artifact.upload",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-artifact-upload",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.http-api.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.sdk.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.web.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j02-step-02.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-02.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.begin-upload"
+        }
+      ],
+      "occurrenceCount": 6,
+      "referencingPackageIds": [
+        "M-BLD-V02"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.cancel-job",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.job.cancel",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.cancel"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-job-cancel",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j20.cli.v1",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.cli.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j20.web.v1",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.web.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j20-step-05.v1",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-05.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.cancel-job"
+        }
+      ],
+      "occurrenceCount": 5,
+      "referencingPackageIds": [
+        "M-BLD-V20"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.complete-upload",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload.resume"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-artifact-upload-resume",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:transitions:media-upload-and-artifact/T01",
+          "ownerPackageId": "M-BLD-F06",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.http-api.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.sdk.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.web.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j02-step-03.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.complete-upload"
+        }
+      ],
+      "occurrenceCount": 7,
+      "referencingPackageIds": [
+        "M-BLD-F06",
+        "M-BLD-V02"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.create-project",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.project.create",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.create"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-project-create",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j01.web.v1",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j01-step-03.v1",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-03.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.create-project"
+        }
+      ],
+      "occurrenceCount": 4,
+      "referencingPackageIds": [
+        "M-BLD-V01"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.inspect-artifact",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+      "references": [
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j23.cli.v1",
+          "ownerPackageId": "M-BLD-V23",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j23.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j23.cli.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j23.web.v1",
+          "ownerPackageId": "M-BLD-V23",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j23.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j23.web.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j24.cli.v1",
+          "ownerPackageId": "M-BLD-V24",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j24.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j24.cli.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j24.http-api.v1",
+          "ownerPackageId": "M-BLD-V24",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j24.http-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j24.http-api.v1/p1OperationBindings/0/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j26.http-api.v1",
+          "ownerPackageId": "M-BLD-V26",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.http-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.http-api.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j26.product-integration.v1",
+          "ownerPackageId": "M-BLD-V26",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.product-integration.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.product-integration.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j26.web.v1",
+          "ownerPackageId": "M-BLD-V26",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.web.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j23-step-02.v1",
+          "ownerPackageId": "M-BLD-V23",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j23-step-02.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-artifact"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j24-step-04.v1",
+          "ownerPackageId": "M-BLD-V24",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-04.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-artifact"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j26-step-02.v1",
+          "ownerPackageId": "M-BLD-V26",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-artifact"
+        }
+      ],
+      "occurrenceCount": 10,
+      "referencingPackageIds": [
+        "M-BLD-V23",
+        "M-BLD-V24",
+        "M-BLD-V26"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.inspect-job",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job",
+      "references": [
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j20-step-05.v1",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-05.v1"
+          ],
+          "joinedFrom": "supportingOperationRefs=media.operation-slice.inspect-job"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j20-step-06.v1",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-06.v1"
+          ],
+          "joinedFrom": "supportingOperationRefs=media.operation-slice.inspect-job"
+        }
+      ],
+      "occurrenceCount": 2,
+      "referencingPackageIds": [
+        "M-BLD-V20"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.inspect-project",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.project.inspect",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.inspect"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-project-inspect",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j01.web.v1",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j01-step-04.v1",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-04.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-project"
+        }
+      ],
+      "occurrenceCount": 4,
+      "referencingPackageIds": [
+        "M-BLD-V01"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.inspect-upload",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload.resume"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-artifact-upload-resume",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.http-api.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/4/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.sdk.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/4/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.web.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/4/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j02-step-03.v1",
+          "ownerPackageId": "M-BLD-V02",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-upload"
+        }
+      ],
+      "occurrenceCount": 6,
+      "referencingPackageIds": [
+        "M-BLD-V02"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.list-projects",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects",
+      "references": [
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j01.web.v1",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j01-step-02.v1",
+          "ownerPackageId": "M-BLD-V01",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-02.v1"
+          ],
+          "joinedFrom": "operationRefs=media.operation-slice.list-projects"
+        }
+      ],
+      "occurrenceCount": 2,
+      "referencingPackageIds": [
+        "M-BLD-V01"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation-slice.retry-job",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.job.retry",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.retry"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-job-retry",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j20.cli.v1",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.cli.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j20.web.v1",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.web.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j20-step-06.v1",
+          "ownerPackageId": "M-BLD-V20",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-06.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation-slice.retry-job"
+        }
+      ],
+      "occurrenceCount": 5,
+      "referencingPackageIds": [
+        "M-BLD-V20"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation.caption-draft-write",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+      "references": [
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/1/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j16.grpc-api.v1",
+          "ownerPackageId": "M-BLD-V16",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j16.grpc-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j16.grpc-api.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j16.web.v1",
+          "ownerPackageId": "M-BLD-V16",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j16.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j16.web.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j18.web.v1",
+          "ownerPackageId": "M-BLD-V18",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j18.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j18.web.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-05.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-05.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation.caption-draft-write"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-06.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-06.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation.caption-draft-write"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j16-step-03.v1",
+          "ownerPackageId": "M-BLD-V16",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j16-step-03.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation.caption-draft-write"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j18-step-04.v1",
+          "ownerPackageId": "M-BLD-V18",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-04.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation.caption-draft-write"
+        }
+      ],
+      "occurrenceCount": 11,
+      "referencingPackageIds": [
+        "M-BLD-V03",
+        "M-BLD-V16",
+        "M-BLD-V18"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation.caption-version-read",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read",
+      "references": [
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/2/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-08.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-08.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation.caption-version-read"
+        }
+      ],
+      "occurrenceCount": 5,
+      "referencingPackageIds": [
+        "M-BLD-V03"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation.caption-version-write",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write",
+      "references": [
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/3/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/3/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/3/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/3/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-07.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-07.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation.caption-version-write"
+        }
+      ],
+      "occurrenceCount": 5,
+      "referencingPackageIds": [
+        "M-BLD-V03"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation.job-lifecycle",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.job-lifecycle",
+      "references": [
+        {
+          "sourceIdentity": "PDP-1:transitions:media-job/T01",
+          "ownerPackageId": "M-BLD-F06",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T01"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T01/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:transitions:media-job/T03",
+          "ownerPackageId": "M-BLD-F06",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:transitions:media-job/T04",
+          "ownerPackageId": "M-BLD-F06",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T04"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T04/operationRefs"
+        }
+      ],
+      "occurrenceCount": 3,
+      "referencingPackageIds": [
+        "M-BLD-F06"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation.transcript-version-read",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read",
+      "references": [
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/4/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/4/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/4/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/4/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-04.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-04.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation.transcript-version-read"
+        }
+      ],
+      "occurrenceCount": 5,
+      "referencingPackageIds": [
+        "M-BLD-V03"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    },
+    {
+      "operationId": "media.operation.transcription-submission",
+      "sourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+      "references": [
+        {
+          "sourceIdentity": "PDP-0:capability-intent:media.speech.transcription.file",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-speech-transcription-file",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file"
+          ],
+          "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file/operationRefs"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/5/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/5/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/5/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1"
+          ],
+          "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/5/operationRef"
+        },
+        {
+          "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-02.v1",
+          "ownerPackageId": "M-BLD-V03",
+          "sourceSelectors": [
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-02.v1"
+          ],
+          "joinedFrom": "actionExactOperationRefs=media.operation.transcription-submission"
+        }
+      ],
+      "occurrenceCount": 7,
+      "referencingPackageIds": [
+        "M-BLD-V03"
+      ],
+      "requiredRepair": "Admit this existing source-defined operation into the versioned trace only after authoritative identity/ownership/case impact review; retain every explicit referring edge"
+    }
+  ],
+  "unresolvedCrossLayerRelations": [
+    {
+      "sourceIdentity": "PDP-1:operations:media.operation.action.inspect-job-retry-policy",
+      "ownerPackageId": "M-BLD-F03",
+      "sourceSelectors": [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-job-retry-policy"
+      ],
+      "reason": "SOURCE_RELATION_UNRESOLVED:PDP-1:operations:media.operation.action.inspect-job-retry-policy",
+      "operationId": "media.operation.action.inspect-job-retry-policy",
+      "repair": "Find exact P0/P1/P3 source-declared relation or formally record a valid terminal/source-only semantic disposition in the owning contract; do not synthesize a new edge"
+    },
+    {
+      "sourceIdentity": "PDP-1:operations:media.operation.request-snapshot.inspect.v1",
+      "ownerPackageId": "M-BLD-F03",
+      "sourceSelectors": [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.request-snapshot.inspect.v1"
+      ],
+      "reason": "SOURCE_RELATION_UNRESOLVED:PDP-1:operations:media.operation.request-snapshot.inspect.v1",
+      "operationId": "media.operation.request-snapshot.inspect.v1",
+      "repair": "Find exact P0/P1/P3 source-declared relation or formally record a valid terminal/source-only semantic disposition in the owning contract; do not synthesize a new edge"
+    },
+    {
+      "sourceIdentity": "PDP-1:operations:media.operation.speaker-reference.resolve-version.v1",
+      "ownerPackageId": "M-BLD-F03",
+      "sourceSelectors": [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.speaker-reference.resolve-version.v1"
+      ],
+      "reason": "SOURCE_RELATION_UNRESOLVED:PDP-1:operations:media.operation.speaker-reference.resolve-version.v1",
+      "operationId": "media.operation.speaker-reference.resolve-version.v1",
+      "repair": "Find exact P0/P1/P3 source-declared relation or formally record a valid terminal/source-only semantic disposition in the owning contract; do not synthesize a new edge"
+    },
+    {
+      "sourceIdentity": "PDP-1:operations:media.operation.stt.profile.adapt.v1",
+      "ownerPackageId": "M-BLD-F03",
+      "sourceSelectors": [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.adapt.v1"
+      ],
+      "reason": "SOURCE_RELATION_UNRESOLVED:PDP-1:operations:media.operation.stt.profile.adapt.v1",
+      "operationId": "media.operation.stt.profile.adapt.v1",
+      "repair": "Find exact P0/P1/P3 source-declared relation or formally record a valid terminal/source-only semantic disposition in the owning contract; do not synthesize a new edge"
+    },
+    {
+      "sourceIdentity": "PDP-1:operations:media.operation.stt.profile.create.v1",
+      "ownerPackageId": "M-BLD-F03",
+      "sourceSelectors": [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.create.v1"
+      ],
+      "reason": "SOURCE_RELATION_UNRESOLVED:PDP-1:operations:media.operation.stt.profile.create.v1",
+      "operationId": "media.operation.stt.profile.create.v1",
+      "repair": "Find exact P0/P1/P3 source-declared relation or formally record a valid terminal/source-only semantic disposition in the owning contract; do not synthesize a new edge"
+    },
+    {
+      "sourceIdentity": "PDP-1:operations:media.operation.stt.profile.get.v1",
+      "ownerPackageId": "M-BLD-F03",
+      "sourceSelectors": [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.get.v1"
+      ],
+      "reason": "SOURCE_RELATION_UNRESOLVED:PDP-1:operations:media.operation.stt.profile.get.v1",
+      "operationId": "media.operation.stt.profile.get.v1",
+      "repair": "Find exact P0/P1/P3 source-declared relation or formally record a valid terminal/source-only semantic disposition in the owning contract; do not synthesize a new edge"
+    },
+    {
+      "sourceIdentity": "PDP-1:operations:media.operation.stt.profile.update.v1",
+      "ownerPackageId": "M-BLD-F03",
+      "sourceSelectors": [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.update.v1"
+      ],
+      "reason": "SOURCE_RELATION_UNRESOLVED:PDP-1:operations:media.operation.stt.profile.update.v1",
+      "operationId": "media.operation.stt.profile.update.v1",
+      "repair": "Find exact P0/P1/P3 source-declared relation or formally record a valid terminal/source-only semantic disposition in the owning contract; do not synthesize a new edge"
+    },
+    {
+      "sourceIdentity": "PDP-1:operations:media.operation.voice-profile.resolve-source-version.v1",
+      "ownerPackageId": "M-BLD-V04",
+      "sourceSelectors": [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.voice-profile.resolve-source-version.v1"
+      ],
+      "reason": "SOURCE_RELATION_UNRESOLVED:PDP-1:operations:media.operation.voice-profile.resolve-source-version.v1",
+      "operationId": "media.operation.voice-profile.resolve-source-version.v1",
+      "repair": "Find exact P0/P1/P3 source-declared relation or formally record a valid terminal/source-only semantic disposition in the owning contract; do not synthesize a new edge"
+    }
+  ],
+  "unresolvedHandoffSelectors": [
+    {
+      "sourceIdentity": "PDP-2:p2-components:media.component.identity-context-boundary",
+      "ownerPackageId": "M-BLD-F10",
+      "sourceSelectors": [
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/@id=media.component.identity-context-boundary"
+      ],
+      "reason": "UNRESOLVED_HANDOFF_SELECTOR:media.component.identity-context-boundary:media.handoff.identity",
+      "handoffSelector": "media.handoff.identity",
+      "repair": "Bind to an actual exact PDP-1 handoff contract selector and independently verify the target exists; do not infer source from name"
+    }
+  ],
+  "otherUnclassified": [],
+  "ownerDecision": "DO_NOT_HIDE_OR_RELABEL; repair exact source/trace membership, validate real semantic joins, version affected trace denominator and rebuild generated bridge/workpackage projections when material inputs change",
+  "status": "TECHNICAL_WORK_REMAINING",
+  "proofStatus": "NOT_VERIFIED",
+  "writesPerformed": false
+}
