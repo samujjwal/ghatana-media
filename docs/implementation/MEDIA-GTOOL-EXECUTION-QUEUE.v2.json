@@ -4,7 +4,7 @@
   "approvedOn": "2026-10-22",
   "source": {
     "ownerDispositions": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
-    "ownerDispositionsBlobSha": "71b4551373ec2c2e4b8e2ca4f694afce014f90d7",
+    "ownerDispositionsBlobSha": "571da27d33cad17218b36a25e0caf566cd7c0d17",
     "baselineRule": "Re-evaluate exact source material and current main at every run; Git commit alone is not currentness proof."
   },
   "campaign": {
@@ -268,7 +268,10 @@
         ]
       },
       "acceptanceCriterion": "Exact source ID and selector for every required operation; reconciled trace/bridge census, zero invented links; all affected source/currentness tests pass.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-F03.T01",
@@ -299,7 +302,10 @@
         ]
       },
       "acceptanceCriterion": "Typed request/result/error and source-defined version/UNKNOWN guards with packed consumer, boundary and negative tests.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-F06.T01",
@@ -330,7 +336,10 @@
         ]
       },
       "acceptanceCriterion": "Exact job/attempt/readback and crash/timeout/replay/fencing/tenant-denial tests; no side-effect duplication.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-F10.T01",
@@ -361,7 +370,10 @@
         ]
       },
       "acceptanceCriterion": "Packaged public UI consumer and authenticated host proof; representative screen/route, denial, keyboard/reflow/reduced-motion tests; no Explorer promotion.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-L01.T01",
@@ -391,7 +403,10 @@
         ]
       },
       "acceptanceCriterion": "Deterministic scenario generator and source selector negative tests; 25 existing source blockers remain explicit until resolved.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-L01.T02",
@@ -421,7 +436,10 @@
         ]
       },
       "acceptanceCriterion": "Packed consumer, permitted capture, no credential leakage, deterministic selection/cancellation, negative permission and real-frame qualification.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-L01.T03",
@@ -451,7 +469,10 @@
         ]
       },
       "acceptanceCriterion": "BUSINESS_OUTCOME_READY only with matching actual artifact/version/job/provider result and denial/UNKNOWN/conflict cases.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-L01.T04",
@@ -481,7 +502,10 @@
         ]
       },
       "acceptanceCriterion": "Playable current film with exact sources, verified semantic postcondition and cleanup; independent film approval remains separate.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V01.T01",
@@ -512,7 +536,10 @@
         ]
       },
       "acceptanceCriterion": "Same-tenant create/readback; cross-tenant/forged context/CAS negative cases.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V02.T01",
@@ -543,7 +570,10 @@
         ]
       },
       "acceptanceCriterion": "Content digest equality, resume/retry consistency and cross-tenant/partial upload/UNKNOWN negative cases.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V03.T01",
@@ -574,7 +604,10 @@
         ]
       },
       "acceptanceCriterion": "All declared channels, real STT output, caption/revision integrity and denial/timeout/UNKNOWN/correction conflict tests.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V03.T02",
@@ -604,7 +637,10 @@
         ]
       },
       "acceptanceCriterion": "Real BUSINESS_OUTCOME_READY, denied/broken/replayed/UNKNOWN/provider failure and correct final readback; no full V03 claim.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V04.T01",
@@ -634,7 +670,10 @@
         ]
       },
       "acceptanceCriterion": "Authorized output version and provenance plus revoked/region/unlicensed/UNKNOWN denials.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V16.T01",
@@ -664,7 +703,10 @@
         ]
       },
       "acceptanceCriterion": "Source-language/output timing accuracy and rights provenance with wrong voice/locale/UNKNOWN failures.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V18.T01",
@@ -695,7 +737,10 @@
         ]
       },
       "acceptanceCriterion": "Review/version/render provenance and protected crop/track mute/solo/ramp with failure/codec/rights denials.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V20.T01",
@@ -726,7 +771,10 @@
         ]
       },
       "acceptanceCriterion": "Observe identical job/attempt IDs and eventual genuine terminal effects; LOST_ACK/timeout/UNKNOWN/replay denied without duplicate effects.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V23.T01",
@@ -757,7 +805,10 @@
         ]
       },
       "acceptanceCriterion": "Offline read/cache durability, stale version conflict and denied/resumed effects with exact readback.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V24.T01",
@@ -787,7 +838,10 @@
         ]
       },
       "acceptanceCriterion": "Machine schema stdout/stderr/exit invariants, same command identity/retry, error/UNKNOWN security denials.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V26.T01",
@@ -818,7 +872,10 @@
         ]
       },
       "acceptanceCriterion": "Policy checked erasure and holds; no invalid deletion, unauthorized tenant, stale lease or false physical erasure claim.",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     }
   ],
   "crossRepoIssues": [
@@ -879,5 +936,7 @@
     "oobPdp3RecordingMethod": "ghatana.product-development.v2",
     "oobPdp3RecordingLoader": "loadProductDevelopmentMethodV2",
     "sourceRecordingOwnerGuard": "LIFECYCLE_ISSUE_27_OPEN"
-  }
+  },
+  "ownerRoutineApproval": "APPROVED_NO_REPEAT_FOR_APPROVED_SCOPE",
+  "buildExecutionAuthorization": "APPROVED_CONDITIONAL_ON_SCOPED_KERNEL_PLAN_AND_OWNER_RUN"
 }
