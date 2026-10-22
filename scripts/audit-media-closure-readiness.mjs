@@ -63,12 +63,13 @@ export function auditMediaClosure(root){
  const routes=Array.isArray(r.routes)?r.routes:[],receipts=Array.isArray(d.receipts)?d.receipts:[];
  const unmapped=r.l02CaseLinkReview?.unmappedObligationCount??null;
  const caseLinks=Array.isArray(l.links)?l.links:Array.isArray(l.caseLinks)?l.caseLinks:[];
+ const candidateLinkCount=Number.isSafeInteger(r.l02CaseLinkReview?.reviewedLinkCount)?r.l02CaseLinkReview.reviewedLinkCount:caseLinks.length;
  const blockers=['AP02_AP03_OWNER_ADMISSION_UNVERIFIED'];
  if(!(s.composition?.childSurfaceIds||[]).length)blockers.push('LEAF_CLOSURE_BOUNDARIES_NOT_ADMITTED');
- if(unmapped===null||unmapped>0||caseLinks.length===0)blockers.push('SOURCE_CASE_COVERAGE_NOT_ADMITTED');
+ if(unmapped===null||unmapped>0||candidateLinkCount===0)blockers.push('SOURCE_CASE_COVERAGE_NOT_ADMITTED');
  if(routes.length===0||!routes.some(x=>x.independentReview==='PASS'&&x.candidateObserver?.admission==='ADMITTED'&&x.candidateOracle?.admission==='ADMITTED'))blockers.push('PROOF_ORACLE_NOT_ADMITTED');
  if(receipts.length===0)blockers.push('NATIVE_RECEIPT_MISSING');
- return {schemaVersion:'media.gtool-closure-readiness-audit.v1',recordKind:'READ_ONLY_NOT_ADMISSION',sourcePopulation:{physical:physical.length,compositions:compositions.length,logical:logical.length,total:identities.length},obligationCounts:names.map(([phase,id])=>({phase,phaseId:id,count:phaseMap.get(id)?.obligationIds?.length??0})),sourceFingerprints:Object.fromEntries(Object.entries(inputs).map(([k,v])=>[paths[k],v.digest])),candidate:{surfaceId:s.id,childSurfaceCount:s.composition?.childSurfaceIds?.length??null,unmappedObligations:unmapped,caseLinks:caseLinks.length,routeCandidates:routes.length,receiptCount:receipts.length},invariants:{passed:issues.length===0,issues},nativeClosure:{status:'NOT_PROVEN',blockers},writesPerformed:false};
+ return {schemaVersion:'media.gtool-closure-readiness-audit.v1',recordKind:'READ_ONLY_NOT_ADMISSION',sourcePopulation:{physical:physical.length,compositions:compositions.length,logical:logical.length,total:identities.length},obligationCounts:names.map(([phase,id])=>({phase,phaseId:id,count:phaseMap.get(id)?.obligationIds?.length??0})),sourceFingerprints:Object.fromEntries(Object.entries(inputs).map(([k,v])=>[paths[k],v.digest])),candidate:{surfaceId:s.id,childSurfaceCount:s.composition?.childSurfaceIds?.length??null,unmappedObligations:unmapped,caseLinks:candidateLinkCount,routeCandidates:routes.length,receiptCount:receipts.length},invariants:{passed:issues.length===0,issues},nativeClosure:{status:'NOT_PROVEN',blockers},writesPerformed:false};
 }
 if(process.argv[1]&&process.argv[1].endsWith('audit-media-closure-readiness.mjs')){
  const ix=process.argv.indexOf('--root'),root=ix===-1?process.cwd():process.argv[ix+1];
