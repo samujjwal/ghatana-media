@@ -65,7 +65,10 @@
     "physicalWriter": "Canonical executable writer is ghatana/services/media until F01 source-comparison and owner-approved one-writer migration; divergent Flyway V007..V009 histories cannot be silently merged or dual-written.",
     "reuse": "Use public Shared/Kernel/Data Cloud/Event Plane/AI Inference/Document Intelligence/Action Plane/Agents/Tools/Lifecycle contracts, Gharbatai neutral recorder and TutorPutor AEF; no private implementation import or duplicate platform.",
     "noRepeatedApprovals": "Treat routine design and implementation decisions within these bounds as approved for the respective technical coordinator. If trust, qualification, licensing, regulatory or independent specialist review is actually required, record exact owner-path blocker and continue disjoint work.",
-    "noCiBlock": "No GitHub Actions gate blocks locally evidenced headless tests; authoritative local tests, source fingerprints and owner readbacks still required."
+    "noCiBlock": "No GitHub Actions gate blocks locally evidenced headless tests; authoritative local tests, source fingerprints and owner readbacks still required.",
+    "buildSourceScopedExecutionAuthorization": "OWNER_APPROVED_FOR_REAL_IMPLEMENTATION_TEST_REFACTORING_AND_SETUP_ON_EACH_UNIT_WHEN_ITS_ACTUAL_SOURCE_PREREQUISITES_AND_KERNEL_PLAN_TRANSITION_GATES_PASS; NATIVE_PDP_CLOSURE_NOT_ADDITIONAL_BUILD_PREREQUISITE. MISSING TRUST/OWNER PROOF/RELEASE AND DATABASE CUTOVER EFFECTS REMAIN AUTHENTIC_OWNER_BOUND.",
+    "furtherRoutineApproval": "NOT_REQUIRED_FOR_NAMED_TASKS_AND_ECOSYSTEM_REUSE_IN_APPROVED_SCOPE; record exact chosen ABI, branch, file owner, version, test result and scoped run disposition",
+    "disjointWork": "SCOPED_DEV_COMPLETE_CURRENT_PDP_CELLS_MAY_ENTER_BUILD_PLAN_AND_IMPLEMENTATION_PREPARATION_WHILE_UNRELATED_NATIVE_CLOSURE_BLOCKED; BUILD_IMPLEMENT_WRITES_MUST_USE_ACTUAL_SELECTED_PLAN_GATE_AND_OWNER_RUN"
   },
   "sourceGaps": {
     "buildContractBridge": {
@@ -118,7 +121,10 @@
       "acceptanceCriterion": "Exact source ID and selector for every required operation; reconciled trace/bridge census, zero invented links; all affected source/currentness tests pass.",
       "blockingDependencies": "PDP0..3 current matrices; F00.T01 material receipt",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-F03.T01",
@@ -150,7 +156,10 @@
       "acceptanceCriterion": "Typed request/result/error and source-defined version/UNKNOWN guards with packed consumer, boundary and negative tests.",
       "blockingDependencies": "F02 public ABI; F01 writer decision",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-F06.T01",
@@ -182,7 +191,10 @@
       "acceptanceCriterion": "Exact job/attempt/readback and crash/timeout/replay/fencing/tenant-denial tests; no side-effect duplication.",
       "blockingDependencies": "F04/F05 real persistence and writer",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-F10.T01",
@@ -214,7 +226,10 @@
       "acceptanceCriterion": "Packaged public UI consumer and authenticated host proof; representative screen/route, denial, keyboard/reflow/reduced-motion tests; no Explorer promotion.",
       "blockingDependencies": "F03/F04/F09 public contracts and source-dependent host entry",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-L01.T01",
@@ -245,7 +260,10 @@
       "acceptanceCriterion": "Deterministic scenario generator and source selector negative tests; 25 existing source blockers remain explicit until resolved.",
       "blockingDependencies": "F00.T01 source-current inputs",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-L01.T02",
@@ -276,7 +294,10 @@
       "acceptanceCriterion": "Packed consumer, permitted capture, no credential leakage, deterministic selection/cancellation, negative permission and real-frame qualification.",
       "blockingDependencies": "L01.T01 scenario selectors; recorder package ABI",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-L01.T03",
@@ -307,7 +328,10 @@
       "acceptanceCriterion": "BUSINESS_OUTCOME_READY only with matching actual artifact/version/job/provider result and denial/UNKNOWN/conflict cases.",
       "blockingDependencies": "V03.T02; qualified real provider/channel; actual writer",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-L01.T04",
@@ -338,7 +362,10 @@
       "acceptanceCriterion": "Playable current film with exact sources, verified semantic postcondition and cleanup; independent film approval remains separate.",
       "blockingDependencies": "L01.T01/.T02/.T03 real outcomes",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V01.T01",
@@ -370,7 +397,10 @@
       "acceptanceCriterion": "Same-tenant create/readback; cross-tenant/forged context/CAS negative cases.",
       "blockingDependencies": "F03/F04/F05/F09/F10/F12 and writer authority",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V02.T01",
@@ -402,7 +432,10 @@
       "acceptanceCriterion": "Content digest equality, resume/retry consistency and cross-tenant/partial upload/UNKNOWN negative cases.",
       "blockingDependencies": "V01; F05/F09/F10 and migration decision",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V03.T01",
@@ -434,7 +467,10 @@
       "acceptanceCriterion": "All declared channels, real STT output, caption/revision integrity and denial/timeout/UNKNOWN/correction conflict tests.",
       "blockingDependencies": "V02/V20/F08/F11/F09/F10 and actual provider",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V03.T02",
@@ -465,7 +501,10 @@
       "acceptanceCriterion": "Real BUSINESS_OUTCOME_READY, denied/broken/replayed/UNKNOWN/provider failure and correct final readback; no full V03 claim.",
       "blockingDependencies": "V02.T01/V20.T01/F08.T01/F11.T01/F09.T01",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V04.T01",
@@ -496,7 +535,10 @@
       "acceptanceCriterion": "Authorized output version and provenance plus revoked/region/unlicensed/UNKNOWN denials.",
       "blockingDependencies": "V01/V20/F08/F11 and qualified licensed model/provider",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V16.T01",
@@ -527,7 +569,10 @@
       "acceptanceCriterion": "Source-language/output timing accuracy and rights provenance with wrong voice/locale/UNKNOWN failures.",
       "blockingDependencies": "V03/V04/V18 and qualified model profiles",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V18.T01",
@@ -559,7 +604,10 @@
       "acceptanceCriterion": "Review/version/render provenance and protected crop/track mute/solo/ramp with failure/codec/rights denials.",
       "blockingDependencies": "V09/V11/V17/F13 and canonical render/codec",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V20.T01",
@@ -591,7 +639,10 @@
       "acceptanceCriterion": "Observe identical job/attempt IDs and eventual genuine terminal effects; LOST_ACK/timeout/UNKNOWN/replay denied without duplicate effects.",
       "blockingDependencies": "V02/F06/F07/F09/F10",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V23.T01",
@@ -623,7 +674,10 @@
       "acceptanceCriterion": "Offline read/cache durability, stale version conflict and denied/resumed effects with exact readback.",
       "blockingDependencies": "V01/V02/V21/F10",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V24.T01",
@@ -654,7 +708,10 @@
       "acceptanceCriterion": "Machine schema stdout/stderr/exit invariants, same command identity/retry, error/UNKNOWN security denials.",
       "blockingDependencies": "V01/V02/V20/F09; published public API",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     },
     {
       "taskId": "M-BLD-V26.T01",
@@ -686,7 +743,10 @@
       "acceptanceCriterion": "Policy checked erasure and holds; no invalid deletion, unauthorized tenant, stale lease or false physical erasure claim.",
       "blockingDependencies": "V02/V04/V22/F05, actual retention policy",
       "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
-      "completionClaim": "NOT_COMPLETE"
+      "completionClaim": "NOT_COMPLETE",
+      "authorizedTechnicalAction": "IMPLEMENT_CODE_TEST_SETUP_AND_SOURCE_REPAIR_WHEN_SCOPED_OWNER_WORK_PLAN_GATES_ARE_MET",
+      "routineApprovalOutstanding": false,
+      "independentFormalProofWaived": false
     }
   ],
   "formalIndependentAuthorityNotDelegable": [
