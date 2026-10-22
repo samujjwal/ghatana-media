@@ -55,6 +55,32 @@ export function auditMediaClosure(root){
   if(!unique(a)||!unique(z)||a.length!==z.length||a.some(x=>!z.includes(x)))fail('PHASE_OBLIGATION_DRIFT',{phaseId,definition:a.length,binding:z.length});
   all.push(...a);
  }
+ const persisted=inputs.obligations?.value;
+ if(!Array.isArray(persisted))fail('OBLIGATION_RECORD_ARRAY_REQUIRED');
+ const persistedRows=Array.isArray(persisted)?persisted:[];
+ const persistedById=new Map(),persistedDuplicates=[],unexpectedObligationIds=[],invalidSourceRows=[],invalidPhaseRows=[];
+ const obligationPhaseById=new Map((p.phases||[]).flatMap(x=>(x.obligationIds||[]).map(id=>[id,x.id])));
+ for(const row of persistedRows){
+  if(!row||typeof row.id!=='string'||!row.id){invalidSourceRows.push(String(row?.id??'unknown'));continue;}
+  if(persistedById.has(row.id))persistedDuplicates.push(row.id);
+  persistedById.set(row.id,row);
+  const expectedPhase=obligationPhaseById.get(row.id);
+  if(!expectedPhase){unexpectedObligationIds.push(row.id);continue;}
+  if(row.closureSurfaceId!==s.id||row.programId!==p.programId
+   ||!Array.isArray(row.phaseSemantics?.applicableIn)
+   ||row.phaseSemantics.applicableIn.length!==1
+   ||row.phaseSemantics.applicableIn[0]!==expectedPhase)invalidPhaseRows.push(row.id);
+  const source=row.extensions?.['media-source'];
+  if(typeof source?.recordId!=='string'||!source.recordId
+    ||typeof source?.sourceRef!=='string'||!source.sourceRef.includes('#')
+    ||!/^sha256:[a-f0-9]{64}$/.test(String(source?.sourceDigest??'')))invalidSourceRows.push(row.id);
+ }
+ const missingPersisted=all.filter(id=>!persistedById.has(id));
+ if(persistedRows.length!==all.length||persistedDuplicates.length||unexpectedObligationIds.length||missingPersisted.length){
+  fail('OBLIGATION_REGISTRY_IDENTITY_DRIFT',{records:persistedRows.length,phaseRecords:all.length,duplicateCount:persistedDuplicates.length,unexpectedCount:unexpectedObligationIds.length,missingCount:missingPersisted.length,examples:[...persistedDuplicates,...unexpectedObligationIds,...missingPersisted].slice(0,8)});
+ }
+ if(invalidPhaseRows.length)fail('OBLIGATION_RECORD_PHASE_OWNER_MISMATCH',{count:invalidPhaseRows.length,examples:invalidPhaseRows.slice(0,8)});
+ if(invalidSourceRows.length)fail('OBLIGATION_SOURCE_IDENTITY_INVALID',{count:invalidSourceRows.length,examples:invalidSourceRows.slice(0,8)});
  const surfaceObligations=s.obligationIds||[];
  if(!unique(all)||!unique(surfaceObligations)||all.length!==surfaceObligations.length||all.some(x=>!surfaceObligations.includes(x)))fail('AGGREGATE_OBLIGATION_DRIFT',{phaseTotal:all.length,aggregate:surfaceObligations.length});
  if(s.id!=='media.product-definition'||b.closureSurfaceId!==s.id)fail('CLOSURE_ROOT_ID_MISMATCH');
@@ -69,7 +95,7 @@ export function auditMediaClosure(root){
  if(unmapped===null||unmapped>0||candidateLinkCount===0)blockers.push('SOURCE_CASE_COVERAGE_NOT_ADMITTED');
  if(routes.length===0||!routes.some(x=>x.independentReview==='PASS'&&x.candidateObserver?.admission==='ADMITTED'&&x.candidateOracle?.admission==='ADMITTED'))blockers.push('PROOF_ORACLE_NOT_ADMITTED');
  if(receipts.length===0)blockers.push('NATIVE_RECEIPT_MISSING');
- return {schemaVersion:'media.gtool-closure-readiness-audit.v1',recordKind:'READ_ONLY_NOT_ADMISSION',sourcePopulation:{physical:physical.length,compositions:compositions.length,logical:logical.length,total:identities.length},obligationCounts:names.map(([phase,id])=>({phase,phaseId:id,count:phaseMap.get(id)?.obligationIds?.length??0})),sourceFingerprints:Object.fromEntries(Object.entries(inputs).map(([k,v])=>[paths[k],v.digest])),candidate:{surfaceId:s.id,childSurfaceCount:s.composition?.childSurfaceIds?.length??null,unmappedObligations:unmapped,caseLinks:candidateLinkCount,routeCandidates:routes.length,receiptCount:receipts.length},invariants:{passed:issues.length===0,issues},nativeClosure:{status:'NOT_PROVEN',blockers},writesPerformed:false};
+ return {schemaVersion:'media.gtool-closure-readiness-audit.v1',recordKind:'READ_ONLY_NOT_ADMISSION',sourcePopulation:{physical:physical.length,compositions:compositions.length,logical:logical.length,total:identities.length},persistedObligationCount:persistedRows.length,obligationCounts:names.map(([phase,id])=>({phase,phaseId:id,count:phaseMap.get(id)?.obligationIds?.length??0})),sourceFingerprints:Object.fromEntries(Object.entries(inputs).map(([k,v])=>[paths[k],v.digest])),candidate:{surfaceId:s.id,childSurfaceCount:s.composition?.childSurfaceIds?.length??null,unmappedObligations:unmapped,caseLinks:candidateLinkCount,routeCandidates:routes.length,receiptCount:receipts.length},invariants:{passed:issues.length===0,issues},nativeClosure:{status:'NOT_PROVEN',blockers},writesPerformed:false};
 }
 if(process.argv[1]&&process.argv[1].endsWith('audit-media-closure-readiness.mjs')){
  const ix=process.argv.indexOf('--root'),root=ix===-1?process.cwd():process.argv[ix+1];
