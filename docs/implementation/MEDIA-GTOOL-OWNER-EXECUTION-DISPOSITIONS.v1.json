@@ -1,0 +1,706 @@
+{
+  "schemaVersion": "media.gtool-build-owner-dispositions.v1",
+  "recordKind": "DELEGATED_OWNER_DECISION_AND_EXECUTION_INPUT_NOT_GTOOL_RECEIPT",
+  "approvedOn": "2026-10-22",
+  "approvalBasis": "User authorizes technical/product/implementation owner decisions across involved Ghatana repositories, without repeated routine approval roundtrips; formal independent verifier/reviewer and release permissions still require genuine authority.",
+  "campaign": {
+    "primaryRepo": "samujjwal/ghatana-media",
+    "sourceBaselineAtReview": "354452f29bea4a3b24cd456d39950967ab4d83c0",
+    "macroStage": "BUILD",
+    "substage": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "sourcePhaseOrder": [
+      "PDP-0",
+      "PDP-1",
+      "PDP-2",
+      "PDP-3"
+    ],
+    "sourceIdentities": 54,
+    "physical": 26,
+    "compositionsIncludingRoot": 7,
+    "logicalConsumers": 21,
+    "pdpSourceStatus": "CURRENT_DEV_COMPLETE_REPORTED",
+    "sourcePinsReportedCurrent": 859,
+    "buildPackages": 50,
+    "buildTasks": 57,
+    "traceIdentities": 3186
+  },
+  "approvalDisposition": "APPROVE_SOURCE_SCOPED_EXECUTION_PLAN_AND_CROSS_REPO_COORDINATION_WITH_OPEN_TECHNICAL_PREREQUISITES",
+  "planExit": {
+    "criteria": [
+      "KCRIT-PLAN-TASK-CLOSURE",
+      "KCRIT-PLAN-READY"
+    ],
+    "status": "NOT_YET_PROVEN",
+    "reason": "19 source/executable task blockers and missing task-level proof; owner decision does not change machine Plan Ready",
+    "blockingBuildTasks": [
+      "M-BLD-F00.T02",
+      "M-BLD-F03.T01",
+      "M-BLD-F06.T01",
+      "M-BLD-F10.T01",
+      "M-BLD-L01.T01",
+      "M-BLD-L01.T02",
+      "M-BLD-L01.T03",
+      "M-BLD-L01.T04",
+      "M-BLD-V01.T01",
+      "M-BLD-V02.T01",
+      "M-BLD-V03.T01",
+      "M-BLD-V03.T02",
+      "M-BLD-V04.T01",
+      "M-BLD-V16.T01",
+      "M-BLD-V18.T01",
+      "M-BLD-V20.T01",
+      "M-BLD-V23.T01",
+      "M-BLD-V24.T01",
+      "M-BLD-V26.T01"
+    ]
+  },
+  "controlledDecisions": {
+    "productDefinition": "Preserve source-current DEV_COMPLETE for applicable PDP0..3 cells. No forced reopening for Build code, gtool native closure or film qualification. Only actual source meaning/dependency change reopens affected authority.",
+    "workflow": "Use Lifecycle gtool via authenticated Work Planner structured method plan/readback for 54 identity × 4 PDP source statuses. Never turn method plan or source-dev completion into native ClosureUnit receipt.",
+    "nativeClosure": "Use Lifecycle's protected AP-02/AP-03 host imports, actual selections and currentness, then source-owned leaf/composite/aggregate maps, owner-selected proof computation, independent verifier and authentic native receipt. Keep producerBindings empty as currently required.",
+    "parallelWork": "Execute source-scoped implementation planning, Gharbatai recorder qualification and AP-02/AP-03 host setup concurrently. BUILD stage Implement transitions require exact task readiness and Kernel Plan exit; do not block independent source-complete units on unrelated work.",
+    "traceRepair": "93 required PDP-1 operation endpoints missing from 3,186-row implementation trace and eight unresolved source relations must be resolved with exact source selectors and a versioned trace/census change if authoritative denominator changes; never hide by renaming to N/A or dropping edges.",
+    "semanticGrouping": "Allow one executed, source-grounded proof computation for multiple obligations only when each obligation has a separately auditable expected assertion. 4028 PDP0 obligations are still open, not accepted merely because sources are present.",
+    "earlyDemo": "Prepare J01/J02/J20/J03 recipe/adapter early; first real film as soon as actual terminal business outcome plus qualified adapter, provenance, rights, narration and teardown pass. Explorer mock film is not live product proof.",
+    "physicalWriter": "Canonical executable writer is ghatana/services/media until F01 source-comparison and owner-approved one-writer migration; divergent Flyway V007..V009 histories cannot be silently merged or dual-written.",
+    "reuse": "Use public Shared/Kernel/Data Cloud/Event Plane/AI Inference/Document Intelligence/Action Plane/Agents/Tools/Lifecycle contracts, Gharbatai neutral recorder and TutorPutor AEF; no private implementation import or duplicate platform.",
+    "noRepeatedApprovals": "Treat routine design and implementation decisions within these bounds as approved for the respective technical coordinator. If trust, qualification, licensing, regulatory or independent specialist review is actually required, record exact owner-path blocker and continue disjoint work.",
+    "noCiBlock": "No GitHub Actions gate blocks locally evidenced headless tests; authoritative local tests, source fingerprints and owner readbacks still required."
+  },
+  "sourceGaps": {
+    "buildContractBridge": {
+      "reportedEdgeCount": 8578,
+      "status": "INCOMPLETE_SOURCE_RELATIONS",
+      "requiredP1OperationsMissingFromTrace": 93,
+      "unresolvedSourceRelations": 8,
+      "unresolvedSelector": "media.handoff.identity"
+    },
+    "pdp0CaseMap": {
+      "openObligations": 4028,
+      "executableLinks": 0,
+      "sourceBlockersInEarlyScenario": 25
+    },
+    "lifecycleAdmission": {
+      "ap02ProtectedHostCode": "IMPLEMENTED_FOCUSED_TESTS_REPORTED",
+      "ap03ProtectedHostCode": "IMPLEMENTED_FOCUSED_TESTS_REPORTED",
+      "trustedProductionHost": "NOT_PROVISIONED",
+      "nativeReceipts": "NOT_PROVEN"
+    }
+  },
+  "tasks": [
+    {
+      "taskId": "M-BLD-F00.T02",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Build trace coordinator",
+      "executionLane": "SOURCE_BRIDGE",
+      "exactSourceAndTargetAreas": [
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
+        "scripts/lib/media-build-semantic-source-joins.mjs"
+      ],
+      "implementationDirective": "Resolve 93 P1 operation endpoints missing from the 3,186 trace without naming heuristics; reconcile 8 unresolved explicit relations and the exact media.handoff.identity selector. If the trace census changes, version the trace and regenerate all dependent projections after owner-reviewed impact.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Exact source ID and selector for every required operation; reconciled trace/bridge census, zero invented links; all affected source/currentness tests pass.",
+      "blockingDependencies": "PDP0..3 current matrices; F00.T01 material receipt",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-F03.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media domain/contracts owner",
+      "executionLane": "FOUNDATIONS",
+      "exactSourceAndTargetAreas": [
+        "runtime-contracts/",
+        "libs/audio-video-types/",
+        ".product-experience/pdp-1-domain-data/operations.yaml"
+      ],
+      "implementationDirective": "Select exact product-owned typed project/artifact/job/transcript/scene identities, revisions, CAS, units and error envelopes; reuse published Shared primitives; do not write runtime before canonical writer decision.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Typed request/result/error and source-defined version/UNKNOWN guards with packed consumer, boundary and negative tests.",
+      "blockingDependencies": "F02 public ABI; F01 writer decision",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-F06.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media runtime/reliability owner",
+      "executionLane": "FOUNDATIONS",
+      "exactSourceAndTargetAreas": [
+        "ghatana/services/media/launcher/",
+        "ghatana/services/media/providers/aws-postgresql/",
+        "modules/infrastructure/cache/"
+      ],
+      "implementationDirective": "Implement bounded durable job lease/fencing, retries, cancellation, idempotency, provider UNKNOWN and crash reconciliation through the single writer and existing Shared messaging/outbox.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Exact job/attempt/readback and crash/timeout/replay/fencing/tenant-denial tests; no side-effect duplication.",
+      "blockingDependencies": "F04/F05 real persistence and writer",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-F10.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media UI/host owner",
+      "executionLane": "FOUNDATIONS",
+      "exactSourceAndTargetAreas": [
+        "libs/audio-video-ui/",
+        "Shared product-shell/design-system public exports",
+        "production host ADR"
+      ],
+      "implementationDirective": "Choose source-owned production GUI/embedded host separate from Explorer; implement authenticated shell and reusable adapters with keyboard/accessibility/UNKNOWN/recovery; leave full 47 screen behavior with vertical owners.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Packaged public UI consumer and authenticated host proof; representative screen/route, denial, keyboard/reflow/reduced-motion tests; no Explorer promotion.",
+      "blockingDependencies": "F03/F04/F09 public contracts and source-dependent host entry",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-L01.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media recorder/story owner",
+      "executionLane": "EARLY_DEMO",
+      "exactSourceAndTargetAreas": [
+        "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml"
+      ],
+      "implementationDirective": "Derive bounded J01→J02→J20→J03 semantic actions and storyboard from current PDP sources, with source/config/data/narration and separate Explorer-vs-real product modes.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Deterministic scenario generator and source selector negative tests; 25 existing source blockers remain explicit until resolved.",
+      "blockingDependencies": "F00.T01 source-current inputs",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-L01.T02",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/gharbatai",
+      "ownerRole": "Recorder reusable-core owner",
+      "executionLane": "EARLY_DEMO",
+      "exactSourceAndTargetAreas": [
+        "gharbatai/tooling/experience-recorder/",
+        "media capture-adapter boundaries"
+      ],
+      "implementationDirective": "Qualify existing product-neutral recorder public API/dependency/license and first browser or qualified terminal adapter; retain Gharbatai-only drivers in Gharbatai.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Packed consumer, permitted capture, no credential leakage, deterministic selection/cancellation, negative permission and real-frame qualification.",
+      "blockingDependencies": "L01.T01 scenario selectors; recorder package ABI",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-L01.T03",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media business proof owner",
+      "executionLane": "EARLY_DEMO",
+      "exactSourceAndTargetAreas": [
+        "ghatana/services/media",
+        "first J03 source/result/version readbacks"
+      ],
+      "implementationDirective": "Accept first real single-channel J03 outcome only after authorized J01/J02/J20/J03 actual source, STT, transcript/CAS and immutable caption version receipts.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "BUSINESS_OUTCOME_READY only with matching actual artifact/version/job/provider result and denial/UNKNOWN/conflict cases.",
+      "blockingDependencies": "V03.T02; qualified real provider/channel; actual writer",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-L01.T04",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media recording owner",
+      "executionLane": "EARLY_DEMO",
+      "exactSourceAndTargetAreas": [
+        "Media recording manifest/scene/track",
+        "Gharbatai reusable recorder adapter"
+      ],
+      "implementationDirective": "Capture immediately after qualified T01–T03 with safe isolated fixture, declared rights, real frames/audio, narration, captions, provenance and teardown.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Playable current film with exact sources, verified semantic postcondition and cleanup; independent film approval remains separate.",
+      "blockingDependencies": "L01.T01/.T02/.T03 real outcomes",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V01.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media first-use/runtime UX owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "ghatana/services/media/launcher/",
+        "libs/audio-video-ui/",
+        "libs/audio-video-client/"
+      ],
+      "implementationDirective": "Implement authorized workspace/project creation and exact immutable initial version, idempotency and correct client readback for J01.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Same-tenant create/readback; cross-tenant/forged context/CAS negative cases.",
+      "blockingDependencies": "F03/F04/F05/F09/F10/F12 and writer authority",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V02.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media artifact/storage owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "ghatana/services/media/providers/aws-postgresql/",
+        "launcher/",
+        "source upload contracts"
+      ],
+      "implementationDirective": "Implement resumable artifact ingest/source digest and exact version/readback with safe lease/cleanup J02; preserve canonical V001–V016 migration history.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Content digest equality, resume/retry consistency and cross-tenant/partial upload/UNKNOWN negative cases.",
+      "blockingDependencies": "V01; F05/F09/F10 and migration decision",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V03.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media STT/caption owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "modules/speech/stt-service/",
+        "runtime-contracts/",
+        "libs/audio-video-ui/"
+      ],
+      "implementationDirective": "Implement full J03 transcription and caption correction across applicable channels, with source-grounded language/time and immutable versions; do not equate first channel with full V03.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "All declared channels, real STT output, caption/revision integrity and denial/timeout/UNKNOWN/correction conflict tests.",
+      "blockingDependencies": "V02/V20/F08/F11/F09/F10 and actual provider",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V03.T02",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media STT first-channel owner",
+      "executionLane": "EARLY_DEMO",
+      "exactSourceAndTargetAreas": [
+        "ghatana/services/media",
+        "exactly one source-authorized J03 channel"
+      ],
+      "implementationDirective": "Implement first J03 outcome on one admitted real channel under §5A prerequisites, with job/provider result, transcript and correction CAS.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Real BUSINESS_OUTCOME_READY, denied/broken/replayed/UNKNOWN/provider failure and correct final readback; no full V03 claim.",
+      "blockingDependencies": "V02.T01/V20.T01/F08.T01/F11.T01/F09.T01",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V04.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media voice/rights owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "modules/speech/tts-service/",
+        "modules/intelligence/ai-voice/"
+      ],
+      "implementationDirective": "Implement consent/rights-scoped TTS with exact source voice binding and approved output version J04.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Authorized output version and provenance plus revoked/region/unlicensed/UNKNOWN denials.",
+      "blockingDependencies": "V01/V20/F08/F11 and qualified licensed model/provider",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V16.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media localization/dubbing owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "modules/speech/{stt-service,tts-service}/",
+        "libs/audio-video-ui/"
+      ],
+      "implementationDirective": "Implement J16 translation/dubbing, timing/lip alignment and explicit loss/quality/rights review linked to exact versions.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Source-language/output timing accuracy and rights provenance with wrong voice/locale/UNKNOWN failures.",
+      "blockingDependencies": "V03/V04/V18 and qualified model profiles",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V18.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media composition/render owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "ghatana/services/media/launcher/",
+        "runtime-contracts/",
+        "libs/audio-video-ui/"
+      ],
+      "implementationDirective": "Implement J18 multitrack timeline, captions, color adjustments, approved render/master and versioned output, never silently mutate source.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Review/version/render provenance and protected crop/track mute/solo/ramp with failure/codec/rights denials.",
+      "blockingDependencies": "V09/V11/V17/F13 and canonical render/codec",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V20.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media jobs/UX owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "ghatana/services/media/launcher/",
+        "providers/aws-postgresql/",
+        "libs/audio-video-ui/"
+      ],
+      "implementationDirective": "Implement J20 job submit/watch/cancel and same-request outcome reconciliation across authorized channels.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Observe identical job/attempt IDs and eventual genuine terminal effects; LOST_ACK/timeout/UNKNOWN/replay denied without duplicate effects.",
+      "blockingDependencies": "V02/F06/F07/F09/F10",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V23.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media offline/client owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "libs/audio-video-client/",
+        "libs/audio-video-ui/",
+        "runtime-contracts/"
+      ],
+      "implementationDirective": "Implement local J23 work and safe reconnect, versioned queued intentions and deterministic merge/conflict resolution without unauthorized effects.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Offline read/cache durability, stale version conflict and denied/resumed effects with exact readback.",
+      "blockingDependencies": "V01/V02/V21/F10",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V24.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media CLI/SDK owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "libs/audio-video-client/",
+        ".product-experience/pdp-3-product-experience/cli/"
+      ],
+      "implementationDirective": "Implement J24 machine/batch CLI JSON commands, bounded operation identity and exit status matched to real verified output.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Machine schema stdout/stderr/exit invariants, same command identity/retry, error/UNKNOWN security denials.",
+      "blockingDependencies": "V01/V02/V20/F09; published public API",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    },
+    {
+      "taskId": "M-BLD-V26.T01",
+      "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+      "status": "OPEN_TECHNICAL_WORK",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media privacy/retention owner",
+      "executionLane": "VERTICAL",
+      "exactSourceAndTargetAreas": [
+        "ghatana/services/media/providers/aws-postgresql/",
+        "launcher/",
+        "modules/infrastructure/security/"
+      ],
+      "implementationDirective": "Implement J26 exact artifact-version delete/revoke/retention/hold/erasure through one authorized writer, with readback and irreversible-effects boundary.",
+      "requiredStructuredIO": {
+        "input": [
+          "current PDP source selector",
+          "material fingerprint",
+          "resolved owner/ABI and dependency reference",
+          "declared positive and negative cases"
+        ],
+        "output": [
+          "source-bound changed artifact or audited plan",
+          "exact test plan and result",
+          "negative/UNKNOWN/rollback readback",
+          "source-current owner review disposition"
+        ]
+      },
+      "acceptanceCriterion": "Policy checked erasure and holds; no invalid deletion, unauthorized tenant, stale lease or false physical erasure claim.",
+      "blockingDependencies": "V02/V04/V22/F05, actual retention policy",
+      "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+      "completionClaim": "NOT_COMPLETE"
+    }
+  ],
+  "formalIndependentAuthorityNotDelegable": [
+    "production verifier key/trust-root authenticated provisioning",
+    "independent acceptance from actual reviewer",
+    "executed Evidence Generator provenance/receipt",
+    "actual privileged external effects",
+    "release/operational qualification"
+  ],
+  "status": "APPROVED_OWNER_POLICY_TECHNICAL_TASKS_OPEN",
+  "links": {
+    "canonicalPlan": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+    "trace": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
+    "work": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+    "gtoolRunbook": "https://github.com/samujjwal/ghatana-lifecycle/blob/main/docs/engineering/MEDIA_GTOOL_PHASE_MANAGEMENT_RUNBOOK.md"
+  }
+}
