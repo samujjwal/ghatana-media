@@ -68,7 +68,9 @@
     "check:w3-pdp0-source-case-map": "node scripts/generate-media-w3-source-case-map.mjs --check",
     "test:w3-pdp0-source-case-map": "node --test tests/media-w3-source-case-map.test.mjs",
     "prepare:ap03-source-snapshot": "node scripts/prepare-media-ap03-snapshot.mjs",
-    "test:ap03-source-snapshot": "node --test tests/media-ap03-snapshot.test.mjs"
+    "test:ap03-source-snapshot": "node --test tests/media-ap03-snapshot.test.mjs",
+    "check:gtool-owner-dispositions": "node scripts/check-media-gtool-owner-dispositions.mjs",
+    "test:gtool-owner-dispositions": "node --test tests/media-gtool-owner-dispositions.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
