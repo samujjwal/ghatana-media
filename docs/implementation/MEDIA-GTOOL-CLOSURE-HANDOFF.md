@@ -4,6 +4,23 @@
 
 **Canonical execution plan:** [Lifecycle Media gtool phase management runbook](https://github.com/samujjwal/ghatana-lifecycle/blob/main/docs/engineering/MEDIA_GTOOL_PHASE_MANAGEMENT_RUNBOOK.md). Lifecycle owns gtool workflow and trusted contract/snapshot/receipt authorities. Media owns topology, obligation/case mappings and product proof cases.
 
+## Current owner-approved source, gtool and Build execution (2026-10-22)
+
+The controlling implementation handoff is now [MEDIA-PDP0-3-GTOOL-OWNER-APPROVED-EXECUTION.md](MEDIA-PDP0-3-GTOOL-OWNER-APPROVED-EXECUTION.md), with the exact 19 open Build Plan task decisions in [MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json](MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json). These **supplement** the canonical 50-package/57-task [Build implementation plan](MEDIA-BUILD-IMPLEMENTATION-PLAN.md) and generated [work-package projection](MEDIA-BUILD-WORK-PACKAGES.v1.json), rather than replacing them or silently repinning their 859 PDP source inputs.
+
+Owner policy and ordinary architecture/implementation decisions within current product scope are resolved; execute source-joined work without another owner permission round trip. Actual Plan exit still requires `KCRIT-PLAN-TASK-CLOSURE` and `KCRIT-PLAN-READY` through the owning Kernel/Work Planner transition. Actual native acceptance still requires the protected Lifecycle AP-02/AP-03 trust, source case/oracle admission and canonical receipts. No claim is made for an unprovisioned real trust root or proof.
+
+**Structured execution and validation:**
+
+```sh
+pnpm run check:gtool-owner-dispositions
+pnpm run test:gtool-owner-dispositions
+node scripts/check-media-build-contract-bridge.mjs
+node scripts/check-media-build-plan-task-closure.mjs
+```
+
+For PDP-0..3 source `DEV_COMPLETE`, the authorized Lifecycle `scripts/gtool-media-method-dogfood.mjs` supplies real Work Planner owner readback; its JSON is validated via `scripts/gtool-media-phase-status-io.mjs`. A 54×4 source `COMPLETE/CURRENT` observation and zero definition tasks are **not** native `CLOSED/CURRENT`. Source-real semantic proof and independent receipt verification occur in the separate gtool closure lane.
+
 ## Stable source meaning and scope
 
 The 54 rows comprise 26 physical candidates, 6 intermediate compositions, one root and 21 logical consumers. They are source identities, **not** 54 admitted Lifecycle ClosureSurfaces. Keep all 54 in each source phase matrix. The current single logical aggregate `media.product-definition` with 8,664 candidate obligations must not be closed as an opaque replacement for actual physical leaf/composite ownership.
