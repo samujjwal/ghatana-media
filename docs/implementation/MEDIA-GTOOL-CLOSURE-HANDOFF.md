@@ -35,3 +35,28 @@ The source-current matrices and source manifest are the authoritative baseline, 
 - A `CLOSED/CURRENT` claim requires authentic canonical per-unit receipt readback. No mass owner simulation, bypass, bulk N/A or unsupported deferral.
 
 This handoff tracks work packages and constraints; **writing it does not clear an AP authority gate, admit a proof, or close a phase**.
+
+## Executable current-source setup and owner authorization (2026-10-22)
+
+An owner-directed implementation-scope decision is recorded in `config/closure/media-product-definition/owner-execution-authorization.v1.json`. It approves Media preparation, source mapping, owner authority integration and independently eligible Build work, **not** fake verifier registration or receipt issuance. The detailed [next executable gtool batch](https://github.com/samujjwal/ghatana-lifecycle/blob/main/docs/engineering/MEDIA_GTOOL_NEXT_EXECUTION_BATCH_2026-10-22.md) is the current dependency-ordered execution queue.
+
+Source readiness preflight is now executable and source-owned:
+
+```sh
+pnpm run test:gtool-closure-source
+pnpm run audit:gtool-closure-source
+pnpm run test:ap03-source-snapshot
+```
+
+For AP-03 selected-current material, create a genuine selected-member archive and a complete read-only owner-review candidate (archive path must be unique and outside the repository):
+
+```sh
+node scripts/prepare-media-ap03-snapshot.mjs \
+  --create-archive \
+  --archive /path/to/owner-state/media-selected-source.tar \
+  --output config/closure/admission/media-source-membership.v1.json
+```
+
+The local manifest is deliberately ignored by Git because it includes an absolute checkout root; it must be bound into an exact run-specific trusted owner issuance. AP-02 requires the owner-registered contract distribution verifier; AP-03 additionally requires the source-snapshot owner and Planner verifier. Media source audit status cannot replace either approval. Source records may be prepared in parallel with Lifecycle host setup; native PDP closure only follows authentic consumer/graph/evidence admission.
+
+The four PDP source statuses retain **zero** phase-local definition tasks, subject to fresh source validation. The remaining graph/case/verifier/receipt gaps are closure-lane obligations, not reason to re-open current PDP source definitions or stop source-eligible Build implementation.
