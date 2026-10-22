@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "media.lifecycle-closure-owner-execution-authorization.v1",
+  "recordKind": "OWNER_DIRECTED_EXECUTION_SCOPE_APPROVAL_NOT_TRUSTED_VERIFIER_REGISTRATION",
+  "decisionId": "MEDIA-GTOOL-CLOSURE-EXECUTION-2026-10-22",
+  "decisionDate": "2026-10-22",
+  "status": "APPROVED_TO_PERFORM_PREREQUISITE_IMPLEMENTATION",
+  "authorityBasis": "Direct owner instruction in ChatGPT conversation on 2026-10-22 to complete formal requirements, setup, configuration, and implementation without unnecessary workflow blockers.",
+  "scope": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "macroStage": "BUILD",
+    "lane": "PDP_NATIVE_CLOSURE_PREPARATION",
+    "firstPhase": "PDP-0",
+    "phaseOrder": [
+      "PDP-0",
+      "PDP-1",
+      "PDP-2",
+      "PDP-3"
+    ],
+    "sourceIdentityDenominator": 54,
+    "sourceObligationDenominatorAtStartingCut": 8664
+  },
+  "approvedDecisions": [
+    "Adopt the existing Lifecycle gtool and Evidence Contracts / Verification Planner / Evidence Generator / Surface Convergence as single native closure mechanism.",
+    "Keep Media PDP-0..3 current source definitions and 54-row matrices authoritative; do not reopen for missing independent closure.",
+    "Approve the implementation and configuration work for AP-02/AP-03 admission, Media topology and exact case/proof maps on main after current-source verification.",
+    "Approve incremental physical-leaf closure first, then meaningful compositions and root; preserve N/A/archive/unknown distinctions.",
+    "Permit eligible BUILD implementation in parallel rather than imposing native closure as a BUILD entry blocker.",
+    "Maintain Media consumer providerBindings empty; proof production belongs to canonical Evidence Generator owner.",
+    "Reuse existing owner-permitted records and current evidence without rerunning unaffected expensive operations."
+  ],
+  "requiresActualIndependentAuthority": [
+    "AP-02 exact contract DAG distribution selection and trusted verifier registration",
+    "AP-03 exact owner-selected current snapshot and trusted Planner verifier registration",
+    "Admitted exact source-to-surface/obligation/case memberships and authentic proof routes",
+    "Evidence Generator-native executed proof, independent oracle/reviewer approval, durable canonical receipt",
+    "Same-owner currentness and revocation readback before CLOSED/CURRENT"
+  ],
+  "prohibited": [
+    "Self-issued test fixture as canonical owner verifier",
+    "Synthetic signature/credential/reviewer",
+    "Mass default N/A or automatic semantic case guessing",
+    "Aggregate native closure without child proof",
+    "Fabricated receipts or release status"
+  ],
+  "implementationRefs": [
+    "scripts/audit-media-closure-readiness.mjs",
+    "scripts/prepare-media-ap03-snapshot.mjs",
+    "docs/implementation/MEDIA-GTOOL-CLOSURE-HANDOFF.md"
+  ],
+  "issues": [
+    "https://github.com/samujjwal/ghatana-media/issues/19",
+    "https://github.com/samujjwal/ghatana-media/issues/20",
+    "https://github.com/samujjwal/ghatana-lifecycle/issues/24",
+    "https://github.com/samujjwal/ghatana-lifecycle/issues/25"
+  ],
+  "effect": "EXECUTION_SCOPE_APPROVED_ONLY",
+  "trustedAdmission": "NOT_ISSUED",
+  "nativeReceipts": 0,
+  "deliveryAuthorization": false
+}
