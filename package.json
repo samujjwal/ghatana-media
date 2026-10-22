@@ -70,7 +70,9 @@
     "prepare:ap03-source-snapshot": "node scripts/prepare-media-ap03-snapshot.mjs",
     "test:ap03-source-snapshot": "node --test tests/media-ap03-snapshot.test.mjs",
     "check:gtool-owner-dispositions": "node scripts/check-media-gtool-owner-dispositions.mjs",
-    "test:gtool-owner-dispositions": "node --test tests/media-gtool-owner-dispositions.test.mjs"
+    "test:gtool-owner-dispositions": "node --test tests/media-gtool-owner-dispositions.test.mjs",
+    "check:build-bridge-blockers": "node scripts/generate-media-build-bridge-blocker-inventory.mjs --check",
+    "test:build-bridge-blockers": "node --test tests/media-build-bridge-blocker-inventory.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
