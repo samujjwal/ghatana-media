@@ -14,9 +14,15 @@ function fixture(){
  write('.product-experience/surfaces/media-physical-topology.v1.json',{manifestCandidates:physical,compositions,consumerCrosswalk:logical});
  write('config/closure/consumer.json',{consumerId:'ghatana-media.product-definition',providerBindings:[]});
  write('config/closure/media-product-definition/surface.json',{id:'media.product-definition',obligationIds:phases.map((_,i)=>'o-'+i),composition:{childSurfaceIds:[]}});
- write('config/closure/media-product-definition/phase-program.json',{phases:phases.map((id,i)=>({id,obligationIds:['o-'+i]}))});
+ write('config/closure/media-product-definition/phase-program.json',{programId:'media.product-definition.v1',phases:phases.map((id,i)=>({id,obligationIds:['o-'+i]}))});
  write('config/closure/media-product-definition/phase-binding.json',{closureSurfaceId:'media.product-definition',phases:Object.fromEntries(phases.map((id,i)=>[id,{obligationIds:['o-'+i]}]))});
- write('config/closure/media-product-definition/obligations.json',{obligations:[]});
+ write('config/closure/media-product-definition/obligations.json',phases.map((id,i)=>({
+  id:'o-'+i,closureSurfaceId:'media.product-definition',programId:'media.product-definition.v1',
+  phaseSemantics:{applicableIn:[id]},extensions:{'media-source':{
+   sourceRef:'.product-experience/pdp-'+i+'-product-truth/PRODUCT-TRUTH.md#/requirements/'+i,
+   recordId:'requirement-'+i,sourceDigest:'sha256:'+'0'.repeat(64)
+  }}
+ })));
  write('config/closure/media-product-definition/l02-source-case-links.json',{links:[]});
  write('config/closure/media-product-definition/l03-proof-route-candidates.json',{routes:[],l02CaseLinkReview:{unmappedObligationCount:4}});
  write('config/closure/media-product-definition/pending-decisions.json',{receipts:[]});
@@ -30,4 +36,27 @@ test('reject orphan child and unsupported consumer proof-producer binding',()=>{
 });
 test('reject changed phase binding without opening PDP',()=>{
  const f=fixture();try{f.write('config/closure/media-product-definition/phase-binding.json',{closureSurfaceId:'media.product-definition',phases:Object.fromEntries(phases.map((id,i)=>[id,{obligationIds:i===0?[]:['o-'+i]}]))});assert.ok(auditMediaClosure(f.root).invariants.issues.some(x=>x.code==='PHASE_OBLIGATION_DRIFT'))}finally{fs.rmSync(f.root,{recursive:true,force:true})}
+});
+
+test('reject missing persisted source obligation, despite green phase lists',()=>{
+ const f=fixture();try{
+  f.write('config/closure/media-product-definition/obligations.json',[]);
+  const result=auditMediaClosure(f.root);
+  assert.equal(result.invariants.passed,false);
+  assert.ok(result.invariants.issues.some(x=>x.code==='OBLIGATION_REGISTRY_IDENTITY_DRIFT'));
+ }finally{fs.rmSync(f.root,{recursive:true,force:true})}
+});
+test('reject wrong owner and source meaning on persisted requirement',()=>{
+ const f=fixture();try{
+  const rows=phases.map((phase,i)=>({
+   id:'o-'+i,closureSurfaceId:i?'media.product-definition':'other-writer',programId:'media.product-definition.v1',
+   phaseSemantics:{applicableIn:[phase]},extensions:{'media-source':{
+    sourceRef:'.product-experience/pdp-'+i+'-product-truth/PRODUCT-TRUTH.md#/requirements/'+i,
+    recordId:'requirement-'+i,sourceDigest:'sha256:'+'0'.repeat(64)
+   }}
+  }));
+  f.write('config/closure/media-product-definition/obligations.json',rows);
+  const result=auditMediaClosure(f.root);
+  assert.ok(result.invariants.issues.some(x=>x.code==='OBLIGATION_RECORD_PHASE_OWNER_MISMATCH'));
+ }finally{fs.rmSync(f.root,{recursive:true,force:true})}
 });
