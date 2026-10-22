@@ -874,6 +874,10 @@
     "pdp3RecordingCli": "tools/documentation-model/bin/validate-pdp3-demo-recording.mjs",
     "runtimeTransition": "LIFECYCLE_ISSUE_26_OPEN",
     "oobRecordingOwnerBinding": "LIFECYCLE_ISSUE_27_OPEN",
-    "automaticCompletion": "PROHIBITED"
+    "automaticCompletion": "PROHIBITED",
+    "progressionRequestSchema": "ghatana.gtool-source-development-progression-request.v1",
+    "oobPdp3RecordingMethod": "ghatana.product-development.v2",
+    "oobPdp3RecordingLoader": "loadProductDevelopmentMethodV2",
+    "sourceRecordingOwnerGuard": "LIFECYCLE_ISSUE_27_OPEN"
   }
 }
