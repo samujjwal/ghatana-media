@@ -56,7 +56,8 @@
     "test:unified-production-inventory": "node --test tests/media-unified-production-inventory.test.mjs",
     "audit:gtool-closure-source": "node scripts/audit-media-closure-readiness.mjs",
     "test:gtool-closure-source": "node --test tests/media-gtool-closure-readiness.test.mjs",
-    "prepare:ap03-source-snapshot": "node scripts/prepare-media-ap03-snapshot.mjs"
+    "prepare:ap03-source-snapshot": "node scripts/prepare-media-ap03-snapshot.mjs",
+    "test:ap03-source-snapshot": "node --test tests/media-ap03-snapshot.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
