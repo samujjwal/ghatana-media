@@ -53,7 +53,9 @@
     "check:declarative-production-definition": "node scripts/check-media-declarative-production-definitions.mjs",
     "test:declarative-production-definition": "node --test tests/media-declarative-production-definitions.test.mjs",
     "check:unified-production-inventory": "node scripts/check-media-unified-production-inventory.mjs",
-    "test:unified-production-inventory": "node --test tests/media-unified-production-inventory.test.mjs"
+    "test:unified-production-inventory": "node --test tests/media-unified-production-inventory.test.mjs",
+    "audit:gtool-closure-source": "node scripts/audit-media-closure-readiness.mjs",
+    "test:gtool-closure-source": "node --test tests/media-gtool-closure-readiness.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
