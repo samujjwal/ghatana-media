@@ -105,11 +105,11 @@
     },
     {
       "path": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce"
+      "sha256": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d"
     },
     {
       "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-      "sha256": "86a39039688d8679c771f9d5031ddfff9ac11a25a4c309e5e58f94ab46077ff5"
+      "sha256": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9"
     }
   ],
   "recomputedPopulations": {
@@ -587,26 +587,26 @@
       "phaseClosure": "NOT_PERFORMED"
     },
     "currentnessRefreshSuccessor": {
-      "id": "PDP1-INTERFACE-PREDECESSOR-P0-CURRENTNESS-REFRESH-2026-10-23-R12",
+      "id": "PDP1-INTERFACE-PREDECESSOR-P0-CURRENTNESS-REFRESH-2026-10-23-R13",
       "reviewedOn": "2026-10-23",
       "phase": "PDP-1",
       "status": "PREDECESSOR_PINS_CURRENT; INTERFACE_POPULATIONS_AND_BINDINGS_UNCHANGED",
-      "method": "Re-read the exact current PDP-0 native phase status and regenerated full 54-identity PDP-0 surface matrix after the full PDP-0 verifier and projection refresh. The source candidate model and PDP-1 interface populations remain unchanged. This internal PDP-1 predecessor-currentness review changes no interface identity, route or operation population, meaning, binding, proposal disposition, or acceptance boundary.",
+      "method": "Re-read the exact PDP-0 native DEV_COMPLETE status after the full P0-01 through P0-08 verifier passed, including the exact PXD-225 locator-only predecessor reconciliation, and regenerated the full 54-identity PDP-0 surface matrix. This refresh changes PDP-1 predecessor currentness only; interface identities, route and operation populations, bindings, proposal dispositions, and acceptance boundaries are unchanged.",
       "sourceFingerprints": {
-        "docs/implementation/pdp-0-phase-dev-status.json": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
-        "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "86a39039688d8679c771f9d5031ddfff9ac11a25a4c309e5e58f94ab46077ff5"
+        "docs/implementation/pdp-0-phase-dev-status.json": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d",
+        "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9"
       },
       "previousSourceFingerprints": {
-        "docs/implementation/pdp-0-phase-dev-status.json": "ab85e67c2d7b104eaa7e198f6648f6fcec23ebc826e29c80009819a92a58feed",
-        "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "1c284172c1fa0264a0a5649ac3896e045be02942896e0bbb868a7ef662c862df"
+        "docs/implementation/pdp-0-phase-dev-status.json": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
+        "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "86a39039688d8679c771f9d5031ddfff9ac11a25a4c309e5e58f94ab46077ff5"
       },
       "sourceDelta": [
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "previousSha256": "ab85e67c2d7b104eaa7e198f6648f6fcec23ebc826e29c80009819a92a58feed",
-          "currentSha256": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
+          "previousSha256": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
+          "currentSha256": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d",
           "disposition": "PDP0_NATIVE_STATUS_REVALIDATED; PDP1_PREDECESSOR_PIN_REFRESH_ONLY",
-          "impact": "The current PDP-0 native status is DEV_COMPLETE with zero outstanding meaning IDs after the full native verifier. The status refresh changes no PDP-1 interface identity, operation, population, semantic, binding, or acceptance disposition.",
+          "impact": "PDP-0 remains DEV_COMPLETE with all eight direct criteria passing and zero outstanding meaning IDs; this status refresh changes no PDP-1 interface identity, operation, population, meaning, binding, or acceptance disposition.",
           "changedPdp1MeaningIds": [],
           "evidence": [
             "docs/implementation/pdp-0-phase-dev-status.json"
@@ -614,10 +614,10 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-          "previousSha256": "1c284172c1fa0264a0a5649ac3896e045be02942896e0bbb868a7ef662c862df",
-          "currentSha256": "86a39039688d8679c771f9d5031ddfff9ac11a25a4c309e5e58f94ab46077ff5",
+          "previousSha256": "86a39039688d8679c771f9d5031ddfff9ac11a25a4c309e5e58f94ab46077ff5",
+          "currentSha256": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9",
           "disposition": "PDP0_54_SURFACE_MATRIX_REGENERATED_CURRENT; PDP1_PREDECESSOR_PIN_REFRESH_ONLY",
-          "impact": "The regenerated PDP-0 matrix preserves the full 54-identity denominator, current cells, and zero phase-local tasks. This predecessor refresh changes no PDP-1 interface identity, operation, population, semantic, binding, or acceptance disposition.",
+          "impact": "The regenerated PDP-0 matrix preserves 26 physical, 7 composite, and 21 logical identities, 45 native complete cells, 8 explicit N/A cells, 1 archived consumer, and zero phase-local tasks/stale pins.",
           "changedPdp1MeaningIds": [],
           "evidence": [
             "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json"
@@ -1134,6 +1134,62 @@
             "currentSha256": "86a39039688d8679c771f9d5031ddfff9ac11a25a4c309e5e58f94ab46077ff5",
             "disposition": "PDP0_54_SURFACE_MATRIX_REGENERATED_CURRENT; PDP1_PREDECESSOR_PIN_REFRESH_ONLY",
             "impact": "The regenerated PDP-0 matrix preserves the full 54-identity denominator, current cells, and zero phase-local tasks. This predecessor refresh changes no PDP-1 interface identity, operation, population, semantic, binding, or acceptance disposition.",
+            "changedPdp1MeaningIds": [],
+            "evidence": [
+              "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json"
+            ]
+          }
+        ],
+        "predecessorStatus": {
+          "phase": "PDP-0",
+          "status": "DEV_COMPLETE",
+          "outstandingMeaningIds": []
+        },
+        "predecessorMatrix": {
+          "totalSurfaceIdentities": 54,
+          "explicitNotApplicableCells": 8,
+          "archivedLogicalConsumers": 1,
+          "remainingPhaseLocalTaskCount": 0,
+          "staleSourcePinCount": 0
+        },
+        "ownerApproval": "NOT_CLAIMED",
+        "independentAcceptance": "NOT_CLAIMED",
+        "phaseClosure": "NOT_PERFORMED",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "transportAdmission": "NOT_ADMITTED"
+      },
+      {
+        "id": "PDP1-INTERFACE-PREDECESSOR-P0-CURRENTNESS-REFRESH-2026-10-23-R13",
+        "reviewedOn": "2026-10-23",
+        "phase": "PDP-1",
+        "status": "PREDECESSOR_PINS_CURRENT; INTERFACE_POPULATIONS_AND_BINDINGS_UNCHANGED",
+        "method": "Re-read the exact PDP-0 native DEV_COMPLETE status after the full P0-01 through P0-08 verifier passed, including the exact PXD-225 locator-only predecessor reconciliation, and regenerated the full 54-identity PDP-0 surface matrix. This refresh changes PDP-1 predecessor currentness only; interface identities, route and operation populations, bindings, proposal dispositions, and acceptance boundaries are unchanged.",
+        "sourceFingerprints": {
+          "docs/implementation/pdp-0-phase-dev-status.json": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d",
+          "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9"
+        },
+        "previousSourceFingerprints": {
+          "docs/implementation/pdp-0-phase-dev-status.json": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
+          "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "86a39039688d8679c771f9d5031ddfff9ac11a25a4c309e5e58f94ab46077ff5"
+        },
+        "sourceDelta": [
+          {
+            "path": "docs/implementation/pdp-0-phase-dev-status.json",
+            "previousSha256": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
+            "currentSha256": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d",
+            "disposition": "PDP0_NATIVE_STATUS_REVALIDATED; PDP1_PREDECESSOR_PIN_REFRESH_ONLY",
+            "impact": "PDP-0 remains DEV_COMPLETE with all eight direct criteria passing and zero outstanding meaning IDs; this status refresh changes no PDP-1 interface identity, operation, population, meaning, binding, or acceptance disposition.",
+            "changedPdp1MeaningIds": [],
+            "evidence": [
+              "docs/implementation/pdp-0-phase-dev-status.json"
+            ]
+          },
+          {
+            "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+            "previousSha256": "86a39039688d8679c771f9d5031ddfff9ac11a25a4c309e5e58f94ab46077ff5",
+            "currentSha256": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9",
+            "disposition": "PDP0_54_SURFACE_MATRIX_REGENERATED_CURRENT; PDP1_PREDECESSOR_PIN_REFRESH_ONLY",
+            "impact": "The regenerated PDP-0 matrix preserves 26 physical, 7 composite, and 21 logical identities, 45 native complete cells, 8 explicit N/A cells, 1 archived consumer, and zero phase-local tasks/stale pins.",
             "changedPdp1MeaningIds": [],
             "evidence": [
               "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json"

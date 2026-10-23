@@ -4,12 +4,30 @@ import {createHash} from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {buildPxd225Reconciliation} from '../scripts/generate-pdp0-current-source-reconciliation-pxd225.mjs';
+import {
+  buildPxd225Reconciliation,
+  selectCommittedPxd225Predecessor,
+} from '../scripts/generate-pdp0-current-source-reconciliation-pxd225.mjs';
 import {fingerprintPxdDecisionSection} from '../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+
+test('PXD-225 uses the parent source only when HEAD committed the exact locator removal', () => {
+  const parent = {channels: [{
+    id: 'media.channel.legacy-desktop',
+    evidence: 'archive/media-desktop-apps/desktop/README.md and archive/media-desktop-apps/ai-voice-desktop/README.md',
+    runtimeAvailability: 'NOT_ADMITTED',
+  }]};
+  const head = structuredClone(parent);
+  head.channels[0].evidence = 'archive/media-desktop-apps/desktop/README.md';
+  assert.equal(selectCommittedPxd225Predecessor(head, parent), parent);
+
+  const changedHead = structuredClone(head);
+  changedHead.channels[0].runtimeAvailability = 'AVAILABLE';
+  assert.equal(selectCommittedPxd225Predecessor(changedHead, parent), changedHead);
+});
 
 test('PXD-225 pins current applications-channels and exact decision section while preserving PXD-216 20-leaf semantics', () => {
   const result = buildPxd225Reconciliation();

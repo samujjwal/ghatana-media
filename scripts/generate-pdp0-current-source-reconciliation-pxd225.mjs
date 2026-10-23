@@ -16,6 +16,19 @@ const sha256 = value => createHash('sha256').update(value).digest('hex');
 const readText = file => fs.readFileSync(path.join(root, file), 'utf8');
 const parseYaml = createRequire(path.resolve(root, '../ghatana-tools/package.json'))('yaml').parse;
 
+export function selectCommittedPxd225Predecessor(headChannels, parentChannels) {
+  const archivedId = 'media.channel.legacy-desktop';
+  const removedSuffix = ' and archive/media-desktop-apps/ai-voice-desktop/README.md';
+  const headChannel = headChannels.channels?.find(row => row.id === archivedId);
+  const parentChannel = parentChannels.channels?.find(row => row.id === archivedId);
+  if (!headChannel || headChannel.evidence.endsWith(removedSuffix)
+      || !parentChannel?.evidence.endsWith(removedSuffix)) return headChannels;
+  const expectedHead = structuredClone(parentChannels);
+  const expectedChannel = expectedHead.channels.find(row => row.id === archivedId);
+  expectedChannel.evidence = expectedChannel.evidence.slice(0, -removedSuffix.length);
+  return JSON.stringify(expectedHead) === JSON.stringify(headChannels) ? parentChannels : headChannels;
+}
+
 function historicalCapabilities(predecessor) {
   const commit = predecessor.sourceCut?.repositoryHead;
   if (!/^[0-9a-f]{40}$/.test(commit ?? '')) throw new Error('PXD-223 must identify the historical source commit');
@@ -44,13 +57,24 @@ export function buildPxd225Reconciliation({read = readText, historicalText} = {}
       || currentRowsSha256 !== historicalRowsSha256) throw new Error('PXD-216 20-leaf semantic projection changed or differs from preserved PXD-223 evidence');
 
   const channels = parseYaml(read(channelsPath));
-  const predecessorChannelsText = execFileSync('git', ['show', `HEAD:${channelsPath}`], {
+  const headChannelsText = execFileSync('git', ['show', `HEAD:${channelsPath}`], {
     cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
   });
-  const predecessorChannels = parseYaml(predecessorChannelsText);
   const archivedId = 'media.channel.legacy-desktop';
   const archivedLocator = 'archive/media-desktop-apps/ai-voice-desktop/README.md';
   const retainedLocator = 'archive/media-desktop-apps/desktop/README.md';
+  const headChannels = parseYaml(headChannelsText);
+  let predecessorChannels = headChannels;
+  if (!headChannels.channels?.find(row => row.id === archivedId)?.evidence
+    ?.endsWith(` and ${archivedLocator}`)) {
+    // If HEAD is the commit that made the approved locator-only edit, compare
+    // against its parent so the reconciliation remains reproducible afterward.
+    const parentChannelsText = execFileSync('git', ['show', `HEAD^:${channelsPath}`], {
+      cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
+    });
+    const parentChannels = parseYaml(parentChannelsText);
+    predecessorChannels = selectCommittedPxd225Predecessor(headChannels, parentChannels);
+  }
   if (execFileSync('git', ['rev-parse', '--is-shallow-repository'], {cwd: root, encoding: 'utf8'}).trim() !== 'false') {
     throw new Error('PXD-225 requires complete local Git history to validate the absent archived evidence locator');
   }
