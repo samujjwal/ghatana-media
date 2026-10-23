@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "media.build-f00-t02-source-join-review-candidate.v1",
+  "recordKind": "OWNER_TECHNICAL_REVIEW_CANDIDATE_NOT_DECISION",
+  "status": "CANDIDATE_FOR_INDEPENDENT_PEER_REVIEW",
+  "createdAt": "2026-10-22",
+  "scope": {
+    "repository": "samujjwal/ghatana-media",
+    "macroStage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "taskId": "M-BLD-F00.T02",
+    "surfaceDenominators": {
+      "sourceIdentities": 54,
+      "traceRows": 3186
+    }
+  },
+  "authority": {
+    "issue": "https://github.com/samujjwal/ghatana-media/issues/21",
+    "ownerComment": "https://github.com/samujjwal/ghatana-media/issues/21#issuecomment-6353806815",
+    "ownerDirection": "F00 semantic source join repair is approved; keep 17 exact operations, 93 reference occurrences, eight relations and one handoff in the source census; do not invent operations or assert task acceptance.",
+    "preRepairIssueCensus": {
+      "blockedTraceRows": 65,
+      "missingP1OperationEdgeOccurrences": 93,
+      "distinctSourceDefinedOperations": 17,
+      "unresolvedCrossLayerRelations": 8,
+      "unresolvedHandoffSelectors": 1,
+      "evidenceKind": "ISSUE_HISTORICAL_BASELINE_NOT_CURRENT_CANDIDATE_STATUS"
+    },
+    "candidateDisposition": "The dirty technical candidate appears coherent for peer review: it follows exact owner-authored selectors, preserves all trace identities, and leaves zero unresolved bridge joins. This is not owner acceptance or task completion."
+  },
+  "materialInputs": {
+    "directSourceSha256": {
+      ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+      ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "b2901f3efc54920b1d280897fc2d95eb10029d092944d7bbf046b6dbd8f97c48",
+      ".product-experience/pdp-3-product-experience/handoff-bindings.yaml": "1ab6530c7c375ff542e3fffd0328e14a63bfbe3b94d85abb1f5dc9ea7eebcdef"
+    },
+    "bridgeSourcePins": {
+      "count": 30,
+      "checkoutMatch": true,
+      "note": "Every sourcePins digest embedded in the candidate bridge matched the corresponding current checkout file."
+    },
+    "generatedVsSourceIdentity": {
+      "comparisonKey": [
+        "phase",
+        "kind",
+        "source identity"
+      ],
+      "sourceTraceRows": 3186,
+      "bridgeIdentityRows": 3186,
+      "uniqueSourceIdentityTuples": 3186,
+      "uniqueBridgeIdentityTuples": 3186,
+      "exactMultisetMatch": true,
+      "distinctRawIdentityValues": 3181,
+      "note": "Raw identity values may repeat across phase/kind populations; compare the full phase-kind-identity tuple rather than the generated bridge row ID."
+    }
+  },
+  "candidateArtifacts": {
+    "scripts/lib/media-build-semantic-source-joins.mjs": "5e8215126f17742fa6b98b6040d97120330aac97818d69da1b23ba3cc3f091ba",
+    "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json": "e4a3bb4df45ca055a9b4129f98be6ea15ac668276e137bcb4b25179c15c5cd13",
+    "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json": "78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7",
+    "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json": "92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32",
+    "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json": "e5990c3991aaa8852e0f6918573bb584a6b3edb406076e57638ddcd95f138aef"
+  },
+  "validation": {
+    "commands": [
+      {
+        "command": "node scripts/check-media-build-contract-bridge.mjs",
+        "result": "PASS: deterministic/current; 3186 identities, 8667 edges"
+      },
+      {
+        "command": "pnpm run check:build-bridge-blockers",
+        "result": "PASS: SOURCE_RELATIONS_CURRENT; all unresolved and missing-join counts zero; checkOnly true"
+      },
+      {
+        "command": "node scripts/generate-media-build-work-packages.mjs --check",
+        "result": "PASS: deterministic/current; 3186 identities"
+      },
+      {
+        "command": "node scripts/check-media-build-plan-task-closure.mjs",
+        "result": "Structural PASS; 57 tasks, 50 packages, 54 surfaces, 3186 trace rows; taskClosure and planReady PENDING; approval evidence MISSING"
+      },
+      {
+        "command": "node --test tests/media-build-contract-bridge.test.mjs tests/media-build-bridge-blocker-inventory.test.mjs",
+        "result": "PASS: 7 tests"
+      },
+      {
+        "command": "node --test tests/pdp-ui-proposed-operation-source-joins.test.mjs",
+        "result": "PASS: 3 tests, including exact-selector substitution/reordering/broadening and missing outcome-material negatives"
+      }
+    ],
+    "bridgeCensus": {
+      "identities": 3186,
+      "edges": 8667,
+      "unresolvedSourceIdentityCount": 0,
+      "unresolvedSourceBlockerCount": 0,
+      "p1OperationMissingReferenceCount": 0,
+      "uniqueMissingP1OperationCount": 0,
+      "unresolvedCrossLayerRelationCount": 0,
+      "unresolvedHandoffSelectorCount": 0,
+      "otherReasonCount": 0
+    }
+  },
+  "canonicalStateReadback": {
+    "issue21": "OPEN",
+    "packageTaskStatus": "ASSIGNED_UNVERIFIED",
+    "queueTaskStatus": "OPEN_TECHNICAL_WORK",
+    "taskCompletionClaim": "NOT_COMPLETE",
+    "f00t01Status": "PLANNING_RECEIPT_ONLY",
+    "f00t01MaterialReceipt": "NOT_PRESENT_IN_CURRENT_READBACK; listed as an F00.T02 blocking dependency",
+    "phaseStatusWrites": 0,
+    "acceptanceOrClosureWrites": 0,
+    "buildAdmissionClaimed": false,
+    "releaseWrites": 0
+  },
+  "blockingDisposition": {
+    "status": "STOP_AT_REVIEW_CANDIDATE",
+    "blocker": "The F00.T02 queue names the F00.T01 material receipt as a prerequisite; the current package projection reports F00.T01 only as PLANNING_RECEIPT_ONLY, and F00.T02 remains ASSIGNED_UNVERIFIED. Exact package Build admission/receipt is therefore not established by this readback.",
+    "nextLegalAction": "An independent peer may review this exact candidate and hashes. The F00.T01 owner path must provide its material receipt and the authorized package path must establish exact Build admission before any task completion or acceptance disposition."
+  },
+  "nonClaims": [
+    "This candidate is not an owner decision, peer acceptance, task closure, PDP status change, native receipt, Build admission, Plan Ready result, release decision or runtime proof.",
+    "No PDP source semantics or canonical status were changed by this review."
+  ]
+}

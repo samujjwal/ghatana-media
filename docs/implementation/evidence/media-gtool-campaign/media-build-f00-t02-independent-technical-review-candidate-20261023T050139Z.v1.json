@@ -1,0 +1,1199 @@
+{
+  "schemaVersion": "media.gtool-build-task-independent-technical-review-candidate.v1",
+  "recordKind": "AI_AUTHORED_INDEPENDENT_TECHNICAL_REVIEW_CANDIDATE_NOT_FORMAL_ACCEPTANCE",
+  "recordedAt": "2026-10-23T05:01:39Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "macroStage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "taskId": "M-BLD-F00.T02",
+    "exactSurfaceSet": [
+      "Media BUILD source trace/contract bridge"
+    ],
+    "sourceFingerprint": "92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32"
+  },
+  "reviewedInputSha256": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "sha256:b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "sha256:5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "sha256:edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "sha256:b2901f3efc54920b1d280897fc2d95eb10029d092944d7bbf046b6dbd8f97c48",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "sha256:77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+    ".product-experience/pdp-1-domain-data/states.yaml": "sha256:46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+    ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "sha256:7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
+    ".product-experience/pdp-1-domain-data/transitions.yaml": "sha256:176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
+    ".product-experience/pdp-2-design-interface-system/component-contracts.yaml": "sha256:6bcd90f59bee7df018bcbff57776fa53290e22eac1cf18519c4759551d71bb63",
+    ".product-experience/pdp-2-design-interface-system/component-value-types.yaml": "sha256:aed62bda69a5d44bccee0873eb03bada142994d2256f515fbe1ea89af50d0313",
+    ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml": "sha256:b1d163ca9cddf8fdd0d614952108e52cbd2a81292c87328c0e0b35afb665669b",
+    ".product-experience/pdp-2-design-interface-system/gui/layout.yaml": "sha256:1888914e0a5ce266a9ab866e0ee631bcb8864ced214e207beaaea8675b7ee31c",
+    ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml": "sha256:47ac97bf4c32f5c9a49fbdec26e9d883c5025a08eb8ddcd4915033cd813b3f67",
+    ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml": "sha256:d85ce0ebd2efd44354c20cc09347c04f4b269845f953d47cb35f96c2c0340a12",
+    ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml": "sha256:87ba4671053ba119c63a8d0d0525d68e71923e666bcfdd13d20fa2cbdef72608",
+    ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml": "sha256:8f544bdd47a2b2c3bd3ca6c909a1adcb3e604c516e26c94419178c362a4013a9",
+    ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml": "sha256:2e616841001f657327b71331435cb61c96dcba8d2fe2d8e8880aed724d4d4e2a",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml": "sha256:53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
+    ".product-experience/pdp-3-product-experience/handoff-bindings.yaml": "sha256:1ab6530c7c375ff542e3fffd0328e14a63bfbe3b94d85abb1f5dc9ea7eebcdef",
+    ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml": "sha256:d1af57db0bf4bcec054af251ffe40f5f2f1877f71a95dbd06ab5de8962279147",
+    ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": "sha256:439016ffe0962889992fb0f2c4b9d0be9082d2d52b6c0e251a0bea2d76b2544a",
+    ".product-experience/pdp-3-product-experience/journey-registry.yaml": "sha256:45fad668f42010258596be4729938b75c6f344d785080f5bb3aff5cbbfe39cb4",
+    ".product-experience/pdp-3-product-experience/screen-registry.yaml": "sha256:b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "sha256:b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+    "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json": "sha256:78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7",
+    "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json": "sha256:e4a3bb4df45ca055a9b4129f98be6ea15ac668276e137bcb4b25179c15c5cd13",
+    "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json": "sha256:92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32",
+    "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "sha256:9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a",
+    "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a",
+    "docs/implementation/MEDIA-PDP0-3-GTOOL-EXECUTION-BOARD.v2.md": "sha256:fd1abb612cb0170a413b791c116083c6376405f3bf16639c16bea3633b10d733",
+    "docs/implementation/pdp-0-phase-dev-status.json": "sha256:140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
+    "docs/implementation/pdp-1-phase-dev-status.json": "sha256:72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d",
+    "docs/implementation/pdp-2-phase-dev-status.json": "sha256:f202a5d0cf5cef788e9d17151bf6cfa4064177aaa650f8a07ad86bdbf7a1c45a",
+    "docs/implementation/pdp-3-phase-dev-status.json": "sha256:547e217a37bfa3f8c485f984b3d4aaccb4d76f3a273115ce2e2f8700af140340",
+    "package.json": "sha256:72a2110dead800f4d412cf09fcd38cee5d4e1ad16f56715e23f9a1bfad1f7dfe",
+    "scripts/check-media-build-contract-bridge.mjs": "sha256:860b49cd79783cdf3bd9237fc1684616b5dbb9b3c15501f907cf121b9d7df50f",
+    "scripts/generate-media-build-bridge-blocker-inventory.mjs": "sha256:27344c46b0cc849d02dbd39dc7043c2594494c76a559d36d9666dd51dfffbe3e",
+    "scripts/lib/media-build-bridge-blocker-inventory.mjs": "sha256:724ecdbf73f37d28ede62861c8373673476894db2e28401cf02f5d2a05558d78",
+    "scripts/lib/media-build-contract-bridge.mjs": "sha256:23594290714941e97b3de1f2c3a6f49d5d9219898809b199c35e798daff6ca33",
+    "scripts/lib/media-build-semantic-source-joins.mjs": "sha256:5e8215126f17742fa6b98b6040d97120330aac97818d69da1b23ba3cc3f091ba",
+    "tests/media-build-bridge-blocker-inventory.test.mjs": "sha256:d14234f3e73e1dbe91ff740e95cc889ee31e992603668da2aacded1019b6dc04",
+    "tests/media-build-contract-bridge.test.mjs": "sha256:6461bed22afa049cb01cc216436fd259cba9f2ca8d4f5bd20fa537dae0a0c038"
+  },
+  "baseline": {
+    "source": "git HEAD historical blocker inventory (read-only comparison)",
+    "gitBlob": "2cbd050193e7b7f308e212816b6c917d70a9eb42",
+    "sha256": "sha256:c03c6a7402d8ef7d55b89951722ca85db27fc030aae424c80ffa86c393469566",
+    "census": {
+      "traceIdentityCount": 3186,
+      "sourceBridgeEdgeCount": 8578,
+      "unresolvedSourceIdentityCount": 65,
+      "p1OperationMissingReferenceCount": 93,
+      "uniqueMissingP1OperationCount": 17,
+      "unresolvedCrossLayerRelationCount": 8,
+      "unresolvedHandoffSelectorCount": 1,
+      "otherReasonCount": 0
+    }
+  },
+  "findings": {
+    "identityAndEdgeCensus": {
+      "traceRows": 3186,
+      "bridgeIdentities": 3186,
+      "bridgeEdges": 8667,
+      "bridgeStatus": "SOURCE_RELATIONS_CURRENT",
+      "blockerStatus": "SOURCE_RELATIONS_CURRENT",
+      "identitySetMatchesTrace": true
+    },
+    "requiredOperationJoins": {
+      "baselineDistinctOperationCount": 17,
+      "baselineReferenceOccurrences": 93,
+      "operations": [
+        {
+          "operationId": "media.operation-slice.append-upload-chunk",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+          "baselineOccurrenceCount": 6,
+          "matchedOccurrenceCount": 6,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.artifact.upload.resume",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "targetId": "media.operation-slice.append-upload-chunk",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-artifact-upload-resume",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "targetId": "media.operation-slice.append-upload-chunk",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.http-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.append-upload-chunk",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.append-upload-chunk",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.append-upload-chunk",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j02-step-03.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.append-upload-chunk",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.append-upload-chunk",
+              "targetId": "media.operation-slice.append-upload-chunk",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.begin-upload",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+          "baselineOccurrenceCount": 6,
+          "matchedOccurrenceCount": 6,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.artifact.upload",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload/operationRefs",
+              "targetId": "media.operation-slice.begin-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-artifact-upload",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload/operationRefs",
+              "targetId": "media.operation-slice.begin-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.http-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.begin-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.begin-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.begin-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j02-step-02.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.begin-upload",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.begin-upload",
+              "targetId": "media.operation-slice.begin-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.cancel-job",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+          "baselineOccurrenceCount": 5,
+          "matchedOccurrenceCount": 5,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.job.cancel",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel/operationRefs",
+              "targetId": "media.operation-slice.cancel-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-job-cancel",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel/operationRefs",
+              "targetId": "media.operation-slice.cancel-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j20.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.cli.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.cli.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.cancel-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j20.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.web.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.web.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.cancel-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j20-step-05.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.cancel-job",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.cancel-job",
+              "targetId": "media.operation-slice.cancel-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.complete-upload",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+          "baselineOccurrenceCount": 7,
+          "matchedOccurrenceCount": 7,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.artifact.upload.resume",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "targetId": "media.operation-slice.complete-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-artifact-upload-resume",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "targetId": "media.operation-slice.complete-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:transitions:media-upload-and-artifact/T01",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01/operationRefs",
+              "targetId": "media.operation-slice.complete-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.http-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation-slice.complete-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation-slice.complete-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation-slice.complete-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j02-step-03.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.complete-upload",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.complete-upload",
+              "targetId": "media.operation-slice.complete-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.create-project",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project",
+          "baselineOccurrenceCount": 4,
+          "matchedOccurrenceCount": 4,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.project.create",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create/operationRefs",
+              "targetId": "media.operation-slice.create-project",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-project-create",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create/operationRefs",
+              "targetId": "media.operation-slice.create-project",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j01.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.create-project",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j01-step-03.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.create-project",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.create-project",
+              "targetId": "media.operation-slice.create-project",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.inspect-artifact",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+          "baselineOccurrenceCount": 10,
+          "matchedOccurrenceCount": 10,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j23.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j23.cli.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j23.cli.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j23.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j23.web.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j23.web.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j24.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j24.cli.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j24.cli.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j24.http-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j24.http-api.v1/p1OperationBindings/0/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j24.http-api.v1/p1OperationBindings/0/operationRef",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j26.http-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.http-api.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.http-api.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j26.product-integration.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.product-integration.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.product-integration.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j26.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.web.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j26.web.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j23-step-02.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-artifact",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.inspect-artifact",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j24-step-04.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-artifact",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.inspect-artifact",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j26-step-02.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-artifact",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.inspect-artifact",
+              "targetId": "media.operation-slice.inspect-artifact",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.inspect-job",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job",
+          "baselineOccurrenceCount": 2,
+          "matchedOccurrenceCount": 2,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j20-step-05.v1",
+              "joinedFrom": "supportingOperationRefs=media.operation-slice.inspect-job",
+              "bridgeSourceRef": "supportingOperationRefs=media.operation-slice.inspect-job",
+              "targetId": "media.operation-slice.inspect-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j20-step-06.v1",
+              "joinedFrom": "supportingOperationRefs=media.operation-slice.inspect-job",
+              "bridgeSourceRef": "supportingOperationRefs=media.operation-slice.inspect-job",
+              "targetId": "media.operation-slice.inspect-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.inspect-project",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project",
+          "baselineOccurrenceCount": 4,
+          "matchedOccurrenceCount": 4,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.project.inspect",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect/operationRefs",
+              "targetId": "media.operation-slice.inspect-project",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-project-inspect",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect/operationRefs",
+              "targetId": "media.operation-slice.inspect-project",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j01.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.inspect-project",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j01-step-04.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-project",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.inspect-project",
+              "targetId": "media.operation-slice.inspect-project",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.inspect-upload",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload",
+          "baselineOccurrenceCount": 6,
+          "matchedOccurrenceCount": 6,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.artifact.upload.resume",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "targetId": "media.operation-slice.inspect-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-artifact-upload-resume",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+              "targetId": "media.operation-slice.inspect-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.http-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/4/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.http-api.v1/p1OperationBindings/4/operationRef",
+              "targetId": "media.operation-slice.inspect-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/4/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.sdk.v1/p1OperationBindings/4/operationRef",
+              "targetId": "media.operation-slice.inspect-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j02.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/4/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j02.web.v1/p1OperationBindings/4/operationRef",
+              "targetId": "media.operation-slice.inspect-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j02-step-03.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.inspect-upload",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.inspect-upload",
+              "targetId": "media.operation-slice.inspect-upload",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.list-projects",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects",
+          "baselineOccurrenceCount": 2,
+          "matchedOccurrenceCount": 2,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j01.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation-slice.list-projects",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j01-step-02.v1",
+              "joinedFrom": "operationRefs=media.operation-slice.list-projects",
+              "bridgeSourceRef": "operationRefs=media.operation-slice.list-projects",
+              "targetId": "media.operation-slice.list-projects",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation-slice.retry-job",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job",
+          "baselineOccurrenceCount": 5,
+          "matchedOccurrenceCount": 5,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.job.retry",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry/operationRefs",
+              "targetId": "media.operation-slice.retry-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-job-retry",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry/operationRefs",
+              "targetId": "media.operation-slice.retry-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j20.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.cli.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.cli.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.retry-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j20.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.web.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j20.web.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation-slice.retry-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j20-step-06.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation-slice.retry-job",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation-slice.retry-job",
+              "targetId": "media.operation-slice.retry-job",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation.caption-draft-write",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+          "baselineOccurrenceCount": 11,
+          "matchedOccurrenceCount": 11,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/1/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/1/operationRef",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j16.grpc-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j16.grpc-api.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j16.grpc-api.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j16.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j16.web.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j16.web.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j18.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j18.web.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j18.web.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-05.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation.caption-draft-write",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation.caption-draft-write",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-06.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation.caption-draft-write",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation.caption-draft-write",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j16-step-03.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation.caption-draft-write",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation.caption-draft-write",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j18-step-04.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation.caption-draft-write",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation.caption-draft-write",
+              "targetId": "media.operation.caption-draft-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation.caption-version-read",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read",
+          "baselineOccurrenceCount": 5,
+          "matchedOccurrenceCount": 5,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation.caption-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation.caption-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation.caption-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/2/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/2/operationRef",
+              "targetId": "media.operation.caption-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-08.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation.caption-version-read",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation.caption-version-read",
+              "targetId": "media.operation.caption-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation.caption-version-write",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write",
+          "baselineOccurrenceCount": 5,
+          "matchedOccurrenceCount": 5,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/3/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/3/operationRef",
+              "targetId": "media.operation.caption-version-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/3/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/3/operationRef",
+              "targetId": "media.operation.caption-version-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/3/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/3/operationRef",
+              "targetId": "media.operation.caption-version-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/3/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/3/operationRef",
+              "targetId": "media.operation.caption-version-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-07.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation.caption-version-write",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation.caption-version-write",
+              "targetId": "media.operation.caption-version-write",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation.job-lifecycle",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.job-lifecycle",
+          "baselineOccurrenceCount": 3,
+          "matchedOccurrenceCount": 3,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-1:transitions:media-job/T01",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T01/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T01/operationRefs",
+              "targetId": "media.operation.job-lifecycle",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.job-lifecycle",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:transitions:media-job/T03",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03/operationRefs",
+              "targetId": "media.operation.job-lifecycle",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.job-lifecycle",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:transitions:media-job/T04",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T04/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T04/operationRefs",
+              "targetId": "media.operation.job-lifecycle",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.job-lifecycle",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation.transcript-version-read",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read",
+          "baselineOccurrenceCount": 5,
+          "matchedOccurrenceCount": 5,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/4/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/4/operationRef",
+              "targetId": "media.operation.transcript-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/4/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/4/operationRef",
+              "targetId": "media.operation.transcript-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/4/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/4/operationRef",
+              "targetId": "media.operation.transcript-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/4/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/4/operationRef",
+              "targetId": "media.operation.transcript-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-04.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation.transcript-version-read",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation.transcript-version-read",
+              "targetId": "media.operation.transcript-version-read",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "operationId": "media.operation.transcription-submission",
+          "exactSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+          "baselineOccurrenceCount": 7,
+          "matchedOccurrenceCount": 7,
+          "allReferencesMatched": true,
+          "matchedReferences": [
+            {
+              "sourceIdentity": "PDP-0:capability-intent:media.speech.transcription.file",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file/operationRefs",
+              "targetId": "media.operation.transcription-submission",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-1:capabilityOperations:media.capability-binding.media-speech-transcription-file",
+              "joinedFrom": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file/operationRefs",
+              "bridgeSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file/operationRefs",
+              "targetId": "media.operation.transcription-submission",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/5/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/5/operationRef",
+              "targetId": "media.operation.transcription-submission",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.grpc-api.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/5/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.grpc-api.v1/p1OperationBindings/5/operationRef",
+              "targetId": "media.operation.transcription-submission",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.sdk.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/5/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.sdk.v1/p1OperationBindings/5/operationRef",
+              "targetId": "media.operation.transcription-submission",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.web.v1",
+              "joinedFrom": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/5/operationRef",
+              "bridgeSourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.web.v1/p1OperationBindings/5/operationRef",
+              "targetId": "media.operation.transcription-submission",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+              "endpointClassification": "SOURCE_SELECTOR"
+            },
+            {
+              "sourceIdentity": "PDP-3:journey-step-purpose:media.pdp3.step-purpose-binding.j03-step-02.v1",
+              "joinedFrom": "actionExactOperationRefs=media.operation.transcription-submission",
+              "bridgeSourceRef": "actionExactOperationRefs=media.operation.transcription-submission",
+              "targetId": "media.operation.transcription-submission",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        }
+      ],
+      "matchedOccurrenceTotal": 93,
+      "allExactIdsAndOccurrencesMatched": true
+    },
+    "formerlyUnresolvedRelations": {
+      "baselineCount": 8,
+      "relations": [
+        {
+          "sourceIdentity": "PDP-1:operations:media.operation.action.inspect-job-retry-policy",
+          "operationId": "media.operation.action.inspect-job-retry-policy",
+          "sourceRecordSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-job-retry-policy"
+          ],
+          "currentJoins": [
+            {
+              "relation": "p1ReadContract",
+              "phase": "PDP-1",
+              "id": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-job-retry-policy/readContractRef",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "sourceIdentity": "PDP-1:operations:media.operation.request-snapshot.inspect.v1",
+          "operationId": "media.operation.request-snapshot.inspect.v1",
+          "sourceRecordSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.request-snapshot.inspect.v1"
+          ],
+          "currentJoins": [
+            {
+              "relation": "p1OperationLineage",
+              "phase": "PDP-1",
+              "id": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.request-snapshot.inspect.v1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedTtsRequestOriginContract/requestSnapshotQueryRef",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.request-snapshot.inspect.v1",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "sourceIdentity": "PDP-1:operations:media.operation.speaker-reference.resolve-version.v1",
+          "operationId": "media.operation.speaker-reference.resolve-version.v1",
+          "sourceRecordSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.speaker-reference.resolve-version.v1"
+          ],
+          "currentJoins": [
+            {
+              "relation": "p1OperationLineage",
+              "phase": "PDP-1",
+              "id": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.speaker-reference.resolve-version.v1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedTtsRequestOriginContract/sourceInputVersionQueryRefs",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.speaker-reference.resolve-version.v1",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "sourceIdentity": "PDP-1:operations:media.operation.stt.profile.adapt.v1",
+          "operationId": "media.operation.stt.profile.adapt.v1",
+          "sourceRecordSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.adapt.v1"
+          ],
+          "currentJoins": [
+            {
+              "relation": "p1OperationProfile",
+              "phase": "PDP-1",
+              "id": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.immutable-append.v1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.adapt.v1/profileRef",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.immutable-append.v1",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "sourceIdentity": "PDP-1:operations:media.operation.stt.profile.create.v1",
+          "operationId": "media.operation.stt.profile.create.v1",
+          "sourceRecordSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.create.v1"
+          ],
+          "currentJoins": [
+            {
+              "relation": "p1OperationProfile",
+              "phase": "PDP-1",
+              "id": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.immutable-append.v1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.create.v1/profileRef",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.immutable-append.v1",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "sourceIdentity": "PDP-1:operations:media.operation.stt.profile.get.v1",
+          "operationId": "media.operation.stt.profile.get.v1",
+          "sourceRecordSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.get.v1"
+          ],
+          "currentJoins": [
+            {
+              "relation": "p1OperationProfile",
+              "phase": "PDP-1",
+              "id": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.get.v1/profileRef",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "sourceIdentity": "PDP-1:operations:media.operation.stt.profile.update.v1",
+          "operationId": "media.operation.stt.profile.update.v1",
+          "sourceRecordSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.update.v1"
+          ],
+          "currentJoins": [
+            {
+              "relation": "p1OperationProfile",
+              "phase": "PDP-1",
+              "id": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.immutable-append.v1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stt.profile.update.v1/profileRef",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.immutable-append.v1",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        },
+        {
+          "sourceIdentity": "PDP-1:operations:media.operation.voice-profile.resolve-source-version.v1",
+          "operationId": "media.operation.voice-profile.resolve-source-version.v1",
+          "sourceRecordSelectors": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.voice-profile.resolve-source-version.v1"
+          ],
+          "currentJoins": [
+            {
+              "relation": "p1OperationLineage",
+              "phase": "PDP-1",
+              "id": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.voice-profile.resolve-source-version.v1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedTtsRequestOriginContract/sourceInputVersionQueryRefs",
+              "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.voice-profile.resolve-source-version.v1",
+              "endpointClassification": "SOURCE_SELECTOR"
+            }
+          ]
+        }
+      ],
+      "allHaveSourceBackedCurrentJoin": true
+    },
+    "handoffSelector": {
+      "baselineCount": 1,
+      "sourceSelector": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/@id=media.component.identity-context-boundary/handoffRefs",
+      "expectedId": "media.handoff.identity",
+      "currentEdges": [
+        {
+          "id": "PDP-2:p2-components:media.component.identity-context-boundary=>p3HandoffSelector=>PDP-3:.product-experience/pdp-3-product-experience/handoff-bindings.yaml#handoffs/@id=media.handoff.identity",
+          "from": "PDP-2:p2-components:media.component.identity-context-boundary",
+          "relation": "p3HandoffSelector",
+          "toPhase": "PDP-3",
+          "toId": ".product-experience/pdp-3-product-experience/handoff-bindings.yaml#handoffs/@id=media.handoff.identity",
+          "endpointClassification": "SOURCE_SELECTOR",
+          "targetSelector": ".product-experience/pdp-3-product-experience/handoff-bindings.yaml#handoffs/@id=media.handoff.identity",
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/@id=media.component.identity-context-boundary/handoffRefs"
+        }
+      ],
+      "exactTargetVerified": true
+    },
+    "bridgeBlockers": {
+      "traceIdentityCount": 3186,
+      "sourceBridgeEdgeCount": 8667,
+      "unresolvedSourceIdentityCount": 0,
+      "unresolvedSourceBlockerCount": 0,
+      "p1OperationMissingReferenceCount": 0,
+      "uniqueMissingP1OperationCount": 0,
+      "unresolvedCrossLayerRelationCount": 0,
+      "unresolvedHandoffSelectorCount": 0,
+      "otherReasonCount": 0
+    }
+  },
+  "verification": [
+    {
+      "command": "pnpm check:build-contract-bridge",
+      "exitCode": 0,
+      "result": "PASS; deterministic/current; 3,186 identities and 8,667 edges"
+    },
+    {
+      "command": "pnpm test:build-contract-bridge",
+      "exitCode": 0,
+      "result": "PASS; 2/2 tests, including missing-edge, duplicate-owner, mismatched-operation, missing-archived-N/A, and dependency-cycle negatives"
+    },
+    {
+      "command": "pnpm check:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS; checkOnly; zero unresolved identities/blockers, required operation references, cross-layer relations, and handoff selectors"
+    },
+    {
+      "command": "pnpm test:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS; 5/5 tests, including invented/missing operation selector and contradictory blocker-state negatives"
+    }
+  ],
+  "reviewDisposition": {
+    "technicalFinding": "TECHNICALLY_COMPLETE_FOR_EXACT_SOURCE_JOIN_REPAIR",
+    "formalTaskAcceptance": "PENDING",
+    "ownerSourceReview": "PENDING",
+    "workPlannerKernelAdmission": "NOT_ESTABLISHED",
+    "planReady": "NOT_PROVEN"
+  },
+  "limitations": [
+    "The 17 operation endpoints are source-selector endpoints, not new trace identities; the trace identity denominator remains 3,186 as required for this review.",
+    "This review covers source joins, generated bridge consistency, blocker inventory, and the listed narrow regression checks only; it does not establish runtime implementation, native evidence, independent owner acceptance, package Build admission, task closure, Plan Ready, PDP closure, release, or deployment.",
+    "Historical counts are read from the prior committed blocker inventory and each occurrence was matched against current generated bridge edges; no canonical source, task/status/queue, or owner-authority record was edited."
+  ],
+  "writesPerformed": {
+    "sourceOrAuthorityFiles": false,
+    "generatedBridgeFiles": false,
+    "reviewCandidate": true
+  }
+}

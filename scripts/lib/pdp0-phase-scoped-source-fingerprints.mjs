@@ -231,7 +231,7 @@ export function projectPdp0DirectCriterionReviews(reviewDocument, sourceOwnerPha
     }
   };
   const projectCurrentSourcePinRefresh = (refresh, taskId) => {
-    const keys = ['status', 'phaseScope', 'decisionContextRef', 'preservesReviewRef', 'predecessorSourceFingerprints', 'currentSourceFingerprints', 'scopedClauseFingerprints', 'semanticReview', 'ownerApproval', 'acceptanceEffect', 'decisionContextFingerprint', ...(taskId === 'P0-07' ? ['crosswalkImpact'] : [])];
+    const keys = ['status', 'phaseScope', 'decisionContextRef', 'preservesReviewRef', 'predecessorSourceFingerprints', 'currentSourceFingerprints', 'scopedClauseFingerprints', 'semanticReview', 'ownerApproval', 'acceptanceEffect', 'decisionContextFingerprint', ...(taskId === 'P0-05' || taskId === 'P0-07' ? ['currentnessAuthority'] : []), ...(taskId === 'P0-07' ? ['crosswalkImpact'] : [])];
     const projected = pick(refresh, keys, `${taskId} currentSourcePinRefresh`);
     const contextDecision = taskId === 'P0-02' ? 'PXD-207' : taskId === 'P0-05' ? 'PXD-208' : 'PXD-209';
     if (refresh.status !== 'CURRENT_SOURCE_PIN_REFRESH_ONLY' || refresh.phaseScope !== 'PDP-0'
@@ -244,6 +244,17 @@ export function projectPdp0DirectCriterionReviews(reviewDocument, sourceOwnerPha
     if (taskId !== 'P0-07' && canonicalJson(Object.keys(refresh.predecessorSourceFingerprints).sort()) !== canonicalJson(Object.keys(refresh.currentSourceFingerprints).sort())) throw new Error(`${taskId} predecessor/current source fingerprint keys differ`);
     if (!refresh.decisionContextFingerprint || refresh.decisionContextFingerprint.sourceRef !== `${refresh.decisionContextRef}-section`
         || !/^[a-f0-9]{64}$/.test(refresh.decisionContextFingerprint.sha256 ?? '')) throw new Error(`${taskId} currentSourcePinRefresh must pin its decision context`);
+    if (taskId === 'P0-05' || taskId === 'P0-07') {
+      assertKnownKeys(refresh.currentnessAuthority,
+        new Set(['decisionRef', 'artifactRef', 'artifactSha256', 'decisionSectionSha256']),
+        `${taskId} currentnessAuthority`);
+      if (refresh.currentnessAuthority.decisionRef !== '.product-experience/decision-log.md#PXD-225'
+          || refresh.currentnessAuthority.artifactRef !== 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json'
+          || !/^[a-f0-9]{64}$/.test(refresh.currentnessAuthority.artifactSha256 ?? '')
+          || !/^[a-f0-9]{64}$/.test(refresh.currentnessAuthority.decisionSectionSha256 ?? '')) {
+        throw new Error(`${taskId} currentnessAuthority must bind the PXD-225 reconciliation and exact decision section`);
+      }
+    }
     if (!Array.isArray(refresh.scopedClauseFingerprints) || !refresh.scopedClauseFingerprints.length) throw new Error(`${taskId} currentSourcePinRefresh requires scoped clause fingerprints`);
     const scopedRefs = new Set();
     projected.scopedClauseFingerprints = refresh.scopedClauseFingerprints.map((entry, index) => {
@@ -287,16 +298,16 @@ export function projectPdp0DirectCriterionReviews(reviewDocument, sourceOwnerPha
     const keys = ['status', 'phaseScope', 'decisionContextRefs', 'preservesReviewRef', 'projectionArtifactRef', 'projectionArtifactSha256', 'sourceFingerprints', 'decisionContextFingerprints', 'changedJoins', 'semanticDecision', 'ownerApproval', 'acceptanceEffect'];
     const projected = pick(refresh, keys, 'P0-06 currentProjectionRefresh');
     if (refresh.status !== 'CURRENT_PDP0_QUALITY_PROJECTION_REFRESH' || refresh.phaseScope !== 'PDP-0'
-        || canonicalJson(refresh.decisionContextRefs) !== canonicalJson(['.product-experience/decision-log.md#PXD-207', '.product-experience/decision-log.md#PXD-208'])
+        || canonicalJson(refresh.decisionContextRefs) !== canonicalJson(['.product-experience/decision-log.md#PXD-207', '.product-experience/decision-log.md#PXD-208', '.product-experience/decision-log.md#PXD-225'])
         || refresh.preservesReviewRef !== '.product-experience/decision-log.md#PXD-196'
-        || refresh.projectionArtifactRef !== 'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json'
+        || refresh.projectionArtifactRef !== 'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json'
         || !/^[a-f0-9]{64}$/.test(refresh.projectionArtifactSha256 ?? '')
         || refresh.semanticDecision !== 'NOT_MADE' || refresh.ownerApproval !== 'NOT_CLAIMED' || refresh.acceptanceEffect !== 'none') {
       throw new Error('P0-06 currentProjectionRefresh has an invalid scope, source, or authority boundary');
     }
     assertShaMap(refresh.sourceFingerprints, 'P0-06 projection sourceFingerprints');
-    assertKnownKeys(refresh.decisionContextFingerprints, new Set(['.product-experience/decision-log.md#PXD-207-section', '.product-experience/decision-log.md#PXD-208-section']), 'P0-06 decisionContextFingerprints');
-    if (Object.keys(refresh.decisionContextFingerprints).length !== 2 || Object.values(refresh.decisionContextFingerprints).some(sha => !/^[a-f0-9]{64}$/.test(sha))) throw new Error('P0-06 decision-context pins must cover PXD-207 and PXD-208');
+    assertKnownKeys(refresh.decisionContextFingerprints, new Set(['.product-experience/decision-log.md#PXD-207-section', '.product-experience/decision-log.md#PXD-208-section', '.product-experience/decision-log.md#PXD-225-section']), 'P0-06 decisionContextFingerprints');
+    if (Object.keys(refresh.decisionContextFingerprints).length !== 3 || Object.values(refresh.decisionContextFingerprints).some(sha => !/^[a-f0-9]{64}$/.test(sha))) throw new Error('P0-06 decision-context pins must cover PXD-207, PXD-208, and PXD-225');
     const expectedJoins = ['media.compose.multitrack-timeline', 'media.compose.reusable-composition', 'media.compose.safe-area', 'media.speech.synthesis.speaker.condition', 'media.master.audio.stereo-width'];
     if (!Array.isArray(refresh.changedJoins) || canonicalJson(refresh.changedJoins.map(join => join.capabilityId)) !== canonicalJson(expectedJoins)) throw new Error('P0-06 changedJoins must retain the exact five PXD-207 quality joins');
     projected.changedJoins = refresh.changedJoins.map((join, index) => {

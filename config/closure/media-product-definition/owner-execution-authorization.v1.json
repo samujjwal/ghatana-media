@@ -58,7 +58,7 @@
   "trustedAdmission": "NOT_ISSUED",
   "nativeReceipts": 0,
   "deliveryAuthorization": false,
-  "ownerDecisionRevision": 2,
+  "ownerDecisionRevision": 3,
   "ownerAccountability": "samujjwal",
   "ownerApprovalDisposition": "NO_ADDITIONAL_OWNER_CHECKPOINT_FOR_CURRENT_APPROVED_SCOPE",
   "approvedOwnerDecisions": {
@@ -70,6 +70,7 @@
     "evidence": "One canonical Evidence Generator proof producer. A source-pinned real computation may be reused across unaffected obligations/units only when canonical planner and receipt identities permit; do not fabricate an independent witness.",
     "recording": "PDP-3 source-owned narrated Explorer capture and its review form a source definition acceptance requirement where adopted; actual Build product capture with semantic-equivalence is a separate later real-behavior requirement. Start first real business-outcome recording once qualified end-to-end flow is present.",
     "scheduler": "AP-02 distribution, AP-03 snapshot, PDP-0 surface/case mapping, and eligible Build packages proceed in parallel with disjoint writers. Native leaf closure follows actual authenticated admission; composite/root require their declared children.",
+    "buildEligibility": "Calculate Build entry independently for each exact source-bound physical or composite unit. A unit is eligible only when every applicable PDP-0..3 definition for that unit is current, validated DEV_COMPLETE with a known zero phase-local task inventory, and every explicitly declared predecessor and dependency obligation for that unit passes. Missing, stale, contradictory, partial, or unknown inputs block only the affected unit and its declared dependents. Keep the complete 54-identity campaign denominator and aggregate Discovery result visible; neither aggregate FAIL/UNKNOWN nor an unrelated incomplete surface is a global Build lock. Composite and root implementation/integration require their declared child/dependency obligations. Package-specific Build prerequisites, owner/resource authorization, verification, Development Complete, and all independent PDP-closure, Delivery, and release gates remain in force.",
     "ownerRoles": "Architecture, product, implementation, review of non-specialist source decisions, scope, N/A classifications supported by source, migration-planning and test-selection decisions are delegated to implementation coordinator. No further discretionary approval prompt required within this bounded version.",
     "trust": "All independent specialist or verifier decisions require authenticated source-backed separate mechanisms and remain verified by their real owner paths. Owner delegation never becomes a signature or native receipt."
   },

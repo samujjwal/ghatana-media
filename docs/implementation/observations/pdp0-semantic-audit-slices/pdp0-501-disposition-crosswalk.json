@@ -28,16 +28,16 @@
       ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
       ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
       "tests/pdp-migration-semantic-reconciliation.test.mjs": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719",
-      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
       ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
       ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
       "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json": "c7c7b927839d9f90c302fc99b6e0507ff8dd676505bf79561dffa5ebb10cd3a5",
       "tests/pdp-migration-p0-current-material-reviews.test.mjs": "fbec7f7a9829c3525fb6e44de306ff1b08bb1528c1f5a827309358d2c5bf5ac0",
       "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
       "scripts/check-media-pdp0-501-audit-dispositions.mjs": "d50b96220bf32117d2d211ff159fac65893ab246b0ce086318cf2de72d6250c5",
-      "tests/media-pdp0-501-audit-dispositions.test.mjs": "8da408ed950212c4420de56672ad7218b0912b53d6276b725ac55b70e59e0bcb",
-      "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs": "08a1a8cfeaf366e9cfbba8e7e78cb14f5b2ba15efef29690067779019414d4ee",
-      "tests/pdp0-phase-scoped-source-fingerprints.test.mjs": "cded5a4617493afa30685c6f6226893f1b1e5f42ca74acf826421230d42e00e9",
+      "tests/media-pdp0-501-audit-dispositions.test.mjs": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077",
+      "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+      "tests/pdp0-phase-scoped-source-fingerprints.test.mjs": "7fbab028cbce9619c05ba65540095dbb48840ef9fa528bc059f44f5087b9fd35",
       ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
       "tests/pdp0-speech-audit-mapping-pxd213.test.mjs": "c2f14eee815ba26f02cf477fb7324bb73ec116c66d2bd04e19815afaf2528825",
       "tests/pdp0-current-semantic-route-successor-pxd211.test.mjs": "11fa838782cdfb4406547f6eb531f5536ef535d4a84c3fb1646eb3d7cd24e86a",
@@ -49,13 +49,13 @@
       "tests/pdp0-current-source-reconciliation-pxd215.test.mjs": "c173895d714964c1fd0e8fc2d28d01d0f34b44ec60f763d31aba8d7d58e88bb8"
     },
     "fingerprintAlgorithm": "SHA-256 of exact file bytes",
-    "fingerprintNotes": "PXD-207 adopts the five current PDP-0 leaf meanings and resolves AUD-DSP-007 with the exact creative-effect capability, family, requirement, AC-03, and production-studio/Web applicability binding. The 501 source identities and source text/anchors are preserved with 499 BOUND_EXISTING and 2 POST_PDP_IMPLEMENTATION_ONLY dispositions; no owner blocker remains in this crosswalk. The historical 462 owner-adjudicated leaf denominator remains separate from the seven delegated definition-extension decisions. Independent acceptance remains NOT_CLAIMED; execution admission, implementation, qualification, closure, and Delivery readiness are not claimed. PXD-213 restores exact speech/dubbing source joins for AUD-TTS-012, AUD-TTS-014, and AUD-DUB-003; all source wording and the 501-row denominator remain unchanged, while audible distinction and synchronization are not claimed. PXD-216 rebinds the exact PDP-0 source cut after the bounded capability-parameter summary correction; all 501 row identities, source wording, dispositions, owner-scope proposals, and phase handoffs remain unchanged, with acceptance NOT_CLAIMED. PXD-223 refreshes the current source cut after the PXD-221 future-version deferrals; it preserves all 501 audit-row identities and dispositions, the 462 historical canonical capability leaves, and PXD-216 semantic history. No owner approval, independent acceptance, runtime admission, implementation, qualification, closure, or Delivery readiness is claimed.",
-    "sourceCutStatus": "CURRENT_PDP0_CROSSWALK_WITH_PXD223_SOURCE_RECONCILIATION",
+    "fingerprintNotes": "PXD-207 adopts the five current PDP-0 leaf meanings and resolves AUD-DSP-007 with the exact creative-effect capability, family, requirement, AC-03, and production-studio/Web applicability binding. The 501 source identities and source text/anchors are preserved with 499 BOUND_EXISTING and 2 POST_PDP_IMPLEMENTATION_ONLY dispositions; no owner blocker remains in this crosswalk. The historical 462 owner-adjudicated leaf denominator remains separate from the seven delegated definition-extension decisions. Independent acceptance remains NOT_CLAIMED; execution admission, implementation, qualification, closure, and Delivery readiness are not claimed. PXD-213 restores exact speech/dubbing source joins for AUD-TTS-012, AUD-TTS-014, and AUD-DUB-003; all source wording and the 501-row denominator remain unchanged, while audible distinction and synchronization are not claimed. PXD-216 rebinds the exact PDP-0 source cut after the bounded capability-parameter summary correction; all 501 row identities, source wording, dispositions, owner-scope proposals, and phase handoffs remain unchanged, with acceptance NOT_CLAIMED. PXD-223 refreshes the current source cut after the PXD-221 future-version deferrals; it preserves all 501 audit-row identities and dispositions, the 462 historical canonical capability leaves, and PXD-216 semantic history. No owner approval, independent acceptance, runtime admission, implementation, qualification, closure, or Delivery readiness is claimed. PXD-225 removes only the absent archived-channel evidence locator from the archived-only legacy desktop source. The 501 audit row identities, source wording, dispositions, joins, owner-scope proposals and phase handoffs remain unchanged. PXD-216 semantic history and PXD-223 capability currentness are preserved; owner approval and independent acceptance are NOT_CLAIMED.",
+    "sourceCutStatus": "CURRENT_PDP0_CROSSWALK_WITH_PXD225_SOURCE_RECONCILIATION",
     "phaseScopedFingerprintAlgorithm": "SHA-256 of canonical PDP-0 projection JSON; PXD sections hash exact UTF-8 bytes",
     "phaseScopedSourceFingerprintsSha256": {
       ".product-experience/source-manifest.yaml#PDP-0-projection": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-223-section": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206"
+      ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
     }
   },
   "denominator": {
@@ -87,10 +87,10 @@
     "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
     "approval": "GRANTED_FOR_PDP0_SOURCE_DEFINITION_AND_CROSSWALK_RECONCILIATION",
     "ownerApproval": "NOT_CLAIMED",
-    "decisionRef": "PXD-223",
-    "priorDecisionRef": "PXD-216",
-    "scope": "PDP-0 current-source reconciliation for the exact 501-row audit projection; row identities, dispositions, source wording, owner-scope proposals, and phase handoffs remain unchanged.",
-    "note": "PXD-215 records the current PDP-0 traceability source cut for all 501 stable audit IDs: 497 canonical definition joins, 2 separately labeled coordinator-authored proposal joins, 2 POST_PDP_IMPLEMENTATION_ONLY handoffs, and zero missing PDP-0 joins. It preserves the 462 canonical capability-leaf, 469 current-capability-definition, and 7 current definition-extension populations. AUD-SPEC-020 and AUD-OPS-021 resolve to exact proposal capability, requirement, and acceptance-case selectors and remain owner/independent acceptance NOT_CLAIMED. PXD-214 remains immutable history. Shared acceptance-authority claims are route-checked in PDP-0 without refreshing their mutable content or claiming a receipt. No runtime, implementation, qualification, closure, or Delivery readiness is claimed. The imported voice-cloning acceptance mismatch remains provenance-only under PXD-172. PXD-216 rebinds only the current PDP-0 source cut after a bounded capability-parameter summary correction; the 501 source IDs, row dispositions, and proposal/implementation handoffs are unchanged. Owner approval and independent acceptance remain NOT_CLAIMED; acceptance effect is none. PXD-223 refreshes current-source fingerprints after PXD-221 deferred seven existing proposal capability records from TARGET to DEFERRED. All 501 stable audit IDs, row source wording, dispositions, joins, scope proposals, and phase handoffs remain unchanged. PXD-216 remains the semantic review for its exact 20 capability IDs; those current records match the reviewed projection. Owner approval and independent acceptance remain NOT_CLAIMED; acceptance effect is none. No runtime, implementation, qualification, closure, or Delivery readiness is claimed.",
+    "decisionRef": "PXD-225",
+    "priorDecisionRef": "PXD-223",
+    "scope": "PDP-0 current-source reconciliation only for the exact 501-row audit projection and the archived-channel source evidence locator; all row identities, source wording, dispositions, joins, scope proposals and phase handoffs remain unchanged.",
+    "note": "PXD-215 records the current PDP-0 traceability source cut for all 501 stable audit IDs: 497 canonical definition joins, 2 separately labeled coordinator-authored proposal joins, 2 POST_PDP_IMPLEMENTATION_ONLY handoffs, and zero missing PDP-0 joins. It preserves the 462 canonical capability-leaf, 469 current-capability-definition, and 7 current definition-extension populations. AUD-SPEC-020 and AUD-OPS-021 resolve to exact proposal capability, requirement, and acceptance-case selectors and remain owner/independent acceptance NOT_CLAIMED. PXD-214 remains immutable history. Shared acceptance-authority claims are route-checked in PDP-0 without refreshing their mutable content or claiming a receipt. No runtime, implementation, qualification, closure, or Delivery readiness is claimed. The imported voice-cloning acceptance mismatch remains provenance-only under PXD-172. PXD-216 rebinds only the current PDP-0 source cut after a bounded capability-parameter summary correction; the 501 source IDs, row dispositions, and proposal/implementation handoffs are unchanged. Owner approval and independent acceptance remain NOT_CLAIMED; acceptance effect is none. PXD-223 refreshes current-source fingerprints after PXD-221 deferred seven existing proposal capability records from TARGET to DEFERRED. All 501 stable audit IDs, row source wording, dispositions, joins, scope proposals, and phase handoffs remain unchanged. PXD-216 remains the semantic review for its exact 20 capability IDs; those current records match the reviewed projection. Owner approval and independent acceptance remain NOT_CLAIMED; acceptance effect is none. No runtime, implementation, qualification, closure, or Delivery readiness is claimed. PXD-225 removes only the absent archived-channel evidence locator. PXD-216 remains the exact 20-leaf semantic review; PXD-223 remains the capability currentness predecessor. Owner approval and independent acceptance remain NOT_CLAIMED; acceptance effect is none. No runtime, implementation, qualification, closure or Delivery readiness is claimed.",
     "reviewHistory": [
       {
         "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
@@ -486,12 +486,12 @@
     "sourceFingerprints": {
       ".product-experience/source-manifest.yaml#PDP-0-projection": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-223-section": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206"
+      ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
     },
     "phaseScopedSourceFingerprintsSha256": {
       ".product-experience/source-manifest.yaml#PDP-0-projection": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-223-section": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206"
+      ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
     },
     "independentAcceptance": "NOT_CLAIMED",
     "acceptanceEffect": "none"

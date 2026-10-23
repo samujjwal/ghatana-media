@@ -1,0 +1,798 @@
+{
+  "schemaVersion": "media.gtool-l01-t01-blocker-reconciliation-candidate.v1",
+  "recordKind": "SOURCE_BOUND_BLOCKER_RECONCILIATION_CANDIDATE_NOT_TASK_ACCEPTANCE",
+  "recordedAt": "2026-10-23T04:16:22Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "f8816aede965d55c27005d5bab13bcb6ae376389",
+    "macroStage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "taskId": "M-BLD-L01.T01",
+    "lane": "EARLY_DEMO"
+  },
+  "taskDisposition": {
+    "ownerDisposition": {
+      "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
+      "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a",
+      "bytes": 39231
+    },
+    "status": "OPEN_TECHNICAL_WORK",
+    "completionClaim": "NOT_COMPLETE",
+    "acceptanceCriterion": "Deterministic scenario generator and source selector negative tests; 25 existing source blockers remain explicit until resolved.",
+    "blockingDependencies": "F00.T01 source-current inputs",
+    "formalReview": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+    "taskAcceptance": "NOT_ESTABLISHED"
+  },
+  "comparison": {
+    "committedBaseline": {
+      "scenario": {
+        "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
+        "revision": "HEAD",
+        "commit": "f8816aede965d55c27005d5bab13bcb6ae376389",
+        "gitBlobOid": "ddbac671e8fcfd4c737102f303e7ceec4fa93138",
+        "sha256": "sha256:a49a69aee00a66cedfc538aa03d955a12b158ffccf46d56fe186281c6c88135b",
+        "bytes": 343376
+      },
+      "blockerCount": 25,
+      "blockerIds": [
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.list-projects",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.project.create:media.operation-slice.create-project",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.create-project",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.project.inspect:media.operation-slice.inspect-project",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.inspect-project",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.artifact.upload:media.operation-slice.begin-upload",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.begin-upload",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.artifact.upload.resume:media.operation-slice.append-upload-chunk",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.artifact.upload.resume:media.operation-slice.complete-upload",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.artifact.upload.resume:media.operation-slice.inspect-upload",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.append-upload-chunk",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.complete-upload",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.inspect-upload",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.job.cancel:media.operation-slice.cancel-job",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.cancel-job",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.job.retry:media.operation-slice.retry-job",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.retry-job",
+        "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.speech.transcription.file:media.operation.transcription-submission",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation.transcription-submission",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation.transcript-version-read",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation.caption-draft-write",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation.caption-version-write",
+        "P1_OPERATION_NOT_IN_BRIDGE:media.operation.caption-version-read",
+        "NO_REAL_CHANNEL_ADMITTED:media.channel.web,media.channel.cli",
+        "RECORDER_SCENE_STYLE_NARRATION_CONFIG_NOT_BOUND_TO_PDP2_PDP3_SOURCE"
+      ]
+    },
+    "currentSourceGenerated": {
+      "scenario": {
+        "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
+        "sha256": "sha256:129f3bbd4b1a31a3912f45f05e983e60a06d73d25a8a43458cb323bf997c963a",
+        "bytes": 482607
+      },
+      "generator": "scripts/generate-media-early-business-scenario.mjs",
+      "status": "BLOCKED_SOURCE_JOINS_OR_ADMISSION",
+      "journeyCount": 4,
+      "orderedJourneyIds": [
+        "J-01",
+        "J-02",
+        "J-20",
+        "J-03"
+      ],
+      "blockerCount": 2,
+      "blockerIds": [
+        "NO_REAL_CHANNEL_ADMITTED:media.channel.web,media.channel.cli",
+        "VOICE_STYLE_AND_NARRATION_WORDING_REMAIN_EDITORIAL_NOT_PDP2_PDP3_AUTHORITY"
+      ],
+      "execution": {
+        "executable": false,
+        "productActions": false,
+        "mockProof": false,
+        "approval": false
+      },
+      "channelSelection": {
+        "selectedChannelRef": null,
+        "selectionStatus": "UNSELECTED_NO_ADMITTED_CHANNEL",
+        "sourceRecommendedChannelRef": "media.channel.web",
+        "sourcePermittedAlternateChannelRef": "media.channel.cli",
+        "candidates": [
+          {
+            "channelRef": "media.channel.web",
+            "sourceSupport": "specification-only; runtime-not-claimed",
+            "runtimeAdmission": "NOT_ADMITTED",
+            "matchingP3EdgeIds": [
+              "media.pdp3.channel-binding.j01.web.v1",
+              "media.pdp3.channel-binding.j02.web.v1",
+              "media.pdp3.channel-binding.j20.web.v1",
+              "media.pdp3.channel-binding.j03.web.v1"
+            ],
+            "coveredJourneyIds": [
+              "J-01",
+              "J-02",
+              "J-20",
+              "J-03"
+            ],
+            "missingJourneyIds": []
+          },
+          {
+            "channelRef": "media.channel.cli",
+            "sourceSupport": "command-contract-proposal-for-upload-inspection-resume-job-status-viewing-job-outcome-checking-and-caption-revision; byte-transfer-runtime-unbound; production-runtime-not-claimed",
+            "runtimeAdmission": "NOT_ADMITTED",
+            "matchingP3EdgeIds": [
+              "media.pdp3.channel-binding.j20.cli.v1",
+              "media.pdp3.channel-binding.j03.cli.v1"
+            ],
+            "coveredJourneyIds": [
+              "J-20",
+              "J-03"
+            ],
+            "missingJourneyIds": [
+              "J-01",
+              "J-02"
+            ]
+          }
+        ]
+      }
+    },
+    "baselineBlockerAssessments": [
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.list-projects",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 3,
+          "edgeId": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j01.web.v1=>p1Operation=>PDP-1:media.operation-slice.list-projects",
+          "from": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j01.web.v1",
+          "toId": "media.operation-slice.list-projects",
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j01.web.v1/p1OperationBindings/2/operationRef",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.project.create:media.operation-slice.create-project",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.project.create=>p1Operation=>PDP-1:media.operation-slice.create-project",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.project.create",
+          "toId": "media.operation-slice.create-project",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.create-project",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 6,
+          "edgeId": "PDP-0:capability-intent:media.project.create=>p1Operation=>PDP-1:media.operation-slice.create-project",
+          "from": "PDP-0:capability-intent:media.project.create",
+          "toId": "media.operation-slice.create-project",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.project.inspect:media.operation-slice.inspect-project",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.project.inspect=>p1Operation=>PDP-1:media.operation-slice.inspect-project",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.project.inspect",
+          "toId": "media.operation-slice.inspect-project",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.inspect-project",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 6,
+          "edgeId": "PDP-0:capability-intent:media.project.inspect=>p1Operation=>PDP-1:media.operation-slice.inspect-project",
+          "from": "PDP-0:capability-intent:media.project.inspect",
+          "toId": "media.operation-slice.inspect-project",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.artifact.upload:media.operation-slice.begin-upload",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.artifact.upload=>p1Operation=>PDP-1:media.operation-slice.begin-upload",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.artifact.upload",
+          "toId": "media.operation-slice.begin-upload",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.begin-upload",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 10,
+          "edgeId": "PDP-0:capability-intent:media.artifact.upload=>p1Operation=>PDP-1:media.operation-slice.begin-upload",
+          "from": "PDP-0:capability-intent:media.artifact.upload",
+          "toId": "media.operation-slice.begin-upload",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.artifact.upload.resume:media.operation-slice.append-upload-chunk",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.artifact.upload.resume=>p1Operation=>PDP-1:media.operation-slice.append-upload-chunk",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "toId": "media.operation-slice.append-upload-chunk",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.artifact.upload.resume:media.operation-slice.complete-upload",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.artifact.upload.resume=>p1Operation=>PDP-1:media.operation-slice.complete-upload",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "toId": "media.operation-slice.complete-upload",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.artifact.upload.resume:media.operation-slice.inspect-upload",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.artifact.upload.resume=>p1Operation=>PDP-1:media.operation-slice.inspect-upload",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "toId": "media.operation-slice.inspect-upload",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.append-upload-chunk",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 10,
+          "edgeId": "PDP-0:capability-intent:media.artifact.upload.resume=>p1Operation=>PDP-1:media.operation-slice.append-upload-chunk",
+          "from": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "toId": "media.operation-slice.append-upload-chunk",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.complete-upload",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 11,
+          "edgeId": "PDP-0:capability-intent:media.artifact.upload.resume=>p1Operation=>PDP-1:media.operation-slice.complete-upload",
+          "from": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "toId": "media.operation-slice.complete-upload",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.inspect-upload",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 10,
+          "edgeId": "PDP-0:capability-intent:media.artifact.upload.resume=>p1Operation=>PDP-1:media.operation-slice.inspect-upload",
+          "from": "PDP-0:capability-intent:media.artifact.upload.resume",
+          "toId": "media.operation-slice.inspect-upload",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload-resume/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.job.cancel:media.operation-slice.cancel-job",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.job.cancel=>p1Operation=>PDP-1:media.operation-slice.cancel-job",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.job.cancel",
+          "toId": "media.operation-slice.cancel-job",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.cancel-job",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 8,
+          "edgeId": "PDP-0:capability-intent:media.job.cancel=>p1Operation=>PDP-1:media.operation-slice.cancel-job",
+          "from": "PDP-0:capability-intent:media.job.cancel",
+          "toId": "media.operation-slice.cancel-job",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.job.retry:media.operation-slice.retry-job",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.job.retry=>p1Operation=>PDP-1:media.operation-slice.retry-job",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.job.retry",
+          "toId": "media.operation-slice.retry-job",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation-slice.retry-job",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 8,
+          "edgeId": "PDP-0:capability-intent:media.job.retry=>p1Operation=>PDP-1:media.operation-slice.retry-job",
+          "from": "PDP-0:capability-intent:media.job.retry",
+          "toId": "media.operation-slice.retry-job",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job"
+        }
+      },
+      {
+        "baselineBlockerId": "REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:media.speech.transcription.file:media.operation.transcription-submission",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "Exact P0 capability-to-P1 operation edge now exists in the deterministic current bridge; this resolves the source-join blocker only, not L01.T01 acceptance or runtime behavior.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "edgeId": "PDP-0:capability-intent:media.speech.transcription.file=>p1Operation=>PDP-1:media.operation.transcription-submission",
+          "relation": "p1Operation",
+          "from": "PDP-0:capability-intent:media.speech.transcription.file",
+          "toId": "media.operation.transcription-submission",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation.transcription-submission",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 12,
+          "edgeId": "PDP-0:capability-intent:media.speech.transcription.file=>p1Operation=>PDP-1:media.operation.transcription-submission",
+          "from": "PDP-0:capability-intent:media.speech.transcription.file",
+          "toId": "media.operation.transcription-submission",
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file/operationRefs",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation.transcript-version-read",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 10,
+          "edgeId": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1=>p1Operation=>PDP-1:media.operation.transcript-version-read",
+          "from": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "toId": "media.operation.transcript-version-read",
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/4/operationRef",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation.caption-draft-write",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 22,
+          "edgeId": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1=>p1Operation=>PDP-1:media.operation.caption-draft-write",
+          "from": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "toId": "media.operation.caption-draft-write",
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/1/operationRef",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation.caption-version-write",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 10,
+          "edgeId": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1=>p1Operation=>PDP-1:media.operation.caption-version-write",
+          "from": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "toId": "media.operation.caption-version-write",
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/3/operationRef",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write"
+        }
+      },
+      {
+        "baselineBlockerId": "P1_OPERATION_NOT_IN_BRIDGE:media.operation.caption-version-read",
+        "classification": "RESOLVED_IN_CURRENT_SOURCE_BRIDGE_EVIDENCE",
+        "basis": "The exact P1 operation now has a source-selector edge in the current generated bridge; the current blocker inventory reports zero missing operation references. This is source-join reconciliation only.",
+        "evidence": {
+          "bridgePath": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+          "matchingExactP1OperationEdgeCount": 10,
+          "edgeId": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1=>p1Operation=>PDP-1:media.operation.caption-version-read",
+          "from": "PDP-3:journey-channel-edge:media.pdp3.channel-binding.j03.cli.v1",
+          "toId": "media.operation.caption-version-read",
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#edges/@id=media.pdp3.channel-binding.j03.cli.v1/p1OperationBindings/2/operationRef",
+          "targetSelector": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read"
+        }
+      },
+      {
+        "baselineBlockerId": "NO_REAL_CHANNEL_ADMITTED:media.channel.web,media.channel.cli",
+        "classification": "STILL_OPEN",
+        "basis": "The current generated scenario preserves this blocker verbatim. Neither candidate channel is admitted or selected.",
+        "evidence": {
+          "currentBlockerId": "NO_REAL_CHANNEL_ADMITTED:media.channel.web,media.channel.cli",
+          "selectionStatus": "UNSELECTED_NO_ADMITTED_CHANNEL",
+          "selectedChannelRef": null,
+          "candidates": [
+            {
+              "channelRef": "media.channel.web",
+              "sourceSupport": "specification-only; runtime-not-claimed",
+              "runtimeAdmission": "NOT_ADMITTED",
+              "matchingP3EdgeIds": [
+                "media.pdp3.channel-binding.j01.web.v1",
+                "media.pdp3.channel-binding.j02.web.v1",
+                "media.pdp3.channel-binding.j20.web.v1",
+                "media.pdp3.channel-binding.j03.web.v1"
+              ],
+              "coveredJourneyIds": [
+                "J-01",
+                "J-02",
+                "J-20",
+                "J-03"
+              ],
+              "missingJourneyIds": []
+            },
+            {
+              "channelRef": "media.channel.cli",
+              "sourceSupport": "command-contract-proposal-for-upload-inspection-resume-job-status-viewing-job-outcome-checking-and-caption-revision; byte-transfer-runtime-unbound; production-runtime-not-claimed",
+              "runtimeAdmission": "NOT_ADMITTED",
+              "matchingP3EdgeIds": [
+                "media.pdp3.channel-binding.j20.cli.v1",
+                "media.pdp3.channel-binding.j03.cli.v1"
+              ],
+              "coveredJourneyIds": [
+                "J-20",
+                "J-03"
+              ],
+              "missingJourneyIds": [
+                "J-01",
+                "J-02"
+              ]
+            }
+          ],
+          "sourceFiles": [
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+            ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
+            ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml"
+          ]
+        }
+      },
+      {
+        "baselineBlockerId": "RECORDER_SCENE_STYLE_NARRATION_CONFIG_NOT_BOUND_TO_PDP2_PDP3_SOURCE",
+        "classification": "STILL_OPEN_WITH_PARTIAL_SOURCE_BINDING_EVIDENCE",
+        "basis": "Current source selectors bind the PDP-2 scene-storyboard composition and PDP-3 workspace proposal, narrowing the earlier broad source-binding concern for those records. Current source explicitly leaves voice style and narration wording as editorial intent, not PDP-2/PDP-3 authority. Since the meanings are not identical, this baseline blocker is neither marked resolved nor one-to-one superseded; retain it as open pending owner criterion reconciliation.",
+        "evidence": {
+          "currentBlockerId": "VOICE_STYLE_AND_NARRATION_WORDING_REMAIN_EDITORIAL_NOT_PDP2_PDP3_AUTHORITY",
+          "sceneConfigStatus": "PDP2_PRESENTATION_AND_PDP3_WORKSPACE_SOURCE_BOUND; NARRATION_REMAINS_EDITORIAL",
+          "sourceRefs": [
+            ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+            ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml",
+            ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+            "docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json"
+          ],
+          "pdp2StoryboardComposition": {
+            "sourceRef": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#/productionStudioPageCompositionContracts/pages/@workspaceKey=scene-storyboard",
+            "workspaceKey": "scene-storyboard",
+            "proposedPdp3WorkspaceId": "media.recorder.p3.workspace.scene-storyboard.v1",
+            "templateRef": "media.gui.template.media-composition",
+            "layoutRef": "media.gui.layout.media-workbench",
+            "recipeRef": "media.gui.recipe.media-composition",
+            "componentRefs": [
+              "media.component.storyboard",
+              "media.component.scene-inspector",
+              "media.component.timeline-keyframe-editor"
+            ],
+            "acceptanceCaseRefs": [
+              "MEDIA-REC-P0-AC-003",
+              "MEDIA-REC-P0-AC-022",
+              "MEDIA-REC-P0-AC-035",
+              "MEDIA-REC-P0-AC-040"
+            ],
+            "wideIntent": "Inspect semantic scenes negative beats product postconditions anchors and rational media time",
+            "narrowIntent": "Preserve scene-storyboard source revision and critical user choices in a linear focus order",
+            "keyboardAndTextEquivalent": "Expose named scene-storyboard controls, exact source time and result/denial with keyboard and screen reader",
+            "headlessEquivalent": "Project scene-storyboard selections and state as typed source-bound JSON/CLI without invented GUI effects",
+            "denialAndUnknownRecovery": "Retain scene-storyboard source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request",
+            "requiredStates": [
+              "EMPTY",
+              "LOADING",
+              "READY",
+              "DIRTY_DRAFT",
+              "STALE_REVISION",
+              "MERGE_CONFLICT",
+              "UNAUTHORIZED",
+              "QUALITY_BLOCKED",
+              "SAVE_UNKNOWN"
+            ],
+            "admission": "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+          },
+          "pdp3WorkspaceProposal": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml#/productionStudioWorkspace/pages/@id=media.recorder.p3.workspace.scene-storyboard.v1",
+            "id": "media.recorder.p3.workspace.scene-storyboard.v1",
+            "pdp2WorkspaceKey": "scene-storyboard",
+            "semanticIntent": "Inspect scene sequence, product postconditions, denial beats and source anchors",
+            "candidateCanonicalScreenRefs": [
+              "media.view.arrange-scenes"
+            ],
+            "canonicalScreenBinding": "UNBOUND_PROPOSAL",
+            "implementationStatus": "SOURCE_ONLY",
+            "designChainBindingStatus": "SOURCE_VERIFIED_REUSE_PROPOSAL_SCREEN_INSTANCE_NOT_ADMITTED"
+          },
+          "narrationPolicy": {
+            "status": "NOT_DEFINED_AS_PDP2_PDP3_VOICE_STYLE_OR_WORDING",
+            "editorialPolicy": "Editorial beats only. Generate actionable commands, selectors and expected finalities from source-authoritative PDP1/PDP2/PDP3 bindings. Never hardcode route, CSS selector, undocumented command or new product semantics in this file."
+          },
+          "sceneNarrationAuthorities": [
+            "EDITORIAL_INTENT_ONLY_NOT_PDP2_PDP3_VOICE_AUTHORITY"
+          ]
+        }
+      }
+    ],
+    "summary": {
+      "baselineIds": 25,
+      "resolvedSourceJoinBlockers": 23,
+      "stillOpenBaselineBlockers": 2,
+      "currentGeneratedBlockers": 2,
+      "classificationRule": "Resolved means the exact missing source join is present and focused bridge checks report zero unresolved source joins. It does not mean runtime behavior, channel admission, editorial authority, or task acceptance."
+    }
+  },
+  "sourceEvidence": {
+    "currentMaterialSourcePins": {
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/journey-catalog.yaml": "db98413dfc314d85528d87515e8e7b100afe12276bfc8a73ca5401bbc92355eb",
+      ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/pdp-1-domain-data/authority.yaml": "433f13db1adde6b7136656491125612a5894cfe8ad6d50e3f4c23d99223102ec",
+      ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+      ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "cb37e443d3f7fcce968399d8ed3e0bb5b27535f0954ac70da21bd376d9c40cb2",
+      ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+      ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml": "8f544bdd47a2b2c3bd3ca6c909a1adcb3e604c516e26c94419178c362a4013a9",
+      ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
+      ".product-experience/pdp-3-product-experience/application-channel-registry.yaml": "750ddbfb2161711e8642edd8a28f681dc3e81909ad902255240984c61feb6206",
+      ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml": "d1af57db0bf4bcec054af251ffe40f5f2f1877f71a95dbd06ab5de8962279147",
+      ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml": "4b267a851612e6812d09496a0f447e1534b5b819ddf5414ca9cb0cb336d4160a",
+      ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml": "9d5c352d3be572c8a5866eb70ed0c8a9912540c591f05203287deb0c9ff6c334",
+      ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml": "3d32bebd2328c105133280a66e5cdbab1098e1ea36d1b0b3a9b0990e973bb196",
+      ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml": "fd0fff233a833a2541cb51264339f9b7f23af0493da36df1acdddababef60e55",
+      ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": "439016ffe0962889992fb0f2c4b9d0be9082d2d52b6c0e251a0bea2d76b2544a",
+      ".product-experience/pdp-3-product-experience/journey-registry.yaml": "45fad668f42010258596be4729938b75c6f344d785080f5bb3aff5cbbfe39cb4",
+      ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml": "cba49c08faf46a1e793f1d80763d3fc4e8606467e047eb7da6806977aa859973",
+      ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
+      "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json": "e4a3bb4df45ca055a9b4129f98be6ea15ac668276e137bcb4b25179c15c5cd13",
+      "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a",
+      "docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json": "f5200242a4862889ac1232ee5d30bd61007d960ad05bcb34fe08b76a786f2d23"
+    },
+    "artifactRefs": {
+      "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json": {
+        "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
+        "sha256": "sha256:129f3bbd4b1a31a3912f45f05e983e60a06d73d25a8a43458cb323bf997c963a",
+        "bytes": 482607
+      },
+      "scripts/generate-media-early-business-scenario.mjs": {
+        "path": "scripts/generate-media-early-business-scenario.mjs",
+        "sha256": "sha256:7073d8b37d123c5f59622c5b9b68e08cf9669f1d41c9a64c837fe3f0852eafec",
+        "bytes": 1649
+      },
+      "scripts/lib/media-early-business-scenario.mjs": {
+        "path": "scripts/lib/media-early-business-scenario.mjs",
+        "sha256": "sha256:17aefa1fa82609380ccdbd149570a8cbce8739829245b747e92a9c22bd6dbc82",
+        "bytes": 21516
+      },
+      "tests/media-early-business-scenario.test.mjs": {
+        "path": "tests/media-early-business-scenario.test.mjs",
+        "sha256": "sha256:ec9482dbceba78ef429a6bb12890296f9ca535167d4c7b9278956d67a55b540a",
+        "bytes": 10299
+      },
+      "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json": {
+        "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+        "sha256": "sha256:e4a3bb4df45ca055a9b4129f98be6ea15ac668276e137bcb4b25179c15c5cd13",
+        "bytes": 12478978
+      },
+      "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json": {
+        "path": "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
+        "sha256": "sha256:78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7",
+        "bytes": 1172
+      },
+      "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json": {
+        "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
+        "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a",
+        "bytes": 39231
+      },
+      ".product-experience/pdp-1-domain-data/operations.yaml": {
+        "path": ".product-experience/pdp-1-domain-data/operations.yaml",
+        "sha256": "sha256:77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+        "bytes": 11407107
+      },
+      ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": {
+        "path": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        "sha256": "sha256:439016ffe0962889992fb0f2c4b9d0be9082d2d52b6c0e251a0bea2d76b2544a",
+        "bytes": 448228
+      },
+      ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml": {
+        "path": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        "sha256": "sha256:d1af57db0bf4bcec054af251ffe40f5f2f1877f71a95dbd06ab5de8962279147",
+        "bytes": 1562935
+      },
+      ".product-experience/pdp-3-product-experience/application-channel-registry.yaml": {
+        "path": ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
+        "sha256": "sha256:750ddbfb2161711e8642edd8a28f681dc3e81909ad902255240984c61feb6206",
+        "bytes": 12884
+      },
+      ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": {
+        "path": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+        "sha256": "sha256:3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
+        "bytes": 79827
+      },
+      ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml": {
+        "path": ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml",
+        "sha256": "sha256:cba49c08faf46a1e793f1d80763d3fc4e8606467e047eb7da6806977aa859973",
+        "bytes": 108639
+      },
+      ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": {
+        "path": ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
+        "sha256": "sha256:cb37e443d3f7fcce968399d8ed3e0bb5b27535f0954ac70da21bd376d9c40cb2",
+        "bytes": 87393
+      },
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": {
+        "path": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+        "sha256": "sha256:d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        "bytes": 1329758
+      }
+    },
+    "currentBridgeCensus": {
+      "identityCount": 3186,
+      "edgeCount": 8667,
+      "populations": {
+        "PDP-0.capability-intent": 469,
+        "PDP-0.requirement-group": 38,
+        "PDP-1.actionWireContracts": 79,
+        "PDP-1.agentToolContracts": 4,
+        "PDP-1.agentToolHandlers": 4,
+        "PDP-1.capabilityBounds": 462,
+        "PDP-1.capabilityInputPayloadSchemas": 131,
+        "PDP-1.capabilityOperations": 462,
+        "PDP-1.capabilityOutputPayloadSchemas": 102,
+        "PDP-1.cliCommands": 11,
+        "PDP-1.commonGuardFacts": 1,
+        "PDP-1.definitionExtensionOperationMappings": 7,
+        "PDP-1.events": 9,
+        "PDP-1.grpcOperations": 43,
+        "PDP-1.guardContracts": 55,
+        "PDP-1.guardFactGroups": 43,
+        "PDP-1.guardFacts": 166,
+        "PDP-1.httpOperations": 27,
+        "PDP-1.notifications": 15,
+        "PDP-1.operations": 108,
+        "PDP-1.registeredObjectIdentities": 38,
+        "PDP-1.relationships": 13,
+        "PDP-1.sdkMethodRecords": 33,
+        "PDP-1.stateMachines": 11,
+        "PDP-1.transitions": 55,
+        "PDP-1.uiActions": 148,
+        "PDP-1.values": 13,
+        "PDP-2.p2-components": 31,
+        "PDP-2.p2-templates": 13,
+        "PDP-2.p2-recipes": 13,
+        "PDP-2.p2-layouts": 11,
+        "PDP-2.p2-patterns": 19,
+        "PDP-3.screen": 47,
+        "PDP-3.journey": 30,
+        "PDP-3.journey-step-purpose": 130,
+        "PDP-3.journey-channel-edge": 61,
+        "TOPOLOGY.physical": 26,
+        "TOPOLOGY.REPOSITORY_ROOT": 1,
+        "TOPOLOGY.SEMANTIC_COMPOSITION": 6,
+        "TOPOLOGY.consumer": 21,
+        "PDP-2.p2-component-value-types": 122,
+        "PDP-2.p2-semantic-token-aliases": 9,
+        "PDP-2.p2-shared-public-css": 24,
+        "PDP-2.p2-media-css-projection": 20,
+        "PDP-2.p2-composition-rules": 43,
+        "PDP-2.p2-machine-interface-invariants": 12
+      }
+    },
+    "currentBlockerInventory": {
+      "status": "SOURCE_RELATIONS_CURRENT",
+      "taskCompletionStatus": "NOT_EVALUATED",
+      "proofStatus": "NOT_VERIFIED",
+      "census": {
+        "traceIdentityCount": 3186,
+        "sourceBridgeEdgeCount": 8667,
+        "unresolvedSourceIdentityCount": 0,
+        "unresolvedSourceBlockerCount": 0,
+        "p1OperationMissingReferenceCount": 0,
+        "uniqueMissingP1OperationCount": 0,
+        "unresolvedCrossLayerRelationCount": 0,
+        "unresolvedHandoffSelectorCount": 0,
+        "otherReasonCount": 0
+      }
+    },
+    "baselineScopeNote": "Baseline scenario bytes were read directly from committed HEAD using git show; its commit, Git blob object ID, SHA-256, and byte length are recorded. Current scenario bytes and source pins are from the working tree verified by generator --check. The baseline source list is not treated as current authority."
+  },
+  "verification": [
+    {
+      "command": "node scripts/generate-media-early-business-scenario.mjs --check",
+      "exitCode": 0,
+      "result": "PASS; current deterministic source-generated scenario has 4 ordered journeys and exactly 2 preserved blockers"
+    },
+    {
+      "command": "node --test tests/media-early-business-scenario.test.mjs",
+      "exitCode": 0,
+      "result": "PASS; 12/12 tests, including exact bridge joins, preservation of current blockers, source-selector negativity, editorial attribution, and determinism"
+    },
+    {
+      "command": "pnpm run check:build-contract-bridge",
+      "exitCode": 0,
+      "result": "PASS; deterministic/current bridge, 3,186 identities and 8,667 edges"
+    },
+    {
+      "command": "pnpm run check:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS; SOURCE_RELATIONS_CURRENT; zero unresolved identities/blockers, missing P1 references, cross-layer relations, or handoff selectors"
+    }
+  ],
+  "claimBoundary": {
+    "blockerReconciliation": "TECHNICAL_SOURCE_EVIDENCE_ONLY",
+    "taskAcceptance": "NOT_ESTABLISHED",
+    "queueStatus": "OPEN_TECHNICAL_WORK_UNCHANGED",
+    "ownerReview": "PENDING",
+    "Plan Ready": "NOT_PROVEN",
+    "realChannelAdmission": "NOT_ESTABLISHED",
+    "narrationVoiceAuthority": "NOT_ESTABLISHED",
+    "nativePdpClosure": "NOT_ASSERTED",
+    "delivery": "NOT_ASSERTED"
+  },
+  "nextAction": "Reconcile the canonical 25-blocker acceptance criterion against this exact baseline-to-current source evidence in the owner/Work Planner task review. Retain the channel blocker and the narration/editorial-authority gap; do not close L01.T01 on this candidate alone."
+}

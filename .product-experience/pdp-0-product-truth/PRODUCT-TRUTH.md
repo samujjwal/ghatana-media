@@ -194,8 +194,9 @@ metric, unit, denominator, applicability, acceptance criterion, and evidence
 method. PXD-048 accepts their exact outcome/capability/profile-axis source trace,
 frozen-population rules and percentage calculation definition. Baselines remain
 `NOT_EVALUATED` and targets `NOT_SET`; measured populations, calibration and
-qualification are not inferred. The broader P0-06 quality/capability crosswalk
-and specialist review remain open. The candidate contains
+qualification are not inferred. The P0-06 quality/capability applicability
+definitions remain in the canonical Product Truth sources; independent
+specialist review is a separate acceptance gate. The candidate contains
 all 19 source intents and
 30 journeys with representative initiators selected by PXD-030; all source actor
 lists remain intact as collaborators. These owner choices do not grant runtime
@@ -218,8 +219,9 @@ provisional until their own development definitions are complete.
 read-only projection using `ghatana.product-definition.v1` and the
 `@ghatana/product-definition` v1 schema (`0.1.0-SNAPSHOT` source package).
 Its sibling-source schema/public-validator pass is structural evidence only;
-remaining leaf/migration/quality semantics, installed-package verification, independent
-P0-010 review, and Lifecycle currentness remain separate.
+the candidate does not repeat every canonical leaf, migration, and quality
+definition. Those definitions remain in the PDP-0 source files. Installed-package
+verification, independent P0-010 review, and Lifecycle currentness remain separate.
 
 ## Authority, dependencies, review, and proof
 

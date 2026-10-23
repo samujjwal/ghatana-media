@@ -181,6 +181,9 @@ export function validateBuildWorkPackageProjection(projection, expected = {}) {
   if (new Set(edgeIds).size !== edgeIds.length || edgeIds.some(id => !id)) errors.push('duplicate or missing channel edge identity');
   const expectedSurfaces = expected.surfaceCounts;
   if (expectedSurfaces && JSON.stringify(projection.census?.surfaces) !== JSON.stringify(expectedSurfaces)) errors.push('surface source census mismatch');
+  if (expected.surfaceRecords && canonicalJson(projection.surfaces ?? null) !== canonicalJson(expected.surfaceRecords)) {
+    errors.push('surface handoff differs from exact topology, registry applicability, or phase-matrix source records');
+  }
   if (expected.sourcePins) {
     for (const [path, hash] of Object.entries(expected.sourcePins)) if (projection.sourcePins?.[path] !== hash) errors.push(`stale or missing source pin: ${path}`);
     for (const path of Object.keys(projection.sourcePins ?? {})) if (!(path in expected.sourcePins)) errors.push(`unexpected source pin: ${path}`);

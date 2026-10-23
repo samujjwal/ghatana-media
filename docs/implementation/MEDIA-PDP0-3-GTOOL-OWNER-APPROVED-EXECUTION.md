@@ -9,16 +9,16 @@
 | Item | Current selected scope and legal meaning |
 | --- | --- |
 | Campaign | `samujjwal/ghatana-media`, with required source-owning dependencies in Lifecycle, Kernel, Tools/Toolchain, Shared, Ghatana runtime, Gharbatai recorder, and Products/TutorPutor; no takeover or stage promotion of unrelated projects |
-| Source cuts inspected in this planning pass | Media `354452f29bea4a3b24cd456d39950967ab4d83c0`; Lifecycle `c8ad6200fffd6f4dfbaf359cc6a1a2d265509ab5`; immutable source/fingerprint inputs must be freshly checked at each execution |
+| Approval-time source cuts | Media `354452f29bea4a3b24cd456d39950967ab4d83c0`; Lifecycle `c8ad6200fffd6f4dfbaf359cc6a1a2d265509ab5`; these are historical provenance, not currentness proof |
 | Macro stage | BUILD / `KDEV-STAGE-PLAN-IMPLEMENTATION`; PDP native acceptance/closure is a **separate parallel lane** |
 | Media PDP denominator | 26 physical candidates + six semantic compositions + one repository-root composition + 21 logical consumer identities = **54 source identities**; the archived desktop consumer and explicit support N/A remain visible |
-| Source-definition phase state | PDP-0..3 previously source-current `DEV_COMPLETE`, 859 material pins recorded current, zero phase-local definition tasks; rely on fresh native matrix and gtool **source** readbacks rather than Git HEAD alone |
+| Current source-definition readback | The 2026-10-23 local native matrix checks report PDP-0..3 source-current `DEV_COMPLETE` for the 54 × 4 campaign cells with zero phase-local definition tasks; see the G0 observation and recheck at execution time. This is not host admission, native closure, or Build transition |
 | Build plan | 50 packages, 57 tasks, 3,186 implementation trace identities, 19 currently blocked planning tasks; structural validator PASS in the supplied handoff; **Kernel KCRIT-PLAN-TASK-CLOSURE and KCRIT-PLAN-READY remain unproven** |
-| Bridge | 8,578 relations; **93 missing source-declared P1 operation edge occurrences across 17 distinct actual operations**, eight explicit unresolved source relations and one `media.handoff.identity` selector, affecting 65 trace rows. Exact machine source selectors and referring IDs: [generated blocker inventory](MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json). Do not relabel absent endpoints N/A to clear it |
+| Bridge | Approval-time baseline: 8,578 edges, 93 missing P1 references, eight unresolved relations and `media.handoff.identity`. Current generated inventory: **3,186 trace identities, 8,667 edges, zero unresolved source blockers**. F00.T02 remains open pending task-level tests, negative/UNKNOWN/rollback readback, and source-current owner review; do not infer completion from the current zero blocker census. |
 | PDP-0 native closure | 4,028 obligations remain open and zero executable source-case links in W3 projection. AP-02/AP-03 host code is merged and tests were reported passing, but no production trust selection/verifier/receipt is admitted |
 | Release | No Delivery, product production readiness, physical migration or real-product-film approval follows from these source or planning statuses |
 
-**Evidence attribution:** The task counts, 859 pins, 19 blockers, 4,028 W3 openings and test pass counts come from the owner's attached current-cut execution handoff, not a newly executed end-to-end gtool run from this GitHub-mediated planning session. Direct remote inspection confirms the newer `main` commits, scripts, owner contract files, and public method/host APIs. Refresh and record real run output before claiming any further status.
+**Evidence attribution:** The 2026-10-23 PDP matrix and local G0 source-topology readbacks are current read-only source observations, not a host-composed gtool method plan or native closure run. The 19 Build tasks remain open; the W3 map records 4,028 PDP-0 closure obligations open. Refresh and record the relevant owner-host run outputs before claiming task acceptance, native admission, receipt, or any later gate.
 
 ## 1. Final delegated owner decisions: accepted now
 
@@ -122,7 +122,7 @@ For each gtool run store its complete raw JSON output and a compact index of sub
 ```mermaid
 flowchart TD
   Source["Media PDP-0..3 source bytes · 54 identities · 859 pins"] --> W0["W0 exact source/check and gtool method readback"]
-  W0 --> BR["W1 F00: 93 P1 endpoints + 8 relations + handoff selector"]
+  W0 --> BR["W1 F00: current bridge readback + F00.T02 task acceptance"]
   W0 --> AP2["W2 Lifecycle protected AP-02 host trust"]
   W0 --> AP3["W3 Media snapshot + Lifecycle AP-03 owner trust"]
   W0 --> MAP["W4 Media PDP-0 native graph/case/oracle source map"]
@@ -148,7 +148,7 @@ The complete structured owner-approved action packet and acceptance text for eac
 
 | Task ID | Assigned owner / concrete output | Stop/pass rule |
 | --- | --- | --- |
-| `M-BLD-F00.T02` | Media source-trace owner — source ID bridge: 93 missing P1 operation *references* to 17 distinct named operation IDs, eight unresolved explicit joins and `media.handoff.identity`; source-pinned trace/bridge generation | Exact source selectors, all required relations reconciled, census versioning if changed. No guessed IDs or false `N/A` |
+| `M-BLD-F00.T02` | Media source-trace owner — current bridge census: 3,186 trace identities, 8,667 edges and zero unresolved source blockers; scoped source-pinned tests, negative/UNKNOWN/rollback readback and owner review remain | Keep task open until exact source selectors, affected tests and review artifacts are evaluated. No guessed IDs or false `N/A` |
 | `M-BLD-F03.T01` | Media domain/types owner — public typed project/artifact/job/transcript/caption/recipe/scene records, CAS/time/UNKNOWN/error contracts | ABI and positive/negative type/consumer tests, no duplicate product definition |
 | `M-BLD-F06.T01` | Media runtime owner — durable leases, job attempts, fencing, idempotency, cancellation, same-request UNKNOWN reconciliation using single canonical writer | Crash/lost-ACK/replay/stale-lease/tenant denial tests; no dual writer |
 | `M-BLD-F10.T01` | Media UI/Shared host owner — real production shell and product-host ADR, core UI/embedded adapters, accessibility and typed states | A host-qualified non-Explorer consumer, denied/UNKNOWN/recovery and keyboard/reflow tests |
@@ -191,7 +191,7 @@ Cross-repository issue assignment identifies an accountable **coordination** own
 ### Step A — source meaning and Plan repair
 
 - Re-pin all PDP status material and four source matrices; record a fresh 54×4 gtool method readback from its real host-wired owner resolver. Run the new structured validator. Keep already-source-complete, unaffected rows untouched.
-- [Media F00 source-join implementation issue #21](https://github.com/samujjwal/ghatana-media/issues/21): reconcile `MEDIA-BUILD-CONTRACT-BRIDGE.v1.json` using the [deterministic source-linked blocker inventory](MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json), produced by `node scripts/generate-media-build-bridge-blocker-inventory.mjs --check`. The 93 missing-edge occurrences share **17 unique exact PDP-1 operation identities**, each with its actual `operations.yaml` selector, owner package and referring source identities; no need to invent 93 operations. Separately adjudicate the eight source records lacking required cross-layer relations and one identity handoff selector, then fix only the authoring *implementation trace* or declared source selector at its actual owner. If authoritative PDP domain meaning truly changes, make a separate material-impact decision and reopen only affected phases; otherwise remain in Build bridge repair.
+- [Media F00 source-join implementation issue #21](https://github.com/samujjwal/ghatana-media/issues/21): the approval-time inventory recorded 93 missing-edge occurrences, eight unresolved relations and one identity handoff selector. The current generated [deterministic source-linked blocker inventory](MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json) now reports `SOURCE_RELATIONS_CURRENT` with zero unresolved blockers. Preserve the approval-time detail as history; do not repeat repairs from that list. F00.T02 remains open until its exact affected tests, negative/UNKNOWN/rollback readback and source-current owner review are recorded. If authoritative PDP domain meaning truly changes, make a separate material-impact decision and reopen only affected phases; otherwise remain in Build bridge task-acceptance work.
 - Run `node scripts/check-media-build-contract-bridge.mjs`, `pnpm run check:build-bridge-blockers`, `pnpm run test:build-bridge-blockers`, `node scripts/generate-media-build-work-packages.mjs --check`, `node scripts/check-media-build-plan-task-closure.mjs`, `pnpm run check:gtool-owner-dispositions`, and focused generator/bridge/task tests. **Do not** convert structural PASS into Plan exit.
 - [Media Kernel Plan Ready execution issue #22](https://github.com/samujjwal/ghatana-media/issues/22): produce real task-level source/result/negative test/rollback evidence. Have Kernel/Work Planner authenticate owner approval and both Plan exit criteria on the exact current package/source/role/dependency set. Only then issue true Build Implement work packets for eligible tasks.
 

@@ -2,187 +2,187 @@ TAP version 13
 # Subtest: PDP-1 state inventory preserves the PDP-0 proposal without accepting its semantics
 ok 1 - PDP-1 state inventory preserves the PDP-0 proposal without accepting its semantics
   ---
-  duration_ms: 43.573917
+  duration_ms: 48.430166
   type: 'test'
   ...
 # Subtest: PDP-1 transition extraction preserves every source edge and leaves guards and bindings unresolved
 ok 2 - PDP-1 transition extraction preserves every source edge and leaves guards and bindings unresolved
   ---
-  duration_ms: 1843.613708
+  duration_ms: 1185.121708
   type: 'test'
   ...
 # Subtest: PDP-1 adapter observations point to live methods and remain unresolved projections
 ok 3 - PDP-1 adapter observations point to live methods and remain unresolved projections
   ---
-  duration_ms: 7.892958
+  duration_ms: 10.448209
   type: 'test'
   ...
 # Subtest: PDP-1 records runtime stream-state and store-transition observations without promoting the proposal
 ok 4 - PDP-1 records runtime stream-state and store-transition observations without promoting the proposal
   ---
-  duration_ms: 22.688083
+  duration_ms: 24.548333
   type: 'test'
   ...
 # Subtest: owner race contract has stable IDs, exact machine refs and explicit non-runtime status
 ok 5 - owner race contract has stable IDs, exact machine refs and explicit non-runtime status
   ---
-  duration_ms: 2.866167
+  duration_ms: 2.694084
   type: 'test'
   ...
 # Subtest: race applicability covers every exact state machine, edge, guard and race axis
 ok 6 - race applicability covers every exact state machine, edge, guard and race axis
   ---
-  duration_ms: 127.912416
+  duration_ms: 114.15725
   type: 'test'
   ...
 # Subtest: fence, process death, unknown result and cancel race fail closed
 ok 7 - fence, process death, unknown result and cancel race fail closed
   ---
-  duration_ms: 0.53275
+  duration_ms: 0.377042
   type: 'test'
   ...
 # Subtest: process death reconciles only a current verified receipt bound to the durable dispatch tuple
 ok 8 - process death reconciles only a current verified receipt bound to the durable dispatch tuple
   ---
-  duration_ms: 0.285958
+  duration_ms: 0.207083
   type: 'test'
   ...
 # Subtest: retry requires current typed outcome and policy evidence, remaining budget, a new attempt and a greater fence
 ok 9 - retry requires current typed outcome and policy evidence, remaining budget, a new attempt and a greater fence
   ---
-  duration_ms: 0.754375
+  duration_ms: 0.407958
   type: 'test'
   ...
 # Subtest: authoritative job outcome reconciliation requires current exact subject and authority
 ok 10 - authoritative job outcome reconciliation requires current exact subject and authority
   ---
-  duration_ms: 0.298792
+  duration_ms: 0.120125
   type: 'test'
   ...
 # Subtest: delivery acknowledgment requires a current verified destination receipt bound to the exact output and request
 ok 11 - delivery acknowledgment requires a current verified destination receipt bound to the exact output and request
   ---
-  duration_ms: 0.436667
+  duration_ms: 0.176083
   type: 'test'
   ...
 # Subtest: race applicability accounts for all 11 machines, 87 states and 55 source/owner edges
 ok 12 - race applicability accounts for all 11 machines, 87 states and 55 source/owner edges
   ---
-  duration_ms: 2.184042
+  duration_ms: 2.213458
   type: 'test'
   ...
 # Subtest: all 55 transitions allow each declared legal edge and reject every forbidden source pair
 ok 13 - all 55 transitions allow each declared legal edge and reject every forbidden source pair
   ---
-  duration_ms: 1474.1775
+  duration_ms: 1921.3245
   type: 'test'
   ...
 # Subtest: all 55 transition identities bind typed, source-current, explicit edge contracts
 ok 14 - all 55 transition identities bind typed, source-current, explicit edge contracts
   ---
-  duration_ms: 57.311666
+  duration_ms: 95.19925
   type: 'test'
   ...
 # Subtest: state adjudication covers every current machine and preserves machine dimensions
 ok 15 - state adjudication covers every current machine and preserves machine dimensions
   ---
-  duration_ms: 3.348542
+  duration_ms: 3.640334
   type: 'test'
   ...
 # Subtest: every guard fact is typed or explicitly definition-model-only
 ok 16 - every guard fact is typed or explicitly definition-model-only
   ---
-  duration_ms: 0.529
+  duration_ms: 0.656417
   type: 'test'
   ...
 # Subtest: retry eligibility is definition-only source-backed meaning used only to enter RUNNING
 ok 17 - retry eligibility is definition-only source-backed meaning used only to enter RUNNING
   ---
-  duration_ms: 0.299875
+  duration_ms: 0.367625
   type: 'test'
   ...
 # Subtest: only T03 RETRY_PENDING to RUNNING consumes retry eligibility; exact outcomes govern the other edges
 ok 18 - only T03 RETRY_PENDING to RUNNING consumes retry eligibility; exact outcomes govern the other edges
   ---
-  duration_ms: 0.582583
+  duration_ms: 0.814209
   type: 'test'
   ...
 # Subtest: 166 facts partition into the 164 exact edge-evaluation contracts and two explicit hold dispositions
 ok 19 - 166 facts partition into the 164 exact edge-evaluation contracts and two explicit hold dispositions
   ---
-  duration_ms: 0.661625
+  duration_ms: 2.231791
   type: 'test'
   ...
 # Subtest: each source fact contract preserves exact consumer scope, freshness, version, and fail-closed boundaries
 ok 20 - each source fact contract preserves exact consumer scope, freshness, version, and fail-closed boundaries
   ---
-  duration_ms: 4.512125
+  duration_ms: 6.153416
   type: 'test'
   ...
 # Subtest: all 43 exclusivity groups bind valid same-transition facts and reject every contradictory pair
 ok 21 - all 43 exclusivity groups bind valid same-transition facts and reject every contradictory pair
   ---
-  duration_ms: 2.908125
+  duration_ms: 3.226875
   type: 'test'
   ...
 # Subtest: unbound legacy hold aggregate and UNKNOWN hold fact cannot satisfy a deletion guard
 ok 22 - unbound legacy hold aggregate and UNKNOWN hold fact cannot satisfy a deletion guard
   ---
-  duration_ms: 0.222459
+  duration_ms: 0.242
   type: 'test'
   ...
 # Subtest: erasure edge outcomes preserve overlapping copy evidence and fail closed on holds
 ok 23 - erasure edge outcomes preserve overlapping copy evidence and fail closed on holds
   ---
-  duration_ms: 0.827167
+  duration_ms: 0.910667
   type: 'test'
   ...
 # Subtest: bare guard booleans cannot satisfy authority or source-evidence predicates
 ok 24 - bare guard booleans cannot satisfy authority or source-evidence predicates
   ---
-  duration_ms: 0.166125
+  duration_ms: 0.191667
   type: 'test'
   ...
 # Subtest: each edge fails when its material positive predicate is missing or false
 ok 25 - each edge fails when its material positive predicate is missing or false
   ---
-  duration_ms: 114.494583
+  duration_ms: 138.596792
   type: 'test'
   ...
 # Subtest: tenant, compare-and-swap, finality, and consent revocation use concrete fail-closed oracles
 ok 26 - tenant, compare-and-swap, finality, and consent revocation use concrete fail-closed oracles
   ---
-  duration_ms: 0.371541
+  duration_ms: 0.335
   type: 'test'
   ...
 # Subtest: dispatch, cancellation race, and unknown outcomes require their distinct evidence
 ok 27 - dispatch, cancellation race, and unknown outcomes require their distinct evidence
   ---
-  duration_ms: 0.395791
+  duration_ms: 0.379917
   type: 'test'
   ...
 # Subtest: competing multi-target outcomes require distinct evidence and contradictory classifications fail
 ok 28 - competing multi-target outcomes require distinct evidence and contradictory classifications fail
   ---
-  duration_ms: 0.192667
+  duration_ms: 0.180625
   type: 'test'
   ...
 # Subtest: unknown predicates, source drift, and malformed ASTs fail closed without runtime effects
 ok 29 - unknown predicates, source drift, and malformed ASTs fail closed without runtime effects
   ---
-  duration_ms: 56.644958
+  duration_ms: 115.943666
   type: 'test'
   ...
 # Subtest: three-valued NOT and Boolean nodes never turn unknown or malformed predicates into permission
 ok 30 - three-valued NOT and Boolean nodes never turn unknown or malformed predicates into permission
   ---
-  duration_ms: 14.483042
+  duration_ms: 16.947958
   type: 'test'
   ...
 # Subtest: consent guards ignore caller booleans and reject foreign or stale typed per-effect revisions
 ok 31 - consent guards ignore caller booleans and reject foreign or stale typed per-effect revisions
   ---
-  duration_ms: 82.120584
+  duration_ms: 62.112209
   type: 'test'
   ...
 1..31
@@ -193,4 +193,4 @@ ok 31 - consent guards ignore caller booleans and reject foreign or stale typed 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 16816.325
+# duration_ms 15461.706083

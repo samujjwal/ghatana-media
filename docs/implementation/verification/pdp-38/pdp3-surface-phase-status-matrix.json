@@ -4,21 +4,21 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-3",
-    "sourceBaselineCommit": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+    "sourceBaselineCommit": "f8816aede965d55c27005d5bab13bcb6ae376389",
     "status": "DEV_COMPLETE"
   },
-  "generatedAt": "2026-10-23T00:34:23.967Z",
+  "generatedAt": "2026-10-23T10:51:38.857Z",
   "statusRecordRef": "docs/implementation/pdp-3-phase-dev-status.json",
-  "statusRecordSha256": "547e217a37bfa3f8c485f984b3d4aaccb4d76f3a273115ce2e2f8700af140340",
+  "statusRecordSha256": "dad373ce9545eaae2d200027761044507a91a873c5cb612407a7aea4e30fb30e",
   "predecessorStatusRefs": [
     "docs/implementation/pdp-0-phase-dev-status.json",
     "docs/implementation/pdp-1-phase-dev-status.json",
     "docs/implementation/pdp-2-phase-dev-status.json"
   ],
   "predecessorStatusSha256": {
-    "docs/implementation/pdp-0-phase-dev-status.json": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
-    "docs/implementation/pdp-1-phase-dev-status.json": "72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d",
-    "docs/implementation/pdp-2-phase-dev-status.json": "f202a5d0cf5cef788e9d17151bf6cfa4064177aaa650f8a07ad86bdbf7a1c45a"
+    "docs/implementation/pdp-0-phase-dev-status.json": "8b3f208a1a07a88bd66b569f9b7764cc0f0d8419ba9710c3e61494040957119f",
+    "docs/implementation/pdp-1-phase-dev-status.json": "f41b12357cf172ee623dbaba4daca1186fc23e3e1be333c1f3361f106902bc3c",
+    "docs/implementation/pdp-2-phase-dev-status.json": "cb5a9af6956b7b5ccd77502f3d4ce621e1c3d47beceb33e5642f59d525645e81"
   },
   "predecessorMatrixRefs": [
     "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
@@ -26,11 +26,11 @@
     "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json"
   ],
   "predecessorMatrixSha256": {
-    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
-    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
-    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "3a8ccb27cbb1747f9948234d915d377610efedfe63b334c3cf5b9ae03f327175",
+    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "c8094e817482892962a5a8e4a70ccb23d0aef4175d71c650c17dcfa4dbd8bbac",
+    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "a14600787685d3cf7f5e5277bcf4caf68b01236363531825e177463795f91618"
   },
-  "sourceFingerprintSetSha256": "7ed021044d0f1c7e8c9ede7f174047abd84d58770e65935797c1eb6acbc96c74",
+  "sourceFingerprintSetSha256": "880590644d8e09e9ef5fb0666eeb32335a8ebbbae2df6ac08d121d67ecaf80d0",
   "sourceFingerprintSetAlgorithm": "SHA-256 of compact JSON.stringify over sorted [repository-relative path, file SHA-256] tuples",
   "sourceFingerprints": {
     ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
@@ -472,13 +472,13 @@
     "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/recording-manifest.json": "a602bfe08c86ca89fb454100c9e20b417679d8af2ede49baa8a8b38610a43774",
     "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json": "f4a4f657977329a0b9076e0f928ef09d30f0a5b3bb28e0763bb07543666f15ab",
     "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "6b01fea74bc26c25fea97e5108073025cbc1284a4753a98e74b9994c70342a95",
-    "docs/implementation/pdp-0-phase-dev-status.json": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
-    "docs/implementation/pdp-1-phase-dev-status.json": "72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d",
-    "docs/implementation/pdp-2-phase-dev-status.json": "f202a5d0cf5cef788e9d17151bf6cfa4064177aaa650f8a07ad86bdbf7a1c45a",
-    "docs/implementation/pdp-3-phase-dev-status.json": "547e217a37bfa3f8c485f984b3d4aaccb4d76f3a273115ce2e2f8700af140340",
-    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
-    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
-    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+    "docs/implementation/pdp-0-phase-dev-status.json": "8b3f208a1a07a88bd66b569f9b7764cc0f0d8419ba9710c3e61494040957119f",
+    "docs/implementation/pdp-1-phase-dev-status.json": "f41b12357cf172ee623dbaba4daca1186fc23e3e1be333c1f3361f106902bc3c",
+    "docs/implementation/pdp-2-phase-dev-status.json": "cb5a9af6956b7b5ccd77502f3d4ce621e1c3d47beceb33e5642f59d525645e81",
+    "docs/implementation/pdp-3-phase-dev-status.json": "dad373ce9545eaae2d200027761044507a91a873c5cb612407a7aea4e30fb30e",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "3a8ccb27cbb1747f9948234d915d377610efedfe63b334c3cf5b9ae03f327175",
+    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "c8094e817482892962a5a8e4a70ccb23d0aef4175d71c650c17dcfa4dbd8bbac",
+    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "a14600787685d3cf7f5e5277bcf4caf68b01236363531825e177463795f91618",
     "libs/audio-video-client/src/operations.ts": "2acebaf784aca759c58815ba71b670abf10e5cc87dd139b8203bf8369eb946e5",
     "libs/audio-video-types/node_modules/.bin/jiti": "837ba45d5ef7c6a15ed58bc60bc6c6c1b7e810ab4e6ef572c49eccf50e97f4b4",
     "libs/audio-video-types/node_modules/.bin/tsc": "9606958470ba0f2b460a80824dd76ce58064215ff22334944ecf92814779a577",
@@ -502,7 +502,7 @@
     "libs/audio-video-ui/node_modules/.bin/vite": "e0f906af3ebf632943a75b0a6bbd716d9af8554b0eac5a03583a7921d55246ca",
     "libs/audio-video-ui/node_modules/.bin/vitest": "c20a8b506089150d7fdb39f84373e8e81211e3492c947b4a017c8567551865fe",
     "libs/audio-video-ui/node_modules/.bin/yaml": "1db49f5e17ff48a745d046a16868d28e8b12a907f8b558ec3fa2c0d3c6913ca6",
-    "libs/audio-video-ui/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json": "6976403fdf2c0db469af8e1291104b1108e1e80302143149a917de7de10273de",
+    "libs/audio-video-ui/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json": "4594c64b44876fdeb184a247957e37f87d3da084a32ea2fb7a03072628571c75",
     "libs/audio-video-ui/package.json": "92cdda1b01d1be3f1d31151513eb705afddb54f347065d5da7eec0f5853bd12b",
     "libs/audio-video-ui/src/components/MediaComponentFamilies.tsx": "12deb81df4b49ba3b4b3b3b2cf67a9f14f72cf811ba40e9a3238c9d7c505bb25",
     "libs/audio-video-ui/src/components/MediaComponentInputSchemas.ts": "615f7868347083e29f2baa9539845a9d6ab29d11293b81097d5fc13d832d98c0",

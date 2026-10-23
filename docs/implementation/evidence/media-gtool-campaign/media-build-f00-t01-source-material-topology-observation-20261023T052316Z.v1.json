@@ -1,0 +1,414 @@
+{
+  "schemaVersion": "media.build-f00-t01-source-material-topology-observation.v1",
+  "recordKind": "SOURCE_ONLY_F00_T01_RECONCILIATION_NOT_BUILD_ADMISSION_OR_PDP_CLOSURE",
+  "recordedAt": "2026-10-23T05:23:16Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "f8816aede965d55c27005d5bab13bcb6ae376389",
+    "macroStage": "BUILD",
+    "exactSubstage": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "selectedTaskId": "M-BLD-F00.T01",
+    "campaignDenominator": {
+      "surfaceIdentities": 54,
+      "physicalLeaves": 26,
+      "compositionsIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "phaseSurfaceCells": 216
+    }
+  },
+  "reconciliation": {
+    "status": "SOURCE_INPUTS_RECONCILED_WITH_CURRENT_G0_SOURCE_READBACK",
+    "claims": [
+      "The exact topology identity set reconciles across physical manifest candidates, compositions including the root, logical consumers, the surface registry, generated work-package projection, all four Media phase matrices, and the supplied G0 status rows.",
+      "All 859 material source selectors in the generated work-package receipt are CURRENT and reconcile to their emitted expected/current digests; no stale or unsupported material selector is present.",
+      "All four phase matrices contain 54 unique source-current rows with known-zero phase-local task inventories; the supplied G0 readback reports COMPLETE and CURRENT for each of 216 subject/phase rows.",
+      "The supplied G0 status is a source-development readback only. This observation does not assert method-level aggregate completion beyond the fields present in that input."
+    ],
+    "topology": {
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+      "physicalManifestCandidates": 26,
+      "semanticCompositionsIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "identityCount": 54,
+      "uniqueIdentityCount": 54,
+      "surfaceRegistryPath": ".product-experience/surface-registry.yaml",
+      "surfaceRegistrySha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+    },
+    "phaseMatrices": [
+      {
+        "phase": "PDP-0",
+        "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "sha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
+        "rows": 54,
+        "uniqueSurfaceIds": 54,
+        "status": "DEV_COMPLETE",
+        "sourceCurrentness": "CURRENT",
+        "taskInventoryKnown": true,
+        "remainingPhaseLocalTaskCount": 0,
+        "developmentStatusCounts": {
+          "NOT_APPLICABLE": 8,
+          "DEV_COMPLETE": 45,
+          "NOT_ACTIVE_ARCHIVED": 1
+        }
+      },
+      {
+        "phase": "PDP-1",
+        "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "sha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
+        "rows": 54,
+        "uniqueSurfaceIds": 54,
+        "status": "DEV_COMPLETE",
+        "sourceCurrentness": "CURRENT",
+        "taskInventoryKnown": true,
+        "remainingPhaseLocalTaskCount": 0,
+        "developmentStatusCounts": {
+          "DEV_COMPLETE": 53,
+          "NOT_ACTIVE_ARCHIVED": 1
+        }
+      },
+      {
+        "phase": "PDP-2",
+        "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+        "sha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+        "rows": 54,
+        "uniqueSurfaceIds": 54,
+        "status": "DEV_COMPLETE",
+        "sourceCurrentness": "CURRENT",
+        "taskInventoryKnown": true,
+        "remainingPhaseLocalTaskCount": 0,
+        "developmentStatusCounts": {
+          "NOT_APPLICABLE": 13,
+          "DEV_COMPLETE": 40,
+          "NOT_ACTIVE_ARCHIVED": 1
+        }
+      },
+      {
+        "phase": "PDP-3",
+        "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+        "sha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db",
+        "rows": 54,
+        "uniqueSurfaceIds": 54,
+        "status": "DEV_COMPLETE",
+        "sourceCurrentness": "CURRENT",
+        "taskInventoryKnown": true,
+        "remainingPhaseLocalTaskCount": 0,
+        "developmentStatusCounts": {
+          "DEV_COMPLETE": 53,
+          "NOT_ACTIVE_ARCHIVED": 1
+        }
+      }
+    ],
+    "gtoolRowIdentityComparison": {
+      "localMediaPhaseCells": 216,
+      "g0StatusPhaseCells": 216,
+      "uniqueLocalMediaPhaseCells": 216,
+      "uniqueG0StatusPhaseCells": 216,
+      "identitySetsEqual": true
+    },
+    "materialSourcePins": {
+      "status": "CURRENT",
+      "count": 859,
+      "staleOrUnsupportedCount": 0,
+      "canonicalSha256": "828876b6be898f8fad92a3c0f6e2672f445b19e4e09dbc542288b00d13727aee",
+      "canonicalization": "SHA-256 of JSON.stringify over records reduced to phase, selector, expectedSha256, currentSha256, status and sorted by phase then selector.",
+      "phaseCounts": {
+        "PDP-0": 175,
+        "PDP-1": 137,
+        "PDP-2": 180,
+        "PDP-3": 367
+      },
+      "fullPinRecordsRef": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json#/materialSourceReceipt/records",
+      "fullPinProjectionSha256": "00dc8ef2476ae5a09dcfd3a15a18623310c82a0709346e3f7de12da79411f8fe",
+      "fullPinProjectionCanonicalization": "SHA-256 of JSON.stringify over the full materialSourceReceipt.records array in emitted order."
+    }
+  },
+  "sourceBaseline": {
+    "g0Status": {
+      "path": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_PHASE_STATUS_IO_20261023_G0_REFRESH2.json",
+      "sha256": "e54e441761773277f29f44af9ffc8c16d6abe09fa28930a1d8593f4f832bcb75",
+      "schemaVersion": "ghatana.lifecycle.media-structured-method-status.v1",
+      "recordKind": "GTOOL_METHOD_SOURCE_DEVELOPMENT_PROJECTION_NOT_CLOSURE",
+      "status": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+      "selectedMethodId": "ghatana.media-product-development",
+      "sourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
+      "sourceSubjectCount": 54,
+      "sourcePhaseCellCount": 216,
+      "nonemptyDefinitionTasks": 0,
+      "writesPerformed": false
+    },
+    "mediaSourceManifest": {
+      "path": ".product-experience/source-manifest.yaml",
+      "sha256": "c076129f4d1e39109fe7e3c66ce5e8e16ef06e4011039fcdfec48d2d2c112ace"
+    },
+    "generatedWorkPackages": {
+      "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+      "sha256": "e5990c3991aaa8852e0f6918573bb584a6b3edb406076e57638ddcd95f138aef"
+    },
+    "mediaSourcePins": [
+      {
+        "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+      },
+      {
+        "path": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+      },
+      {
+        "path": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        "sha256": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629"
+      },
+      {
+        "path": ".product-experience/pdp-1-domain-data/handoff-contracts.yaml",
+        "sha256": "b2901f3efc54920b1d280897fc2d95eb10029d092944d7bbf046b6dbd8f97c48"
+      },
+      {
+        "path": ".product-experience/pdp-1-domain-data/operations.yaml",
+        "sha256": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
+      },
+      {
+        "path": ".product-experience/pdp-1-domain-data/states.yaml",
+        "sha256": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc"
+      },
+      {
+        "path": ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml",
+        "sha256": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53"
+      },
+      {
+        "path": ".product-experience/pdp-1-domain-data/transitions.yaml",
+        "sha256": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        "sha256": "6bcd90f59bee7df018bcbff57776fa53290e22eac1cf18519c4759551d71bb63"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+        "sha256": "aed62bda69a5d44bccee0873eb03bada142994d2256f515fbe1ea89af50d0313"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+        "sha256": "b1d163ca9cddf8fdd0d614952108e52cbd2a81292c87328c0e0b35afb665669b"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
+        "sha256": "1888914e0a5ce266a9ab866e0ee631bcb8864ced214e207beaaea8675b7ee31c"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
+        "sha256": "47ac97bf4c32f5c9a49fbdec26e9d883c5025a08eb8ddcd4915033cd813b3f67"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
+        "sha256": "d85ce0ebd2efd44354c20cc09347c04f4b269845f953d47cb35f96c2c0340a12"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+        "sha256": "87ba4671053ba119c63a8d0d0525d68e71923e666bcfdd13d20fa2cbdef72608"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+        "sha256": "8f544bdd47a2b2c3bd3ca6c909a1adcb3e604c516e26c94419178c362a4013a9"
+      },
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        "sha256": "2e616841001f657327b71331435cb61c96dcba8d2fe2d8e8880aed724d4d4e2a"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        "sha256": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/handoff-bindings.yaml",
+        "sha256": "1ab6530c7c375ff542e3fffd0328e14a63bfbe3b94d85abb1f5dc9ea7eebcdef"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        "sha256": "d1af57db0bf4bcec054af251ffe40f5f2f1877f71a95dbd06ab5de8962279147"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
+        "sha256": "4b267a851612e6812d09496a0f447e1534b5b819ddf5414ca9cb0cb336d4160a"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
+        "sha256": "9d5c352d3be572c8a5866eb70ed0c8a9912540c591f05203287deb0c9ff6c334"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+        "sha256": "3d32bebd2328c105133280a66e5cdbab1098e1ea36d1b0b3a9b0990e973bb196"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+        "sha256": "fd0fff233a833a2541cb51264339f9b7f23af0493da36df1acdddababef60e55"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        "sha256": "439016ffe0962889992fb0f2c4b9d0be9082d2d52b6c0e251a0bea2d76b2544a"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        "sha256": "45fad668f42010258596be4729938b75c6f344d785080f5bb3aff5cbbfe39cb4"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        "sha256": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438"
+      },
+      {
+        "path": ".product-experience/source-manifest.yaml",
+        "sha256": "c076129f4d1e39109fe7e3c66ce5e8e16ef06e4011039fcdfec48d2d2c112ace"
+      },
+      {
+        "path": ".product-experience/surface-registry.yaml",
+        "sha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+      },
+      {
+        "path": ".product-experience/surfaces/media-physical-topology.v1.json",
+        "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
+        "sha256": "92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+        "sha256": "9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a"
+      },
+      {
+        "path": "docs/implementation/pdp-0-phase-dev-status.json",
+        "sha256": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b"
+      },
+      {
+        "path": "docs/implementation/pdp-1-phase-dev-status.json",
+        "sha256": "72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d"
+      },
+      {
+        "path": "docs/implementation/pdp-2-phase-dev-status.json",
+        "sha256": "f202a5d0cf5cef788e9d17151bf6cfa4064177aaa650f8a07ad86bdbf7a1c45a"
+      },
+      {
+        "path": "docs/implementation/pdp-3-phase-dev-status.json",
+        "sha256": "547e217a37bfa3f8c485f984b3d4aaccb4d76f3a273115ce2e2f8700af140340"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "sha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "sha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+        "sha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+        "sha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+      }
+    ],
+    "mediaStatusRecords": [
+      {
+        "phase": "PDP-0",
+        "path": "docs/implementation/pdp-0-phase-dev-status.json",
+        "sha256": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
+        "status": "DEV_COMPLETE",
+        "materialPinCount": 175
+      },
+      {
+        "phase": "PDP-1",
+        "path": "docs/implementation/pdp-1-phase-dev-status.json",
+        "sha256": "72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d",
+        "status": "DEV_COMPLETE",
+        "materialPinCount": 137
+      },
+      {
+        "phase": "PDP-2",
+        "path": "docs/implementation/pdp-2-phase-dev-status.json",
+        "sha256": "f202a5d0cf5cef788e9d17151bf6cfa4064177aaa650f8a07ad86bdbf7a1c45a",
+        "status": "DEV_COMPLETE",
+        "materialPinCount": 180
+      },
+      {
+        "phase": "PDP-3",
+        "path": "docs/implementation/pdp-3-phase-dev-status.json",
+        "sha256": "547e217a37bfa3f8c485f984b3d4aaccb4d76f3a273115ce2e2f8700af140340",
+        "status": "DEV_COMPLETE",
+        "materialPinCount": 367
+      }
+    ]
+  },
+  "canonicalTaskCriterion": {
+    "planPath": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+    "workPackageGeneratorPath": "scripts/generate-media-build-work-packages.mjs#M-BLD-F00.T01",
+    "taskId": "M-BLD-F00.T01",
+    "title": "Source material pin and topology census",
+    "outcome": "Compare all four PDP status sourceShaSet records to current bytes/projections, verify all four 54-row matrices, and census 26 physical, 7 composite/root, and 21 logical consumers.",
+    "taskDescription": "Read-only current-source pin and 26+7+21 topology/applicability census, four PDP DEV_COMPLETE statuses; compare material SHA set.",
+    "acceptanceCriterionFromPlan": "Exact category set/size match, no stale applicable definition; currentness receipt.",
+    "taskStatus": "PLANNING_RECEIPT_ONLY",
+    "taskActionableBlocker": "Planning task evidence does not admit runtime implementation; any missing source relation stays explicitly unresolved."
+  },
+  "taskAndGateBoundaries": {
+    "gtoolMethodAggregate": {
+      "status": "NOT_ASSERTED_BY_SUPPLIED_G0_STATUS_INPUT",
+      "meaning": "The supplied structured phase status does not provide a separate method aggregate owner-binding result; this observation does not infer one."
+    },
+    "gtoolPhaseRows": {
+      "count": 216,
+      "completion": "COMPLETE",
+      "currentness": "CURRENT",
+      "phaseLocalDefinitionTasks": 0
+    },
+    "buildTasks": [
+      {
+        "id": "M-BLD-F00.T01",
+        "status": "PLANNING_RECEIPT_ONLY",
+        "boundary": "Planning task evidence does not admit runtime implementation; any missing source relation stays explicitly unresolved."
+      },
+      {
+        "id": "M-BLD-F00.T02",
+        "status": "ASSIGNED_UNVERIFIED",
+        "boundary": "Planning task evidence does not admit runtime implementation; any missing source relation stays explicitly unresolved."
+      },
+      {
+        "id": "M-BLD-F00.T03",
+        "status": "ASSIGNED_UNVERIFIED",
+        "boundary": "Planning task evidence does not admit runtime implementation; any missing source relation stays explicitly unresolved."
+      }
+    ],
+    "sourceStatusAxes": {
+      "sourceDefinition": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+      "buildImplementationStatus": "NOT_EVALUATED",
+      "independentAcceptanceStatus": "NOT_EVALUATED",
+      "nativeClosureStatus": "NOT_EVALUATED",
+      "deliveryStatus": "NOT_EVALUATED",
+      "sourceProgressionAuthority": "READ_ONLY_OBSERVATION_NOT_STAGE_TRANSITION_OR_CLOSURE",
+      "writesPerformed": false
+    }
+  },
+  "verification": {
+    "command": "node scripts/generate-media-build-f00-t01-observation.mjs --g0-status /Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_PHASE_STATUS_IO_20261023_G0_REFRESH2.json",
+    "exitCode": 0,
+    "result": "PASS current G0 source rows, Media phase matrices, 859 material pins, topology set, generated projection source pins, and 54/216 denominators",
+    "scope": "Read-only F00.T01 source material and topology receipt generation; no source, status, task, owner, or authority writes.",
+    "testsRun": false
+  },
+  "claimsBoundary": {
+    "sourceObservationOnly": true,
+    "authoringComplete": false,
+    "plannerAdmission": "NOT_ESTABLISHED",
+    "taskCompletion": "NOT_ESTABLISHED",
+    "nativePdpClosure": "NOT_EVALUATED",
+    "independentAcceptance": "NOT_EVALUATED",
+    "buildImplementation": "NOT_EVALUATED",
+    "releaseQualification": "NOT_EVALUATED",
+    "delivery": "NOT_EVALUATED",
+    "limitations": [
+      "This generated artifact is a read-only source receipt and does not establish Work Planner admission or F00.T01 task completion.",
+      "The supplied G0 source-development readback does not establish independent acceptance, native PDP closure, Build implementation, release qualification, or Delivery.",
+      "No source status, G0 status, work-package projection, task queue, authority, or other input file was changed by this generator."
+    ]
+  }
+}

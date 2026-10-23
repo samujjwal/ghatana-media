@@ -10,7 +10,7 @@ There are four causes: unfinished semantic coverage; missing independent and pub
 
 The current source checks are healthy. Public schemas, strict projection freshness, authority and the 348-obligation membership/fingerprint audit pass. The most recent full Node suite passed 495/495. That evidence does not establish semantic completeness, independent acceptance or native Lifecycle phase closure. The fresh report still identifies substantial content gaps and two parity findings plus two design gates.
 
-This audit changes no product scope, task status, approval or implementation. [The canonical ledger](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json) retains all original criteria. The machine-readable report preserves each raw Done field and the complete 71-task audit; the Markdown task appendix below separates the task-specific clause from its dependencies.
+This audit changes no product scope, task status, approval or implementation. [The canonical ledger](../../.product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json) retains all original criteria. The machine-readable report preserves each raw Done field and the complete 71-task audit; the Markdown task appendix below separates the task-specific clause from its dependencies.
 
 ## What the headline actually counts
 
@@ -38,11 +38,11 @@ The five saved batch reports all record zero newly completed original tasks. The
 
 | Recorded batch | Authored journey step IDs | Obligations without authored case IDs | Obligations with candidate source links | Applicable obligations | Passing Node tests | Original tasks newly complete |
 | --- | --- | --- | --- | --- | ---: | ---: |
-| [project](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-project-batch-2026-10-08.json) | 13 → 17 | 282 → 254 | 7 → 38 | 344 → 347 | 427 | 0 |
-| [caption](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-caption-batch-2026-10-08.json) | 17 → 19 | 254 → 252 | 38 → 40 | 347 → 347 | 442 | 0 |
-| [transcript](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-transcript-batch-2026-10-08.json) | 19 → 20 | 252 → 251 | 40 → 42 | 347 → 348 | 457 | 0 |
-| [draft](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-draft-batch-2026-10-08.json) | 20 → 22 | 251 → 250 | 42 → 43 | 348 → 348 | 478 | 0 |
-| [submission](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json) | 22 → 23 | 250 → 249 | 43 → 44 | 348 → 348 | 495 | 0 |
+| [project](media-product-definition-project-batch-2026-10-08.json) | 13 → 17 | 282 → 254 | 7 → 38 | 344 → 347 | 427 | 0 |
+| [caption](media-product-definition-caption-batch-2026-10-08.json) | 17 → 19 | 254 → 252 | 38 → 40 | 347 → 347 | 442 | 0 |
+| [transcript](media-product-definition-transcript-batch-2026-10-08.json) | 19 → 20 | 252 → 251 | 40 → 42 | 347 → 348 | 457 | 0 |
+| [draft](media-product-definition-draft-batch-2026-10-08.json) | 20 → 22 | 251 → 250 | 42 → 43 | 348 → 348 | 478 | 0 |
+| [submission](media-product-definition-submission-batch-2026-10-08.json) | 22 → 23 | 250 → 249 | 43 → 44 | 348 → 348 | 495 | 0 |
 
 Across those batches, authored step IDs increased 13 → 23 and obligations with authored cases increased 62 → 99, while the applicable obligation population increased 344 → 348. The four added obligations were recorded with source justifications; none is silently excluded here.
 
@@ -158,7 +158,7 @@ Owner: Owning source maintainer; no new assignment made by this report.
 
 Closure evidence: Preserve passing source-current checks; broader phase acceptance is separate.
 
-Sources: [.product-experience/source-manifest.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/source-manifest.yaml), [.product-experience/artifact-identities.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/artifact-identities.yaml), [tests/product-definition-authority.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/product-definition-authority.test.mjs).
+Sources: [.product-experience/source-manifest.yaml](../../.product-experience/source-manifest.yaml), [.product-experience/artifact-identities.yaml](../../.product-experience/artifact-identities.yaml), [tests/product-definition-authority.test.mjs](../../tests/product-definition-authority.test.mjs).
 
 #### G-02 Regenerate all sources and fail on drift
 
@@ -174,7 +174,7 @@ Owner: Owning source maintainer; no new assignment made by this report.
 
 Closure evidence: Preserve passing source-current checks; broader phase acceptance is separate.
 
-Sources: [scripts/generate-media-product-manifest.mjs](/home/samujjwal/Developments/ghatana-media/scripts/generate-media-product-manifest.mjs), [scripts/generate-media-phase-projections.mjs](/home/samujjwal/Developments/ghatana-media/scripts/generate-media-phase-projections.mjs), [tests/product-definition-authority.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/product-definition-authority.test.mjs), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: [scripts/generate-media-product-manifest.mjs](../../scripts/generate-media-product-manifest.mjs), [scripts/generate-media-phase-projections.mjs](../../scripts/generate-media-phase-projections.mjs), [tests/product-definition-authority.test.mjs](../../tests/product-definition-authority.test.mjs), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json](media-product-definition-submission-batch-2026-10-08.json).
 
 #### G-03 Make schema mappings direct and error-detecting
 
@@ -192,7 +192,7 @@ Owner: Media PDP-1/PDP-3 source owners
 
 Closure evidence: Resolve each field from canonical source definitions, rerun generator and public validators; no placeholder may be treated as an accepted semantic mapping.
 
-Sources: [scripts/generate-media-phase-projections.mjs](/home/samujjwal/Developments/ghatana-media/scripts/generate-media-phase-projections.mjs), [scripts/lib/media-product-definition-residuals.mjs](/home/samujjwal/Developments/ghatana-media/scripts/lib/media-product-definition-residuals.mjs), [tests/pdp-0-final.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/pdp-0-final.test.mjs), [tests/media-product-definition-residuals.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-product-definition-residuals.test.mjs).
+Sources: [scripts/generate-media-phase-projections.mjs](../../scripts/generate-media-phase-projections.mjs), [scripts/lib/media-product-definition-residuals.mjs](../../scripts/lib/media-product-definition-residuals.mjs), [tests/pdp-0-final.test.mjs](../../tests/pdp-0-final.test.mjs), [tests/media-product-definition-residuals.test.mjs](../../tests/media-product-definition-residuals.test.mjs).
 
 #### G-04 Create one deterministic Media residual-work report (not a closure engine)
 
@@ -208,7 +208,7 @@ Owner: Owning source maintainer; no new assignment made by this report.
 
 Closure evidence: Preserve passing source-current checks; broader phase acceptance is separate.
 
-Sources: [scripts/report-media-definition-residuals.mjs](/home/samujjwal/Developments/ghatana-media/scripts/report-media-definition-residuals.mjs), [scripts/lib/media-product-definition-residuals.mjs](/home/samujjwal/Developments/ghatana-media/scripts/lib/media-product-definition-residuals.mjs), [tests/media-product-definition-residuals.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-product-definition-residuals.test.mjs).
+Sources: [scripts/report-media-definition-residuals.mjs](../../scripts/report-media-definition-residuals.mjs), [scripts/lib/media-product-definition-residuals.mjs](../../scripts/lib/media-product-definition-residuals.mjs), [tests/media-product-definition-residuals.test.mjs](../../tests/media-product-definition-residuals.test.mjs).
 
 #### G-05 Normalize acceptance/decision status without fabricating signoff
 
@@ -226,7 +226,7 @@ Owner: Media decision/phase-document owners
 
 Closure evidence: Compare every active PXD status/scope against acceptance, traceability, gaps, closure dashboard, and PDP overviews; update only authoritative mirrors and add stale/conflicting mirror negatives.
 
-Sources: [.product-experience/decision-log.md](/home/samujjwal/Developments/ghatana-media/.product-experience/decision-log.md), [.product-experience/acceptance.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/acceptance.yaml), [.product-experience/gaps.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/gaps.yaml), [.product-experience/closure-dashboard.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/closure-dashboard.yaml), [tests/media-owner-decision-dispositions.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-owner-decision-dispositions.test.mjs).
+Sources: [.product-experience/decision-log.md](../../.product-experience/decision-log.md), [.product-experience/acceptance.yaml](../../.product-experience/acceptance.yaml), [.product-experience/gaps.yaml](../../.product-experience/gaps.yaml), [.product-experience/closure-dashboard.yaml](../../.product-experience/closure-dashboard.yaml), [tests/media-owner-decision-dispositions.test.mjs](../../tests/media-owner-decision-dispositions.test.mjs).
 
 #### G-06 Make every phase self-contained and current
 
@@ -244,7 +244,7 @@ Owner: Media PDP overview owners
 
 Closure evidence: Bring each overview into sync with current source IDs and explicitly scoped unresolved predicates; verify an implementer can reconstruct its phase without relying on stale plan prose.
 
-Sources: [.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md), [.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md), [.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md), [.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md), [tests/pdp-overview-currentness.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/pdp-overview-currentness.test.mjs).
+Sources: [.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md](../../.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md), [.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md](../../.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md), [.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md](../../.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md), [.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md](../../.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md), [tests/pdp-overview-currentness.test.mjs](../../tests/pdp-overview-currentness.test.mjs).
 
 ### Product Truth
 
@@ -265,7 +265,7 @@ Owner: Media PDP-0 capability owner
 
 Closure evidence: For each unchanged leaf ID, bind exact journey step, operation, read model, platform contract, or justified exclusion; crosswalk actor/source/profile/channel and prove no denominator shrink with generated negative tests.
 
-Sources: [.product-experience/pdp-0-product-truth/capabilities.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/capabilities.yaml), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/capability-leaf-review.yaml), [tests/media-capability-review-source-impact.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-capability-review-source-impact.test.mjs).
+Sources: [.product-experience/pdp-0-product-truth/capabilities.yaml](../../.product-experience/pdp-0-product-truth/capabilities.yaml), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](../../.product-experience/pdp-0-product-truth/capability-leaf-review.yaml), [tests/media-capability-review-source-impact.test.mjs](../../tests/media-capability-review-source-impact.test.mjs).
 
 #### P0-02 Define operation-specific requirement bounds and availability
 
@@ -283,7 +283,7 @@ Owner: Media PDP-0 requirements/profile owners
 
 Closure evidence: Complete applicability first per P0-01, then define units, range/default, selected profile and DEFINED/IMPLEMENTED/QUALIFIED/AVAILABLE distinctions for each applicable leaf; include falsifiable bounds tests.
 
-Sources: [.product-experience/pdp-0-product-truth/requirements.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/requirements.yaml), [.product-experience/pdp-0-product-truth/profile-semantics.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/profile-semantics.yaml), [.product-experience/pdp-0-product-truth/qualification-policy.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/qualification-policy.yaml), [tests/media-operation-bounds.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-operation-bounds.test.mjs).
+Sources: [.product-experience/pdp-0-product-truth/requirements.yaml](../../.product-experience/pdp-0-product-truth/requirements.yaml), [.product-experience/pdp-0-product-truth/profile-semantics.yaml](../../.product-experience/pdp-0-product-truth/profile-semantics.yaml), [.product-experience/pdp-0-product-truth/qualification-policy.yaml](../../.product-experience/pdp-0-product-truth/qualification-policy.yaml), [tests/media-operation-bounds.test.mjs](../../tests/media-operation-bounds.test.mjs).
 
 #### P0-03 Decompose and own all migration semantic claims
 
@@ -301,7 +301,7 @@ Owner: Media migration semantic owner; independent migration reviewer for review
 
 Closure evidence: Resolve remaining full claim units against exact historical and current source, preserve MPSEM denominator/pins, assign one normative PDP owner or justified structural disposition, then obtain independent migration semantic review.
 
-Sources: [.product-experience/pdp-0-product-truth/migration-semantics-review.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/migration-semantics-review.yaml), [docs/migration/expert-reviewed-master-plan.md](/home/samujjwal/Developments/ghatana-media/docs/migration/expert-reviewed-master-plan.md), [tests/media-migration-semantics-ledger.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-migration-semantics-ledger.test.mjs), [scripts/lib/media-product-definition-residuals.mjs](/home/samujjwal/Developments/ghatana-media/scripts/lib/media-product-definition-residuals.mjs).
+Sources: [.product-experience/pdp-0-product-truth/migration-semantics-review.yaml](../../.product-experience/pdp-0-product-truth/migration-semantics-review.yaml), [docs/migration/expert-reviewed-master-plan.md](../migration/expert-reviewed-master-plan.md), [tests/media-migration-semantics-ledger.test.mjs](../../tests/media-migration-semantics-ledger.test.mjs), [scripts/lib/media-product-definition-residuals.mjs](../../scripts/lib/media-product-definition-residuals.mjs).
 
 #### P0-04 Resolve ProductDefinition actor, user intent, requirement and journey mappings
 
@@ -321,7 +321,7 @@ Owner: Owning source maintainer; no new assignment made by this report.
 
 Closure evidence: The ledger acceptance criterion is met by 19/19 intent actor/priority resolutions, 30/30 journey initiating-actor resolutions, 66/66 requirement intent traces, zero current PDP-0 field blockers, and role/priority/cross-reference negative tests. Ledger status remains partial because its explicit P0-01/P0-03 dependencies are unresolved; this is not a failure of the direct-mapping Done predicates.
 
-Sources: [.product-experience/pdp-0-product-truth/intent-resolutions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/intent-resolutions.yaml), [.product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml), [.product-experience/pdp-0-product-truth/goals-jtbd.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/goals-jtbd.yaml), [.product-experience/pdp-0-product-truth/journey-catalog.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/journey-catalog.yaml), [.product-experience/pdp-0-product-truth/requirements.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/requirements.yaml), [tests/pdp-0-final.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/pdp-0-final.test.mjs), [tests/media-product-definition-resolved-intents.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-product-definition-resolved-intents.test.mjs).
+Sources: [.product-experience/pdp-0-product-truth/intent-resolutions.yaml](../../.product-experience/pdp-0-product-truth/intent-resolutions.yaml), [.product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml](../../.product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml), [.product-experience/pdp-0-product-truth/goals-jtbd.yaml](../../.product-experience/pdp-0-product-truth/goals-jtbd.yaml), [.product-experience/pdp-0-product-truth/journey-catalog.yaml](../../.product-experience/pdp-0-product-truth/journey-catalog.yaml), [.product-experience/pdp-0-product-truth/requirements.yaml](../../.product-experience/pdp-0-product-truth/requirements.yaml), [tests/pdp-0-final.test.mjs](../../tests/pdp-0-final.test.mjs), [tests/media-product-definition-resolved-intents.test.mjs](../../tests/media-product-definition-resolved-intents.test.mjs).
 
 #### P0-05 Resolve ProductDefinition rules, invariants, trust and ownership
 
@@ -339,7 +339,7 @@ Owner: Media PDP-0/PDP-1 owners
 
 Closure evidence: Adjudicate every applicable rule with accepted source ID, scope, owner, violation response and trust context; validate no duplicate authority, invented mapping or unsafe transition.
 
-Sources: [.product-experience/pdp-0-product-truth/constitution.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/constitution.yaml), [.product-experience/pdp-0-product-truth/policy-authority-model.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/policy-authority-model.yaml), [.product-experience/pdp-0-product-truth/actors-responsibilities.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/actors-responsibilities.yaml), [.product-experience/pdp-0-product-truth/domain-model.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/domain-model.yaml), [.product-experience/pdp-1-domain-data/states.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/states.yaml), [.product-experience/pdp-1-domain-data/transitions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/transitions.yaml), [.product-experience/pdp-1-domain-data/authority.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/authority.yaml), [scripts/generate-media-phase-projections.mjs](/home/samujjwal/Developments/ghatana-media/scripts/generate-media-phase-projections.mjs), [tests/product-definition-authority.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/product-definition-authority.test.mjs).
+Sources: [.product-experience/pdp-0-product-truth/constitution.yaml](../../.product-experience/pdp-0-product-truth/constitution.yaml), [.product-experience/pdp-0-product-truth/policy-authority-model.yaml](../../.product-experience/pdp-0-product-truth/policy-authority-model.yaml), [.product-experience/pdp-0-product-truth/actors-responsibilities.yaml](../../.product-experience/pdp-0-product-truth/actors-responsibilities.yaml), [.product-experience/pdp-0-product-truth/domain-model.yaml](../../.product-experience/pdp-0-product-truth/domain-model.yaml), [.product-experience/pdp-1-domain-data/states.yaml](../../.product-experience/pdp-1-domain-data/states.yaml), [.product-experience/pdp-1-domain-data/transitions.yaml](../../.product-experience/pdp-1-domain-data/transitions.yaml), [.product-experience/pdp-1-domain-data/authority.yaml](../../.product-experience/pdp-1-domain-data/authority.yaml), [scripts/generate-media-phase-projections.mjs](../../scripts/generate-media-phase-projections.mjs), [tests/product-definition-authority.test.mjs](../../tests/product-definition-authority.test.mjs).
 
 #### P0-06 Resolve measures, timestamps, policy/profiles and quality applicability
 
@@ -357,7 +357,7 @@ Owner: Media PDP-0 measurement and capability owners
 
 Closure evidence: Complete P0-01 applicability and verify every applicable measure-to-capability relation; preserve baseline, target and calibration as NOT_EVALUATED until qualified observations exist.
 
-Sources: [.product-experience/pdp-0-product-truth/goals-jtbd.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/goals-jtbd.yaml), [.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json), [tests/pdp-0-06-measures-provenance.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: [.product-experience/pdp-0-product-truth/goals-jtbd.yaml](../../.product-experience/pdp-0-product-truth/goals-jtbd.yaml), [.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json](../../.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json), [tests/pdp-0-06-measures-provenance.test.mjs](../../tests/pdp-0-06-measures-provenance.test.mjs), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json](media-product-definition-submission-batch-2026-10-08.json).
 
 #### P0-07 Reconcile complete product feature and channel scope
 
@@ -375,7 +375,7 @@ Owner: Media PDP-0 channel/scope owner
 
 Closure evidence: Reconcile every applicable feature against each channel with exact requirement/contract identity or reasoned exclusion; preserve machine-only capabilities as non-GUI and prove completeness against all 462 leaves.
 
-Sources: [.product-experience/pdp-0-product-truth/capabilities.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/capabilities.yaml), [.product-experience/pdp-0-product-truth/requirements.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/requirements.yaml), [.product-experience/pdp-0-product-truth/applications-channels.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/applications-channels.yaml), [.product-experience/pdp-0-product-truth/journey-catalog.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/journey-catalog.yaml), [.product-experience/vision-requirements-coverage.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/vision-requirements-coverage.yaml), [.product-experience/surface-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/surface-registry.yaml), [tests/media-p0-07-feature-channel-review.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-p0-07-feature-channel-review.test.mjs).
+Sources: [.product-experience/pdp-0-product-truth/capabilities.yaml](../../.product-experience/pdp-0-product-truth/capabilities.yaml), [.product-experience/pdp-0-product-truth/requirements.yaml](../../.product-experience/pdp-0-product-truth/requirements.yaml), [.product-experience/pdp-0-product-truth/applications-channels.yaml](../../.product-experience/pdp-0-product-truth/applications-channels.yaml), [.product-experience/pdp-0-product-truth/journey-catalog.yaml](../../.product-experience/pdp-0-product-truth/journey-catalog.yaml), [.product-experience/vision-requirements-coverage.yaml](../../.product-experience/vision-requirements-coverage.yaml), [.product-experience/surface-registry.yaml](../../.product-experience/surface-registry.yaml), [tests/media-p0-07-feature-channel-review.test.mjs](../../tests/media-p0-07-feature-channel-review.test.mjs).
 
 #### P0-08 Conduct independent PDP-0 semantic acceptance (P0-010)
 
@@ -394,7 +394,7 @@ Owner: Media PDP-0 owners; Independent PDP-0 reviewer / Lifecycle authority
 
 Closure evidence: Complete P0-01..07 and assemble exact acceptance packet before seeking signoff. Record an attributed independent decision with reviewer, scope, disagreements and objective oracles; only then record acceptance.
 
-Sources: [.product-experience/acceptance.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/acceptance.yaml), [.product-experience/traceability.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/traceability.yaml), [.product-experience/gaps.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/gaps.yaml), [tests/pdp-0-final.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/pdp-0-final.test.mjs).
+Sources: [.product-experience/acceptance.yaml](../../.product-experience/acceptance.yaml), [.product-experience/traceability.yaml](../../.product-experience/traceability.yaml), [.product-experience/gaps.yaml](../../.product-experience/gaps.yaml), [tests/pdp-0-final.test.mjs](../../tests/pdp-0-final.test.mjs).
 
 ### Domain and Data
 
@@ -415,7 +415,7 @@ Owner: Media PDP-1 domain owner
 
 Closure evidence: Enumerate all 38 objects and exact typed identities/tenant scope/version lineage; compare wire/persisted DTOs and add collision/lineage negatives for each selected object.
 
-Sources: [.product-experience/pdp-1-domain-data/domain-objects.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/domain-objects.yaml), [.product-experience/pdp-1-domain-data/value-objects.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/value-objects.yaml), [.product-experience/pdp-1-domain-data/relationships.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/relationships.yaml), [.product-experience/pdp-1-domain-data/versioning.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/versioning.yaml), [.product-experience/pdp-1-domain-data/authority.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/authority.yaml), [libs/audio-video-types/src/contracts.ts](/home/samujjwal/Developments/ghatana-media/libs/audio-video-types/src/contracts.ts), [tests/media-domain-identity-reconciliation.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-domain-identity-reconciliation.test.mjs), [tests/media-caption-version-operation-definitions.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-caption-version-operation-definitions.test.mjs), [tests/media-transcript-version-definition.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-transcript-version-definition.test.mjs).
+Sources: [.product-experience/pdp-1-domain-data/domain-objects.yaml](../../.product-experience/pdp-1-domain-data/domain-objects.yaml), [.product-experience/pdp-1-domain-data/value-objects.yaml](../../.product-experience/pdp-1-domain-data/value-objects.yaml), [.product-experience/pdp-1-domain-data/relationships.yaml](../../.product-experience/pdp-1-domain-data/relationships.yaml), [.product-experience/pdp-1-domain-data/versioning.yaml](../../.product-experience/pdp-1-domain-data/versioning.yaml), [.product-experience/pdp-1-domain-data/authority.yaml](../../.product-experience/pdp-1-domain-data/authority.yaml), [libs/audio-video-types/src/contracts.ts](../../libs/audio-video-types/src/contracts.ts), [tests/media-domain-identity-reconciliation.test.mjs](../../tests/media-domain-identity-reconciliation.test.mjs), [tests/media-caption-version-operation-definitions.test.mjs](../../tests/media-caption-version-operation-definitions.test.mjs), [tests/media-transcript-version-definition.test.mjs](../../tests/media-transcript-version-definition.test.mjs).
 
 #### P1-02 Finish job/attempt/stream/delivery state machines and finality
 
@@ -433,7 +433,7 @@ Owner: Media PDP-1 state/runtime owners
 
 Closure evidence: Define every valid/invalid edge and finality semantics, then run durable runtime tests for process death, fencing, retries, cancellation races and delivery uncertainty; preserve UNKNOWN as distinct.
 
-Sources: [.product-experience/pdp-1-domain-data/states.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/states.yaml), [.product-experience/pdp-1-domain-data/transitions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/transitions.yaml), [.product-experience/pdp-1-domain-data/state-adjudication.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/state-adjudication.yaml), [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java](/home/samujjwal/Developments/ghatana-media/runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java), [launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java](/home/samujjwal/Developments/ghatana-media/launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java), [tests/media-state-machine-extraction.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-state-machine-extraction.test.mjs), [tests/media-runtime-openapi-job-status.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-runtime-openapi-job-status.test.mjs).
+Sources: [.product-experience/pdp-1-domain-data/states.yaml](../../.product-experience/pdp-1-domain-data/states.yaml), [.product-experience/pdp-1-domain-data/transitions.yaml](../../.product-experience/pdp-1-domain-data/transitions.yaml), [.product-experience/pdp-1-domain-data/state-adjudication.yaml](../../.product-experience/pdp-1-domain-data/state-adjudication.yaml), [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java (`/runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java`; external historical absolute path, not a repository-relative link), [launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java](../../launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java), [tests/media-state-machine-extraction.test.mjs](../../tests/media-state-machine-extraction.test.mjs), [tests/media-runtime-openapi-job-status.test.mjs](../../tests/media-runtime-openapi-job-status.test.mjs).
 
 #### P1-03 Establish canonical operations below the nine family headings
 
@@ -451,7 +451,7 @@ Owner: Media PDP-1 operation owner
 
 Closure evidence: Enumerate all existing applicable UI/machine actions and bind each to exact command/query operation and complete guards/effects/finality/errors or a justified non-domain role; add name-equivalence negatives.
 
-Sources: [.product-experience/pdp-1-domain-data/operations.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/operations.yaml), [.product-experience/pdp-1-domain-data/action-contracts.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/action-contracts.yaml), [.product-experience/pdp-1-domain-data/transitions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/transitions.yaml), [.product-experience/pdp-1-domain-data/authority.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/authority.yaml), [.product-experience/interface-parity/operation-parity.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/interface-parity/operation-parity.yaml), [tests/media-caption-version-operation-parity.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-caption-version-operation-parity.test.mjs), [tests/media-transcription-submission-definition.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-transcription-submission-definition.test.mjs).
+Sources: [.product-experience/pdp-1-domain-data/operations.yaml](../../.product-experience/pdp-1-domain-data/operations.yaml), [.product-experience/pdp-1-domain-data/action-contracts.yaml](../../.product-experience/pdp-1-domain-data/action-contracts.yaml), [.product-experience/pdp-1-domain-data/transitions.yaml](../../.product-experience/pdp-1-domain-data/transitions.yaml), [.product-experience/pdp-1-domain-data/authority.yaml](../../.product-experience/pdp-1-domain-data/authority.yaml), [.product-experience/interface-parity/operation-parity.yaml](../../.product-experience/interface-parity/operation-parity.yaml), [tests/media-caption-version-operation-parity.test.mjs](../../tests/media-caption-version-operation-parity.test.mjs), [tests/media-transcription-submission-definition.test.mjs](../../tests/media-transcription-submission-definition.test.mjs).
 
 #### P1-04 Reconcile the historical 47 parity findings and all individual interfaces
 
@@ -469,7 +469,7 @@ Owner: Media interface owners
 
 Closure evidence: Disposition both historical findings with source evidence and reconcile each applicable identity’s method/path/schema, authority, idempotency and finality; run negative drift tests.
 
-Sources: [.product-experience/interface-parity/operation-parity.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/interface-parity/operation-parity.yaml), [tests/media-contract-parity.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-contract-parity.test.mjs), [scripts/check-media-contract-parity.mjs](/home/samujjwal/Developments/ghatana-media/scripts/check-media-contract-parity.mjs), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: [.product-experience/interface-parity/operation-parity.yaml](../../.product-experience/interface-parity/operation-parity.yaml), [tests/media-contract-parity.test.mjs](../../tests/media-contract-parity.test.mjs), [scripts/check-media-contract-parity.mjs](../../scripts/check-media-contract-parity.mjs), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json](media-product-definition-submission-batch-2026-10-08.json).
 
 #### P1-05 Complete canonical HTTP/gRPC/SDK/CLI contract and compatibility crosswalk
 
@@ -487,7 +487,7 @@ Owner: Media transport/SDK owners
 
 Closure evidence: Reconcile every observed identity individually, run wire-level behavior and invalid-route tests, and verify compatibility/NOT_ADMITTED disposition without silently removing a consumer.
 
-Sources: [contracts/openapi/media.yaml](/home/samujjwal/Developments/ghatana-media/contracts/openapi/media.yaml), [modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto](/home/samujjwal/Developments/ghatana-media/modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto), [modules/vision/vision-service/src/main/proto/vision_service.proto](/home/samujjwal/Developments/ghatana-media/modules/vision/vision-service/src/main/proto/vision_service.proto), [modules/speech/stt-service/src/main/proto/stt_service.proto](/home/samujjwal/Developments/ghatana-media/modules/speech/stt-service/src/main/proto/stt_service.proto), [modules/speech/tts-service/src/main/proto/tts_service.proto](/home/samujjwal/Developments/ghatana-media/modules/speech/tts-service/src/main/proto/tts_service.proto), [libs/audio-video-client/src/operations.ts](/home/samujjwal/Developments/ghatana-media/libs/audio-video-client/src/operations.ts), [libs/audio-video-client/src/index.ts](/home/samujjwal/Developments/ghatana-media/libs/audio-video-client/src/index.ts), [libs/audio-video-client/src/canonical-routes.ts](/home/samujjwal/Developments/ghatana-media/libs/audio-video-client/src/canonical-routes.ts), [tests/media-grpc-projection-crosswalk.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-grpc-projection-crosswalk.test.mjs), [tests/media-runtime-openapi-job-status.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-runtime-openapi-job-status.test.mjs).
+Sources: [contracts/openapi/media.yaml (`/contracts/openapi/media.yaml`; external historical absolute path, not a repository-relative link), [modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto](../../modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto), [modules/vision/vision-service/src/main/proto/vision_service.proto](../../modules/vision/vision-service/src/main/proto/vision_service.proto), [modules/speech/stt-service/src/main/proto/stt_service.proto](../../modules/speech/stt-service/src/main/proto/stt_service.proto), [modules/speech/tts-service/src/main/proto/tts_service.proto](../../modules/speech/tts-service/src/main/proto/tts_service.proto), [libs/audio-video-client/src/operations.ts](../../libs/audio-video-client/src/operations.ts), [libs/audio-video-client/src/index.ts](../../libs/audio-video-client/src/index.ts), [libs/audio-video-client/src/canonical-routes.ts](../../libs/audio-video-client/src/canonical-routes.ts), [tests/media-grpc-projection-crosswalk.test.mjs](../../tests/media-grpc-projection-crosswalk.test.mjs), [tests/media-runtime-openapi-job-status.test.mjs](../../tests/media-runtime-openapi-job-status.test.mjs).
 
 #### P1-06 Verify exhaustive TypeScript contract-role catalog (VERIFY_MERGED_WORK)
 
@@ -503,7 +503,7 @@ Owner: Owning source maintainer; no new assignment made by this report.
 
 Closure evidence: Preserve passing source-current checks; broader phase acceptance is separate.
 
-Sources: [.product-experience/interface-parity/typed-contract-bindings.json](/home/samujjwal/Developments/ghatana-media/.product-experience/interface-parity/typed-contract-bindings.json), [libs/audio-video-types/src/contracts.ts](/home/samujjwal/Developments/ghatana-media/libs/audio-video-types/src/contracts.ts), [tests/media-typed-contract-bindings.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-typed-contract-bindings.test.mjs), [scripts/check-media-contract-parity.mjs](/home/samujjwal/Developments/ghatana-media/scripts/check-media-contract-parity.mjs).
+Sources: [.product-experience/interface-parity/typed-contract-bindings.json](../../.product-experience/interface-parity/typed-contract-bindings.json), [libs/audio-video-types/src/contracts.ts](../../libs/audio-video-types/src/contracts.ts), [tests/media-typed-contract-bindings.test.mjs](../../tests/media-typed-contract-bindings.test.mjs), [scripts/check-media-contract-parity.mjs](../../scripts/check-media-contract-parity.mjs).
 
 #### P1-07 Define real Agent Tool contracts for all four handlers
 
@@ -521,7 +521,7 @@ Owner: Shared contract owner plus Media integration owner
 
 Closure evidence: Obtain a versioned qualified Shared public invocation contract with required context fields, and prove installed consumer tests against it; keep executionAdmitted=false until qualification.
 
-Sources: [.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml), [.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml), [libs/common/src/main/java/com/ghatana/audio/video/tools](/home/samujjwal/Developments/ghatana-media/libs/common/src/main/java/com/ghatana/audio/video/tools), [libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java](/home/samujjwal/Developments/ghatana-media/libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java), [tests/media-agent-tool-contracts.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-agent-tool-contracts.test.mjs).
+Sources: [.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml](../../.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml), [.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml](../../.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml), [libs/common/src/main/java/com/ghatana/audio/video/tools](../../libs/common/src/main/java/com/ghatana/audio/video/tools), [libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java](../../libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java), [tests/media-agent-tool-contracts.test.mjs](../../tests/media-agent-tool-contracts.test.mjs).
 
 #### P1-08 Finish Media event taxonomy and safe delivery semantics
 
@@ -539,7 +539,7 @@ Owner: Media PDP-1 event owner and Event Plane integration owner
 
 Closure evidence: Map all nine events and 15 notifications individually; implement durable outbox/replay/ordering/dedup behavior and failure tests; verify public Event Plane contract without treating notifications as authoritative finality.
 
-Sources: [.product-experience/pdp-1-domain-data/events.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/events.yaml), [.product-experience/pdp-1-domain-data/states.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/states.yaml), [.product-experience/pdp-1-domain-data/provenance.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/provenance.yaml), [.product-experience/pdp-1-domain-data/evidence.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/evidence.yaml), [.product-experience/pdp-2-design-interface-system/events/conventions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/events/conventions.yaml), [.product-experience/pdp-3-product-experience/events/event-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/events/event-registry.yaml), [launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java](/home/samujjwal/Developments/ghatana-media/launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java), [launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java](/home/samujjwal/Developments/ghatana-media/launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java), [tests/media-event-source-parity.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-event-source-parity.test.mjs).
+Sources: [.product-experience/pdp-1-domain-data/events.yaml](../../.product-experience/pdp-1-domain-data/events.yaml), [.product-experience/pdp-1-domain-data/states.yaml](../../.product-experience/pdp-1-domain-data/states.yaml), [.product-experience/pdp-1-domain-data/provenance.yaml](../../.product-experience/pdp-1-domain-data/provenance.yaml), [.product-experience/pdp-1-domain-data/evidence.yaml](../../.product-experience/pdp-1-domain-data/evidence.yaml), [.product-experience/pdp-2-design-interface-system/events/conventions.yaml](../../.product-experience/pdp-2-design-interface-system/events/conventions.yaml), [.product-experience/pdp-3-product-experience/events/event-registry.yaml](../../.product-experience/pdp-3-product-experience/events/event-registry.yaml), [launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java](../../launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java), [launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java](../../launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java), [tests/media-event-source-parity.test.mjs](../../tests/media-event-source-parity.test.mjs).
 
 #### P1-09 Complete temporal/spatial/media scientific data semantics
 
@@ -558,7 +558,7 @@ Owner: Media PDP-1 value-semantics owner; Independent scientific/domain expert
 
 Closure evidence: Define exact source/target units, precision/overflow/drift/loss and round-trip behavior for each supported profile, then add representative interchange tests. Submit defined transform profiles and test evidence for attributed expert qualification; do not claim scientific quality before this review.
 
-Sources: [.product-experience/pdp-1-domain-data/value-objects.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/value-objects.yaml), [.product-experience/pdp-1-domain-data/interoperability.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/interoperability.yaml), [.product-experience/pdp-1-domain-data/versioning.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/versioning.yaml), [.product-experience/pdp-1-domain-data/provenance.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/provenance.yaml), [.product-experience/pdp-0-product-truth/time-units-fidelity.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/time-units-fidelity.yaml), [tests/media-temporal-spatial-semantics.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-temporal-spatial-semantics.test.mjs), [libs/media-experience-simulation/tests/simulation.test.mjs](/home/samujjwal/Developments/ghatana-media/libs/media-experience-simulation/tests/simulation.test.mjs).
+Sources: [.product-experience/pdp-1-domain-data/value-objects.yaml](../../.product-experience/pdp-1-domain-data/value-objects.yaml), [.product-experience/pdp-1-domain-data/interoperability.yaml](../../.product-experience/pdp-1-domain-data/interoperability.yaml), [.product-experience/pdp-1-domain-data/versioning.yaml](../../.product-experience/pdp-1-domain-data/versioning.yaml), [.product-experience/pdp-1-domain-data/provenance.yaml](../../.product-experience/pdp-1-domain-data/provenance.yaml), [.product-experience/pdp-0-product-truth/time-units-fidelity.yaml](../../.product-experience/pdp-0-product-truth/time-units-fidelity.yaml), [tests/media-temporal-spatial-semantics.test.mjs](../../tests/media-temporal-spatial-semantics.test.mjs), [libs/media-experience-simulation/tests/simulation.test.mjs](../../libs/media-experience-simulation/tests/simulation.test.mjs).
 
 #### P1-10 Close identity/tenant, consent, privacy, revision and offline consistency contracts
 
@@ -577,7 +577,7 @@ Owner: Media runtime/security owner and Shared trust owner; Independent security
 
 Closure evidence: Implement current policy checks at each effect boundary; add denial/cross-tenant/revocation/legal-hold/stale-edit/partial-erasure/replay tests and qualify public Shared trust integration. Review the implemented threat model and adversarial evidence; record attributed scope, findings, and acceptance.
 
-Sources: [.product-experience/pdp-1-domain-data/privacy.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/privacy.yaml), [.product-experience/pdp-1-domain-data/authority.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/authority.yaml), [.product-experience/pdp-1-domain-data/offline-sync.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/offline-sync.yaml), [.product-experience/pdp-1-domain-data/versioning.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/versioning.yaml), [.product-experience/pdp-1-domain-data/evidence.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/evidence.yaml), [.product-experience/pdp-0-product-truth/policy-authority-model.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/policy-authority-model.yaml), [tests/media-privacy-consistency-source.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-privacy-consistency-source.test.mjs), [launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java](/home/samujjwal/Developments/ghatana-media/launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java).
+Sources: [.product-experience/pdp-1-domain-data/privacy.yaml](../../.product-experience/pdp-1-domain-data/privacy.yaml), [.product-experience/pdp-1-domain-data/authority.yaml](../../.product-experience/pdp-1-domain-data/authority.yaml), [.product-experience/pdp-1-domain-data/offline-sync.yaml](../../.product-experience/pdp-1-domain-data/offline-sync.yaml), [.product-experience/pdp-1-domain-data/versioning.yaml](../../.product-experience/pdp-1-domain-data/versioning.yaml), [.product-experience/pdp-1-domain-data/evidence.yaml](../../.product-experience/pdp-1-domain-data/evidence.yaml), [.product-experience/pdp-0-product-truth/policy-authority-model.yaml](../../.product-experience/pdp-0-product-truth/policy-authority-model.yaml), [tests/media-privacy-consistency-source.test.mjs](../../tests/media-privacy-consistency-source.test.mjs), [launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java](../../launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java).
 
 #### P1-11 Obtain independent PDP-1 domain/interface semantic acceptance
 
@@ -596,7 +596,7 @@ Owner: Media PDP-1 owners; Independent domain/interface reviewers / Lifecycle au
 
 Closure evidence: Resolve all applicable P1-01..10 blockers and prepare an exact, source-linked domain/interface acceptance packet. Record scoped reviewer decisions only after prerequisite inputs are complete; do not mark phase accepted from local validations.
 
-Sources: [.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md), [.product-experience/pdp-1-domain-data/operations.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/operations.yaml), [.product-experience/acceptance.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/acceptance.yaml), [.product-experience/gaps.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/gaps.yaml).
+Sources: [.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md](../../.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md), [.product-experience/pdp-1-domain-data/operations.yaml](../../.product-experience/pdp-1-domain-data/operations.yaml), [.product-experience/acceptance.yaml](../../.product-experience/acceptance.yaml), [.product-experience/gaps.yaml](../../.product-experience/gaps.yaml).
 
 ### Design and Interfaces
 
@@ -617,7 +617,7 @@ Closure evidence: Preserve this as complete only if current generated artifact r
 
 Media can do now: Re-run the public Tools ExperienceLanguage validator against the current generated candidate and preserve exact residual output; do not count that alone as P2-09 acceptance.
 
-Sources: [.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json).
+Sources: [.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json](../../.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json).
 
 #### P2-02 Qualify public Shared token/theme/design primitives
 
@@ -639,7 +639,7 @@ Closure evidence: Extend the passing source-snapshot consumer proof to the compl
 
 Media can do now: Produce a development-artifact consumer pinned to a precise Shared revision/package and resolve each alias against that export; the criterion permits a pinned development artifact, not only a published immutable release.
 
-Sources: [.product-experience/pdp-2-design-interface-system/media-token-aliases.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/media-token-aliases.yaml), [.product-experience/pdp-2-design-interface-system/gui/primitives.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/primitives.yaml), [../ghatana-shared/platform/typescript/design-system/package.json](/home/samujjwal/Developments/ghatana-media/../ghatana-shared/platform/typescript/design-system/package.json), [../ghatana-shared/platform/typescript/tokens/package.json](/home/samujjwal/Developments/ghatana-media/../ghatana-shared/platform/typescript/tokens/package.json), [.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview.uiStylesRecipeCandidate.variableAudit](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml), [docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log](/home/samujjwal/Developments/ghatana-media/docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log), [tests/media-ui-reuse-inventory.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-ui-reuse-inventory.test.mjs).
+Sources: [.product-experience/pdp-2-design-interface-system/media-token-aliases.yaml](../../.product-experience/pdp-2-design-interface-system/media-token-aliases.yaml), [.product-experience/pdp-2-design-interface-system/gui/primitives.yaml](../../.product-experience/pdp-2-design-interface-system/gui/primitives.yaml), [../ghatana-shared/platform/typescript/design-system/package.json (`/../ghatana-shared/platform/typescript/design-system/package.json`; external historical absolute path, not a repository-relative link), [../ghatana-shared/platform/typescript/tokens/package.json (`/../ghatana-shared/platform/typescript/tokens/package.json`; external historical absolute path, not a repository-relative link), [.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview.uiStylesRecipeCandidate.variableAudit](../../.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml), [docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log](verification/media-owner-execution-2026-10-08/shared-consumer.log), [tests/media-ui-reuse-inventory.test.mjs](../../tests/media-ui-reuse-inventory.test.mjs).
 
 #### P2-03 Resolve the seven design-governance gates explicitly
 
@@ -660,7 +660,7 @@ Closure evidence: Source-backed Media gate dispositions are largely complete. Re
 
 Media can do now: Refresh the seven-gate table against current source/tests and record exact evidence for each gate; the two remaining external/independent dispositions cannot be locally marked accepted.
 
-Sources: [.product-experience/pdp-2-design-interface-system/design-governance.json](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/design-governance.json), [tests/media-design-conformance.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-design-conformance.test.mjs), [.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml).
+Sources: [.product-experience/pdp-2-design-interface-system/design-governance.json](../../.product-experience/pdp-2-design-interface-system/design-governance.json), [tests/media-design-conformance.test.mjs](../../tests/media-design-conformance.test.mjs), [.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml](../../.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml).
 
 #### P2-04 Qualify all genuinely reusable components
 
@@ -681,7 +681,7 @@ Closure evidence: Media-owned source bindings still finishable where local expor
 
 Media can do now: Complete the Media-owned applicability/export-or-contract-only row for every component family and verify actual @audio-video/ui and AI Voice consumer parity for selected components.
 
-Sources: [.product-experience/pdp-2-design-interface-system/component-contracts.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/component-contracts.yaml), [.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml), [.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml), [../ghatana-shared/platform/typescript/design-system/src](/home/samujjwal/Developments/ghatana-media/../ghatana-shared/platform/typescript/design-system/src).
+Sources: [.product-experience/pdp-2-design-interface-system/component-contracts.yaml](../../.product-experience/pdp-2-design-interface-system/component-contracts.yaml), [.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml](../../.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml), [.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml](../../.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml), [../ghatana-shared/platform/typescript/design-system/src (`/../ghatana-shared/platform/typescript/design-system/src`; external historical absolute path, not a repository-relative link).
 
 #### P2-05 Finish central templates, layouts and recipes, recompose screens
 
@@ -702,7 +702,7 @@ Closure evidence: Exact catalog reconciliation is Media-owned and can continue w
 
 Media can do now: Resolve the remaining source-backed template/layout/recipe mismatches and add bidirectional reference plus keyboard/focus/unknown-finality negatives for each applicable composition.
 
-Sources: [.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml), [.product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml), [.product-experience/pdp-2-design-interface-system/gui/layout.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/layout.yaml).
+Sources: [.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml](../../.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml), [.product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml](../../.product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml), [.product-experience/pdp-2-design-interface-system/gui/layout.yaml](../../.product-experience/pdp-2-design-interface-system/gui/layout.yaml).
 
 #### P2-06 Define consistent, low-cognitive-load visual presentation
 
@@ -723,7 +723,7 @@ Closure evidence: Media can produce source-defined review cases and test actual 
 
 Media can do now: Create representative narrow/standard/wide references and document a human comprehension review of the exact current compositions.
 
-Sources: [.product-experience/pdp-2-design-interface-system/typography-layout.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/typography-layout.yaml), [.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml), [.product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml), [.product-experience/pdp-2-design-interface-system/accessibility.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/accessibility.yaml), [docs/implementation/verification/media-experience-browser-audit-2026-10-08](/home/samujjwal/Developments/ghatana-media/docs/implementation/verification/media-experience-browser-audit-2026-10-08).
+Sources: [.product-experience/pdp-2-design-interface-system/typography-layout.yaml](../../.product-experience/pdp-2-design-interface-system/typography-layout.yaml), [.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml](../../.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml), [.product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml](../../.product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml), [.product-experience/pdp-2-design-interface-system/accessibility.yaml](../../.product-experience/pdp-2-design-interface-system/accessibility.yaml), [docs/implementation/verification/media-experience-browser-audit-2026-10-08](verification/media-experience-browser-audit-2026-10-08).
 
 #### P2-07 Complete machine interface conventions independently of GUI
 
@@ -745,7 +745,7 @@ Closure evidence: Continue individually reconciling applicable exact operation i
 
 Media can do now: Select the next existing applicable channel operation and add exact request/result/error/authority source crosswalk plus negative examples; leave non-current channels explicitly unresolved.
 
-Sources: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/api/conventions.yaml), [.product-experience/pdp-2-design-interface-system/cli/conventions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/cli/conventions.yaml), [.product-experience/pdp-2-design-interface-system/sdk/conventions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/sdk/conventions.yaml), [.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/capability-leaf-review.yaml), [tests/media-transcription-submission-interface-grammar.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-transcription-submission-interface-grammar.test.mjs).
+Sources: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml](../../.product-experience/pdp-2-design-interface-system/api/conventions.yaml), [.product-experience/pdp-2-design-interface-system/cli/conventions.yaml](../../.product-experience/pdp-2-design-interface-system/cli/conventions.yaml), [.product-experience/pdp-2-design-interface-system/sdk/conventions.yaml](../../.product-experience/pdp-2-design-interface-system/sdk/conventions.yaml), [.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml](../../.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](../../.product-experience/pdp-0-product-truth/capability-leaf-review.yaml), [tests/media-transcription-submission-interface-grammar.test.mjs](../../tests/media-transcription-submission-interface-grammar.test.mjs).
 
 #### P2-08 Run independent visual and assistive-technology reviews
 
@@ -766,7 +766,7 @@ Closure evidence: Media can prepare exact review build/cases and resolve found d
 
 Media can do now: Prepare a versioned reviewer packet with applicable views, keyboard/screen-reader cases, screenshots/semantic tree, findings template and exact build/source fingerprint.
 
-Sources: [.product-experience/pdp-2-design-interface-system/accessibility.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/accessibility.yaml), [tests/experience-browser-audit.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/experience-browser-audit.test.mjs), [docs/implementation/verification/media-experience-browser-audit-2026-10-08](/home/samujjwal/Developments/ghatana-media/docs/implementation/verification/media-experience-browser-audit-2026-10-08), [../ghatana-shared/platform/typescript/design-system](/home/samujjwal/Developments/ghatana-media/../ghatana-shared/platform/typescript/design-system).
+Sources: [.product-experience/pdp-2-design-interface-system/accessibility.yaml](../../.product-experience/pdp-2-design-interface-system/accessibility.yaml), [tests/experience-browser-audit.test.mjs](../../tests/experience-browser-audit.test.mjs), [docs/implementation/verification/media-experience-browser-audit-2026-10-08](verification/media-experience-browser-audit-2026-10-08), [../ghatana-shared/platform/typescript/design-system (`/../ghatana-shared/platform/typescript/design-system`; external historical absolute path, not a repository-relative link).
 
 #### P2-09 Accept final ExperienceLanguage source authority
 
@@ -787,7 +787,7 @@ Closure evidence: Resolve Media-owned P2 gaps first; final source-authority revi
 
 Media can do now: Close Media-owned P2-01..07 source findings and obtain the independent reviewer decision; then submit phase closure only through Lifecycle.
 
-Sources: [.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md), [.product-experience/pdp-2-design-interface-system/design-governance.json](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/design-governance.json).
+Sources: [.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md](../../.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md), [.product-experience/pdp-2-design-interface-system/design-governance.json](../../.product-experience/pdp-2-design-interface-system/design-governance.json).
 
 ### Complete Experience
 
@@ -809,7 +809,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Resolve each of the nine blockers from exact owner sources; pass public schema, semantic mapping, stale-reference/wrong-effect and empty-collection negatives; obtain owner review.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3]](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [.product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json#fieldMappingBlockers](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json), [.product-experience/pdp-3-product-experience/action-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/action-registry.yaml), [.product-experience/pdp-3-product-experience/journey-contracts/](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/journey-contracts/).
+Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3] (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [.product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json#fieldMappingBlockers](../../.product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json), [.product-experience/pdp-3-product-experience/action-registry.yaml](../../.product-experience/pdp-3-product-experience/action-registry.yaml), [.product-experience/pdp-3-product-experience/journey-contracts/](../../.product-experience/pdp-3-product-experience/journey-contracts).
 
 #### P3-02 Resolve all 47 canonical GUI screen contracts
 
@@ -828,7 +828,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Complete applicable per-screen contracts and disposition non-equivalent compositions; record Shared owner artifact binding plus independent conformance evidence.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [.product-experience/pdp-3-product-experience/screen-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/screen-registry.yaml), [.product-experience/pdp-3-product-experience/screen-contracts/](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/screen-contracts/), [.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml), [.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml).
+Sources: /tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [.product-experience/pdp-3-product-experience/screen-registry.yaml](../../.product-experience/pdp-3-product-experience/screen-registry.yaml), [.product-experience/pdp-3-product-experience/screen-contracts/](../../.product-experience/pdp-3-product-experience/screen-contracts), [.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml](../../.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml), [.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml](../../.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml).
 
 #### P3-03 Finish 30 end-to-end journeys and all 130 ordered steps
 
@@ -848,7 +848,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Bind remaining steps individually to exact actor, object, current authority, legal transitions/actions, branch/recovery, scenario and verification; retain NOT_RUN until behavior is executed.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [.product-experience/pdp-3-product-experience/journey-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/journey-registry.yaml), [.product-experience/pdp-3-product-experience/journey-contracts/](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/journey-contracts/), [.product-experience/pdp-3-product-experience/experience-source-bindings.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/experience-source-bindings.yaml), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#beforeAfter](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: /tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [.product-experience/pdp-3-product-experience/journey-registry.yaml](../../.product-experience/pdp-3-product-experience/journey-registry.yaml), [.product-experience/pdp-3-product-experience/journey-contracts/](../../.product-experience/pdp-3-product-experience/journey-contracts), [.product-experience/pdp-3-product-experience/experience-source-bindings.yaml](../../.product-experience/pdp-3-product-experience/experience-source-bindings.yaml), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#beforeAfter](media-product-definition-submission-batch-2026-10-08.json).
 
 #### P3-04 Bind every PDP-3 interaction/action/effect/finality to canonical behavior
 
@@ -867,7 +867,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Bind each applicable existing action to exact operation, authorization, legal state/transition, effect, confirmation/finality and recovery; add adversarial tests and retain conditional reversibility as conditional.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3]](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [.product-experience/pdp-3-product-experience/action-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/action-registry.yaml), [.product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml), [.product-experience/pdp-1-domain-data/action-contracts.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/action-contracts.yaml).
+Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3] (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [.product-experience/pdp-3-product-experience/action-registry.yaml](../../.product-experience/pdp-3-product-experience/action-registry.yaml), [.product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml](../../.product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml), [.product-experience/pdp-1-domain-data/action-contracts.yaml](../../.product-experience/pdp-1-domain-data/action-contracts.yaml).
 
 #### P3-05 Build the complete executable scenario/fixture matrix
 
@@ -886,7 +886,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Complete source-grounded fixtures/start states, positive/denial/unknown/recovery cases and executable oracles for every applicable journey; resolve retry-eligible prior-attempt source without inventing policy.
 
-Sources: [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml), [libs/media-experience-simulation/src/fixtures.ts](/home/samujjwal/Developments/ghatana-media/libs/media-experience-simulation/src/fixtures.ts), [.product-experience/pdp-3-product-experience/simulation-semantics.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/simulation-semantics.yaml), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience](/tmp/media-execution/full-blocker-residual-2026-10-08.json).
+Sources: [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml](../../.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml), [libs/media-experience-simulation/src/fixtures.ts](../../libs/media-experience-simulation/src/fixtures.ts), [.product-experience/pdp-3-product-experience/simulation-semantics.yaml](../../.product-experience/pdp-3-product-experience/simulation-semantics.yaml), /tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository).
 
 #### P3-06 Finish Web presentation through one Media-owned public renderer
 
@@ -905,7 +905,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Verify exact public-export/action/DOM/accessibility equality across every currently admitted compatible renderer family and resolve applicable P2-04/P3-02/P3-05 definition dependencies. Keep unsupported production implementation explicitly staged; evaluate production-host parity only as downstream runtime qualification.
 
-Sources: [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#scope](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json), [.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#sharedBinding/conformance](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml), [apps/media-experience-explorer/](/home/samujjwal/Developments/ghatana-media/apps/media-experience-explorer/), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#designConformance](/tmp/media-execution/full-blocker-residual-2026-10-08.json).
+Sources: [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#scope](media-product-definition-submission-batch-2026-10-08.json), [.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#sharedBinding/conformance](../../.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml), [apps/media-experience-explorer/ (`/apps/media-experience-explorer/`; external historical absolute path, not a repository-relative link), /tmp/media-execution/full-blocker-residual-2026-10-08.json#designConformance (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository).
 
 #### P3-07 Define non-GUI experiences and typed search/inspection semantics
 
@@ -924,7 +924,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Resolve applicable existing identity/behavior mappings to owning operation contracts and implement/test scoped deterministic interfaces; keep absent interfaces absent and qualify production separately.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#operationParity](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [.product-experience/interface-parity/operation-parity.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/interface-parity/operation-parity.yaml), [.product-experience/pdp-3-product-experience/application-channel-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/application-channel-registry.yaml), [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml).
+Sources: /tmp/media-execution/full-blocker-residual-2026-10-08.json#operationParity (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [.product-experience/interface-parity/operation-parity.yaml](../../.product-experience/interface-parity/operation-parity.yaml), [.product-experience/pdp-3-product-experience/application-channel-registry.yaml](../../.product-experience/pdp-3-product-experience/application-channel-registry.yaml), [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml](../../.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml).
 
 #### P3-08 Cover feature families and representative complete examples
 
@@ -943,7 +943,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Complete a source-backed existing-family example or reviewed exclusion for each applicable family with action/operation/state/scenario/owner/runtime evidence.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#capabilityCoverage](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/capability-leaf-review.yaml), [.product-experience/pdp-3-product-experience/journey-contracts/](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/journey-contracts/), [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml).
+Sources: /tmp/media-execution/full-blocker-residual-2026-10-08.json#capabilityCoverage (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](../../.product-experience/pdp-0-product-truth/capability-leaf-review.yaml), [.product-experience/pdp-3-product-experience/journey-contracts/](../../.product-experience/pdp-3-product-experience/journey-contracts), [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml](../../.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml).
 
 #### P3-09 Validate accessibility, localization, responsive behavior and browser parity
 
@@ -962,7 +962,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: Obtain attributed assistive-technology, visual, responsive, keyboard and localization/RTL review; fix and retest findings. Record production-host checks separately only where a downstream runtime claim requires them.
 
-Sources: [docs/implementation/verification/media-experience-browser-audit-2026-10-08/](/home/samujjwal/Developments/ghatana-media/docs/implementation/verification/media-experience-browser-audit-2026-10-08/), [.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#conformance](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#outstandingIndependentAuthorities](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: [docs/implementation/verification/media-experience-browser-audit-2026-10-08/](verification/media-experience-browser-audit-2026-10-08), [.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#conformance](../../.product-experience/pdp-2-design-interface-system/gui/style-authority.yaml), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#outstandingIndependentAuthorities](media-product-definition-submission-batch-2026-10-08.json).
 
 #### P3-10 Submit independent complete-experience acceptance
 
@@ -981,7 +981,7 @@ Owner: Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independen
 
 Closure evidence: After P3-01..09, obtain named independent findings/fixes, admitted Lifecycle evidence and an authoritative current PDP-3 receipt.
 
-Sources: [.product-experience/acceptance.yaml#independentExperienceReviewInputs20261008](/home/samujjwal/Developments/ghatana-media/.product-experience/acceptance.yaml), [.product-experience/closure-dashboard.yaml#phases.PDP-3](/home/samujjwal/Developments/ghatana-media/.product-experience/closure-dashboard.yaml), [config/closure/media-product-definition/phase-program.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/phase-program.json), [config/closure/media-product-definition/phase-binding.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/phase-binding.json), [config/closure/media-product-definition/obligations.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/obligations.json), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#phaseAcceptance](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.localReceiptRecordCount=0,authoritativeReceiptCount=null,receiptEvaluation=NOT_EVALUATED](/tmp/media-execution/full-blocker-residual-2026-10-08.json).
+Sources: [.product-experience/acceptance.yaml#independentExperienceReviewInputs20261008](../../.product-experience/acceptance.yaml), [.product-experience/closure-dashboard.yaml#phases.PDP-3](../../.product-experience/closure-dashboard.yaml), [config/closure/media-product-definition/phase-program.json](../../config/closure/media-product-definition/phase-program.json), [config/closure/media-product-definition/phase-binding.json](../../config/closure/media-product-definition/phase-binding.json), [config/closure/media-product-definition/obligations.json](../../config/closure/media-product-definition/obligations.json), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#phaseAcceptance](media-product-definition-submission-batch-2026-10-08.json), /tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.localReceiptRecordCount=0,authoritativeReceiptCount=null,receiptEvaluation=NOT_EVALUATED (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository).
 
 ### Explorer
 
@@ -1003,7 +1003,7 @@ Owner: Media Explorer/source owners; Tools and independent reviewers where state
 
 Closure evidence: Complete bidirectional source/index semantic checks and exact trace navigation for all phases; verify schema additions and obtain owner/host acceptance.
 
-Sources: [apps/media-experience-explorer/specification-artifacts.json](/home/samujjwal/Developments/ghatana-media/apps/media-experience-explorer/specification-artifacts.json), [.product-experience/source-manifest.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/source-manifest.yaml), [.product-experience/executable-representation/](/home/samujjwal/Developments/ghatana-media/.product-experience/executable-representation/), [/tmp/media-execution/full-blocker-residual-2026-10-08.json](/tmp/media-execution/full-blocker-residual-2026-10-08.json).
+Sources: [apps/media-experience-explorer/specification-artifacts.json (`/apps/media-experience-explorer/specification-artifacts.json`; external historical absolute path, not a repository-relative link), [.product-experience/source-manifest.yaml](../../.product-experience/source-manifest.yaml), [.product-experience/executable-representation/](../../.product-experience/executable-representation), /tmp/media-execution/full-blocker-residual-2026-10-08.json (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository).
 
 #### E-02 Prove actual Tools host and Media representation equality
 
@@ -1022,7 +1022,7 @@ Owner: Media Explorer/source owners; Tools and independent reviewers where state
 
 Closure evidence: Bind the actual Tools public installed Media renderer package in the deployed Tools host; exercise every admitted representation and retain immutable artifact/version plus host-test evidence. This host requirement belongs to E-02 representation parity, not to the four PDP definition phases.
 
-Sources: [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#scope/dependencies](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json), [apps/media-experience-explorer/](/home/samujjwal/Developments/ghatana-media/apps/media-experience-explorer/), [libs/media-experience-simulation/](/home/samujjwal/Developments/ghatana-media/libs/media-experience-simulation/), [docs/implementation/media-owner-execution-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-owner-execution-batch-2026-10-08.json).
+Sources: [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#scope/dependencies](media-product-definition-submission-batch-2026-10-08.json), [apps/media-experience-explorer/ (`/apps/media-experience-explorer/`; external historical absolute path, not a repository-relative link), [libs/media-experience-simulation/](../../libs/media-experience-simulation), [docs/implementation/media-owner-execution-batch-2026-10-08.json](media-owner-execution-batch-2026-10-08.json).
 
 #### E-03 Make exploration cognitively simple without losing power
 
@@ -1041,7 +1041,7 @@ Owner: Media Explorer/source owners; Tools and independent reviewers where state
 
 Closure evidence: Have independent reviewers execute representative journeys, record usability/trace-depth/keyboard/AT/responsive findings and verify fixes.
 
-Sources: [apps/media-experience-explorer/](/home/samujjwal/Developments/ghatana-media/apps/media-experience-explorer/), [.product-experience/acceptance.yaml#independentExplorerReviewInputs](/home/samujjwal/Developments/ghatana-media/.product-experience/acceptance.yaml), [docs/implementation/verification/media-experience-browser-audit-2026-10-08/](/home/samujjwal/Developments/ghatana-media/docs/implementation/verification/media-experience-browser-audit-2026-10-08/).
+Sources: [apps/media-experience-explorer/ (`/apps/media-experience-explorer/`; external historical absolute path, not a repository-relative link), [.product-experience/acceptance.yaml#independentExplorerReviewInputs](../../.product-experience/acceptance.yaml), [docs/implementation/verification/media-experience-browser-audit-2026-10-08/](verification/media-experience-browser-audit-2026-10-08).
 
 #### E-04 Bind mock simulation/assurance to exact current source
 
@@ -1061,7 +1061,7 @@ Owner: Media Explorer/source owners; Tools and independent reviewers where state
 
 Closure evidence: Complete exact source-grounded deterministic seeds/actions/effects and negative/recovery oracles for all applicable scenarios; retain source-pin mutation tests.
 
-Sources: [.product-experience/explorer/e04-source-pins.json](/home/samujjwal/Developments/ghatana-media/.product-experience/explorer/e04-source-pins.json), [tests/e04-source-freshness.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/e04-source-freshness.test.mjs), [libs/media-experience-simulation/src/fixtures.ts](/home/samujjwal/Developments/ghatana-media/libs/media-experience-simulation/src/fixtures.ts), [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#verification](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: [.product-experience/explorer/e04-source-pins.json](../../.product-experience/explorer/e04-source-pins.json), [tests/e04-source-freshness.test.mjs](../../tests/e04-source-freshness.test.mjs), [libs/media-experience-simulation/src/fixtures.ts](../../libs/media-experience-simulation/src/fixtures.ts), [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml](../../.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#verification](media-product-definition-submission-batch-2026-10-08.json).
 
 #### E-05 Independently verify Explorer representation quality
 
@@ -1080,7 +1080,7 @@ Owner: Media Explorer/source owners; Tools and independent reviewers where state
 
 Closure evidence: Complete E-01..E-04 and P2-08, then obtain attributed independent UX/AT acceptance and installed public-package consumer evidence in deployed host.
 
-Sources: [.product-experience/acceptance.yaml#definitionExplorerReviewInputs20261008](/home/samujjwal/Developments/ghatana-media/.product-experience/acceptance.yaml), [.product-experience/closure-dashboard.yaml#explorer](/home/samujjwal/Developments/ghatana-media/.product-experience/closure-dashboard.yaml), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#outstandingIndependentAuthorities](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: [.product-experience/acceptance.yaml#definitionExplorerReviewInputs20261008](../../.product-experience/acceptance.yaml), [.product-experience/closure-dashboard.yaml#explorer](../../.product-experience/closure-dashboard.yaml), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#outstandingIndependentAuthorities](media-product-definition-submission-batch-2026-10-08.json).
 
 ### Lifecycle
 
@@ -1102,7 +1102,7 @@ Owner: Media proof-route authors; Lifecycle provider, observer, oracle and recei
 
 Closure evidence: No new status promotion: retain source enumeration/fingerprint checks on future source changes; do not infer other L task closure.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.obligationCount=348,totalProofRoutes=348](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [config/closure/media-product-definition/obligations.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/obligations.json), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#verification.sourceChecks](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: /tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.obligationCount=348,totalProofRoutes=348 (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [config/closure/media-product-definition/obligations.json](../../config/closure/media-product-definition/obligations.json), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#verification.sourceChecks](media-product-definition-submission-batch-2026-10-08.json).
 
 #### L-02 Define a real per-obligation proof-case catalog
 
@@ -1121,7 +1121,7 @@ Owner: Media proof-route authors; Lifecycle provider, observer, oracle and recei
 
 Closure evidence: Bind each of 348 obligations to real case IDs and runnable/admissible method or reviewed N/A; resolve missing IDs and unmapped obligations with source links and deterministic negatives.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [config/closure/media-product-definition/obligations.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/obligations.json), [config/closure/media-product-definition/l02-source-case-links.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/l02-source-case-links.json), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#beforeAfter.sourceCaseCandidateLinks](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json).
+Sources: /tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [config/closure/media-product-definition/obligations.json](../../config/closure/media-product-definition/obligations.json), [config/closure/media-product-definition/l02-source-case-links.json](../../config/closure/media-product-definition/l02-source-case-links.json), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#beforeAfter.sourceCaseCandidateLinks](media-product-definition-submission-batch-2026-10-08.json).
 
 #### L-03 Bind named observers, oracles and traceable result criteria
 
@@ -1140,7 +1140,7 @@ Owner: Media proof-route authors; Lifecycle provider, observer, oracle and recei
 
 Closure evidence: Register actual observer/provider/oracle identities in Lifecycle, bind expected results and fingerprints, and admit case methods.
 
-Sources: [/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [config/closure/media-product-definition/l03-proof-route-candidates.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/l03-proof-route-candidates.json), [config/closure/media-product-definition/pending-decisions.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/pending-decisions.json).
+Sources: /tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [config/closure/media-product-definition/l03-proof-route-candidates.json](../../config/closure/media-product-definition/l03-proof-route-candidates.json), [config/closure/media-product-definition/pending-decisions.json](../../config/closure/media-product-definition/pending-decisions.json).
 
 #### L-04 Correct physical Evidence Generator registry ownership and distribution
 
@@ -1159,7 +1159,7 @@ Owner: Media proof-route authors; Lifecycle provider, observer, oracle and recei
 
 Closure evidence: Lifecycle authority publishes/registers physical generator distribution, license profile, immutable artifact identity and unique provider resolution; then run invalid-provider negatives.
 
-Sources: [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#independentReviewInputs](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json), [config/closure/media-product-definition/pending-decisions.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/pending-decisions.json), [config/closure/media-product-definition/phase-program.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/phase-program.json).
+Sources: [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#independentReviewInputs](media-product-definition-submission-batch-2026-10-08.json), [config/closure/media-product-definition/pending-decisions.json](../../config/closure/media-product-definition/pending-decisions.json), [config/closure/media-product-definition/phase-program.json](../../config/closure/media-product-definition/phase-program.json).
 
 #### L-05 Implement canonical Media consumer proof bindings, without a local evidence engine
 
@@ -1178,7 +1178,7 @@ Owner: Media proof-route authors; Lifecycle provider, observer, oracle and recei
 
 Closure evidence: After provider/case/observer/oracle admission, exercise canonical Media consumer with real provider inputs and show INPUT_READY only from admitted evidence; test stale/missing dependencies.
 
-Sources: [config/closure/media-product-definition/phase-binding.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/phase-binding.json), [config/closure/media-product-definition/phase-program.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/phase-program.json), [config/closure/media-product-definition/pending-decisions.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/pending-decisions.json), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle](/tmp/media-execution/full-blocker-residual-2026-10-08.json).
+Sources: [config/closure/media-product-definition/phase-binding.json](../../config/closure/media-product-definition/phase-binding.json), [config/closure/media-product-definition/phase-program.json](../../config/closure/media-product-definition/phase-program.json), [config/closure/media-product-definition/pending-decisions.json](../../config/closure/media-product-definition/pending-decisions.json), /tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository).
 
 #### L-06 Execute affected proof suites and negative dependency checks
 
@@ -1197,7 +1197,7 @@ Owner: Media proof-route authors; Lifecycle provider, observer, oracle and recei
 
 Closure evidence: After L-02..L-05 admission, run affected admitted suites, retain failures/NOT_RUN and dependency vectors, then obtain Lifecycle evaluator results.
 
-Sources: [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#verification](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [config/closure/media-product-definition/l03-proof-route-candidates.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/l03-proof-route-candidates.json).
+Sources: [docs/implementation/media-product-definition-submission-batch-2026-10-08.json#verification](media-product-definition-submission-batch-2026-10-08.json), /tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [config/closure/media-product-definition/l03-proof-route-candidates.json](../../config/closure/media-product-definition/l03-proof-route-candidates.json).
 
 #### L-07 Obtain independent current receipts for PDP-0 through PDP-3
 
@@ -1216,7 +1216,7 @@ Owner: Media proof-route authors; Lifecycle provider, observer, oracle and recei
 
 Closure evidence: After prerequisites, receive four actual Lifecycle-issued current phase receipts matching source/dependency fingerprints; validate issuer/currentness.
 
-Sources: [.product-experience/acceptance.yaml#phaseAcceptanceInputs](/home/samujjwal/Developments/ghatana-media/.product-experience/acceptance.yaml), [.product-experience/closure-dashboard.yaml#phases.PDP-0..PDP-3](/home/samujjwal/Developments/ghatana-media/.product-experience/closure-dashboard.yaml), [config/closure/media-product-definition/phase-binding.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/phase-binding.json), [.product-experience/executable-representation/admissions/README.md](/home/samujjwal/Developments/ghatana-media/.product-experience/executable-representation/admissions/README.md), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.receiptEvaluation/currentnessEvaluation](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.localReceiptRecordCount=0,authoritativeReceiptCount=null,receiptEvaluation=NOT_EVALUATED](/tmp/media-execution/full-blocker-residual-2026-10-08.json).
+Sources: [.product-experience/acceptance.yaml#phaseAcceptanceInputs](../../.product-experience/acceptance.yaml), [.product-experience/closure-dashboard.yaml#phases.PDP-0..PDP-3](../../.product-experience/closure-dashboard.yaml), [config/closure/media-product-definition/phase-binding.json](../../config/closure/media-product-definition/phase-binding.json), [.product-experience/executable-representation/admissions/README.md](../../.product-experience/executable-representation/admissions/README.md), /tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.receiptEvaluation/currentnessEvaluation (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), /tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.localReceiptRecordCount=0,authoritativeReceiptCount=null,receiptEvaluation=NOT_EVALUATED (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository).
 
 #### L-08 Maintain a current, scoped residual and closure dashboard
 
@@ -1235,7 +1235,7 @@ Owner: Media proof-route authors; Lifecycle provider, observer, oracle and recei
 
 Closure evidence: Publish durable per-batch residual snapshots with exact counts/reasons/owners/actions/proof refs and freshness linked from dashboard; leave Lifecycle currentness unclaimed absent receipts.
 
-Sources: [.product-experience/closure-dashboard.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/closure-dashboard.yaml), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#diagnostics=[]](/tmp/media-execution/full-blocker-residual-2026-10-08.json), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-product-definition-submission-batch-2026-10-08.json), [docs/implementation/media-owner-execution-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-owner-execution-batch-2026-10-08.json).
+Sources: [.product-experience/closure-dashboard.yaml](../../.product-experience/closure-dashboard.yaml), [/tmp/media-execution/full-blocker-residual-2026-10-08.json#diagnostics=[] (`/tmp/media-execution/full-blocker-residual-2026-10-08.json`; external historical output not retained in this repository), [docs/implementation/media-product-definition-submission-batch-2026-10-08.json](media-product-definition-submission-batch-2026-10-08.json), [docs/implementation/media-owner-execution-batch-2026-10-08.json](media-owner-execution-batch-2026-10-08.json).
 
 ### Cross repository dependencies
 
@@ -1259,7 +1259,7 @@ Closure evidence: Media-owned installed-consumer/source-drift test can proceed a
 
 Media can do now: Build an isolated Media consumer against the currently available public Tools artifact and add schema-drift/private-import negatives; request external owner acceptance for the package itself.
 
-Sources: [../ghatana-tools/libs/product-development](/home/samujjwal/Developments/ghatana-media/../ghatana-tools/libs/product-development), [../ghatana-tools/README.md](/home/samujjwal/Developments/ghatana-media/../ghatana-tools/README.md), [../ghatana-tools/package.json](/home/samujjwal/Developments/ghatana-media/../ghatana-tools/package.json), [docs/implementation/media-owner-execution-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-owner-execution-batch-2026-10-08.json), [docs/implementation/verification/media-owner-execution-2026-10-08/tools-consumer.log](/home/samujjwal/Developments/ghatana-media/docs/implementation/verification/media-owner-execution-2026-10-08/tools-consumer.log), [docs/implementation/media-owner-execution-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-owner-execution-batch-2026-10-08.json).
+Sources: [../ghatana-tools/libs/product-development (`/../ghatana-tools/libs/product-development`; external historical absolute path, not a repository-relative link), [../ghatana-tools/README.md (`/../ghatana-tools/README.md`; external historical absolute path, not a repository-relative link), [../ghatana-tools/package.json (`/../ghatana-tools/package.json`; external historical absolute path, not a repository-relative link), [docs/implementation/media-owner-execution-batch-2026-10-08.json](media-owner-execution-batch-2026-10-08.json), [docs/implementation/verification/media-owner-execution-2026-10-08/tools-consumer.log](verification/media-owner-execution-2026-10-08/tools-consumer.log), [docs/implementation/media-owner-execution-batch-2026-10-08.json](media-owner-execution-batch-2026-10-08.json).
 
 #### X-02 Ghatana Lifecycle: provider registry, package policy, native closure (EXTERNAL_OWNER)
 
@@ -1280,7 +1280,7 @@ Closure evidence: Media can prepare genuine source cases and inputs. Lifecycle p
 
 Media can do now: Prepare exact source-native cases and package inputs for Lifecycle; verify its public consumer/provider contract independently of the untracked dist directory.
 
-Sources: [../ghatana-lifecycle/libs/evidence-contracts](/home/samujjwal/Developments/ghatana-media/../ghatana-lifecycle/libs/evidence-contracts), [../ghatana-lifecycle/package.json](/home/samujjwal/Developments/ghatana-media/../ghatana-lifecycle/package.json), [../ghatana-lifecycle/libs/evidence-contracts/dist](/home/samujjwal/Developments/ghatana-media/../ghatana-lifecycle/libs/evidence-contracts/dist), [config/closure/media-product-definition/obligations.json](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/obligations.json).
+Sources: [../ghatana-lifecycle/libs/evidence-contracts (`/../ghatana-lifecycle/libs/evidence-contracts`; external historical absolute path, not a repository-relative link), [../ghatana-lifecycle/package.json (`/../ghatana-lifecycle/package.json`; external historical absolute path, not a repository-relative link), [../ghatana-lifecycle/libs/evidence-contracts/dist (`/../ghatana-lifecycle/libs/evidence-contracts/dist`; external historical absolute path, not a repository-relative link), [config/closure/media-product-definition/obligations.json](../../config/closure/media-product-definition/obligations.json).
 
 #### X-03 Ghatana Shared: public UI/auth/workflow contracts and license-classified consumers (EXTERNAL_OWNER)
 
@@ -1301,7 +1301,7 @@ Closure evidence: Media-owned isolated consumer and exact CSS tests are actionab
 
 Media can do now: Update the Media consumer proof to cite the current Shared worktree revision, resolve selected public CSS/token bindings, and submit exact owner questions without claiming approval.
 
-Sources: [../ghatana-shared/platform/typescript/tokens](/home/samujjwal/Developments/ghatana-media/../ghatana-shared/platform/typescript/tokens), [../ghatana-shared/platform/typescript/theme](/home/samujjwal/Developments/ghatana-media/../ghatana-shared/platform/typescript/theme), [../ghatana-shared/platform/typescript/design-system](/home/samujjwal/Developments/ghatana-media/../ghatana-shared/platform/typescript/design-system), [docs/migration/shared-runtime-reuse-observation.md](/home/samujjwal/Developments/ghatana-media/docs/migration/shared-runtime-reuse-observation.md), [.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml), [docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log](/home/samujjwal/Developments/ghatana-media/docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log), [tests/media-ui-reuse-inventory.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-ui-reuse-inventory.test.mjs).
+Sources: [../ghatana-shared/platform/typescript/tokens (`/../ghatana-shared/platform/typescript/tokens`; external historical absolute path, not a repository-relative link), [../ghatana-shared/platform/typescript/theme (`/../ghatana-shared/platform/typescript/theme`; external historical absolute path, not a repository-relative link), [../ghatana-shared/platform/typescript/design-system (`/../ghatana-shared/platform/typescript/design-system`; external historical absolute path, not a repository-relative link), [docs/migration/shared-runtime-reuse-observation.md](../migration/shared-runtime-reuse-observation.md), [.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml](../../.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml), [docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log](verification/media-owner-execution-2026-10-08/shared-consumer.log), [tests/media-ui-reuse-inventory.test.mjs](../../tests/media-ui-reuse-inventory.test.mjs).
 
 #### X-04 Document Intelligence: public client and MDI-001 handoff (EXTERNAL_OWNER)
 
@@ -1322,7 +1322,7 @@ Closure evidence: Media adapter source cases and current dependency compatibilit
 
 Media can do now: Run the adapter compatibility test against the current public DI client contract/version and preserve source/version/locale/span negative cases; then obtain MDI-001 owner response.
 
-Sources: [docs/migration/decisions/MDI-001-document-intelligence-ownership.md](/home/samujjwal/Developments/ghatana-media/docs/migration/decisions/MDI-001-document-intelligence-ownership.md), [docs/migration/document-intelligence-media-crosswalk.md](/home/samujjwal/Developments/ghatana-media/docs/migration/document-intelligence-media-crosswalk.md), [docs/migration/external-platform-contract-observation.json](/home/samujjwal/Developments/ghatana-media/docs/migration/external-platform-contract-observation.json), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/capability-leaf-review.yaml).
+Sources: [docs/migration/decisions/MDI-001-document-intelligence-ownership.md](../migration/decisions/MDI-001-document-intelligence-ownership.md), [docs/migration/document-intelligence-media-crosswalk.md](../migration/document-intelligence-media-crosswalk.md), [docs/migration/external-platform-contract-observation.json](../migration/external-platform-contract-observation.json), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](../../.product-experience/pdp-0-product-truth/capability-leaf-review.yaml).
 
 #### X-05 AI Inference: typed modality-governance integration (EXTERNAL_OWNER)
 
@@ -1343,7 +1343,7 @@ Closure evidence: Media source schema/negative tests are complete bounded defini
 
 Media can do now: Finish current Media typed modality schema/source negatives and send the exact contract review input to AI Inference owner; provider/model admission remains separate.
 
-Sources: [docs/migration/external-platform-contract-observation.json](/home/samujjwal/Developments/ghatana-media/docs/migration/external-platform-contract-observation.json), [docs/migration/external-platform-contract-observation.json](/home/samujjwal/Developments/ghatana-media/docs/migration/external-platform-contract-observation.json), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-0-product-truth/capability-leaf-review.yaml), [tests/media-ai-inference-modality-boundary.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-ai-inference-modality-boundary.test.mjs), [tests/media-external-platform-contract-observation.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/media-external-platform-contract-observation.test.mjs).
+Sources: [docs/migration/external-platform-contract-observation.json](../migration/external-platform-contract-observation.json), [docs/migration/external-platform-contract-observation.json](../migration/external-platform-contract-observation.json), [.product-experience/pdp-0-product-truth/capability-leaf-review.yaml](../../.product-experience/pdp-0-product-truth/capability-leaf-review.yaml), [tests/media-ai-inference-modality-boundary.test.mjs](../../tests/media-ai-inference-modality-boundary.test.mjs), [tests/media-external-platform-contract-observation.test.mjs](../../tests/media-external-platform-contract-observation.test.mjs).
 
 #### X-06 Ghatana Data Cloud / Action Plane / Event Plane handoff (EXTERNAL_OWNER)
 
@@ -1364,7 +1364,7 @@ Closure evidence: Media can define bounded event semantics and negative contract
 
 Media can do now: Write the exact bounded existing event/command source contracts and negative tenant/correlation cases for one selected handoff; do not infer public package or append semantics.
 
-Sources: [.product-experience/pdp-1-domain-data/events.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-1-domain-data/events.yaml), [.product-experience/pdp-2-design-interface-system/events/conventions.yaml](/home/samujjwal/Developments/ghatana-media/.product-experience/pdp-2-design-interface-system/events/conventions.yaml), [docs/implementation/media-owner-execution-batch-2026-10-08.json](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-owner-execution-batch-2026-10-08.json), [docs/migration/external-platform-contract-observation.json](/home/samujjwal/Developments/ghatana-media/docs/migration/external-platform-contract-observation.json).
+Sources: [.product-experience/pdp-1-domain-data/events.yaml](../../.product-experience/pdp-1-domain-data/events.yaml), [.product-experience/pdp-2-design-interface-system/events/conventions.yaml](../../.product-experience/pdp-2-design-interface-system/events/conventions.yaml), [docs/implementation/media-owner-execution-batch-2026-10-08.json](media-owner-execution-batch-2026-10-08.json), [docs/migration/external-platform-contract-observation.json](../migration/external-platform-contract-observation.json).
 
 #### X-07 TutorPutor reusable simulation/animation mechanics (EXTERNAL_OWNER)
 
@@ -1385,7 +1385,7 @@ Closure evidence: Media can author a source-backed applicability decision for th
 
 Media can do now: Record whether the currently selected Media profile has a spatial/simulation use case, with requirement IDs; if none, create a justified NOT_REQUIRED profile disposition.
 
-Sources: [config/release/internal-validation-only.json](/home/samujjwal/Developments/ghatana-media/config/release/internal-validation-only.json).
+Sources: [config/release/internal-validation-only.json](../../config/release/internal-validation-only.json).
 
 #### X-08 External dependency inventory and license/security decision (EXTERNAL_OWNER as applicable)
 
@@ -1406,7 +1406,7 @@ Closure evidence: Media can generate candidate inventory for an exact build/prof
 
 Media can do now: Generate a candidate SBOM/license inventory for the exact internal-validation build without declaring legal clearance.
 
-Sources: [scripts/report-media-dependency-inventory.mjs](/home/samujjwal/Developments/ghatana-media/scripts/report-media-dependency-inventory.mjs), [config/release/internal-validation-only.json](/home/samujjwal/Developments/ghatana-media/config/release/internal-validation-only.json), [docs/qualification/R-05-release-profile-admission.md](/home/samujjwal/Developments/ghatana-media/docs/qualification/R-05-release-profile-admission.md), [docs/qualification/R-01-codec-profile-observations.md](/home/samujjwal/Developments/ghatana-media/docs/qualification/R-01-codec-profile-observations.md), [review/r02-model-quality-observations.yaml](/home/samujjwal/Developments/ghatana-media/review/r02-model-quality-observations.yaml).
+Sources: [scripts/report-media-dependency-inventory.mjs](../../scripts/report-media-dependency-inventory.mjs), [config/release/internal-validation-only.json](../../config/release/internal-validation-only.json), [docs/qualification/R-05-release-profile-admission.md](../qualification/R-05-release-profile-admission.md), [docs/qualification/R-01-codec-profile-observations.md](../qualification/R-01-codec-profile-observations.md), [review/r02-model-quality-observations.yaml](../../review/r02-model-quality-observations.yaml).
 
 #### X-09 Finish Media source migration, compatibility and obsolete build paths (EXTERNAL_OWNER for other repos)
 
@@ -1427,7 +1427,7 @@ Closure evidence: Media can complete current consumer inventory and reversible m
 
 Media can do now: Refresh consumer/branch inventory and versioned dual-run/rollback rehearsal inputs; no retirement before owner-authorized cutover evidence.
 
-Sources: [docs/migration/compatibility-cutover-observation.json](/home/samujjwal/Developments/ghatana-media/docs/migration/compatibility-cutover-observation.json), [docs/migration/master-plan-source-change-claims.yaml](/home/samujjwal/Developments/ghatana-media/docs/migration/master-plan-source-change-claims.yaml), [docs/migration/repository-preparation-status.md](/home/samujjwal/Developments/ghatana-media/docs/migration/repository-preparation-status.md), [BOUNDARY.md](/home/samujjwal/Developments/ghatana-media/BOUNDARY.md).
+Sources: [docs/migration/compatibility-cutover-observation.json](../migration/compatibility-cutover-observation.json), [docs/migration/master-plan-source-change-claims.yaml](../migration/master-plan-source-change-claims.yaml), [docs/migration/repository-preparation-status.md](../migration/repository-preparation-status.md), [BOUNDARY.md (`/BOUNDARY.md`; external historical absolute path, not a repository-relative link).
 
 ### Runtime and release
 
@@ -1451,7 +1451,7 @@ Closure evidence: Media can maintain fail-closed unsupported behavior and select
 
 Media can do now: Choose one required candidate format profile from an actual Media requirement and define its exact correctness/security/performance/license test matrix; continue fail-closed unsupported paths.
 
-Sources: [docs/qualification/R-01-codec-profile-observations.md](/home/samujjwal/Developments/ghatana-media/docs/qualification/R-01-codec-profile-observations.md), [libs/java/common/src/main/java/com/ghatana/media/common/validation/MediaFormatValidator.java](/home/samujjwal/Developments/ghatana-media/libs/java/common/src/main/java/com/ghatana/media/common/validation/MediaFormatValidator.java), [libs/java/common/src/test/java/com/ghatana/media/common/validation/MediaFormatValidatorQualificationTest.java](/home/samujjwal/Developments/ghatana-media/libs/java/common/src/test/java/com/ghatana/media/common/validation/MediaFormatValidatorQualificationTest.java), [modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml](/home/samujjwal/Developments/ghatana-media/modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml), [modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java](/home/samujjwal/Developments/ghatana-media/modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java).
+Sources: [docs/qualification/R-01-codec-profile-observations.md](../qualification/R-01-codec-profile-observations.md), [libs/java/common/src/main/java/com/ghatana/media/common/validation/MediaFormatValidator.java](../../libs/java/common/src/main/java/com/ghatana/media/common/validation/MediaFormatValidator.java), [libs/java/common/src/test/java/com/ghatana/media/common/validation/MediaFormatValidatorQualificationTest.java](../../libs/java/common/src/test/java/com/ghatana/media/common/validation/MediaFormatValidatorQualificationTest.java), [modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml](../../modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml), [modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java](../../modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java).
 
 #### R-02 Qualify specific models and scientific quality claims
 
@@ -1472,7 +1472,7 @@ Closure evidence: Model identities, dataset rights, safety and quality evidence 
 
 Media can do now: Select one candidate model/profile only when source requirement and rights permit, then bind exact artifact digest and reproducible holdout protocol; until then keep claims NOT_EVALUATED.
 
-Sources: [review/r02-model-quality-observations.yaml](/home/samujjwal/Developments/ghatana-media/review/r02-model-quality-observations.yaml), [docs/migration/external-platform-contract-observation.json](/home/samujjwal/Developments/ghatana-media/docs/migration/external-platform-contract-observation.json), [modules/speech/stt-service](/home/samujjwal/Developments/ghatana-media/modules/speech/stt-service), [modules/speech/tts-service](/home/samujjwal/Developments/ghatana-media/modules/speech/tts-service), [modules/vision/vision-service](/home/samujjwal/Developments/ghatana-media/modules/vision/vision-service), [config/release/internal-validation-only.json](/home/samujjwal/Developments/ghatana-media/config/release/internal-validation-only.json).
+Sources: [review/r02-model-quality-observations.yaml](../../review/r02-model-quality-observations.yaml), [docs/migration/external-platform-contract-observation.json](../migration/external-platform-contract-observation.json), [modules/speech/stt-service](../../modules/speech/stt-service), [modules/speech/tts-service](../../modules/speech/tts-service), [modules/vision/vision-service](../../modules/vision/vision-service), [config/release/internal-validation-only.json](../../config/release/internal-validation-only.json).
 
 #### R-03 Harden real runtime durability, security and operations
 
@@ -1493,7 +1493,7 @@ Closure evidence: Media-owned code and repeatable integration/failure tests are 
 
 Media can do now: Close the next Media-owned durability/security predicate with an executable real-store failure test and record infra-dependent tests separately.
 
-Sources: [docs/qualification/R-03-runtime-hardening-observations.md](/home/samujjwal/Developments/ghatana-media/docs/qualification/R-03-runtime-hardening-observations.md), [modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java](/home/samujjwal/Developments/ghatana-media/modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java), [modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/video/VideoFrameExtractorProcessTest.java](/home/samujjwal/Developments/ghatana-media/modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/video/VideoFrameExtractorProcessTest.java).
+Sources: [docs/qualification/R-03-runtime-hardening-observations.md](../qualification/R-03-runtime-hardening-observations.md), [modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java](../../modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java), [modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/video/VideoFrameExtractorProcessTest.java](../../modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/video/VideoFrameExtractorProcessTest.java).
 
 #### R-04 Prove production product-host / client integration
 
@@ -1514,7 +1514,7 @@ Closure evidence: Product definition can complete independently. Production host
 
 Media can do now: Complete the release-profile-independent renderer/client parity test suite and deploy a production host only when a host is selected.
 
-Sources: [libs/audio-video-ui](/home/samujjwal/Developments/ghatana-media/libs/audio-video-ui), [tests/experience-browser-audit.test.mjs](/home/samujjwal/Developments/ghatana-media/tests/experience-browser-audit.test.mjs), [docs/implementation/verification/media-experience-browser-audit-2026-10-08](/home/samujjwal/Developments/ghatana-media/docs/implementation/verification/media-experience-browser-audit-2026-10-08).
+Sources: [libs/audio-video-ui](../../libs/audio-video-ui), [tests/experience-browser-audit.test.mjs](../../tests/experience-browser-audit.test.mjs), [docs/implementation/verification/media-experience-browser-audit-2026-10-08](verification/media-experience-browser-audit-2026-10-08).
 
 #### R-05 Release qualification and consumer migration signoff
 
@@ -1535,7 +1535,7 @@ Closure evidence: Media can create a reproducible internal validation artifact a
 
 Media can do now: Build an immutable internal-validation candidate and bind source/build/SBOM digests; this is preparatory evidence, not release authorization.
 
-Sources: [config/release/internal-validation-only.json](/home/samujjwal/Developments/ghatana-media/config/release/internal-validation-only.json), [docs/qualification/R-05-release-profile-admission.md](/home/samujjwal/Developments/ghatana-media/docs/qualification/R-05-release-profile-admission.md), [docs/migration/compatibility-cutover-observation.json](/home/samujjwal/Developments/ghatana-media/docs/migration/compatibility-cutover-observation.json).
+Sources: [config/release/internal-validation-only.json](../../config/release/internal-validation-only.json), [docs/qualification/R-05-release-profile-admission.md](../qualification/R-05-release-profile-admission.md), [docs/migration/compatibility-cutover-observation.json](../migration/compatibility-cutover-observation.json).
 
 ## Evidence and verification boundaries
 
@@ -1543,11 +1543,11 @@ Fresh checks during this report request: residual report exit 0 with zero diagno
 
 The source baseline was clean at audit start on main. Report-only files were added subsequently. Authoritative receipt and currentness counts remain null/NOT_EVALUATED; local bound receipt records remain zero. No remote authority response, approval or release state is inferred by this local audit.
 
-- [Machine readable 71 task report](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-task-completion-blocker-report-2026-10-08.json)
-- [Complete residual snapshot with exact unresolved IDs](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-task-blocker-residual-snapshot-2026-10-08.json)
-- [domain audit](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-blocker-audit-domain-2026-10-08.json)
-- [interfaces audit](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-blocker-audit-interfaces-2026-10-08.json)
-- [experience audit](/home/samujjwal/Developments/ghatana-media/docs/implementation/media-blocker-audit-experience-2026-10-08.json)
-- [Original execution and acceptance instructions](/home/samujjwal/Developments/ghatana-media/docs/implementation/IMPLEMENTER-MASTER-PROMPT-ALL-71-TASKS.md)
-- [Review roles and acceptance inputs](/home/samujjwal/Developments/ghatana-media/.product-experience/acceptance.yaml)
-- [Native closure blocker records](/home/samujjwal/Developments/ghatana-media/config/closure/media-product-definition/pending-decisions.json)
+- [Machine readable 71 task report](media-task-completion-blocker-report-2026-10-08.json)
+- [Complete residual snapshot with exact unresolved IDs](media-task-blocker-residual-snapshot-2026-10-08.json)
+- [domain audit](media-blocker-audit-domain-2026-10-08.json)
+- [interfaces audit](media-blocker-audit-interfaces-2026-10-08.json)
+- [experience audit](media-blocker-audit-experience-2026-10-08.json)
+- [Original execution and acceptance instructions](IMPLEMENTER-MASTER-PROMPT-ALL-71-TASKS.md)
+- [Review roles and acceptance inputs](../../.product-experience/acceptance.yaml)
+- [Native closure blocker records](../../config/closure/media-product-definition/pending-decisions.json)

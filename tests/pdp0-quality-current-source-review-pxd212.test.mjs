@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -195,10 +196,18 @@ function livePxd222Fixture() {
   for (const path of [PDP0_PXD213_QUALITY_REVIEW_PATH, PDP0_PXD216_MEANING_REVIEW_PATH, PDP0_PXD216_RECONCILIATION_PATH, PDP0_PXD218_QUALITY_REVIEW_PATH, PDP0_PXD223_RECONCILIATION_PATH]) {
     input.sourceTexts[path] = readText(path);
   }
+  for (const path of [
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+  ]) {
+    const historicalText = execFileSync("git", ["show", `HEAD:${path}`], { cwd: root, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
+    input.sourceTexts[path] = historicalText;
+    input.sourceDocuments[path] = JSON.parse(historicalText);
+  }
   return input;
 }
 
-test("PXD-218 remains immutable history while PXD-222 is the live currentness authority", () => {
+test("PXD-218 and PXD-222 remain immutable historical currentness records", () => {
   const input = livePxd213Fixture();
   const pxd213 = JSON.parse(readText(PDP0_PXD213_QUALITY_REVIEW_PATH));
   const pxd218 = JSON.parse(readText(PDP0_PXD218_QUALITY_REVIEW_PATH));

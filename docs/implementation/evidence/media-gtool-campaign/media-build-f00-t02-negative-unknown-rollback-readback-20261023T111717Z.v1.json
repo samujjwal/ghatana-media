@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "media.build-f00-t02-source-local-negative-unknown-rollback-readback.v1",
+  "recordKind": "SOURCE_LOCAL_FIXTURE_READBACK_NOT_OWNER_ACCEPTANCE_OR_HOST_EFFECT",
+  "recordedAt": "2026-10-23T11:17:17Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "gitHead": "f8816aede965d55c27005d5bab13bcb6ae376389",
+    "stage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "selectedTaskId": "M-BLD-F00.T02",
+    "selectedSurface": "Media source-bound build contract/trace bridge",
+    "sourceIdentities": 54,
+    "phaseCells": 216,
+    "canonicalObligationDenominator": 8664,
+    "pdp0ObligationDenominator": 4028
+  },
+  "sourceBaseline": {
+    "g0StatusPath": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_GTOOL_PHASE_STATUS_2026-10-23_PDP0-3_SOURCE_CURRENT_R1.json",
+    "g0StatusSha256": "sha256:141cc457cdf080d4f7b36d74baf7491fd3a452f1f584cc67b20c5dfc647c7172",
+    "g0SourceSnapshotFingerprint": "sha256:43e62857be2e880ac265cba64a77496caeb07f264a8734449aa8f1c7e2003562",
+    "g0SourceSubjectCount": 54,
+    "g0SourcePhaseCellCount": 216,
+    "sourcePins": {
+      "tests/media-build-bridge-blocker-inventory-generator.test.mjs": "sha256:f0f048e11110915f49f6adf67a90a09294d13d1b8c503c54a3d8dea548c01d63",
+      "scripts/generate-media-build-bridge-blocker-inventory.mjs": "sha256:27344c46b0cc849d02dbd39dc7043c2594494c76a559d36d9666dd51dfffbe3e",
+      "scripts/lib/media-build-bridge-blocker-inventory.mjs": "sha256:724ecdbf73f37d28ede62861c8373673476894db2e28401cf02f5d2a05558d78",
+      "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json": "sha256:bf2aa79326c746927fb883e2fd9871ec9b314815982c80956bcd6889428c68bb",
+      "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json": "sha256:78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7",
+      "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json": "sha256:5a503bc77de91a244a115e42316b853189ef8fc136dc46af50d317a784d14002",
+      "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json": "sha256:7e295302b4ef5357653e9254502c77e3222433f9b6ad439e40ff0a4d1087266c",
+      "docs/implementation/pdp-0-phase-dev-status.json": "sha256:8b3f208a1a07a88bd66b569f9b7764cc0f0d8419ba9710c3e61494040957119f",
+      "docs/implementation/pdp-1-phase-dev-status.json": "sha256:f41b12357cf172ee623dbaba4daca1186fc23e3e1be333c1f3361f106902bc3c",
+      "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "sha256:3a8ccb27cbb1747f9948234d915d377610efedfe63b334c3cf5b9ae03f327175",
+      "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "sha256:c8094e817482892962a5a8e4a70ccb23d0aef4175d71c650c17dcfa4dbd8bbac",
+      "config/closure/media-product-definition/owner-execution-authorization.v1.json": "sha256:9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"
+    }
+  },
+  "fixtures": {
+    "location": "OS temporary directory via fs.mkdtempSync(os.tmpdir())",
+    "cleanup": "test.after recursively removes each fixture directory",
+    "productionOrHostEffects": false,
+    "ownerOrPlannerInteractions": false,
+    "persistedFixtureArtifacts": false
+  },
+  "scenarios": [
+    {
+      "id": "baseline-current",
+      "result": "PASS",
+      "observation": "3 fixture identities / 2 edges produce a zero-blocker current readback"
+    },
+    {
+      "id": "source-unavailable",
+      "result": "PASS",
+      "observation": "generator exits nonzero and prior output digest is unchanged"
+    },
+    {
+      "id": "malformed-source",
+      "result": "PASS",
+      "observation": "generator exits nonzero and prior output digest is unchanged"
+    },
+    {
+      "id": "unknown-bridge-status",
+      "result": "PASS",
+      "observation": "UNKNOWN is rejected as SOURCE_BRIDGE_STATUS_INVALID; prior output is unchanged"
+    },
+    {
+      "id": "contradictory-current-with-blocker",
+      "result": "PASS",
+      "observation": "SOURCE_RELATIONS_CURRENT with unresolved blockers is rejected; prior output is unchanged"
+    },
+    {
+      "id": "contradictory-incomplete-without-blocker",
+      "result": "PASS",
+      "observation": "INCOMPLETE_SOURCE_RELATIONS with no unresolved blockers is rejected; prior output is unchanged"
+    },
+    {
+      "id": "unclassified-blocker",
+      "result": "PASS",
+      "observation": "unknown reason remains in otherUnclassified, otherReasonCount is 1, status remains TECHNICAL_WORK_REMAINING"
+    },
+    {
+      "id": "exact-restore-and-check-only",
+      "result": "PASS",
+      "observation": "restoring exact fixture bytes allows --check; source and output digests remain unchanged"
+    }
+  ],
+  "verification": [
+    {
+      "command": "pnpm test:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS; 8 tests"
+    },
+    {
+      "command": "pnpm test:build-contract-bridge",
+      "exitCode": 0,
+      "result": "PASS; 2 tests"
+    },
+    {
+      "command": "pnpm test:build-work-packages",
+      "exitCode": 0,
+      "result": "PASS; 2 tests"
+    },
+    {
+      "command": "pnpm check:build-contract-bridge",
+      "exitCode": 0,
+      "result": "PASS; deterministic/current; 3,186 identities, 8,667 edges"
+    },
+    {
+      "command": "pnpm check:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS; source relations current; zero unresolved blockers"
+    },
+    {
+      "command": "pnpm check:build-work-packages",
+      "exitCode": 0,
+      "result": "PASS; deterministic/current; 3,186 identities"
+    },
+    {
+      "command": "pnpm check:gtool-execution-queue",
+      "exitCode": 0,
+      "result": "PASS; 19 technical tasks remain open"
+    },
+    {
+      "command": "node scripts/generate-media-build-f00-t01-observation.mjs --g0-status /Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_GTOOL_PHASE_STATUS_2026-10-23_PDP0-3_SOURCE_CURRENT_R1.json --check --artifact docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T105424Z.v1.json",
+      "exitCode": 0,
+      "result": "PASS; 54 identities, 216 phase cells, 859 material pins"
+    }
+  ],
+  "currentBridgeReadback": {
+    "status": "SOURCE_RELATIONS_CURRENT",
+    "traceIdentityCount": 3186,
+    "edgeCount": 8667,
+    "unresolvedSourceBlockerCount": 0,
+    "taskCompletionStatus": "NOT_EVALUATED",
+    "proofStatus": "NOT_VERIFIED"
+  },
+  "supersededCandidate": {
+    "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-independent-technical-review-candidate-20261023T105914Z.v1.json",
+    "disposition": "STALE_AFTER_TEST_AND_BRIDGE_SOURCE_CHANGES",
+    "changedInputCount": 2,
+    "changedInputs": [
+      "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+      "tests/media-build-bridge-blocker-inventory-generator.test.mjs"
+    ]
+  },
+  "writesPerformed": {
+    "testCoverage": "tests/media-build-bridge-blocker-inventory-generator.test.mjs",
+    "generatedSourceProjections": [
+      "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+      "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
+      "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+      "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json"
+    ],
+    "fixtureWrites": "temporary directories only; removed during test teardown",
+    "ownerOrHostSystems": false
+  },
+  "disposition": {
+    "localNegativeUnknownRollbackReadback": "COMPLETE_FOR_FIXTURE_SCOPE",
+    "taskStatus": "OPEN_TECHNICAL_WORK",
+    "taskAcceptance": "NOT_ESTABLISHED",
+    "sourceCurrentOwnerOrWorkPlannerReview": "PENDING",
+    "nativeAdmission": "NOT_ISSUED",
+    "nativeReceipts": 0,
+    "hostRollbackProof": "NOT_TESTED",
+    "deliveryAuthorization": false
+  },
+  "limitations": [
+    "This record covers deterministic local fixture behavior only.",
+    "It does not close F00.T02 or establish independent acceptance, Build admission, native PDP closure, host rollback, or Delivery.",
+    "The 4,028 PDP-0 obligation mapping remains a separate native closure blocker and is not inferred from this bridge readback."
+  ]
+}

@@ -41,6 +41,76 @@ function readOwned(root,name){
  if(dirty.error||dirty.status!==0)throw Error('SOURCE_NOT_COMMITTED_CURRENT:'+name);
  return fs.readFileSync(real);
 }
+function collectSourcePaths(value, paths=[]){
+ if(Array.isArray(value)){for(const item of value)collectSourcePaths(item,paths);return paths;}
+ if(!value||typeof value!=='object')return paths;
+ for(const [key,item] of Object.entries(value)){
+  if(['sourcePath','sourceRef','sourcePopulationRef'].includes(key)&&typeof item==='string')paths.push(item.split('#')[0]);
+  else collectSourcePaths(item,paths);
+ }
+ return paths;
+}
+const ARCHIVE_VALIDATOR=String.raw`import hashlib,json,sys,tarfile
+archive_path=sys.argv[1]
+request=json.load(sys.stdin)
+expected=request['files']
+expected_directories=set(request['directories'])
+max_entries=request['maxEntries']
+seen=set()
+regular=set()
+try:
+    with tarfile.open(archive_path, mode='r:') as archive:
+        for count,entry in enumerate(archive, start=1):
+            if count>max_entries:
+                raise SystemExit('ARCHIVE_MEMBER_COUNT_LIMIT')
+            name=entry.name
+            if entry.type == tarfile.DIRTYPE and name.endswith('/'):
+                name=name[:-1]
+            if not name or name.startswith('/') or '\\' in name or any(part in ('', '.', '..') for part in name.split('/')):
+                raise SystemExit('ARCHIVE_UNSAFE_MEMBER_PATH:'+entry.name)
+            if name in seen:
+                raise SystemExit('ARCHIVE_DUPLICATE_MEMBER:'+name)
+            seen.add(name)
+            if entry.type == tarfile.DIRTYPE:
+                if name not in expected_directories:
+                    raise SystemExit('ARCHIVE_UNEXPECTED_DIRECTORY:'+name)
+                if entry.size != 0:
+                    raise SystemExit('ARCHIVE_DIRECTORY_SIZE_MISMATCH:'+name)
+                continue
+            if entry.type not in (tarfile.REGTYPE, tarfile.AREGTYPE):
+                raise SystemExit('ARCHIVE_UNSAFE_MEMBER_TYPE:'+name)
+            if name not in expected:
+                raise SystemExit('ARCHIVE_UNEXPECTED_MEMBER:'+name)
+            regular.add(name)
+            if entry.size != expected[name]['size']:
+                raise SystemExit('ARCHIVE_MEMBER_SIZE_MISMATCH:'+name)
+            stream=archive.extractfile(entry)
+            if stream is None:
+                raise SystemExit('ARCHIVE_MEMBER_CONTENT_UNREADABLE:'+name)
+            digest=hashlib.sha256()
+            for chunk in iter(lambda: stream.read(1024*1024), b''):
+                digest.update(chunk)
+            if digest.hexdigest()!=expected[name]['sha256']:
+                raise SystemExit('ARCHIVE_MEMBER_CONTENT_MISMATCH:'+name)
+except tarfile.ReadError as error:
+    raise SystemExit('ARCHIVE_PLAIN_TAR_REQUIRED:'+str(error))
+if regular != set(expected):
+    missing=sorted(set(expected)-regular)
+    raise SystemExit('ARCHIVE_MEMBER_SET_MISMATCH:'+','.join(missing[:10]))
+`;
+function validateArchive(archivePath,files){
+ const expected=Object.fromEntries(files.map(f=>[f.path,{sha256:f.sha256,size:f.size}]));
+ const directories=new Set();
+ for(const file of files){const parts=file.path.split('/');parts.pop();while(parts.length){directories.add(parts.join('/'));parts.pop()}}
+ const maxEntries=files.length+directories.size;
+ const expectedBytes=files.reduce((sum,file)=>sum+file.size,0);
+ const pathBytes=files.reduce((sum,file)=>sum+Buffer.byteLength(file.path),0)+[...directories].reduce((sum,name)=>sum+Buffer.byteLength(name),0);
+ const maxArchiveBytes=expectedBytes+maxEntries*4096+pathBytes*2+1024;
+ if(!Number.isSafeInteger(maxArchiveBytes)||fs.statSync(archivePath).size>maxArchiveBytes)throw Error('ARCHIVE_SIZE_LIMIT_EXCEEDED');
+ const result=spawnSync('python3',['-c',ARCHIVE_VALIDATOR,archivePath],{input:JSON.stringify({files:expected,directories:[...directories],maxEntries}),encoding:'utf8',timeout:120000,maxBuffer:1024*1024});
+ if(result.error?.code==='ENOENT')throw Error('PYTHON3_REQUIRED_FOR_ARCHIVE_VALIDATION: install Python 3 and ensure python3 is on PATH');
+ if(result.error||result.status!==0)throw Error(String(result.stderr||result.stdout||result.error||'ARCHIVE_VALIDATION_FAILED').trim());
+}
 export function createSnapshotCandidate({root,archivePath,outputPath,check=false,createArchive=false}){
  const r=fs.realpathSync(root);
  if(!relativeSafe(outputPath)||SOURCE.includes(outputPath))throw Error('SNAPSHOT_OUTPUT_PATH_INVALID');
@@ -48,14 +118,17 @@ export function createSnapshotCandidate({root,archivePath,outputPath,check=false
  const obligations=JSON.parse(readOwned(r,'config/closure/media-product-definition/obligations.json'));
  if(!Array.isArray(obligations))throw Error('OBLIGATION_ARRAY_REQUIRED');
  const sourceRefs=obligations.map(o=>o?.extensions?.['media-source']?.sourceRef).filter(x=>typeof x==='string').map(x=>x.split('#')[0]);
+ const caseLinks=JSON.parse(readOwned(r,'config/closure/media-product-definition/l02-source-case-links.json'));
+ const proofRoutes=JSON.parse(readOwned(r,'config/closure/media-product-definition/l03-proof-route-candidates.json'));
+ const proofRefs=[...collectSourcePaths(caseLinks),...collectSourcePaths(proofRoutes)];
  const consumer=JSON.parse(readOwned(r,'config/closure/consumer.json'));
  const consumerRefs=Object.values(consumer.sources||{}).flatMap(x=>Array.isArray(x)?x:[x]).map(x=>{
   if(x?.kind!=='file'||typeof x.ref!=='string')throw Error('UNEXPANDED_CONSUMER_SOURCE_SELECTOR');
   return x.ref;
  });
- const members=[...new Set([...SOURCE,...sourceRefs,...consumerRefs])].sort((a,b)=>Buffer.compare(Buffer.from(a),Buffer.from(b)));
+ const members=[...new Set([...SOURCE,...sourceRefs,...proofRefs,...consumerRefs])].sort((a,b)=>Buffer.compare(Buffer.from(a),Buffer.from(b)));
  if(members.length>8191)throw Error('TRACKED_SNAPSHOT_MEMBER_LIMIT');
- const files=members.map(name=>({path:name,sha256:sha(readOwned(r,name))}));
+ const files=members.map(name=>{const bytes=readOwned(r,name);return {path:name,sha256:sha(bytes),size:bytes.length}});
  const headBefore=cmd(r,['rev-parse','HEAD']);
  if(createArchive){
   const absoluteArchive=path.resolve(archivePath),relation=path.relative(r,absoluteArchive);
@@ -69,6 +142,7 @@ export function createSnapshotCandidate({root,archivePath,outputPath,check=false
  if(!archiveStat.isFile()||archiveStat.size===0)throw Error('ACTUAL_ARCHIVE_REQUIRED');
  if(cmd(r,['rev-parse','HEAD'])!==headBefore)throw Error('SOURCE_HEAD_CHANGED_DURING_ARCHIVE');
  for(const member of files)if(sha(readOwned(r,member.path))!==member.sha256)throw Error('SOURCE_MEMBER_CHANGED_DURING_ARCHIVE:'+member.path);
+ validateArchive(archive,files);
  const material=crypto.createHash('sha256');
  for(const member of files)material.update(member.path+'\0'+member.sha256+'\n','utf8');
  const snapshot={
@@ -76,7 +150,7 @@ export function createSnapshotCandidate({root,archivePath,outputPath,check=false
    workspaceRoot:r,
    archiveSha256:sha(fs.readFileSync(archive)),
    sourceMaterialSha256:material.digest('hex'),
-   files
+   files:files.map(({path,sha256})=>({path,sha256}))
  };
  const body=JSON.stringify(snapshot,null,2)+'\n';
  const target=path.join(r,outputPath);

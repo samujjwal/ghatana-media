@@ -89,7 +89,15 @@ test("Lane A populations remain distinct and current relationship endpoints reso
 
 test("open canonical questions are classified into Media definition and genuinely external or implementation residuals", () => {
   const adjudications = reconciliation.currentDefinitionAdjudication.records;
-  assert.deepEqual(adjudications.map(({ id }) => id), reconciliation.openDecisions.map(({ id }) => id));
+  const openDecisionIds = new Set(reconciliation.openDecisions.map(({ id }) => id));
+  assert.deepEqual(
+    adjudications.filter(({ id }) => openDecisionIds.has(id)).map(({ id }) => id),
+    reconciliation.openDecisions.map(({ id }) => id),
+  );
+  const currentDefinitionOnly = adjudications.filter(({ id }) => !openDecisionIds.has(id));
+  assert.deepEqual(currentDefinitionOnly.map(({ id }) => id), ["canonical-project-and-revision-identity"]);
+  assert.match(currentDefinitionOnly[0].disposition, /tenantId \+ stable opaque projectId.*tenantId \+ projectId \+ stable opaque revisionId/u);
+  assert.match(currentDefinitionOnly[0].remaining, /runtime\/persistence.*durable snapshots.*atomic create\/commit.*CAS/iu);
   for (const row of adjudications) {
     assert.match(row.classification, /MEDIA_LOGICAL_MEANING_RESOLVED/u);
     assert.ok(row.disposition.length > 40);

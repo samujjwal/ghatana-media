@@ -2855,3 +2855,34 @@ from `TARGET` to `DEFERRED`. J-03's transcription, caption, journey and selected
 fixture definitions were unchanged. The recording manifest preserves the
 capture pins and records the current source revalidation; voice-license and
 external publication approval remain unreviewed.
+
+### PXD-225 — Remove an absent archived-channel evidence locator
+
+**Authority:** The user delegated Media repository and product-owner decisions
+for this campaign. This is a bounded PDP-0 source-currentness decision; it is
+not independent acceptance or a decision by Lifecycle, Tools, Kernel, or an
+external product owner.
+
+**Decision:** In the explicitly historical `media.channel.legacy-desktop`
+record, remove the evidence locator
+`archive/media-desktop-apps/ai-voice-desktop/README.md`. The archived source
+tree and repository history contain no such file. Retain the existing
+`archive/media-desktop-apps/desktop/README.md` evidence locator and preserve
+the channel's `historical-archive`, `archived-source-only`, `NOT_ADMITTED`, and
+unsupported-current-channel dispositions. Do not create substitute historical
+content or change the channel's applicability, support, licensing, runtime, or
+qualification state.
+
+**Currentness:** Preserve PXD-216's semantic review and original source pins as
+historical evidence, and preserve PXD-223's capability-slice reconciliation.
+PXD-225 binds the current archived-channel source bytes and exact decision
+section, verifies that the only source change is removal of the absent locator,
+and confirms that the reviewed 20 capability rows remain unchanged. Refresh
+only the dependent PDP-0 current-source records and projections. The exact
+currentness record is
+`docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json`.
+
+**Boundary:** No PDP-0 capability meaning changes. No owner acceptance,
+independent acceptance, implementation verification, runtime admission,
+qualification, phase closure, or Delivery readiness is claimed. This
+currentness repair does not assert PDP-0 `DEV_COMPLETE` by itself.

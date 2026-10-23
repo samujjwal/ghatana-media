@@ -4,39 +4,39 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-1",
-    "sourceBaselineCommit": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+    "sourceBaselineCommit": "f8816aede965d55c27005d5bab13bcb6ae376389",
     "status": "DEV_COMPLETE"
   },
   "generatedAt": "2026-10-19T23:10:52.997053Z",
   "statusRecordRef": "docs/implementation/pdp-1-phase-dev-status.json",
-  "statusRecordSha256": "72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d",
+  "statusRecordSha256": "7df7e24b1241c8e6d680395b1ce2a49db346604783c6d2601da02532589b85cf",
   "semanticReviewRef": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
-  "semanticReviewSha256": "b0bdded1131b89a8bece16bcbaf40daba5918ef0fd77775065a2b9cdf902bae6",
+  "semanticReviewSha256": "3ff443f79e398ad6c397b75bc5dd76b308ecddf8f8739dc2f5307b22a6c9a2d3",
   "pdp0PredecessorStatusRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "pdp0PredecessorStatusSha256": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
-  "sourceFingerprintSetSha256": "bdcb209fe334ee1b7f77e9d45deef6bfe4d169071dbc23de617f9ea1e5fa0134",
+  "pdp0PredecessorStatusSha256": "ab85e67c2d7b104eaa7e198f6648f6fcec23ebc826e29c80009819a92a58feed",
+  "sourceFingerprintSetSha256": "1b90ee8cf96c8ef631b80ffcf0f1bdb1fa81204fe2c5cd552988526e36646a04",
   "sourceFingerprints": {
     ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
     ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
-    ".product-experience/decision-log.md": "3cbd89db92982d50d0f150c1f81fc4b1f7a658e623fe6372c5fc07792b371f68",
+    ".product-experience/decision-log.md": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
     ".product-experience/interface-parity/README.md": "367de42d6811606adc3a23d367a153fb5c35a0644477f15011b1f23c874cb5e8",
-    ".product-experience/interface-parity/current-source-review.json": "bd3b1d614fa317dcaae0df5991eb53ca7bf3a5d8dfe10a2ebdc91a4d3053309c",
+    ".product-experience/interface-parity/current-source-review.json": "32a263f2bfaaeba8299114310485481d70abe8da13b188331be2016a897c5be0",
     ".product-experience/interface-parity/operation-parity.yaml": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
     ".product-experience/interface-parity/typed-contract-bindings.json": "402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
     ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
     ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
     ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
-    ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "f7dac0dfe2bc535f24fedab85425b281a8c89eb7a0fc5c23280c977257d71598",
+    ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "b46a686882a662cac9c0422b5cc1c762bb308f59046dd8f78d1b915622ccfad6",
     ".product-experience/pdp-1-domain-data/action-contracts.yaml": "9159fdcc1a943a4da9a1ac87d112a5be0d59becee3a9adae8187023fa596d067",
     ".product-experience/pdp-1-domain-data/authority.yaml": "433f13db1adde6b7136656491125612a5894cfe8ad6d50e3f4c23d99223102ec",
-    ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+    ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
     ".product-experience/pdp-1-domain-data/decisions.yaml": "21ae2214b7e1db961e826b95022fa5a69a41fef83afd923701d79f9c8aef18b8",
     ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
-    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
     ".product-experience/pdp-1-domain-data/events.yaml": "7a3c91161e1d7597f4e378163b0f9a652c3f316d9b11346ea074f64f0954bf3d",
     ".product-experience/pdp-1-domain-data/evidence.yaml": "aa1319db9ec6c5f3f9a68d12911aca3f978a8f9278fbb79559916472e44b2f3b",
-    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "b2901f3efc54920b1d280897fc2d95eb10029d092944d7bbf046b6dbd8f97c48",
+    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08",
     ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
     ".product-experience/pdp-1-domain-data/offline-sync.yaml": "0d4d5acb1bdff5972a5014f6c053cf9f0f9d21adec0b7753acd08bfa9f913d2a",
     ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "a1ff62230ab89dc6bc051737d68418b8e5bee3c08e5bad0a64628fe273f0b19c",
@@ -53,7 +53,7 @@
     ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
     ".product-experience/pdp-1-domain-data/transitions.yaml": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
     ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
-    ".product-experience/pdp-1-domain-data/versioning.yaml": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
+    ".product-experience/pdp-1-domain-data/versioning.yaml": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b",
     ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml": "8d86816919f8bf5aa4412b554faf31c084dd3e8739190d84ec9be3c322376f7d",
     ".product-experience/pdp-3-product-experience/action-registry.yaml": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
     ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
@@ -66,10 +66,10 @@
     ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
     ".product-experience/traceability.yaml": "90fc9960e880e3d26c20d5fc0aa12309799f25218f4b7440d59a4413eb112725",
     "contracts/openapi/media.yaml": "fedd60d8a04ce320f28c143406110b6ccf14ab94afd00f8d2445bfeb1637b1ef",
-    "docs/implementation/pdp-0-phase-dev-status.json": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
-    "docs/implementation/pdp-1-phase-dev-status.json": "72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d",
-    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
-    "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json": "b0bdded1131b89a8bece16bcbaf40daba5918ef0fd77775065a2b9cdf902bae6",
+    "docs/implementation/pdp-0-phase-dev-status.json": "ab85e67c2d7b104eaa7e198f6648f6fcec23ebc826e29c80009819a92a58feed",
+    "docs/implementation/pdp-1-phase-dev-status.json": "7df7e24b1241c8e6d680395b1ce2a49db346604783c6d2601da02532589b85cf",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "1c284172c1fa0264a0a5649ac3896e045be02942896e0bbb868a7ef662c862df",
+    "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json": "3ff443f79e398ad6c397b75bc5dd76b308ecddf8f8739dc2f5307b22a6c9a2d3",
     "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json": "ddacf6712c2396ee183b865c268e450cf2fea584bdecf9011f2bb201a489b208",
     "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java": "501e6b57b21ad9e558bcd3a54c594eb0b2709633a2ff2eaa92e15e427e05edad",
     "libs/audio-video-client/src/__tests__/AudioVideoClient.integration.test.ts": "32ff96088e5b8f0054166c15a86364ccfaaea145f3278ffefede7305dc17576b",
@@ -106,13 +106,13 @@
     "tests/media-contract-parity.test.mjs": "51ee7194a1ce2c917f9bedd0e766278f7f745b5a270d019ef4d4b436fb01773d",
     "tests/media-declarative-production-p1-definitions.test.mjs": "2ed38bf756e71e895b8ec32db751dd57994515c08ca334fac08060d5b3714421",
     "tests/media-descriptor-definition-oracles.test.mjs": "3bc62a2a6f0eb0ed4ad8c151d1f3c413e89a35d1766e156398c69a153d44d7b0",
-    "tests/media-domain-identity-reconciliation.test.mjs": "3b8451e8bd9a646298f1097df6539fa3d87a1ed1cb45fc958aef046fcc748e97",
+    "tests/media-domain-identity-reconciliation.test.mjs": "3c83563e21bf113bdcaf0223fbc8cbdb6b26d019cfc2573e422a6e00e4573d65",
     "tests/media-event-interface-owner-bindings.test.mjs": "d25165409fb1c9d68ec3e23926be52e0ccad9747fbd148046603a8785d14e6b7",
     "tests/media-event-source-parity.test.mjs": "b1c7cbc0b3250fc624c57b964634cd7fffea11a0fcd25f41e46f7ce9df25a74a",
     "tests/media-operation-parity-source-denominators.test.mjs": "36e2d1e3da3f47814d71986c91c0b6bbce34cb24e0c363c1c255ea639d7efe84",
-    "tests/media-pdp-p1-dev-status.test.mjs": "39a604dc39876c77ab3c5a4b2ff44c078f33c3dac27ca2c591acb445878e3d21",
+    "tests/media-pdp-p1-dev-status.test.mjs": "c5660bd1dabfc2b29ab4247289d1c7264c8ce340490119f9daefc3ed12b6480f",
     "tests/media-privacy-consistency-source.test.mjs": "81b7187b839d8fb4f664aec7e3544072fdd3ce280c1f0c1990e8c266324c7e4a",
-    "tests/media-recorder-studio-p1-definitions.test.mjs": "381327a91c51ad4ef965d2cc1076fcb33a62e427e074f1f73dddff81df01e069",
+    "tests/media-recorder-studio-p1-definitions.test.mjs": "f0c13cdbf6b569c8f771156cffb4608979302a30694a3028b438dc0c6a12498a",
     "tests/media-sdk-legacy-interface-dispositions.test.mjs": "3c69397a52248369ade860e5c4a4bdcf4270e15806b1cc04a30e9c0679384dea",
     "tests/media-state-machine-extraction.test.mjs": "1cb4ff8a5be9d6f8353e3c8b290c7e2bd5675e999a888451742d5797de966641",
     "tests/media-temporal-spatial-definition-model.test.mjs": "c0fd02787d43e857c893dab58c724400017a46791d33ff2d6b8746a804bbafe7",
@@ -138,7 +138,7 @@
     "tests/pdp1-interface-current-source-review.test.mjs": "f8376b4687ffbf06b320486f508d2e0dc7cb85c6d6e4371ad514fbdfbe8e136c",
     "tests/pdp1-j29-execution-recovery-read-contract.test.mjs": "6f805f44df273606184a535f1022aec4d1e88dd9b7069f2a38d6f4d05de38f2f",
     "tests/pdp1-job-submit-typed-input-mapping.test.mjs": "f2c96c6ed097a659d2c9860ca8afe4a02e68644e513f68dc2c3fb931bd89f596",
-    "tests/pdp1-lane-a-current-source-review.test.mjs": "40165f8d0633aca5055c939d17d251211243752ee15d0b4c359d0697115a8bdc",
+    "tests/pdp1-lane-a-current-source-review.test.mjs": "181cec314b4d0d53ea46c64663fe34d4349338a66cad197a68b8814ffe4fcd52",
     "tests/pdp1-opaque-id-operation-field-bounds.test.mjs": "affa1a080b47b8e1da8bc8b0b57490b67891ceffba8b411eab52cbc453c20461",
     "tests/pdp1-operation-current-source-review.test.mjs": "59ad2da9929657aa52cc4c6e99d4e9d21e402e1926579697e29424a1e5c1c28b",
     "tests/pdp1-output-producer-contract-mappings.test.mjs": "2f776707b51e3bcfe9e7cd428c94aaafe3959e5f566cedf93269c3b7695432a4",
@@ -231,7 +231,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -272,7 +272,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -313,7 +313,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -352,7 +352,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -393,7 +393,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -435,7 +435,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -479,7 +479,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -522,7 +522,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -567,7 +567,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -608,7 +608,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -647,7 +647,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -690,7 +690,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -730,7 +730,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -773,7 +773,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -817,7 +817,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -859,7 +859,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -900,7 +900,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -939,7 +939,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -981,7 +981,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -1023,7 +1023,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -1063,7 +1063,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -1106,7 +1106,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -1148,7 +1148,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -1188,7 +1188,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -1230,7 +1230,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -1275,7 +1275,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
         ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d"
       },
       "sourceCurrent": true,
@@ -1316,7 +1316,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629"
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",
@@ -2399,7 +2399,7 @@
       "sourceFingerprints": {
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-        ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "f7dac0dfe2bc535f24fedab85425b281a8c89eb7a0fc5c23280c977257d71598"
+        ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "b46a686882a662cac9c0422b5cc1c762bb308f59046dd8f78d1b915622ccfad6"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "PDP-1 status and semantic-review source pins match live source bytes.",

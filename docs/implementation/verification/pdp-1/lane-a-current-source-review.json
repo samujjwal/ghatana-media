@@ -7,11 +7,11 @@
     "relationships": ".product-experience/decision-log.md#PXD-140 reconciles the 13-record current relationship population and has acceptanceEffect:none"
   },
   "sourceFingerprints": {
-    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
     ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
-    ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+    ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
     ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
-    ".product-experience/pdp-1-domain-data/versioning.yaml": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
+    ".product-experience/pdp-1-domain-data/versioning.yaml": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b",
     ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
     ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
     ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
@@ -98,6 +98,17 @@
         ".product-experience/pdp-0-product-truth/state-models.yaml#models/@modelId=media-rights-and-consent"
       ],
       "meaning": "Both records are applicable to P1-01 identity and typed-reference reconciliation. ConsentReference names an authority-issued revision bound to tenant, principal, purpose, region, and validity; PDP-0 remains the authority for permission/currentness. GenerationControlBundle is versioned generation intent only and cannot assert model or identity truth. Their proposal scopeStatus values, runtime/storage admission, and independent review are unchanged."
+    },
+    {
+      "id": "project-revision-identity-current-definition",
+      "refs": [
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#currentDefinitionAdjudication/records/@id=canonical-project-and-revision-identity",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.project",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.project-revision",
+        ".product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-revision",
+        ".product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics"
+      ],
+      "meaning": "Current Media logical identity is tenantId plus stable opaque projectId for Project, and tenantId plus projectId plus stable opaque revisionId for ProjectRevision; workspace is an authorization scope and a content digest is not revision identity. Committed revisions are immutable by definition. Runtime records, durable snapshots/history, atomic create/commit, CAS enforcement, and authenticated tenant/principal binding remain unverified or external-owner work."
     }
   ],
   "acceptanceEffect": "none",
@@ -888,37 +899,56 @@
     }
   ],
   "sourceCutRefresh": {
-    "reviewedOn": "2026-10-19",
-    "status": "INTERNAL_CURRENT_SOURCE_REINSPECTION; PHASE_ACCEPTANCE_NOT_CLAIMED",
+    "id": "PDP1-LANE-A-CURRENT-SOURCE-REFRESH-2026-10-23-R2",
+    "reviewedOn": "2026-10-23",
+    "phase": "PDP-1",
+    "status": "INTERNAL_CURRENT_SOURCE_REINSPECTION; FULL_LANE_A_POPULATIONS_RETAINED; PHASE_ACCEPTANCE_NOT_CLAIMED",
     "authority": "Internal PDP-1 source-definition review under user-delegated Media definition authority; no owner receipt, independent certification, runtime admission, or phase closure is claimed.",
-    "priorSourceFingerprintsPreserved": {
-      ".product-experience/pdp-1-domain-data/domain-objects.yaml": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+    "method": "Re-read all 39 domain objects, 38 typed identity contracts, 13 relationships, 13 values, the current project/revision reconciliation, revision semantics, and the PDP-0 product clock source. Reconcile exact current PDP-1 definition bytes and active summary labels while retaining external identity, runtime, persistence, storage, consumer, independent-review, and acceptance boundaries.",
+    "previousSourceFingerprints": {
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
       ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
       ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
-      ".product-experience/pdp-1-domain-data/value-objects.yaml": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
-      ".product-experience/pdp-1-domain-data/versioning.yaml": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+      ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+      ".product-experience/pdp-1-domain-data/versioning.yaml": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
       ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
       ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
       ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
-      ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+      ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+      ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+    },
+    "sourceFingerprints": {
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
+      ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+      ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
+      ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+      ".product-experience/pdp-1-domain-data/versioning.yaml": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b",
+      ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+      ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+      ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+      ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
       ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
     },
     "changedSourcePins": {
       ".product-experience/pdp-1-domain-data/domain-objects.yaml": {
-        "prior": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
-        "current": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629"
+        "prior": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        "current": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0"
       },
-      ".product-experience/pdp-1-domain-data/value-objects.yaml": {
-        "prior": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
-        "current": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916"
+      ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": {
+        "prior": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+        "current": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746"
       },
       ".product-experience/pdp-1-domain-data/versioning.yaml": {
-        "prior": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
-        "current": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3"
+        "prior": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
+        "current": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b"
       }
     },
-    "scope": "Rebind the existing Lane A identity, relationship, value, versioning, and interoperability findings to the exact current source bytes; no historical decision or acceptance effect is rewritten.",
+    "currentDefinitionReconciliationIds": [
+      "PDP1-PROJECT-REVISION-IDENTITY-CURRENT-SOURCE-RECONCILIATION-2026-10-23"
+    ],
     "outstandingMeaningIds": [],
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
     "runtimeAdmission": "NOT_ADMITTED"
   },
   "currentPdp0TemporalReconciliation": {
@@ -938,5 +968,95 @@
       "DTS"
     ],
     "disposition": "PDP-1 value definitions preserve five distinct product clocks; DTS remains source-stream decode-order metadata, not another product clock. Existing wire fields remain compatibility observations until separately reconciled and admitted."
-  }
+  },
+  "sourceCutRefreshHistory": [
+    {
+      "reviewedOn": "2026-10-19",
+      "status": "INTERNAL_CURRENT_SOURCE_REINSPECTION; PHASE_ACCEPTANCE_NOT_CLAIMED",
+      "authority": "Internal PDP-1 source-definition review under user-delegated Media definition authority; no owner receipt, independent certification, runtime admission, or phase closure is claimed.",
+      "priorSourceFingerprintsPreserved": {
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+        ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
+        ".product-experience/pdp-1-domain-data/versioning.yaml": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+        ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+        ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+      },
+      "changedSourcePins": {
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": {
+          "prior": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+          "current": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629"
+        },
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": {
+          "prior": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
+          "current": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916"
+        },
+        ".product-experience/pdp-1-domain-data/versioning.yaml": {
+          "prior": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+          "current": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3"
+        }
+      },
+      "scope": "Rebind the existing Lane A identity, relationship, value, versioning, and interoperability findings to the exact current source bytes; no historical decision or acceptance effect is rewritten.",
+      "outstandingMeaningIds": [],
+      "runtimeAdmission": "NOT_ADMITTED"
+    },
+    {
+      "id": "PDP1-LANE-A-CURRENT-SOURCE-REFRESH-2026-10-23-R2",
+      "reviewedOn": "2026-10-23",
+      "phase": "PDP-1",
+      "status": "INTERNAL_CURRENT_SOURCE_REINSPECTION; FULL_LANE_A_POPULATIONS_RETAINED; PHASE_ACCEPTANCE_NOT_CLAIMED",
+      "authority": "Internal PDP-1 source-definition review under user-delegated Media definition authority; no owner receipt, independent certification, runtime admission, or phase closure is claimed.",
+      "method": "Re-read all 39 domain objects, 38 typed identity contracts, 13 relationships, 13 values, the current project/revision reconciliation, revision semantics, and the PDP-0 product clock source. Reconcile exact current PDP-1 definition bytes and active summary labels while retaining external identity, runtime, persistence, storage, consumer, independent-review, and acceptance boundaries.",
+      "previousSourceFingerprints": {
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+        ".product-experience/pdp-1-domain-data/versioning.yaml": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+        ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+        ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+      },
+      "sourceFingerprints": {
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
+        ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+        ".product-experience/pdp-1-domain-data/versioning.yaml": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+        ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+        ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+      },
+      "changedSourcePins": {
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": {
+          "prior": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+          "current": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0"
+        },
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": {
+          "prior": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+          "current": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746"
+        },
+        ".product-experience/pdp-1-domain-data/versioning.yaml": {
+          "prior": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
+          "current": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b"
+        }
+      },
+      "currentDefinitionReconciliationIds": [
+        "PDP1-PROJECT-REVISION-IDENTITY-CURRENT-SOURCE-RECONCILIATION-2026-10-23"
+      ],
+      "outstandingMeaningIds": [],
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  ],
+  "sourceCutRefreshSuccessor": "PDP1-LANE-A-CURRENT-SOURCE-REFRESH-2026-10-23-R2"
 }

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "media.pdp0.current-source-reconciliation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-225",
+  "phaseScope": "PDP-0",
+  "reviewKind": "COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION",
+  "sourceCut": {
+    "workingTree": "CURRENT_SOURCE_CUT",
+    "sourceCount": 2
+  },
+  "predecessorRefs": [
+    "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"
+  ],
+  "authority": {
+    "phaseScope": "PDP-0",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "implementation": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "preservedSemanticReview": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-216",
+    "artifactRef": "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json",
+    "reviewedCapabilityCount": 20,
+    "reviewedCapabilityIds": [
+      "media.project.organize",
+      "media.artifact.import",
+      "media.artifact.search",
+      "media.artifact.list",
+      "media.artifact.derive",
+      "media.multimodal.describe",
+      "media.multimodal.summarize",
+      "media.audio.analysis.detect.beat-onset",
+      "media.speech.synthesis.speaker.condition",
+      "media.generate.spatial.create.spatial-audio",
+      "media.animation.material",
+      "media.edit.inpaint",
+      "media.edit.matte",
+      "media.edit.retime-slow-motion-speed-ramp",
+      "media.compose.multitrack-timeline",
+      "media.compose.safe-area",
+      "media.compose.reusable-composition",
+      "media.master.audio.stereo-width",
+      "media.quality.rank",
+      "media.deliver.subtitles"
+    ],
+    "historicalReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+    "currentReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+    "changedReviewedCapabilityIds": [],
+    "semanticReviewStatus": "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW"
+  },
+  "preservedCurrentnessPredecessor": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-223",
+    "artifactRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+  },
+  "currentSource": {
+    "channelsPath": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+    "channelsSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+    "historicalReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+    "currentReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+    "semanticChange": "REMOVED_ABSENT_ARCHIVED_CHANNEL_EVIDENCE_LOCATOR_ONLY",
+    "removedEvidenceLocator": "archive/media-desktop-apps/ai-voice-desktop/README.md",
+    "retainedEvidenceLocator": "archive/media-desktop-apps/desktop/README.md",
+    "evidenceLocatorVerification": {
+      "removedPathCurrentTree": "ABSENT",
+      "removedPathGitHistory": "NO_COMMIT_PATH_FOUND",
+      "gitHistoryScope": "COMPLETE_LOCAL_REPOSITORY_HISTORY",
+      "retainedPathCurrentTree": "PRESENT"
+    },
+    "channelRef": "media.channel.legacy-desktop",
+    "supportStatePreserved": {
+      "definitionState": "historical-archive",
+      "implementationState": "archived-source-only",
+      "qualificationState": "NOT_EVALUATED",
+      "licenseAdmissionState": "NOT_EVALUATED",
+      "runtimeAvailability": "NOT_ADMITTED",
+      "phase0Admission": "not-admitted",
+      "supportRule": "Archive retention preserves source history only; do not list as a supported current product channel."
+    }
+  },
+  "decisionSectionSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+  "decisionEffect": "PDP-0 current-source reconciliation only. PXD-216 remains the semantic review for its exact 20 capability IDs. No new semantic review, owner approval, independent acceptance, implementation verification, runtime admission, qualification, phase closure, or Delivery readiness is claimed."
+}

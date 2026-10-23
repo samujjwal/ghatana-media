@@ -247,17 +247,19 @@ test('AUD-ASSET-012 binds exact caption import observation and separate subtitle
 
 });
 
-test('current PXD-223 crosswalk source pins preserve PXD-216 semantic history', () => {
+test('current PXD-225 crosswalk source pins preserve PXD-216 semantics and PXD-223 reconciliation', () => {
   const result = validatePdp0AuditDispositions();
   assert.deepEqual(result.errors, []);
   assert.equal(result.stats.total, 501);
   assert.equal(result.stats.dispositionCounts.BLOCKED_EXTERNAL_OWNER_DECISION, 0);
   const ledger = JSON.parse(fs.readFileSync(path.join(root, crosswalkPath), 'utf8'));
   const decisionLog = '.product-experience/decision-log.md';
-  assert.equal(ledger.coordinatorReview.decisionRef, 'PXD-223');
-  assert.equal(ledger.coordinatorReview.priorDecisionRef, 'PXD-216');
+  assert.equal(ledger.coordinatorReview.decisionRef, 'PXD-225');
+  assert.equal(ledger.coordinatorReview.priorDecisionRef, 'PXD-223');
   const historicalPxd216 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-216');
   assert.ok(historicalPxd216, 'PXD-216 remains immutable semantic and review history');
+  const historicalPxd223 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-223');
+  assert.ok(historicalPxd223, 'PXD-223 remains the capability-slice currentness predecessor');
   const historicalPxd215 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-215');
   assert.ok(historicalPxd215, 'PXD-215 remains in review history as the non-accepting predecessor');
   assert.equal(historicalPxd215.priorDecisionRef, 'PXD-214');
@@ -269,7 +271,7 @@ test('current PXD-223 crosswalk source pins preserve PXD-216 semantic history', 
   const historicalPxd213 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-213');
   assert.ok(historicalPxd213, 'PXD-213 remains in review history');
   assert.equal(historicalPxd213.priorDecisionRef, 'PXD-212');
-  const expectedPhasePins = currentPdp0PhaseScopedSourceFingerprints('PXD-223');
+  const expectedPhasePins = currentPdp0PhaseScopedSourceFingerprints('PXD-225');
   assert.deepEqual(ledger.sourceBaseline.phaseScopedSourceFingerprintsSha256, expectedPhasePins);
   assert.deepEqual(ledger.coordinatorReview.sourceFingerprints, expectedPhasePins);
   for (const broadFilePin of [decisionLog, '.product-experience/source-manifest.yaml', 'docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json']) {

@@ -8,7 +8,10 @@ const report = buildMediaSourceTargetTreeCrosswalk({
   targetRoot: root,
   sourceRoot: resolve(root, '..', 'ghatana'),
 });
-const outputPath = resolve(root, 'docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-12.json');
+// Keep each observation date-scoped. The previous fixed path was dated
+// 2026-10-12 and a refresh silently replaced that historical source cut.
+const observationDate = new Date().toISOString().slice(0, 10);
+const outputPath = resolve(root, `docs/migration/evidence/media-source-target-tree-crosswalk-current-${observationDate}.json`);
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 const currentSourceObservation = {
@@ -47,7 +50,7 @@ const currentSourceObservation = {
   comparison: { counts: report.counts, sourceTrackedPathCount: report.entries?.length ?? null },
   errors: report.errors,
 };
-const currentSourceOutputPath = resolve(root, 'docs/implementation/verification/current-source-cut-observation-2026-10-12.json');
+const currentSourceOutputPath = resolve(root, `docs/implementation/verification/current-source-cut-observation-${observationDate}.json`);
 mkdirSync(dirname(currentSourceOutputPath), { recursive: true });
 writeFileSync(currentSourceOutputPath, `${JSON.stringify(currentSourceObservation, null, 2)}\n`, 'utf8');
 process.stdout.write(`${JSON.stringify({

@@ -96,6 +96,19 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.equal(report.capabilityCoverage.applicability.total, 462);
   assert.equal(report.capabilityCoverage.applicability.classified, 462);
   assert.equal(report.capabilityCoverage.applicability.unresolved, 0);
+  assert.equal(report.capabilityCoverage.deferredFutureVersionDefinitions.count, 7);
+  assert.equal(report.capabilityCoverage.deferredFutureVersionDefinitions.excludedFromCurrentPdp0, true);
+  assert.deepEqual(report.capabilityCoverage.deferredFutureVersionDefinitions.capabilityIds, [
+    "media.generate.video.preset.manage",
+    "media.generate.video.shot-condition",
+    "media.job.schedule.manage",
+    "media.master.audio.creative-effect.apply",
+    "media.project.scene.patch-merge",
+    "media.quality.audio.content-similarity.assess",
+    "media.recipe.specification.compile",
+  ]);
+  assert.equal(report.capabilityCoverage.historicalOperationApplicability.sourcePinAuthority,
+    "HISTORICAL_SOURCE_ONLY; pin currentness is non-gating for PDP-0");
   assert.equal(report.capabilityCoverage.historicalOperationApplicability.acceptedCoverageCount, 0);
   assert.equal(report.capabilityCoverage.historicalOperationApplicability.unresolvedLeaves.length, 383);
   assert.ok(report.capabilityCoverage.historicalOperationApplicability.unresolvedLeaves.every((leaf) => leaf.id && leaf.sourceRef && leaf.rationale));
@@ -252,6 +265,8 @@ test("residual report output is deterministic and clearly diagnostic", () => {
   assert.match(renderMediaProductDefinitionResidualMarkdown(first), /TOP_LEVEL_SCHEMA_FIELDS_AND_EMPTY_COLLECTION_DECLARATIONS_VALIDATED/u);
   assert.match(renderMediaProductDefinitionResidualMarkdown(first), /do not infer nested record completeness/u);
   assert.match(renderMediaProductDefinitionResidualMarkdown(first), /Projection mappings/u);
+  assert.match(renderMediaProductDefinitionResidualMarkdown(first), /Historical source pin differences/u);
+  assert.doesNotMatch(renderMediaProductDefinitionResidualMarkdown(first), /## Stale source review pins/u);
 });
 
 test("SDK residual partition includes bounded operations and rejects missing, duplicate, or invented members", () => {

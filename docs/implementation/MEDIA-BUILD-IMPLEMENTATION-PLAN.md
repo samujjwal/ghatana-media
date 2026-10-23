@@ -193,7 +193,26 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 **Canonical source/target paths:** `ghatana/services/media/{launcher,runtime-contracts,modules,providers}`, Media `{launcher,runtime-contracts,modules,providers}`, `migration/transfer-receipt.yaml`, `docs/migration/`, `config/repo-boundary.json`, `BOUNDARY.md`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
 
-**Test layers / commands (plan only):** `pnpm report:media-source-target-tree`; `pnpm test:source-target-tree-crosswalk`; `pnpm test:compatibility-cutover-observation`.
+**Test layers / commands:**
+pnpm report:media-source-target-tree
+pnpm test:source-target-tree-crosswalk
+pnpm test:compatibility-cutover-observation
+
+**Positive test IDs:**
+- M-BLD-F01.T01.POSITIVE.TREE_PARSE_MODES — tests/media-source-target-tree-crosswalk.test.mjs::parses NUL-delimited git tree records, including executable and symlink modes.
+- M-BLD-F01.T01.POSITIVE.EXACT_PATH_MODE_BLOB_DENOMINATOR — tests/media-source-target-tree-crosswalk.test.mjs::compares exact relative paths, modes, and blobs with a reconciled denominator.
+- M-BLD-F01.T01.POSITIVE.TREE_OBJECT_PINS — tests/media-source-target-tree-crosswalk.test.mjs::reads the commit tree object instead of mistaking the commit ID for the tree ID.
+- M-BLD-F01.T01.POSITIVE.REMOTE_CUT_EVIDENCE — tests/media-source-target-tree-crosswalk.test.mjs::current source-cut evidence pins both remote-tracking trees and keeps checkout drift separate. This test fixture is historical 2026-10-12 evidence; the dated report command generates the current observation.
+- M-BLD-F01.T01.POSITIVE.CANONICAL_WRITER_BOUNDARY — tests/media-compatibility-cutover-observation.test.mjs::compatibility ledger preserves canonical-source and unverified-cutover boundary.
+- M-BLD-F01.T01.POSITIVE.CONSUMER_LEDGER_LIMITATIONS — tests/media-compatibility-cutover-observation.test.mjs::local consumer evidence and external gates cannot silently disappear.
+
+**Adversarial test IDs:**
+- M-BLD-F01.T01.ADVERSARIAL.MISSING_REMOTE_CUT — tests/media-source-target-tree-crosswalk.test.mjs::marks missing remote source cuts UNVERIFIABLE instead of emitting an empty comparison.
+- M-BLD-F01.T01.ADVERSARIAL.HEAD_MISMATCH — tests/media-source-target-tree-crosswalk.test.mjs::flags a main branch and remote-cut head mismatch as UNVERIFIABLE.
+- M-BLD-F01.T01.ADVERSARIAL.NO_UNAUTHORIZED_CUTOVER — tests/media-compatibility-cutover-observation.test.mjs::compatibility ledger preserves canonical-source and unverified-cutover boundary.
+- M-BLD-F01.T01.ADVERSARIAL.NO_FALSE_EXHAUSTIVE_CONSUMER_CLAIM — tests/media-compatibility-cutover-observation.test.mjs::local consumer evidence and external gates cannot silently disappear.
+
+These IDs and commands define planning checks only. Passing them validates tree-observation mechanics and safe boundary reporting; it does not prove current Flyway history on a live database, exhaustive consumer parity, external source-owner approval, or rollback/no-double-writer behavior.
 
 **Observable acceptance / completion evidence:** Byte/path-level two-repo crosswalk; sole writer and destination selected with owner decision; route/proto/schema/consumer compatibility proof; rollback with no double workers/outboxes. No activate/cutover in planning. Save exact source SHA-256, owned commit, unit + negative and integration observations with environment/provider identity, and reviewer disposition.
 
@@ -1136,6 +1155,12 @@ Every package specifies its focused tests above. Central matrix: (a) schema/stab
 ### Stage transition rule
 
 **BUILD Plan Implementation authored** now. Entry into IMPLEMENT requires current F00 trace/exact-set, runtime writer ownership and package-ready prerequisites. Entry into VERIFY requires real code/test evidence. `Development Complete` requires all applicable implementation/test obligations after integration; independent PDP closure/acceptance/receipt/convergence is separate and can run per source-bound unit without delaying unrelated Build, and DELIVER requires its own gates. Neither this file nor its trace upgrades a surface to `VERIFIED`, `PRODUCTION_QUALIFIED` or `RELEASE_READY`.
+
+### Per-surface Build eligibility and campaign accounting
+
+The Build gate is evaluated independently for each exact source-bound physical or composite unit in the complete **54-identity** campaign denominator. A unit may enter its applicable Build work only when every applicable PDP-0 through PDP-3 definition for that unit is source-current and validated `DEV_COMPLETE`, its phase-local task inventories are known-zero, and all explicitly declared predecessor/dependency obligations for that unit pass. The unit must also satisfy its package-specific F00/F01, writer/resource, and implementation-admission prerequisites. Missing, stale, contradictory, partial, or unknown evidence blocks that unit and its declared dependents only; do not infer an undeclared cross-surface dependency.
+
+Report aggregate Discovery status and all 54 identities independently from per-unit scheduling eligibility. Aggregate `FAIL` or `UNKNOWN`, or an unrelated incomplete unit, is not a global Build lock and does not reduce the denominator. Conversely, an eligible leaf does not make an ineligible child, composition, or root eligible: composite/root integration requires each child and dependency actually declared for that unit. This rule changes scheduling eligibility only; it does not assert that any unit currently qualifies, publish a stage transition, establish PDP acceptance/native closure, or authorize Delivery/release. Delivery continues to require its actual declared composition/dependency set, current required PDP closure, Build verification/Development Complete, approvals, and environment/release gates.
 
 ## 12. Per-surface BUILD planning matrix (entire current denominator)
 

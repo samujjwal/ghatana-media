@@ -4,20 +4,20 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-0",
-    "sourceBaselineCommit": "354452f29bea4a3b24cd456d39950967ab4d83c0",
+    "sourceBaselineCommit": "f8816aede965d55c27005d5bab13bcb6ae376389",
     "status": "DEV_COMPLETE"
   },
-  "generatedAt": "2026-10-22T22:14:11.939Z",
+  "generatedAt": "2026-10-23T14:31:43.704Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "statusRecordSha256": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
-  "sourceFingerprintSetSha256": "43f233a343deccc41957701dde84c2b0e2cb2f75bf0b92e8416790bb61540e33",
+  "statusRecordSha256": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
+  "sourceFingerprintSetSha256": "db9c21a98fab8948fc47fd1a820273f14a81b3690ba01b07f1c3d208e7903679",
   "sourceFingerprints": {
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
     ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
-    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
     ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-    "docs/implementation/pdp-0-phase-dev-status.json": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
+    "docs/implementation/pdp-0-phase-dev-status.json": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
     ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
     ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
     ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -108,7 +108,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -1742,7 +1742,7 @@
       "sourceFingerprints": {
         "apps/media-experience-explorer/package.json": "ded93378c7a69ae520df2c03666f27000778f808ca24fb9110f84243afc83b68",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -3364,7 +3364,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -4992,7 +4992,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -6618,7 +6618,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -8344,7 +8344,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -10141,7 +10141,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -11933,7 +11933,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -13830,7 +13830,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -15452,7 +15452,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -17078,7 +17078,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -18712,7 +18712,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -20364,7 +20364,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -22003,7 +22003,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -23642,7 +23642,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -25375,7 +25375,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -27018,7 +27018,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -28639,7 +28639,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -30275,7 +30275,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -31963,7 +31963,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -33668,7 +33668,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -35331,7 +35331,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -36989,7 +36989,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -38642,7 +38642,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -40311,7 +40311,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -42037,7 +42037,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -43784,7 +43784,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "59699d732188d23787c33a402df9cef5c6006a42fc96eace422197bbd5a08401",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -45449,7 +45449,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -47151,7 +47151,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -48820,7 +48820,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -50516,7 +50516,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -52198,7 +52198,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -53980,7 +53980,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -55754,7 +55754,7 @@
         ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -57487,7 +57487,7 @@
         ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -59619,7 +59619,7 @@
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -61761,7 +61761,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -63549,7 +63549,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -65211,7 +65211,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -66874,7 +66874,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -68543,7 +68543,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -70234,7 +70234,7 @@
         ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml": "e18f2ecd1f3948c4d3e435b8cc2c7ce9c3eaa7d52b88fac351d1d57e3a40ad7f",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -72380,7 +72380,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -74524,7 +74524,7 @@
         ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml": "8d86816919f8bf5aa4412b554faf31c084dd3e8739190d84ec9be3c322376f7d",
         ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
@@ -76173,7 +76173,7 @@
         ".product-experience/pdp-2-design-interface-system/events/conventions.yaml": "d37f3b43279ff8fb852121516e3fc4f836221bf36bd62846a8d2c7b14ac4ebf4",
         ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
@@ -77809,7 +77809,7 @@
         ".product-experience/pdp-0-product-truth/dependency-contracts.yaml": "b698f43e88c61170c1a25f6789062b87ef07bd1edaca2261e077cf5ae2efbaaf",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -79461,7 +79461,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "213e68abd2137da7636815459ff9cca9ae68378b88a2235f70fe510597c1dcd6",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
@@ -81219,7 +81219,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md": "fd1308a1f4edcf2412d8fb514ad11bb9ba8e56b52f066109e84483eb83ba236a",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
@@ -83073,7 +83073,7 @@
         ".product-experience/explorer/EXPERIENCE-EXPLORER.md": "0331b71c41e8867dc9a16833c967bf28964814ac1ea2eaaa0ee62a2e111dc145",
         ".product-experience/source-manifest.yaml": "a7c5e70149a00da479c2116f31538d72c967957285e4391f66e54ae7081d6b16",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
@@ -84703,7 +84703,7 @@
         ".product-experience/authority-map.yaml": "03d010ab4985ff76b8dafea6a32d86196fe7bf2a034f8b43216b6378c35ead3e",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -86346,7 +86346,7 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -88021,7 +88021,7 @@
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
@@ -89670,7 +89670,7 @@
         ".product-experience/surface-registry.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "cb37e443d3f7fcce968399d8ed3e0bb5b27535f0954ac70da21bd376d9c40cb2",
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
@@ -91364,7 +91364,7 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
@@ -92980,8 +92980,8 @@
   "sourcePinImpactReview": {
     "phase": "PDP-0",
     "reviewedPath": "docs/implementation/pdp-0-phase-dev-status.json",
-    "predecessorSha256": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492",
-    "currentSha256": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
+    "predecessorSha256": "ab85e67c2d7b104eaa7e198f6648f6fcec23ebc826e29c80009819a92a58feed",
+    "currentSha256": "cfabbbd438000dc8f9c389ffce5500cb0be7783378b34f9a8378f236bf5a71ce",
     "disposition": "PDP0_DEFINITION_EXTENSION_APPLICABILITY_MATRIX_REFRESH; PXD207_EXPLICIT_PARTITION_SOURCE_CURRENT",
     "impact": "The 54-surface matrix now carries all 4,158 channel-by-surface cells and 378 extension-by-surface summaries. Counts: 14 direct proposal cells, 21 derived aggregate proposal cells, 3430 explicit owner-decided N/A cells, 616 source-backed support-only N/A cells, and 77 source-backed archived N/A cells. PXD-207 source decisions preserve owner approval and independent acceptance as unclaimed.",
     "pdp0Retest": "P0_TESTS_PASS; DISCOVERY_BARRIER_RECALCULATED",
@@ -93179,7 +93179,7 @@
   },
   "phaseSourceCurrentness": {
     "status": "CURRENT",
-    "sourcePinCount": 175,
+    "sourcePinCount": 188,
     "staleSourcePinCount": 0,
     "staleSourcePins": [],
     "note": "Live byte pins are checked by file path; #fragment pins are compared with pdp0PhaseScopedSourcePins() projections."

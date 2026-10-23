@@ -4,7 +4,7 @@
   "approvedOn": "2026-10-22",
   "source": {
     "ownerDispositions": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
-    "ownerDispositionsBlobSha": "571da27d33cad17218b36a25e0caf566cd7c0d17",
+    "ownerDispositionsBlobSha": "c35862c2895b7bb614ced27cff08a0859ec3014b",
     "baselineRule": "Re-evaluate exact source material and current main at every run; Git commit alone is not currentness proof."
   },
   "campaign": {
@@ -25,7 +25,7 @@
     "ownerApprovedIncompleteTaskCount": 19
   },
   "statusAxes": {
-    "sourceDevelopment": "PREVIOUS_GTOOL_READBACK_CURRENT_REQUIRES_FRESH_RUN",
+    "sourceDevelopment": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
     "ownerExecutionPolicy": "APPROVED",
     "planReady": "NOT_PROVEN",
     "nativeClosure": "NOT_PROVEN",
@@ -35,45 +35,24 @@
   },
   "bridge": {
     "traceIdentityCount": 3186,
-    "sourceBridgeEdgeCount": 8578,
-    "unresolvedSourceIdentityCount": 65,
-    "p1OperationMissingReferenceCount": 93,
-    "uniqueMissingP1OperationCount": 17,
-    "unresolvedCrossLayerRelationCount": 8,
-    "unresolvedHandoffSelectorCount": 1,
+    "sourceBridgeEdgeCount": 8667,
+    "unresolvedSourceIdentityCount": 0,
+    "p1OperationMissingReferenceCount": 0,
+    "uniqueMissingP1OperationCount": 0,
+    "unresolvedCrossLayerRelationCount": 0,
+    "unresolvedHandoffSelectorCount": 0,
     "otherReasonCount": 0,
-    "remainingExactOperationIds": [
-      "media.operation-slice.append-upload-chunk",
-      "media.operation-slice.begin-upload",
-      "media.operation-slice.cancel-job",
-      "media.operation-slice.complete-upload",
-      "media.operation-slice.create-project",
-      "media.operation-slice.inspect-artifact",
-      "media.operation-slice.inspect-job",
-      "media.operation-slice.inspect-project",
-      "media.operation-slice.inspect-upload",
-      "media.operation-slice.list-projects",
-      "media.operation-slice.retry-job",
-      "media.operation.caption-draft-write",
-      "media.operation.caption-version-read",
-      "media.operation.caption-version-write",
-      "media.operation.job-lifecycle",
-      "media.operation.transcript-version-read",
-      "media.operation.transcription-submission"
-    ],
-    "unresolvedRelations": [
-      "PDP-1:operations:media.operation.action.inspect-job-retry-policy",
-      "PDP-1:operations:media.operation.request-snapshot.inspect.v1",
-      "PDP-1:operations:media.operation.speaker-reference.resolve-version.v1",
-      "PDP-1:operations:media.operation.stt.profile.adapt.v1",
-      "PDP-1:operations:media.operation.stt.profile.create.v1",
-      "PDP-1:operations:media.operation.stt.profile.get.v1",
-      "PDP-1:operations:media.operation.stt.profile.update.v1",
-      "PDP-1:operations:media.operation.voice-profile.resolve-source-version.v1"
-    ],
-    "unresolvedHandoffSelectors": [
-      "media.handoff.identity"
-    ]
+    "remainingExactOperationIds": [],
+    "unresolvedRelations": [],
+    "unresolvedHandoffSelectors": [],
+    "unresolvedSourceBlockerCount": 0,
+    "sourceBridgeStatus": "SOURCE_RELATIONS_CURRENT",
+    "blockerInventoryStatus": "SOURCE_RELATIONS_CURRENT",
+    "blockerInventoryRef": "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
+    "blockerInventoryDigest": "sha256:78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7",
+    "taskCompletionStatus": "NOT_EVALUATED",
+    "proofStatus": "NOT_VERIFIED",
+    "sourceBridgeRef": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json"
   },
   "waves": [
     {
@@ -83,8 +62,18 @@
       "deps": [],
       "input": "PDP0..3 pinned source material, four matrices, exact current main roots, 54 topology identities",
       "effect": "Read-only checks, host-composed gtool method plan, independent phase progression projection",
-      "exit": "54 IDs, 216 current phase observations, source owner axes + known-zero definition tasks; unchanged selected file set; native receipt still NOT_EVALUATED",
-      "status": "READY_TO_RUN_ON_FRESH_CHECKOUT"
+      "exit": "54 IDs and 216 current phase observations with known-zero definition tasks; source readback observed; native receipt still NOT_EVALUATED",
+      "status": "SOURCE_READBACK_OBSERVED",
+      "sourceReadback": {
+        "status": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+        "observationRef": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T105424Z.v1.json",
+        "observationDigest": "sha256:59e020d20cce2656a9ba2c172ea1580ebad458285f4b7ac498cd541d0407068f",
+        "sourceSnapshotFingerprint": "sha256:43e62857be2e880ac265cba64a77496caeb07f264a8734449aa8f1c7e2003562",
+        "sourceIdentities": 54,
+        "phaseCells": 216,
+        "remainingDefinitionTasks": 0,
+        "authority": "READ_ONLY_OBSERVATION_NOT_STAGE_TRANSITION_OR_CLOSURE"
+      }
     },
     {
       "id": "G1",
@@ -93,10 +82,28 @@
       "deps": [
         "G0"
       ],
-      "input": "17 exact P1 operations, 93 referring occurrences, eight explicit unresolved joins, handoff identity, 3186 trace rows",
-      "effect": "Repair source-defined cross-layer identities, rerun source generators/negative tests, freeze versioned Build handoff",
-      "exit": "Zero required missing semantic links on affected units, no inferred N/A, trace/bridge/build projection deterministic",
-      "status": "OPEN_TECHNICAL_WORK"
+      "input": "Current generated source-bridge blocker inventory plus exact source-bound F00.T02 acceptance artifacts and owner review.",
+      "effect": "Refresh deterministic source-bridge projections and evaluate task acceptance without inferring semantic links or closure.",
+      "exit": "Current source-relation census is projected below; F00.T02 remains open until its source-bound tests, negative/UNKNOWN/rollback readback, and source-current owner review are evaluated.",
+      "status": "OPEN_TECHNICAL_WORK",
+      "sourceReadback": {
+        "status": "SOURCE_RELATIONS_CURRENT",
+        "inventoryRef": "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
+        "inventoryDigest": "sha256:78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7",
+        "sourceBridgeRef": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+        "traceIdentityCount": 3186,
+        "sourceBridgeEdgeCount": 8667,
+        "unresolvedSourceIdentityCount": 0,
+        "unresolvedSourceBlockerCount": 0,
+        "p1OperationMissingReferenceCount": 0,
+        "uniqueMissingP1OperationCount": 0,
+        "unresolvedCrossLayerRelationCount": 0,
+        "unresolvedHandoffSelectorCount": 0,
+        "otherReasonCount": 0,
+        "taskCompletionStatus": "NOT_EVALUATED",
+        "proofStatus": "NOT_VERIFIED",
+        "authority": "SOURCE_RELATION_CENSUS_NOT_TASK_ACCEPTANCE_OR_PROOF"
+      }
     },
     {
       "id": "G2",
@@ -251,7 +258,7 @@
         "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
         "scripts/lib/media-build-semantic-source-joins.mjs"
       ],
-      "implementationDirective": "Resolve 93 P1 operation endpoints missing from the 3,186 trace without naming heuristics; reconcile 8 unresolved explicit relations and the exact media.handoff.identity selector. If the trace census changes, version the trace and regenerate all dependent projections after owner-reviewed impact.",
+      "implementationDirective": "The approval-time list of 93 missing P1 references, eight unresolved relations and media.handoff.identity is superseded as a current source-relation claim by MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json, which currently reports SOURCE_RELATIONS_CURRENT with zero unresolved source blockers. Do not repeat repairs from that historical list or infer links. Keep this task OPEN until its exact source-bound change or audited plan, scoped test results, negative/UNKNOWN/rollback readback, and source-current owner review disposition are evidenced against current material.",
       "blockingDependencies": "PDP0..3 current matrices; F00.T01 material receipt",
       "requiredStructuredIO": {
         "input": [
@@ -938,5 +945,20 @@
     "sourceRecordingOwnerGuard": "LIFECYCLE_ISSUE_27_OPEN"
   },
   "ownerRoutineApproval": "APPROVED_NO_REPEAT_FOR_APPROVED_SCOPE",
-  "buildExecutionAuthorization": "APPROVED_CONDITIONAL_ON_SCOPED_KERNEL_PLAN_AND_OWNER_RUN"
+  "buildExecutionAuthorization": "APPROVED_CONDITIONAL_ON_SCOPED_KERNEL_PLAN_AND_OWNER_RUN",
+  "executionAuthorization": {
+    "ref": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+    "sha256": "sha256:9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319",
+    "decisionId": "MEDIA-GTOOL-CLOSURE-EXECUTION-2026-10-22",
+    "ownerDecisionRevision": 3,
+    "status": "OWNER_DISCRETIONARY_DECISIONS_APPROVED",
+    "effect": "EXECUTION_SCOPE_APPROVED_ONLY",
+    "technicalPrerequisiteStatus": "AUTHENTICATED_AP02_AP03_AND_NATIVE_PROOFS_STILL_REQUIRED",
+    "sourceIdentityDenominator": 54,
+    "sourceObligationDenominatorAtStartingCut": 8664,
+    "trustedAdmission": "NOT_ISSUED",
+    "nativeReceipts": 0,
+    "deliveryAuthorization": false,
+    "boundary": "OWNER_SCOPE_ONLY_NOT_TRUSTED_ADMISSION_NATIVE_CLOSURE_BUILD_COMPLETION_OR_DELIVERY"
+  }
 }

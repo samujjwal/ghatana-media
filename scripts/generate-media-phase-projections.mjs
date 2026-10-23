@@ -117,7 +117,9 @@ const definitions = [
       "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json",
       "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json",
       "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json",
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json",
       "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
+      "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
       ".product-experience/pdp-1-domain-data/decisions.yaml",
       ".product-experience/pdp-1-domain-data/events.yaml",
       ".product-experience/pdp-1-domain-data/evidence.yaml",
@@ -202,6 +204,8 @@ const definitions = [
       const captionImportCurrentSourceReview = JSON.parse(captionImportCurrentSourceReviewText);
       const pxd222QualityCurrentSourceReviewText = textSource("p0-quality-current-source-review-pxd222.json");
       const pxd222QualityCurrentSourceReview = JSON.parse(pxd222QualityCurrentSourceReviewText);
+      const pxd225QualityCurrentSourceReviewText = textSource("p0-quality-current-source-review-pxd225.json");
+      const pxd225QualityCurrentSourceReview = JSON.parse(pxd225QualityCurrentSourceReviewText);
       const pxd213CaptionImportCurrentSourceReviewText = textSource("p0-caption-import-current-source-review-pxd213.json");
       const pxd213CaptionImportCurrentSourceReview = JSON.parse(pxd213CaptionImportCurrentSourceReviewText);
       const qualityCurrentSourceFingerprintPaths = [
@@ -236,6 +240,8 @@ const definitions = [
         "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json",
         "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json",
         "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
+        "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json",
+        "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
       ];
       const pxd222CurrentSourceTexts = Object.fromEntries(pxd222CurrentSourcePaths.map((sourceRef) => [sourceRef, textSource(sourceRef.split("/").at(-1))]));
       pxd222CurrentSourceTexts[".product-experience/source-manifest.yaml"] = textSource("source-manifest.yaml");
@@ -270,7 +276,7 @@ const definitions = [
         applicability: featureReviewSource.ownerFeatureReviewApplicability,
         requirements,
         capabilities,
-        requirePxd222Currentness: true,
+        requirePxd225Currentness: true,
         capabilityCrosswalk: source("capability-leaf-review.yaml").ownerCapabilityLeafAdjudication,
         channels: [...featureReviewSource.channels, ...featureReviewSource.ownerDefinedChannels.records],
         sourceDocuments: Object.fromEntries(sources.filter((entry) => entry.sourceRef.endsWith(".yaml")).map((entry) => [entry.sourceRef, entry.content])),
@@ -296,6 +302,8 @@ const definitions = [
         captionImportCurrentSourceReviewText,
         pxd222QualityCurrentSourceReview,
         pxd222QualityCurrentSourceReviewText,
+        pxd225QualityCurrentSourceReview,
+        pxd225QualityCurrentSourceReviewText,
         pxd213CaptionImportCurrentSourceReview,
         pxd213CaptionImportCurrentSourceReviewText,
         pxd222CurrentSourceTexts,

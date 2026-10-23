@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "media.pdp3-demo-recording-source-preflight-observation.v1",
+  "recordKind": "PUBLIC_READ_ONLY_LIFECYCLE_CLI_OBSERVATION_NOT_ACCEPTANCE_OR_PROOF",
+  "observedAt": "2026-10-23T04:25:20Z",
+  "ownerRepository": "samujjwal/ghatana-media",
+  "ownerHead": "f8816aede965d55c27005d5bab13bcb6ae376389",
+  "subject": {
+    "methodId": "ghatana.product-development",
+    "subjectId": "media.surface.explorer",
+    "phaseId": "PDP-3",
+    "scenarioIds": [
+      "media.demo.j03.corrected-captions.v1"
+    ],
+    "sourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a"
+  },
+  "input": {
+    "path": "docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
+    "sha256": "sha256:aba483c3102a7883b68ea4d3886c28e4efcfd35dcfa90a72c70fdec599c5c9bb",
+    "candidateStatuses": [
+      "CANDIDATE"
+    ],
+    "captureEvidenceSupplied": false,
+    "replayEvidenceSupplied": false,
+    "cleanupEvidenceSupplied": false,
+    "actualProductEffectStatus": "NOT_EVALUATED"
+  },
+  "publicValidator": {
+    "interface": "Explicit read-only CLI path",
+    "package": "@ghatana/documentation-model",
+    "packageVersion": "0.1.0-rc.1",
+    "lifecycleHead": "e1981241c0ef20b9ab5486a362baeaac57812040",
+    "lifecycleWorktreeBoundary": "Lifecycle checkout was dirty in unrelated paths. The selected CLI, validator, public package export, schema, and OOB v2 method files had no reported local modifications at observation time.",
+    "sourceFingerprints": {
+      "tools/documentation-model/bin/validate-pdp3-demo-recording.mjs": "sha256:be9ec0b61ab012042a388d02f4976f94e9d213f436031675f058c553342a0618",
+      "tools/documentation-model/src/pdp3-demo-recording-source.mjs": "sha256:dc3430f560dc954b1f22413e4aa3bed9ed8ea12fc2cd3d426c08c7aeaf05b128",
+      "tools/documentation-model/package.json": "sha256:1820f42d9a8f312d56c4ac534c966c3d633364e754b2390638130e86294bb814",
+      "tools/documentation-model/schemas/pdp3-demo-recording-source.v1.schema.json": "sha256:4c25d34fe2ff59ccd6d026e44426df4a0f1a7015bd06e80d0bfcf0ac7494fca8",
+      "tools/documentation-model/presets/methods/ghatana-product-development.v2.yaml": "sha256:668230dfd40421ebba193894dc153e313c5881d96c23489b1ad971419be08ec5"
+    }
+  },
+  "execution": {
+    "command": "node /Users/samujjwal/Development/ghatana-lifecycle/tools/documentation-model/bin/validate-pdp3-demo-recording.mjs --input /Users/samujjwal/Development/ghatana-media/docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
+    "exitCode": 0,
+    "stdout": {
+      "schemaVersion": "ghatana.pdp3-demo-recording-source-preflight.v1",
+      "recordKind": "READ_ONLY_STRUCTURAL_PREFLIGHT_NOT_SOURCE_COMPLETION_OR_FILM_PROOF",
+      "status": "CANDIDATES_PENDING_CAPTURE",
+      "expectedScenarioCount": 1,
+      "recordedCount": 0,
+      "notApplicableCount": 0,
+      "candidateCount": 1,
+      "errors": [],
+      "readOnly": true,
+      "writesPerformed": false,
+      "nativeClosureStatus": "NOT_EVALUATED",
+      "realProductFilmStatus": "NOT_EVALUATED",
+      "ownerDevelopmentStatus": "NOT_EVALUATED"
+    }
+  },
+  "claimBoundary": {
+    "candidateCurrentness": "INPUT_BYTES_MATCH_THE_FINGERPRINTS_RECORDED_ABOVE_ONLY",
+    "preflightMeaning": "Structural source-manifest check only; candidate requires capture and review inputs before it can satisfy source-recording shape.",
+    "ownerDevelopmentStatus": "NOT_EVALUATED",
+    "methodAdmissionStatus": "NOT_EVALUATED",
+    "acceptanceStatus": "NOT_EVALUATED",
+    "nativeClosureStatus": "NOT_EVALUATED",
+    "realProductEffectStatus": "NOT_EVALUATED",
+    "releaseStatus": "NOT_EVALUATED",
+    "taskStatusChanged": false
+  },
+  "nextAction": "Continue G9 source-only preparation. Capture/replay/cleanup, recorder ABI and license admission, host permission, real-frame qualification, and any OOB method admission remain with their source owners."
+}

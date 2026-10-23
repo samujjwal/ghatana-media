@@ -35,14 +35,19 @@ export function pdp0PhaseScopedSourcePins() {
   const crosswalk = JSON.parse(read(PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH));
   const decisionIds = new Set();
   const addDecisionId = value => {
-    const match = typeof value === 'string' && value.match(/(?:^|#)PXD-(\d{3})$/);
+    const match = typeof value === 'string' && value.match(/(?:^|#)PXD-(\d{3})(?:-section)?$/);
     if (match) decisionIds.add(`PXD-${match[1]}`);
   };
   for (const record of reviewProjection.records) {
     addDecisionId(record.decisionRef);
     addDecisionId(record.currentSourceReview?.decisionRef ?? record.currentCorrectiveReview?.decisionRef);
     addDecisionId(record.currentSourcePinRefresh?.decisionContextRef);
+    addDecisionId(record.currentSourcePinRefresh?.currentnessAuthority?.decisionRef);
     for (const decisionRef of record.currentProjectionRefresh?.decisionContextRefs ?? []) addDecisionId(decisionRef);
+    for (const review of [record.currentSourceReview, record.currentCorrectiveReview, record.currentSourcePinRefresh]) {
+      for (const sourceRef of Object.keys(review?.sourceFingerprints ?? review?.currentSourceFingerprints ?? {})) addDecisionId(sourceRef);
+    }
+    for (const sourceRef of Object.keys(record.currentProjectionRefresh?.sourceFingerprints ?? {})) addDecisionId(sourceRef);
   }
   addDecisionId(crosswalk.coordinatorReview?.decisionRef);
   // Bind the quality-currentness successor by its exact decision section so
@@ -53,6 +58,8 @@ export function pdp0PhaseScopedSourcePins() {
   addDecisionId('.product-experience/decision-log.md#PXD-220');
   addDecisionId('.product-experience/decision-log.md#PXD-221');
   addDecisionId('.product-experience/decision-log.md#PXD-222');
+  addDecisionId('.product-experience/decision-log.md#PXD-223');
+  addDecisionId('.product-experience/decision-log.md#PXD-225');
   const pins = {
     [pdp0SourceProjectionPinName]: fingerprint(projectPdp0SourceManifest(
       parseYaml(read('.product-experience/source-manifest.yaml')),
@@ -88,12 +95,12 @@ function hasCompleteCurrentP0CriterionScopes(definitionCriterionReviews) {
   });
 }
 const suites = {
-  'P0-01': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-capability-source-backed-outcomes.test.mjs', 'tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/pdp-capability-family-definition.test.mjs', 'tests/pdp0-artifact-search-rights-scope.test.mjs', 'tests/pdp0-j10-continuity-candidate-identity.test.mjs', 'tests/pdp0-required-family-disposition-coverage.test.mjs', 'tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs'],
+  'P0-01': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-capability-source-backed-outcomes.test.mjs', 'tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/pdp-capability-family-definition.test.mjs', 'tests/pdp0-artifact-search-rights-scope.test.mjs', 'tests/pdp0-j10-continuity-candidate-identity.test.mjs', 'tests/pdp0-required-family-disposition-coverage.test.mjs', 'tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd225.test.mjs'],
   'P0-02': ['tests/pdp-truth-domain.test.mjs', 'tests/media-operation-bounds.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-output-producer-applicability.test.mjs', 'tests/pdp-truth-domain-nfr-measurement-methods.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-artifact-search-rights-scope.test.mjs'],
-  'P0-03': ['tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp-migration-semantic-reconciliation.test.mjs', 'tests/pdp-migration-capability-material-claims.test.mjs', 'tests/pdp-migration-preservation-identity-wire-claims.test.mjs', 'tests/pdp-migration-pxd120-current-target-observations.test.mjs', 'tests/pdp-migration-constitution-claims.test.mjs', 'tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs', 'tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs', 'tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs', 'tests/pdp-migration-p0-current-material-reviews.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
+  'P0-03': ['tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp-migration-semantic-reconciliation.test.mjs', 'tests/pdp-migration-capability-material-claims.test.mjs', 'tests/pdp-migration-preservation-identity-wire-claims.test.mjs', 'tests/pdp-migration-pxd120-current-target-observations.test.mjs', 'tests/pdp-migration-constitution-claims.test.mjs', 'tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs', 'tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs', 'tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs', 'tests/pdp-migration-p0-current-material-reviews.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd225.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
   'P0-04': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs'],
   'P0-05': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp0-constitution-normative-completeness.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-generated-audio-checkpoint-rights.test.mjs'],
-  'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-quality-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-quality-current-source-review.test.mjs', 'tests/pdp0-quality-current-source-review-pxd212.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs'],
+  'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-quality-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-quality-current-source-review.test.mjs', 'tests/pdp0-quality-current-source-review-pxd212.test.mjs', 'tests/pdp0-quality-current-source-review-pxd225.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs'],
   'P0-07': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-feature-review-current-source-observation.test.mjs', 'tests/pdp0-campaign-extension-surface-matrix.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs'],
   'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs', 'tests/pdp-shared-readiness-reporter-source-boundary.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-required-family-disposition-coverage.test.mjs', 'tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
   'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
@@ -242,11 +249,11 @@ const directTestNames = {
   'P0-02': 'P0 model acquisition and reuse policy|P0 channel and dependency update semantics|P0 bounded invocation admission|trustworthy-output applicability follows output-producer role|every declared NFR has one complete owner measurement method|performance method binds all six proposed budgets|missing method material and attempted qualification promotion fail validation|SLO and human/specialist methods remain gated|actual PDP-0 owner applicability source closes all pairs|same-count substitution, duplicates and stale binding projections|P0 bounded asset search retains page and continuation limits with the rights filter|P0-02 reconciles supportedParameters with each P0 parameter schema and typed inputs|P0 input and output meaning has no dependency on downstream operation or wire-schema bindings',
   'P0-04': 'P0-04|PDP-0 preserves exact collaborator|PDP-0 requirement trace targets',
   'P0-05': 'P0 model acquisition and reuse policy|P0 channel and dependency update semantics|P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites|historical migration source stays provenance|P0 policy assigns one semantic authority|identity, consent, rights, version and revocation checks fail closed|policy definitions do not claim runtime|P0 generated-audio checkpoint rights|P0 checkpoint rights block',
-  'P0-06': 'P0-06 maps all measures to stable capability meaning|P0 quality applicability is complete from capability intent and semantic artifact types alone|P0 quality checks reject foreign semantic types and missing applicability decisions|actual PDP-0 owner applicability source closes all pairs and exact binding projections|P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes|same-count substitution, duplicates and stale binding projections are rejected|unknown applicability, missing evidence and invented measurements remain errors',
+  'P0-06': 'P0-06 maps all measures to stable capability meaning|P0 quality applicability is complete from capability intent and semantic artifact types alone|P0 quality checks reject foreign semantic types and missing applicability decisions|actual PDP-0 owner applicability source closes all pairs and exact binding projections|P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes|same-count substitution, duplicates and stale binding projections are rejected|unknown applicability, missing evidence and invented measurements remain errors|PXD-225 quality currentness preserves PXD-222 history and binds the live dependent inputs|PXD-225 quality currentness rejects stale dependent pins and changed semantic joins',
   'P0-07': 'P0-07|complete product feature review matrix|every feature leaf has an exact proposal-time channel|channel applicability|P0 channel and dependency|all 462 leaves have exact profile-channel applicability|channel rules keep protocol|15 review dimensions resolve|P0 current-source observation|every active P0 capability adjudication|exact declarative acceptance-case scope resolves all 61|rejects missing, duplicate, unknown, cross-surface, and channel-inapplicable declarative case bindings',
   'P2-01': 'Tools public ExperienceLanguage|PDP-2 disclosure density|PDP-2 recovery and accessibility|PDP-2 projects exact owner',
 };
-directTestNames['P0-01'] += '|PDP-0 preserves required capability-family scope and explicit dispositions|PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review|the 20 current meanings retain source, uncertainty, trust, candidate and fallback invariants';
+directTestNames['P0-01'] += '|PDP-0 preserves required capability-family scope and explicit dispositions|PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review|PXD-225 refreshes archived-channel currentness while retaining PXD-216 meanings and PXD-223 currentness|PXD-225 pins current applications-channels and exact decision section while preserving PXD-216 20-leaf semantics|PXD-225 fails closed when a reviewed capability row changes|the 20 current meanings retain source, uncertainty, trust, candidate and fallback invariants';
 directTestNames['P0-08'] = [
   ...p0Criteria.filter(id => id !== 'P0-08' && id !== 'P0-04' && id !== 'P0-03').map(id => directTestNames[id]).filter(Boolean),
   'P0-04 owner intent decisions are auditable and preserve collaborative actor references',
@@ -342,6 +349,13 @@ export function resolveCriterionReviewSourceCut(record, fileDigest, sourceOwnerP
       && matches(correction.sourceFingerprints, correction.phaseScope ?? recordPhase));
   const pinRefresh = record.currentSourcePinRefresh;
   const projectionRefresh = record.currentProjectionRefresh;
+  const currentnessAuthority = pinRefresh?.currentnessAuthority;
+  const currentnessAuthorityCurrent = currentnessAuthority
+    ? currentnessAuthority.decisionRef === '.product-experience/decision-log.md#PXD-225'
+      && currentnessAuthority.artifactRef === 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json'
+      && fileDigest(currentnessAuthority.artifactRef) === currentnessAuthority.artifactSha256
+      && fileDigest(`${currentnessAuthority.decisionRef}-section`) === currentnessAuthority.decisionSectionSha256
+    : !['P0-05', 'P0-07'].includes(record.taskId);
   const pinRefreshCurrent = Boolean(pinRefresh
     && pinRefresh.status === 'CURRENT_SOURCE_PIN_REFRESH_ONLY'
     && pinRefresh.phaseScope === 'PDP-0'
@@ -349,6 +363,7 @@ export function resolveCriterionReviewSourceCut(record, fileDigest, sourceOwnerP
     && pinRefresh.semanticReview === 'NOT_PERFORMED'
     && pinRefresh.ownerApproval === 'NOT_CLAIMED'
     && pinRefresh.acceptanceEffect === 'none'
+    && currentnessAuthorityCurrent
     && matches(pinRefresh.currentSourceFingerprints, pinRefresh.phaseScope)
     && fileDigest(pinRefresh.decisionContextFingerprint?.sourceRef) === pinRefresh.decisionContextFingerprint?.sha256);
   const projectionRefreshCurrent = Boolean(projectionRefresh
@@ -372,7 +387,7 @@ export function resolveCriterionReviewSourceCut(record, fileDigest, sourceOwnerP
       : historicalSourceCutCurrent),
     ...(explicitCurrentSourceReview !== undefined && explicitCurrentSourceReview !== null
       ? {currentSourceReviewCurrent} : {}),
-    ...(pinRefresh ? {currentSourcePinRefreshCurrent: pinRefreshCurrent} : {}),
+    ...(pinRefresh ? {currentSourcePinRefreshCurrent: pinRefreshCurrent, ...(currentnessAuthority ? {currentnessAuthorityCurrent} : {})} : {}),
     ...(projectionRefresh ? {currentProjectionRefreshCurrent: projectionRefreshCurrent} : {})};
 }
 
@@ -722,6 +737,8 @@ export const p0DirectScripts = [
   'scripts/check-media-pdp0-501-audit-dispositions.mjs',
   'scripts/check-media-pdp0-audit-aq-traceability.mjs',
   'scripts/check-media-pdp0-surface-denominator.mjs',
+  'scripts/generate-pdp0-current-source-reconciliation-pxd225.mjs',
+  'scripts/generate-pdp0-quality-current-source-review-pxd225.mjs',
 ];
 export const p1DirectScripts = [];
 function identityRecords(source, keys) {
@@ -1762,8 +1779,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json',
+    'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json',
     'docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json',
+    'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json',
+    'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json',
     'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json',

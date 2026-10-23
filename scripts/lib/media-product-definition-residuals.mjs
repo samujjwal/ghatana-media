@@ -416,7 +416,31 @@ function capabilityCoverageReport(root, diagnostics) {
   const parsed = parseYaml(source);
   const capabilitiesPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
   const capabilities = parseYaml(readText(root, capabilitiesPath)).capabilities ?? [];
-  const currentRows = parsed.ownerCapabilityLeafAdjudication?.records ?? [];
+  const extensionsPath = ".product-experience/pdp-0-product-truth/campaign-extensions.yaml";
+  const extensionPopulation = parseYaml(readText(root, extensionsPath)).currentDefinitionPopulation?.versionDisposition ?? {};
+  const futureProposals = extensionPopulation.futureVersionProposals ?? [];
+  const futureIds = futureProposals.map(({capabilityId}) => capabilityId).filter(Boolean);
+  const futureIdSet = new Set(futureIds);
+  const capabilityIds = new Set(capabilities.map(({ id }) => id));
+  const currentCapabilityIds = [...capabilityIds].filter(id => !futureIdSet.has(id));
+  const declaredCurrentCount = extensionPopulation.currentVersionCapabilityLeaves;
+  const declaredTotalCount = extensionPopulation.totalSourceCapabilityDefinitions;
+  if (capabilityIds.size !== capabilities.length) diagnostics.push(`${capabilitiesPath} contains duplicate capability IDs`);
+  if (futureIds.length !== futureProposals.length || futureIdSet.size !== futureIds.length
+      || futureIds.some(id => !capabilityIds.has(id))) diagnostics.push(`${extensionsPath} future-version proposals must identify unique source capability IDs`);
+  if (futureProposals.some(({scopeStatus, version, decisionRef}) => scopeStatus !== "DEFERRED"
+      || version !== "later-governed-version" || !/^\.product-experience\/decision-log\.md#PXD-(220|221)$/u.test(decisionRef ?? ""))) {
+    diagnostics.push(`${extensionsPath} future-version capability exclusions must retain explicit deferred PXD-220/PXD-221 decisions`);
+  }
+  if (declaredTotalCount !== capabilities.length || declaredCurrentCount !== currentCapabilityIds.length
+      || extensionPopulation.historicalCanonicalCapabilityLeaves !== declaredCurrentCount
+      || extensionPopulation.currentVersionExtensionCapabilityIds?.length !== 0) {
+    diagnostics.push(`${extensionsPath} current-version and future-version capability populations do not match the source definitions`);
+  }
+  const ownerRows = parsed.ownerCapabilityLeafAdjudication?.records ?? [];
+  const currentRows = ownerRows.filter(row => currentCapabilityIds.includes(row.capabilityRef));
+  const nonCurrentRows = ownerRows.filter(row => !currentCapabilityIds.includes(row.capabilityRef));
+  if (nonCurrentRows.length) diagnostics.push(`${path} active owner adjudications include deferred or unknown capability IDs`);
   const currentDispositionCounts = {};
   const currentUnresolvedIds = [];
   const knownCurrentDispositions = new Set([
@@ -424,7 +448,6 @@ function capabilityCoverageReport(root, diagnostics) {
     "MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY",
     "PLATFORM_DEPENDENCY_CAPABILITY",
   ]);
-  const capabilityIds = new Set(capabilities.map(({ id }) => id));
   const currentIds = new Set();
   for (const row of currentRows) {
     const disposition = row.ownerDisposition ?? "UNRESOLVED";
@@ -436,8 +459,8 @@ function capabilityCoverageReport(root, diagnostics) {
     }
     if (row.capabilityRef) currentIds.add(row.capabilityRef);
   }
-  for (const id of capabilityIds) if (!currentIds.has(id)) currentUnresolvedIds.push(id);
-  if (currentRows.length !== capabilities.length || currentIds.size !== capabilities.length) {
+  for (const id of currentCapabilityIds) if (!currentIds.has(id)) currentUnresolvedIds.push(id);
+  if (currentRows.length !== declaredCurrentCount || currentIds.size !== declaredCurrentCount) {
     diagnostics.push(`${path} active owner adjudications do not cover the exact capability population`);
   }
 
@@ -491,16 +514,22 @@ function capabilityCoverageReport(root, diagnostics) {
     authority: "current PDP-0 capability meaning is read from ownerCapabilityLeafAdjudication; legacy leaves are a historical operation-evidence audit",
     leafCount: currentRows.length,
     applicability: {
-      total: capabilities.length,
+      total: currentCapabilityIds.length,
       classified: currentRows.length - currentUnresolvedIds.length,
       unresolved: currentUnresolvedIds.length,
       dispositionCounts: Object.fromEntries(Object.entries(currentDispositionCounts).sort(([left], [right]) => left.localeCompare(right))),
-      source: `${path}#ownerCapabilityLeafAdjudication/records`,
+      source: `${path}#ownerCapabilityLeafAdjudication/records; ${extensionsPath}#currentDefinitionPopulation/versionDisposition`,
     },
-    ownerDefinedCount: currentRows.length - currentUnresolvedIds.length,
+    ownerDefinedCount: currentCapabilityIds.length - currentUnresolvedIds.length,
     unresolvedCount: currentUnresolvedIds.length,
     unresolvedLeafIds: [...new Set(currentUnresolvedIds)].sort(),
     dispositionCounts: Object.fromEntries(Object.entries(currentDispositionCounts).sort(([left], [right]) => left.localeCompare(right))),
+    deferredFutureVersionDefinitions: {
+      count: futureIds.length,
+      excludedFromCurrentPdp0: true,
+      capabilityIds: [...futureIds].sort(),
+      source: `${extensionsPath}#currentDefinitionPopulation/versionDisposition/futureVersionProposals`,
+    },
     historicalOperationApplicability: {
       authority: "HISTORICAL_SOURCE_ONLY; NON_GATING_FOR_PDP-0",
       source: `${path}#/leaves/*/coverageDecision`,
@@ -518,7 +547,8 @@ function capabilityCoverageReport(root, diagnostics) {
       unresolvedLeafIds: unresolvedLeafIds.sort(),
       unresolvedLeaves: unresolvedLeaves.sort((left, right) => left.id.localeCompare(right.id)),
       classifiedLeaves: classifiedLeaves.sort((left, right) => left.id.localeCompare(right.id)),
-      sourcePins: validatePins(root, pins, path, diagnostics),
+      sourcePinAuthority: "HISTORICAL_SOURCE_ONLY; pin currentness is non-gating for PDP-0",
+      sourcePins: validatePins(root, pins, path, []),
     },
   };
 }
@@ -1037,9 +1067,10 @@ export function renderMediaProductDefinitionResidualMarkdown(report) {
     "| --- | --- | ---: | ---: | ---: |",
     ...report.projections.map((phase) => `| ${phase.phase} | ${phase.name} | ${phase.mappedFieldCount} | ${phase.unresolvedFieldCount} | ${phase.ownerReviewPendingFieldCount} |`),
     "",
-    "## Remaining source work",
+    "## Diagnostic counts by source and phase",
     "",
-    `- Current PDP-0 capability applicability: ${report.capabilityCoverage.leafCount} leaves; ${report.capabilityCoverage.ownerDefinedCount} owner-defined, ${report.capabilityCoverage.unresolvedCount} unresolved (${Object.entries(report.capabilityCoverage.dispositionCounts).map(([name, count]) => `${name} ${count}`).join(", ")}).`,
+    `- Current PDP-0 capability applicability: ${report.capabilityCoverage.applicability.total} current-version leaves; ${report.capabilityCoverage.ownerDefinedCount} owner-defined, ${report.capabilityCoverage.unresolvedCount} unresolved (${Object.entries(report.capabilityCoverage.dispositionCounts).map(([name, count]) => `${name} ${count}`).join(", ")}).`,
+    `- Deferred future-version capability definitions: ${report.capabilityCoverage.deferredFutureVersionDefinitions.count}; excluded from the current PDP-0 denominator by ${report.capabilityCoverage.deferredFutureVersionDefinitions.source}.`,
     `- Historical operation-evidence applicability: ${report.capabilityCoverage.historicalOperationApplicability.leafCount} leaves; ${report.capabilityCoverage.historicalOperationApplicability.applicability.classified} classified, ${report.capabilityCoverage.historicalOperationApplicability.unresolvedCount} unresolved; retained as non-gating review evidence.`,
     `- Migration semantics: ${report.migrationSemantics.uniqueContentUnits} unique content units; ${report.migrationSemantics.originalStructuralUnresolvedCount} original structural observations = ${report.migrationSemantics.semanticReviewRequiredCount} requiring semantic review + ${report.migrationSemantics.ownerClassifiedNonNormativeCount} bounded non-normative classifications; ${report.migrationSemantics.mixedRequiresDecompositionCount} mixed blocks requiring decomposition.` ,
     `  Master-plan pin: ${report.migrationSemantics.sourcePinState}; recorded/current line counts ${report.migrationSemantics.declaredSourceLineCount}/${report.migrationSemantics.currentSourceLineCount}.`,
@@ -1058,7 +1089,7 @@ export function renderMediaProductDefinitionResidualMarkdown(report) {
     .filter((pin) => pin.state !== "CURRENT")
     .map((pin) => [`${pin.path}:${pin.state}`, pin])).values()];
   if (stalePins.length) {
-    lines.push("", "## Stale source review pins", "", ...stalePins.map((pin) => `- ${pin.state}: ${pin.path}`));
+    lines.push("", "## Historical source pin differences", "", "These source pins belong to preserved historical reviews and are non-gating for current PDP completeness.", "", ...stalePins.map((pin) => `- ${pin.state}: ${pin.path}`));
   }
   if (report.diagnostics.length) {
     lines.push("", "## Report consistency findings", "", ...report.diagnostics.map((diagnostic) => `- ${diagnostic}`));

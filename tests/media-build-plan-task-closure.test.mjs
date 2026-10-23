@@ -20,10 +20,10 @@ test('accepts a complete source-bound structural fixture without asserting appro
   assert.equal(r.planReady, 'PENDING');
 });
 
-test('projection distinguishes structural validation from unresolved source blockers and approval', () => {
+test('source-complete projection keeps task closure and Plan Ready pending without approval', () => {
   const report = validateMediaBuildPlanTaskClosure(base, { root });
   assert.equal(report.structuralStatus, 'PASS');
-  assert.ok(report.unresolvedBlockerTaskIds.length > 0);
+  assert.deepEqual(report.unresolvedBlockerTaskIds, []);
   assert.equal(report.taskClosure, 'PENDING');
   assert.equal(report.planReady, 'PENDING');
   assert.equal(report.errors.length, 0);

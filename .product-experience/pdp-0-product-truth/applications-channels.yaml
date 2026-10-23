@@ -1432,8 +1432,7 @@ channels:
     licenseAdmissionState: NOT_EVALUATED
     runtimeAvailability: NOT_ADMITTED
     phase0Admission: not-admitted
-    evidence: archive/media-desktop-apps/desktop/README.md and
-      archive/media-desktop-apps/ai-voice-desktop/README.md
+    evidence: archive/media-desktop-apps/desktop/README.md
     supportRule: Archive retention preserves source history only; do not list as a
       supported current product channel.
 

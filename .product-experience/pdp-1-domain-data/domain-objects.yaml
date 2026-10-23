@@ -3142,10 +3142,12 @@ ownerTypedIdentityContracts:
 # MediaProject/ProcessingJob/MediaRun remain canonical; Recorder Studio contributes
 # scoped value-object and relationship definitions, never an independent store.
 recorderStudioDomainSpecialization:
-  status: SOURCE_AUTHORED_PENDING_PDP1_SUCCESSOR_VALIDATION
+  status: SOURCE_AUTHORED_CURRENT_PDP1_DEVELOPMENT_REVIEWED
   source: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+  currentnessReviewRef: docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json#currentCutReview/currentDeclarativeAndRecorderReview
+  phaseStatusRef: docs/implementation/pdp-1-phase-dev-status.json
   canonicalRoots: [media.domain.project, media.domain.project-revision, media.domain.processing-job, media.domain.job-attempt, media.domain.job-lease, media.domain.media-run, media.domain.artifact-version, media.domain.timeline, media.domain.composition-config, media.domain.caption-version, media.domain.render-outcome, media.domain.delivery-outcome]
   scopedValueObjectCount: 12
   sourceContentAuthority: same-Media-canonical-domain-objects-and-versioned-projections
   conflictingAuthoritiesForbidden: [second-project-store, second-job-store, derived-asset-as-original, duplicate-policy-engine, runtime-writer-claim]
-  nonClaims: [no-runtime-persistence-mapping, no-published-typed-wire-API, no-PDP1-dev-complete-successor]
+  nonClaims: [no-runtime-persistence-mapping, no-published-typed-wire-API, no-independent-PDP1-acceptance, aggregate-PDP1-phase-status-is-the-only-development-completion-authority]

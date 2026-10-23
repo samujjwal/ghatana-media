@@ -40,18 +40,19 @@ flowchart TD
 ## C. Wave-by-wave work with structured I/O
 
 ### G0 — SOURCE_READBACK
-- **Owner:** ghatana-media + ghatana-lifecycle; **current disposition:** `READY_TO_RUN_ON_FRESH_CHECKOUT`.
+- **Owner:** ghatana-media + ghatana-lifecycle; **current disposition:** `SOURCE_READBACK_OBSERVED`.
 - **Depends on:** freshly selected current sources.
 - **Required inputs:** PDP0..3 pinned source material, four matrices, exact current main roots, 54 topology identities.
-- **Execution and output:** Read-only checks, host-composed gtool method plan, independent phase progression projection.
-- **Accepted exit:** 54 IDs, 216 current phase observations, source owner axes + known-zero definition tasks; unchanged selected file set; native receipt still NOT_EVALUATED.
+- **Execution and output:** Current read-only source observation `evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T105424Z.v1.json`, source snapshot `sha256:43e62857be2e880ac265cba64a77496caeb07f264a8734449aa8f1c7e2003562`.
+- **Observed exit:** 54 identities, 216 current phase observations, known-zero definition tasks; readback only. It does not establish host admission, task completion, native receipt, Build admission, or closure.
 
 ### G1 — SEMANTIC_BRIDGE
-- **Owner:** ghatana-media; **current disposition:** `OPEN_TECHNICAL_WORK`.
+- **Owner:** ghatana-media; **current disposition:** `OPEN_TECHNICAL_WORK`; current source-relation inventory is `SOURCE_RELATIONS_CURRENT`.
 - **Depends on:** `G0`.
-- **Required inputs:** 17 exact P1 operations, 93 referring occurrences, eight explicit unresolved joins, handoff identity, 3186 trace rows.
-- **Execution and output:** Repair source-defined cross-layer identities, rerun source generators/negative tests, freeze versioned Build handoff.
-- **Accepted exit:** Zero required missing semantic links on affected units, no inferred N/A, trace/bridge/build projection deterministic.
+- **Required inputs:** Current generated [bridge blocker inventory](MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json), current trace/census, and F00.T02's exact source-bound acceptance artifacts. The older 93-reference/eight-join/selector counts are approval-time history in the owner-disposition record, not current blockers.
+- **Current source readback:** 3,186 trace identities, 8,667 bridge edges, zero missing P1 references, unresolved relations, unresolved handoff selectors, and other classified blockers.
+- **Execution and output:** The deterministic bridge, blocker inventory, work-package, and execution-queue projections are current. Scoped bridge tests pass (2/2), blocker/negative/UNKNOWN/rollback tests pass (8/8), and work-package projection tests pass (2/2). The [source-local fixture readback](evidence/media-gtool-campaign/media-build-f00-t02-negative-unknown-rollback-readback-20261023T111717Z.v1.json) covers missing/malformed input, unknown status, contradictory status, unknown blocker classification, prior-output preservation, exact restoration, and check-only stability. It exercises temporary fixtures only. Source-current owner/Work Planner review and formal acceptance readback remain pending; a zero relation-blocker census does not establish task completion.
+- **Task acceptance:** F00.T02 remains `OPEN_TECHNICAL_WORK` / `NOT_COMPLETE`; task completion is `NOT_EVALUATED` and proof is `NOT_VERIFIED` until the owner/Work Planner review and acceptance artifacts are evaluated.
 
 ### G2 — TRUST_CONTRACT_AP02
 - **Owner:** ghatana-lifecycle Evidence Contracts trusted host; **current disposition:** `HOST_PROVISIONING_REQUIRED`.
@@ -139,7 +140,7 @@ All ordinary task scope, technical review delegation and execution sequencing ar
 - **Lane / owner:** `SOURCE_BRIDGE` · `samujjwal/ghatana-media`; policy approved, technical completion **NOT_COMPLETE**.
 - **Exact editable boundaries:** `.product-experience/pdp-1-domain-data/operations.yaml`, `docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json`, `scripts/lib/media-build-semantic-source-joins.mjs`.
 - **Prerequisites:** PDP0..3 current matrices; F00.T01 material receipt.
-- **Implementation:** Resolve 93 P1 operation endpoints missing from the 3,186 trace without naming heuristics; reconcile 8 unresolved explicit relations and the exact media.handoff.identity selector. If the trace census changes, version the trace and regenerate all dependent projections after owner-reviewed impact.
+- **Implementation:** The 93 missing P1 references, eight unresolved relations and `media.handoff.identity` selector were approval-time blockers and are superseded as current relation status by the generated blocker inventory, which now reports `SOURCE_RELATIONS_CURRENT` and zero unresolved source blockers. Do not repeat repairs from the historical list or infer links. Keep the task open until its exact scoped test results, negative/UNKNOWN/rollback readback and source-current owner review are evidenced. Version the trace and regenerate dependent projections if a future authoritative census change requires it.
 - **Input I/O:** current PDP source selector; material fingerprint; resolved owner/ABI and dependency reference; declared positive and negative cases.
 - **Expected I/O:** source-bound changed artifact or audited plan; exact test plan and result; negative/UNKNOWN/rollback readback; source-current owner review disposition.
 - **Pass criterion:** Exact source ID and selector for every required operation; reconciled trace/bridge census, zero invented links; all affected source/currentness tests pass.
@@ -329,7 +330,7 @@ There are **17 unique existing PDP-1 operation IDs** missing from the implementa
   - `media.operation.transcript-version-read`
   - `media.operation.transcription-submission`
 
-Source inspection also reports exactly **eight** unresolved cross-layer operation relations (`PDP-1:operations:media.operation.action.inspect-job-retry-policy`, `PDP-1:operations:media.operation.request-snapshot.inspect.v1`, `PDP-1:operations:media.operation.speaker-reference.resolve-version.v1`, `PDP-1:operations:media.operation.stt.profile.adapt.v1`, `PDP-1:operations:media.operation.stt.profile.create.v1`, `PDP-1:operations:media.operation.stt.profile.get.v1`, `PDP-1:operations:media.operation.stt.profile.update.v1`, `PDP-1:operations:media.operation.voice-profile.resolve-source-version.v1`) and one missing `media.handoff.identity` exact selector. Source location: `.product-experience/pdp-1-domain-data/operations.yaml`; trace owner: `scripts/lib/media-build-semantic-source-joins.mjs` and `MEDIA-BUILD-IDENTITY-TRACE.v1.json`. The generated [blocker inventory](MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json) contains source selectors, dependent packages and occurrence paths. Preserve all 3,186 identities until true source impact permits a counted change; regenerate derived files via their generators, then run source-inclusion/omission/unknown-target negative tests.
+Approval-time source inspection recorded exactly **eight** unresolved cross-layer operation relations (`PDP-1:operations:media.operation.action.inspect-job-retry-policy`, `PDP-1:operations:media.operation.request-snapshot.inspect.v1`, `PDP-1:operations:media.operation.speaker-reference.resolve-version.v1`, `PDP-1:operations:media.operation.stt.profile.adapt.v1`, `PDP-1:operations:media.operation.stt.profile.create.v1`, `PDP-1:operations:media.operation.stt.profile.get.v1`, `PDP-1:operations:media.operation.stt.profile.update.v1`, `PDP-1:operations:media.operation.voice-profile.resolve-source-version.v1`) and one missing `media.handoff.identity` exact selector. The current generated [blocker inventory](MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json) now reports zero unresolved source blockers. The historical source locations were `.product-experience/pdp-1-domain-data/operations.yaml`, `scripts/lib/media-build-semantic-source-joins.mjs` and `MEDIA-BUILD-IDENTITY-TRACE.v1.json`; preserve their provenance, and use the current inventory plus task acceptance artifacts for present status. Do not infer F00.T02 completion from the zero blocker census.
 
 ## F. Concrete command and receipt protocol
 

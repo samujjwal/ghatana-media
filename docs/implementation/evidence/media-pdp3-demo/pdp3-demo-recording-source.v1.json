@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "ghatana.pdp3-demo-recording-source.v1",
+  "methodId": "ghatana.product-development",
+  "subjectId": "media.surface.explorer",
+  "phaseId": "PDP-3",
+  "sourceSnapshotFingerprint": "sha256:43e62857be2e880ac265cba64a77496caeb07f264a8734449aa8f1c7e2003562",
+  "expectedScenarioIds": [
+    "media.demo.j03.corrected-captions.v1"
+  ],
+  "recordings": [
+    {
+      "scenarioId": "media.demo.j03.corrected-captions.v1",
+      "status": "CANDIDATE",
+      "sourceScenarioRef": ".product-experience/pdp-3-product-experience/demo-recording-standard.yaml#scope",
+      "fixture": {
+        "datasetRef": "libs/media-experience-simulation/src/fixtures.ts",
+        "fingerprint": "sha256:6ae3e7367f085592561456f3db73b1f878bfec0b7ae79b25f5586c581f737d85"
+      },
+      "storyboardRef": "docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json#storyboard",
+      "narration": {
+        "scriptRef": "docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json#storyboard/scenes",
+        "scriptFingerprint": "sha256:f5200242a4862889ac1232ee5d30bd61007d960ad05bcb34fe08b76a786f2d23",
+        "audioTrackRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/media-pdp3-j03-explorer-simulated-2026-10-21-r2.mov#audioTrack",
+        "captionTrackRef": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21-r2/narration-captions.vtt"
+      }
+    }
+  ]
+}

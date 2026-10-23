@@ -46,6 +46,34 @@ test("PDP-1 canonical references resolve only to catalogued domain objects", () 
   }
 });
 
+test("PDP-1 project and revision identity reconciliation matches owner definitions without claiming persistence", () => {
+  const domainObjects = parse(readFileSync(domainObjectsPath, "utf8"));
+  const relationships = parse(readFileSync(relationshipsPath, "utf8"));
+  const reconciliation = parse(readFileSync(reconciliationPath, "utf8"));
+  const overview = readFileSync(".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md", "utf8");
+  const ownerIdentities = new Map(domainObjects.canonicalIdentityAdjudication.registeredObjectIdentityRefs
+    .map(({ objectId, ownerSelectedIdentity }) => [objectId, ownerSelectedIdentity]));
+  const current = reconciliation.currentDefinitionAdjudication.records
+    .find(({ id }) => id === "canonical-project-and-revision-identity");
+  const projectRevisionRelation = relationships.relationships
+    .find(({ id }) => id === "media.rel.project-revision");
+
+  assert.equal(ownerIdentities.get("media.domain.project"),
+    "tenantId + stable opaque projectId; projectId is never reused within a tenant; workspaceId is an explicit authorization scope, not part of project identity.");
+  assert.equal(ownerIdentities.get("media.domain.project-revision"),
+    "tenantId + projectId + stable opaque revisionId; revisionId is not a digest; revisions are immutable snapshots.");
+  assert.ok(current, "current project and revision identity adjudication exists");
+  assert.match(current.disposition, /ProjectRevision identity is tenantId \+ projectId \+ stable opaque revisionId/u);
+  assert.match(current.remaining, /durable snapshots and history/u);
+  assert.match(current.remaining, /CAS enforcement/u);
+  assert.equal(projectRevisionRelation.ownerDefinition.childIdentityContracts[0].identityTuple.join(","),
+    "tenantId,projectId,revisionId");
+  assert.match(overview, /current Media owner-defined logical\s+identities and version boundaries/u);
+  assert.doesNotMatch(overview, /project revision identity.*remain unresolved/u);
+  assert.doesNotMatch(overview, /Project\/revision.*PDP-0 proposals with\s+no matching record established/u);
+  assert.doesNotMatch(overview, /Domain cardinalities for project assets, revisions,[\s\S]*?remain owner decisions/u);
+});
+
 test("PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization", () => {
   const domainObjects = parse(readFileSync(domainObjectsPath, "utf8"));
   const valueObjects = parse(readFileSync(".product-experience/pdp-1-domain-data/value-objects.yaml", "utf8"));

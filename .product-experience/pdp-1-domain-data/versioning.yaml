@@ -147,8 +147,10 @@ definitionAdjudication:
       notEstablished: Published consumer inventory, deprecation window, adapter qualification, and external acceptance.
 
 recorderStudioRevisionSemantics:
-  status: SOURCE_AUTHORED_PENDING_CURRENT_PDP1_REVIEW
+  status: SOURCE_AUTHORED_CURRENT_PDP1_DEVELOPMENT_REVIEWED
   source: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+  currentnessReviewRef: docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json#currentCutReview/currentDeclarativeAndRecorderReview
+  phaseStatusRef: docs/implementation/pdp-1-phase-dev-status.json
   canonicalProjectRevision: media.domain.project-revision
   canonicalJobAndAttempt: [media.domain.processing-job, media.domain.job-attempt]
   rules:

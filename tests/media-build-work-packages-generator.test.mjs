@@ -3,12 +3,22 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import yaml from 'yaml';
 import { validateBuildWorkPackageProjection } from '../scripts/lib/media-build-work-packages-validation.mjs';
+import { buildMediaBuildSurfaceHandoff } from '../scripts/lib/media-build-work-package-surfaces.mjs';
 import { buildSemanticSourceJoins } from '../scripts/lib/media-build-semantic-source-joins.mjs';
 
 const run = (...args) => execFileSync(process.execPath, ['scripts/generate-media-build-work-packages.mjs', ...args], { encoding: 'utf8' });
 const path = 'docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json';
 const digest = () => crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex');
+const sourceSurfaceRecords = () => buildMediaBuildSurfaceHandoff({
+  topology: JSON.parse(fs.readFileSync('.product-experience/surfaces/media-physical-topology.v1.json', 'utf8')),
+  surfaceRegistry: yaml.parse(fs.readFileSync('.product-experience/surface-registry.yaml', 'utf8')).surfaces,
+  matrices: [0, 1, 2, 3].map(i => {
+    const matrixPath = `docs/implementation/verification/pdp-38/pdp${i}-surface-phase-status-matrix.json`;
+    return { path: matrixPath, matrix: JSON.parse(fs.readFileSync(matrixPath, 'utf8')) };
+  })
+});
 
 test('Build work package projection is deterministic and source-pinned', () => {
   run();
@@ -40,6 +50,26 @@ test('Build work package projection is deterministic and source-pinned', () => {
   assert(projection.packages.every(p => p.taskIds.every(id => projection.tasks.some(task => task.id === id))));
   const taskById = new Map(projection.tasks.map(task => [task.id, task]));
   assert.deepEqual(taskById.get('M-BLD-F01.T01').predecessorTaskIds, ['M-BLD-F00.T03']);
+  assert.deepEqual(taskById.get('M-BLD-F01.T01').tests.positiveTestIds, [
+    'M-BLD-F01.T01.POSITIVE.TREE_PARSE_MODES',
+    'M-BLD-F01.T01.POSITIVE.EXACT_PATH_MODE_BLOB_DENOMINATOR',
+    'M-BLD-F01.T01.POSITIVE.TREE_OBJECT_PINS',
+    'M-BLD-F01.T01.POSITIVE.REMOTE_CUT_EVIDENCE',
+    'M-BLD-F01.T01.POSITIVE.CANONICAL_WRITER_BOUNDARY',
+    'M-BLD-F01.T01.POSITIVE.CONSUMER_LEDGER_LIMITATIONS',
+  ]);
+  assert.deepEqual(taskById.get('M-BLD-F01.T01').tests.adversarialTestIds, [
+    'M-BLD-F01.T01.ADVERSARIAL.MISSING_REMOTE_CUT',
+    'M-BLD-F01.T01.ADVERSARIAL.HEAD_MISMATCH',
+    'M-BLD-F01.T01.ADVERSARIAL.NO_UNAUTHORIZED_CUTOVER',
+    'M-BLD-F01.T01.ADVERSARIAL.NO_FALSE_EXHAUSTIVE_CONSUMER_CLAIM',
+  ]);
+  assert.deepEqual(taskById.get('M-BLD-F01.T01').tests.commands, [
+    'pnpm report:media-source-target-tree',
+    'pnpm test:source-target-tree-crosswalk',
+    'pnpm test:compatibility-cutover-observation',
+  ]);
+  assert(!taskById.get('M-BLD-F01.T01').tests.commands.some(command => command.includes('not declared')));
   assert.deepEqual(taskById.get('M-BLD-F02.T01').predecessorTaskIds, ['M-BLD-F00.T03', 'M-BLD-F01.T01']);
   assert.deepEqual(taskById.get('M-BLD-L01.T01').predecessorTaskIds, ['M-BLD-F00.T01']);
   assert.deepEqual(taskById.get('M-BLD-L01.T03').predecessorTaskIds, ['M-BLD-V03.T02']);
@@ -61,12 +91,26 @@ test('Build work package projection is deterministic and source-pinned', () => {
   ]);
   assert(taskById.get('M-BLD-L01.T05').expectedResult.includes('full recorder'));
   assert.equal(projection.census.matrixRows.length, 4);
+  assert.equal(projection.surfaces.length, 54);
+  const logicalSurfaces = projection.surfaces.filter(row => row.type === 'logical');
+  assert.equal(logicalSurfaces.length, 21);
+  assert(logicalSurfaces.every(row => row.registryApplicability?.disposition && row.registryApplicability?.rationale && row.registryApplicability?.authoritySelector));
+  assert(projection.surfaces.every(row => Object.keys(row.applicability).length === 4 && Object.values(row.applicability).every(phase => phase.sourceCurrent === true && Array.isArray(phase.remainingPhaseLocalTaskIds))));
+  const archivedSurface = logicalSurfaces.find(row => row.id === 'media.surface.desktop-archive');
+  assert.equal(archivedSurface.registryApplicability.disposition, 'NOT_ACTIVE_ARCHIVED');
+  assert.equal(archivedSurface.registryApplicability.rationale, 'Historical source only; do not infer current support or reactivate from source presence.');
+  assert.equal(archivedSurface.topologyBinding.state, 'ARCHIVED');
+  assert(Object.values(archivedSurface.applicability).every(phase => phase.developmentStatus === 'NOT_ACTIVE_ARCHIVED'));
+  assert.deepEqual(projection.surfaces, sourceSurfaceRecords());
+  const f00t03 = projection.tasks.find(task => task.id === 'M-BLD-F00.T03');
+  assert.equal(f00t03.joinedSourceIdentities.length, 54);
+  assert.deepEqual(f00t03.joinedSourceIdentities, projection.surfaces.map(({ id, type, topologySelector, registryApplicability, topologyBinding, applicability }) => ({ id, type, topologySelector, registryApplicability, topologyBinding, applicability })));
   assert.equal(projection.materialSourceReceipt.count, 859);
   assert.equal(projection.materialSourceReceipt.staleCount, 0);
   assert.equal(projection.materialSourceReceipt.status, 'CURRENT');
   assert(projection.trace.every(x => x.planningStatus === 'ASSIGNED_UNVERIFIED'));
   assert(projection.trace.every(x => x.codeSymbol.status === 'UNBOUND'));
-  assert(projection.trace.some(x => x.unresolvedSourceSlots.length));
+  assert.equal(projection.trace.filter(x => x.unresolvedSourceSlots.length).length, 0);
 });
 
 test('validator rejects negative identity, join, edge, cycle, N/A, census, and pin fixtures', () => {
@@ -97,6 +141,41 @@ test('validator rejects negative identity, join, edge, cycle, N/A, census, and p
   assert(sourceBridge.rows.flatMap(row => Object.values(row.joins).flat()).some(edge => edge.phase === 'PDP-1' && edge.sourceRef.endsWith('/stateRefs')));
   const transitionJoins = sourceBridge.rows.filter(row => row.phase === 'PDP-1' && row.kind === 'transitions').flatMap(row => Object.values(row.joins).flat());
   assert(transitionJoins.some(edge => edge.sourceRef.endsWith('/operationRefs')));
+  const expectedSourceOnlyOperations = new Set([
+    'media.operation-slice.append-upload-chunk', 'media.operation-slice.begin-upload',
+    'media.operation-slice.cancel-job', 'media.operation-slice.complete-upload',
+    'media.operation-slice.create-project', 'media.operation-slice.inspect-artifact',
+    'media.operation-slice.inspect-job', 'media.operation-slice.inspect-project',
+    'media.operation-slice.inspect-upload', 'media.operation-slice.list-projects',
+    'media.operation-slice.retry-job', 'media.operation.caption-draft-write',
+    'media.operation.caption-version-read', 'media.operation.caption-version-write',
+    'media.operation.job-lifecycle', 'media.operation.transcript-version-read',
+    'media.operation.transcription-submission'
+  ]);
+  const missingTraceOperationEdges = sourceBridge.rows.flatMap(row => Object.values(row.joins).flat())
+    .filter(edge => edge.phase === 'PDP-1' && expectedSourceOnlyOperations.has(edge.id));
+  assert.equal(new Set(missingTraceOperationEdges.map(edge => `${edge.phase}:${edge.id}:${edge.sourceRef}`)).size, 141);
+  assert.equal(new Set(sourceBridge.rows.flatMap(row => Object.values(row.joins).flat()
+    .filter(edge => edge.phase === 'PDP-1' && expectedSourceOnlyOperations.has(edge.id))
+    .map(edge => `${row.phase}:${row.kind}:${row.identity}|${edge.id}`))).size, 93);
+  assert.deepEqual(new Set(missingTraceOperationEdges.map(edge => edge.id)), expectedSourceOnlyOperations);
+  assert(missingTraceOperationEdges.every(edge => edge.endpointClassification === 'SOURCE_SELECTOR' && edge.targetSelector?.startsWith('.product-experience/pdp-1-domain-data/operations.yaml#')));
+  const unresolvedOperationRelations = new Set([
+    'media.operation.action.inspect-job-retry-policy', 'media.operation.request-snapshot.inspect.v1',
+    'media.operation.speaker-reference.resolve-version.v1', 'media.operation.stt.profile.adapt.v1',
+    'media.operation.stt.profile.create.v1', 'media.operation.stt.profile.get.v1',
+    'media.operation.stt.profile.update.v1', 'media.operation.voice-profile.resolve-source-version.v1'
+  ]);
+  for (const id of unresolvedOperationRelations) {
+    const row = sourceBridge.rows.find(item => item.phase === 'PDP-1' && item.kind === 'operations' && item.identity === id);
+    assert(row, `missing exact source operation ${id}`);
+    assert(!row.unresolvedSourceBlockers.some(blocker => blocker.startsWith('SOURCE_RELATION_UNRESOLVED:')), `${id} retains an unresolved relation`);
+    assert(Object.keys(row.joins).length > 0, `${id} has no source-declared relation`);
+  }
+  const handoffJoin = sourceBridge.rows.flatMap(row => row.joins.p3HandoffSelector ?? [])
+    .find(edge => edge.targetSelector?.endsWith('/@id=media.handoff.identity'));
+  assert.equal(handoffJoin?.id, '.product-experience/pdp-3-product-experience/handoff-bindings.yaml#handoffs/@id=media.handoff.identity');
+  assert.equal(handoffJoin?.targetSelector, handoffJoin?.id);
   const purposeJoins = sourceBridge.rows.filter(row => row.phase === 'PDP-3' && row.kind === 'journey-step-purpose').flatMap(row => Object.values(row.joins).flat());
   assert(purposeJoins.some(edge => edge.phase === 'PDP-1' && edge.sourceRef.includes('operationRefs=')));
   const channelJoins = sourceBridge.rows.filter(row => row.phase === 'PDP-3' && row.kind === 'journey-channel-edge').flatMap(row => Object.values(row.joins).flat());
@@ -105,8 +184,8 @@ test('validator rejects negative identity, join, edge, cycle, N/A, census, and p
   assert(screenJoins.some(edge => edge.phase === 'PDP-3' && edge.sourceRef.endsWith('/journeyRefs')));
   assert(screenJoins.some(edge => edge.phase === 'PDP-2' && edge.sourceRef.endsWith('/templateId')));
   assert(screenJoins.some(edge => edge.phase === 'PDP-2' && edge.sourceRef.endsWith('/layoutIds')));
-  assert(sourceBridge.rows.some(row => row.unresolvedSourceBlockers.some(blocker => blocker.startsWith('UNRESOLVED_HANDOFF_SELECTOR:'))));
-  assert(sourceBridge.rows.some(row => row.unresolvedSourceBlockers.some(blocker => blocker.startsWith('REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:'))));
+  assert(!sourceBridge.rows.some(row => row.unresolvedSourceBlockers.some(blocker => blocker.startsWith('UNRESOLVED_HANDOFF_SELECTOR:'))));
+  assert(!sourceBridge.rows.some(row => row.unresolvedSourceBlockers.some(blocker => blocker.startsWith('REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:'))));
   const ids = sourceBridge.authoritativeIdentityKeys;
   const joinsByIdentity = new Map(sourceBridge.rows.map(x => [`${x.phase}:${x.kind}:${x.identity}`, x.joins]));
   const permittedNA = new Set(original.trace.filter(x => x.primaryPackageId === 'N/A').map(x => `${x.phase}:${x.kind}:${x.identity}`));
@@ -120,7 +199,8 @@ test('validator rejects negative identity, join, edge, cycle, N/A, census, and p
     tracePopulations: original.census.tracePopulations,
     materialSources: original.materialSourceReceipt.records,
     matrixPaths: original.census.matrixRows.map(x => x.path),
-    surfaceIds: original.surfaces.map(x => x.id)
+    surfaceIds: original.surfaces.map(x => x.id),
+    surfaceRecords: sourceSurfaceRecords()
   };
   const rejected = (mutate, extra = {}) => {
     const candidate = structuredClone(original);
@@ -162,5 +242,9 @@ test('validator rejects negative identity, join, edge, cycle, N/A, census, and p
   rejected(x => { x.packages.find(pkg => pkg.id === 'M-BLD-L01').taskIds = x.packages.find(pkg => pkg.id === 'M-BLD-L01').taskIds.filter(id => id !== 'M-BLD-L01.T05'); }); // no orphaned full acceptance task
   rejected(x => { x.census.matrixRows.pop(); }); // missing source matrix
   rejected(x => { x.census.matrixRows[0].surfaceIds[0] = 'wrong.surface'; }); // wrong matrix membership
+  rejected(x => { x.surfaces.find(row => row.id === 'media.surface.desktop-archive').registryApplicability.disposition = 'APPLICABLE'; }); // archived applicability cannot be overwritten
+  rejected(x => { x.surfaces.find(row => row.id === 'media.surface.web').applicability['PDP-2'].sourceCurrent = false; }); // stale per-surface phase source cannot be hidden
+  rejected(x => { delete x.surfaces.find(row => row.id === 'media.surface.production-studio').applicability['PDP-3'].rationale; }); // applicability rationale is source-owned
+  rejected(x => { x.surfaces.pop(); }); // full 54-surface denominator is mandatory
   assert.notDeepEqual(validateBuildWorkPackageProjection(original, { ...expected, surfaceCounts: { ...expected.surfaceCounts, total: 53 } }), []); // missing surface census
 });

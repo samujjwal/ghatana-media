@@ -1,0 +1,242 @@
+{
+  "schemaVersion": "media.gtool-build-task-evidence-candidate.v1",
+  "recordKind": "SOURCE_BOUND_F00_T03_HANDOFF_CENSUS_CANDIDATE_NOT_TASK_ACCEPTANCE_OR_PLAN_ADMISSION",
+  "recordedAt": "2026-10-23T04:38:37Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "f8816aede965d55c27005d5bab13bcb6ae376389",
+    "macroStage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "taskId": "M-BLD-F00.T03",
+    "taskTitle": "P2 slots, code symbols, package handoff and consumer census",
+    "campaignDenominator": {
+      "sourceIdentities": 54,
+      "physicalLeaves": 26,
+      "compositionsIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "phaseCells": 216,
+      "packages": 50,
+      "packageTasks": 57,
+      "traceIdentities": 3186,
+      "openApprovedQueueTasks": 19
+    }
+  },
+  "taskDisposition": {
+    "source": {
+      "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json#/tasks/M-BLD-F00.T03",
+      "sha256": "sha256:e5990c3991aaa8852e0f6918573bb584a6b3edb406076e57638ddcd95f138aef"
+    },
+    "status": "ASSIGNED_UNVERIFIED",
+    "predecessorTaskIds": [
+      "M-BLD-F00.T01",
+      "M-BLD-F00.T02"
+    ],
+    "acceptanceCriterion": "Generate the complete 50-package handoff, all 54 consumer identities, and explicit source UI/code symbol slots without inventing symbols or N/A dispositions.",
+    "formalTaskAcceptance": "PENDING_INDEPENDENT_REVIEW",
+    "kernelTaskClosure": "PENDING",
+    "kernelPlanReady": "NOT_PROVEN"
+  },
+  "sourceInputs": {
+    "files": [
+      {
+        "path": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+        "sha256": "sha256:9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
+        "sha256": "sha256:92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32"
+      },
+      {
+        "path": ".product-experience/surfaces/media-physical-topology.v1.json",
+        "sha256": "sha256:b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2"
+      },
+      {
+        "path": ".product-experience/surface-registry.yaml",
+        "sha256": "sha256:43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+      },
+      {
+        "path": "docs/implementation/pdp-0-phase-dev-status.json",
+        "sha256": "sha256:140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b"
+      },
+      {
+        "path": "docs/implementation/pdp-1-phase-dev-status.json",
+        "sha256": "sha256:72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d"
+      },
+      {
+        "path": "docs/implementation/pdp-2-phase-dev-status.json",
+        "sha256": "sha256:f202a5d0cf5cef788e9d17151bf6cfa4064177aaa650f8a07ad86bdbf7a1c45a"
+      },
+      {
+        "path": "docs/implementation/pdp-3-phase-dev-status.json",
+        "sha256": "sha256:547e217a37bfa3f8c485f984b3d4aaccb4d76f3a273115ce2e2f8700af140340"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+        "sha256": "sha256:e5990c3991aaa8852e0f6918573bb584a6b3edb406076e57638ddcd95f138aef"
+      }
+    ],
+    "materialSourceReceipt": {
+      "status": "CURRENT",
+      "count": 859,
+      "staleCount": 0,
+      "phaseCounts": {
+        "PDP-0": 175,
+        "PDP-1": 137,
+        "PDP-2": 180,
+        "PDP-3": 367
+      }
+    }
+  },
+  "technicalEvidence": {
+    "packageHandoff": {
+      "packageCount": 50,
+      "taskCount": 57,
+      "taskRecordCount": 54,
+      "status": "GENERATED_SOURCE_BOUND_PLANNING_PROJECTION"
+    },
+    "consumerCensus": {
+      "identityCount": 54,
+      "uniqueIdentityCount": 54,
+      "counts": {
+        "physical": 26,
+        "compositions": 7,
+        "logical": 21,
+        "total": 54
+      },
+      "allFourPdpApplicabilityRows": true
+    },
+    "traceHandoff": {
+      "identityCount": 3186,
+      "unresolvedSourceSlotCount": 0,
+      "codeSymbolStatusCounts": {
+        "UNBOUND": 3186
+      },
+      "noUnboundCodeSymbolsInvented": true
+    },
+    "phaseState": {
+      "statusFiles": [
+        {
+          "path": "docs/implementation/pdp-0-phase-dev-status.json",
+          "status": "DEV_COMPLETE",
+          "outstandingDefinitionTaskIds": []
+        },
+        {
+          "path": "docs/implementation/pdp-1-phase-dev-status.json",
+          "status": "DEV_COMPLETE",
+          "outstandingDefinitionTaskIds": []
+        },
+        {
+          "path": "docs/implementation/pdp-2-phase-dev-status.json",
+          "status": "DEV_COMPLETE",
+          "outstandingDefinitionTaskIds": []
+        },
+        {
+          "path": "docs/implementation/pdp-3-phase-dev-status.json",
+          "status": "DEV_COMPLETE",
+          "outstandingDefinitionTaskIds": []
+        }
+      ],
+      "phaseMatrices": [
+        {
+          "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "sha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
+          "rows": 54,
+          "phase": "PDP-0",
+          "sourceCurrentness": "CURRENT",
+          "status": "DEV_COMPLETE"
+        },
+        {
+          "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "sha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
+          "rows": 54,
+          "phase": "PDP-1",
+          "sourceCurrentness": "CURRENT",
+          "status": "DEV_COMPLETE"
+        },
+        {
+          "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "sha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+          "rows": 54,
+          "phase": "PDP-2",
+          "sourceCurrentness": "CURRENT",
+          "status": "DEV_COMPLETE"
+        },
+        {
+          "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "sha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db",
+          "rows": 54,
+          "phase": "PDP-3",
+          "sourceCurrentness": "CURRENT",
+          "status": "DEV_COMPLETE"
+        }
+      ]
+    },
+    "scopeBoundary": "This candidate records generated planning handoff only. UNBOUND code-symbol slots remain explicit; it does not assert implementation admission, binary ABI, accepted task closure, native PDP closure, or release."
+  },
+  "verification": [
+    {
+      "command": "node --test tests/media-build-work-packages-generator.test.mjs",
+      "exitCode": 0,
+      "result": "2/2 PASS; deterministic source-pinned handoff and rejection of negative identity/join/edge/cycle/N-A/census/pin fixtures."
+    },
+    {
+      "command": "pnpm run check:build-work-packages",
+      "exitCode": 0,
+      "result": "PASS; generated projection deterministic/current for 3,186 identities."
+    },
+    {
+      "command": "pnpm run check:build-plan-task-closure",
+      "exitCode": 0,
+      "result": "Structural PASS; 57 tasks, 50 packages, 54 surfaces and 3,186 trace identities; no source blockers; taskClosure=PENDING, planReady=PENDING, approvalEvidenceStatus=MISSING."
+    },
+    {
+      "command": "pnpm run check:gtool-execution-queue",
+      "exitCode": 0,
+      "result": "PASS; 19 open technical tasks retained; 3,186 identities, 8,667 bridge edges and zero unresolved source blockers."
+    },
+    {
+      "command": "pnpm run check:gtool-owner-dispositions",
+      "exitCode": 0,
+      "result": "Structural PASS; 19 approved owner task scopes and 19 technical tasks remain open; Kernel Plan Ready NOT_PROVEN."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "PASS."
+    }
+  ],
+  "acceptance": {
+    "technicalCriterion": "CANDIDATE_SUPPORTED_BY_GENERATED_CENSUS_AND_TESTS",
+    "independentReviewerDisposition": "PENDING",
+    "ownerPlannerDisposition": "PENDING",
+    "taskAcceptance": "NOT_ESTABLISHED"
+  },
+  "claimsBoundary": {
+    "authoringComplete": false,
+    "buildTaskAcceptance": "NOT_ESTABLISHED",
+    "kernelPlanReady": "NOT_PROVEN",
+    "sourceDefinitionDevelopment": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+    "nativeClosure": "NOT_PROVEN",
+    "releaseQualification": "NOT_EVALUATED",
+    "delivery": "NOT_AUTHORIZED",
+    "taskOrOwnerStatusesChanged": false
+  },
+  "nextAction": "Obtain independent engineering review and authentic Kernel/Work Planner task-closure and Plan Ready readback for this source-pinned package projection; do not convert this candidate or the structural PASS into admission."
+}

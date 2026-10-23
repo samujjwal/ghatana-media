@@ -1,0 +1,1210 @@
+{
+  "schemaVersion": "media.build-f01-t01-source-inventory.v1",
+  "observedAt": "2026-10-23T03:39:23.920Z",
+  "authority": "READ_ONLY_SOURCE_INVENTORY_AND_CUTOVER_PLAN_CANDIDATE; NO_TRANSFER_OR_BUILD_ADMISSION_AUTHORITY",
+  "campaign": {
+    "product": "Ghatana Media",
+    "macroStage": "BUILD",
+    "exactSubstage": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "campaignSurfaceDenominator": 54,
+    "denominatorBreakdown": {
+      "physicalLeaves": 26,
+      "compositionsAndRoot": 7,
+      "logicalConsumers": 21
+    },
+    "selectedTaskSurfaceSet": {
+      "count": 7,
+      "surfaceIds": [
+        "media.surface.integrations",
+        "media.physical.adapters-ledger",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.providers-aws-postgresql"
+      ]
+    },
+    "planTaskId": "M-BLD-F01.T01",
+    "planTaskStatus": "ASSIGNED_UNVERIFIED",
+    "packageDependencyScope": "FULL_PACKAGE",
+    "predecessorTaskIds": [
+      "M-BLD-F00.T03"
+    ]
+  },
+  "prerequisiteState": {
+    "discovery": "G0_REFRESH2 reports 54 identities and 216 phase cells source-current DEV_COMPLETE; all four PDP phase-local definition inventories are zero.",
+    "selectedSurfaceMatrix": [
+      {
+        "phase": "PDP-0",
+        "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "sha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
+        "rows": 54,
+        "remainingPhaseLocalTaskCount": 0
+      },
+      {
+        "phase": "PDP-1",
+        "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "sha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
+        "rows": 54,
+        "remainingPhaseLocalTaskCount": 0
+      },
+      {
+        "phase": "PDP-2",
+        "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+        "sha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+        "rows": 54,
+        "remainingPhaseLocalTaskCount": 0
+      },
+      {
+        "phase": "PDP-3",
+        "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+        "sha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db",
+        "rows": 54,
+        "remainingPhaseLocalTaskCount": 0
+      }
+    ],
+    "taskPredecessor": "M-BLD-F00.T03 source criterion is evidenced PASS; formal task acceptance remains unverified.",
+    "buildAdmission": "NOT_ESTABLISHED; package projection status remains ASSIGNED_UNVERIFIED.",
+    "permittedWork": "Read-only inventory and planning portion under the first-four-executable-planning-tasks provision; no runtime implementation or cutover.",
+    "selectedSurfacesByPhase": {
+      "selectedSurfaceCount": 7,
+      "phaseCount": 4,
+      "phaseCellCount": 28,
+      "sourceMatrices": [
+        {
+          "phase": "PDP-0",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "matrixSha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
+          "rowCount": 54
+        },
+        {
+          "phase": "PDP-1",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "matrixSha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
+          "rowCount": 54
+        },
+        {
+          "phase": "PDP-2",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "matrixSha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+          "rowCount": 54
+        },
+        {
+          "phase": "PDP-3",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "matrixSha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db",
+          "rowCount": 54
+        }
+      ],
+      "rows": [
+        {
+          "surfaceId": "media.surface.integrations",
+          "surfaceType": "SYSTEM_TO_SYSTEM_SERVICE",
+          "owner": [
+            "media-runtime",
+            "integration-owners"
+          ],
+          "phase": "PDP-0",
+          "applicability": {
+            "disposition": "APPLICABLE_DEFINITION_SCOPE",
+            "rationale": "Exact current logical consumer scope is resolved from owner P0 and topology sources.",
+            "authorityRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#logicalConsumerPdp0Scope"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+          "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "matrixSha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        },
+        {
+          "surfaceId": "media.physical.adapters-ledger",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-0",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE_SUPPORT",
+            "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
+            "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+          "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "matrixSha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-cache",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-0",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE_SUPPORT",
+            "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
+            "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+          "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "matrixSha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-messaging",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-0",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE_SUPPORT",
+            "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
+            "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+          "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "matrixSha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-persistence",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-0",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "Exact source capability leaves are selected by their canonical family; target capability scope does not claim runtime admission.",
+            "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+          "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "matrixSha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-security",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-0",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "Exact source capability leaves are selected by their canonical family; target capability scope does not claim runtime admission.",
+            "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+          "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "matrixSha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        },
+        {
+          "surfaceId": "media.physical.providers-aws-postgresql",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-runtime",
+          "phase": "PDP-0",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "Exact source capability leaves are selected by their canonical family; target capability scope does not claim runtime admission.",
+            "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+          "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "matrixSha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        },
+        {
+          "surfaceId": "media.surface.integrations",
+          "surfaceType": "SYSTEM_TO_SYSTEM_SERVICE",
+          "owner": "media-runtime, integration-owners",
+          "phase": "PDP-1",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "PDP-3 applies to Media's source-only integration contracts as a contract-only experience. Each external handoff remains host-dependent and requires its own owner-approved contract and host/runtime admission; no external runtime or availability is admitted here.",
+            "authorityRef": ".product-experience/surface-registry.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "PDP-1 definition status, current full-denominator review, and all source pins are current; no phase-local task remains.",
+          "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "matrixSha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        },
+        {
+          "surfaceId": "media.physical.adapters-ledger",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-1",
+          "applicability": {
+            "disposition": "REFERENCED_ONLY",
+            "rationale": "No separate canonical domain or operation ownership is assigned.",
+            "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+            "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit PDP-1 REFERENCED_ONLY applicability and authority are source-bound; current phase status has zero outstanding tasks and all required source pins are current.",
+          "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "matrixSha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-cache",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-1",
+          "applicability": {
+            "disposition": "REFERENCED_ONLY",
+            "rationale": "No separate canonical domain or operation ownership is assigned.",
+            "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+            "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit PDP-1 REFERENCED_ONLY applicability and authority are source-bound; current phase status has zero outstanding tasks and all required source pins are current.",
+          "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "matrixSha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-messaging",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-1",
+          "applicability": {
+            "disposition": "REFERENCED_ONLY",
+            "rationale": "No separate canonical domain or operation ownership is assigned.",
+            "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+            "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit PDP-1 REFERENCED_ONLY applicability and authority are source-bound; current phase status has zero outstanding tasks and all required source pins are current.",
+          "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "matrixSha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-persistence",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-1",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "Canonical objects and operations remain root-owned; this cell references module implementation/contract responsibility.",
+            "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+            "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit PDP-1 APPLICABLE applicability and authority are source-bound; current phase status has zero outstanding tasks and all required source pins are current.",
+          "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "matrixSha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-security",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-1",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "Canonical objects and operations remain root-owned; this cell references module implementation/contract responsibility.",
+            "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+            "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit PDP-1 APPLICABLE applicability and authority are source-bound; current phase status has zero outstanding tasks and all required source pins are current.",
+          "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "matrixSha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        },
+        {
+          "surfaceId": "media.physical.providers-aws-postgresql",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-runtime",
+          "phase": "PDP-1",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "Canonical objects and operations remain root-owned; this cell references module implementation/contract responsibility.",
+            "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+            "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml"
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Explicit PDP-1 APPLICABLE applicability and authority are source-bound; current phase status has zero outstanding tasks and all required source pins are current.",
+          "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "matrixSha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        },
+        {
+          "surfaceId": "media.surface.integrations",
+          "surfaceType": "LOGICAL_CONSUMER",
+          "owner": "media-runtime, integration-owners",
+          "phase": "PDP-2",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "PDP-3 applies to Media's source-only integration contracts as a contract-only experience. Each external handoff remains host-dependent and requires its own owner-approved contract and host/runtime admission; no external runtime or availability is admitted here.",
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
+            "authorityRefs": [
+              ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
+              ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+              ".product-experience/pdp-0-product-truth/policy-authority-model.yaml"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Native PDP-2 status is DEV_COMPLETE, every direct development criterion passes, all PDP-2 source pins are current, and this surface has an explicit PDP-2 applicability decision; no owner acceptance or phase closure is implied.",
+          "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "matrixSha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        },
+        {
+          "surfaceId": "media.physical.adapters-ledger",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-2",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE",
+            "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+            "authorityRefs": [
+              ".product-experience/pdp-2-design-interface-system/api/",
+              ".product-experience/pdp-2-design-interface-system/sdk/",
+              ".product-experience/pdp-2-design-interface-system/gui/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Current topology or registry authority explicitly excludes this identity from PDP-2 with a source-bound rationale.",
+          "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "matrixSha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-cache",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-2",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE",
+            "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+            "authorityRefs": [
+              ".product-experience/pdp-2-design-interface-system/api/",
+              ".product-experience/pdp-2-design-interface-system/sdk/",
+              ".product-experience/pdp-2-design-interface-system/gui/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Current topology or registry authority explicitly excludes this identity from PDP-2 with a source-bound rationale.",
+          "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "matrixSha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-messaging",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-2",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE",
+            "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+            "authorityRefs": [
+              ".product-experience/pdp-2-design-interface-system/api/",
+              ".product-experience/pdp-2-design-interface-system/sdk/",
+              ".product-experience/pdp-2-design-interface-system/gui/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Current topology or registry authority explicitly excludes this identity from PDP-2 with a source-bound rationale.",
+          "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "matrixSha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-persistence",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-2",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE",
+            "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+            "authorityRefs": [
+              ".product-experience/pdp-2-design-interface-system/api/",
+              ".product-experience/pdp-2-design-interface-system/sdk/",
+              ".product-experience/pdp-2-design-interface-system/gui/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Current topology or registry authority explicitly excludes this identity from PDP-2 with a source-bound rationale.",
+          "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "matrixSha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-security",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-2",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE",
+            "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+            "authorityRefs": [
+              ".product-experience/pdp-2-design-interface-system/api/",
+              ".product-experience/pdp-2-design-interface-system/sdk/",
+              ".product-experience/pdp-2-design-interface-system/gui/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Current topology or registry authority explicitly excludes this identity from PDP-2 with a source-bound rationale.",
+          "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "matrixSha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        },
+        {
+          "surfaceId": "media.physical.providers-aws-postgresql",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-runtime",
+          "phase": "PDP-2",
+          "applicability": {
+            "disposition": "NOT_APPLICABLE",
+            "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+            "authorityRefs": [
+              ".product-experience/pdp-2-design-interface-system/api/",
+              ".product-experience/pdp-2-design-interface-system/sdk/",
+              ".product-experience/pdp-2-design-interface-system/gui/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "NOT_APPLICABLE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "Current topology or registry authority explicitly excludes this identity from PDP-2 with a source-bound rationale.",
+          "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "matrixSha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        },
+        {
+          "surfaceId": "media.surface.integrations",
+          "surfaceType": "LOGICAL_CONSUMER",
+          "owner": "media-runtime, integration-owners",
+          "phase": "PDP-3",
+          "applicability": {
+            "disposition": "APPLICABLE",
+            "rationale": "PDP-3 applies to Media's source-only integration contracts as a contract-only experience. Each external handoff remains host-dependent and requires its own owner-approved contract and host/runtime admission; no external runtime or availability is admitted here.",
+            "authorityRefs": [
+              ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
+              ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+              ".product-experience/pdp-0-product-truth/policy-authority-model.yaml"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "This surface has zero directly assigned PDP-3 tasks in the current source records; no remaining phase-local task is asserted for this row. Source currentness and phase-wide status remain reported separately.",
+          "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "matrixSha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        },
+        {
+          "surfaceId": "media.physical.adapters-ledger",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-3",
+          "applicability": {
+            "disposition": "TOOLING_OR_SUPPORT",
+            "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
+            "authorityRefs": [
+              ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+              ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+              ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+              ".product-experience/pdp-3-product-experience/grpc/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "This surface has zero directly assigned PDP-3 tasks in the current source records; no remaining phase-local task is asserted for this row. Source currentness and phase-wide status remain reported separately.",
+          "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "matrixSha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-cache",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-3",
+          "applicability": {
+            "disposition": "TOOLING_OR_SUPPORT",
+            "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
+            "authorityRefs": [
+              ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+              ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+              ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+              ".product-experience/pdp-3-product-experience/grpc/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "This surface has zero directly assigned PDP-3 tasks in the current source records; no remaining phase-local task is asserted for this row. Source currentness and phase-wide status remain reported separately.",
+          "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "matrixSha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-messaging",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-3",
+          "applicability": {
+            "disposition": "TOOLING_OR_SUPPORT",
+            "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
+            "authorityRefs": [
+              ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+              ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+              ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+              ".product-experience/pdp-3-product-experience/grpc/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "This surface has zero directly assigned PDP-3 tasks in the current source records; no remaining phase-local task is asserted for this row. Source currentness and phase-wide status remain reported separately.",
+          "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "matrixSha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-persistence",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-3",
+          "applicability": {
+            "disposition": "CONSUMER_CONTRACT",
+            "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
+            "authorityRefs": [
+              ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+              ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+              ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+              ".product-experience/pdp-3-product-experience/grpc/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "This surface has zero directly assigned PDP-3 tasks in the current source records; no remaining phase-local task is asserted for this row. Source currentness and phase-wide status remain reported separately.",
+          "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "matrixSha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-security",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-platform",
+          "phase": "PDP-3",
+          "applicability": {
+            "disposition": "CONSUMER_CONTRACT",
+            "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
+            "authorityRefs": [
+              ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+              ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+              ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+              ".product-experience/pdp-3-product-experience/grpc/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "This surface has zero directly assigned PDP-3 tasks in the current source records; no remaining phase-local task is asserted for this row. Source currentness and phase-wide status remain reported separately.",
+          "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "matrixSha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        },
+        {
+          "surfaceId": "media.physical.providers-aws-postgresql",
+          "surfaceType": "PHYSICAL",
+          "owner": "media-runtime",
+          "phase": "PDP-3",
+          "applicability": {
+            "disposition": "HOST_DEPENDENT_EXPERIENCE",
+            "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
+            "authorityRefs": [
+              ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+              ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+              ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+              ".product-experience/pdp-3-product-experience/grpc/"
+            ]
+          },
+          "sourceCurrent": true,
+          "developmentStatus": "DEV_COMPLETE",
+          "remainingPhaseLocalTaskIds": [],
+          "blockerOwner": null,
+          "acceptanceCriterion": "This surface has zero directly assigned PDP-3 tasks in the current source records; no remaining phase-local task is asserted for this row. Source currentness and phase-wide status remain reported separately.",
+          "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
+          "matrixPath": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "matrixSha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        }
+      ],
+      "summary": "All 28 selected surface-phase rows are source-current; applicable PDP definitions are DEV_COMPLETE and all phase-local definition task lists are empty. N/A and support dispositions carry their authoritative source rationale/ref in each row."
+    }
+  },
+  "sources": {
+    "canonical": {
+      "repository": "samujjwal/ghatana",
+      "path": "services/media",
+      "branch": "main",
+      "head": "0acdf6d5f1ab585e0d726a7fd7ecf82a3f985a9f",
+      "tree": "429ee70ce4c68b580a423314a245e233326c7db7",
+      "worktreeDirtyPaths": [],
+      "runtimeWriter": "com.ghatana.media.launcher.MediaLauncher composed by MediaRuntime; runtime-contracts SPI; provider implementation discovered by Java ServiceLoader.",
+      "routeAuthority": "services/media/launcher/src/main/java/com/ghatana/media/launcher/MediaRouteManifest.java",
+      "routeManifestPath": "services/media/config/route-manifest.json",
+      "routeCount": 27,
+      "providerAdmission": {
+        "manifestPath": "services/media/config/provider-manifest.json",
+        "provenance": "UNCONFIRMED",
+        "implementationDigest": null,
+        "contentDigest": null,
+        "conformance": "pending",
+        "automaticSelectionEligible": false
+      },
+      "moduleBuildFileCount": 11,
+      "serviceLoaderDescriptorCount": 10,
+      "protoFiles": [
+        "modules/speech/stt-service/src/main/proto/stt_service.proto",
+        "modules/speech/tts-service/src/main/proto/tts_service.proto",
+        "modules/vision/vision-service/src/main/proto/vision_service.proto",
+        "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto"
+      ],
+      "deploymentYamlCount": 16,
+      "providerMigrations": [
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql",
+          "sha256": "14fdc8290e91509ad58f14d118c144ec20abcb1f5445c31f64e9282c6edd392f"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V002__media_upload_finalization_claim.sql",
+          "sha256": "112a0e6d7d59187eb4cbe360112fddacd8adbd54031b36bc70bcb6694c03c3c1"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql",
+          "sha256": "6ddf65f4d7625fd4c31350338e7cfc1d2b5dd763cad5df967b0203a39440fa4c"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V004__media_principal_ownership.sql",
+          "sha256": "28c2555b75bd73fac3b58f1f122a59ef5557205e275047603f7a9d9d4ce8245b"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V005__media_job_worker_lease.sql",
+          "sha256": "ee4ea78b33f298cb148891f380e46c264b8d6b21ca0361834834e6842b0d5293"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V006__media_job_cancellation_truth.sql",
+          "sha256": "0205b444c44df722e4a9cb2bec2651a613376aa0bb0590dcf9a44d7ff5aae0e0"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V007__media_job_unknown_provider_outcome.sql",
+          "sha256": "94a2349a06c99a6de0e55d2c8ddb24f91538b4689f0c69aa33a12299e901e8a6"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V008__media_job_artifact_content_version.sql",
+          "sha256": "670b8964675c705c4bc2499b1370074f5d5098815964dc81802c90c1b6999bd1"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V009__media_job_attempts_and_outbox.sql",
+          "sha256": "db57c348b7475c3fc1431a99dda67d55a6ecfb78a291ea600bd0ed4691f80454"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V010__media_artifact_format_verification.sql",
+          "sha256": "e3438c15f638eeb9cd55abedce4b4a9816fcb374aa9196fafc74606fbb50f5c9"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V011__media_job_submission_digest.sql",
+          "sha256": "ed2df1e589003ccd736ae62f1fe2e92b5574089dba939e647cfc0beeedaad656"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V012__media_outbox_delivery_attempts.sql",
+          "sha256": "845f9e376b1f574d11ff5704c6f102199513c9f4149e1eb34399088e8708fd6f"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V013__media_artifact_quarantine_and_lineage.sql",
+          "sha256": "804bf943a2a0fe7fa35bf9d2c9585e9220e2df7560d146cc0894d4212fbe8efb"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V014__media_attempt_finality_and_lifecycle_outbox.sql",
+          "sha256": "5eb66603a65e1bfc311f12e0fd6121cdd926fae5290b06f269c90d0f6439aa53"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V015__media_transcript_revisions.sql",
+          "sha256": "d2e3137fa658d53589caae47e0dd4b825058d4720a56ba2746c5e7f84795ef78"
+        },
+        {
+          "path": "services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V016__media_lifecycle_outbox_leases.sql",
+          "sha256": "0156a7f668892758e0b77d813a608d5961ba49ee71accff388181337b0c62271"
+        }
+      ],
+      "databaseWriteEntrypoints": [
+        "PostgresqlMediaJobStore",
+        "PostgresqlMediaPrivacyMaintenance",
+        "S3PostgresqlMediaArtifactStore",
+        "PostgresqlMediaStreamSessionStore",
+        "PostgresqlMediaConsentAdministration",
+        "PostgresqlMediaTranscriptStore",
+        "PostgresqlMediaLifecycleOutboxSource",
+        "PostgresqlMediaOutboxPublicationSource"
+      ],
+      "sourceFileDigests": {
+        "services/media/settings.gradle.kts": "2616f52ce6f74413ca64722c4b099005f5fa261cc8201b672a3d6de635e24b80",
+        "services/media/launcher/build.gradle.kts": "99249f2db8da9977afc2ff2e8ab158b127a13d357bfc8449b93d85cb255727e2",
+        "services/media/config/route-manifest.json": "508b2907d1ccff9a79ed2d695cf93ee84a32a13df4eed9e9ae4b6e4904c1ff6a",
+        "services/media/config/provider-manifest.json": "671d21344023e776463131eb3fc12e07274b3cf00981806c9da81da029e5b4fb",
+        "services/media/service-contract.yaml": "9bfadfe9305c00b986c6d0124ef0c74b5747d46b4518724600952c579fe7a6f9"
+      },
+      "serviceLoaderDescriptorCountBasis": "Tracked files under services/media/**/META-INF/services/* at the pinned canonical Ghatana HEAD; exact count verified with git ls-tree -r."
+    },
+    "preparedMirror": {
+      "repository": "samujjwal/ghatana-media",
+      "branch": "main",
+      "head": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+      "committedTree": "6a7991a6dc92081cfb0fa98e65116c02db4b3d83",
+      "fullWorktreePathCountAtCrosswalkObservation": 56,
+      "relevantDirtyPathsInRuntimeMirror": [],
+      "trackedProductionSourceAndSqlManifest": {
+        "fileCount": 150,
+        "javaFileCount": 140,
+        "sqlFileCount": 10,
+        "algorithm": "SHA-256 over sorted path + NUL + per-file SHA-256 bytes",
+        "sha256": "4f0afe12c5b0103252aa0c64e3e1a9982617fa3ecb3591a97b3bd78e8b152070"
+      },
+      "providerMigrations": [
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql",
+          "sha256": "14fdc8290e91509ad58f14d118c144ec20abcb1f5445c31f64e9282c6edd392f"
+        },
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V002__media_upload_finalization_claim.sql",
+          "sha256": "112a0e6d7d59187eb4cbe360112fddacd8adbd54031b36bc70bcb6694c03c3c1"
+        },
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql",
+          "sha256": "6ddf65f4d7625fd4c31350338e7cfc1d2b5dd763cad5df967b0203a39440fa4c"
+        },
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V004__media_principal_ownership.sql",
+          "sha256": "28c2555b75bd73fac3b58f1f122a59ef5557205e275047603f7a9d9d4ce8245b"
+        },
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V005__media_job_worker_lease.sql",
+          "sha256": "ee4ea78b33f298cb148891f380e46c264b8d6b21ca0361834834e6842b0d5293"
+        },
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V006__media_job_cancellation_truth.sql",
+          "sha256": "0205b444c44df722e4a9cb2bec2651a613376aa0bb0590dcf9a44d7ff5aae0e0"
+        },
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V007__media_job_unknown_outcome.sql",
+          "sha256": "f22319d265b0f31a5ba14c6d74832d5c3d2deaa1f13511ce9d92be27e8c47a77"
+        },
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V008__media_job_request_fingerprint.sql",
+          "sha256": "3831e53a39090ce017f5b4f010549b911e10800b74f7a7e2b78b88441d0f35ff"
+        },
+        {
+          "path": "providers/aws-postgresql/src/main/resources/db/media-runtime/V009__media_upload_idempotency.sql",
+          "sha256": "48fbba52b0ee0a8c79ef331d91ac25a94ba06bc15dcb23afb9bb2a56435f0ded"
+        }
+      ],
+      "separateModuleMigration": {
+        "path": "modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql",
+        "sha256": "c8f3bf36fd22ecc73d6a5acf36deda3d33c2912e40ae30ce62a6e1476237547b"
+      },
+      "buildCoordinatesAndRoots": [
+        "settings.gradle.kts",
+        "build.gradle.kts",
+        "gradle.properties",
+        "launcher/build.gradle.kts",
+        "runtime-contracts/build.gradle.kts",
+        "providers/aws-postgresql/build.gradle.kts",
+        "modules/*/build.gradle.kts"
+      ],
+      "routeAndProtocolRoots": [
+        "config/route-manifest.json",
+        "contracts/openapi/media.yaml",
+        "modules/speech/*/src/main/proto/*.proto",
+        "modules/vision/vision-service/src/main/proto/*.proto",
+        "modules/intelligence/multimodal-service/src/main/proto/*.proto"
+      ],
+      "deploymentRoots": [
+        "deploy/k8s",
+        "infra/helm",
+        "infra/kubernetes",
+        "config",
+        "monitoring"
+      ]
+    },
+    "sourceMaterialDigests": {
+      "config/repo-boundary.json": "2b4a87ab011dd87a493f8b9fda21332e6db8e6c51e14628459b6b8c2243b8409",
+      "BOUNDARY.md": "e4e1a99616f941385f3a85b586b7cbae5ffa92f5a9495302de30f4c0978b2f85",
+      "migration/transfer-receipt.yaml": "52a306b6b0b7ce97daaf271f1204997de64e80567c716768c87f08165f4d3e71",
+      "migration/path-map.yaml": "2d36cfce430c3e2e370436b379454487e7b14780fdc2fe38bfda4884f0c791bc",
+      "config/route-manifest.json": "3942d885899323cc059044c8fbb7369f7fe9e24eff584f567aa02710dcb2df99",
+      "config/provider-manifest.json": "671d21344023e776463131eb3fc12e07274b3cf00981806c9da81da029e5b4fb",
+      "MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a"
+    },
+    "consumerScan": {
+      "scannedRepository": "samujjwal/ghatana",
+      "scannedImportFamilies": [
+        "Java",
+        "Kotlin",
+        "TypeScript"
+      ],
+      "patterns": [
+        "com.ghatana.media",
+        "com.ghatana.audio.video"
+      ],
+      "directImportMatchesOutsideServicesMedia": 0,
+      "limitation": "Not an exhaustive ecosystem scan; HTTP, generated client, Maven/Gradle coordinate, reflection, and other indirect consumers are not ruled out."
+    }
+  },
+  "crosswalk": {
+    "path": "docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-23.json",
+    "sha256": "f364bc0b709f76a3665f9434e71d57a53a9b43a2caff16f2d9195843ccba4638",
+    "status": "OBSERVED_REMOTE_TRACKING_CUTS",
+    "comparison": "689 canonical source paths compared to same-relative Media target paths by Git mode and blob ID; committed origin/main trees only; no semantic ownership or relocation inferred.",
+    "sourceRevision": "0acdf6d5f1ab585e0d726a7fd7ecf82a3f985a9f",
+    "sourceTree": "429ee70ce4c68b580a423314a245e233326c7db7",
+    "targetRevision": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+    "targetTree": "6a7991a6dc92081cfb0fa98e65116c02db4b3d83",
+    "counts": {
+      "sourceTrackedPathCount": 689,
+      "identicalModeAndBlobCount": 479,
+      "differentModeOrBlobCount": 140,
+      "absentAtSameRelativePathCount": 70
+    },
+    "sourceWorkingTreePathCount": 0,
+    "mediaRuntimePathsDirtyAtObservation": []
+  },
+  "collisionAndAdmissibility": {
+    "currentWriterDecision": "RETAIN_GHATANA_SERVICES_MEDIA_AS_SOLE_CANONICAL_EXECUTABLE_WRITER_UNTIL_AN_ADMITTED_CUTOVER; this is the existing boundary record, not a new transfer approval.",
+    "mirrorDisposition": "MIGRATION_ONLY; do not deploy or write production state from the prepared Media mirror.",
+    "migrationHistory": {
+      "canonicalVersions": [
+        "V001__media_runtime_state.sql",
+        "V002__media_upload_finalization_claim.sql",
+        "V003__media_consent_authority.sql",
+        "V004__media_principal_ownership.sql",
+        "V005__media_job_worker_lease.sql",
+        "V006__media_job_cancellation_truth.sql",
+        "V007__media_job_unknown_provider_outcome.sql",
+        "V008__media_job_artifact_content_version.sql",
+        "V009__media_job_attempts_and_outbox.sql",
+        "V010__media_artifact_format_verification.sql",
+        "V011__media_job_submission_digest.sql",
+        "V012__media_outbox_delivery_attempts.sql",
+        "V013__media_artifact_quarantine_and_lineage.sql",
+        "V014__media_attempt_finality_and_lifecycle_outbox.sql",
+        "V015__media_transcript_revisions.sql",
+        "V016__media_lifecycle_outbox_leases.sql"
+      ],
+      "mirrorVersions": [
+        "V001__media_runtime_state.sql",
+        "V002__media_upload_finalization_claim.sql",
+        "V003__media_consent_authority.sql",
+        "V004__media_principal_ownership.sql",
+        "V005__media_job_worker_lease.sql",
+        "V006__media_job_cancellation_truth.sql",
+        "V007__media_job_unknown_outcome.sql",
+        "V008__media_job_request_fingerprint.sql",
+        "V009__media_upload_idempotency.sql"
+      ],
+      "identicalVersionPrefix": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005",
+        "V006"
+      ],
+      "collisions": [
+        {
+          "version": "V007",
+          "canonical": "V007__media_job_unknown_provider_outcome.sql",
+          "mirror": "V007__media_job_unknown_outcome.sql",
+          "meaning": "canonical unknown provider outcome vs mirror unknown job outcome",
+          "action": "Never apply mirror V007 to the canonical-writer database."
+        },
+        {
+          "version": "V008",
+          "canonical": "V008__media_job_artifact_content_version.sql",
+          "mirror": "V008__media_job_request_fingerprint.sql",
+          "meaning": "canonical artifact content version vs mirror request fingerprint",
+          "action": "Never apply mirror V008 to the canonical-writer database."
+        },
+        {
+          "version": "V009",
+          "canonical": "V009__media_job_attempts_and_outbox.sql",
+          "mirror": "V009__media_upload_idempotency.sql",
+          "meaning": "canonical job attempts/outbox vs mirror upload idempotency",
+          "action": "Never apply mirror V009 to the canonical-writer database."
+        }
+      ],
+      "canonicalOnlyVersions": [
+        "V010__media_artifact_format_verification.sql",
+        "V011__media_job_submission_digest.sql",
+        "V012__media_outbox_delivery_attempts.sql",
+        "V013__media_artifact_quarantine_and_lineage.sql",
+        "V014__media_attempt_finality_and_lifecycle_outbox.sql",
+        "V015__media_transcript_revisions.sql",
+        "V016__media_lifecycle_outbox_leases.sql"
+      ],
+      "noFlywayHistoryOrLiveDatabaseSnapshotInspected": true
+    },
+    "otherObservedDivergences": [
+      "Route manifest differs between source and mirror.",
+      "Launcher and runtime-contracts contain byte-different same-path files.",
+      "Provider build metadata and provider implementation/test files differ.",
+      "The Media mirror has one separate infrastructure/persistence V1 migration that is outside the provider Flyway history.",
+      "No direct external Java/Kotlin/TypeScript package import of com.ghatana.media or com.ghatana.audio.video was found in the bounded source scan; HTTP, generated, Gradle-coordinate, and other indirect consumers are not exhaustively covered."
+    ]
+  },
+  "sourceOwnerAndTransfer": {
+    "currentAuthorityRecord": "config/repo-boundary.json#currentAuthority",
+    "currentAuthorityStatus": "canonical-until-cutover",
+    "boundaryNarrative": "BOUNDARY.md says ghatana/services/media remains sole canonical executable runtime/source-writer until an admitted cutover manifest is executed.",
+    "transferReceiptState": "mediaSourceCutover: not-executed; target repository remains migration preparation.",
+    "transferApproval": "NOT_PRESENT; no cross-repository source-owner approval is fabricated.",
+    "deliveryOrDeploymentAuthorization": false,
+    "sourceOwnerDecision": "Existing Media boundary records Ghatana services/media as canonical executable writer until an admitted cutover. This preserves the current single writer; no new transfer destination approval is asserted.",
+    "externalOwnerDecisionForTransfer": "PENDING; Ghatana source-owner approval is required before any transfer/cutover. The current canonical-writer decision is distinct from a transfer decision."
+  },
+  "migrationCutoverPlanCandidate": {
+    "status": "PLANNING_ONLY_NOT_APPROVED_OR_EXECUTED",
+    "steps": [
+      "Freeze the exact source, target, consumer and build-coordinate fingerprints; keep Ghatana services/media as the only writer while preparation continues.",
+      "Obtain Ghatana runtime/source-owner and Media product/quality decisions for the exact transfer manifest, exclusions, generated projections, release branch, and public ABI.",
+      "Compare ordered Flyway schema history on an owner-provided canonical database snapshot; preserve V001-V016 as canonical history and produce a data/backfill/upcaster plan for the diverging mirror V007-V009 semantics and canonical V010-V016.",
+      "Prove route, proto, generated-client, dependency-license, deployment, consumer, and rollback compatibility with exact source pins and positive/adversarial observations before any writer switch.",
+      "For an authorized cutover window, stop and fence the single canonical writer, drain or explicitly reconcile queued jobs, worker leases, idempotency records, lifecycle outbox and object references, then record a database snapshot and Flyway history watermark.",
+      "Enable exactly one admitted writer only after its schema and consumer set is current; verify readback and denial/recovery behavior against the exact versioned source. Do not run old and new workers or outboxes concurrently.",
+      "If validation fails before irreversible writes, route consumers and the single writer back to the pinned canonical Ghatana source and restore from the recorded snapshot; never blindly reverse or renumber migrations."
+    ],
+    "nonExecutionBoundary": "No database was inspected or changed; no writer was stopped or switched; no provider, build, deploy, cutover, rollback rehearsal, or release claim was made."
+  },
+  "verification": {
+    "commands": [
+      {
+        "command": "pnpm report:media-source-target-tree",
+        "result": "PASS; generated current 2026-10-23 evidence paths",
+        "observedCrosswalkCounts": {
+          "sourceTrackedPathCount": 689,
+          "identicalModeAndBlobCount": 479,
+          "differentModeOrBlobCount": 140,
+          "absentAtSameRelativePathCount": 70
+        }
+      },
+      {
+        "command": "pnpm test:source-target-tree-crosswalk",
+        "result": "PASS",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "command": "pnpm test:compatibility-cutover-observation",
+        "result": "PASS",
+        "passed": 4,
+        "failed": 0
+      }
+    ],
+    "implementationSpecificPositiveAdversarialTests": "PASS; exact plan-declared F01 positive and adversarial source-observation tests passed. These checks do not establish full package acceptance or external/live gates.",
+    "environment": {
+      "gitVersion": "git version 2.50.1 (Apple Git-155)",
+      "nodeVersion": "v26.7.0"
+    },
+    "providerIdentity": "NOT_APPLICABLE_TO_STATIC_SOURCE_INVENTORY; canonical provider manifest itself remains UNCONFIRMED and pending conformance.",
+    "implementationSpecificPositiveAdversarialTestIds": [
+      "M-BLD-F01.T01.POSITIVE.TREE_PARSE_MODES",
+      "M-BLD-F01.T01.POSITIVE.EXACT_PATH_MODE_BLOB_DENOMINATOR",
+      "M-BLD-F01.T01.POSITIVE.TREE_OBJECT_PINS",
+      "M-BLD-F01.T01.POSITIVE.REMOTE_CUT_EVIDENCE",
+      "M-BLD-F01.T01.POSITIVE.CANONICAL_WRITER_BOUNDARY",
+      "M-BLD-F01.T01.POSITIVE.CONSUMER_LEDGER_LIMITATIONS",
+      "M-BLD-F01.T01.ADVERSARIAL.MISSING_REMOTE_CUT",
+      "M-BLD-F01.T01.ADVERSARIAL.HEAD_MISMATCH",
+      "M-BLD-F01.T01.ADVERSARIAL.NO_UNAUTHORIZED_CUTOVER",
+      "M-BLD-F01.T01.ADVERSARIAL.NO_FALSE_EXHAUSTIVE_CONSUMER_CLAIM"
+    ]
+  },
+  "statusByLane": {
+    "discoveryBarrier": "PASS_FOR_SOURCE_DEVELOPMENT; 54/54 identities, 216/216 phase cells current in G0_REFRESH2; zero definition tasks.",
+    "build": "M-BLD-F01.T01 read-only source inventory completed; package task remains ASSIGNED_UNVERIFIED; no implementation admission or verification.",
+    "pdpClosure": "NOT_EVALUATED_BY_THIS_TASK; no receipts or closure asserted.",
+    "delivery": "BLOCKED_PENDING_BUILD_VERIFICATION_AND_REQUIRED_OWNER_RELEASE_GATES; no deployment authorization.",
+    "nextAllowedPhase": "Continue BUILD Plan Implementation and source-only planning on exact eligible task scopes; runtime IMPLEMENT remains unadmitted."
+  },
+  "reviewerDisposition": "PASS_READ_ONLY_TECHNICAL_CONSISTENCY_REVIEW; NOT_A_NATIVE_OWNER_ACCEPTANCE_OR_WORK_PLANNER_RECEIPT; M-BLD-F01.T01 remains ASSIGNED_UNVERIFIED.",
+  "sourceReferences": [
+    "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md:184-199 (M-BLD-F01 scope and commands)",
+    "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md:1124-1131 (first four executable planning tasks and Plan Ready gate)",
+    "config/repo-boundary.json#currentAuthority",
+    "BOUNDARY.md#current-canonical-source-and-migration-decision",
+    "migration/transfer-receipt.yaml#transfers",
+    "docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-23.json",
+    "services/media/launcher/src/main/java/com/ghatana/media/launcher/MediaLauncher.java",
+    "services/media/launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+    "services/media/providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeState.java",
+    "services/media/config/route-manifest.json",
+    "services/media/config/provider-manifest.json",
+    "providers/aws-postgresql/src/main/resources/db/media-runtime"
+  ],
+  "sourceBaseline": {
+    "g0StatusPath": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_PHASE_STATUS_IO_20261023_G0_REFRESH2.json",
+    "g0StatusSha256": "e54e441761773277f29f44af9ffc8c16d6abe09fa28930a1d8593f4f832bcb75",
+    "status": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+    "sourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
+    "methodFingerprint": "sha256:d6344e6cd3ca38a2cc0fa52907be77e1ccd8b8178451ff6113343210aec591d5",
+    "sourceSubjects": 54,
+    "sourcePhaseCells": 216,
+    "phaseCounts": {
+      "PDP-0": {
+        "rows": 54,
+        "currentComplete": 54,
+        "unknown": 0,
+        "incomplete": 0,
+        "outstandingDefinitionTasks": 0
+      },
+      "PDP-1": {
+        "rows": 54,
+        "currentComplete": 54,
+        "unknown": 0,
+        "incomplete": 0,
+        "outstandingDefinitionTasks": 0
+      },
+      "PDP-2": {
+        "rows": 54,
+        "currentComplete": 54,
+        "unknown": 0,
+        "incomplete": 0,
+        "outstandingDefinitionTasks": 0
+      },
+      "PDP-3": {
+        "rows": 54,
+        "currentComplete": 54,
+        "unknown": 0,
+        "incomplete": 0,
+        "outstandingDefinitionTasks": 0
+      }
+    },
+    "acceptanceStatus": "NOT_EVALUATED",
+    "nativeClosureStatus": "NOT_EVALUATED",
+    "deliveryStatus": "NOT_EVALUATED"
+  },
+  "lastReconciledAt": "2026-10-23T03:39:23.920Z",
+  "sourceMaterialDigests": {
+    "measurement": "SHA-256 over repository file bytes observed at lastReconciledAt. Canonical Ghatana files are from the pinned committed HEAD; Media mirror files are from the Media worktree, with its pinned HEAD stated separately.",
+    "canonicalGhatana": {
+      "repository": "samujjwal/ghatana",
+      "path": "services/media",
+      "revision": "0acdf6d5f1ab585e0d726a7fd7ecf82a3f985a9f",
+      "tree": "429ee70ce4c68b580a423314a245e233326c7db7",
+      "measurement": "committed HEAD bytes",
+      "files": {
+        "services/media/config/route-manifest.json": "508b2907d1ccff9a79ed2d695cf93ee84a32a13df4eed9e9ae4b6e4904c1ff6a",
+        "services/media/config/provider-manifest.json": "671d21344023e776463131eb3fc12e07274b3cf00981806c9da81da029e5b4fb"
+      }
+    },
+    "mediaMirror": {
+      "repository": "samujjwal/ghatana-media",
+      "path": ".",
+      "revision": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+      "measurement": "worktree bytes at lastReconciledAt; the implementation plan is modified relative to this HEAD",
+      "files": {
+        "config/repo-boundary.json": "2b4a87ab011dd87a493f8b9fda21332e6db8e6c51e14628459b6b8c2243b8409",
+        "BOUNDARY.md": "e4e1a99616f941385f3a85b586b7cbae5ffa92f5a9495302de30f4c0978b2f85",
+        "migration/transfer-receipt.yaml": "52a306b6b0b7ce97daaf271f1204997de64e80567c716768c87f08165f4d3e71",
+        "migration/path-map.yaml": "2d36cfce430c3e2e370436b379454487e7b14780fdc2fe38bfda4884f0c791bc",
+        "config/route-manifest.json": "3942d885899323cc059044c8fbb7369f7fe9e24eff584f567aa02710dcb2df99",
+        "config/provider-manifest.json": "04dbb443b1340b6a9eb5a52fb822cb3cb98f4cb5684090b46d4c39bb905ff728",
+        "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a"
+      }
+    }
+  },
+  "independentTechnicalReview": {
+    "result": "PASS",
+    "recordedAt": "2026-10-23T03:40:09.498Z",
+    "reviewerRole": "Independent read-only Luna technical reviewer",
+    "scope": "Rechecked both plan digest locations, 56-path crosswalk observation, continuation inventory pin, all linked artifact hashes, 7×4 selected phase rows and four 54-row source matrices, campaign/queue counts, and unchanged status/authority boundaries.",
+    "authority": "Evidence consistency only; not owner acceptance, task acceptance, Work Planner receipt, Build admission, native closure, or Delivery authorization."
+  },
+  "reviewHistory": [
+    {
+      "result": "PASS",
+      "recordedAt": "2026-10-23T03:25:55.086Z",
+      "reviewerRole": "Independent read-only Luna technical reviewer",
+      "scope": "Campaign denominator and selected IDs; 28 source matrix rows and authority references; source currentness, development status, remaining task IDs, and matrix hashes; service-loader count; repository-qualified source material digests.",
+      "authority": "Evidence consistency only; not owner acceptance, task acceptance, Work Planner receipt, Build admission, native closure, or Delivery authorization."
+    }
+  ]
+}

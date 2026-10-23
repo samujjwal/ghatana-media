@@ -1,0 +1,580 @@
+{
+  "schemaVersion": "media.gtool-execution-continuation.v1",
+  "recordKind": "SCOPED_BUILD_SOURCE_AND_ADMISSION_CANDIDATE_PROGRESS_NOT_TASK_ACCEPTANCE_OR_BUILD_ADMISSION",
+  "recordedAt": "2026-10-23T04:26:34Z",
+  "parentRecords": [
+    {
+      "role": "prior campaign continuation",
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T040737Z.v1.json",
+      "sha256": "sha256:a5269f4a4baafec16417abae0539c6ec6184644da9cbe0095542be108bc892a0"
+    },
+    {
+      "role": "G0 source material and topology receipt",
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
+      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537"
+    },
+    {
+      "role": "F00.T02 source-bound technical reconciliation candidate",
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
+      "sha256": "sha256:12cada80cb6fbfe5502f48f1b8fa6fc22f473f8c13199e6f3fc21f3c9eb9bea5"
+    },
+    {
+      "role": "L01.T01 exact blocker reconciliation candidate with clarified edge provenance",
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-build-l01-t01-blocker-reconciliation-candidate-20261023T041912Z.v1.json",
+      "sha256": "sha256:e8cd19aa01f1d543a6584f10ed61b2f5bea4802c6e487b0d4a821d4d773d7b90"
+    },
+    {
+      "role": "full 54-surface by 4-PDP phase matrix",
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
+      "sha256": "sha256:f2ac9e889c34c200c4595b5da16b32b799d14075c8eac339dc38db54ab31a019"
+    },
+    {
+      "role": "G9 read-only PDP-3 recording-source preflight observation",
+      "path": "docs/implementation/evidence/media-pdp3-demo/pdp3-recording-source-preflight-observation-20261023T042520Z.v1.json",
+      "sha256": "sha256:46c72e25e0c21ce43c0b5676f2f0ef9dd075eac6c4f3bfed189b2860b9dd9a1d"
+    }
+  ],
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "f8816aede965d55c27005d5bab13bcb6ae376389",
+    "remoteMain": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+    "localCommitsAhead": 1,
+    "macroStage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "denominator": {
+      "sourceIdentities": 54,
+      "physicalLeaves": 26,
+      "compositionsIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "phaseCells": 216,
+      "implementationPackages": 50,
+      "implementationTasks": 57,
+      "traceRows": 3186,
+      "ownerApprovedOpenQueueTasks": 19
+    },
+    "obligationDenominator": {
+      "PDP-0": 4028,
+      "PDP-1": 2336,
+      "PDP-2": 436,
+      "PDP-3": 1864
+    }
+  },
+  "sourceBaseline": {
+    "g0MethodReadback": {
+      "path": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_GTOOL_METHOD_READBACK_20261023T035447Z.json",
+      "sha256": "sha256:c7a2a84d154eb8fbbdde929ceed8369e504c839019eee04c88145e8775e6891a",
+      "mediaHead": "f8816aede965d55c27005d5bab13bcb6ae376389",
+      "methodFingerprint": "sha256:d6344e6cd3ca38a2cc0fa52907be77e1ccd8b8178451ff6113343210aec591d5",
+      "sourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
+      "status": "SOURCE_DEFINITION_READBACK_PASS"
+    },
+    "g0SourceStatus": {
+      "path": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_SOURCE_STATUS_20261023T035447Z.json",
+      "sha256": "sha256:e54e441761773277f29f44af9ffc8c16d6abe09fa28930a1d8593f4f832bcb75",
+      "status": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+      "subjects": 54,
+      "phaseCells": 216,
+      "nonemptyDefinitionTasks": 0
+    },
+    "f00t01Receipt": {
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
+      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537",
+      "topology": {
+        "physical": 26,
+        "compositionsAndRoot": 7,
+        "logical": 21,
+        "total": 54
+      },
+      "materialSourcePins": {
+        "count": 859,
+        "staleOrUnsupportedCount": 0,
+        "phaseCounts": {
+          "PDP-0": 175,
+          "PDP-1": 137,
+          "PDP-2": 180,
+          "PDP-3": 367
+        }
+      },
+      "matrixRowsPerPhase": 54,
+      "phaseCells": 216
+    },
+    "currentPerSurfacePhaseMatrix": {
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
+      "sha256": "sha256:f2ac9e889c34c200c4595b5da16b32b799d14075c8eac339dc38db54ab31a019",
+      "rows": 216,
+      "identities": 54,
+      "sourceCurrent": true,
+      "remainingPhaseLocalTasks": 0
+    }
+  },
+  "progress": {
+    "f00T02": {
+      "traceIdentityCount": 3186,
+      "edgeCount": 8667,
+      "unresolvedSourceIdentityCount": 0,
+      "unresolvedOperationCount": 0,
+      "unresolvedRelationCount": 0,
+      "unresolvedHandoffSelectorCount": 0,
+      "technicalSourceChecks": "PASS",
+      "formalTaskAcceptance": "PENDING",
+      "evidenceCandidate": {
+        "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
+        "sha256": "sha256:12cada80cb6fbfe5502f48f1b8fa6fc22f473f8c13199e6f3fc21f3c9eb9bea5",
+        "status": "TECHNICALLY_RECONCILED_REVIEW_PENDING",
+        "taskAcceptance": "NOT_ESTABLISHED",
+        "planReady": "NOT_PROVEN"
+      },
+      "formalTaskStatus": "OPEN_TECHNICAL_WORK"
+    },
+    "l01T01": {
+      "journeys": 4,
+      "blockers": [
+        "NO_REAL_CHANNEL_ADMITTED:media.channel.web,media.channel.cli",
+        "VOICE_STYLE_AND_NARRATION_WORDING_REMAIN_EDITORIAL_NOT_PDP2_PDP3_AUTHORITY"
+      ],
+      "generatorCheck": "PASS",
+      "tests": "12/12 PASS",
+      "formalTaskAcceptance": "PENDING",
+      "criterionDiscrepancy": "The committed source baseline enumerates 25 exact blockers; 23 P1 source-join blockers now have current exact bridge edges. The two remaining concerns are channel admission and editorial voice/narration authority. The latter retains partial source-binding evidence and is not claimed as a one-to-one semantic replacement. Formal acceptance remains pending.",
+      "blockerReconciliation": {
+        "path": "docs/implementation/evidence/media-gtool-campaign/media-build-l01-t01-blocker-reconciliation-candidate-20261023T041912Z.v1.json",
+        "sha256": "sha256:e8cd19aa01f1d543a6584f10ed61b2f5bea4802c6e487b0d4a821d4d773d7b90",
+        "baselineBlockers": 25,
+        "resolvedSourceJoinBlockers": 23,
+        "openBaselineBlockers": 2,
+        "currentGeneratedBlockers": 2,
+        "taskAcceptance": "NOT_ESTABLISHED",
+        "ownerReview": "PENDING"
+      }
+    },
+    "g3AP03": {
+      "scriptPath": "scripts/prepare-media-ap03-snapshot.mjs",
+      "testPath": "tests/media-ap03-snapshot.test.mjs",
+      "candidatePath": "config/closure/admission/media-source-membership-20261023T040027Z.json",
+      "archivePath": "/tmp/media-selected-source-20261023T040027Z.tar",
+      "candidateStatus": "SOURCE_MEMBERSHIP_CANDIDATE_ONLY",
+      "memberCount": 106,
+      "manifestFingerprint": "sha256:9f307bc2f16dd04d5165b0418a7aceba2f5ef431b3a9198e24ee6f501d1686fc",
+      "archiveFingerprint": "sha256:fe0ffceced67f632189c70b4262b96758c7dba25165cf1d3ab4723008e87553d",
+      "materialFingerprint": "sha256:9ce4bc26612427d333de83a38b99a1b192f0f6bfc59d7e6a5b3e32582490115e",
+      "includesExplicitL02L03SourceReferences": true,
+      "tests": "6/6 PASS",
+      "ap03Authority": "NOT_ISSUED",
+      "canonicalAdmission": "NOT_PERFORMED",
+      "previous95MemberCandidate": "SUPERSEDED_BY_106_MEMBER_CANDIDATE",
+      "archiveContentValidation": "PASS; exact 106 regular-file set, sizes and SHA-256 bytes; unsafe types and unexpected members rejected",
+      "archiveFormat": "plain tar only; expected zero-size parent directory entries allowed; compressed input rejected; member and archive-size bounds enforced",
+      "manifestPath": "config/closure/admission/media-source-membership-20261023T040027Z.json",
+      "manifestFileSha256": "sha256:9f307bc2f16dd04d5165b0418a7aceba2f5ef431b3a9198e24ee6f501d1686fc",
+      "archiveFileSha256": "sha256:fe0ffceced67f632189c70b4262b96758c7dba25165cf1d3ab4723008e87553d",
+      "currentSnapshotSelectionStatus": "NOT_CURRENT_FOR_ACTIVE_WORKTREE_CUT",
+      "currentWorktreeChangedMaterialPathsNotBound": 16,
+      "previousCandidateScope": "106 member byte-verified archive from committed Media HEAD only",
+      "nextAction": "Freeze the exact selected source cut, then produce and verify a fresh archive from a source snapshot that includes all selected current material; host owner selection and Planner admission still required."
+    },
+    "g4Pdp0": {
+      "obligations": 4028,
+      "obligationsWithSourceCaseIds": 38,
+      "sourceCaseIds": 77,
+      "obligationsWithoutSourceCaseIds": 3990,
+      "exactCaseToTestAssertionJoins": 0,
+      "candidateLinkedObligations": 0,
+      "closureSurfaceAssignments": "UNRESOLVED",
+      "technicalChangeMade": false,
+      "topologyNodes": 54,
+      "candidateRootChildSurfaceCount": 0,
+      "unmappedObligations": 8620,
+      "p0CandidateLinkedObligations": 0,
+      "firstUnresolvedJoin": "PDP-0 obligation to unique owner boundary, then source case to exact executable assertion/oracle; current sources do not support these joins without owner-reviewed source decisions.",
+      "obligationsWithoutSourceSurfaceCandidates": 3990,
+      "obligationsWithAmbiguousSurfaceCandidates": 38,
+      "uniqueDirectSurfaceCandidates": 0,
+      "ambiguousCandidateRangePerMappedObligation": "4–22"
+    },
+    "f01F02": {
+      "f01": {
+        "canonicalCurrentWriter": "ghatana/services/media",
+        "sourceStatus": "retained as sole writer until approved cutover",
+        "formalTaskAcceptance": "ASSIGNED_UNVERIFIED",
+        "transferApproval": "NOT_PRESENT",
+        "externalSourceOwnerDecision": "PENDING"
+      },
+      "f02": {
+        "mediaSpecificPublishedAbiAdmission": "NOT_FOUND",
+        "status": "ASSIGNED_UNVERIFIED",
+        "evidenceBoundary": "Public source exports and historical coordinates do not establish a current exact artifact/version/digest/license/packed-consumer receipt."
+      },
+      "f03": {
+        "status": "OPEN_TECHNICAL_WORK",
+        "blockedOn": [
+          "F02 public ABI admission",
+          "F01 source-current writer decision/task review"
+        ]
+      }
+    },
+    "g9RecordingPreflight": {
+      "observationPath": "docs/implementation/evidence/media-pdp3-demo/pdp3-recording-source-preflight-observation-20261023T042520Z.v1.json",
+      "observationSha256": "sha256:46c72e25e0c21ce43c0b5676f2f0ef9dd075eac6c4f3bfed189b2860b9dd9a1d",
+      "inputPath": "docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
+      "inputSha256": "sha256:aba483c3102a7883b68ea4d3886c28e4efcfd35dcfa90a72c70fdec599c5c9bb",
+      "publicValidator": {
+        "interface": "Explicit read-only CLI path",
+        "package": "@ghatana/documentation-model",
+        "packageVersion": "0.1.0-rc.1",
+        "lifecycleHead": "e1981241c0ef20b9ab5486a362baeaac57812040",
+        "lifecycleWorktreeBoundary": "Lifecycle checkout was dirty in unrelated paths. The selected CLI, validator, public package export, schema, and OOB v2 method files had no reported local modifications at observation time.",
+        "sourceFingerprints": {
+          "tools/documentation-model/bin/validate-pdp3-demo-recording.mjs": "sha256:be9ec0b61ab012042a388d02f4976f94e9d213f436031675f058c553342a0618",
+          "tools/documentation-model/src/pdp3-demo-recording-source.mjs": "sha256:dc3430f560dc954b1f22413e4aa3bed9ed8ea12fc2cd3d426c08c7aeaf05b128",
+          "tools/documentation-model/package.json": "sha256:1820f42d9a8f312d56c4ac534c966c3d633364e754b2390638130e86294bb814",
+          "tools/documentation-model/schemas/pdp3-demo-recording-source.v1.schema.json": "sha256:4c25d34fe2ff59ccd6d026e44426df4a0f1a7015bd06e80d0bfcf0ac7494fca8",
+          "tools/documentation-model/presets/methods/ghatana-product-development.v2.yaml": "sha256:668230dfd40421ebba193894dc153e313c5881d96c23489b1ad971419be08ec5"
+        }
+      },
+      "preflight": {
+        "schemaVersion": "ghatana.pdp3-demo-recording-source-preflight.v1",
+        "recordKind": "READ_ONLY_STRUCTURAL_PREFLIGHT_NOT_SOURCE_COMPLETION_OR_FILM_PROOF",
+        "status": "CANDIDATES_PENDING_CAPTURE",
+        "expectedScenarioCount": 1,
+        "recordedCount": 0,
+        "notApplicableCount": 0,
+        "candidateCount": 1,
+        "errors": [],
+        "readOnly": true,
+        "writesPerformed": false,
+        "nativeClosureStatus": "NOT_EVALUATED",
+        "realProductFilmStatus": "NOT_EVALUATED",
+        "ownerDevelopmentStatus": "NOT_EVALUATED"
+      },
+      "taskStatusChanged": false,
+      "methodAdmission": "NOT_EVALUATED",
+      "recordingCapture": "NOT_PERFORMED",
+      "realProductEffect": "NOT_EVALUATED"
+    }
+  },
+  "taskProgress": [
+    {
+      "taskId": "M-BLD-F00.T02",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Current bridge source joins are reconciled: 3,186 identities, 8,667 edges, zero unresolved source identities/operations/relations/handoff selectors. Focused checks pass. Source-bound technical candidate is recorded at docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json; formal task review/acceptance and Plan Ready remain pending."
+    },
+    {
+      "taskId": "M-BLD-F03.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on F02 published Shared public ABI and F01 canonical writer decision; no runtime contract implementation admitted."
+    },
+    {
+      "taskId": "M-BLD-F06.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on F04/F05 real persistence and writer; no runtime implementation admitted."
+    },
+    {
+      "taskId": "M-BLD-F10.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on F03/F04/F09 public contracts and source-owned production host; no Explorer promotion."
+    },
+    {
+      "taskId": "M-BLD-L01.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Deterministic 4-journey recipe and 12/12 tests pass. Exact committed-baseline reconciliation accounts for all 25 blockers: 23 P1 source joins now have current edges; channel admission and editorial voice/narration authority remain open. Candidate docs/implementation/evidence/media-gtool-campaign/media-build-l01-t01-blocker-reconciliation-candidate-20261023T041912Z.v1.json preserves that evidence; formal task acceptance remains pending."
+    },
+    {
+      "taskId": "M-BLD-L01.T02",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on L01.T01 formal predecessor plus Gharbatai recorder ABI, license, host permission, Media consumer adapter and real-frame qualification."
+    },
+    {
+      "taskId": "M-BLD-L01.T03",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V03.T02, an admitted real provider/channel, canonical writer and matching source/job/transcript/version readbacks."
+    },
+    {
+      "taskId": "M-BLD-L01.T04",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on T01/T02/T03 outcomes, capture rights, qualified recorder and cleanup/independent review."
+    },
+    {
+      "taskId": "M-BLD-V01.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on F03/F04/F05/F09/F10/F12 and writer authority."
+    },
+    {
+      "taskId": "M-BLD-V02.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V01, F05/F09/F10 and migration decision."
+    },
+    {
+      "taskId": "M-BLD-V03.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V02/V20/F08/F11/F09/F10 and an actual qualified STT provider."
+    },
+    {
+      "taskId": "M-BLD-V03.T02",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V02.T01/V20.T01/F08.T01/F11.T01/F09.T01 and actual provider/channel/readback prerequisites."
+    },
+    {
+      "taskId": "M-BLD-V04.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V01/V20/F08/F11 and qualified licensed model/provider plus rights authority."
+    },
+    {
+      "taskId": "M-BLD-V16.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V03/V04/V18 and qualified model profiles."
+    },
+    {
+      "taskId": "M-BLD-V18.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V09/V11/V17/F13 and canonical render/codec."
+    },
+    {
+      "taskId": "M-BLD-V20.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V02/F06/F07/F09/F10."
+    },
+    {
+      "taskId": "M-BLD-V23.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V01/V02/V21/F10."
+    },
+    {
+      "taskId": "M-BLD-V24.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V01/V02/V20/F09 and published public API."
+    },
+    {
+      "taskId": "M-BLD-V26.T01",
+      "status": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "progressNote": "Blocked on V02/V04/V22/F05 and actual retention policy."
+    }
+  ],
+  "verification": [
+    {
+      "command": "node scripts/generate-media-build-work-packages.mjs --check",
+      "exitCode": 0,
+      "result": "PASS; deterministic/current, 3,186 identities"
+    },
+    {
+      "command": "pnpm run check:build-contract-bridge",
+      "exitCode": 0,
+      "result": "PASS; 3,186 identities, 8,667 edges"
+    },
+    {
+      "command": "pnpm run test:build-contract-bridge",
+      "exitCode": 0,
+      "result": "2/2 PASS"
+    },
+    {
+      "command": "pnpm run check:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS; zero unresolved source identities, blockers, P1 refs, relations, and handoff selectors"
+    },
+    {
+      "command": "pnpm run test:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "5/5 PASS"
+    },
+    {
+      "command": "pnpm run test:build-work-packages",
+      "exitCode": 0,
+      "result": "2/2 PASS; deterministic source-pinned projection and negative fixture rejection."
+    },
+    {
+      "command": "pnpm run check:build-plan-task-closure",
+      "exitCode": 0,
+      "result": "Serial rerun PASS; 57 tasks, 50 packages, 54 surfaces, 3,186 traces; structuralStatus=PASS, taskClosure=PENDING, planReady=PENDING, approvalEvidenceStatus=MISSING. An earlier concurrent check overlapped the long package test and transiently read a stale projection."
+    },
+    {
+      "command": "pnpm run test:build-plan-task-closure",
+      "exitCode": 0,
+      "result": "7/7 PASS"
+    },
+    {
+      "command": "pnpm run check:gtool-owner-dispositions",
+      "exitCode": 0,
+      "result": "PASS; 57 tasks, 19 approved task scopes, 19 technical tasks remain open, Plan Ready NOT_PROVEN."
+    },
+    {
+      "command": "pnpm run test:gtool-owner-dispositions",
+      "exitCode": 0,
+      "result": "3/3 PASS."
+    },
+    {
+      "command": "pnpm run check:w3-pdp0-source-case-map",
+      "exitCode": 0,
+      "result": "PASS; 54 identities, 4,028 PDP-0 open slots, zero candidate-linked obligations."
+    },
+    {
+      "command": "pnpm run test:w3-pdp0-source-case-map",
+      "exitCode": 0,
+      "result": "4/4 PASS."
+    },
+    {
+      "command": "node scripts/prepare-media-ap03-snapshot.mjs --archive /tmp/media-selected-source-20261023T040027Z.tar --output config/closure/admission/media-source-membership-20261023T040027Z.json --check",
+      "exitCode": 0,
+      "result": "PASS; 106-member candidate is byte-verified; no AP03 authority and no canonical admission."
+    },
+    {
+      "command": "node --test tests/media-ap03-snapshot.test.mjs",
+      "exitCode": 0,
+      "result": "6/6 PASS; current membership, source mutation rejection, no overwrite, content mismatch rejection, compressed archive rejection, and explicit parent directories."
+    },
+    {
+      "command": "node scripts/generate-media-early-business-scenario.mjs --check",
+      "exitCode": 0,
+      "result": "PASS; 4 ordered journeys, 2 current blockers retained."
+    },
+    {
+      "command": "node --test tests/media-early-business-scenario.test.mjs",
+      "exitCode": 0,
+      "result": "12/12 PASS; exact joins, source selectors, blocker preservation, editorial attribution, and determinism."
+    },
+    {
+      "command": "node scripts/generate-media-pdp3-recording-source.mjs --check --g0-status /Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_SOURCE_STATUS_20261023T035447Z.json",
+      "exitCode": 0,
+      "result": "PASS; simulated candidate only"
+    },
+    {
+      "command": "node --test tests/media-pdp3-recording-source.test.mjs",
+      "exitCode": 0,
+      "result": "2/2 PASS"
+    },
+    {
+      "command": "pnpm run audit:gtool-closure-source",
+      "exitCode": 0,
+      "result": "Source invariants PASS; native closure NOT_PROVEN, root child count 0, 8,620 unmapped, 65 links, 5 route candidates, zero receipts."
+    },
+    {
+      "command": "pnpm run check:lifecycle-closure-inputs",
+      "exitCode": 1,
+      "result": "Expected fail-closed: CONTRACT_SET_DISTRIBUTION_AUTHORITY_REQUIRED and TRACKED_SOURCE_SNAPSHOT_AUTHORITY_REQUIRED."
+    },
+    {
+      "command": "git diff --check -- scripts/prepare-media-ap03-snapshot.mjs tests/media-ap03-snapshot.test.mjs",
+      "exitCode": 0,
+      "result": "PASS."
+    },
+    {
+      "command": "source-bound F00.T02 packet readback",
+      "exitCode": 0,
+      "result": "Independent audit PASS; 3,186 identities, 8,667 edges, zero unresolved identities/operations/relations/handoff selectors; task acceptance remains NOT_ESTABLISHED."
+    },
+    {
+      "command": "source-bound L01.T01 blocker reconciliation readback",
+      "exitCode": 0,
+      "result": "Independent audit PASS; 25 exact baseline IDs reconciled, 23 source joins resolved, two blockers remain, edge source refs and five detailed selectors separately identified; task acceptance remains NOT_ESTABLISHED."
+    },
+    {
+      "command": "54-surface x 4-phase matrix extraction and validation",
+      "exitCode": 0,
+      "result": "PASS; 216 rows; 54 unique identities in each PDP phase; sourceCurrent=true; zero phase-local task IDs; applicability and statuses copied from four source matrices."
+    },
+    {
+      "command": "Lifecycle public PDP-3 recording-source preflight against Media candidate",
+      "exitCode": 0,
+      "result": "CANDIDATES_PENDING_CAPTURE; expected=1, candidate=1, recorded=0, errors=0; readOnly=true, writesPerformed=false; nativeClosureStatus, realProductFilmStatus and ownerDevelopmentStatus all NOT_EVALUATED. Independent rerun matched the captured output and all five Lifecycle source pins."
+    }
+  ],
+  "gateState": {
+    "discoveryBarrier": "PASS for recorded G0 source readback; aggregate method still BLOCKED at owner-unbound method node",
+    "buildLane": "F00 bridge and package projections are current; F00.T02 and L01.T01 have source-bound technical evidence candidates with formal review/acceptance pending. Plan structural validation passes; Plan Ready remains pending. Other implementation tasks remain gated by their declared dependencies. No runtime implementation admission asserted in this continuation.",
+    "pdpClosureLane": {
+      "status": "NOT_PROVEN",
+      "blockers": [
+        "AP02_AP03_OWNER_ADMISSION_UNVERIFIED",
+        "LEAF_CLOSURE_BOUNDARIES_NOT_ADMITTED",
+        "SOURCE_CASE_COVERAGE_NOT_ADMITTED",
+        "PROOF_ORACLE_NOT_ADMITTED",
+        "NATIVE_RECEIPT_MISSING"
+      ],
+      "persistedObligations": 8664,
+      "obligationCounts": {
+        "PDP-0": 4028,
+        "PDP-1": 2336,
+        "PDP-2": 436,
+        "PDP-3": 1864
+      },
+      "currentAggregate": {
+        "surfaceId": "media.product-definition",
+        "childSurfaceCount": 0,
+        "unmappedObligations": 8620,
+        "caseLinks": 65,
+        "receiptCount": 0,
+        "routeCandidateCount": 5,
+        "firstUnresolvedJoin": "PDP-0 obligation-to-unique-surface/case/proof mapping"
+      }
+    },
+    "deliveryGate": "NOT_AUTHORIZED; closure, Build Development Complete and release gates not satisfied",
+    "nextAllowedPhase": "Continue KDEV-STAGE-PLAN-IMPLEMENTATION and parallel source-bounded G2/G3/G4/G9 preparation; proceed into any package implementation only when its own source, dependency, and selected Work Planner gates pass. Do not enter DELIVER."
+  },
+  "changedThisContinuation": {
+    "files": [
+      "docs/implementation/evidence/media-pdp3-demo/pdp3-recording-source-preflight-observation-20261023T042520Z.v1.json",
+      "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T042634Z.v1.json"
+    ],
+    "generatedIgnoredArtifacts": [],
+    "noAuthorityOrTaskStatusChanges": true,
+    "noPush": true
+  },
+  "worktreeBoundary": {
+    "mediaTree": "dirty; prior changes preserved and this continuation adds only AP03 validator/tests plus source-bound evidence candidates/matrix",
+    "lifecycleTree": "dirty; G0 was a local checkout readback, not clean committed-main or authenticated host execution",
+    "localMainDivergence": "0 behind / 1 ahead; no push"
+  },
+  "claimsBoundary": {
+    "sourceDefinitionDevelopment": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+    "authoringComplete": false,
+    "buildTaskAcceptance": "NOT_ESTABLISHED",
+    "kernelPlanReady": "NOT_PROVEN",
+    "independentAcceptance": "NOT_EVALUATED",
+    "nativeClosure": "NOT_PROVEN",
+    "releaseQualification": "NOT_EVALUATED",
+    "delivery": "NOT_AUTHORIZED",
+    "writesPerformed": true,
+    "taskStatusesChanged": false,
+    "ownerAuthorityChanged": false
+  },
+  "waveStatus": {
+    "G0": "SOURCE_READBACK_PASS_RECORDED; 54 identities, 216 phase rows, 859 pins current; aggregate method remains blocked at owner-unbound method node.",
+    "G1": "SOURCE_RELATIONS_CURRENT; 3,186 identities, 8,667 edges, zero unresolved joins; F00.T02 formal review/acceptance pending.",
+    "G2": "HOST_PROVISIONING_REQUIRED; no authenticated AP02 contract distribution/trusted verifier selection.",
+    "G3": "The previous 106-member archive is byte-verified for its committed HEAD input, but is not current for the active worktree source cut (16 changed material files are outside that candidate). No AP03 owner authority, registered currentness, verifier selection, or admission is issued.",
+    "G4": "OPEN_TECHNICAL_WORK; 4,028 PDP-0 obligations retained, 3,990 have no direct source-surface candidates, 38 have 4–22 ambiguous candidates, zero exact case-to-assertion joins, zero candidate-linked P0 obligations, root child count 0. No unique assignment is supported without owner-reviewed source membership/case decisions.",
+    "G5": "Structural plan validation PASS; task closure and Plan Ready PENDING, approval evidence MISSING.",
+    "G6": "Implementation remains gated by selected package prerequisites; F02 media-specific Shared ABI admission absent and F01 formal writer/cutover review incomplete.",
+    "G7": "NOT_ADMITTED; requires AP02, AP03 and admitted leaf boundaries/case/proof route.",
+    "G8": "NOT_VERIFIED; no real authorized provider/job/artifact/transcript/version business outcome.",
+    "G9": "Public Lifecycle read-only source preflight ran against the Media J-03 Explorer-simulated candidate: CANDIDATES_PENDING_CAPTURE, one candidate, zero recorded, no errors, no writes. Capture/replay/cleanup, recorder ABI/license/permission, real-frame qualification, method admission, owner development and actual product effect remain NOT_EVALUATED or pending.",
+    "G10": "NOT_VERIFIED; depends on G8 business outcome and G9 capture-ready real recorder.",
+    "G11": "OPEN_TECHNICAL_WORK; remaining verticals depend on source-eligible foundations and real admitted interfaces/providers.",
+    "G12": "NOT_PROVEN; native per-unit acceptance, Build verification, and release owner authorization remain separate required gates."
+  },
+  "additionalReadOnlyAudits": {
+    "g2": "Protected AP02 host configuration and trust root are absent; Lifecycle bootstrap code exists, but authenticated contract owner selection and trusted-host provisioning remain required.",
+    "g3": "Current tracked-source candidate does not bind the active worktree material cut; no authentic AP03 selection or Planner currentness/readback.",
+    "g4": "No unique obligation-to-owner-boundary/case/assertion joins can be derived from current sources without owner decisions; no source edits were made.",
+    "g6": "F01 inventory/planning evidence exists but task remains ASSIGNED_UNVERIFIED; F02/F03 implementation is not proven admitted and remain predecessor-gated.",
+    "g8g10g11": "No real provider/job/artifact/transcript/version business outcome or capture-ready recorder; no eligible vertical execution was established by the audit."
+  }
+}

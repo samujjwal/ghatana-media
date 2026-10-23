@@ -21,9 +21,17 @@ test('PDP-1 Recorder Studio definitions preserve canonical owner reuse and all 5
   const recorder = readYaml('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
   const domain = readYaml('.product-experience/pdp-1-domain-data/domain-objects.yaml');
   const operations = readYaml('.product-experience/pdp-1-domain-data/operations.yaml');
+  const versioning = readYaml('.product-experience/pdp-1-domain-data/versioning.yaml');
+  const handoff = readYaml('.product-experience/pdp-1-domain-data/handoff-contracts.yaml');
   assert.equal(recorder.sourcePhase, 'PDP-1');
   assert.equal(recorder.status, 'SOURCE_AUTHORED_DEFINITION_ONLY');
   assert.equal(recorder.editKindParameterContracts.status, 'SOURCE_AUTHORED_DEFINITION_ONLY');
+  assert.equal(domain.recorderStudioDomainSpecialization.status, 'SOURCE_AUTHORED_CURRENT_PDP1_DEVELOPMENT_REVIEWED');
+  assert.equal(versioning.recorderStudioRevisionSemantics.status, 'SOURCE_AUTHORED_CURRENT_PDP1_DEVELOPMENT_REVIEWED');
+  assert.equal(handoff.handoffs.pdp1ToPdp2CanonicalDomain.declarativeProductionSpecialization.status,
+    'SOURCE_AUTHORED_CURRENT_PDP1_DEVELOPMENT_REVIEWED');
+  assert.match(domain.recorderStudioDomainSpecialization.nonClaims.join(' '), /no-independent-PDP1-acceptance/u);
+  assert.equal(versioning.recorderStudioRevisionSemantics.runtimeAdmission, 'NOT_ADMITTED');
 
   const domainIds = new Set(domain.objects.map(object => object.id));
   const reusedDomainIds = Object.values(recorder.canonicalOwnerReuse)

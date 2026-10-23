@@ -1,0 +1,268 @@
+{
+  "schemaVersion": "media.gtool-execution-continuation.v1",
+  "recordKind": "SCOPED_BUILD_PLANNING_PROGRESS_NOT_TASK_ACCEPTANCE_OR_BUILD_ADMISSION",
+  "recordedAt": "2026-10-23T03:37:15.192Z",
+  "parentRecords": [
+    {
+      "role": "immediate continuation baseline",
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-followup-2026-10-23T024641Z.v1.json",
+      "sha256": "801da5480a357fb940cd1c9a88af5a0ea5eac675d91ef86576d9ae9d38674133"
+    },
+    {
+      "role": "campaign batch baseline",
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-batch-2026-10-23.v1.json",
+      "sha256": "e59224bcabadd1915110c10bbc6c463e16ed2f312f8e40e5b59efbce02e3ac47"
+    }
+  ],
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+    "macroStage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "denominator": {
+      "sourceIdentities": 54,
+      "physicalLeaves": 26,
+      "compositionsIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "phaseCells": 216,
+      "implementationPackages": 50,
+      "implementationTasks": 57,
+      "traceRows": 3186,
+      "ownerApprovedOpenQueueTasks": 19
+    },
+    "G0": {
+      "status": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+      "sourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
+      "methodFingerprint": "sha256:d6344e6cd3ca38a2cc0fa52907be77e1ccd8b8178451ff6113343210aec591d5",
+      "sourcePhaseCells": 216,
+      "phaseLocalDefinitionTasks": 0,
+      "readbackSha256": "sha256:e54e441761773277f29f44af9ffc8c16d6abe09fa28930a1d8593f4f832bcb75"
+    },
+    "phaseObligationCounts": {
+      "PDP-0": 4028,
+      "PDP-1": 2336,
+      "PDP-2": 436,
+      "PDP-3": 1864,
+      "total": 8664
+    }
+  },
+  "selectedWork": {
+    "taskId": "M-BLD-F01.T01",
+    "packageId": "M-BLD-F01",
+    "taskStatus": "ASSIGNED_UNVERIFIED",
+    "packageDependencyScope": "FULL_PACKAGE",
+    "predecessorTaskIds": [
+      "M-BLD-F00.T03"
+    ],
+    "surfaceIds": [
+      "media.surface.integrations",
+      "media.physical.adapters-ledger",
+      "media.physical.modules-infrastructure-cache",
+      "media.physical.modules-infrastructure-messaging",
+      "media.physical.modules-infrastructure-persistence",
+      "media.physical.modules-infrastructure-security",
+      "media.physical.providers-aws-postgresql"
+    ],
+    "surfaceCount": 7,
+    "permittedActivity": "Read-only source inventory and cutover planning under MEDIA-BUILD-IMPLEMENTATION-PLAN.md §11B; runtime implementation and cutover remain unadmitted."
+  },
+  "activity": {
+    "kind": "SOURCE_BOUND_F01_PLAN_REFINEMENT_AND_READ_ONLY_INVENTORY",
+    "result": "Normalized F01.T01 planning checks to exact positive/adversarial IDs and commands; the package generator now projects those IDs and commands. Regenerated the projection and verified its structure, deterministic output, source-observation checks, and closure regression behavior. Formal task acceptance and Build admission remain unchanged.",
+    "findings": [
+      "Canonical runtime writer remains Ghatana services/media under the existing repo boundary; this is not a new transfer approval.",
+      "Canonical and mirror migrations V001-V006 match by content; V007-V009 have different meanings and must not be applied across histories; canonical V010-V016 are additional.",
+      "The source/target crosswalk compares 689 pinned canonical paths: 479 identical mode/blob, 140 different mode/blob, 70 absent at the same relative path; no semantic relocation is inferred.",
+      "Canonical provider admission remains UNCONFIRMED with no implementation/content digest and conformance pending; no automatic selection eligibility is established.",
+      "No database/Flyway history snapshot, runtime build, writer switch, migration, deployment, rollback rehearsal, or exhaustive indirect-consumer scan was performed.",
+      "F01.T01 now declares six positive and four adversarial test IDs with exact test names; its three source-observation commands passed. These prove tree-observation mechanics and safe boundary reporting only, not live Flyway state, exhaustive consumer parity, external source-owner approval, rollback/no-double-writer behavior, or full task acceptance."
+    ],
+    "noTaskStatusOrOwnershipChange": true
+  },
+  "sourceCurrentness": {
+    "selectedSurfacePdpMatrix": [
+      {
+        "phase": "PDP-0",
+        "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "sha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
+        "rows": 54,
+        "remainingPhaseLocalTaskCount": 0
+      },
+      {
+        "phase": "PDP-1",
+        "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "sha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
+        "rows": 54,
+        "remainingPhaseLocalTaskCount": 0
+      },
+      {
+        "phase": "PDP-2",
+        "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+        "sha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+        "rows": 54,
+        "remainingPhaseLocalTaskCount": 0
+      },
+      {
+        "phase": "PDP-3",
+        "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+        "sha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db",
+        "rows": 54,
+        "remainingPhaseLocalTaskCount": 0
+      }
+    ],
+    "discoveryAggregate": "54/54 identities and 216/216 cells source-current DEV_COMPLETE in the G0 readback; zero phase-local definition tasks.",
+    "packageTaskStatusCounts": {
+      "ASSIGNED_UNVERIFIED": 56,
+      "PLANNING_RECEIPT_ONLY": 1
+    },
+    "ownerQueueStatusCounts": {
+      "OPEN_TECHNICAL_WORK/NOT_COMPLETE": 19
+    },
+    "selectedSurfacePhaseRowCount": 28,
+    "selectedSurfacePhaseRowsByDevelopmentStatus": {
+      "DEV_COMPLETE": 19,
+      "NOT_APPLICABLE": 9
+    },
+    "selectedSurfacePhaseRowsByApplicability": {
+      "APPLICABLE_DEFINITION_SCOPE": 1,
+      "NOT_APPLICABLE_SUPPORT": 3,
+      "APPLICABLE": 9,
+      "REFERENCED_ONLY": 3,
+      "NOT_APPLICABLE": 6,
+      "TOOLING_OR_SUPPORT": 3,
+      "CONSUMER_CONTRACT": 2,
+      "HOST_DEPENDENT_EXPERIENCE": 1
+    }
+  },
+  "evidence": {
+    "inventoryArtifact": {
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f01-t01-source-inventory-2026-10-23.v1.json",
+      "sha256": "0f335306d35f77da4e90a41d7083fa34cc85721c088c7615ad3c1eaf8d4336cc",
+      "independentTechnicalReview": "PASS; independent read-only review verified refreshed plan digests, crosswalk path count, linked hashes, selected rows, denominator, and authority boundaries. Not task acceptance."
+    },
+    "crosswalk": {
+      "path": "docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-23.json",
+      "sha256": "a757f67bf2542e4ebb4735264d800811e1e4a2384e6c58c206f5159db15d4678",
+      "counts": {
+        "sourceTrackedPathCount": 689,
+        "identicalModeAndBlobCount": 479,
+        "differentModeOrBlobCount": 140,
+        "absentAtSameRelativePathCount": 70
+      }
+    },
+    "sourceCutObservation": {
+      "path": "docs/implementation/verification/current-source-cut-observation-2026-10-23.json",
+      "sha256": "a215028bd1e0afc2fc35b68257da4bde29f983f122b7e6f33834c3a6f9b57575"
+    },
+    "sourceReportScript": {
+      "path": "scripts/report-media-source-target-tree.mjs",
+      "sha256": "22cf262a946ee7ff4913fdf20ac0972a3c76e9d77bf6a8fba91c0acd5847e853"
+    },
+    "currentTaskProjection": {
+      "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+      "sha256": "e5990c3991aaa8852e0f6918573bb584a6b3edb406076e57638ddcd95f138aef"
+    },
+    "ownerExecutionQueue": {
+      "path": "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json",
+      "sha256": "f417a1d8445c6613a42536f9b8c6911dc2f249215c3a52a3f192df2e81328f79"
+    },
+    "commands": [
+      {
+        "command": "pnpm report:media-source-target-tree",
+        "result": "PASS; generated date-scoped 2026-10-23 crosswalk and source-cut observation."
+      },
+      {
+        "command": "pnpm test:source-target-tree-crosswalk",
+        "result": "PASS",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "command": "pnpm test:compatibility-cutover-observation",
+        "result": "PASS",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "command": "python3 -m json.tool docs/implementation/evidence/media-gtool-campaign/media-build-f01-t01-source-inventory-2026-10-23.v1.json",
+        "result": "PASS; valid JSON after provenance corrections."
+      }
+    ],
+    "planAndGeneratorSources": {
+      "files": [
+        {
+          "path": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+          "sha256": "9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a"
+        },
+        {
+          "path": "scripts/generate-media-build-work-packages.mjs",
+          "sha256": "d7f7b9f5e825afe31e11670ee9c4bde23018be7f926af08bb345c6aad4ca73f7"
+        },
+        {
+          "path": "tests/media-build-work-packages-generator.test.mjs",
+          "sha256": "11a3e78f679c379fee2cf9e79a611e76e4d6e70010368b90e9fd4e73c397dfc4"
+        },
+        {
+          "path": "tests/media-build-plan-task-closure.test.mjs",
+          "sha256": "2313ccf809e91bf3a1e7228fab7a9ac6ddd31df4d865f2def65d1f1c8dacaf25"
+        }
+      ],
+      "reason": "Pins the current F01 planning criteria, projection parser, generator regressions, and corrected closure expectation."
+    },
+    "planProjectionChecks": [
+      {
+        "command": "pnpm check:build-work-packages",
+        "result": "PASS; deterministic/current, 3,186 identities."
+      },
+      {
+        "command": "pnpm test:build-work-packages",
+        "result": "PASS; 2 tests, 2 passed, 0 failed."
+      },
+      {
+        "command": "pnpm check:build-plan-task-closure",
+        "result": "PASS structural validation; 57 tasks, 50 packages, 54 surfaces, 3,186 trace identities; taskClosure=PENDING, planReady=PENDING, approvalEvidenceStatus=MISSING."
+      },
+      {
+        "command": "pnpm test:build-plan-task-closure",
+        "result": "PASS; 7 tests, 7 passed, 0 failed after aligning the source-complete projection expectation with zero unresolved source blockers."
+      }
+    ],
+    "independentTestExpectationReview": {
+      "result": "PASS",
+      "reviewerRole": "Independent read-only Luna code reviewer",
+      "scope": "Confirmed zero unresolved source blocker tasks matches the current source-complete projection, while taskClosure and Plan Ready stay PENDING and approvalEvidenceStatus remains MISSING.",
+      "authority": "Test expectation review only; no task acceptance or approval."
+    }
+  },
+  "taskDisposition": {
+    "M-BLD-F01.T01": "ASSIGNED_UNVERIFIED; exact planning checks are mapped and passed; read-only inventory/planning slice complete; full task acceptance remains open.",
+    "M-BLD-F00.T03": "source criterion evidenced PASS in prior record; formal owner/task acceptance remains open.",
+    "ownerApprovedQueueTasks": "19/19 remain OPEN_TECHNICAL_WORK and NOT_COMPLETE; no queue row was changed.",
+    "planReady": "NOT_ESTABLISHED; no authenticated Kernel Work Planner Plan Ready or selected per-task admission/readback."
+  },
+  "blockersAndNextActions": {
+    "openBlockers": [
+      "Formal acceptance/readback for predecessor M-BLD-F00.T03 is absent.",
+      "Kernel Work Planner Plan Ready and the selected per-task gate remain unproven.",
+      "External Ghatana runtime/source-owner decision is required before any transfer or cutover; no source-owner approval is present.",
+      "Provider manifest remains unconfirmed and no provider conformance evidence or live database/Flyway history snapshot was available for this read-only slice."
+    ],
+    "nextLegalAction": "Continue only source/planning work explicitly allowed by §11B; obtain genuine predecessor acceptance and native Work Planner Plan Ready/per-task readback, then recalculate exact task admission. Keep Ghatana services/media as sole writer until an admitted transfer.",
+    "prohibitedWithoutNewAuthority": "Runtime implementation in the Media mirror, database changes, cutover, deploy, rollback, task acceptance, native closure, or Delivery transition."
+  },
+  "laneState": {
+    "discoveryBarrier": "PASS for source development across all 54 identities; aggregate remains separately visible.",
+    "build": "F01 planning criteria and generated projection are aligned; focused checks pass. M-BLD-F01.T01 remains ASSIGNED_UNVERIFIED; no runtime implementation admission.",
+    "pdpClosure": "NOT_EVALUATED; no receipts or closure asserted.",
+    "delivery": "BLOCKED_PENDING_BUILD_VERIFICATION_AND_REQUIRED_OWNER_RELEASE_GATES.",
+    "nextAllowedPhase": "Continue BUILD Plan Implementation source-only planning; runtime IMPLEMENT remains unadmitted."
+  },
+  "worktreeObservation": {
+    "dirtyPathCountBeforeThisContinuationRecord": 55,
+    "head": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+    "stagingCommitPushOrCleanupPerformed": false,
+    "note": "Existing dirty campaign and unrelated worktree state was preserved; this continuation is additive evidence."
+  },
+  "reviewBoundary": "Independent read-only technical reviews passed for the refreshed inventory, continuation pins, and closure-test expectation. They establish evidence and test correctness only; they are not task acceptance, source-owner approval, Work Planner admission, native proof, PDP closure, Build completion, qualification, or release authorization."
+}

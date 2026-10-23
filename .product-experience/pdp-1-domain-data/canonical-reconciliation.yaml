@@ -22,26 +22,26 @@ reconciliationRules:
   - a-digest-is-content-evidence-not-a-version-key-or-lineage-edge
   - timestamps-and-aggregate-version-fields-do-not-prove-append-only-history
   - project-revision-is-not-an-artifact-version; job-attempt-is-not-a-logical-job
-  - missing-runtime-records-remain-proposed-domain-concepts
+  - missing-runtime-records-do-not-establish-runtime-parity-or-persistence
 concepts:
   - concept: Project
     canonicalRef: media.domain.project
-    proposedIdentity: stable opaque project identifier; tenant binding required but key format and ownership cardinality unresolved
-    observedIdentity: PDP-0 proposal only; no matching record established in the inspected Java, TypeScript, OpenAPI, protobuf, or listed SQL schemas
-    versioning: metadata may be revised; exact revision identity and snapshot contents unresolved
+    ownerDefinedIdentity: tenantId plus stable opaque projectId; projectId is not reused within a tenant; workspaceId is an authorization scope, not part of identity
+    observedIdentity: no matching canonical project record established in the inspected Java, TypeScript, OpenAPI, protobuf, or listed SQL schemas; runtime parity is unverified
+    versioning: title and head changes occur through immutable ProjectRevision records; durable snapshot contents and enforcement are unverified
     tenancy: required in product contract; authenticated tenant authority is external and deployed binding unverified
-    cardinality: project-to-revisions and project-to-assets are proposals in relationships.yaml, not accepted storage constraints
-    history: append-only revision history is proposed; durable implementation evidence absent
-    disposition: unresolved-owner-decision
+    cardinality: logical project/revision and project/asset relationships are defined in relationships.yaml; accepted storage constraints are not established
+    history: committed revisions remain addressable by definition; durable append-only history is not established
+    disposition: MEDIA_LOGICAL_IDENTITY_DEFINED; RUNTIME_PERSISTENCE_AND_AUTHORITY_BINDING_UNVERIFIED
   - concept: ProjectRevision
     canonicalRef: media.domain.project-revision
-    proposedIdentity: project identifier plus opaque revision reference; exact key and ordering unresolved
-    observedIdentity: no matching runtime or persistence record observed
-    versioning: immutable snapshot proposal; commit/conflict semantics remain in PDP-0 proposal
-    tenancy: inherits project scope by proposal; enforcement evidence absent
-    cardinality: one project to many revisions proposed; accepted cardinality absent
-    history: preserve prior revisions proposed; durable history absent
-    disposition: unresolved-owner-decision
+    ownerDefinedIdentity: tenantId plus projectId plus stable opaque revisionId; revisionId is not a content digest
+    observedIdentity: no matching runtime or persistence record observed; durable creation and lookup parity are unverified
+    versioning: committed revisions are immutable snapshots and semantic edits create a new revision; runtime commit/conflict enforcement is unverified
+    tenancy: identity includes tenant and project scope; authenticated authority and enforcement evidence remain external/unverified
+    cardinality: each revision belongs to one project; a project may have multiple immutable revisions and one current-head selection by logical definition; storage constraints are not established
+    history: prior committed revisions remain addressable by definition; durable append-only history is not established
+    disposition: MEDIA_LOGICAL_IDENTITY_AND_REVISION_RULE_DEFINED; RUNTIME_PERSISTENCE_UNVERIFIED
   - concept: Artifact
     canonicalRef: media.domain.artifact
     proposedIdentity: stable opaque artifact identity scoped by tenant until global identity contract is decided
@@ -207,6 +207,24 @@ currentDefinitionAdjudication:
     productTruth: .product-experience/pdp-0-product-truth/domain-model.yaml
     stateTruth: .product-experience/pdp-0-product-truth/state-models.yaml
   records:
+    - id: canonical-project-and-revision-identity
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; RUNTIME_PERSISTENCE_AND_AUTHORITY_BINDING_DEFERRED
+      disposition: >-
+        Project identity is tenantId + stable opaque projectId, with workspace
+        retained as an authorization scope. ProjectRevision identity is
+        tenantId + projectId + stable opaque revisionId; revisionId is not a
+        content digest. Committed revisions are immutable by definition and a
+        later semantic edit creates a new revision. These logical meanings do
+        not assert a runtime record, durable snapshot, global ordering,
+        append-only persistence, atomic project creation, or enforced CAS.
+      definitionRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication/registeredObjectIdentityRefs
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.project
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.project-revision
+        - .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-revision
+        - .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-asset
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts
+      remaining: Runtime/persistence field mapping, durable snapshots and history, atomic create/commit and CAS enforcement, and authenticated tenant/principal binding remain unverified or external-owner work.
     - id: canonical-tenant-and-global-identity
       classification: MEDIA_LOGICAL_MEANING_RESOLVED; EXTERNAL_AUTHORITY_BINDING_DEFERRED
       disposition: >-

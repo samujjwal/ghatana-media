@@ -92,9 +92,15 @@ test("PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review", () 
   assert.equal(changedFieldsById.size, expected.length, "PXD-216 changed-field coverage contains exactly the reviewed leaves");
 
   const documents = sourceDocuments();
-  for (const path of Object.values(paths).filter(path => path !== paths.capabilities)) {
+  const pxd225Currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json"));
+  for (const path of Object.values(paths).filter(path => path !== paths.capabilities && path !== paths.channels)) {
     assert.equal(review.sourceFingerprints?.[path], sha256(readText(path)), `${path} is pinned to current bytes`);
   }
+  assert.equal(review.sourceFingerprints?.[paths.channels],
+    "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+    "PXD-216 retains its historical archived-channel source pin");
+  assert.equal(pxd225Currentness.currentSource.channelsSha256, sha256(readText(paths.channels)),
+    "PXD-225 binds the current archived-channel source bytes");
   const pxd223Currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"));
   assert.equal(review.sourceFingerprints?.[paths.capabilities], pxd223Currentness.preservedSemanticReview.historicalCapabilitiesSha256,
     "PXD-216 retains its historical full-file source pin; PXD-223 establishes currentness for the unchanged reviewed slice");
@@ -222,6 +228,34 @@ test("PXD-223 refreshes only source currentness for the preserved PXD-216 20-lea
 
   const decisionLog = readText(".product-experience/decision-log.md");
   assert.equal(fingerprintPxdDecisionSection(decisionLog, "PXD-223").sha256, currentness.decisionSectionSha256);
+});
+
+test("PXD-225 refreshes archived-channel currentness while retaining PXD-216 meanings and PXD-223 currentness", () => {
+  const currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json"));
+  const pxd223 = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"));
+  const review = JSON.parse(readText(reviewPath));
+  const channelsPath = paths.channels;
+  const decisionLog = readText(".product-experience/decision-log.md");
+  const sectionFingerprint = fingerprintPxdDecisionSection(decisionLog, "PXD-225");
+
+  assert.equal(currentness.decisionRef, ".product-experience/decision-log.md#PXD-225");
+  assert.equal(currentness.phaseScope, "PDP-0");
+  assert.equal(currentness.currentSource.channelsPath, channelsPath);
+  assert.equal(currentness.currentSource.channelsSha256, sha256(readText(channelsPath)));
+  assert.equal(currentness.decisionSectionSha256, sectionFingerprint.sha256);
+  assert.equal(currentness.sourceCut.sourceCount, 2);
+  assert.equal(currentness.preservedSemanticReview.decisionRef, ".product-experience/decision-log.md#PXD-216");
+  assert.deepEqual(currentness.preservedSemanticReview.reviewedCapabilityIds, review.reviewedCapabilityIds);
+  assert.deepEqual(currentness.preservedSemanticReview.changedReviewedCapabilityIds, []);
+  assert.equal(currentness.preservedSemanticReview.currentReviewedRowsSha256,
+    currentness.preservedSemanticReview.historicalReviewedRowsSha256);
+  assert.equal(pxd223.decisionRef, ".product-experience/decision-log.md#PXD-223");
+  assert.equal(currentness.preservedCurrentnessPredecessor.decisionRef, pxd223.decisionRef);
+  assert.equal(currentness.preservedCurrentnessPredecessor.artifactRef,
+    "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json");
+  assert.equal(currentness.authority.ownerApproval, "NOT_CLAIMED");
+  assert.equal(currentness.authority.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(currentness.authority.acceptanceEffect, "none");
 });
 
 test("the 20 current meanings retain source, uncertainty, trust, candidate and fallback invariants", () => {

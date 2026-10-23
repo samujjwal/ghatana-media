@@ -85,7 +85,9 @@ handoffs:
       caseCount: 61
       exactOperationBindingCount: 61
       uniqueCanonicalOperations: 39
-      status: SOURCE_AUTHORED_SUCCESSOR_CURRENTNESS_PENDING
+      status: SOURCE_AUTHORED_CURRENT_PDP1_DEVELOPMENT_REVIEWED
+      currentnessReviewRef: docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json#currentCutReview/currentDeclarativeAndRecorderReview
+      phaseStatusRef: docs/implementation/pdp-1-phase-dev-status.json
       boundary: Reuses existing P1 owner operations and job/project/model-state identities; no new route, solver writer or public admission.
     proposalHandoffs:
       - id: media.rules.manage.pdp1-definition-handoff.v1

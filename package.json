@@ -56,6 +56,9 @@
     "test:repository-hygiene": "node --test tests/media-repository-hygiene.test.mjs tests/media-retired-ai-voice-service.test.mjs tests/media-container-candidate-hygiene.test.mjs tests/media-deployment-candidate-hygiene.test.mjs scripts/conformance/__tests__/check-audio-video-provider-readiness.test.mjs tests/media-build-task-hygiene.test.mjs tests/media-ocr-ownership-hygiene.test.mjs",
     "check:recorder-studio-definition": "node scripts/check-media-recorder-studio-definitions.mjs",
     "test:recorder-studio-definition": "node --test tests/media-recorder-studio-definitions.test.mjs",
+    "generate:pdp3-recording-source": "node scripts/generate-media-pdp3-recording-source.mjs",
+    "check:pdp3-recording-source": "node scripts/generate-media-pdp3-recording-source.mjs --check",
+    "test:pdp3-recording-source": "node --test tests/media-pdp3-recording-source.test.mjs",
     "check:recorder-studio-experience": "node scripts/check-media-recorder-studio-experience.mjs",
     "test:recorder-studio-experience": "node --test tests/media-recorder-studio-experience.test.mjs",
     "check:declarative-production-definition": "node scripts/check-media-declarative-production-definitions.mjs",
@@ -71,8 +74,13 @@
     "test:ap03-source-snapshot": "node --test tests/media-ap03-snapshot.test.mjs",
     "check:gtool-owner-dispositions": "node scripts/check-media-gtool-owner-dispositions.mjs",
     "test:gtool-owner-dispositions": "node --test tests/media-gtool-owner-dispositions.test.mjs",
+    "generate:gtool-execution-queue": "node scripts/generate-media-gtool-execution-queue.mjs",
+    "check:gtool-execution-queue": "node scripts/generate-media-gtool-execution-queue.mjs --check",
+    "test:gtool-execution-queue": "node --test tests/media-gtool-execution-queue.test.mjs",
     "check:build-bridge-blockers": "node scripts/generate-media-build-bridge-blocker-inventory.mjs --check",
-    "test:build-bridge-blockers": "node --test tests/media-build-bridge-blocker-inventory.test.mjs"
+    "test:build-bridge-blockers": "node --test tests/media-build-bridge-blocker-inventory.test.mjs tests/media-build-bridge-blocker-inventory-generator.test.mjs",
+    "generate:build-f00-t01-observation": "node scripts/generate-media-build-f00-t01-observation.mjs",
+    "test:build-f00-t01-observation": "node --test tests/media-build-f00-t01-observation.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",

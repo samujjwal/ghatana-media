@@ -290,7 +290,7 @@ test('PDP-1 source cut fingerprints the P0 time-unit conversion vocabulary it co
   assert.equal(status.phase, 'PDP-1');
   assert.equal(status.sourceShaSet[dependency], crypto.createHash('sha256').update(fs.readFileSync(dependency)).digest('hex'));
   assert.equal(status.testsActuallyRun['P1-01'].status, 'PASS');
-  assert.equal(status.testsActuallyRun['P1-01'].testCount, 22);
+  assert.equal(status.testsActuallyRun['P1-01'].testCount, 23);
   assert.equal(crypto.createHash('sha256').update(fs.readFileSync(verificationLog)).digest('hex'), logBefore,
     'a subset verification must not replace the full phase verification log');
 });

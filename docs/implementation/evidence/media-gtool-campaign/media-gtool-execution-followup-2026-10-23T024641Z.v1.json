@@ -1,0 +1,2205 @@
+{
+  "schemaVersion": "media.gtool-execution-batch-result.v1",
+  "recordKind": "IMPLEMENTATION_BATCH_EVIDENCE_NOT_OWNER_AUTHORITY_TASK_ACCEPTANCE_NATIVE_CLOSURE_OR_RELEASE",
+  "recordedAt": "2026-10-23T03:08:01.958Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+    "scope": "Ghatana Media PDP-0..3 execution and unblock campaign; all source identities, packages and owner-approved task rows in the current owner execution queue.",
+    "selectedMacroStage": "BUILD",
+    "selectedPhase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "activities": [
+      "plan implementation",
+      "source-scoped implementation",
+      "focused verification"
+    ],
+    "surfaceDenominator": {
+      "sourceIdentities": 54,
+      "phaseCells": 216,
+      "physicalLeafCandidates": 26,
+      "compositionsIncludingRoot": 7,
+      "logicalConsumerIdentities": 21,
+      "implementationPackages": 50,
+      "implementationTasks": 57,
+      "ownerApprovedOpenTasks": 19
+    },
+    "canonicalObligationCounts": {
+      "PDP-0": 4028,
+      "PDP-1": 2336,
+      "PDP-2": 436,
+      "PDP-3": 1864,
+      "total": 8664
+    },
+    "sourceBaseline": {
+      "lifecycleReadback": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_PHASE_STATUS_IO_20261023_G0_REFRESH2.json",
+      "lifecycleReadbackSha256": "sha256:e54e441761773277f29f44af9ffc8c16d6abe09fa28930a1d8593f4f832bcb75",
+      "status": "SOURCE_DEFINITION_DEV_COMPLETE_CURRENT",
+      "sourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
+      "methodFingerprint": "sha256:d6344e6cd3ca38a2cc0fa52907be77e1ccd8b8178451ff6113343210aec591d5",
+      "sourceSubjectCount": 54,
+      "sourcePhaseCellCount": 216,
+      "phaseCounts": {
+        "PDP-0": {
+          "rows": 54,
+          "completeCurrent": 54,
+          "incomplete": 0,
+          "unknown": 0,
+          "nonemptyDefinitionTasks": 0
+        },
+        "PDP-1": {
+          "rows": 54,
+          "completeCurrent": 54,
+          "incomplete": 0,
+          "unknown": 0,
+          "nonemptyDefinitionTasks": 0
+        },
+        "PDP-2": {
+          "rows": 54,
+          "completeCurrent": 54,
+          "incomplete": 0,
+          "unknown": 0,
+          "nonemptyDefinitionTasks": 0
+        },
+        "PDP-3": {
+          "rows": 54,
+          "completeCurrent": 54,
+          "incomplete": 0,
+          "unknown": 0,
+          "nonemptyDefinitionTasks": 0
+        }
+      },
+      "writesPerformed": false,
+      "independentAcceptanceStatus": "NOT_EVALUATED",
+      "nativeClosureStatus": "NOT_EVALUATED",
+      "buildImplementationStatus": "NOT_EVALUATED",
+      "deliveryStatus": "NOT_EVALUATED",
+      "lifecycleMethodReadback": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_GTOOL_METHOD_READBACK_20261023_G0_REFRESH2.json",
+      "lifecycleMethodReadbackSha256": "sha256:2487c60064d76f73940fe94ceb58b558a220a6ac74cfeef0a3a3a5adb772ae4f",
+      "lifecycleHead": "220648d476f508083b404a68703a878329e51afd"
+    },
+    "prerequisiteState": "Fresh G0 readback on Lifecycle main 220648d476f508083b404a68703a878329e51afd reports all 54 identities and 216 phase cells source-current with zero phase-local definition tasks; aggregate source-definition barrier passes. Lifecycle checkout is dirty and clean committed-main execution is not asserted. Scoped Build admission remains task-specific; native closure and Delivery are not admitted.",
+    "followUp": {
+      "parentBatch": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-batch-2026-10-23.v1.json",
+      "parentBatchSha256": "sha256:e59224bcabadd1915110c10bbc6c463e16ed2f312f8e40e5b59efbce02e3ac47",
+      "currentHead": "132ab5c3f8487f97f44cf2b44edf28a616a6439c",
+      "worktreeRemainsDirty": true,
+      "scope": "Continuation of source-scoped BUILD implementation and focused verification; task identities, status, ownership, campaign denominators, and authority remain unchanged."
+    }
+  },
+  "planAndAuthority": {
+    "board": "docs/implementation/MEDIA-PDP0-3-GTOOL-EXECUTION-BOARD.v2.md",
+    "ownerProtocol": "docs/implementation/MEDIA-PDP0-3-GTOOL-OWNER-APPROVED-EXECUTION.md",
+    "queue": "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json",
+    "ownerDispositions": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
+    "routineApprovals": "19/19 recorded in local owner disposition source; no additional routine scope approval outstanding",
+    "taskAcceptance": "19/19 owner-approved technical queue items remain OPEN_TECHNICAL_WORK and NOT_COMPLETE; no formal acceptance inferred",
+    "wipLocks": {
+      "source": {
+        "path": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+        "section": "11B"
+      },
+      "laneModel": "existing-package-family-prefix",
+      "limits": {
+        "maxSimultaneouslyEditedPackagesPerLane": 2,
+        "maxActiveChangeWritersPerSharedFileOrSchemaOwner": 1
+      },
+      "lanes": [
+        {
+          "id": "F",
+          "packageIds": [
+            "M-BLD-F00",
+            "M-BLD-F01",
+            "M-BLD-F02",
+            "M-BLD-F03",
+            "M-BLD-F04",
+            "M-BLD-F05",
+            "M-BLD-F06",
+            "M-BLD-F07",
+            "M-BLD-F08",
+            "M-BLD-F09",
+            "M-BLD-F10",
+            "M-BLD-F11",
+            "M-BLD-F12",
+            "M-BLD-F13"
+          ]
+        },
+        {
+          "id": "V",
+          "packageIds": [
+            "M-BLD-V01",
+            "M-BLD-V02",
+            "M-BLD-V03",
+            "M-BLD-V04",
+            "M-BLD-V05",
+            "M-BLD-V06",
+            "M-BLD-V07",
+            "M-BLD-V08",
+            "M-BLD-V09",
+            "M-BLD-V10",
+            "M-BLD-V11",
+            "M-BLD-V12",
+            "M-BLD-V13",
+            "M-BLD-V14",
+            "M-BLD-V15",
+            "M-BLD-V16",
+            "M-BLD-V17",
+            "M-BLD-V18",
+            "M-BLD-V19",
+            "M-BLD-V20",
+            "M-BLD-V21",
+            "M-BLD-V22",
+            "M-BLD-V23",
+            "M-BLD-V24",
+            "M-BLD-V25",
+            "M-BLD-V26",
+            "M-BLD-V27",
+            "M-BLD-V28",
+            "M-BLD-V29",
+            "M-BLD-V30"
+          ]
+        },
+        {
+          "id": "L",
+          "packageIds": [
+            "M-BLD-L01",
+            "M-BLD-L02",
+            "M-BLD-L03"
+          ]
+        },
+        {
+          "id": "X",
+          "packageIds": [
+            "M-BLD-X01",
+            "M-BLD-X02",
+            "M-BLD-X03"
+          ]
+        }
+      ],
+      "semantics": "Policy limits only; this projection does not record staffing, active work, or readiness."
+    },
+    "authorityNote": "This record is a batch execution ledger only. It cannot issue Work Planner transitions, owner acceptance, AP02/AP03 trust selections, proof receipts, native closure, release authority or deployment permission."
+  },
+  "waveResults": [
+    {
+      "id": "G0",
+      "status": "SOURCE_READBACK_CURRENT",
+      "observation": "Fresh Lifecycle method readback at main 220648d476f508083b404a68703a878329e51afd plus source progression projection: 54 identities/216 PDP cells, each PDP phase 54/54 current DEV_COMPLETE with zero phase-local definition tasks; source snapshot sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a. Lifecycle worktree remains dirty; clean committed-main execution is not asserted. Native acceptance/closure, Plan Ready and Delivery remain NOT_EVALUATED."
+    },
+    {
+      "id": "G1",
+      "status": "SOURCE_CRITERION_PASS_TASK_ACCEPTANCE_OPEN",
+      "observation": "3,186 identities, 8,667 edges, zero bridge blockers/missing joins; F00.T02 source criterion passes and remains ASSIGNED_UNVERIFIED; F00.T03 now carries source-current topology, logical registry, and four-phase applicability for all 54 surfaces, with focused proof passing; both task acceptance records remain open."
+    },
+    {
+      "id": "G2",
+      "status": "BLOCKED_TRUSTED_HOST_INPUTS",
+      "observation": "AP02 host config and trust-root files absent; trusted verifier/owner selection and exact current DAG verification unavailable."
+    },
+    {
+      "id": "G3",
+      "status": "BLOCKED_OWNER_SNAPSHOT_AND_PLANNER_HOST",
+      "observation": "No owner-selected tracked membership/archive or authenticated Lifecycle Planner host; archive creation was not attempted."
+    },
+    {
+      "id": "G4",
+      "status": "BLOCKED_OWNER_CASE_MAP_AND_ORACLE",
+      "observation": "4,028 PDP-0 obligations remain open; zero candidate-linked PDP-0 obligations, zero admissions and zero receipts; 8,620 of 8,664 total obligations remain unmapped by current case links."
+    },
+    {
+      "id": "G5",
+      "status": "PLAN_READY_NOT_PROVEN",
+      "observation": "Local source plan check remains PENDING; no authenticated Work Planner transition/readback. Local gtool CLI shim also fails --help because /Users/samujjwal/Development/ghatana-tools/tools/gtool/bin/gtool.mjs is absent."
+    },
+    {
+      "id": "G6",
+      "status": "DEPENDENCY_GATED",
+      "observation": "One-writer/foundation predecessors and selected Plan Ready gates are not satisfied; no canonical runtime implementation or migration was changed."
+    },
+    {
+      "id": "G7",
+      "status": "NOT_ADMITTED",
+      "observation": "AP02, AP03 and owner-reviewed case mapping/admission prerequisites are missing; native PDP closure was not run."
+    },
+    {
+      "id": "G8",
+      "status": "NOT_VERIFIED",
+      "observation": "No admitted channel, qualified real provider/canonical writer, real job/result/version readbacks; no business outcome run."
+    },
+    {
+      "id": "G9",
+      "status": "STRUCTURAL_CANDIDATE_ONLY",
+      "observation": "PDP-3 recording-source check passes against refreshed G0; focused tests pass 2/2. One current Explorer scenario is a simulated candidate only; Build recording, semantic equivalence, real-product effect and recorder qualification remain NOT_RECORDED/NOT_VERIFIED."
+    },
+    {
+      "id": "G10",
+      "status": "DEPENDENCY_GATED",
+      "observation": "No G8 business outcome and no qualified real capture; no film was recorded."
+    },
+    {
+      "id": "G11",
+      "status": "DEPENDENCY_GATED_OPEN_TASKS",
+      "observation": "Remaining verticals are still OPEN_TECHNICAL_WORK and depend on foundation/runtime tasks not admitted or verified."
+    },
+    {
+      "id": "G12",
+      "status": "NOT_PROVEN_DELIVERY_NOT_AUTHORIZED",
+      "observation": "No native CLOSED/CURRENT receipts, complete Build verification, or release-specific authorization."
+    }
+  ],
+  "taskRows": [
+    {
+      "taskId": "M-BLD-F00.T02",
+      "packageId": "M-BLD-F00",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Build trace coordinator",
+      "executionLane": "SOURCE_BRIDGE",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [
+        "media.composition.client-and-machine-interfaces",
+        "media.composition.creation-composition-and-delivery",
+        "media.composition.governed-job-execution",
+        "media.composition.ingestion-and-versioned-artifacts",
+        "media.composition.repository-root",
+        "media.composition.speech-and-caption-workflows",
+        "media.composition.vision-and-multimodal-analysis",
+        "media.physical.adapters-ledger",
+        "media.physical.apps-media-experience-explorer",
+        "media.physical.audio-video-observability",
+        "media.physical.integration-tests",
+        "media.physical.launcher",
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-ui",
+        "media.physical.libs-common",
+        "media.physical.libs-java-common",
+        "media.physical.libs-media-experience-simulation",
+        "media.physical.modules-audio-streaming",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.modules-integration-tests",
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+        "media.physical.modules-intelligence-multimodal-service",
+        "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-video-streaming",
+        "media.physical.modules-vision-vision-service",
+        "media.physical.providers-aws-postgresql",
+        "media.physical.runtime-contracts",
+        "media.surface.agent-tools",
+        "media.surface.capture-adapters",
+        "media.surface.cli",
+        "media.surface.desktop-archive",
+        "media.surface.embedded",
+        "media.surface.events",
+        "media.surface.explorer",
+        "media.surface.grpc.multimodal",
+        "media.surface.grpc.stt",
+        "media.surface.grpc.tts",
+        "media.surface.grpc.vision",
+        "media.surface.integrations",
+        "media.surface.interactive-demo-player",
+        "media.surface.production-studio",
+        "media.surface.public-http",
+        "media.surface.recorder-orchestrator",
+        "media.surface.sdk",
+        "media.surface.service-grpc",
+        "media.surface.types-library",
+        "media.surface.ui-library",
+        "media.surface.web"
+      ],
+      "surfaceMappingStatus": "MAPPED_FROM_GENERATED_BUILD_TRACE",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-F00.T01"
+      ],
+      "blockingDependencies": "PDP0..3 current matrices; F00.T01 material receipt",
+      "actionableBlocker": "Planning task evidence does not admit runtime implementation; any missing source relation stays explicitly unresolved.",
+      "acceptanceCriterion": "Exact source ID and selector for every required operation; reconciled trace/bridge census, zero invented links; all affected source/currentness tests pass.",
+      "executionObservation": {
+        "executionStatus": "SOURCE_CRITERION_PASS_TASK_ACCEPTANCE_OPEN",
+        "evidence": "Current bridge source census and blocker projection pass; task remains ASSIGNED_UNVERIFIED and OPEN_TECHNICAL_WORK. No owner task acceptance/readback.",
+        "testsReadback": {
+          "commands": [
+            "node scripts/check-media-build-contract-bridge.mjs",
+            "node scripts/generate-media-build-bridge-blocker-inventory.mjs --check",
+            "node --test tests/media-build-bridge-blocker-inventory.test.mjs"
+          ],
+          "result": "PASS",
+          "bridge": {
+            "identities": 3186,
+            "edges": 8667,
+            "unresolvedSourceBlockers": 0,
+            "missingP1OperationRefs": 0,
+            "unresolvedCrossLayerRelations": 0,
+            "unresolvedHandoffSelectors": 0
+          },
+          "remaining": "F00.T01 receipt and authentic owner/Planner task acceptance are still absent; task remains OPEN_TECHNICAL_WORK / ASSIGNED_UNVERIFIED / NOT_COMPLETE."
+        }
+      }
+    },
+    {
+      "taskId": "M-BLD-F03.T01",
+      "packageId": "M-BLD-F03",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media domain/contracts owner",
+      "executionLane": "FOUNDATIONS",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-1"
+      ],
+      "surfaceIdsFromGeneratedTrace": [
+        "media.physical.libs-audio-video-types",
+        "media.physical.runtime-contracts",
+        "media.surface.types-library"
+      ],
+      "surfaceMappingStatus": "MAPPED_FROM_GENERATED_BUILD_TRACE",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-F02.T01"
+      ],
+      "blockingDependencies": "F02 public ABI; F01 writer decision",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Typed request/result/error and source-defined version/UNKNOWN guards with packed consumer, boundary and negative tests.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-F06.T01",
+      "packageId": "M-BLD-F06",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media runtime/reliability owner",
+      "executionLane": "FOUNDATIONS",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-1"
+      ],
+      "surfaceIdsFromGeneratedTrace": [
+        "media.composition.governed-job-execution",
+        "media.physical.launcher",
+        "media.physical.modules-infrastructure-cache"
+      ],
+      "surfaceMappingStatus": "MAPPED_FROM_GENERATED_BUILD_TRACE",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-F04.T01",
+        "M-BLD-F05.T01"
+      ],
+      "blockingDependencies": "F04/F05 real persistence and writer",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Exact job/attempt/readback and crash/timeout/replay/fencing/tenant-denial tests; no side-effect duplication.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-F10.T01",
+      "packageId": "M-BLD-F10",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media UI/host owner",
+      "executionLane": "FOUNDATIONS",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+        "media.surface.ui-library",
+        "media.surface.web"
+      ],
+      "surfaceMappingStatus": "MAPPED_FROM_GENERATED_BUILD_TRACE",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-F03.T01",
+        "M-BLD-F04.T01",
+        "M-BLD-F09.T01"
+      ],
+      "blockingDependencies": "F03/F04/F09 public contracts and source-dependent host entry",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Packaged public UI consumer and authenticated host proof; representative screen/route, denial, keyboard/reflow/reduced-motion tests; no Explorer promotion.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-L01.T01",
+      "packageId": "M-BLD-L01",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media recorder/story owner",
+      "executionLane": "EARLY_DEMO",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "SOURCE_SCOPE_PRESENT_BUT_NO_TOPOLOGY_SURFACE_ID",
+      "sourceScopeIds": {
+        "journeyIds": [
+          "J-01",
+          "J-02",
+          "J-20",
+          "J-03"
+        ],
+        "purposeBindingIds": [
+          "media.pdp3.step-purpose-binding.j01-step-01.v1",
+          "media.pdp3.step-purpose-binding.j01-step-02.v1",
+          "media.pdp3.step-purpose-binding.j01-step-03.v1",
+          "media.pdp3.step-purpose-binding.j01-step-04.v1",
+          "media.pdp3.step-purpose-binding.j02-step-01.v1",
+          "media.pdp3.step-purpose-binding.j02-step-02.v1",
+          "media.pdp3.step-purpose-binding.j02-step-03.v1",
+          "media.pdp3.step-purpose-binding.j02-step-04.v1",
+          "media.pdp3.step-purpose-binding.j02-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-01.v1",
+          "media.pdp3.step-purpose-binding.j03-step-02.v1",
+          "media.pdp3.step-purpose-binding.j03-step-03.v1",
+          "media.pdp3.step-purpose-binding.j03-step-04.v1",
+          "media.pdp3.step-purpose-binding.j03-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-06.v1",
+          "media.pdp3.step-purpose-binding.j03-step-07.v1",
+          "media.pdp3.step-purpose-binding.j03-step-08.v1",
+          "media.pdp3.step-purpose-binding.j20-step-01.v1",
+          "media.pdp3.step-purpose-binding.j20-step-02.v1",
+          "media.pdp3.step-purpose-binding.j20-step-03.v1",
+          "media.pdp3.step-purpose-binding.j20-step-04.v1",
+          "media.pdp3.step-purpose-binding.j20-step-05.v1",
+          "media.pdp3.step-purpose-binding.j20-step-06.v1",
+          "media.pdp3.step-purpose-binding.j20-step-07.v1"
+        ],
+        "channelEdgeIds": [
+          "media.pdp3.channel-binding.j01.web.v1",
+          "media.pdp3.channel-binding.j02.http-api.v1",
+          "media.pdp3.channel-binding.j02.sdk.v1",
+          "media.pdp3.channel-binding.j02.web.v1",
+          "media.pdp3.channel-binding.j03.cli.v1",
+          "media.pdp3.channel-binding.j03.grpc-api.v1",
+          "media.pdp3.channel-binding.j03.sdk.v1",
+          "media.pdp3.channel-binding.j03.web.v1",
+          "media.pdp3.channel-binding.j20.cli.v1",
+          "media.pdp3.channel-binding.j20.web.v1"
+        ],
+        "operationRefs": [
+          "media.operation-slice.append-upload-chunk",
+          "media.operation-slice.begin-upload",
+          "media.operation-slice.cancel-job",
+          "media.operation-slice.complete-upload",
+          "media.operation-slice.create-project",
+          "media.operation-slice.inspect-artifact-version",
+          "media.operation-slice.inspect-project",
+          "media.operation-slice.inspect-upload",
+          "media.operation-slice.list-projects",
+          "media.operation-slice.retry-job",
+          "media.operation.action.check-job-outcome",
+          "media.operation.action.view-job-status",
+          "media.operation.caption-draft-write",
+          "media.operation.caption-version-read",
+          "media.operation.caption-version-write",
+          "media.operation.transcript-version-read",
+          "media.operation.transcription-submission"
+        ]
+      },
+      "predecessorTaskIds": [
+        "M-BLD-F00.T01"
+      ],
+      "blockingDependencies": "F00.T01 source-current inputs",
+      "actionableBlocker": "Planning assignment only. Keep unresolved source links, owner-issued receipts, host/provider admission, capture permissions and independent film review explicit; do not infer implementation or approval.",
+      "acceptanceCriterion": "Deterministic scenario generator and source selector negative tests; 25 existing source blockers remain explicit until resolved.",
+      "executionObservation": {
+        "executionStatus": "SOURCE_BINDINGS_AND_FOCUSED_TESTS_PASS_TASK_ACCEPTANCE_OPEN",
+        "evidence": "Current PDP-2 production-studio, scene-storyboard composition and audio-only presentation selectors; PDP-3 scene-storyboard workspace proposal; all 24 purpose bindings for J-01/J-02/J-20/J-03 are resolved by exact contract stepRef and joined to the source bridge. Scenario tests pass 12/12. Real web/CLI channel admission remains absent; voice style/wording remains editorial because PDP-2/PDP-3 do not define it. Queue and work-package status remain OPEN_TECHNICAL_WORK / ASSIGNED_UNVERIFIED / NOT_COMPLETE.",
+        "currentScenarioBlockers": [
+          "NO_REAL_CHANNEL_ADMITTED:media.channel.web,media.channel.cli",
+          "VOICE_STYLE_AND_NARRATION_WORDING_REMAIN_EDITORIAL_NOT_PDP2_PDP3_AUTHORITY"
+        ],
+        "sourcePins": {
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+          ".product-experience/pdp-0-product-truth/journey-catalog.yaml": "db98413dfc314d85528d87515e8e7b100afe12276bfc8a73ca5401bbc92355eb",
+          ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+          ".product-experience/pdp-1-domain-data/authority.yaml": "433f13db1adde6b7136656491125612a5894cfe8ad6d50e3f4c23d99223102ec",
+          ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+          ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "cb37e443d3f7fcce968399d8ed3e0bb5b27535f0954ac70da21bd376d9c40cb2",
+          ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+          ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml": "8f544bdd47a2b2c3bd3ca6c909a1adcb3e604c516e26c94419178c362a4013a9",
+          ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
+          ".product-experience/pdp-3-product-experience/application-channel-registry.yaml": "750ddbfb2161711e8642edd8a28f681dc3e81909ad902255240984c61feb6206",
+          ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml": "d1af57db0bf4bcec054af251ffe40f5f2f1877f71a95dbd06ab5de8962279147",
+          ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml": "4b267a851612e6812d09496a0f447e1534b5b819ddf5414ca9cb0cb336d4160a",
+          ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml": "9d5c352d3be572c8a5866eb70ed0c8a9912540c591f05203287deb0c9ff6c334",
+          ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml": "3d32bebd2328c105133280a66e5cdbab1098e1ea36d1b0b3a9b0990e973bb196",
+          ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml": "fd0fff233a833a2541cb51264339f9b7f23af0493da36df1acdddababef60e55",
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": "439016ffe0962889992fb0f2c4b9d0be9082d2d52b6c0e251a0bea2d76b2544a",
+          ".product-experience/pdp-3-product-experience/journey-registry.yaml": "45fad668f42010258596be4729938b75c6f344d785080f5bb3aff5cbbfe39cb4",
+          ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml": "cba49c08faf46a1e793f1d80763d3fc4e8606467e047eb7da6806977aa859973",
+          ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
+          "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json": "36ebe16b25d04318b73275e156c70e231bc54a65d74105978b494dd0a8123bf2",
+          "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "3542bef51bc0f51e0b57b63a3edbe915ec866ff6fe16137201fb973fe830405d",
+          "docs/implementation/MEDIA-EARLY-BUSINESS-DEMO-RECORDING.v1.json": "f5200242a4862889ac1232ee5d30bd61007d960ad05bcb34fe08b76a786f2d23"
+        },
+        "selectorRefs": [
+          {
+            "phase": "PDP-0",
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities",
+            "identityField": "id"
+          },
+          {
+            "phase": "PDP-0",
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements",
+            "identityField": "id"
+          },
+          {
+            "phase": "PDP-1",
+            "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations",
+            "identityField": "id"
+          },
+          {
+            "phase": "PDP-1",
+            "sourceRef": ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#/",
+            "identityField": "operationRef"
+          },
+          {
+            "phase": "PDP-3",
+            "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys",
+            "identityField": "id"
+          },
+          {
+            "phase": "PDP-3",
+            "sourceRef": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#/bindings",
+            "identityField": "id"
+          },
+          {
+            "phase": "PDP-3",
+            "sourceRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml#/bindings",
+            "identityField": "id"
+          },
+          {
+            "phase": "PDP-2",
+            "sourceRef": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#/surfaceInterfaces/@surfaceId=media.surface.production-studio",
+            "identityField": "surfaceId"
+          },
+          {
+            "phase": "PDP-2",
+            "sourceRef": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#/productionStudioPageCompositionContracts/pages/@workspaceKey=scene-storyboard",
+            "identityField": "workspaceKey"
+          },
+          {
+            "phase": "PDP-2",
+            "sourceRef": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#/experiencePresentationProfiles/@id=media.recorder.p2.profile.audio-only",
+            "identityField": "id"
+          },
+          {
+            "phase": "PDP-3",
+            "sourceRef": ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml#/productionStudioWorkspace/pages/@id=media.recorder.p3.workspace.scene-storyboard.v1",
+            "identityField": "id"
+          }
+        ],
+        "acceptanceCriterionAudit": {
+          "sourceText": "Deterministic scenario generator and source selector negative tests; 25 existing source blockers remain explicit until resolved.",
+          "status": "UNSUPPORTED_COUNT_IN_CURRENT_AUTHORITY",
+          "finding": "No canonical 25-item blocker inventory exists in the plan, owner disposition, source bridge inventory, or current scenario. Preserve the scenario generator’s exact source-derived blockers; do not fabricate 25 blocker identities."
+        }
+      }
+    },
+    {
+      "taskId": "M-BLD-L01.T02",
+      "packageId": "M-BLD-L01",
+      "ownerRepository": "samujjwal/gharbatai",
+      "ownerRole": "Recorder reusable-core owner",
+      "executionLane": "EARLY_DEMO",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "SOURCE_SCOPE_PRESENT_BUT_NO_TOPOLOGY_SURFACE_ID",
+      "sourceScopeIds": {
+        "journeyIds": [
+          "J-01",
+          "J-02",
+          "J-20",
+          "J-03"
+        ],
+        "purposeBindingIds": [
+          "media.pdp3.step-purpose-binding.j01-step-01.v1",
+          "media.pdp3.step-purpose-binding.j01-step-02.v1",
+          "media.pdp3.step-purpose-binding.j01-step-03.v1",
+          "media.pdp3.step-purpose-binding.j01-step-04.v1",
+          "media.pdp3.step-purpose-binding.j02-step-01.v1",
+          "media.pdp3.step-purpose-binding.j02-step-02.v1",
+          "media.pdp3.step-purpose-binding.j02-step-03.v1",
+          "media.pdp3.step-purpose-binding.j02-step-04.v1",
+          "media.pdp3.step-purpose-binding.j02-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-01.v1",
+          "media.pdp3.step-purpose-binding.j03-step-02.v1",
+          "media.pdp3.step-purpose-binding.j03-step-03.v1",
+          "media.pdp3.step-purpose-binding.j03-step-04.v1",
+          "media.pdp3.step-purpose-binding.j03-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-06.v1",
+          "media.pdp3.step-purpose-binding.j03-step-07.v1",
+          "media.pdp3.step-purpose-binding.j03-step-08.v1",
+          "media.pdp3.step-purpose-binding.j20-step-01.v1",
+          "media.pdp3.step-purpose-binding.j20-step-02.v1",
+          "media.pdp3.step-purpose-binding.j20-step-03.v1",
+          "media.pdp3.step-purpose-binding.j20-step-04.v1",
+          "media.pdp3.step-purpose-binding.j20-step-05.v1",
+          "media.pdp3.step-purpose-binding.j20-step-06.v1",
+          "media.pdp3.step-purpose-binding.j20-step-07.v1"
+        ],
+        "channelEdgeIds": [
+          "media.pdp3.channel-binding.j01.web.v1",
+          "media.pdp3.channel-binding.j02.http-api.v1",
+          "media.pdp3.channel-binding.j02.sdk.v1",
+          "media.pdp3.channel-binding.j02.web.v1",
+          "media.pdp3.channel-binding.j03.cli.v1",
+          "media.pdp3.channel-binding.j03.grpc-api.v1",
+          "media.pdp3.channel-binding.j03.sdk.v1",
+          "media.pdp3.channel-binding.j03.web.v1",
+          "media.pdp3.channel-binding.j20.cli.v1",
+          "media.pdp3.channel-binding.j20.web.v1"
+        ],
+        "operationRefs": [
+          "media.operation-slice.append-upload-chunk",
+          "media.operation-slice.begin-upload",
+          "media.operation-slice.cancel-job",
+          "media.operation-slice.complete-upload",
+          "media.operation-slice.create-project",
+          "media.operation-slice.inspect-artifact-version",
+          "media.operation-slice.inspect-project",
+          "media.operation-slice.inspect-upload",
+          "media.operation-slice.list-projects",
+          "media.operation-slice.retry-job",
+          "media.operation.action.check-job-outcome",
+          "media.operation.action.view-job-status",
+          "media.operation.caption-draft-write",
+          "media.operation.caption-version-read",
+          "media.operation.caption-version-write",
+          "media.operation.transcript-version-read",
+          "media.operation.transcription-submission"
+        ]
+      },
+      "predecessorTaskIds": [
+        "M-BLD-L01.T01"
+      ],
+      "blockingDependencies": "L01.T01 scenario selectors; recorder package ABI",
+      "actionableBlocker": "Planning assignment only. Keep unresolved source links, owner-issued receipts, host/provider admission, capture permissions and independent film review explicit; do not infer implementation or approval.",
+      "acceptanceCriterion": "Packed consumer, permitted capture, no credential leakage, deterministic selection/cancellation, negative permission and real-frame qualification.",
+      "executionObservation": {
+        "executionStatus": "BLOCKED_SCOPED_WORK_PLANNER_GATE_UNCONFIRMED",
+        "evidence": "Read-only source audit confirms the private @ghatana/experience-recorder package is version 0.0.0 with no license field; capture-core is source-neutral, legacy capture imports Playwright Page, and the existing packed fixture exercises @gharbatai/demo-recorder rather than this package. No Media capture-adapter source path/API is selected. No test/build/pack/install/capture or edit was performed. Selected Work Planner gate, host permission, license/rights disposition and real-frame evidence remain absent."
+      }
+    },
+    {
+      "taskId": "M-BLD-L01.T03",
+      "packageId": "M-BLD-L01",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media business proof owner",
+      "executionLane": "EARLY_DEMO",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "SOURCE_SCOPE_PRESENT_BUT_NO_TOPOLOGY_SURFACE_ID",
+      "sourceScopeIds": {
+        "journeyIds": [
+          "J-01",
+          "J-02",
+          "J-20",
+          "J-03"
+        ],
+        "purposeBindingIds": [
+          "media.pdp3.step-purpose-binding.j01-step-01.v1",
+          "media.pdp3.step-purpose-binding.j01-step-02.v1",
+          "media.pdp3.step-purpose-binding.j01-step-03.v1",
+          "media.pdp3.step-purpose-binding.j01-step-04.v1",
+          "media.pdp3.step-purpose-binding.j02-step-01.v1",
+          "media.pdp3.step-purpose-binding.j02-step-02.v1",
+          "media.pdp3.step-purpose-binding.j02-step-03.v1",
+          "media.pdp3.step-purpose-binding.j02-step-04.v1",
+          "media.pdp3.step-purpose-binding.j02-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-01.v1",
+          "media.pdp3.step-purpose-binding.j03-step-02.v1",
+          "media.pdp3.step-purpose-binding.j03-step-03.v1",
+          "media.pdp3.step-purpose-binding.j03-step-04.v1",
+          "media.pdp3.step-purpose-binding.j03-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-06.v1",
+          "media.pdp3.step-purpose-binding.j03-step-07.v1",
+          "media.pdp3.step-purpose-binding.j03-step-08.v1",
+          "media.pdp3.step-purpose-binding.j20-step-01.v1",
+          "media.pdp3.step-purpose-binding.j20-step-02.v1",
+          "media.pdp3.step-purpose-binding.j20-step-03.v1",
+          "media.pdp3.step-purpose-binding.j20-step-04.v1",
+          "media.pdp3.step-purpose-binding.j20-step-05.v1",
+          "media.pdp3.step-purpose-binding.j20-step-06.v1",
+          "media.pdp3.step-purpose-binding.j20-step-07.v1"
+        ],
+        "channelEdgeIds": [
+          "media.pdp3.channel-binding.j01.web.v1",
+          "media.pdp3.channel-binding.j02.http-api.v1",
+          "media.pdp3.channel-binding.j02.sdk.v1",
+          "media.pdp3.channel-binding.j02.web.v1",
+          "media.pdp3.channel-binding.j03.cli.v1",
+          "media.pdp3.channel-binding.j03.grpc-api.v1",
+          "media.pdp3.channel-binding.j03.sdk.v1",
+          "media.pdp3.channel-binding.j03.web.v1",
+          "media.pdp3.channel-binding.j20.cli.v1",
+          "media.pdp3.channel-binding.j20.web.v1"
+        ],
+        "operationRefs": [
+          "media.operation-slice.append-upload-chunk",
+          "media.operation-slice.begin-upload",
+          "media.operation-slice.cancel-job",
+          "media.operation-slice.complete-upload",
+          "media.operation-slice.create-project",
+          "media.operation-slice.inspect-artifact-version",
+          "media.operation-slice.inspect-project",
+          "media.operation-slice.inspect-upload",
+          "media.operation-slice.list-projects",
+          "media.operation-slice.retry-job",
+          "media.operation.action.check-job-outcome",
+          "media.operation.action.view-job-status",
+          "media.operation.caption-draft-write",
+          "media.operation.caption-version-read",
+          "media.operation.caption-version-write",
+          "media.operation.transcript-version-read",
+          "media.operation.transcription-submission"
+        ]
+      },
+      "predecessorTaskIds": [
+        "M-BLD-V03.T02"
+      ],
+      "blockingDependencies": "V03.T02; qualified real provider/channel; actual writer",
+      "actionableBlocker": "Planning assignment only. Keep unresolved source links, owner-issued receipts, host/provider admission, capture permissions and independent film review explicit; do not infer implementation or approval.",
+      "acceptanceCriterion": "BUSINESS_OUTCOME_READY only with matching actual artifact/version/job/provider result and denial/UNKNOWN/conflict cases.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-L01.T04",
+      "packageId": "M-BLD-L01",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media recording owner",
+      "executionLane": "EARLY_DEMO",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "SOURCE_SCOPE_PRESENT_BUT_NO_TOPOLOGY_SURFACE_ID",
+      "sourceScopeIds": {
+        "journeyIds": [
+          "J-01",
+          "J-02",
+          "J-20",
+          "J-03"
+        ],
+        "purposeBindingIds": [
+          "media.pdp3.step-purpose-binding.j01-step-01.v1",
+          "media.pdp3.step-purpose-binding.j01-step-02.v1",
+          "media.pdp3.step-purpose-binding.j01-step-03.v1",
+          "media.pdp3.step-purpose-binding.j01-step-04.v1",
+          "media.pdp3.step-purpose-binding.j02-step-01.v1",
+          "media.pdp3.step-purpose-binding.j02-step-02.v1",
+          "media.pdp3.step-purpose-binding.j02-step-03.v1",
+          "media.pdp3.step-purpose-binding.j02-step-04.v1",
+          "media.pdp3.step-purpose-binding.j02-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-01.v1",
+          "media.pdp3.step-purpose-binding.j03-step-02.v1",
+          "media.pdp3.step-purpose-binding.j03-step-03.v1",
+          "media.pdp3.step-purpose-binding.j03-step-04.v1",
+          "media.pdp3.step-purpose-binding.j03-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-06.v1",
+          "media.pdp3.step-purpose-binding.j03-step-07.v1",
+          "media.pdp3.step-purpose-binding.j03-step-08.v1",
+          "media.pdp3.step-purpose-binding.j20-step-01.v1",
+          "media.pdp3.step-purpose-binding.j20-step-02.v1",
+          "media.pdp3.step-purpose-binding.j20-step-03.v1",
+          "media.pdp3.step-purpose-binding.j20-step-04.v1",
+          "media.pdp3.step-purpose-binding.j20-step-05.v1",
+          "media.pdp3.step-purpose-binding.j20-step-06.v1",
+          "media.pdp3.step-purpose-binding.j20-step-07.v1"
+        ],
+        "channelEdgeIds": [
+          "media.pdp3.channel-binding.j01.web.v1",
+          "media.pdp3.channel-binding.j02.http-api.v1",
+          "media.pdp3.channel-binding.j02.sdk.v1",
+          "media.pdp3.channel-binding.j02.web.v1",
+          "media.pdp3.channel-binding.j03.cli.v1",
+          "media.pdp3.channel-binding.j03.grpc-api.v1",
+          "media.pdp3.channel-binding.j03.sdk.v1",
+          "media.pdp3.channel-binding.j03.web.v1",
+          "media.pdp3.channel-binding.j20.cli.v1",
+          "media.pdp3.channel-binding.j20.web.v1"
+        ],
+        "operationRefs": [
+          "media.operation-slice.append-upload-chunk",
+          "media.operation-slice.begin-upload",
+          "media.operation-slice.cancel-job",
+          "media.operation-slice.complete-upload",
+          "media.operation-slice.create-project",
+          "media.operation-slice.inspect-artifact-version",
+          "media.operation-slice.inspect-project",
+          "media.operation-slice.inspect-upload",
+          "media.operation-slice.list-projects",
+          "media.operation-slice.retry-job",
+          "media.operation.action.check-job-outcome",
+          "media.operation.action.view-job-status",
+          "media.operation.caption-draft-write",
+          "media.operation.caption-version-read",
+          "media.operation.caption-version-write",
+          "media.operation.transcript-version-read",
+          "media.operation.transcription-submission"
+        ]
+      },
+      "predecessorTaskIds": [
+        "M-BLD-L01.T01",
+        "M-BLD-L01.T02",
+        "M-BLD-L01.T03"
+      ],
+      "blockingDependencies": "L01.T01/.T02/.T03 real outcomes",
+      "actionableBlocker": "Planning assignment only. Keep unresolved source links, owner-issued receipts, host/provider admission, capture permissions and independent film review explicit; do not infer implementation or approval.",
+      "acceptanceCriterion": "Playable current film with exact sources, verified semantic postcondition and cleanup; independent film approval remains separate.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V01.T01",
+      "packageId": "M-BLD-V01",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media first-use/runtime UX owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "NO_TOPOLOGY_SURFACE_ID_IN_TASK_JOIN",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-F03.T01",
+        "M-BLD-F04.T01",
+        "M-BLD-F05.T01",
+        "M-BLD-F09.T01",
+        "M-BLD-F10.T01",
+        "M-BLD-F12.T01"
+      ],
+      "blockingDependencies": "F03/F04/F05/F09/F10/F12 and writer authority",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Same-tenant create/readback; cross-tenant/forged context/CAS negative cases.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V02.T01",
+      "packageId": "M-BLD-V02",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media artifact/storage owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "NO_TOPOLOGY_SURFACE_ID_IN_TASK_JOIN",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V01.T01",
+        "M-BLD-F05.T01",
+        "M-BLD-F09.T01",
+        "M-BLD-F10.T01"
+      ],
+      "blockingDependencies": "V01; F05/F09/F10 and migration decision",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Content digest equality, resume/retry consistency and cross-tenant/partial upload/UNKNOWN negative cases.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V03.T01",
+      "packageId": "M-BLD-V03",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media STT/caption owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [
+        "media.composition.speech-and-caption-workflows",
+        "media.physical.modules-speech-stt-service",
+        "media.surface.grpc.stt"
+      ],
+      "surfaceMappingStatus": "MAPPED_FROM_GENERATED_BUILD_TRACE",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V03.T02",
+        "M-BLD-V02.T01",
+        "M-BLD-V20.T01",
+        "M-BLD-F08.T01",
+        "M-BLD-F11.T01",
+        "M-BLD-F09.T01",
+        "M-BLD-F10.T01"
+      ],
+      "blockingDependencies": "V02/V20/F08/F11/F09/F10 and actual provider",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "All declared channels, real STT output, caption/revision integrity and denial/timeout/UNKNOWN/correction conflict tests.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V03.T02",
+      "packageId": "M-BLD-V03",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media STT first-channel owner",
+      "executionLane": "EARLY_DEMO",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "SOURCE_SCOPE_PRESENT_BUT_NO_TOPOLOGY_SURFACE_ID",
+      "sourceScopeIds": {
+        "journeyIds": [
+          "J-03"
+        ],
+        "purposeBindingIds": [
+          "media.pdp3.step-purpose-binding.j03-step-01.v1",
+          "media.pdp3.step-purpose-binding.j03-step-02.v1",
+          "media.pdp3.step-purpose-binding.j03-step-03.v1",
+          "media.pdp3.step-purpose-binding.j03-step-04.v1",
+          "media.pdp3.step-purpose-binding.j03-step-05.v1",
+          "media.pdp3.step-purpose-binding.j03-step-06.v1",
+          "media.pdp3.step-purpose-binding.j03-step-07.v1",
+          "media.pdp3.step-purpose-binding.j03-step-08.v1"
+        ],
+        "channelEdgeIds": [
+          "media.pdp3.channel-binding.j03.cli.v1",
+          "media.pdp3.channel-binding.j03.grpc-api.v1",
+          "media.pdp3.channel-binding.j03.sdk.v1",
+          "media.pdp3.channel-binding.j03.web.v1"
+        ],
+        "operationRefs": [
+          "media.operation.action.view-job-status",
+          "media.operation.caption-draft-write",
+          "media.operation.caption-version-read",
+          "media.operation.caption-version-write",
+          "media.operation.transcript-version-read",
+          "media.operation.transcription-submission"
+        ]
+      },
+      "predecessorTaskIds": [
+        "M-BLD-V02.T01",
+        "M-BLD-V20.T01",
+        "M-BLD-F08.T01",
+        "M-BLD-F11.T01",
+        "M-BLD-F09.T01"
+      ],
+      "blockingDependencies": "V02.T01/V20.T01/F08.T01/F11.T01/F09.T01",
+      "actionableBlocker": "ASSIGNED_UNVERIFIED planning subtask. Exact channel, canonical writer, provider qualification and real owner-issued result/effect receipts are not present in this generated plan.",
+      "acceptanceCriterion": "Real BUSINESS_OUTCOME_READY, denied/broken/replayed/UNKNOWN/provider failure and correct final readback; no full V03 claim.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V04.T01",
+      "packageId": "M-BLD-V04",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media voice/rights owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [
+        "media.physical.modules-speech-tts-service",
+        "media.surface.grpc.tts"
+      ],
+      "surfaceMappingStatus": "MAPPED_FROM_GENERATED_BUILD_TRACE",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V01.T01",
+        "M-BLD-V20.T01",
+        "M-BLD-F08.T01",
+        "M-BLD-F11.T01"
+      ],
+      "blockingDependencies": "V01/V20/F08/F11 and qualified licensed model/provider",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Authorized output version and provenance plus revoked/region/unlicensed/UNKNOWN denials.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V16.T01",
+      "packageId": "M-BLD-V16",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media localization/dubbing owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "NO_TOPOLOGY_SURFACE_ID_IN_TASK_JOIN",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V03.T01",
+        "M-BLD-V04.T01",
+        "M-BLD-V18.T01"
+      ],
+      "blockingDependencies": "V03/V04/V18 and qualified model profiles",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Source-language/output timing accuracy and rights provenance with wrong voice/locale/UNKNOWN failures.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V18.T01",
+      "packageId": "M-BLD-V18",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media composition/render owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "NO_TOPOLOGY_SURFACE_ID_IN_TASK_JOIN",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V09.T01",
+        "M-BLD-V11.T01",
+        "M-BLD-V17.T01",
+        "M-BLD-F13.T01"
+      ],
+      "blockingDependencies": "V09/V11/V17/F13 and canonical render/codec",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Review/version/render provenance and protected crop/track mute/solo/ramp with failure/codec/rights denials.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V20.T01",
+      "packageId": "M-BLD-V20",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media jobs/UX owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "NO_TOPOLOGY_SURFACE_ID_IN_TASK_JOIN",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V02.T01",
+        "M-BLD-F06.T01",
+        "M-BLD-F07.T01",
+        "M-BLD-F09.T01",
+        "M-BLD-F10.T01"
+      ],
+      "blockingDependencies": "V02/F06/F07/F09/F10",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Observe identical job/attempt IDs and eventual genuine terminal effects; LOST_ACK/timeout/UNKNOWN/replay denied without duplicate effects.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V23.T01",
+      "packageId": "M-BLD-V23",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media offline/client owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "NO_TOPOLOGY_SURFACE_ID_IN_TASK_JOIN",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V01.T01",
+        "M-BLD-V02.T01",
+        "M-BLD-V21.T01",
+        "M-BLD-F10.T01"
+      ],
+      "blockingDependencies": "V01/V02/V21/F10",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Offline read/cache durability, stale version conflict and denied/resumed effects with exact readback.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V24.T01",
+      "packageId": "M-BLD-V24",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media CLI/SDK owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [
+        "media.surface.cli"
+      ],
+      "surfaceMappingStatus": "MAPPED_FROM_GENERATED_BUILD_TRACE",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V01.T01",
+        "M-BLD-V02.T01",
+        "M-BLD-V20.T01",
+        "M-BLD-F09.T01"
+      ],
+      "blockingDependencies": "V01/V02/V20/F09; published public API",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Machine schema stdout/stderr/exit invariants, same command identity/retry, error/UNKNOWN security denials.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    },
+    {
+      "taskId": "M-BLD-V26.T01",
+      "packageId": "M-BLD-V26",
+      "ownerRepository": "samujjwal/ghatana-media",
+      "ownerRole": "Media privacy/retention owner",
+      "executionLane": "VERTICAL",
+      "queueStatus": "OPEN_TECHNICAL_WORK",
+      "completionClaim": "NOT_COMPLETE",
+      "workPackageStatus": "ASSIGNED_UNVERIFIED",
+      "PDPMapping": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-3"
+      ],
+      "surfaceIdsFromGeneratedTrace": [],
+      "surfaceMappingStatus": "NO_TOPOLOGY_SURFACE_ID_IN_TASK_JOIN",
+      "sourceScopeIds": {},
+      "predecessorTaskIds": [
+        "M-BLD-V02.T01",
+        "M-BLD-V04.T01",
+        "M-BLD-V22.T01",
+        "M-BLD-F05.T01"
+      ],
+      "blockingDependencies": "V02/V04/V22/F05, actual retention policy",
+      "actionableBlocker": "Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.",
+      "acceptanceCriterion": "Policy checked erasure and holds; no invalid deletion, unauthorized tenant, stale lease or false physical erasure claim.",
+      "executionObservation": {
+        "executionStatus": "NOT_STARTED_OR_NO_ACCEPTANCE_EVIDENCE",
+        "evidence": "Queue remains open; see predecessor and source/host admission blockers. No completion is inferred from projection status."
+      }
+    }
+  ],
+  "testsAndEvidence": [
+    {
+      "command": "node --test tests/media-gtool-execution-queue.test.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 6,
+        "failed": 0
+      },
+      "coverage": [
+        "current bridge census",
+        "all 19 tasks remain open",
+        "conflicting blocker status rejected",
+        "incomplete bridge projected without false completion",
+        "completion/waiver rejected",
+        "denominator/order drift rejected",
+        "unknown CLI argument rejected without rewrite"
+      ],
+      "observer": "Node.js node:test plus generator assertions",
+      "oracle": "owner disposition, blocker inventory and denominator assertions; no owner acceptance"
+    },
+    {
+      "command": "pnpm run check:gtool-execution-queue",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "19 tasks open; 3,186 source trace identities; 8,667 bridge edges; zero unresolved source blockers",
+      "observer": "queue generator check mode",
+      "oracle": "generated queue equality and exact source census"
+    },
+    {
+      "command": "node --test tests/media-early-business-scenario.test.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 12,
+        "failed": 0
+      },
+      "coverage": [
+        "source-pinned scenario",
+        "missing P1 result rejected",
+        "exact bridge join required",
+        "mismatched PDP3 edge rejected",
+        "missing/altered/reordered selectors rejected",
+        "source blocker deletion rejected",
+        "channel without admission rejected",
+        "duplicate scene/stale pins rejected",
+        "check mode non-writing",
+        "byte deterministic output",
+        "exact PDP-2 presentation and PDP-3 workspace selectors resolve",
+        "purpose binding source joins are keyed by exact journey contract stepRef",
+        "scene-to-journey mappings preserve editorial-only narration authority",
+        "design-only/unbound PDP-3 workspace and voice-authority limits stay explicit",
+        "modified scene and purpose joins rejected",
+        "generator fails closed for ambiguous PDP-2 selector and missing PDP-3 purpose binding"
+      ],
+      "observer": "Node.js node:test plus scenario generator",
+      "oracle": "current PDP selector and bridge source joins; no runtime product oracle"
+    },
+    {
+      "command": "pnpm run test:pdp3-recording-source",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 2,
+        "failed": 0
+      },
+      "coverage": [
+        "current Explorer scenario remains simulated candidate",
+        "stale or incomplete G0 rejected"
+      ],
+      "observer": "Node.js node:test",
+      "oracle": "G0 source currentness and candidate-only recording schema"
+    },
+    {
+      "command": "pnpm run check:pdp3-recording-source -- --g0-status /Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_PHASE_STATUS_IO_20261022_G0_REFRESH.json",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "1 selected scenario; simulated candidate only",
+      "observer": "recording-source generator check mode",
+      "oracle": "selected current G0 status; no Build recording or equivalence oracle"
+    },
+    {
+      "command": "node scripts/check-media-build-contract-bridge.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "3,186 identities; 8,667 edges; deterministic/current",
+      "observer": "bridge checker",
+      "oracle": "source selectors and trace joins"
+    },
+    {
+      "command": "pnpm run check:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "zero unresolved source identities, blockers, missing P1 refs, cross-layer relations, and handoff selectors",
+      "observer": "blocker inventory generator check mode",
+      "oracle": "bridge census; source currentness only"
+    },
+    {
+      "command": "pnpm run test:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 5,
+        "failed": 0
+      },
+      "coverage": [
+        "exact missing operation/relation/handoff reasons",
+        "invented identity rejected",
+        "false terminal success rejected",
+        "zero-blocker inventory does not claim task acceptance",
+        "status/census contradiction rejected"
+      ],
+      "observer": "Node.js node:test",
+      "oracle": "source blocker inventory contract"
+    },
+    {
+      "command": "pnpm run check:w3-pdp0-source-case-map",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "54 source identities; 4,028 PDP-0 open slots; zero PDP-0 candidate-linked obligations",
+      "observer": "source case map checker",
+      "oracle": "obligation identity denominator and current source pins; no owner case acceptance"
+    },
+    {
+      "command": "pnpm run test:w3-pdp0-source-case-map",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 4,
+        "failed": 0
+      },
+      "coverage": [
+        "campaign identity and phase denominators preserved",
+        "duplicate/missing joins rejected",
+        "stale pins/invalid applicability rejected",
+        "case IDs remain open without exact candidate join"
+      ],
+      "observer": "Node.js node:test",
+      "oracle": "source obligation/case join checks; no native admission"
+    },
+    {
+      "command": "pnpm run audit:lifecycle-obligations",
+      "exitCode": 0,
+      "result": "SOURCE_SEMANTIC_ACCEPTANCE_PENDING",
+      "trace": "8,664 unique obligations and source refs resolved; 4,028/2,336/436/1,864 by PDP-0..3; zero authoritative observer oracles/assignments; semantic acceptance pending",
+      "observer": "Media obligation audit",
+      "oracle": "current obligation inventory and fingerprints; no native proof"
+    },
+    {
+      "command": "pnpm run test:build-work-packages",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 2,
+        "failed": 0
+      },
+      "durationSeconds": 93,
+      "observer": "Node.js node:test plus deterministic work-package generator",
+      "oracle": "3,186 identity/trace and package projection assertions; no Work Planner owner receipt"
+    },
+    {
+      "command": "pnpm run check:build-work-packages",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "50 packages; 57 tasks; 54 surfaces; 3,186 identities; generated projection current",
+      "observer": "work-package generator check mode",
+      "oracle": "source pins and generated trace consistency"
+    },
+    {
+      "command": "pnpm run check:gtool-owner-dispositions",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "57 task dispositions structurally valid; 19 authorized/open technical tasks; Plan Ready not proven",
+      "observer": "owner disposition checker",
+      "oracle": "local owner decision JSON shape; not authenticated Work Planner readback"
+    },
+    {
+      "command": "pnpm run test:gtool-owner-dispositions",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 3,
+        "failed": 0
+      },
+      "observer": "Node.js node:test",
+      "oracle": "owner disposition record invariants; no task acceptance"
+    },
+    {
+      "command": "pnpm run check:build-plan-task-closure",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "50 packages; 57 tasks; 54 surfaces; taskClosure=PENDING; planReady=PENDING; approvalEvidenceStatus=MISSING",
+      "observer": "Build plan task closure checker",
+      "oracle": "planning record structure only; no Work Planner transition"
+    },
+    {
+      "command": "pnpm run check:physical-topology",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "26 physical candidates; 21 consumer identities; 7 compositions including root",
+      "observer": "topology checker",
+      "oracle": "source topology registry"
+    },
+    {
+      "command": "pnpm run check:lifecycle-source-inputs",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "8,664 obligations; 65 candidate case links covering 44 obligations; 8,620 unmapped; zero oracles/admissions/receipts",
+      "observer": "Lifecycle source input checker",
+      "oracle": "current source inputs only"
+    },
+    {
+      "command": "PDP-0..PDP-3 matrix check mode",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "54 rows per matrix; DEV_COMPLETE; source CURRENT across four phases",
+      "observer": "four phase matrix generators",
+      "oracle": "source status/matrix identity pins; not PDP closure"
+    },
+    {
+      "command": "node scripts/generate-media-early-business-scenario.mjs --check",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "4 ordered journeys; 2 current source-derived blockers; generated source selectors and material pins current",
+      "observer": "scenario generator check mode",
+      "oracle": "current source selectors, exact purpose joins, and generated artifact equality"
+    },
+    {
+      "command": "node scripts/check-media-build-contract-bridge.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "3,186 identities; 8,667 edges; deterministic/current",
+      "observer": "bridge checker",
+      "oracle": "source selectors and trace joins"
+    },
+    {
+      "command": "node scripts/generate-media-build-bridge-blocker-inventory.mjs --check",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "zero unresolved source identities, blockers, missing P1 refs, cross-layer relations, and handoff selectors",
+      "observer": "blocker inventory generator check mode",
+      "oracle": "bridge census; source currentness only"
+    },
+    {
+      "command": "node --test tests/media-build-bridge-blocker-inventory.test.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 5,
+        "failed": 0
+      },
+      "observer": "Node.js node:test",
+      "oracle": "source blocker inventory contract; no task acceptance"
+    },
+    {
+      "command": "node scripts/generate-media-gtool-execution-queue.mjs --check",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "19 tasks remain open; 3,186 trace identities; 8,667 bridge edges; zero unresolved source blockers",
+      "observer": "execution queue generator check mode",
+      "oracle": "queue projections match owner dispositions and source blocker census"
+    },
+    {
+      "command": "node --test tests/media-gtool-execution-queue.test.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 6,
+        "failed": 0
+      },
+      "observer": "Node.js node:test",
+      "oracle": "queue invariants; no task acceptance or Plan Ready"
+    },
+    {
+      "command": "node scripts/generate-media-build-work-packages.mjs --check",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "50 packages; 57 tasks; 54 surfaces; 3,186 identities",
+      "observer": "work-package generator check mode",
+      "oracle": "source pins and generated trace consistency"
+    },
+    {
+      "command": "node scripts/check-media-build-plan-task-closure.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "57 tasks; 50 packages; 54 surfaces; taskClosure=PENDING; planReady=PENDING; approvalEvidenceStatus=MISSING",
+      "observer": "Build plan task closure checker",
+      "oracle": "planning structure only; no authenticated Planner transition"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "no whitespace errors in the current diff",
+      "observer": "Git diff checker",
+      "oracle": "patch whitespace only"
+    },
+    {
+      "command": "node --test tests/media-build-work-packages-generator.test.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 2,
+        "failed": 0
+      },
+      "coverage": [
+        "deterministic 50-package/57-task/54-surface/3,186-trace handoff",
+        "all 54 surfaces joined to four current matrix applicability rows",
+        "21 logical consumers use exact registry disposition/rationale selectors",
+        "desktop archive remains NOT_ACTIVE_ARCHIVED",
+        "mutation tests reject stale, missing, or altered surface applicability/disposition and denominator drift"
+      ],
+      "observer": "Node.js node:test plus source-derived handoff generator",
+      "oracle": "canonical topology, surface registry, four phase matrices, and projection mutation assertions; no task acceptance"
+    },
+    {
+      "command": "node scripts/generate-media-build-work-packages.mjs --check",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "50 packages; 57 tasks; 54 surfaces; 3,186 identities; generated projection deterministic/current",
+      "observer": "work-package generator check mode",
+      "oracle": "source selectors and byte-identical projection"
+    },
+    {
+      "command": "node scripts/check-media-build-plan-task-closure.mjs",
+      "exitCode": 0,
+      "result": "PASS_STRUCTURAL_PENDING",
+      "trace": "57 tasks; 50 packages; 54 surfaces; taskClosure=PENDING; planReady=PENDING; approvalEvidenceStatus=MISSING",
+      "observer": "Media structural task-closure validator",
+      "oracle": "task/package/surface structure; absence of authenticated owner approval remains explicit"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "no whitespace errors in the current diff",
+      "observer": "Git whitespace checker",
+      "oracle": "current worktree diff only"
+    },
+    {
+      "command": "node scripts/gtool-media-method-dogfood.mjs --output docs/engineering/MEDIA_GTOOL_METHOD_READBACK_20261023_G0_REFRESH2.json; node scripts/gtool-media-phase-status-io.mjs --input docs/engineering/MEDIA_GTOOL_METHOD_READBACK_20261023_G0_REFRESH2.json --output docs/engineering/MEDIA_PHASE_STATUS_IO_20261023_G0_REFRESH2.json",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "SOURCE_DEFINITION_READBACK_PASS; SOURCE_DEFINITION_DEV_COMPLETE_CURRENT; 54 identities; 216 phase cells; 54/54 current and zero local tasks in each PDP phase; source fingerprint sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
+      "observer": "Lifecycle method dogfood and source-progression projection",
+      "oracle": "Source-current PDP definitions only; read-only; no native acceptance, closure, Build Plan Ready or Delivery."
+    },
+    {
+      "command": "pnpm run check:pdp3-recording-source -- --g0-status /Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/MEDIA_PHASE_STATUS_IO_20261023_G0_REFRESH2.json",
+      "exitCode": 0,
+      "result": "PASS",
+      "trace": "1 selected scenario; simulated candidate only",
+      "observer": "PDP-3 recording-source generator check mode",
+      "oracle": "Refreshed G0 source currentness and candidate-only recording schema; no Build recording or equivalence oracle."
+    },
+    {
+      "command": "node --test tests/media-pdp3-recording-source.test.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "counts": {
+        "passed": 2,
+        "failed": 0
+      },
+      "observer": "Node.js node:test",
+      "oracle": "Fresh G0 currentness and simulated candidate-only recording contract."
+    }
+  ],
+  "runtimeEffectsAndFailureHandling": {
+    "runtimeMutations": "NONE; no product runtime, database, provider, trust root, source snapshot archive, deployment or real capture was exercised.",
+    "positiveEvidence": "F00 bridge source joins and L01 scenario source bindings are current; exact selector negative tests, generator checks, focused scenario tests, queue/work-package checks, and plan-structure checks pass. No product runtime or real capture was exercised. F00.T03 surface handoff now includes current per-phase applicability and source selectors for all 54 identities; its local test and structural check pass.",
+    "negativeUnknownCancellationRecovery": "No runtime denial/UNKNOWN/cancellation/recovery path was exercised. Negative source-level tests reject stale selectors, missing joins, unadmitted channels, denominator drift, invented links, false completion/waiver, and stale source pins. T03 mutation cases reject missing/altered registry disposition, rationale, stale phase currentness, and dropped surface identities.",
+    "traceObserverOracle": "Observed traces are generator/checker outputs and Node test counts. Oracles are assertions over current source identities, selectors, joins, statuses and denominators. No runtime observer, product postcondition oracle, external owner readback or native receipt exists.",
+    "cleanupRollback": "No runtime side effects to clean up or roll back. Derived work-package projection was regenerated deterministically and checked current; owner-controlled state was not mutated.",
+    "sameOwnerStateReadback": "NOT_AVAILABLE. Local owner-disposition and Work Planner projections were read; authenticated same-owner task acceptance/readback is absent.",
+    "unaffectedReceiptsToReuse": [],
+    "nativeReceiptCount": 0
+  },
+  "blockersAndNextActions": {
+    "resolvedSourceBlockers": [
+      "F00 semantic bridge source joins: 3,186 identities/8,667 edges now have zero unresolved source blockers.",
+      "L01.T01 now pins PDP-2 production-studio presentation, the scene-storyboard composition and audio-only profile, the PDP-3 workspace proposal, and exact PDP-3 purpose bindings for all 24 journey steps; 12 focused tests pass.",
+      "F00.T03 now preserves source-backed topology and logical-consumer disposition/rationale for all 54 identities, with four current phase-applicability records per identity; the desktop archive remains explicitly NOT_ACTIVE_ARCHIVED. Focused package generator tests pass 2/2 and all 3,186 code-symbol slots remain UNBOUND."
+    ],
+    "openBlockers": [
+      "F00.T02 and F00.T03 owner/task acceptance remains ASSIGNED_UNVERIFIED.",
+      "Kernel Work Planner Plan Ready and selected per-task plan gate remain unproven; local `gtool --help` fails because its configured ghatana-tools/tools/gtool/bin/gtool.mjs module is absent, and Lifecycle’s available CLI lists only help/discover/catalog commands.",
+      "AP02 host trust config/root and registered trusted verifier selection are absent; trusted authority provisioning is required.",
+      "AP03 owner-selected source membership/archive and authenticated Planner currentness/readback are absent; current PDP source members are dirty and not committed-current.",
+      "G4 owner-reviewed PDP0 obligation-to-case/executable oracle mapping is absent: 0/4,028 PDP0 slots candidate-linked; no admission or receipt.",
+      "L01.T01 real PRODUCT_EXECUTED recording remains blocked: neither media.channel.web nor media.channel.cli has runtime admission; Explorer remains simulated only.",
+      "L01.T01 voice style and narration wording are still editorial because PDP-2/PDP-3 do not define a canonical voice/narration authority; the design-only PDP-3 workspace remains UNBOUND_PROPOSAL.",
+      "L01.T01 board acceptance phrase requires 25 existing source blockers, but no 25-item authoritative inventory exists; exact current scenario blockers are retained and formal acceptance remains open pending owner disposition of this mismatch.",
+      "L01.T02 read-only package audit: Gharbatai tooling/experience-recorder is private @ghatana/experience-recorder@0.0.0, has no license field, lists @playwright/test as a runtime dependency, and has no direct production package consumer. The source-neutral capture-core export exists, while legacy capture imports Playwright Page; the existing packed fixture targets @gharbatai/demo-recorder, not this package. Media has no selected capture-adapter source path/API. Selected Work Planner task gate remains unconfirmed; no pack/install/test/capture was run; real host permission and real-frame qualification are absent.",
+      "No real canonical writer/provider/job/caption-version outcome for G8/G10; no native closure receipts; release authorization is absent."
+    ],
+    "nextAdmittedWave": "Fresh G0 and source-only G9 candidate preflight are current; F00.T02/F00.T03 and L01.T01 source criteria pass but task acceptance remains open. A read-only L01.T02 audit found a private recorder package with a source-neutral capture-core export, but no license closure, no Media adapter path/API selection, no packed-consumer test for this package, and no confirmed selected Work Planner gate. Do not start implementation/packing/capture until the task gate and owner-selected ABI/adapter boundary are present. In parallel, trust-authority/Planner hosts must provision AP02/AP03 and source selection, and the Media owner/proof authority must resolve exact PDP0 case/oracle assignments. Re-evaluate each dependent task from its own source and predecessor records.",
+    "noStageTransition": "Do not transition to DELIVER. Continue BUILD only on units whose exact task and Work Planner prerequisites pass."
+  },
+  "fileInventory": {
+    "campaignExecutionArtifacts": [
+      {
+        "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+        "sha256": "sha256:36ebe16b25d04318b73275e156c70e231bc54a65d74105978b494dd0a8123bf2",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
+        "sha256": "sha256:78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+        "sha256": "sha256:7bd4a55fda9a4ee3fa59f0acb04835e68af31a5a8da324e7b98037c4ca08e817",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
+        "sha256": "sha256:5b7525a1899e7b58c32a11273039db727efc8b1879b629ff83c7ec4a48a27b16",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json",
+        "sha256": "sha256:f417a1d8445c6613a42536f9b8c6911dc2f249215c3a52a3f192df2e81328f79",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
+        "sha256": "sha256:aba483c3102a7883b68ea4d3886c28e4efcfd35dcfa90a72c70fdec599c5c9bb",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "config/closure/media-product-definition/w3-pdp0-source-case-map.json",
+        "sha256": "sha256:448838966fd202f4d6c0fd5f3cfb5cf4193e826bae26a433f4925185d201e289",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "scripts/lib/media-build-bridge-blocker-inventory.mjs",
+        "sha256": "sha256:724ecdbf73f37d28ede62861c8373673476894db2e28401cf02f5d2a05558d78",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "scripts/lib/media-build-semantic-source-joins.mjs",
+        "sha256": "sha256:5e8215126f17742fa6b98b6040d97120330aac97818d69da1b23ba3cc3f091ba",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "scripts/lib/media-early-business-scenario.mjs",
+        "sha256": "sha256:17aefa1fa82609380ccdbd149570a8cbce8739829245b747e92a9c22bd6dbc82",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "scripts/lib/media-gtool-execution-queue.mjs",
+        "sha256": "sha256:67392f7df8b2866b5a69f77dc3a3f1cc22ed48c520951f3106376ce399ff3da2",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "scripts/generate-media-gtool-execution-queue.mjs",
+        "sha256": "sha256:e53a5fdb5792be1298ce639512797c011391a26875188822666e43705e6154ab",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "scripts/generate-media-pdp3-recording-source.mjs",
+        "sha256": "sha256:6917420907d261e29c7b60f45b84d565ece39a4af8c6bc96703db4978ff443b0",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "tests/media-build-bridge-blocker-inventory.test.mjs",
+        "sha256": "sha256:d14234f3e73e1dbe91ff740e95cc889ee31e992603668da2aacded1019b6dc04",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "tests/media-build-work-packages-generator.test.mjs",
+        "sha256": "sha256:e5e36ec0861c0cb57eb8e236356d07a256f8586d527fae28b0f4e3e2d878e0d8",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "tests/media-early-business-scenario.test.mjs",
+        "sha256": "sha256:ec9482dbceba78ef429a6bb12890296f9ca535167d4c7b9278956d67a55b540a",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "tests/media-gtool-execution-queue.test.mjs",
+        "sha256": "sha256:6ca71e7c2ddbbb00b4c355f5c3c802f9ff71cf6b439530e0120930f76416871b",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "tests/media-pdp3-recording-source.test.mjs",
+        "sha256": "sha256:79d4726c3a630ae195cf92fa7e13cbe0b56e24bd945e28038c91b4a9e820a05d",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "package.json",
+        "sha256": "sha256:72a2110dead800f4d412cf09fcd38cee5d4e1ad16f56715e23f9a1bfad1f7dfe",
+        "changeScope": "campaign execution artifact"
+      },
+      {
+        "path": "scripts/generate-media-build-work-packages.mjs",
+        "changeScope": "campaign execution artifact",
+        "sha256": "sha256:aeacfd7e1bf9ab2442a9db8a412cc38c3d60bc2f6dcce91ea82a28a5f547f5c0"
+      },
+      {
+        "path": "scripts/lib/media-build-work-package-surfaces.mjs",
+        "changeScope": "campaign execution artifact",
+        "sha256": "sha256:c69df4fa04961c6275fcae9de566c405f3a5e0ee53393ec13212a852734e00be"
+      },
+      {
+        "path": "scripts/lib/media-build-work-packages-validation.mjs",
+        "changeScope": "campaign execution artifact",
+        "sha256": "sha256:ef00bf2cd32aa70d90ee08be6eb31b85541b1247a380ddaed42742980b6bb4e4"
+      }
+    ],
+    "sourceAndMaterialDigests": [
+      {
+        "path": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+        "sha256": "sha256:9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"
+      },
+      {
+        "path": "config/closure/media-product-definition/w3-pdp0-source-case-map.json",
+        "sha256": "sha256:448838966fd202f4d6c0fd5f3cfb5cf4193e826bae26a433f4925185d201e289"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
+        "sha256": "sha256:78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+        "sha256": "sha256:36ebe16b25d04318b73275e156c70e231bc54a65d74105978b494dd0a8123bf2"
+      },
+      {
+        "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+        "sha256": "sha256:7bd4a55fda9a4ee3fa59f0acb04835e68af31a5a8da324e7b98037c4ca08e817"
+      },
+      {
+        "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
+        "sha256": "sha256:5b7525a1899e7b58c32a11273039db727efc8b1879b629ff83c7ec4a48a27b16"
+      },
+      {
+        "path": "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json",
+        "sha256": "sha256:f417a1d8445c6613a42536f9b8c6911dc2f249215c3a52a3f192df2e81328f79"
+      },
+      {
+        "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
+        "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a"
+      },
+      {
+        "path": "docs/implementation/MEDIA-PDP0-3-GTOOL-EXECUTION-BOARD.v2.md",
+        "sha256": "sha256:fd1abb612cb0170a413b791c116083c6376405f3bf16639c16bea3633b10d733"
+      },
+      {
+        "path": "docs/implementation/MEDIA-PDP0-3-GTOOL-OWNER-APPROVED-EXECUTION.md",
+        "sha256": "sha256:fd97a5d5be58e745c36c81a6272ebb3a97b280eb7ae9da7e0e16cfe9ae0b344f"
+      },
+      {
+        "path": "docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
+        "sha256": "sha256:aba483c3102a7883b68ea4d3886c28e4efcfd35dcfa90a72c70fdec599c5c9bb"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+      },
+      {
+        "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+      },
+      {
+        "path": "package.json",
+        "sha256": "sha256:72a2110dead800f4d412cf09fcd38cee5d4e1ad16f56715e23f9a1bfad1f7dfe"
+      },
+      {
+        "path": "scripts/generate-media-build-work-packages.mjs",
+        "sha256": "sha256:aeacfd7e1bf9ab2442a9db8a412cc38c3d60bc2f6dcce91ea82a28a5f547f5c0"
+      },
+      {
+        "path": "scripts/generate-media-gtool-execution-queue.mjs",
+        "sha256": "sha256:e53a5fdb5792be1298ce639512797c011391a26875188822666e43705e6154ab"
+      },
+      {
+        "path": "scripts/generate-media-pdp3-recording-source.mjs",
+        "sha256": "sha256:6917420907d261e29c7b60f45b84d565ece39a4af8c6bc96703db4978ff443b0"
+      },
+      {
+        "path": "scripts/lib/media-build-bridge-blocker-inventory.mjs",
+        "sha256": "sha256:724ecdbf73f37d28ede62861c8373673476894db2e28401cf02f5d2a05558d78"
+      },
+      {
+        "path": "scripts/lib/media-build-semantic-source-joins.mjs",
+        "sha256": "sha256:5e8215126f17742fa6b98b6040d97120330aac97818d69da1b23ba3cc3f091ba"
+      },
+      {
+        "path": "scripts/lib/media-build-work-package-surfaces.mjs",
+        "sha256": "sha256:c69df4fa04961c6275fcae9de566c405f3a5e0ee53393ec13212a852734e00be"
+      },
+      {
+        "path": "scripts/lib/media-build-work-packages-validation.mjs",
+        "sha256": "sha256:ef00bf2cd32aa70d90ee08be6eb31b85541b1247a380ddaed42742980b6bb4e4"
+      },
+      {
+        "path": "scripts/lib/media-early-business-scenario.mjs",
+        "sha256": "sha256:17aefa1fa82609380ccdbd149570a8cbce8739829245b747e92a9c22bd6dbc82"
+      },
+      {
+        "path": "scripts/lib/media-gtool-execution-queue.mjs",
+        "sha256": "sha256:67392f7df8b2866b5a69f77dc3a3f1cc22ed48c520951f3106376ce399ff3da2"
+      },
+      {
+        "path": "tests/media-build-bridge-blocker-inventory.test.mjs",
+        "sha256": "sha256:d14234f3e73e1dbe91ff740e95cc889ee31e992603668da2aacded1019b6dc04"
+      },
+      {
+        "path": "tests/media-build-work-packages-generator.test.mjs",
+        "sha256": "sha256:e5e36ec0861c0cb57eb8e236356d07a256f8586d527fae28b0f4e3e2d878e0d8"
+      },
+      {
+        "path": "tests/media-early-business-scenario.test.mjs",
+        "sha256": "sha256:ec9482dbceba78ef429a6bb12890296f9ca535167d4c7b9278956d67a55b540a"
+      },
+      {
+        "path": "tests/media-gtool-execution-queue.test.mjs",
+        "sha256": "sha256:6ca71e7c2ddbbb00b4c355f5c3c802f9ff71cf6b439530e0120930f76416871b"
+      },
+      {
+        "path": "tests/media-pdp3-recording-source.test.mjs",
+        "sha256": "sha256:79d4726c3a630ae195cf92fa7e13cbe0b56e24bd945e28038c91b4a9e820a05d"
+      },
+      {
+        "path": "tests/media-w3-source-case-map.test.mjs",
+        "sha256": "sha256:c473941bd2dda57acbd06b7b1e960e8296a07a412b68135b117c5dcb471c439b"
+      },
+      {
+        "path": "/Users/samujjwal/Development/gharbatai/tooling/experience-recorder/package.json",
+        "sha256": "sha256:00acbf189481e7a3893b2286a8760a47073250abce972b12e646c434530285f1"
+      },
+      {
+        "path": "/Users/samujjwal/Development/gharbatai/tooling/experience-recorder/src/capture/core-contracts.ts",
+        "sha256": "sha256:2ad820c9b73091786124812576ae59a46c3493874fad9c645cfc235103f18d27"
+      },
+      {
+        "path": "/Users/samujjwal/Development/gharbatai/tooling/experience-recorder/src/capture/contracts.ts",
+        "sha256": "sha256:020e44b0baffc46c5ada976aa6898fedc75f69e80525b704212f5c2525671312"
+      },
+      {
+        "path": "/Users/samujjwal/Development/gharbatai/tooling/experience-recorder/CONSUMERS.md",
+        "sha256": "sha256:e56d628e422cad1afcbc2775e1daa30bbc3b91b3511b7ec99b3c7e644e84c415"
+      },
+      {
+        "path": "/Users/samujjwal/Development/gharbatai/tooling/demo-recording/test/helpers/installed-demo-recorder-package.mjs",
+        "sha256": "sha256:6148b3cf6ac6c13488d61fe2735c0c121f58102ff979c0afabae6fc4bd977c6a"
+      }
+    ],
+    "currentDirtyWorktreePathsSinceHead": [
+      {
+        "status": "M",
+        "path": ".product-experience/interface-parity/current-source-review.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "AGENTS.md",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "config/closure/media-product-definition/w3-pdp0-source-case-map.json",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/pdp-0-phase-dev-status.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/pdp-1-phase-dev-status.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/pdp-2-phase-dev-status.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/pdp-3-phase-dev-status.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P0-01.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P0-02.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P0-04.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P0-05.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P0-06.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P0-07.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P1-01.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P1-02.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P1-03.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P1-06.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P1-07.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/P1-09.log",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "M",
+        "path": "package.json",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "scripts/generate-media-build-work-packages.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "scripts/lib/media-build-bridge-blocker-inventory.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "scripts/lib/media-build-semantic-source-joins.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "scripts/lib/media-build-work-packages-validation.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "scripts/lib/media-early-business-scenario.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "tests/media-build-bridge-blocker-inventory.test.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "tests/media-build-work-packages-generator.test.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "M",
+        "path": "tests/media-early-business-scenario.test.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "??",
+        "path": "docs/implementation/evidence/media-gtool-campaign/",
+        "attribution": "present in dirty worktree; authorship not inferred"
+      },
+      {
+        "status": "??",
+        "path": "docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "??",
+        "path": "scripts/generate-media-gtool-execution-queue.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "??",
+        "path": "scripts/generate-media-pdp3-recording-source.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "??",
+        "path": "scripts/lib/media-build-work-package-surfaces.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "??",
+        "path": "scripts/lib/media-gtool-execution-queue.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "??",
+        "path": "tests/media-gtool-execution-queue.test.mjs",
+        "attribution": "campaign execution artifact"
+      },
+      {
+        "status": "??",
+        "path": "tests/media-pdp3-recording-source.test.mjs",
+        "attribution": "campaign execution artifact"
+      }
+    ],
+    "attributionRule": "Paths listed as campaign execution artifacts are source-scoped campaign changes. Other dirty paths remain attributed only as present in the worktree. This follow-up evidence record is listed but its own digest is excluded. No cleanup, staging, commit, or push was performed."
+  },
+  "reportReview": {
+    "result": "PASS",
+    "reviewer": "Read-only independent Luna subagent consistency review",
+    "scope": [
+      "JSON integrity",
+      "all 19 owner-approved task IDs/order and unchanged queue states",
+      "54/216 campaign denominators",
+      "all current source/material digests and dirty paths",
+      "L01 source binding evidence and focused tests",
+      "F00.T03 source handoff and negative tests",
+      "explicit blockers and authority boundaries",
+      "fresh G0 method/status report paths, hashes, Lifecycle HEAD and source fingerprint",
+      "G9 candidate-only preflight and focused test results",
+      "G5 local CLI absence and unchanged authority boundaries",
+      "read-only L01.T02 package ABI/license/dependency and Media adapter boundary findings",
+      "G5 CLI availability check and current Lifecycle CLI scope",
+      "unique open-blocker IDs/order after repair",
+      "five exact Gharbatai source file digests for L01.T02 audit"
+    ],
+    "finding": "All 10 blocker entries are distinct; all five Gharbatai source digests match current bytes. Task statuses/order, denominators, G0/G9 evidence, G2/G3/G5 blockers, dirty-path inventory and authority boundaries are consistent. Review establishes report consistency only.",
+    "authority": "Report consistency only; not owner acceptance, formal task verification, native proof, closure, Plan Ready or release authorization."
+  }
+}

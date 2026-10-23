@@ -125,6 +125,11 @@ test('direct-criterion projection validates bounded P0 current-source pin and qu
     predecessorSourceFingerprints: sourcePins, currentSourceFingerprints: sourcePins,
     scopedClauseFingerprints: [{sourceRef: 'source.yaml#clause', claimIdentities: ['CLAIM-1'], predecessorSha256: hash, currentSha256: hash}],
     semanticReview: 'NOT_PERFORMED', ownerApproval: 'NOT_CLAIMED', acceptanceEffect: 'none',
+    ...(['PXD-208', 'PXD-209'].includes(decision) ? {currentnessAuthority: {
+      decisionRef: '.product-experience/decision-log.md#PXD-225',
+      artifactRef: 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json',
+      artifactSha256: hash, decisionSectionSha256: hash,
+    }} : {}),
     decisionContextFingerprint: {sourceRef: `.product-experience/decision-log.md#${decision}-section`, sha256: hash}});
   const changedJoins = [
     ...['media.compose.multitrack-timeline', 'media.compose.reusable-composition', 'media.compose.safe-area'].map(capabilityId => ({capabilityId,
@@ -136,11 +141,11 @@ test('direct-criterion projection validates bounded P0 current-source pin and qu
       previousOutputArtifactTypesSha256: hash, currentOutputArtifactTypesSha256: hash},
   ];
   const projectionRefresh = {status: 'CURRENT_PDP0_QUALITY_PROJECTION_REFRESH', phaseScope: 'PDP-0',
-    decisionContextRefs: ['.product-experience/decision-log.md#PXD-207', '.product-experience/decision-log.md#PXD-208'],
+    decisionContextRefs: ['.product-experience/decision-log.md#PXD-207', '.product-experience/decision-log.md#PXD-208', '.product-experience/decision-log.md#PXD-225'],
     preservesReviewRef: '.product-experience/decision-log.md#PXD-196',
-    projectionArtifactRef: 'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json', projectionArtifactSha256: hash,
+    projectionArtifactRef: 'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json', projectionArtifactSha256: hash,
     sourceFingerprints: sourcePins,
-    decisionContextFingerprints: {'.product-experience/decision-log.md#PXD-207-section': hash, '.product-experience/decision-log.md#PXD-208-section': hash},
+    decisionContextFingerprints: {'.product-experience/decision-log.md#PXD-207-section': hash, '.product-experience/decision-log.md#PXD-208-section': hash, '.product-experience/decision-log.md#PXD-225-section': hash},
     changedJoins, semanticDecision: 'NOT_MADE', ownerApproval: 'NOT_CLAIMED', acceptanceEffect: 'none'};
   const source = {schemaVersion: 'v1', decisionRef: 'global', authority: 'coordinator', records: [
     {...criterion('P0-02'), currentSourcePinRefresh: pinRefresh('PXD-207')},
@@ -150,6 +155,9 @@ test('direct-criterion projection validates bounded P0 current-source pin and qu
   const baseline = projectPdp0DirectCriterionReviews(source);
   assert.equal(baseline.records.find(row => row.taskId === 'P0-02').currentSourcePinRefresh.semanticReview, 'NOT_PERFORMED');
   assert.equal(baseline.records.find(row => row.taskId === 'P0-06').currentProjectionRefresh.changedJoins.length, 5);
+  const legacyQualityProjection = structuredClone(source);
+  legacyQualityProjection.records.find(row => row.taskId === 'P0-06').currentProjectionRefresh.projectionArtifactRef = 'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json';
+  assert.throws(() => projectPdp0DirectCriterionReviews(legacyQualityProjection), /invalid scope, source, or authority boundary/);
   const falseCurrentness = structuredClone(source);
   falseCurrentness.records.find(row => row.taskId === 'P0-02').currentSourcePinRefresh.scopedClauseFingerprints[0].currentSha256 = 'c'.repeat(64);
   assert.throws(() => projectPdp0DirectCriterionReviews(falseCurrentness), /non-equal currentness/);
@@ -177,6 +185,9 @@ test('P0-07 currentness refresh is limited to unchanged import channel and ident
   current['.product-experience/decision-log.md#PXD-209-section'] = hash;
   const refresh = {status: 'CURRENT_SOURCE_PIN_REFRESH_ONLY', phaseScope: 'PDP-0', decisionContextRef: '.product-experience/decision-log.md#PXD-209',
     preservesReviewRef: '.product-experience/decision-log.md#PXD-196', predecessorSourceFingerprints: predecessor, currentSourceFingerprints: current,
+    currentnessAuthority: {decisionRef: '.product-experience/decision-log.md#PXD-225',
+      artifactRef: 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json',
+      artifactSha256: hash, decisionSectionSha256: hash},
     decisionContextFingerprint: {sourceRef: '.product-experience/decision-log.md#PXD-209-section', sha256: hash},
     scopedClauseFingerprints: [
       {sourceRef: '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=media.artifact.import/channelApplicability',

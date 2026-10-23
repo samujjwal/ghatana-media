@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "media.l01-t02-packed-consumer-observation.v1",
+  "taskId": "M-BLD-L01.T02",
+  "observedAt": "2026-10-23T06:06:42Z",
+  "status": "LOCAL_PACKED_CONSUMER_PREPARATION_PASS",
+  "authority": "LOCAL_BUILD_OBSERVATION_ONLY_NOT_TASK_ACCEPTANCE_NOT_PACKAGE_PUBLICATION_NOT_CAPTURE_AUTHORIZATION",
+  "source": {
+    "repository": "/Users/samujjwal/Development/gharbatai",
+    "head": "7a4b58f8224882620c5b951e14af5dd42efaa2e6",
+    "worktreeNote": "scenario-director.test.mjs has the authorized local test-harness alias fix; packed package contents are dist, package.json, and README.md",
+    "packageName": "@ghatana/experience-recorder",
+    "packageVersion": "0.0.0",
+    "packagePrivate": true,
+    "licenseField": null,
+    "runtimeDependencies": [
+      "@playwright/test",
+      "ajv",
+      "yaml"
+    ]
+  },
+  "artifact": {
+    "kind": "pnpm-pack-tarball",
+    "temporaryPath": "/tmp/ghatana-experience-recorder-qualification/ghatana-experience-recorder-0.0.0.tgz",
+    "sha256": "aa9c30f8a62584087a072fcf1bef9093ef2ca0d83778cb61fde5ce94183726f2"
+  },
+  "checks": [
+    {
+      "command": "pnpm pack --pack-destination /tmp/ghatana-experience-recorder-qualification",
+      "result": "PASS"
+    },
+    {
+      "command": "CI=true pnpm install --ignore-scripts in standalone consumer against the packed tarball",
+      "result": "PASS",
+      "packageManagerVersion": "11.14.0"
+    },
+    {
+      "command": "dynamic import of all 15 declared package subpaths from the installed tarball",
+      "result": "PASS",
+      "resolvedSubpaths": 15,
+      "typeOnlySubpaths": [
+        "./capture-core",
+        "./playwright-capture-context",
+        "./capture"
+      ]
+    },
+    {
+      "command": "pnpm exec tsc -p /tmp/ghatana-experience-recorder-consumer/tsconfig.json",
+      "result": "PASS",
+      "typescriptVersion": "5.8.2",
+      "consumerImports": [
+        "@ghatana/experience-recorder/capture-core",
+        "@ghatana/experience-recorder/capture-selection"
+      ]
+    },
+    {
+      "command": "pnpm --filter @ghatana/experience-recorder test:unit",
+      "result": "PASS",
+      "passed": 163,
+      "failed": 0,
+      "skipped": 0,
+      "note": "Focused package unit run recorded after the local test-harness alias repair."
+    }
+  ],
+  "remainingBlockers": [
+    "package remains private and version 0.0.0; no publication or dependency promotion is authorized by this observation",
+    "package has no license field or owner-approved license/dependency disposition",
+    "no Media capture adapter or host/channel permission is selected",
+    "no real-frame capture or capture-provider qualification was performed",
+    "no credential-leakage or real capture permission test was performed",
+    "Work Planner task admission and formal task acceptance remain unobserved"
+  ],
+  "consumerEnvironment": {
+    "packageManager": "pnpm",
+    "packageManagerVersion": "11.14.0",
+    "typescriptVersion": "5.8.2",
+    "installScripts": "DISABLED"
+  }
+}

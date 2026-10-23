@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import yaml from 'yaml';
 import { validateBuildWorkPackageProjection } from './lib/media-build-work-packages-validation.mjs';
+import { buildMediaBuildSurfaceHandoff } from './lib/media-build-work-package-surfaces.mjs';
 import { buildSemanticSourceJoins } from './lib/media-build-semantic-source-joins.mjs';
 import { pdp0PhaseScopedSourcePins } from './report-media-pdp-readiness.mjs';
 
@@ -20,8 +21,10 @@ const topology = json(topologyPath);
 const trace = json(tracePath);
 const purposePath = '.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml';
 const channelPath = '.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml';
+const surfaceRegistryPath = '.product-experience/surface-registry.yaml';
 const purpose = yaml.parse(read(purposePath));
 const channel = yaml.parse(read(channelPath));
+const surfaceRegistry = yaml.parse(read(surfaceRegistryPath)).surfaces;
 const errors = [];
 function unique(values, label) {
   const seen = new Set();
@@ -79,12 +82,8 @@ for (const p of packages) visit(p.id);
 unique(channel.edges.map(e => e.id), 'channel edges');
 const candidates = topology.manifestCandidates;
 const cross = topology.consumerCrosswalk;
-const surfaces = [
-  ...candidates.map(x => ({ id: x.surfaceId, type: 'physical', applicability: x.phaseApplicability ?? {} })),
-  ...topology.compositions.map(x => ({ id: x.surfaceId, type: 'composition', compositionKind: x.kind, applicability: x.phaseApplicability ?? {} })),
-  ...cross.map(x => ({ id: x.surfaceId, type: 'logical', disposition: x.disposition, applicability: x.phaseApplicability ?? {} }))
-];
-unique(surfaces.map(x => x.id), 'surface IDs');
+const surfaceIds = [...candidates, ...topology.compositions, ...cross].map(x => x.surfaceId);
+unique(surfaceIds, 'surface IDs');
 const statusPaths = [0, 1, 2, 3].map(i => `docs/implementation/pdp-${i}-phase-dev-status.json`);
 const matrixPaths = [0, 1, 2, 3].map(i => `docs/implementation/verification/pdp-38/pdp${i}-surface-phase-status-matrix.json`);
 const statuses = statusPaths.map(p => {
@@ -100,24 +99,30 @@ const materialSources = statusPaths.flatMap((p, i) => {
   });
 });
 const staleMaterialSources = materialSources.filter(x => x.status !== 'CURRENT');
-const matrices = matrixPaths.map(p => {
-  const matrix = json(p);
+const matrixDocuments = matrixPaths.map(path => ({ path, matrix: json(path) }));
+const matrices = matrixDocuments.map(({ path, matrix }) => {
   const ids = matrix.surfaces.map(x => x.surfaceId);
-  if (ids.length !== 54 || new Set(ids).size !== 54 || matrix.campaign?.status !== 'DEV_COMPLETE' || matrix.phaseSourceCurrentness?.status !== 'CURRENT') throw new Error(`${p}: expected 54 unique CURRENT DEV_COMPLETE surface rows`);
-  return { path: p, sha256: sha(p), rowCount: ids.length, surfaceIds: ids, phase: matrix.campaign.phase, sourceCurrentness: matrix.phaseSourceCurrentness.status, status: matrix.campaign.status };
+  if (ids.length !== 54 || new Set(ids).size !== 54 || matrix.campaign?.status !== 'DEV_COMPLETE' || matrix.phaseSourceCurrentness?.status !== 'CURRENT') throw new Error(`${path}: expected 54 unique CURRENT DEV_COMPLETE surface rows`);
+  return { path, sha256: sha(path), rowCount: ids.length, surfaceIds: ids, phase: matrix.campaign.phase, sourceCurrentness: matrix.phaseSourceCurrentness.status, status: matrix.campaign.status };
 });
+const surfaces = buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matrices: matrixDocuments });
 const topologySurfaceIds = new Set(surfaces.map(x => x.id));
 for (const matrix of matrices) if (matrix.surfaceIds.some(id => !topologySurfaceIds.has(id)) || [...topologySurfaceIds].some(id => !matrix.surfaceIds.includes(id))) throw new Error(`${matrix.path}: surface membership differs from topology`);
 const earlyRecordingJourneyIds = ['J-01', 'J-02', 'J-20', 'J-03'];
 const earlyJourneySet = new Set(earlyRecordingJourneyIds);
 const earlyJourneyContractPaths = channel.edges.filter(edge => earlyJourneySet.has(edge.journeyRef)).map(edge => edge.journeyContractRef);
-const sourcePaths = [...new Set([planPath, tracePath, topologyPath, '.product-experience/surface-registry.yaml', '.product-experience/source-manifest.yaml', purposePath, channelPath, ...earlyJourneyContractPaths, ...semanticBridge.sourceFiles, ...statusPaths, ...matrixPaths])].sort();
+const sourcePaths = [...new Set([planPath, tracePath, topologyPath, surfaceRegistryPath, '.product-experience/source-manifest.yaml', purposePath, channelPath, ...earlyJourneyContractPaths, ...semanticBridge.sourceFiles, ...statusPaths, ...matrixPaths])].sort();
 const textField = (section, label) => section.match(new RegExp(`\\*\\*${label}:\\*\\*\\s*([^\\n]+(?:\\n(?!\\*\\*)[^\\n]+)*)`))?.[1]?.trim() ?? '';
 const taskRows = packages.map(p => {
   const taskId = `${p.id}.T01`;
   const owned = joins.filter(r => r.primaryPackageId === p.id);
   const targetText = textField(p.section, 'Canonical source/target paths') || textField(p.section, 'Canonical source paths');
   const testsText = textField(p.section, 'Test layers / commands');
+  const testIds = label => textField(p.section, label).split(/\n+/u)
+    .map(line => line.match(/M-BLD-F\d+\.T\d+\.(?:POSITIVE|ADVERSARIAL)\.[A-Z0-9_.]+/u)?.[0])
+    .filter(Boolean);
+  const positiveTestIds = testIds('Positive test IDs');
+  const adversarialTestIds = testIds('Adversarial test IDs');
   const acceptance = textField(p.section, 'Observable acceptance / completion evidence') || 'Package-specific acceptance details are absent from the plan section and remain unresolved.';
   const outcome = textField(p.section, 'Outcome & scope') || p.title;
   const owner = textField(p.section, 'Owner / exclusive write boundary') || 'Package owner role unresolved in source plan.';
@@ -130,7 +135,11 @@ const taskRows = packages.map(p => {
     fingerprints: { sourcePins: sourcePaths.map(path => ({ path, sha256: sha(path) })), binaryAbi: { status: 'UNBOUND', value: null, blocker: 'No binary ABI fingerprint is asserted by the plan projection.' } },
     predecessorTaskIds: [],
     actions: [`Implement the source-bounded outcome for ${p.id} in a PR-sized change; split further if the declared boundary spans independent owners.`],
-    tests: { positiveTestIds: [`${taskId}.POSITIVE`], adversarialTestIds: [`${taskId}.ADVERSARIAL`], commands: testsText ? testsText.split(/\n+/).map(x => x.trim()).filter(Boolean) : ['Exact focused positive/adversarial commands are not declared; identify them before implementation.'] },
+    tests: {
+      positiveTestIds: positiveTestIds.length ? positiveTestIds : [taskId + '.POSITIVE'],
+      adversarialTestIds: adversarialTestIds.length ? adversarialTestIds : [taskId + '.ADVERSARIAL'],
+      commands: testsText ? testsText.split(/\n+/).map(x => x.trim()).filter(Boolean) : ['Exact focused positive/adversarial commands are not declared; identify them before implementation.']
+    },
     expectedResult: acceptance, finality: 'Build-local result only; no PDP closure, release qualification, or runtime admission is implied.',
     environmentPrerequisites: 'Package-specific environment/provider/ABI prerequisites are not fully enumerated in the plan section; resolve before execution.',
     actionableBlocker: 'Planning assignment is not implementation admission. Resolve source-current package prerequisites, owner authorization, and exact positive/adversarial checks before implementation.',
@@ -176,7 +185,7 @@ const f00Base = taskRows.find(x => x.packageId === 'M-BLD-F00');
 const f00Tasks = [
   { ...f00Base, id: 'M-BLD-F00.T01', title: 'Source material pin and topology census', outcome: 'Compare all four PDP status sourceShaSet records to current bytes/projections, verify all four 54-row matrices, and census 26 physical, 7 composite/root, and 21 logical consumers.', status: staleMaterialSources.length ? 'STALE_BLOCKED' : 'PLANNING_RECEIPT_ONLY', actionableBlocker: staleMaterialSources.length ? `Reconcile stale material source selectors before treating the current-source receipt as current: ${staleMaterialSources.map(x => x.phase + ':' + x.selector).join(', ')}` : f00Base.actionableBlocker, joinedSourceIdentities: materialSources.map(x => ({ phase: x.phase, selector: x.selector, expectedSha256: x.expectedSha256, currentSha256: x.currentSha256, status: x.status })), evidence: { matrixReceipts: matrices, topologyInputPaths: [topologyPath, '.product-experience/surface-registry.yaml', '.product-experience/source-manifest.yaml'], surfaceIds: surfaces.map(x => x.id), materialSourceCount: materialSources.length, sourcePins: sourcePaths.map(path => ({ path, sha256: sha(path) })) } },
   { ...f00Base, id: 'M-BLD-F00.T02', title: 'Relational PDP identity bridge', outcome: 'Bind each of the 3,186 trace identities only through source-declared P0 capability/requirement, P1 operation/guard/state, P2 component/action/source slots, and P3 purpose/channel/edge/view selectors; retain unresolved slots.', status: unresolvedBridgeRows.length ? 'INCOMPLETE_SOURCE_RELATIONS' : 'ASSIGNED_UNVERIFIED', sourceJoinCompletionStatus: unresolvedBridgeRows.length ? 'INCOMPLETE' : 'CURRENT', unresolvedIdentityCount: unresolvedBridgeRows.length, actionableBlocker: unresolvedBridgeRows.length ? `${unresolvedBridgeRows.length} identities retain unresolved source membership or cross-layer relation blockers; resolve only through exact owner-source selectors.` : f00Base.actionableBlocker, joinedSourceIdentities: joins.map(x => ({ phase: x.phase, kind: x.kind, id: x.identity, primaryPackageId: x.primaryPackageId, sourceRecordSelectors: x.sourceRecordSelectors, joins: x.joins, unresolvedSourceSlots: x.unresolvedSourceSlots, unresolvedSourceBlockers: x.unresolvedSourceBlockers })), predecessorTaskIds: ['M-BLD-F00.T01'], tests: { positiveTestIds: ['M-BLD-F00.T02.POSITIVE'], adversarialTestIds: ['M-BLD-F00.T02.WRONG_JOIN', 'M-BLD-F00.T02.MISSING_ID', 'M-BLD-F00.T02.DUPLICATE_EDGE'], commands: ['node --test tests/media-build-work-packages-generator.test.mjs', 'node scripts/generate-media-build-work-packages.mjs --check'] } },
-  { ...f00Base, id: 'M-BLD-F00.T03', title: 'P2 slots, code symbols, package handoff and consumer census', outcome: 'Generate the complete 50-package handoff, all 54 consumer identities, and explicit source UI/code symbol slots without inventing symbols or N/A dispositions.', status: 'ASSIGNED_UNVERIFIED', joinedSourceIdentities: surfaces.map(x => ({ id: x.id, type: x.type, disposition: x.disposition ?? null, applicability: x.applicability })), predecessorTaskIds: ['M-BLD-F00.T01', 'M-BLD-F00.T02'], tests: { positiveTestIds: ['M-BLD-F00.T03.POSITIVE'], adversarialTestIds: ['M-BLD-F00.T03.INVALID_NA', 'M-BLD-F00.T03.STALE_PIN', 'M-BLD-F00.T03.PACKAGE_CYCLE'], commands: ['node --test tests/media-build-work-packages-generator.test.mjs', 'node scripts/generate-media-build-work-packages.mjs --check'] } }
+  { ...f00Base, id: 'M-BLD-F00.T03', title: 'P2 slots, code symbols, package handoff and consumer census', outcome: 'Generate the complete 50-package handoff, all 54 consumer identities, and explicit source UI/code symbol slots without inventing symbols or N/A dispositions.', status: 'ASSIGNED_UNVERIFIED', joinedSourceIdentities: surfaces.map(x => ({ id: x.id, type: x.type, topologySelector: x.topologySelector, registryApplicability: x.registryApplicability, topologyBinding: x.topologyBinding, applicability: x.applicability })), predecessorTaskIds: ['M-BLD-F00.T01', 'M-BLD-F00.T02'], tests: { positiveTestIds: ['M-BLD-F00.T03.POSITIVE'], adversarialTestIds: ['M-BLD-F00.T03.INVALID_NA', 'M-BLD-F00.T03.STALE_PIN', 'M-BLD-F00.T03.PACKAGE_CYCLE'], commands: ['node --test tests/media-build-work-packages-generator.test.mjs', 'node scripts/generate-media-build-work-packages.mjs --check'] } }
 ].map(task => ({ ...task, actions: [`Complete ${task.title} as a planning-only, source-bound PR-sized change.`], expectedResult: task.title + ' recorded with exact source selectors and no runtime or closure claim.', actionableBlocker: 'Planning task evidence does not admit runtime implementation; any missing source relation stays explicitly unresolved.', finality: 'Planning receipt only; no PDP closure, release qualification, or runtime admission.', reviewerRole: 'Independent engineering reviewer', approverRole: 'Engineering lead and product/quality owner under lifecycle authority' }));
 const l01Base = taskRows.find(x => x.packageId === 'M-BLD-L01');
 const scopedL01Task = (taskId, title, predecessorTaskIds, outcome, expectedResult, environmentPrerequisites, tests) => ({
@@ -295,7 +304,7 @@ const authoritativePopulations = Object.fromEntries(expectedTraceIdentityKeys.re
 const expectedJoinsByIdentity = new Map(joins.map(row => [`${row.phase}:${row.kind}:${row.identity}`, row.joins]));
 const validNAIdentities = new Set(rows.filter(row => row.primaryPackageId === 'N/A' && row.id === 'media.surface.desktop-archive').map(identityKey));
 const surfaceCounts = { physical: surfaces.filter(x => x.type === 'physical').length, compositions: surfaces.filter(x => x.type === 'composition').length, logical: surfaces.filter(x => x.type === 'logical').length, total: surfaces.length };
-const validationErrors = validateBuildWorkPackageProjection(projection, { traceIdentityKeys: expectedTraceIdentityKeys, traceCount: expectedTraceIdentityKeys.length, tracePopulations: authoritativePopulations, packageIds: packages.map(x => x.id), packageDependencies: expectedPackageDependencies, wipPolicy, validNAIdentities, joinsByIdentity: expectedJoinsByIdentity, edgeIds: channel.edges.map(x => x.id), surfaceCounts, surfaceIds: surfaces.map(x => x.id), sourcePins: Object.fromEntries(sourcePaths.map(p => [p, sha(p)])), materialSources, matrixPaths });
+const validationErrors = validateBuildWorkPackageProjection(projection, { traceIdentityKeys: expectedTraceIdentityKeys, traceCount: expectedTraceIdentityKeys.length, tracePopulations: authoritativePopulations, packageIds: packages.map(x => x.id), packageDependencies: expectedPackageDependencies, wipPolicy, validNAIdentities, joinsByIdentity: expectedJoinsByIdentity, edgeIds: channel.edges.map(x => x.id), surfaceCounts, surfaceIds: surfaces.map(x => x.id), surfaceRecords: surfaces, sourcePins: Object.fromEntries(sourcePaths.map(p => [p, sha(p)])), materialSources, matrixPaths });
 if (validationErrors.length) throw new Error(validationErrors.join('\n'));
 const output = 'docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json';
 const text = JSON.stringify(projection, null, 2) + '\n';

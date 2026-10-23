@@ -59,7 +59,7 @@
     "workflow": "Use Lifecycle gtool via authenticated Work Planner structured method plan/readback for 54 identity × 4 PDP source statuses. Never turn method plan or source-dev completion into native ClosureUnit receipt.",
     "nativeClosure": "Use Lifecycle's protected AP-02/AP-03 host imports, actual selections and currentness, then source-owned leaf/composite/aggregate maps, owner-selected proof computation, independent verifier and authentic native receipt. Keep producerBindings empty as currently required.",
     "parallelWork": "Execute source-scoped implementation planning, Gharbatai recorder qualification and AP-02/AP-03 host setup concurrently. BUILD stage Implement transitions require exact task readiness and Kernel Plan exit; do not block independent source-complete units on unrelated work.",
-    "traceRepair": "93 required PDP-1 operation endpoints missing from 3,186-row implementation trace and eight unresolved source relations must be resolved with exact source selectors and a versioned trace/census change if authoritative denominator changes; never hide by renaming to N/A or dropping edges.",
+    "traceRepair": "At the 2026-10-22 approval baseline, 93 PDP-1 operation references and eight source relations were unresolved. The current generated blocker inventory reports SOURCE_RELATIONS_CURRENT with zero unresolved source blockers. Preserve the 3,186 trace identities and never rename/drop edges; keep F00.T02 open until its scoped tests, negative/UNKNOWN/rollback readback and source-current owner review are evaluated.",
     "semanticGrouping": "Allow one executed, source-grounded proof computation for multiple obligations only when each obligation has a separately auditable expected assertion. 4028 PDP0 obligations are still open, not accepted merely because sources are present.",
     "earlyDemo": "Prepare J01/J02/J20/J03 recipe/adapter early; first real film as soon as actual terminal business outcome plus qualified adapter, provenance, rights, narration and teardown pass. Explorer mock film is not live product proof.",
     "physicalWriter": "Canonical executable writer is ghatana/services/media until F01 source-comparison and owner-approved one-writer migration; divergent Flyway V007..V009 histories cannot be silently merged or dual-written.",
@@ -90,6 +90,7 @@
       "nativeReceipts": "NOT_PROVEN"
     }
   },
+  "sourceGapsBaselineScope": "The sourceGaps values above are the approval-time snapshot for campaign.sourceBaselineAtReview and are retained as history. They are not current blocker counts; read current bridge status from MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json and its generated queue projection.",
   "tasks": [
     {
       "taskId": "M-BLD-F00.T02",
@@ -103,7 +104,7 @@
         "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
         "scripts/lib/media-build-semantic-source-joins.mjs"
       ],
-      "implementationDirective": "Resolve 93 P1 operation endpoints missing from the 3,186 trace without naming heuristics; reconcile 8 unresolved explicit relations and the exact media.handoff.identity selector. If the trace census changes, version the trace and regenerate all dependent projections after owner-reviewed impact.",
+      "implementationDirective": "The approval-time list of 93 missing P1 references, eight unresolved relations and media.handoff.identity is superseded as a current source-relation claim by MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json, which currently reports SOURCE_RELATIONS_CURRENT with zero unresolved source blockers. Do not repeat repairs from that historical list or infer links. Keep this task OPEN until its exact source-bound change or audited plan, scoped test results, negative/UNKNOWN/rollback readback, and source-current owner review disposition are evidenced against current material.",
       "requiredStructuredIO": {
         "input": [
           "current PDP source selector",

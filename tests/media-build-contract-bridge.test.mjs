@@ -6,15 +6,18 @@ const expected = buildMediaBuildContractBridge();
 const clone = () => structuredClone(expected);
 const rejects = candidate => assert.notDeepEqual(validateMediaBuildContractBridge(candidate, expected), []);
 
-test('contract bridge preserves source identity and edge joins with explicit unresolved slots', () => {
+test('contract bridge preserves source identity and all source-declared edge joins', () => {
   assert.equal(expected.census.identityCount, 3186);
   assert.equal(expected.identities.length, expected.census.identityCount);
   assert.equal(expected.edges.length, expected.census.edgeCount);
+  assert.equal(expected.status, 'SOURCE_RELATIONS_CURRENT');
+  assert.equal(expected.census.edgeCount, 8667);
   assert(expected.identities.some(row => row.kind === 'definitionExtensionOperationMappings'));
   assert(expected.identities.every(row => row.ownerAssignments.length === 1));
   assert(expected.identities.every(row => row.ownerAssignments.every(owner => owner.packageId === 'N/A' || owner.ownerRoleStatus === (owner.ownerRole ? 'SOURCE_DECLARED' : 'UNRESOLVED_IN_SOURCE_PLAN'))));
   assert(expected.identities.every(row => row.codeSymbol.status === 'UNBOUND' && row.evidence.status === 'PLANNING_RECEIPT_ONLY'));
-  assert(expected.identities.some(row => row.unresolvedSourceBlockers.length > 0));
+  assert(expected.identities.every(row => row.unresolvedSourceSlots.length === 0));
+  assert(expected.identities.every(row => row.unresolvedSourceBlockers.length === 0));
   assert(expected.identities.some(row => row.ownerAssignments.some(owner => owner.packageId === 'N/A' && owner.disposition === 'ARCHIVED')));
   assert.deepEqual(validateMediaBuildContractBridge(expected, expected), []);
 });

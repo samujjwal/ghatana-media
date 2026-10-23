@@ -38,14 +38,15 @@ test('current PDP-0 corrective source fingerprints exclude generated verificatio
   }
  }
 });
-test('PXD-223 refreshes only P0-01 currentness while preserving PXD-216 semantic review',()=>{
+test('PXD-225 refreshes only P0-01 currentness while preserving PXD-216 semantic review',()=>{
  const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
  const record=artifact.records.find(({taskId})=>taskId==='P0-01');
  const pxd216=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json','utf8'));
  const pxd223=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json','utf8'));
- const sourcePin=file=>pdp0PhaseScopedSourcePins()[file]??createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+ const scopedPins=pdp0PhaseScopedSourcePins();
+ const sourcePin=file=>scopedPins[file]??createHash('sha256').update(fs.readFileSync(file)).digest('hex');
  assert.equal(record.currentCorrectiveReview.decisionRef,'.product-experience/decision-log.md#PXD-216');
- assert.equal(record.currentSourceReview.decisionRef,'.product-experience/decision-log.md#PXD-223');
+ assert.equal(record.currentSourceReview.decisionRef,'.product-experience/decision-log.md#PXD-225');
  assert.equal(record.currentSourceReview.reviewKind,'COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION');
  assert.equal(record.currentSourceReview.ownerApproval,'NOT_CLAIMED');
  assert.equal(record.currentSourceReview.acceptanceEffect,'none');
@@ -61,13 +62,15 @@ test('PXD-223 refreshes only P0-01 currentness while preserving PXD-216 semantic
  const historicalOnly={...record,currentCorrectiveReview:undefined,currentSourceReview:undefined,currentSourcePinRefresh:undefined};
  assert.equal(resolveCriterionReviewSourceCut(historicalOnly,sourcePin,sourceOwnerPhase).sourceCutCurrent,false);
 });
-test('PXD-223 refreshes P0-01 currentness while preserving PXD-216 semantic review and PXD-196 history',()=>{
+test('PXD-225 refreshes P0-01 currentness while preserving PXD-216 semantic review and PXD-196 history',()=>{
  const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
  const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
- const sourcePin=file=>pdp0PhaseScopedSourcePins()[file]??sha(file);
+ const scopedPins=pdp0PhaseScopedSourcePins();
+ const sourcePin=file=>scopedPins[file]??sha(file);
   const byId=new Map(artifact.records.map(record=>[record.taskId,record]));
  const pxd216=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json','utf8'));
  const pxd223=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json','utf8'));
+ const pxd225=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json','utf8'));
   for(const id of ['P0-01','P0-02','P0-05','P0-06','P0-07']){
   const record=byId.get(id);
   const current=record.currentSourceReview ?? record.currentCorrectiveReview;
@@ -84,17 +87,20 @@ test('PXD-223 refreshes P0-01 currentness while preserving PXD-216 semantic revi
    assert.deepEqual(pxd223.preservedSemanticReview.changedReviewedCapabilityIds,[]);
    assert.equal(pxd223.preservedSemanticReview.reviewedCapabilityCount,20);
    assert.equal(pxd223.preservedSemanticReview.semanticReviewStatus,'PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW');
-   assert.equal(current.decisionRef,'.product-experience/decision-log.md#PXD-223');
+   assert.equal(current.decisionRef,'.product-experience/decision-log.md#PXD-225');
    assert.equal(current.reviewKind,'COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION');
    assert.equal(current.ownerApproval,'NOT_CLAIMED');
    assert.equal(current.acceptanceEffect,'none');
    assert.match(current.acceptanceBoundary,/PXD-216 remains the semantic review/u);
-   assert.deepEqual(Object.keys(current.sourceFingerprints).sort(),['.product-experience/decision-log.md#PXD-223-section','.product-experience/pdp-0-product-truth/capabilities.yaml'].sort());
+   assert.equal(current.sourceFingerprints['docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json'],sha('docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json'));
+   assert.equal(current.sourceFingerprints['.product-experience/decision-log.md#PXD-216-section'],sourcePin('.product-experience/decision-log.md#PXD-216-section'));
+   assert.equal(current.sourceFingerprints['.product-experience/decision-log.md#PXD-225-section'],sourcePin('.product-experience/decision-log.md#PXD-225-section'));
+   assert.equal(pxd225.decisionSectionSha256,sourcePin('.product-experience/decision-log.md#PXD-225-section'));
    assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-209'),
     'PXD-209 remains preserved as its historical correction record');
-   for(const [file,digest] of Object.entries(current.sourceFingerprints))assert.equal(digest,sourcePin(file),`P0-01 PXD-223 currentness pin ${file}`);
+   for(const [file,digest] of Object.entries(current.sourceFingerprints))assert.equal(digest,sourcePin(file),`P0-01 PXD-225 currentness pin ${file}`);
    assert.equal(resolveCriterionReviewSourceCut(record,sourcePin,sourceOwnerPhase).sourceCutCurrent,true,
-    'the PXD-223 currentness layer establishes P0-01 source currentness while PXD-216 remains semantic authority');
+    'the PXD-225 currentness layer establishes P0-01 source currentness while PXD-216 remains semantic authority');
    const historicalOnly={...record,currentCorrectiveReview:undefined,currentSourceReview:undefined,currentSourcePinRefresh:undefined};
    assert.equal(resolveCriterionReviewSourceCut(historicalOnly,sourcePin,sourceOwnerPhase).sourceCutCurrent,false,
     'historical PXD-209 and PXD-216 pins do not establish current P0-01 source currentness');
@@ -113,6 +119,16 @@ test('PXD-223 refreshes P0-01 currentness while preserving PXD-216 semantic revi
    ??record.currentSourcePinRefresh?.currentSourceFingerprints
    ??current.sourceFingerprints;
   for(const [file,digest] of Object.entries(currentPins))assert.equal(digest,sourcePin(file),`${id} current source pin ${file}`);
+  if(['P0-05','P0-07'].includes(id)) {
+   assert.equal(record.currentSourcePinRefresh.currentnessAuthority.decisionRef,'.product-experience/decision-log.md#PXD-225');
+   assert.equal(record.currentSourcePinRefresh.currentnessAuthority.artifactSha256,sourcePin(record.currentSourcePinRefresh.currentnessAuthority.artifactRef));
+   assert.equal(record.currentSourcePinRefresh.currentnessAuthority.decisionSectionSha256,sourcePin('.product-experience/decision-log.md#PXD-225-section'));
+   assert.equal(resolveCriterionReviewSourceCut(record,sourcePin,sourceOwnerPhase).currentnessAuthorityCurrent,true);
+  }
+  if(id==='P0-06') {
+   assert.equal(record.currentProjectionRefresh.projectionArtifactRef,'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json');
+   assert.equal(record.currentProjectionRefresh.projectionArtifactSha256,sourcePin(record.currentProjectionRefresh.projectionArtifactRef));
+  }
   }
   if(['P0-01','P0-02'].includes(id))assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-171'),`${id} retains PXD-171 as history`);
   if(id==='P0-06')assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-170'),`${id} retains PXD-170 as history`);
@@ -125,7 +141,7 @@ test('PXD-223 refreshes P0-01 currentness while preserving PXD-216 semantic revi
  assert.equal(productTruth.reviewKind,'CURRENT_SOURCE_DEFINITION_REVIEW');
  assert.match(productTruth.scope,/20 capability leaves with materially changed PDP-0 meaning fields/u);
  assert.match(productTruth.scope,/all 462 canonical lane records/u);
- assert.equal(byId.get('P0-01').currentSourceReview.decisionRef,'.product-experience/decision-log.md#PXD-223');
+ assert.equal(byId.get('P0-01').currentSourceReview.decisionRef,'.product-experience/decision-log.md#PXD-225');
  const rightsReview=byId.get('P0-01').historicalCorrectiveReviews.find(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-209');
  assert.ok(rightsReview,'PXD-209 rights and import review remains in its source-cut history');
  assert.match(rightsReview.scope,/media\.artifact\.search/u);
@@ -174,8 +190,8 @@ test('PXD-223 refreshes P0-01 currentness while preserving PXD-216 semantic revi
  assert.match(applicability.scope,/CLI runtime admission remains NOT_ADMITTED/u);
  assert.match(applicability.scope,/54 registered identities/u);
  assert.match(applicability.scope,/owner approval and independent acceptance remain NOT_CLAIMED/u);
- assert.equal(crosswalk.coordinatorReview.decisionRef,'PXD-223');
- assert.equal(crosswalk.coordinatorReview.priorDecisionRef,'PXD-216');
+ assert.equal(crosswalk.coordinatorReview.decisionRef,'PXD-225');
+ assert.equal(crosswalk.coordinatorReview.priorDecisionRef,'PXD-223');
  assert.equal(crosswalk.coordinatorReview.ownerApproval,'NOT_CLAIMED');
  assert.ok(!crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-195'));
  assert.ok(crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-194'));
@@ -282,12 +298,17 @@ broadTest('PDP-0 current-source refreshes drive currentness while retaining hist
  files.p0='changed-p0';
  assert.equal(resolveCriterionReviewSourceCut(projectionRecord,current,owner).sourceCutCurrent,false,'a PDP-0 source change stales the quality projection');
 });
-broadTest('an explicit PDP-0 source review must remain current independently of pin refreshes',()=>{
- const files={reviewSource:'review-current',p0Source:'p0-current',decision:'context-current',p1Source:'p1-prior'};
+broadTest('an explicit PDP-0 source review and its authorized refresh evidence must remain current independently',()=>{
+ const authorityArtifact='docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json';
+ const authoritySection='.product-experience/decision-log.md#PXD-225-section';
+ const files={reviewSource:'review-current',p0Source:'p0-current',decision:'context-current',p1Source:'p1-prior',
+  [authorityArtifact]:'authority-current',[authoritySection]:'authority-section-current'};
  const current=file=>files[file]??null;
  const owner=file=>file==='p1Source'?'PDP-1':'PDP-0';
  const pinRefresh={status:'CURRENT_SOURCE_PIN_REFRESH_ONLY',phaseScope:'PDP-0',preservesReviewRef:'.product-experience/decision-log.md#PXD-196',
    semanticReview:'NOT_PERFORMED',ownerApproval:'NOT_CLAIMED',acceptanceEffect:'none',currentSourceFingerprints:{p0Source:'p0-current',p1Source:'p1-prior'},
+   currentnessAuthority:{decisionRef:'.product-experience/decision-log.md#PXD-225',artifactRef:authorityArtifact,
+    artifactSha256:'authority-current',decisionSectionSha256:'authority-section-current'},
    decisionContextFingerprint:{sourceRef:'decision',sha256:'context-current'}};
  const sourceReview={status:'APPROVED_CURRENT_SOURCE_REVIEW',phaseScope:'PDP-0',decisionRef:'.product-experience/decision-log.md#PXD-208',
    sourceFingerprints:{reviewSource:'review-current',p1Source:'p1-prior',decision:'context-current'}};
@@ -305,6 +326,11 @@ broadTest('an explicit PDP-0 source review must remain current independently of 
  assert.equal(resolved.currentSourceReviewCurrent===true && resolved.sourceCutCurrent===true,false,
    'a stale explicit source review cannot satisfy a PDP-0 criterion');
  files.reviewSource='review-current';
+ files[authorityArtifact]='authority-stale';
+ resolved=resolveCriterionReviewSourceCut(record,current,owner);
+ assert.equal(resolved.currentnessAuthorityCurrent,false,'a stale PXD-225 refresh authority cannot support currentness');
+ assert.equal(resolved.currentSourcePinRefreshCurrent,false);
+ files[authorityArtifact]='authority-current';
  files.p0Source='p0-stale';
  resolved=resolveCriterionReviewSourceCut(record,current,owner);
  assert.equal(resolved.currentSourceReviewCurrent,true,'a current semantic review stays distinct from its stale pin refresh');

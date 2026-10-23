@@ -89,16 +89,22 @@ Important omissions and conflicts to resolve before semantic acceptance:
   `OUTCOME_UNKNOWN`, `RECONCILING`, and `PARTIALLY_SUCCEEDED`; PDP-0 has
   separate job/attempt machines. No cross-generation winner or conversion is
   selected, and `ACCEPTED` does not establish durable queueing.
-- Project/revision, asset, recipe, processing graph, resolved plan, run,
+- Project and ProjectRevision have current Media owner-defined logical
+  identities and version boundaries in `domain-objects.yaml` and
+  `canonical-reconciliation.yaml#currentDefinitionAdjudication`; the named
+  implementation schemas still do not establish durable project-revision
+  records or enforcement. Asset, recipe, processing graph, resolved plan, run,
   checkpoint, scene/animation/simulation, timeline, quality assessment,
-  render/delivery outcome, and provenance concepts are PDP-0 proposals with
-  no matching record established by the named implementation schemas.
+  render/delivery outcome, and provenance concepts remain product definitions
+  whose runtime/persistence materialization is not established by those
+  schemas.
 - `ArtifactVersion` has a current Media owner-defined logical identity and
   lineage rule in `canonical-reconciliation.yaml#currentDefinitionAdjudication`
   and `versioning.yaml#ownerDefinedRevisionSemantics/artifactVersion`; the
   inspected runtime still does not establish a separate persisted version
-  record. Content deduplication, project revision identity, transcript
-  ancestry, and cross-consumer derived-artifact bindings remain unresolved.
+  record. Content deduplication, durable project-revision ordering and
+  persistence, complete producer ancestry, and cross-consumer
+  derived-artifact bindings remain unresolved.
 - Runtime/OpenAPI use Java instants, ISO strings, or numeric storage epochs;
   TypeScript has ISO timestamp and `durationMs` fields; protobuf includes
   `timestamp_ms`, `duration_ms`, and STT `start_ms`/`end_ms`; legacy
@@ -111,10 +117,10 @@ Important omissions and conflicts to resolve before semantic acceptance:
   consistently bound. No defaults or coordinate/frame/unit semantics are
   selected by this reconciliation.
 - Persistence `audio_file_id` and tenant-scoped primary/unique keys evidence
-  storage constraints only. Domain cardinalities for project assets, revisions,
-  artifacts, jobs, outputs, consent, transcript versions, lineage, and
-  ownership remain owner decisions; the proposed relationship records remain
-  proposals.
+  storage constraints only. PDP-1 records logical project/revision, asset,
+  artifact-version, job/attempt, output, consent, transcript-version, lineage,
+  and ownership relationships in `relationships.yaml`; these definitions do
+  not establish matching database cardinality constraints or runtime parity.
 
 ### Unresolved owner-bound decisions
 
@@ -122,18 +128,19 @@ Owner-defined logical dispositions are recorded alongside source proposals and o
 
 These owner-defined logical dispositions are recorded alongside source proposals and observations; runtime contracts, TypeScript types, OpenAPI, protobuf and publishers remain separate implementation evidence.
 
-Current owner-defined meanings include the scoped artifact-version identity
-and lineage rule in `canonical-reconciliation.yaml#currentDefinitionAdjudication`
-and offline revision-conflict behavior in
-`offline-sync.yaml#ownerDefinedOfflineSemantics`. These definitions do not
-establish persistence, runtime enforcement, offline capability admission, or
-independent phase acceptance. Remaining decisions include unresolved object
-boundaries and relationship/cardinality semantics, project revision identity,
-cross-generation compatibility and version/deprecation treatment, storage and
-physical deletion guarantees, authenticated identity binding, and scene/unit
-conversion contracts. The independent P0-010 reviewer must separately assess
-semantic acceptance. Observed shapes remain observations, and unknowns must
-not be silently normalized.
+Current owner-defined meanings include tenant-scoped Project and ProjectRevision
+identities, the scoped artifact-version identity and lineage rule in
+`canonical-reconciliation.yaml#currentDefinitionAdjudication`, and offline
+revision-conflict behavior in `offline-sync.yaml#ownerDefinedOfflineSemantics`.
+These definitions do not establish persistence, runtime enforcement, offline
+capability admission, or independent phase acceptance. Remaining decisions
+include external authority binding, storage constraints and physical deletion
+guarantees, cross-generation compatibility and version/deprecation treatment,
+complete producer ancestry, and scene/unit conversion contracts. Logical
+relationship definitions are recorded in `relationships.yaml`; persistence
+cardinality and runtime parity remain unestablished. The independent P0-010
+reviewer must separately assess semantic acceptance. Observed shapes remain
+observations, and unknowns must not be silently normalized.
 
 Media owns media-specific product meaning. Platform services own their generic
 identity, workflow mechanics, privileged effects, inference, audit, event
@@ -178,14 +185,15 @@ use separate owners and clocks.
 `canonical-reconciliation.yaml` records source observations and proposed
 identity/lifecycle dimensions for projects, uploads, jobs and attempts, stream
 sessions, transcripts and captions, outputs, consent and rights, quality,
-provenance, and delivery. Its `currentDefinitionAdjudication` separately
-defines scoped Media logical meanings, including ArtifactVersion identity and
-exact-version ancestry, while leaving persistence, external authority,
-consumer compatibility, and independent acceptance distinct. Tenant-qualified
-database keys, digest uniqueness, aggregate version counters, and identifier
-lists alone are not promoted into global identity or append-only history. Read
-open decisions together with the current adjudications: residual implementation
-and external-owner questions remain gates, but do not reopen a logical meaning
+provenance, and delivery. Its `currentDefinitionAdjudication` defines current
+scoped Media logical meanings for Project and ProjectRevision identity,
+ArtifactVersion identity and exact-version ancestry, and other bounded domains,
+while leaving persistence, external authority, consumer compatibility, and
+independent acceptance distinct. Tenant-qualified database keys, digest
+uniqueness, aggregate version counters, and identifier lists alone are not
+promoted into global identity or append-only history. Read open decisions
+together with the current adjudications: residual implementation and
+external-owner questions remain gates, but do not reopen a logical meaning
 already defined there.
 
 `state-adjudication.yaml` preserves exact job/attempt/delivery identity and the
@@ -256,8 +264,9 @@ or API schema was changed by this extraction.
 
 PDP1-001 source reconciliation and the full canonical registries are not
 independently accepted. Current owner-defined logical dispositions, including
-artifact-version identity/lineage and offline revision-conflict behavior, are
-recorded in `canonical-reconciliation.yaml#currentDefinitionAdjudication` and
+project/revision identity, artifact-version identity/lineage and offline
+revision-conflict behavior, are recorded in
+`canonical-reconciliation.yaml#currentDefinitionAdjudication` and
 `offline-sync.yaml#ownerDefinedOfflineSemantics`; their runtime enforcement,
 external bindings, and independent phase acceptance remain open. PXD-026's
 bounded policies do not establish all state or operation bindings, exact wire
@@ -414,12 +423,12 @@ canonical projection, accept meanings, or establish phase completion.
 
 ## Recorder/Studio PDP successor extension (new affected surfaces)
 
-The source-authored `recorder-studio-contracts.yaml` records the new Recorder/Studio surface-specific semantics at this later proposed source cut. Historical `DEV_COMPLETE` remains attributable to its original source cut; this extension has **not** passed currentness/admission or PDP-3 readmission. The extension reuses existing Media identities and may not create independent project, job, rights or publishing authorities. Its exact affected obligations require native phase validation and successor acceptance before any completion claim.
+The source-authored `recorder-studio-contracts.yaml` records the Recorder/Studio surface-specific semantics. These definitions are included in the current PDP-1 source review and native development verification; the current source-bound PDP-1 status is the phase-development authority. This development review does not claim independent acceptance, runtime admission, or PDP-3 experience completion/readmission. The extension reuses existing Media identities and may not create independent project, job, rights or publishing authorities.
 
 
 ## Declarative production successor domain/operation bindings
 
-`.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml` is the source-owned PDP-1 specialization for **61** declarative cases: it binds **39 distinct existing operation contracts** and existing project, scene, animation graph, simulation world, checkpoint, job/attempt, timeline and provenance owners. It declares typed specifications for source classification, scene/animation/model execution, simulation states, measurements, analytical validation, time alignment and the TutorPutor public AEF bridge. The existing canonical `operations.yaml` and `value-objects.yaml` remain authoritative; no second job store, model-science owner, arbitrary-script executor, route, or new operation identity is admitted. The previous source-cut `DEV_COMPLETE` statement is **not an acceptance of this successor**; source-current native parser/contract verification and independent PDP-1 re-review remain required.
+`.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml` is the source-owned PDP-1 specialization for **61** declarative cases: it binds **39 distinct existing operation contracts** and existing project, scene, animation graph, simulation world, checkpoint, job/attempt, timeline and provenance owners. It declares typed specifications for source classification, scene/animation/model execution, simulation states, measurements, analytical validation, time alignment and the TutorPutor public AEF bridge. The existing canonical `operations.yaml` and `value-objects.yaml` remain authoritative; no second job store, model-science owner, arbitrary-script executor, route, or new operation identity is admitted. These definitions are included in the current PDP-1 source review and native development verification. That phase status is not independent acceptance, closure, runtime admission, or public operation admission.
 
 ---
 

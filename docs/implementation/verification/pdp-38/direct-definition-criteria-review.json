@@ -349,18 +349,29 @@
       },
       "currentSourceReview": {
         "status": "APPROVED_CURRENT_SOURCE_REVIEW",
-        "decisionRef": ".product-experience/decision-log.md#PXD-223",
+        "decisionRef": ".product-experience/decision-log.md#PXD-225",
         "reviewKind": "COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION",
         "phaseScope": "PDP-0",
-        "scope": "Reconcile currentness only for the exact 20 capability identities and records semantically reviewed by PXD-216. PXD-221 changes only the seven proposal records from TARGET to DEFERRED; those records remain outside the 462 canonical capability denominator. The current 20-record projection remains identical to PXD-216. No new semantic review is performed.",
+        "scope": "Reconcile currentness only for the exact 20 capability identities semantically reviewed by PXD-216 and currentness-reconciled for capabilities by PXD-223. The only applications-channels source change is removal of a dangling evidence locator from the archived-only legacy desktop channel. All seven PXD-216 product-truth source inputs are pinned at current bytes, and the exact PXD-216, PXD-223 and PXD-225 decision sections are preserved. No new semantic review is performed.",
         "sourceFingerprints": {
           ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-          ".product-experience/decision-log.md#PXD-223-section": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206"
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+          ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+          "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54",
+          "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json": "33b9da4aef5c83f6f8c3695494fba9f012954bec0059708fccc584ad1775cfd6",
+          "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+          ".product-experience/decision-log.md#PXD-216-section": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c",
+          ".product-experience/decision-log.md#PXD-223-section": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206",
+          ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
         },
-        "acceptanceBoundary": "PDP-0 current-source reconciliation only. PXD-216 remains the semantic review for its exact 20 capability IDs. No new semantic review, owner approval, independent acceptance, implementation verification, runtime admission, qualification, phase closure, or Delivery readiness is claimed.",
+        "acceptanceBoundary": "PDP-0 current-source reconciliation only. PXD-216 remains the semantic review for its exact 20 capability IDs and PXD-223 remains the capabilities currentness predecessor. No new semantic review, owner approval, independent acceptance, implementation verification, runtime admission, qualification, phase closure, or Delivery readiness is claimed.",
         "acceptanceEffect": "none",
         "ownerApproval": "NOT_CLAIMED",
-        "currentSourceCutNote": "PXD-223 currentness layer preserves currentCorrectiveReview PXD-216 unchanged; source pins bind the live capabilities bytes and the PXD-223 decision section."
+        "currentSourceCutNote": "PXD-225 currentness pins the seven source inputs from PXD-216 at current bytes, preserves PXD-223 current capabilities reconciliation, and binds the current applications-channels bytes plus exact PXD-225 decision section. PXD-216 semantic review and PXD-223 history remain unchanged."
       }
     },
     {
@@ -1691,15 +1702,15 @@
           ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
           ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
           ".product-experience/source-manifest.yaml#PDP-0-projection": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
-          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "6b01fea74bc26c25fea97e5108073025cbc1284a4753a98e74b9994c70342a95",
-          "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs": "08a1a8cfeaf366e9cfbba8e7e78cb14f5b2ba15efef29690067779019414d4ee",
-          "tests/media-pdp-readiness.test.mjs": "70bb9bb3324cee801c9ba7ab2bc4497155787b4d2bb09ec8adfe7045e0023d22",
-          "tests/media-pdp0-501-audit-dispositions.test.mjs": "8da408ed950212c4420de56672ad7218b0912b53d6276b725ac55b70e59e0bcb",
+          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "dbd27e398c350fad6e8d617b23cf60d5754effcd7b4bbae214109b85d2983181",
+          "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "tests/media-pdp-readiness.test.mjs": "909d17e5bce12cd49f9ff3dba4e4968458bbeecfa45f413ae941c6d6726e18f7",
+          "tests/media-pdp0-501-audit-dispositions.test.mjs": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077",
           "tests/media-pdp0-acceptance-actor-binding.test.mjs": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9",
           "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
           "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
           "tests/pdp0-generated-audio-checkpoint-rights.test.mjs": "a25a6953227e565c1b4b105ba150671f061230b44187785707ec3955a8db331e",
-          "tests/pdp0-phase-scoped-source-fingerprints.test.mjs": "cded5a4617493afa30685c6f6226893f1b1e5f42ca74acf826421230d42e00e9",
+          "tests/pdp0-phase-scoped-source-fingerprints.test.mjs": "7fbab028cbce9619c05ba65540095dbb48840ef9fa528bc059f44f5087b9fd35",
           "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
           "tests/pdp0-requirement-source-boundaries.test.mjs": "7bd70068db731664e6805a8824b38de0d63c850ea07bac807e23690d14003748",
           "tests/pdp0-semantic-corrections.test.mjs": "3dfed26a7185a1c6fd4bbadf0a34b44aed3ed4cfdf997c7ae5e955565abd23d0",
@@ -1760,6 +1771,12 @@
         "decisionContextFingerprint": {
           "sourceRef": ".product-experience/decision-log.md#PXD-208-section",
           "sha256": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec"
+        },
+        "currentnessAuthority": {
+          "decisionRef": ".product-experience/decision-log.md#PXD-225",
+          "artifactRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
+          "artifactSha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+          "decisionSectionSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
         }
       },
       "currentSourceReview": {
@@ -1771,7 +1788,7 @@
         "sourceFingerprints": {
           ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
           ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-          "tests/media-pdp-readiness.test.mjs": "70bb9bb3324cee801c9ba7ab2bc4497155787b4d2bb09ec8adfe7045e0023d22",
+          "tests/media-pdp-readiness.test.mjs": "909d17e5bce12cd49f9ff3dba4e4968458bbeecfa45f413ae941c6d6726e18f7",
           "tests/pdp0-generated-audio-checkpoint-rights.test.mjs": "a25a6953227e565c1b4b105ba150671f061230b44187785707ec3955a8db331e",
           ".product-experience/decision-log.md#PXD-208-section": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec"
         },
@@ -1792,7 +1809,7 @@
         "acceptanceBoundary": "Coordinator-authored PDP-0 source review only; owner approval, independent acceptance, legal clearance, runtime admission, qualification, closure, and Delivery readiness are not claimed.",
         "acceptanceEffect": "none",
         "ownerApproval": "NOT_CLAIMED",
-        "currentSourceCutNote": "PXD-208 adds only explicit authorization prerequisites to the two existing PDP-0 cases. The current review binds those exact requirement and capability clauses and the targeted regressions; actor roles do not independently confer authority, and unresolved authorization remains denied or unknown."
+        "currentSourceCutNote": "PXD-225 preserves P0-05 rights and authorization meaning. The dependent test file changed only in its P0-01 currentness assertions, P0-05 crosswalk currentness references, and a pin-refresh regression; the P0-05 semantic assertions and exact rights meanings are unchanged. This hash rebind is currentness-only and claims no new semantic review or owner acceptance."
       }
     },
     {
@@ -2013,29 +2030,49 @@
         "phaseScope": "PDP-0",
         "decisionContextRefs": [
           ".product-experience/decision-log.md#PXD-207",
-          ".product-experience/decision-log.md#PXD-208"
+          ".product-experience/decision-log.md#PXD-208",
+          ".product-experience/decision-log.md#PXD-225"
         ],
         "preservesReviewRef": ".product-experience/decision-log.md#PXD-196",
-        "projectionArtifactRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
-        "projectionArtifactSha256": "a9373535178a7040425e5f40f31951f7359abfb4aa64daf37157ef539b443b3c",
+        "projectionArtifactRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json",
+        "projectionArtifactSha256": "f03c5450b29c9389636ac6eab8d6973879025182f88a1ffb06c9f9f1a9c6789d",
         "sourceFingerprints": {
-          ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-          ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
           ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
           ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
           ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
-          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "6b01fea74bc26c25fea97e5108073025cbc1284a4753a98e74b9994c70342a95",
-          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "3477ab23c6aa2e46c435e7324ce8bb531cbda19d61a4c77bba0c202a96468691",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+          ".product-experience/source-manifest.yaml#PDP-0-projection": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
+          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "dbd27e398c350fad6e8d617b23cf60d5754effcd7b4bbae214109b85d2983181",
+          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "675642e960aacd798204ccb0cf657b1f97ef04ba4f7b9103035f5fa54277a9f7",
+          "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json": "db03b1594f86518a699892ae2652ab5efea1d5547b2d5feced137ea9bdb36337",
+          ".product-experience/decision-log.md#PXD-211-section": "b1e0e32ae20914152547c20f0fbe8b020070c77f3fd78572e1965753f943c4cf",
+          ".product-experience/decision-log.md#PXD-212-section": "1cd0c87ee6a05c80685bd7766e4100adb7bb08cf2e5bb7449f6fdf6a2897030e",
+          ".product-experience/decision-log.md#PXD-213-section": "d5b234b6e18cc6c916c25a9425d594b15238599ef1125812e75f097602984a59",
+          "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json": "9bd0f2fe837f11c638c9f425a9ec4e1cb55c7438f10e23376f471de2c81d989d",
+          "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json": "977494736f13fd3474fa850ef4dbd2d0cefeb30e76aa74cf2e1e32962e5054a7",
+          "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json": "028af378c5eb3da122da4e92c478eb9af2a584561409656e636f6cbd4fd16fff",
+          "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54",
+          "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json": "4a4062c419ec2adace53f270a72ecc623277de5ab7e7c1914f42afa66fcc1fa6",
+          "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json": "33b9da4aef5c83f6f8c3695494fba9f012954bec0059708fccc584ad1775cfd6",
+          ".product-experience/decision-log.md#PXD-219-section": "268b9e428da99c34be1eba54cd8009e6919e36d555464093672d30fa5d6d0de5",
+          ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
+          ".product-experience/decision-log.md#PXD-216-section": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c",
+          ".product-experience/decision-log.md#PXD-218-section": "9a5a0c81efffd2c8591e9f23446798c95df43322363a66cc274152bcbcfee3bb",
+          ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
+          ".product-experience/decision-log.md#PXD-222-section": "b4ec5530301c065595e7e678e163a255cb1fad5937a69987ed829c7bdc138f1e",
+          ".product-experience/decision-log.md#PXD-223-section": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206",
+          "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json": "ef5ab4153eb150531a64406895c6dcbb625689459eb4f07a0408ceabd6e01f73",
+          "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+          ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
           ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
-          ".product-experience/decision-log.md#PXD-208-section": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec",
-          "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json": "a9373535178a7040425e5f40f31951f7359abfb4aa64daf37157ef539b443b3c",
-          ".product-experience/decision-log.md#PXD-209-section": "d7b4f88b7506b20e7a69ceb0e3ee3e2de2440d05c0c60fdb3119cfd60ab18c31",
-          "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json": "af80730aebc6a557b983752df726b1ed869abf83e386ec1c97b95f446c0e2693"
+          ".product-experience/decision-log.md#PXD-208-section": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec"
         },
         "decisionContextFingerprints": {
           ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
-          ".product-experience/decision-log.md#PXD-208-section": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec"
+          ".product-experience/decision-log.md#PXD-208-section": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec",
+          ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
         },
         "changedJoins": [
           {
@@ -2845,10 +2882,10 @@
         "currentSourceFingerprints": {
           ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
           ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
-          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
           ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "6b01fea74bc26c25fea97e5108073025cbc1284a4753a98e74b9994c70342a95",
-          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "3477ab23c6aa2e46c435e7324ce8bb531cbda19d61a4c77bba0c202a96468691",
+          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "dbd27e398c350fad6e8d617b23cf60d5754effcd7b4bbae214109b85d2983181",
+          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "675642e960aacd798204ccb0cf657b1f97ef04ba4f7b9103035f5fa54277a9f7",
           ".product-experience/decision-log.md#PXD-209-section": "d7b4f88b7506b20e7a69ceb0e3ee3e2de2440d05c0c60fdb3119cfd60ab18c31"
         },
         "scopedClauseFingerprints": [
@@ -2876,6 +2913,12 @@
         "decisionContextFingerprint": {
           "sourceRef": ".product-experience/decision-log.md#PXD-209-section",
           "sha256": "d7b4f88b7506b20e7a69ceb0e3ee3e2de2440d05c0c60fdb3119cfd60ab18c31"
+        },
+        "currentnessAuthority": {
+          "decisionRef": ".product-experience/decision-log.md#PXD-225",
+          "artifactRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
+          "artifactSha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+          "decisionSectionSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
         }
       }
     }

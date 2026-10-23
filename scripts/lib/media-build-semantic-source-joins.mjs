@@ -60,6 +60,7 @@ export function buildSemanticSourceJoins({ root, traceRows }) {
   const transitionsPath = `${P1}/transitions.yaml`;
   const guardsPath = `${P1}/transition-guard-contracts.yaml`;
   const handoffPath = `${P1}/handoff-contracts.yaml`;
+  const experienceHandoffPath = `${P3}/handoff-bindings.yaml`;
   const purposePath = `${P3}/journey-purpose-bindings.yaml`;
   const channelPath = `${P3}/journey-channel-contract-bindings.yaml`;
   const componentPath = `${P2}/component-contracts.yaml`;
@@ -85,6 +86,7 @@ export function buildSemanticSourceJoins({ root, traceRows }) {
   const transitions = parseYaml(root, transitionsPath);
   const guards = parseYaml(root, guardsPath);
   const handoffs = parseYaml(root, handoffPath);
+  const experienceHandoffs = parseYaml(root, experienceHandoffPath);
   const purposes = parseYaml(root, purposePath);
   const channels = parseYaml(root, channelPath);
   const components = parseYaml(root, componentPath);
@@ -136,6 +138,9 @@ export function buildSemanticSourceJoins({ root, traceRows }) {
   const transitionRecords = [...asArray(transitions.transitionRecords), ...asArray(transitions.ownerDefinedTransitionRecords)];
   const guardRecords = asArray(guards.records);
   const handoffRecords = exactIdSelectors(handoffs, `${handoffPath}#`);
+  const experienceHandoffRecords = indexById(experienceHandoffs.handoffs);
+  const operationProfileRecords = indexById(ops.ownerDefinedOperationProfiles?.profiles);
+  const ttsOrigin = ops.ownerDefinedTtsRequestOriginContract;
 
   const p1StatusIds = new Set(statuses[1].sourceIdentityIds ?? []);
   const p0CapIds = new Set(capRecords.keys());
@@ -156,8 +161,8 @@ export function buildSemanticSourceJoins({ root, traceRows }) {
     ...asArray(topology.consumerCrosswalk).map((r, i) => ({ ...r, phase: 'TOPOLOGY', kind: 'consumer', sourceRef: `${topologyPath}#/consumerCrosswalk/${i}` }))
   ];
   const topologyIndex = new Map(topologyRows.map(row => [row.surfaceId, row]));
-  const sourceFiles = [capsPath, reqPath, opsPath, domainObjectsPath, actionPath, statesPath, transitionsPath, guardsPath, handoffPath, purposePath, channelPath, componentPath, templatePath, recipePath, layoutPath, patternPath, journeyPath, screenPath, componentValuePath, tokenPath, compositionGrammarPath, interfaceGrammarPath, topologyPath, ...statusPaths];
-  const yamlDocuments = new Map([[capsPath, caps], [reqPath, reqs], [opsPath, ops], [domainObjectsPath, domainObjects], [actionPath, actions], [statesPath, states], [transitionsPath, transitions], [guardsPath, guards], [handoffPath, handoffs], [purposePath, purposes], [channelPath, channels], [componentPath, components], [templatePath, templates], [recipePath, recipes], [layoutPath, layouts], [patternPath, patterns], [journeyPath, journeys], [screenPath, screens], [componentValuePath, componentValueTypes], [tokenPath, tokenAliases], [compositionGrammarPath, compositionGrammar], [interfaceGrammarPath, interfaceGrammar]]);
+  const sourceFiles = [capsPath, reqPath, opsPath, domainObjectsPath, actionPath, statesPath, transitionsPath, guardsPath, handoffPath, experienceHandoffPath, purposePath, channelPath, componentPath, templatePath, recipePath, layoutPath, patternPath, journeyPath, screenPath, componentValuePath, tokenPath, compositionGrammarPath, interfaceGrammarPath, topologyPath, ...statusPaths];
+  const yamlDocuments = new Map([[capsPath, caps], [reqPath, reqs], [opsPath, ops], [domainObjectsPath, domainObjects], [actionPath, actions], [statesPath, states], [transitionsPath, transitions], [guardsPath, guards], [handoffPath, handoffs], [experienceHandoffPath, experienceHandoffs], [purposePath, purposes], [channelPath, channels], [componentPath, components], [templatePath, templates], [recipePath, recipes], [layoutPath, layouts], [patternPath, patterns], [journeyPath, journeys], [screenPath, screens], [componentValuePath, componentValueTypes], [tokenPath, tokenAliases], [compositionGrammarPath, compositionGrammar], [interfaceGrammarPath, interfaceGrammar]]);
   const sourceSelectorExists = reference => {
     if (typeof reference !== 'string' || !reference.includes('#')) return false;
     const [path, fragment] = reference.split('#', 2);
@@ -275,6 +280,13 @@ export function buildSemanticSourceJoins({ root, traceRows }) {
         }
       }
     };
+    const addSelector = (phase, relation, sourceRef, targetSelector) => {
+      if (sourceSelectorExists(targetSelector)) fieldJoin(joins, phase, relation, sourceRef, targetSelector);
+      else {
+        unresolvedSourceSlots.push(`${relation}=${targetSelector}`);
+        unresolvedSourceBlockers.push(`UNRESOLVED_DECLARED_SELECTOR:${row.id}:${relation}:${targetSelector}`);
+      }
+    };
 
     if (row.phase === 'PDP-0' && row.kind === 'capability-intent') {
       const cap = capRecords.get(row.id);
@@ -307,6 +319,26 @@ export function buildSemanticSourceJoins({ root, traceRows }) {
         const operation = operationIndex.get(sourceId);
         const operationSource = operationSelectors.get(sourceId);
         if (operation && operationSource) {
+          // Follow only exact, authored source references which are part of the
+          // operation's declared contract. These include profile definitions,
+          // owner read contracts, and the TTS request-origin contract.
+          if (typeof operation.profileRef === 'string') {
+            const profile = operationProfileRecords.get(operation.profileRef);
+            if (profile) addSelector('PDP-1', 'p1OperationProfile', `${operationSource}/profileRef`, `${opsPath}#ownerDefinedOperationProfiles/profiles/@id=${profile.id}`);
+          }
+          if (typeof operation.readContractRef === 'string') addSelector('PDP-1', 'p1ReadContract', `${operationSource}/readContractRef`, operation.readContractRef);
+          if (ttsOrigin) {
+            for (const field of ['requestSnapshotQueryRef', 'sourceInputVersionQueryRefs', 'outputRegistrationOperationRef']) {
+              const refs = Array.isArray(ttsOrigin[field]) ? ttsOrigin[field] : [ttsOrigin[field]];
+              for (const ref of refs) {
+                if (typeof ref !== 'string') continue;
+                const targetId = selectorTarget(ref);
+                if (targetId === sourceId && sourceSelectorExists(ref)) {
+                  addSelector('PDP-1', 'p1OperationLineage', `${opsPath}#ownerDefinedTtsRequestOriginContract/${field}`, ref);
+                }
+              }
+            }
+          }
           addRefs(operation, ['capabilityRef', 'capabilityRefs'], 'PDP-0', 'p0Capability', ref => capRecords.has(ref));
           addRefs(operation, ['requirementRefs'], 'PDP-0', 'p0Requirement', ref => reqRecords.has(selectorTarget(ref)));
           for (const stateRef of asArray(operation.stateRefs)) {
@@ -390,6 +422,7 @@ export function buildSemanticSourceJoins({ root, traceRows }) {
       for (const ref of asArray(component?.handoffRefs)) {
         const handoffId = selectorTarget(ref); const target = handoffRecords.get(handoffId);
         if (target) fieldJoin(joins, 'PDP-1', 'p1Handoff', `${componentPath}#components/@id=${row.id}/handoffRefs`, handoffId);
+        else if (experienceHandoffRecords.has(handoffId)) addSelector('PDP-3', 'p3HandoffSelector', `${componentPath}#components/@id=${row.id}/handoffRefs`, `${experienceHandoffPath}#handoffs/@id=${handoffId}`);
         else if (sourceSelectorExists(ref)) fieldJoin(joins, 'PDP-1', 'p1HandoffSelector', `${componentPath}#components/@id=${row.id}/handoffRefs`, ref);
         else { unresolvedSourceSlots.push(`handoffRefs=${ref}`); unresolvedSourceBlockers.push(`UNRESOLVED_HANDOFF_SELECTOR:${row.id}:${ref}`); }
       }
@@ -480,10 +513,15 @@ export function buildSemanticSourceJoins({ root, traceRows }) {
         target.endpointClassification = 'SOURCE_SELECTOR';
         target.targetSelector = target.id;
       } else if (target.phase === 'PDP-1' && operationIndex.has(target.id)) {
-        target.endpointClassification = 'SOURCE_RECORD_NOT_IN_TRACE';
-        target.targetSelector = operationSelectors.get(target.id) ?? null;
-        unresolvedSourceSlots.push(`traceIdentityMissing:${relation}=${target.id}`);
-        unresolvedSourceBlockers.push(`REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:${row.id}:${target.id}`);
+        const exactSelector = operationSelectors.get(target.id);
+        if (exactSelector && sourceSelectorExists(exactSelector)) {
+          target.endpointClassification = 'SOURCE_SELECTOR';
+          target.targetSelector = exactSelector;
+        } else {
+          target.endpointClassification = 'UNRESOLVED_ENDPOINT';
+          unresolvedSourceSlots.push(`traceIdentityMissing:${relation}=${target.id}`);
+          unresolvedSourceBlockers.push(`REQUIRED_P1_OPERATION_OMITTED_FROM_TRACE:${row.id}:${target.id}`);
+        }
       } else if (target.phase === 'PDP-1' && handoffRecords.has(target.id)) {
         target.endpointClassification = 'SOURCE_RECORD_NOT_IN_TRACE';
         target.targetSelector = handoffRecords.get(target.id).selector;

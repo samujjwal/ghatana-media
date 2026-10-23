@@ -1,0 +1,277 @@
+{
+  "schemaVersion": "media.gtool-build-task-evidence-candidate.v1",
+  "recordKind": "SOURCE_BOUND_TECHNICAL_RECONCILIATION_CANDIDATE_NOT_TASK_ACCEPTANCE_OR_PLAN_ADMISSION",
+  "recordedAt": "2026-10-23T04:13:51Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "f8816aede965d55c27005d5bab13bcb6ae376389",
+    "macroStage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "taskId": "M-BLD-F00.T02",
+    "taskTitle": "Build trace coordinator"
+  },
+  "taskDisposition": {
+    "canonicalSource": {
+      "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
+      "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a",
+      "bytes": 39231
+    },
+    "status": "OPEN_TECHNICAL_WORK",
+    "disposition": "APPROVE_IMPLEMENTATION_PLANNING_AND_SOURCE_REPAIR",
+    "completionClaim": "NOT_COMPLETE",
+    "ownerRepository": "samujjwal/ghatana-media",
+    "ownerRole": "Build trace coordinator",
+    "lane": "SOURCE_BRIDGE",
+    "blockingDependencies": "PDP0..3 current matrices; F00.T01 material receipt",
+    "directive": "Resolve 93 P1 operation endpoints missing from the 3,186 trace without naming heuristics; reconcile 8 unresolved explicit relations and the exact media.handoff.identity selector. If the trace census changes, version the trace and regenerate all dependent projections after owner-reviewed impact.",
+    "acceptanceCriterion": "Exact source ID and selector for every required operation; reconciled trace/bridge census, zero invented links; all affected source/currentness tests pass.",
+    "reviewerDisposition": "OWNER_SCOPE_ACCEPTED_EXACT_SOURCE_TEST_REVIEW_REMAINING",
+    "formalState": "TECHNICALLY_RECONCILED_REVIEW_PENDING",
+    "taskAcceptance": "NOT_ESTABLISHED",
+    "Plan Ready": "NOT_PROVEN"
+  },
+  "sourceInputs": {
+    "selectors": [
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities",
+      ".product-experience/pdp-0-product-truth/requirements.yaml",
+      ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records; individualOperationContracts/records",
+      ".product-experience/pdp-1-domain-data/{domain-objects,handoff-contracts,states,transition-guard-contracts,transitions}.yaml",
+      ".product-experience/pdp-2-design-interface-system/{component-contracts,component-value-types,interface-grammar,media-token-aliases}.yaml and gui/{composition-validation-grammar,layout,patterns/catalog,recipes/catalog,templates/catalog}.yaml",
+      ".product-experience/pdp-3-product-experience/{action-registry,handoff-bindings,journey-channel-contract-bindings,journey-purpose-bindings,journey-registry,screen-registry}.yaml",
+      ".product-experience/surfaces/media-physical-topology.v1.json",
+      "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
+      "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+      "docs/implementation/pdp-{0,1,2,3}-phase-dev-status.json"
+    ],
+    "currentBridgeSourcePins": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+      ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "b2901f3efc54920b1d280897fc2d95eb10029d092944d7bbf046b6dbd8f97c48",
+      ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+      ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+      ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
+      ".product-experience/pdp-1-domain-data/transitions.yaml": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
+      ".product-experience/pdp-2-design-interface-system/component-contracts.yaml": "6bcd90f59bee7df018bcbff57776fa53290e22eac1cf18519c4759551d71bb63",
+      ".product-experience/pdp-2-design-interface-system/component-value-types.yaml": "aed62bda69a5d44bccee0873eb03bada142994d2256f515fbe1ea89af50d0313",
+      ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml": "b1d163ca9cddf8fdd0d614952108e52cbd2a81292c87328c0e0b35afb665669b",
+      ".product-experience/pdp-2-design-interface-system/gui/layout.yaml": "1888914e0a5ce266a9ab866e0ee631bcb8864ced214e207beaaea8675b7ee31c",
+      ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml": "47ac97bf4c32f5c9a49fbdec26e9d883c5025a08eb8ddcd4915033cd813b3f67",
+      ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml": "d85ce0ebd2efd44354c20cc09347c04f4b269845f953d47cb35f96c2c0340a12",
+      ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml": "87ba4671053ba119c63a8d0d0525d68e71923e666bcfdd13d20fa2cbdef72608",
+      ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml": "8f544bdd47a2b2c3bd3ca6c909a1adcb3e604c516e26c94419178c362a4013a9",
+      ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml": "2e616841001f657327b71331435cb61c96dcba8d2fe2d8e8880aed724d4d4e2a",
+      ".product-experience/pdp-3-product-experience/action-registry.yaml": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
+      ".product-experience/pdp-3-product-experience/handoff-bindings.yaml": "1ab6530c7c375ff542e3fffd0328e14a63bfbe3b94d85abb1f5dc9ea7eebcdef",
+      ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml": "d1af57db0bf4bcec054af251ffe40f5f2f1877f71a95dbd06ab5de8962279147",
+      ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": "439016ffe0962889992fb0f2c4b9d0be9082d2d52b6c0e251a0bea2d76b2544a",
+      ".product-experience/pdp-3-product-experience/journey-registry.yaml": "45fad668f42010258596be4729938b75c6f344d785080f5bb3aff5cbbfe39cb4",
+      ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
+      ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+      "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json": "92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32",
+      "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a",
+      "docs/implementation/pdp-0-phase-dev-status.json": "140b941a22098960ec06151dbe360ec2ee782c7da0f1f41526855b835d61b27b",
+      "docs/implementation/pdp-1-phase-dev-status.json": "72f72c027b9aa6f409bf162c4a9c9b39186d1bb54f33317900309b3f46e1ff2d",
+      "docs/implementation/pdp-2-phase-dev-status.json": "f202a5d0cf5cef788e9d17151bf6cfa4064177aaa650f8a07ad86bdbf7a1c45a",
+      "docs/implementation/pdp-3-phase-dev-status.json": "547e217a37bfa3f8c485f984b3d4aaccb4d76f3a273115ce2e2f8700af140340"
+    },
+    "sourceMaterialReceipt": {
+      "artifact": {
+        "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
+        "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537",
+        "bytes": 12406
+      },
+      "gtoolSourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
+      "methodFingerprint": "sha256:d6344e6cd3ca38a2cc0fa52907be77e1ccd8b8178451ff6113343210aec591d5",
+      "topology": {
+        "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+        "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+        "physicalManifestCandidates": 26,
+        "semanticCompositionsIncludingRoot": 7,
+        "logicalConsumers": 21,
+        "identityCount": 54,
+        "uniqueIdentityCount": 54,
+        "surfaceRegistryPath": ".product-experience/surface-registry.yaml",
+        "surfaceRegistrySha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+      },
+      "materialSourcePins": {
+        "status": "CURRENT",
+        "count": 859,
+        "staleOrUnsupportedCount": 0,
+        "canonicalSha256": "828876b6be898f8fad92a3c0f6e2672f445b19e4e09dbc542288b00d13727aee",
+        "canonicalization": "SHA-256 of JSON.stringify over records reduced to phase, selector, expectedSha256, currentSha256, status and sorted by phase then selector.",
+        "phaseCounts": {
+          "PDP-0": 175,
+          "PDP-1": 137,
+          "PDP-2": 180,
+          "PDP-3": 367
+        },
+        "fullPinRecordsRef": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json#/materialSourceReceipt/records",
+        "fullPinProjectionSha256": "sha256:00dc8ef2476ae5a09dcfd3a15a18623310c82a0709346e3f7de12da79411f8fe",
+        "fullPinProjectionCanonicalization": "SHA-256 of JSON.stringify over the full materialSourceReceipt.records array in emitted order."
+      },
+      "phaseMatrices": [
+        {
+          "phase": "PDP-0",
+          "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+          "sha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
+          "rows": 54,
+          "status": "DEV_COMPLETE",
+          "sourceCurrentness": "CURRENT",
+          "remainingPhaseLocalTaskCount": 0
+        },
+        {
+          "phase": "PDP-1",
+          "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+          "sha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
+          "rows": 54,
+          "status": "DEV_COMPLETE",
+          "sourceCurrentness": "CURRENT",
+          "remainingPhaseLocalTaskCount": 0
+        },
+        {
+          "phase": "PDP-2",
+          "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+          "sha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+          "rows": 54,
+          "status": "DEV_COMPLETE",
+          "sourceCurrentness": "CURRENT",
+          "remainingPhaseLocalTaskCount": 0
+        },
+        {
+          "phase": "PDP-3",
+          "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
+          "sha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db",
+          "rows": 54,
+          "status": "DEV_COMPLETE",
+          "sourceCurrentness": "CURRENT",
+          "remainingPhaseLocalTaskCount": 0
+        }
+      ],
+      "phaseCells": 216
+    },
+    "traceArtifact": {
+      "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
+      "sha256": "sha256:92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32",
+      "bytes": 1301570
+    },
+    "ownerPlan": {
+      "path": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+      "sha256": "sha256:9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a",
+      "bytes": 240515
+    },
+    "workPackageProjection": {
+      "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+      "sha256": "sha256:e5990c3991aaa8852e0f6918573bb584a6b3edb406076e57638ddcd95f138aef",
+      "bytes": 19473171
+    },
+    "binaryAbi": "UNBOUND; plan projection asserts no binary ABI fingerprint"
+  },
+  "requiredStructuredIO": {
+    "input": [
+      "current PDP source selector",
+      "material fingerprint",
+      "resolved owner/ABI and dependency reference",
+      "declared positive and negative cases"
+    ],
+    "output": [
+      "source-bound changed artifact or audited plan",
+      "exact test plan and result",
+      "negative/UNKNOWN/rollback readback",
+      "source-current owner review disposition"
+    ]
+  },
+  "technicalEvidence": {
+    "bridgeArtifact": {
+      "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
+      "sha256": "sha256:e4a3bb4df45ca055a9b4129f98be6ea15ac668276e137bcb4b25179c15c5cd13",
+      "bytes": 12478978
+    },
+    "bridgeStatus": "SOURCE_RELATIONS_CURRENT",
+    "identityCount": 3186,
+    "edgeCount": 8667,
+    "blockerInventory": {
+      "path": "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
+      "sha256": "sha256:78b51d0e834e5e98fc3fdaa651323889e760191cca2b88d5c89da8b584a549c7",
+      "bytes": 1172
+    },
+    "blockerStatus": "SOURCE_RELATIONS_CURRENT",
+    "taskCompletionStatus": "NOT_EVALUATED",
+    "proofStatus": "NOT_VERIFIED",
+    "blockerCensus": {
+      "traceIdentityCount": 3186,
+      "sourceBridgeEdgeCount": 8667,
+      "unresolvedSourceIdentityCount": 0,
+      "unresolvedSourceBlockerCount": 0,
+      "p1OperationMissingReferenceCount": 0,
+      "uniqueMissingP1OperationCount": 0,
+      "unresolvedCrossLayerRelationCount": 0,
+      "unresolvedHandoffSelectorCount": 0,
+      "otherReasonCount": 0
+    },
+    "workPackageTask": {
+      "status": "ASSIGNED_UNVERIFIED",
+      "outcome": "Bind each of the 3,186 trace identities only through source-declared P0 capability/requirement, P1 operation/guard/state, P2 component/action/source slots, and P3 purpose/channel/edge/view selectors; retain unresolved slots.",
+      "predecessorTaskIds": [
+        "M-BLD-F00.T01"
+      ],
+      "positiveTestIds": [
+        "M-BLD-F00.T02.POSITIVE"
+      ],
+      "adversarialTestIds": [
+        "M-BLD-F00.T02.WRONG_JOIN",
+        "M-BLD-F00.T02.MISSING_ID",
+        "M-BLD-F00.T02.DUPLICATE_EDGE"
+      ],
+      "testCommands": [
+        "node --test tests/media-build-work-packages-generator.test.mjs",
+        "node scripts/generate-media-build-work-packages.mjs --check"
+      ],
+      "acceptanceStatus": "ASSIGNED_UNVERIFIED"
+    },
+    "priorContinuation": {
+      "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T040737Z.v1.json",
+      "sha256": "sha256:a5269f4a4baafec16417abae0539c6ec6184644da9cbe0095542be108bc892a0",
+      "bytes": 16179
+    }
+  },
+  "verification": [
+    {
+      "command": "pnpm run check:build-contract-bridge",
+      "exitCode": 0,
+      "result": "PASS; deterministic/current, 3,186 identities and 8,667 edges"
+    },
+    {
+      "command": "pnpm run test:build-contract-bridge",
+      "exitCode": 0,
+      "result": "PASS; 2/2 tests"
+    },
+    {
+      "command": "pnpm run check:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS; SOURCE_RELATIONS_CURRENT; zero unresolved source identities/blockers, required P1 references, cross-layer relations, and handoff selectors"
+    },
+    {
+      "command": "pnpm run test:build-bridge-blockers",
+      "exitCode": 0,
+      "result": "PASS; 5/5 tests"
+    }
+  ],
+  "acceptance": {
+    "criterion": "Exact source ID and selector for every required operation; reconciled trace/bridge census, zero invented links; all affected source/currentness tests pass.",
+    "technicalObservation": "Current generated bridge reconciles source selectors: 3,186 identities, 8,667 edges; blocker inventory reports zero unresolved source identities/blockers, required P1 operation references, cross-layer relations, or handoff selectors. Focused checks and tests pass.",
+    "formalReview": "PENDING; no source-current Work Planner/owner task review or task acceptance receipt is included.",
+    "completionClaim": "NOT_COMPLETE"
+  },
+  "gateClaims": {
+    "candidateState": "TECHNICALLY_RECONCILED_REVIEW_PENDING",
+    "taskAcceptance": "NOT_ESTABLISHED",
+    "Plan Ready": "NOT_PROVEN",
+    "runtimeImplementationAdmission": "NOT_ASSERTED",
+    "nativePdpClosure": "NOT_ASSERTED",
+    "releaseQualification": "NOT_ASSERTED",
+    "ownerReviewOrReceipt": "NOT_PRESENT_IN_THIS_PACKET"
+  },
+  "nextAction": "Submit this source-bound packet and exact check outputs for source-current Work Planner/owner task review. Preserve canonical task status as OPEN_TECHNICAL_WORK until a genuine review/readback satisfies the acceptance criterion."
+}
