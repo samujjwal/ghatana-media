@@ -1,7 +1,7 @@
 {
   "schemaVersion": "media.phase-dev-status.v1",
   "phase": "PDP-0",
-  "mainSha": "cf34006d43e3173f889e36a71dc919944fbb8ef1",
+  "mainSha": "354452f29bea4a3b24cd456d39950967ab4d83c0",
   "sourceShaSet": {
     ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
     ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
@@ -246,7 +246,7 @@
       "testCount": 28,
       "passedTestCount": 28,
       "skippedTestCount": 0,
-      "outputSha256": "c9808b2d2666f4b5f3793183b5833da288650667924ed46d39c684ee77a1c73d",
+      "outputSha256": "6416e0eb0c02e31b19fff6fb17710b154c72815ed85449da7666952a7a79a1b8",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "63e543ae5691c547cbb23a61fd847d6ccf5e1280e82b57c8fd435da34370cbf0",
         "tests/pdp-truth-domain.test.mjs": "d29472b12db8f7e3cfdff21f5f42fa0a3a8ec8c47f39bc2106889ff5bf605f03",
@@ -413,7 +413,7 @@
       "testCount": 13,
       "passedTestCount": 13,
       "skippedTestCount": 0,
-      "outputSha256": "29157d69e7769b6dc7209118526f545fd64d12a16b14ce6069a2b2eb55f5b14c",
+      "outputSha256": "6c163d129c67152fef79a225872f854fcfbf07305654bfbdb237d020bae5a765",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain.test.mjs": "d29472b12db8f7e3cfdff21f5f42fa0a3a8ec8c47f39bc2106889ff5bf605f03",
         "tests/media-operation-bounds.test.mjs": "75b0c11a2239f819322f7f1dee8633da761dd0beb19e53d26ba8f342ae1835a8",
@@ -561,7 +561,7 @@
       "testCount": 137,
       "passedTestCount": 108,
       "skippedTestCount": 29,
-      "outputSha256": "cc57132ad019ba617454b67def09ad03b308f6ccd1297378e2e1e0584966453f",
+      "outputSha256": "8a57edc42f46ae844ebce6deafebfd71e270f587d14a32a7a34e5fe511002137",
       "testSourceFingerprints": {
         "tests/pdp-migration-current-source-claim-dispositions.test.mjs": "107cabb57c0f582b5f284e01922df7dc9e52da00bc902d1206f323576ec5d973",
         "tests/pdp-migration-semantic-reconciliation.test.mjs": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719",
@@ -729,7 +729,7 @@
       "testCount": 6,
       "passedTestCount": 6,
       "skippedTestCount": 0,
-      "outputSha256": "660fedffd3ace04cd31093e069b9becfb72c07c1ad3a85f6458d35fdf662eef1",
+      "outputSha256": "93f9cb4b8a907b00c66b8dc9003d848260244b16888a85eeb0f992598efc6e03",
       "testSourceFingerprints": {
         "tests/pdp-0-final.test.mjs": "a1149957da1f7a61349205f301bef0a84ff552c9d9964c2f8d8be4a692ad0916",
         "tests/media-product-definition-resolved-intents.test.mjs": "7b5a812e746c4a8e58b5fc84a52f39b7f272fec966c2abb44eac3c8044e8d176",
@@ -869,7 +869,7 @@
       "testCount": 10,
       "passedTestCount": 10,
       "skippedTestCount": 0,
-      "outputSha256": "1330ee7c3ca5f0eab4e990a6831f2060ef070c2ec2d0e674e8fb0bd10f4f6ea9",
+      "outputSha256": "8f8cc8f16b8939a9c9462be12f870a57b82b07f9777cc2bc691044a22ba3184e",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain.test.mjs": "d29472b12db8f7e3cfdff21f5f42fa0a3a8ec8c47f39bc2106889ff5bf605f03",
         "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
@@ -1013,7 +1013,7 @@
       "testCount": 12,
       "passedTestCount": 12,
       "skippedTestCount": 0,
-      "outputSha256": "16666f1f0e40ebf73db6141b6fd6bb59abee0ec7cf280f2962b4887ea03e5588",
+      "outputSha256": "e694fd6675b3fa34c49a0b75109bf1be0d5a04647732273b5a564a200e7a91bb",
       "testSourceFingerprints": {
         "tests/pdp-0-06-measures-provenance.test.mjs": "27ed2f3c4e732d78a4deb955059af96291315b99d875dcce1b46817dfd203027",
         "tests/media-measure-applicability-crosswalk.test.mjs": "7b335bc7e9f694878f1e4829bf5e0570c6034de9cbf223f0b9510e3bc564546d",
@@ -1162,7 +1162,7 @@
       "testCount": 10,
       "passedTestCount": 10,
       "skippedTestCount": 0,
-      "outputSha256": "1e6847fc20fc8d89f332adfedde1d9c131c85c8363e0ff3e1a64988b01c94a14",
+      "outputSha256": "af13afca2c43519c4c0c1251d5bbe0378909267a78ee57221ff84e4cb221fd00",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "63e543ae5691c547cbb23a61fd847d6ccf5e1280e82b57c8fd435da34370cbf0",
         "tests/media-p0-07-feature-channel-review.test.mjs": "d24816e776b10bab7300fb3157be2e6a658be028f40c6f34f30157f8d14d4a0e",
@@ -1308,7 +1308,7 @@
       "testCount": 119,
       "passedTestCount": 119,
       "skippedTestCount": 0,
-      "outputSha256": "426b306237956be217a7d69c9823eb7b8381a2de69debc31449275551de368e4",
+      "outputSha256": "8b353175724fb6b42650190c78f97b0e827987f0d2906acfe03f32daa9905034",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "63e543ae5691c547cbb23a61fd847d6ccf5e1280e82b57c8fd435da34370cbf0",
         "tests/pdp0-development-handoff.test.mjs": "910eff48b8f56b1bed3d61443fdc8df2b42c95118e65fe047c85aa36cc3ff45b",
