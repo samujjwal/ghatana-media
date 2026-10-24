@@ -350,3 +350,72 @@ The foundation tasks are grounded in product-intent PDP sources, but **not all t
 
 Existing source definitions remain in `.product-experience/`; do not generate a competing contract registry or gtool status. The 56-task exact PDP trace follows in `14. A binding gap prevents claims about that unadmitted **public** behavior, not independent coding/testing.
 
+
+## 14. Exact 56-task PDP mapping (source intent, not fabricated acceptance)
+
+**Sources and type meanings:** P0 IDs below are verified in `.product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml` and map to the corresponding capability families in `capabilities.yaml`/the physical topology. P1 `media.domain.*`, `media.value.*`, `media.privacy.*`, `media.invariant.*`, `media-job` and `media-attempt`, and `media.event-*` resolve respectively to PDP-1 `domain-objects.yaml`, `value-objects.yaml`, `privacy.yaml`, `states.yaml`, and `events.yaml`. P2 filenames below are relative to `.product-experience/pdp-2-design-interface-system/api/`; the accepted/actual HTTP sources remain `contracts/openapi/media.yaml` and `config/route-manifest.json`. P3 `media.http.*` names resolve to the 27-entry `.product-experience/pdp-3-product-experience/api/api-registry.yaml`; `media.recovery.*` to `recovery-finality-contracts.yaml`. J-26 is a journey reference, NOT an available HTTP erase route. For internal event/storage logic, “—” means no public PDP-3 interface is claimed.
+
+**Destination edit locations:** `RC` = Media `runtime-contracts/src/main/java/com/ghatana/media/runtime/`; `LA` = Media `launcher/src/main/java/com/ghatana/media/launcher/`; `PG` = Media `providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/`; `SEC` = Media `modules/infrastructure/security/src/main/java/com/ghatana/audio/video/infrastructure/security/`; `MSG` = Media `modules/infrastructure/messaging/src/main/java/com/ghatana/audio/video/infrastructure/messaging/`. A `NEW` or `IMPORT` target must be reconciled under M01–M06, not assumed to exist. Existing tests and negative cases in Sections 4–8 remain mandatory.
+
+**Trace classes:** `DIRECT` = exact source-defined intent and matching declared consumer/operation identity, not admission; `DERIVED` = implementable internal mechanism required by a PDP invariant, no extra endpoint; `BINDING_GAP` = incomplete headless/public/PDP semantic binding or external admission, tracked in G01–G06. These are **not** gtool closure statuses. All 56 tasks are mapped, but full four-PDP semantic/interface admission cannot be asserted until the listed gaps are genuinely reconciled.
+
+| Task | PDP-0 requirement | PDP-1 object/rule/meaning | PDP-2 API source | PDP-3 route/recovery | Media repo code owner target | Trace status |
+| --- | --- | --- | --- | --- | --- | --- |
+| C01 | NFR-AUD-001 | media.domain.processing-job | `api/conventions.yaml` | media.http.submitMediaJob | `RC/MediaRuntimeContracts.java` | DERIVED |
+| C02 | NFR-PRIV-001 | media.value.opaque-id | `api/identifiers.yaml` | media.http.getMediaArtifact | `RC/MediaRuntimeContracts.java` | DIRECT |
+| C03 | NFR-TIME-001 | media.value.rational-media-time | `api/conventions.yaml` | — internal | `RC/MediaTimebase.java (NEW)` | DERIVED |
+| C04 | NFR-RECOVERY-001 | media.domain.artifact-version | `api/versioning.yaml` | media.http.getMediaArtifact | `RC/MediaRuntimeContracts.java` | DIRECT |
+| C05 | NFR-RECOVERY-001 | media-job; media-attempt | `api/async-operations.yaml` | media.http.getMediaJob | `RC/MediaRuntimeContracts.java` | BINDING_GAP |
+| C06 | NFR-AUD-001 | media.domain.processing-job | `api/idempotency.yaml` | media.http.submitMediaJob | `LA/MediaSubmissionDigest.java (IMPORT)` | BINDING_GAP |
+| C07 | NFR-PRIV-001 | media.domain.rights-decision | `api/errors.yaml` | media.http.grantMediaConsent | `RC/MediaRuntimeContracts.java` | DIRECT |
+| C08 | NFR-RECOVERY-001 | media.domain.processing-job | `api/compatibility.yaml` | media.http.submitMediaJob | `RC/MediaRuntimeContracts.java` | BINDING_GAP |
+| C09 | NFR-RECOVERY-001 | media.domain.artifact-version | `api/compatibility.yaml` | media.http.getMediaArtifact | `RC/MediaRuntimeContracts.java` | DERIVED |
+| C10 | NFR-PERF-001 | media.domain.processing-job | `api/errors.yaml` | media.http.getMediaJob | `RC/src/test/java (contract matrix)` | DERIVED |
+| S01 | NFR-PRIV-001 | media.privacy.tenant-scope | `api/auth.yaml` | media.http.grantMediaConsent | `LA/MediaSecurityFilter.java` | DERIVED |
+| S02 | NFR-PRIV-001 | media.privacy.tenant-scope | `api/auth.yaml` | media.http.beginMediaUpload | `LA/MediaSecurityFilter.java` | DIRECT |
+| S03 | NFR-PRIV-001 | media.trust.host-identity | `api/auth.yaml` | media.http.submitMediaJob | `LA/MediaRouteManifest.java` | BINDING_GAP |
+| S04 | NFR-PRIV-001 | media.privacy.consent | `api/auth.yaml` | media.http.grantMediaConsent | `PG/PostgresqlMediaConsentAuthority.java` | DIRECT |
+| S05 | NFR-AUD-001 | media.invariant.revocation-stops-future-effects | `api/async-operations.yaml` | media.http.submitMediaJob | `LA/MediaRuntime.java` | BINDING_GAP |
+| S06 | NFR-PRIV-001 | media.privacy.locality-egress | `api/errors.yaml` | media.http.submitMediaJob | `SEC/MediaProcessingSecurityValidator.java` | BINDING_GAP |
+| S07 | NFR-PRIV-001 | media.privacy.tenant-scope | `api/identifiers.yaml` | media.http.getMediaArtifact | `PG/S3PostgresqlMediaArtifactStore.java` | DIRECT |
+| S08 | NFR-PRIV-001 | media.privacy.erasure-inventory-and-tombstone.v1 | `api/async-operations.yaml` | J-26 (no HTTP erasure operation) | `PG/PostgresqlMediaPrivacyMaintenance.java` | BINDING_GAP |
+| S09 | NFR-SEC-001 | media.trust.host-identity | `api/auth.yaml` | media.http.grantMediaConsent | `LA/MediaSecurityFilter.java` | DERIVED |
+| S10 | NFR-SEC-001 | media.invariant.tenant-isolation | `api/errors.yaml` | media.http.beginMediaUpload | `SEC/src/test/java (adversarial suite)` | DERIVED |
+| A01 | NFR-RECOVERY-001 | media.domain.artifact | `api/versioning.yaml` | media.http.beginMediaUpload | `PG/MediaAwsPostgresqlRuntimeState.java` | DERIVED |
+| A02 | NFR-SEC-001 | media.domain.upload-chunk | `api/idempotency.yaml` | media.http.appendMediaChunk | `PG/S3PostgresqlMediaArtifactStore.java` | DIRECT |
+| A03 | NFR-RECOVERY-001 | media.domain.upload-session | `api/async-operations.yaml` | media.http.getMediaUpload | `PG/S3PostgresqlMediaArtifactStore.java` | DIRECT |
+| A04 | NFR-SEC-001 | media.domain.artifact-version | `api/errors.yaml` | media.http.completeMediaUpload | `PG/MediaArtifactFormatVerifier.java (IMPORT)` | DIRECT |
+| A05 | NFR-RECOVERY-001 | media.domain.provenance-manifest | `api/versioning.yaml` | media.http.getMediaArtifact | `PG/S3PostgresqlMediaArtifactStore.java` | DIRECT |
+| A06 | NFR-PRIV-001 | media.privacy.observation.request-deduplication-scope | `api/idempotency.yaml` | media.http.completeMediaUpload | `PG/S3PostgresqlMediaArtifactStore.java` | DIRECT |
+| A07 | NFR-AUD-001 | media.event-contract.media-artifact-completed | `api/async-operations.yaml` | media.http.completeMediaUpload | `PG/MediaAwsPostgresqlRuntimeState.java` | DERIVED |
+| A08 | NFR-PRIV-001 | media.privacy.erasure-inventory-and-tombstone.v1 | `api/versioning.yaml` | J-26 (no HTTP erasure operation) | `PG/PostgresqlMediaPrivacyMaintenance.java` | BINDING_GAP |
+| A09 | NFR-RECOVERY-001 | media.domain.artifact-version | `api/compatibility.yaml` | media.http.getMediaArtifact | `PG/../resources/db/media-runtime/` | DERIVED |
+| A10 | NFR-PERF-001 | media.domain.artifact | `api/pagination.yaml` | media.http.getMediaArtifact | `PG/S3PostgresqlMediaArtifactStore.java` | DERIVED |
+| A11 | NFR-SEC-001 | media.domain.upload-chunk | `api/errors.yaml` | media.http.appendMediaChunk | `PG/MediaArtifactFormatVerifier.java (IMPORT)` | DIRECT |
+| A12 | NFR-RECOVERY-001 | media.domain.upload-session | `api/idempotency.yaml` | media.http.completeMediaUpload | `PG/src/test/java (Postgres/S3/crash)` | DERIVED |
+| J01 | NFR-RECOVERY-001 | media-job; media-attempt | `api/async-operations.yaml` | media.http.getMediaJob | `LA/MediaRuntime.java` | BINDING_GAP |
+| J02 | NFR-AUD-001 | media.domain.processing-job | `api/idempotency.yaml` | media.http.submitMediaJob | `PG/PostgresqlMediaJobStore.java` | BINDING_GAP |
+| J03 | NFR-RECOVERY-001 | media.domain.job-lease | `api/async-operations.yaml` | media.http.getMediaJob | `LA/MediaDurableJobWorker.java (NEW)` | BINDING_GAP |
+| J04 | NFR-RECOVERY-001 | media.domain.job-lease | `api/concurrency.yaml` | media.http.getMediaJob | `PG/PostgresqlMediaJobStore.java` | DERIVED |
+| J05 | NFR-COST-001 | media.domain.processing-job | `api/async-operations.yaml` | media.http.submitMediaJob | `LA/MediaRuntimeConfig.java` | BINDING_GAP |
+| J06 | NFR-AUD-001 | media.domain.job-attempt | `api/retry-timeout-unknown-outcome.yaml` | media.recovery.outcome-unknown | `PG/PostgresqlMediaJobStore.java` | DIRECT |
+| J07 | NFR-RECOVERY-001 | media-attempt | `api/cancellation.yaml` | media.http.cancelMediaJob | `LA/MediaRuntime.java` | BINDING_GAP |
+| J08 | NFR-RECOVERY-001 | media-job | `api/retry-timeout-unknown-outcome.yaml` | media.recovery.outcome-unknown | `LA/MediaRuntime.java` | DIRECT |
+| J09 | NFR-COST-001 | media.domain.job-attempt | `api/retry-timeout-unknown-outcome.yaml` | media.http.submitMediaJob | `LA/MediaRuntime.java` | BINDING_GAP |
+| J10 | NFR-PRIV-001 | media.domain.artifact-version | `api/async-operations.yaml` | media.http.getMediaJob | `PG/PostgresqlMediaJobStore.java` | BINDING_GAP |
+| J11 | NFR-RECOVERY-001 | media-job | `api/read-consumer-adapters.yaml` | media.http.getMediaJob | `LA/MediaHttpHandler.java` | BINDING_GAP |
+| J12 | NFR-OBS-001 | media.domain.processing-job | `api/correlation.yaml` | media.http.getMediaMetrics | `LA/MediaRuntime.java` | DIRECT |
+| J13 | NFR-RECOVERY-001 | media-attempt | `api/retry-timeout-unknown-outcome.yaml` | media.http.cancelMediaJob | `LA/src/test/java (multiworker/crash)` | DERIVED |
+| E01 | NFR-AUD-001 | media.event-family.job | `api/compatibility.yaml` | — internal outbox | `PG/PostgresqlMediaOutboxPublicationSource.java (IMPORT)` | DERIVED |
+| E02 | NFR-PRIV-001 | media.event-contract.media-job-accepted | `api/errors.yaml` | — durable lifecycle event binding absent | `RC/MediaLifecycleEvent.java` | BINDING_GAP |
+| E03 | NFR-AUD-001 | media.event-contract.media-artifact-completed | `api/async-operations.yaml` | media.http.completeMediaUpload | `PG/PostgresqlMediaJobStore.java` | DERIVED |
+| E04 | NFR-RECOVERY-001 | media.event-dependency.event-plane-append-and-exact-lookup.v1 | `api/async-operations.yaml` | — Event Plane admission pending | `PG/PostgresqlMediaOutboxPublicationSource.java (IMPORT)` | BINDING_GAP |
+| E05 | NFR-AUD-001 | media.event-dependency.event-plane-append-and-exact-lookup.v1 | `api/retry-timeout-unknown-outcome.yaml` | — internal broker attempt | `PG/PostgresqlMediaOutboxPublicationSource.java (IMPORT)` | BINDING_GAP |
+| E06 | NFR-RECOVERY-001 | media.event-delivery-protocol.definition.v1 | `api/retry-timeout-unknown-outcome.yaml` | — internal retry | `PG/PostgresqlMediaLifecycleOutboxSource.java (IMPORT)` | BINDING_GAP |
+| E07 | NFR-RECOVERY-001 | media.event-family.job | `api/async-operations.yaml` | — consumer admission pending | `MSG/TranscriptionJobConsumer.java` | BINDING_GAP |
+| E08 | NFR-RECOVERY-001 | media.event-family.artifact | `api/compatibility.yaml` | — internal compatibility | `PG/PostgresqlMediaLifecycleOutboxSource.java (IMPORT)` | DERIVED |
+| E09 | NFR-OBS-001 | media.event-family.job | `api/correlation.yaml` | media.http.getMediaMetrics | `LA/MediaRuntime.java` | DIRECT |
+| E10 | NFR-RECOVERY-001 | media.event-dependency.event-plane-append-and-exact-lookup.v1 | `api/async-operations.yaml` | — operator integration | `LA/MediaLifecyclePublisher.java` | BINDING_GAP |
+| E11 | NFR-AUD-001 | media.event-family.job | `api/errors.yaml` | — internal integration | `PG/src/test/java (outbox crash/ACK)` | DERIVED |
+
+**Exact task review rules:** A referenced PDP identifier must be checked against the current source, not just this projection. Where a source is explicitly `proposal`, `pending-owner-review` or `NOT_ADMITTED`, the binding cannot be marked formally accepted or executable by naming it here. Each task is logically complete only when its code path, typed I/O, existing PDP requirement, negative/boundary tests and relevant real integration observations satisfy Sections 4–10. The 8 M-tasks and 8 G-gaps are separate dependency/definition checks, **not** replacements for the 56 selected development tasks. Fully unresolved PDP-3 operation bindings remain plainly visible.
