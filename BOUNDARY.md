@@ -2,8 +2,9 @@
 
 **Product identity:** `media`  
 **Destination:** `samujjwal/ghatana-media`  
-**Current canonical source:** `samujjwal/ghatana:services/media`  
-**Current migration state:** preparation; source remains canonical
+**Current Media implementation code owner:** `samujjwal/ghatana-media`  
+**Historical executable source / possible still-running deployment:** `samujjwal/ghatana:services/media` (read-only for new Media source changes)  
+**Current migration state:** destination source consolidation ongoing; operational/data cutover not executed
 
 Ghatana Media is a standalone product boundary for the Media bounded context.
 The planned transfer includes the existing media runtime, packages and clients,
@@ -17,12 +18,7 @@ separate execution gates; no runtime cutover is implied here.
 See `docs/migration/decisions/MDI-001-document-intelligence-ownership.md` for
 the supplemental ownership decision that narrows the master-plan transfer scope.
 
-Until an admitted cutover manifest is executed, `ghatana/services/media` is
-the sole **canonical executable runtime and source-writer** authority.
-Independently, `ghatana-media/.product-experience/` is the sole **Media
-product-definition and experience-semantic** authority. The prepared runtime
-copy here is migration-only and must not publish competing production state,
-endpoints or readiness claims.
+**Effective immediately, all new Media-specific backend implementation, migration source, runtime contracts, tests and provider wiring are authored in this `ghatana-media` repository.** The old subtree is read-only historical source evidence; no new Media coding belongs there. Independently, `ghatana-media/.product-experience/` remains the sole product meaning authority. Until a genuine operational source/data/consumer cutover is verified, any still-running original binary may remain the sole **active** database, worker, event/outbox and schema writer. The destination Media process uses isolated development/test resources and must not publish competing production state/endpoints or claim readiness. Code location change ≠ production data or deployment migration.
 
 Ghatana Media owns media-specific artifact, upload, job, stream, speech, vision,
 scene-text recognition, consent and lifecycle semantics after cutover. Platform

@@ -1,5 +1,7 @@
 # Media architecture
 
+**Implementation source ownership (2026-10-24):** The complete Media-specific backend implementation target is `samujjwal/ghatana-media/{launcher,runtime-contracts,modules,providers,adapters,...}`. The former `ghatana/services/media` is a read-only legacy implementation to reconcile; any still-running old deployment remains isolated until proven single-writer cutover. Platform dependencies remain their own owners. See `docs/implementation/MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md` for concrete import, data lineage and PDP gap work.
+
 > This guide describes runtime architecture and does not report current PDP status or product meaning. Consult the [PDP source index](../.product-experience/README.md) for phase-owned definitions and live source-pinned status. No Media application has been released.
 
 ## Scope and ownership

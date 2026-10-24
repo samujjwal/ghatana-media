@@ -22,6 +22,9 @@ The phase-specific status records distinguish definition development from implem
 
 ## Architecture and ownership
 
+**October 24 owner decision:** `ghatana-media` is the sole destination for new Media code. The historical `ghatana/services/media` was an earlier monorepo host; it must not be edited for new Media work and must only be consulted for missing/divergent source and safe migration. The former runtime may remain actively deployed until tests, data/schema reconciliation and single-writer cutover complete. See the [five-foundation implementation plan](docs/implementation/MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md).
+
+
 Media owns media-specific artifacts and immutable versions, consent/rights-sensitive jobs, stream/timeline, speech/caption, vision, composition, quality/uncertainty and user/machine experience *meaning*. Shared owns reusable identity, policy, messaging, UI and observability; Tools owns generic development/experience contracts; Lifecycle owns its own verification machinery; Data Cloud/Event/Action Plane and AI Inference own generic platform mechanisms; Document Intelligence owns generic OCR/document extraction.
 
 Media can integrate with other owners through admitted public contracts. It must not copy their engines or claim ownership because a compatibility/legacy source file exists. See [BOUNDARY.md](BOUNDARY.md) and [architecture](docs/ARCHITECTURE.md).
@@ -37,7 +40,7 @@ pnpm check:physical-topology
 pnpm check:screen-status-matrix
 ```
 
-These are source checks, not live-runtime or release qualification. For implementation-specific and JVM tests, follow [testing](docs/TESTING.md) and the canonical runtime in `ghatana/services/media`. Do not claim an unfiltered build passed when a module or compile task was excluded.
+These are source checks, not live-runtime or release qualification. **All new Media backend code and its JVM/integration tests belong in this repository.** For focused runtime tests use the local `./gradlew` project coordinates in [testing](docs/TESTING.md). Sibling Ghatana *platform* modules may still supply development composite dependencies, but `ghatana/services/media` is a read-only migration reference, not the implementation test target. No active data/queue writer cutover is implied; do not claim unfiltered builds passed when modules/tasks were excluded.
 
 ## Repository structure
 
@@ -46,7 +49,7 @@ These are source checks, not live-runtime or release qualification. For implemen
 | `.product-experience/` | Single Media normative PDP definition root, surface references, decision history and Explorer source projections |
 | `apps/media-experience-explorer/` | Source-linked developer inspection |
 | `libs/audio-video-ui/`, `libs/audio-video-client/`, `libs/audio-video-types/` | Media React UI, SDK client and typed interface packages |
-| `modules/`, `launcher/`, `runtime-contracts/`, `providers/`, `adapters/` | Prepared source copy of runtime modules, pending owner-approved transfer |
+| `modules/`, `launcher/`, `runtime-contracts/`, `providers/`, `adapters/` | **Designated implementation source** for all Media-specific backend code, under source reconciliation and local build hardening; old deployed runtime cutover still pending |
 | `contracts/`, `config/` | OpenAPI, runtime route/provider source and configuration contracts |
 | `tests/`, module-local tests | Definition and implementation regression suites |
 | `docs/implementation/` | Source-pinned phase status records, verification results, and provenance |

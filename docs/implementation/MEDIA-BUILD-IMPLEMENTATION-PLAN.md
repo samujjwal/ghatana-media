@@ -1,5 +1,7 @@
 # Ghatana Media — canonical BUILD / Plan Implementation
 
+> **ACTIVE OWNER EXECUTION CORRECTION — 2026-10-24.** All NEW Media-specific backend source changes, contracts, migrations, tests, fixtures, launcher and provider wiring are implemented in **samujjwal/ghatana-media on main**, even while gtool and PDP formalization are incomplete. The old `ghatana/services/media` implementation is READ-ONLY migration input, not an editable canonical source. Existing deployed state/database/worker/publisher remains singular and unchanged until M08 operational cutover. The previous dated writer baseline and old "plan-only" language below are HISTORICAL observations, not current instructions. The exact five-backend-unit + eight import/lineage tasks and 56-row PDP trace are in [the active focused implementation slice](MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md). The complete product scope and this plan's remaining packages still apply; no native gtool status or public contract admission is inferred.
+
 **Campaign scope | Source baseline | Macro stage | Exact substage | Physical/composite surface denominator | Prerequisite state | Permitted work**
 
 | Field | Current planning cut |
@@ -10,7 +12,7 @@
 | Macro / exact stage | BUILD / `KDEV-STAGE-PLAN-IMPLEMENTATION` |
 | Source status | Four PDP status records recorded DEV_COMPLETE and 0 outstanding definition tasks (38/38 direct development criteria recorded PASS); these are definition development statuses, not implementation/acceptance |
 | Worktree | Remote Git main tree inspected; local checkout at `/home/samujjwal/Developments/ghatana-media` not accessible here; local modifications/validator rerun unobserved |
-| Permitted | Plan only. No runtime implementation, independent PDP closure/receipt, production qualification, cutover, release or delivery. |
+| Permitted | Historical planning snapshot only. **Current owner directive permits backend engineering in ghatana-media now**; formal Kernel/gtool state/closure and active runtime cutover remain independent. |
 | Plan status | **PLAN AUTHORED for BUILD**; Build Implement entry is subsequent exact-source ownership/trace admission, not granted by this document. |
 
 ## 1. Authority, source fingerprints and non-negotiable distinctions
@@ -58,7 +60,7 @@ flowchart LR
   S --> X["X01 parity → X02 hardening → X03 Build handoff"]
 ```
 
-**Semantic owner = Media** for artifacts, versions, recipes, scenes, Media run/job semantics, media-specific access, temporal analysis, quality, rendering, captions and producer/output identities. **Mechanism owner = published Shared/Kernel/Data Cloud/Event Plane/AI Inference/Document Intelligence/Action Plane as appropriate** for generic identity, audit, governance, event bus, model routing, document OCR and external privileged effects. No direct private cross-repo imports in releasable runtime. **Execution writer = `ghatana/services/media` until approved `MIG-04` transfer**; prepared `ghatana-media` modules are target/compatibility comparison sources only. Shared physical implementations serve many surface contracts without duplicate writers or databases.
+**Semantic owner = Media** for artifacts, versions, recipes, scenes, Media run/job semantics, media-specific access, temporal analysis, quality, rendering, captions and producer/output identities. **Mechanism owner = published Shared/Kernel/Data Cloud/Event Plane/AI Inference/Document Intelligence/Action Plane as appropriate** for generic identity, audit, governance, event bus, model routing, document OCR and external privileged effects. No direct private cross-repo imports in releasable runtime. **Implementation code authoring now belongs in `ghatana-media`**; the former `ghatana/services/media` is read-only historical source, while any active legacy binary remains the sole deployed state writer until authorized cutover. Shared physical implementations serve many surface contracts without duplicate writers or databases.
 
 ### Existing implementation and reusability disposition
 
@@ -156,7 +158,7 @@ The implementing owner records **(1)** exact existing owner/source and admissibl
 
 1. Inspect both SHA-pinned directory trees, each SQL statement/checksum and **actual applied Flyway schema history** on representative supported old/current DB states. Treat an inaccessible real history as `UNKNOWN`.
 2. Build an executable compatibility inventory: schema objects/constraints/indexes, API/proto/SDK consumers, content/version keys, in-flight jobs, leases/fences, provider requests, outbox rows, transcript/caption revisions and encrypted object references.
-3. Name a single owner-authorized writer location. Before transfer, canonical changes are implemented in `ghatana/services/media`; the standalone copy is comparison-only. Never overwrite a database with the mirror's colliding V007–V009.
+3. Name a single owner-authorized writer location. All new Media code changes are implemented in `ghatana-media` immediately; older source is comparison-only, and live service/data writer cutover is separate. Never overwrite a database with the mirror's colliding V007–V009.
 4. Draft canonical forward-only expand/upcaster/contract migrations and canonical-versioned compatibility shims. Reconcile rows/foreign keys/tenant keys, uploads, outbox offsets, object hashes and erasure holds with dry-run counts and source-digest comparisons.
 5. Rehearse under paused dispatch, fenced workers and source-pinned backup/snapshot; compare query/API answers and queued/ambiguous side effects. Any unaccounted in-flight external request is an explicit cutover stop.
 6. Switch routing/deployment ownership exactly once, with lease and outbox single-writer checks and canary readbacks; preserve rollback by restoring *application ownership* and compatible readers, not blindly reversing irreversible SQL.
@@ -175,7 +177,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 **Outcome & scope:** Pin current definitions and source fingerprints; enumerate 469 capability intents (462 adjudicated and seven extensions), 38 requirement groups, PDP-1 identities, P2 interface families, P3 screens/journeys/steps/edges and 54 surface obligations. For each record bind a primary Build package and real code/contract target; preserve explicit N/A, unsupported and external owner decisions.
 
-**Canonical source/target paths:** `.product-experience/{source-manifest.yaml,surface-registry.yaml,traceability.yaml,surfaces/media-physical-topology.v1.json}`, `docs/implementation/pdp-*-phase-dev-status.json`, `docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `.product-experience/{source-manifest.yaml,surface-registry.yaml,traceability.yaml,surfaces/media-physical-topology.v1.json}`, `docs/implementation/pdp-*-phase-dev-status.json`, `docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `pnpm check:physical-topology`; `pnpm check:product-experience-local`; `pnpm test:product-experience-local`; phase-specific source-pin checks.
 
@@ -189,9 +191,9 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 **Owner / exclusive write boundary:** Media runtime owner + Ghatana source owner. **Dependencies:** M-BLD-F00. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
-**Outcome & scope:** Compare `ghatana/services/media` writer against `ghatana-media` prepared mirror at exact commits and directory/build coordinates. Enumerate runtime sources, registry ownership, migrations, deployment manifests, routes, consumer imports and overlapping writers. Prepare reviewed migration/cutover sequence with one write freeze, data/lease/outbox reconciliation and rollback; until authorized migration, implementations of the executable runtime belong to Ghatana's `services/media`.
+**Outcome & scope:** Compare `ghatana/services/media` writer against `ghatana-media` prepared mirror at exact commits and directory/build coordinates. Enumerate runtime sources, registry ownership, migrations, deployment manifests, routes, consumer imports and overlapping writers. Prepare reviewed migration/cutover sequence with one write freeze, data/lease/outbox reconciliation and rollback; the sole source-code implementation destination is `ghatana-media` now, while the old active runtime stays untouched until a safe operational cutover.
 
-**Canonical source/target paths:** `ghatana/services/media/{launcher,runtime-contracts,modules,providers}`, Media `{launcher,runtime-contracts,modules,providers}`, `migration/transfer-receipt.yaml`, `docs/migration/`, `config/repo-boundary.json`, `BOUNDARY.md`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `ghatana/services/media/{launcher,runtime-contracts,modules,providers}`, Media `{launcher,runtime-contracts,modules,providers}`, `migration/transfer-receipt.yaml`, `docs/migration/`, `config/repo-boundary.json`, `BOUNDARY.md`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands:**
 pnpm report:media-source-target-tree
@@ -214,7 +216,7 @@ pnpm test:compatibility-cutover-observation
 
 These IDs and commands define planning checks only. Passing them validates tree-observation mechanics and safe boundary reporting; it does not prove current Flyway history on a live database, exhaustive consumer parity, external source-owner approval, or rollback/no-double-writer behavior.
 
-**Observable acceptance / completion evidence:** Byte/path-level two-repo crosswalk; sole writer and destination selected with owner decision; route/proto/schema/consumer compatibility proof; rollback with no double workers/outboxes. No activate/cutover in planning. Save exact source SHA-256, owned commit, unit + negative and integration observations with environment/provider identity, and reviewer disposition.
+**Observable acceptance / completion evidence:** Byte/path-level two-repo crosswalk; sole writer and destination selected with owner decision; route/proto/schema/consumer compatibility proof; rollback with no double workers/outboxes. Media source consolidation may be actively implemented now; no activation of the second runtime or operational cutover in a planning step. Save exact source SHA-256, owned commit, unit + negative and integration observations with environment/provider identity, and reviewer disposition.
 
 **Security/privacy/performance & external risk:** Two canonical writers, stale mirror, cross-repo imports, queued work and schema divergence.
 
@@ -226,7 +228,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Reconcile Gradle JVM 21 modules/version catalog, pnpm workspaces/lock, Rust 2021 Cargo lock, source-composite dependencies and release-artifact-only policy; verify generated OpenAPI/protobuf/TS identity/version parity and module builds with no skipped essential tasks. Distinguish local-source composite from published admissible artifacts.
 
-**Canonical source/target paths:** `settings.gradle.kts`, `build.gradle.kts`, `gradle/libs.versions.toml`, `gradle.properties`, `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `Cargo.toml`, `Cargo.lock`, `config/dependency-admission/`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `settings.gradle.kts`, `build.gradle.kts`, `gradle/libs.versions.toml`, `gradle.properties`, `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `Cargo.toml`, `Cargo.lock`, `config/dependency-admission/`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `./gradlew buildFull`; `pnpm test:dependency-inventory`; `pnpm test:tools-media-consumer`; `pnpm test:shared-media-consumer`; `cargo test --workspace` (verify actual Cargo workspace).
 
@@ -242,7 +244,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Implement product-owned project, artifact, immutable version, transcript/caption, recipe, scene/animation/simulation, job and delivery records; typed request/result/error envelopes, CAS/version constraints, strict timebase/unit conversions and producer/output joins. No duplicate domain definition under SDK or Studio.
 
-**Canonical source/target paths:** `.product-experience/pdp-1-domain-data/{domain-objects.yaml,operations.yaml,states.yaml,transitions.yaml,versioning.yaml,action-contracts.yaml}`, `runtime-contracts/src/main/java/com/ghatana/media/runtime/`, `libs/audio-video-types/src/contracts.ts`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `.product-experience/pdp-1-domain-data/{domain-objects.yaml,operations.yaml,states.yaml,transitions.yaml,versioning.yaml,action-contracts.yaml}`, `runtime-contracts/src/main/java/com/ghatana/media/runtime/`, `libs/audio-video-types/src/contracts.ts`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `./gradlew :services:media:runtime-contracts:test`; `pnpm test:typed-contract-bindings`; state/transition property tests.
 
@@ -258,7 +260,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Bind Shared identity; tenant/workspace scopes, principal roles/delegation, operation-purpose consent/biometric rights/residency/retention and provider availability; enforce authorization on reads, queue admission, provider egress, repeated lease dispatch, render/export and erasure, not merely UI. Fail closed for missing/expired authority.
 
-**Canonical source/target paths:** `.product-experience/pdp-0-product-truth/{policy-authority-model.yaml,requirements.yaml}`, `.product-experience/pdp-1-domain-data/authority.yaml`, `modules/infrastructure/security/`, `launcher/`, `runtime-contracts/`, `config/`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `.product-experience/pdp-0-product-truth/{policy-authority-model.yaml,requirements.yaml}`, `.product-experience/pdp-1-domain-data/authority.yaml`, `modules/infrastructure/security/`, `launcher/`, `runtime-contracts/`, `config/`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `./gradlew :services:media:launcher:test --tests 'com.ghatana.media.launcher.MediaConsentRevocationTest'`; negative tenant/rights/provider egress tests.
 
@@ -274,7 +276,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Implement immutable source/object versions, resumable bounded chunk upload, full digest/size finality, tenant/principal-qualified dedup, encrypted S3-backed bytes, Postgres metadata, forward-only Flyway expand/compatibility/contract migrations (no speculative SQL down scripts), retain/hold/tombstone and physical purge hooks. Keep legacy audio/transcription tables under planned dual-read/upcaster only.
 
-**Canonical source/target paths:** Canonical writer `ghatana/services/media/providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql` through `V016__media_lifecycle_outbox_leases.sql`; compare-only prepared `ghatana-media/providers/aws-postgresql/` V001–V009, `modules/infrastructure/persistence/`, `launcher/`. Any new admitted canonical migration is additive and follows the canonical applied history. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Source/target paths:** Implement in `ghatana-media/providers/aws-postgresql/`, `modules/infrastructure/persistence/`, and `launcher/`. Reconcile historical `ghatana/services/media` V001–V016 with destination V001–V009, where V007–V009 have conflicting meanings. Inspect real applied `flyway_schema_history`; only adopt an explicit non-destructive collision-resolution path before executable migration. All genuinely new migration scripts live in Media. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `./gradlew :services:media:providers:aws-postgresql:check --no-build-cache`; Testcontainers PostgreSQL/S3-compatible integration.
 
@@ -290,7 +292,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** One idempotent durable job planner and worker lease/fencing engine for every modality/recorder/render/simulation job. Explicit request fingerprint, attempt owner, timeout, provider status, restart recovery, cancellation REQUESTED vs CONFIRMED vs UNKNOWN, no blind replay after ambiguous remote side effect.
 
-**Canonical source/target paths:** `launcher/src/main/java/com/ghatana/media/launcher/{MediaRuntime.java,MediaRuntimeConfig.java}`, `runtime-contracts/`, `providers/aws-postgresql/`, `modules/infrastructure/cache/`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `launcher/src/main/java/com/ghatana/media/launcher/{MediaRuntime.java,MediaRuntimeConfig.java}`, `runtime-contracts/`, `providers/aws-postgresql/`, `modules/infrastructure/cache/`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `./gradlew :services:media:launcher:test --tests 'com.ghatana.media.launcher.MediaRuntimeRestartReconciliationTest'`; lease/fence/recovery and container restart tests.
 
@@ -306,7 +308,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Atomic state/outbox joins for accepted/completed/cancel requested/cancel confirmed/failure/artifact/session lifecycle; durable publisher with retry and idempotent consumers. Reuse Shared/Event Plane published interfaces; preserve subscriber cursor, event contract versions, authority/least-data redaction.
 
-**Canonical source/target paths:** `modules/infrastructure/messaging/`, `launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java`, `.product-experience/pdp-1-domain-data/events.yaml`, `runtime-contracts/`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `modules/infrastructure/messaging/`, `launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java`, `.product-experience/pdp-1-domain-data/events.yaml`, `runtime-contracts/`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** Outbox failure injection, lost ACK/dedup, schema compatibility, privacy snapshots; `./gradlew :services:media:launcher:test` (focused).
 
@@ -322,7 +324,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Define common capability profiles and adapters for STT/TTS/vision/multimodal/render/capture/encoder/solver; version/permissions/residency/retention/hardware/cost limits and readiness; deterministic local nonfake test engines where source admits them, explicit UNAVAILABLE elsewhere; never assume arbitrary external OSS or model deployment.
 
-**Canonical source/target paths:** `config/provider-manifest.json` (the present canonical Media manifest; do not create a parallel YAML authority), `modules/{speech,vision,intelligence,audio-streaming,video-streaming}/`, `runtime-contracts/`, `launcher/`, `.product-experience/pdp-1-domain-data/operations.yaml`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `config/provider-manifest.json` (the present canonical Media manifest; do not create a parallel YAML authority), `modules/{speech,vision,intelligence,audio-streaming,video-streaming}/`, `runtime-contracts/`, `launcher/`, `.product-experience/pdp-1-domain-data/operations.yaml`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** Provider SPI contract matrix, simulated outage and ambiguous remote timeout, actual engine integration only with hardware/license approval.
 
@@ -338,7 +340,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Map 27 observed HTTP operations, 43 RPCs, 33 SDK records, 11 CLI command contracts, 4 Agent Tools, event/read-only channels and 79 owner action-wire contracts to canonical product operation IDs; implement schema validation, auth, versioning, pagination, idempotency/error/UNKNOWN/cancel/retry, parity and generated typed clients. Keep one command engine, not channel-owned business logic.
 
-**Canonical source/target paths:** `contracts/openapi/media.yaml`, `config/route-manifest.json`, `modules/{speech,vision,intelligence}/**/src/main/proto/`, `libs/audio-video-client/src/operations.ts`, `libs/audio-video-types/`, `.product-experience/pdp-3-product-experience/{api,grpc,sdk,cli,agent-tools,events}/`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `contracts/openapi/media.yaml`, `config/route-manifest.json`, `modules/{speech,vision,intelligence}/**/src/main/proto/`, `libs/audio-video-client/src/operations.ts`, `libs/audio-video-types/`, `.product-experience/pdp-3-product-experience/{api,grpc,sdk,cli,agent-tools,events}/`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `pnpm check:contract-parity`; `pnpm test:typed-contract-bindings`; protocol descriptor/SDK/CLI parity and integration tests.
 
@@ -354,7 +356,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Provide an admitted production host *boundary*, authenticated shell/router, real API client integration and reusable UI/embedded components capable of supporting the 47 source screens and 31 P2 component families; **full screen-specific feature execution is implemented by V01–V30 and L01–L03, not prerequired in F10**; Shared tokens/a11y, keyboard/focus/screen-reader semantics, loading/empty/unauthorized/UNKNOWN/recovery and responsive layouts. Explorer remains frontend-mocked PDP inspection, never the production host or backend.
 
-**Canonical source/target paths:** `libs/audio-video-ui/`, `modules/intelligence/ai-voice/libs/ai-voice-ui-react/`, `apps/media-experience-explorer/` (read-only projection), `.product-experience/pdp-2-design-interface-system/`, `.product-experience/pdp-3-product-experience/screen-contracts/`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `libs/audio-video-ui/`, `modules/intelligence/ai-voice/libs/ai-voice-ui-react/`, `apps/media-experience-explorer/` (read-only projection), `.product-experience/pdp-2-design-interface-system/`, `.product-experience/pdp-3-product-experience/screen-contracts/`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `pnpm test:presentation-architecture`; `pnpm check:presentation-architecture`; Playwright + axe/manual semantic review (where available).
 
@@ -370,7 +372,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Reuse typed timeline, audio sample/media/physical simulation clocks, frame timestamp/VFR, streaming bounds, scene/animation/model IR binding, immutable recipe/composition/revision graph, deterministic seed/fidelity profiles, binary/native engine isolation and quality/provenance; provide one substrate used by manual Studio, recorder, animation, render and simulation.
 
-**Canonical source/target paths:** `.product-experience/pdp-1-domain-data/{declarative-production-contracts.yaml,recorder-studio-contracts.yaml}`, `.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml`, `modules/{audio-streaming,video-streaming}/`, `modules/intelligence/speech/libs/speech-audio-rust/`, `runtime-contracts/`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `.product-experience/pdp-1-domain-data/{declarative-production-contracts.yaml,recorder-studio-contracts.yaml}`, `.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml`, `modules/{audio-streaming,video-streaming}/`, `modules/intelligence/speech/libs/speech-audio-rust/`, `runtime-contracts/`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `cargo test --workspace`; math/timebase property tests; reference solver and loss/format compatibility matrices.
 
@@ -386,7 +388,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Build the cross-cutting OpenTelemetry, golden-fixture, load/fault, resource, security and privacy test *harnesses* with tenant-safe correlation and low-cardinality tags; capture SLO/profile owner-decision requirements without fabricating values. Full product load, modality-specific quantitative qualification, accessibility and security signoff occur during each V/L and X02, not as prerequisites for implementing V01; non-deployable candidates stay disabled.
 
-**Canonical source/target paths:** `audio-video-observability/`, `docs/{OPERATIONS.md,TESTING.md,REPOSITORY-HYGIENE.md}`, `integration-tests/`, `modules/integration-tests/`, `infra/helm/`, `infra/kubernetes/`, `config/`. Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `audio-video-observability/`, `docs/{OPERATIONS.md,TESTING.md,REPOSITORY-HYGIENE.md}`, `integration-tests/`, `modules/integration-tests/`, `infra/helm/`, `infra/kubernetes/`, `config/`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** `./gradlew :services:media:integration-tests:test`; `pnpm audit:repository-hygiene`; `./gradlew buildFull`; load/fault/privacy checks with recorded environment.
 
@@ -402,7 +404,7 @@ These IDs and commands define planning checks only. Passing them validates tree-
 
 **Outcome & scope:** Share versioned ProductionSpec, CaptureSceneSpec, AnimationSpec and SimulationSpec as typed *views* onto existing Media recipe/project/job/scene/run/clock/rights objects. Reuse Gharbatai `@ghatana/experience-recorder` capture qualification/storyboard/narration and TutorPutor AEF Model/Scene/Experience IR adapters through contracts; no duplicate recorder database, simulation engine, scientific source authority, generic capture runtime or hidden AI-only editor.
 
-**Canonical source/target paths:** `.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml`, `.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml`, `libs/audio-video-{client,types,ui}/`, `runtime-contracts/`, `gharbatai/tooling/experience-recorder/` (product-neutral reusable source), `gharbatai/tooling/demo-recording/` (Gharbatai-specific adapters, remain product-owned; read-only until approved transfer). Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml`, `.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml`, `libs/audio-video-{client,types,ui}/`, `runtime-contracts/`, `gharbatai/tooling/experience-recorder/` (product-neutral reusable source), `gharbatai/tooling/demo-recording/` (Gharbatai-specific adapters, remain product-owned; read-only until approved transfer). All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands (plan only):** ProductionSpec fixtures, source receipt readback, animation determinism, model unit/numeric invariants, manual/CLI schema parity.
 
