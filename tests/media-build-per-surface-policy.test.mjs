@@ -32,3 +32,27 @@ test('per-surface Build policy permits A while B remains blocked and aggregate i
   assert.deepEqual(dispositions, [['A', 'BUILD_ELIGIBLE'], ['B', 'BLOCKED']]);
   assert.equal(aggregateDiscovery, 'PARTIAL');
 });
+
+test('backend engineering is independently permitted without counterfeit formal stage admission', async () => {
+  const agents = await readFile(`${ROOT}/AGENTS.md`, 'utf8');
+  const claude = await readFile(`${ROOT}/CLAUDE.md`, 'utf8');
+  const plan = await readFile(
+    `${ROOT}/docs/implementation/MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md`,
+    'utf8',
+  );
+  assert.match(agents, /Default action: inspect relevant source, implement, test, integrate and report the changed unit/u);
+  assert.match(agents, /not prerequisites to starting/u);
+  assert.match(agents, /exclusively a rule for formal BUILD stage admission/u);
+  assert.match(agents, /sole canonical executable runtime and migration\/queue writer/u);
+  assert.match(agents, /No native closure run is needed to call a backend package logically implementation-ready/u);
+  assert.match(claude, /backend engineering may proceed on existing PDP product intent despite incomplete PDP formalization or gtool admission/u);
+  assert.match(claude, /formal DISCOVERY → BUILD → DELIVER → ENHANCE/u);
+
+  for (const [prefix, count] of Object.entries({ C: 10, S: 10, A: 12, J: 13, E: 11 })) {
+    const actualIds = [...plan.matchAll(new RegExp(`\\*\\*${prefix}(\\d{2})\\*\\*`, 'g'))]
+      .map((match) => Number(match[1]));
+    assert.deepEqual(actualIds, Array.from({ length: count }, (_, index) => index + 1),
+      `missing or duplicated task in backend package ${prefix}`);
+  }
+  assert.match(plan, /No package can be marked ready on zero code or green mocks alone/u);
+});
