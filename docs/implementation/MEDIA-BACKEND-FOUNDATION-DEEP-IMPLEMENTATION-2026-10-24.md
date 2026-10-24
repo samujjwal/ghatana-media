@@ -1,13 +1,21 @@
 # Ghatana Media — five backend foundations: deep implementation execution slice
 
-**Directive:** IMPLEMENT BACKEND NOW / NO PDP OR GTOOL ADMISSION BLOCK FOR ENGINEERING  
+> **2026-10-24 owner correction — this repository is the code destination.** ALL Media-owned backend application source, tests, migrations, integration adapters, contracts, build configuration and fixtures are authored and committed to `samujjwal/ghatana-media`. The older `ghatana/services/media` is READ-ONLY migration provenance; **do not put new Media code there**. Do not copy platform-owned Event Plane/AI Inference/Data Cloud/Shared implementations into Media.
+>
+> **Code development and runtime cutover are separate.** Existing infrastructure might still execute a legacy `ghatana/services/media` binary. That does not make the old repo the destination for development. Until verified source/schema/consumer parity and operational cutover, leave the old deployment alone and do not start a second writer, publisher, migration runner or worker against its state. Media-only testing uses isolated resources. This direction authorizes source development now, NOT formal BUILD/PDP stage promotion or live cutover.
+>
+> **PDP audit finding:** these 56 tasks have product-intent sources but are NOT universally bound across PDP-1/2/3. Nine logical Media job states/ten attempt states differ from the narrower Java status models, and 22 of 27 PDP-3 HTTP operations still lack exact bounded PDP-1 logical binding in the API registry. Do not claim complete contract coverage while those source bindings remain open.
+
+
+
+**Directive:** IMPLEMENT BACKEND NOW / ALL NEW MEDIA CODE IN GHATANA-MEDIA / FORMAL PDP AND GTOOL ADMISSION INDEPENDENT OF CODING  
 **Source review:** 2026-10-24; Media `main` previously observed at `c8d8e52d6323151125fd3c2d147246f9b57e6049` before the corresponding AGENTS.md policy edit (`1c9b5a19990eee710472d7cb787c9b562009dcb3`). Ghatana canonical runtime `main` observed at `f5e585892f561c63acd1505cdbe5cb8f533192ee`. These are inspection locators, **not** proof of material semantic currentness, task completion or runtime qualification. Recheck writer HEAD before modifying code.  
 **Scope:** five backend implementation units spanning five physical Media surfaces and two meaningful composite dependencies. No GUI, Explorer, client, Studio editor, marketing recording or release work.  
 **Position in existing plan:** This is an executable, focused **implementation work slice** of the canonical `MEDIA-BUILD-IMPLEMENTATION-PLAN.md`, primarily `M-BLD-F03` through `M-BLD-F07`, with only necessary `F00/F01/F02` safety checks. It is **not** a new PDP authority, new contract version, second product-wide Build plan or new gtool task schema. The existing full 54-identity campaign remains intact.
 
 ## 0. Decision, goals and explicit boundaries
 
-**Decision:** Implement from current PDP-0..3 source intent whether or not gtool has recognized their formal development-completion/currentness/closure. Backend coding, testing, migrations in the *sole canonical writer*, and engineering review may start immediately. Keep formal Kernel BUILD advancement, Work Planner Plan Ready, Lifecycle-native PDP receipt/closure and release admission in an independent governance track. No counterfeit phase statuses.
+**Decision:** Implement from current PDP-0..3 source intent in the `ghatana-media` repository whether or not gtool has recognized formal completion/currentness/closure. All new Media-specific code and migration source MUST land in this repo; the historical deployment writer in `ghatana/services/media` is read-only for developer implementation until its separate safe retirement/cutover. Keep formal Kernel BUILD advancement, Work Planner Plan Ready, Lifecycle-native PDP receipt/closure and release admission in an independent governance track. No counterfeit phase statuses.
 
 **Outcome after this slice:** A source-current, governed Media input can be accepted, stored and versioned; an authorized job can be admitted, durably claimed/executed/reconciled through explicit UNKNOWN/finality; a lifecycle outcome is persisted transactionally and durably delivered through the admitted Event Plane integration. All five implementation units satisfy their own code, unit, negative, restart, concurrency, integration and performance checks. They are **logically ready** for formal acceptance later, with no native gtool closure required now.
 
@@ -25,11 +33,13 @@
 
 | Unit / master mapping | Registered physical surface / canonical writer path | Execution owner; independent reviewer | Why first / logical boundary |
 | --- | --- | --- | --- |
-| **C — contracts, versions and exact domain I/O** / `M-BLD-F03` | `media.physical.runtime-contracts`; `ghatana/services/media/runtime-contracts/` | **Media domain-contract engineer**; cross-language/interface reviewer | Immutable domain identifiers, typed request/result/errors, clocks, job and artifact contracts, compatibility basis for all other units |
-| **S — governance and policy enforcement** / `M-BLD-F04` | `media.physical.modules-infrastructure-security`; `ghatana/services/media/modules/infrastructure/security/`, plus integration points in `launcher/MediaSecurityFilter.java`, `MediaRuntime.java` and provider consent authorities | **Media security/governance engineer**; Shared identity/policy boundary reviewer | All sensitive ingress, query and provider egress needs actual tenant/principal/purpose authority |
-| **A — durable artifact, object/version and erasure storage** / `M-BLD-F05` | `media.physical.providers-aws-postgresql`; `ghatana/services/media/providers/aws-postgresql/` | **Media persistence engineer**; DB/storage reviewer | Integrity-bound uploads, versioned outputs, retention, dual-store consistency, safe migration |
-| **J — durable job engine and recovery** / `M-BLD-F06` | `media.physical.launcher`; `ghatana/services/media/launcher/` with provider/job-store SPI in A/C | **Media runtime/reliability engineer**; concurrency/recovery reviewer | Convert accepted in-process work into durable admission, leases, bounded worker execution and honest outcomes |
-| **E — transactional outbox and reliable event delivery** / `M-BLD-F07` | `media.physical.modules-infrastructure-messaging`; `ghatana/services/media/modules/infrastructure/messaging/` plus canonical `providers/aws-postgresql/` outbox and `launcher/MediaLifecyclePublisher.java` | **Media messaging/integration engineer**; Shared/Event Plane owner reviewer | One auditable outbox publication path and idempotent at-least-once delivery; no duplicate bus |
+| **C — contracts, versions and exact domain I/O** / `M-BLD-F03` | `media.physical.runtime-contracts`; `ghatana-media/runtime-contracts/` | **Media domain-contract engineer**; cross-language/interface reviewer | Immutable domain identifiers, typed request/result/errors, clocks, job and artifact contracts, compatibility basis for all other units |
+| **S — governance and policy enforcement** / `M-BLD-F04` | `media.physical.modules-infrastructure-security`; `ghatana-media/modules/infrastructure/security/`, plus integration points in `launcher/MediaSecurityFilter.java`, `MediaRuntime.java` and provider consent authorities | **Media security/governance engineer**; Shared identity/policy boundary reviewer | All sensitive ingress, query and provider egress needs actual tenant/principal/purpose authority |
+| **A — durable artifact, object/version and erasure storage** / `M-BLD-F05` | `media.physical.providers-aws-postgresql`; `ghatana-media/providers/aws-postgresql/` | **Media persistence engineer**; DB/storage reviewer | Integrity-bound uploads, versioned outputs, retention, dual-store consistency, safe migration |
+| **J — durable job engine and recovery** / `M-BLD-F06` | `media.physical.launcher`; `ghatana-media/launcher/` with provider/job-store SPI in A/C | **Media runtime/reliability engineer**; concurrency/recovery reviewer | Convert accepted in-process work into durable admission, leases, bounded worker execution and honest outcomes |
+| **E — transactional outbox and reliable event delivery** / `M-BLD-F07` | `media.physical.modules-infrastructure-messaging`; `ghatana-media/modules/infrastructure/messaging/` plus canonical `providers/aws-postgresql/` outbox and `launcher/MediaLifecyclePublisher.java` | **Media messaging/integration engineer**; Shared/Event Plane owner reviewer | One auditable outbox publication path and idempotent at-least-once delivery; no duplicate bus |
+
+**Ownership rule:** Implement and review exclusively in `ghatana-media` even if the legacy service is still deployed. No Media runtime features, schema files or tests are to be committed under `ghatana/services/media`; that path is read-only comparison evidence. Source-composite links to distinct Ghatana *platform* modules do not violate this rule.
 
 **Shared-file lock:** C owns contract changes; S owns enforcement and consent; A owns DB migrations, object store and job-store transactions; J owns runtime and worker orchestration; E owns event projection/outbox publishing. Touching another lane's owner file requires a reviewed handoff and serialized edit. One canonical runtime writer, one migration ledger and one publisher strategy are absolute constraints. No independent running duplicate mirror.
 
@@ -49,7 +59,7 @@
 
 ```mermaid
 flowchart LR
-  B["B0: Inspect sole canonical writer and baseline tests"] --> C["C: Contracts / I/O / clocks"]
+  B["B0/M: Consolidate Media-owned runtime code safely"] --> C["C: Contracts / I/O / clocks"]
   B --> S0["S: Independently test existing security"]
   C --> S["S: Enforce rights and policy"]
   C --> A["A: Artifacts and versions"]
@@ -64,7 +74,7 @@ flowchart LR
   S --> V
 ```
 
-**Parallel assignments:** Two implementers can work on C and S tests now; A can prepare storage fixtures while S works. E can prepare the read-only dual-outbox diagnosis and tests while J implements the worker. Actual schema writer edits are serialized to A; J and E use additive service interfaces and merge only after review. Do not use multiple agents concurrently to edit the same Java file or migration.
+**Parallel assignments:** A dedicated migration integrator owns Media source reconciliation and one schema owner; two implementers can work on C and S tests now; A can prepare storage fixtures while S works. E can prepare the read-only dual-outbox diagnosis and tests while J implements the worker. All new schema source is edited in Media and serialized to A; J and E use additive service interfaces and merge only after review. Do not use multiple agents concurrently to edit the same Java file or migration.
 
 | Wave | Work which can begin | Exit and pulse check |
 | --- | --- | --- |
@@ -79,11 +89,11 @@ Times are **planning timeboxes, not assertions of elapsed implementation or guar
 
 | ID | Concrete action and where | Check |
 | --- | --- | --- |
-| **B01** | Read `ghatana/services/media` and Media prepared counterpart at exact HEADs. Compare `runtime-contracts`, `launcher`, `providers/aws-postgresql`, security/messaging modules, Gradle identity and consumer routes. Write a single current-cut diff into implementation handoff. | Exact changed paths and blob modes listed; canonical executable writer unchanged by comparison. No mirror-based code execution. |
-| **B02** | Read canonical `providers/aws-postgresql/src/main/resources/db/media-runtime/V001..V016` and any **applied** DB migration catalog. Never use the prepared mirror's V009+ as an assumption. | Existing migration hashes/objects not rewritten; future changes use a new forward-only version number after verifying applied history. |
+| **B01** | Compare former `ghatana/services/media` READ-ONLY tree with target `ghatana-media` at exact HEADs, including source paths/modes/blobs, Gradle, routes, consumers, migration history and test/fixture files. Classify all missing/divergent target files through M01–M03 below. | Every legacy-only/different Media-owned path has a transfer or exclusion disposition; all code edits remain in Media; no old application writer launched by tests. |
+| **B02** | Compare old Flyway `V001..V016` against Media `V001..V009` and real `flyway_schema_history` checksums; V007/V008/V009 are incompatible between branches. Implement M04/M05 adoption strategy before schema execution. | Both histories independently recognized; no in-place rewrite of applied migration or blind Flyway repair; unknown DB lineage blocks DB effect, not unrelated coding. |
 | **B03** | Read active OpenAPI `contracts/openapi/media.yaml`, `config/route-manifest.json`, `config/provider-manifest.json`, runtime SPI and shared admission/identity/events contract. | One owner for each ID, field, route and event; any unavailable external contract produces a typed adapter/fixture task, not a parallel contract. |
 | **B04** | Execute focused currently runnable Gradle tests (below), record Java/Gradle/Postgres/S3 versions, test skips, p50/p95/p99 baseline and CPU/memory footprint where measurable. | Accurate pre-change benchmark; tests that cannot run are listed with cause/needed environment, while independent tasks continue. |
-| **B05** | Establish one-file writer locks; commit narrow unit changes to main as authorized and preserve existing local work. | No duplicate runtime writers, divergent DB migrations or overwritten parallel edits. |
+| **B05** | Commit narrow Media-source changes on `ghatana-media/main`; preserve local work and one-writer file locks. Legacy deployment stays isolated during destination tests. | No new Media code in `ghatana`; no shared live DB/queue/event publisher in tests; no overwriting parallel edits. |
 
 ## 4. Unit C — canonical domain, versioning, time and typed outcomes
 
@@ -101,6 +111,8 @@ Times are **planning timeboxes, not assertions of elapsed implementation or guar
 | **C08** Wire parity adapters | C02–C07 | Reconcile actual OpenAPI/route/protobuf/TS generated contract owners through adapters; no second aggregate service contract. | Java/JSON/client fixture roundtrip across accepted/rejected/cancelled/unknown; backward readers of prior wire version pass. |
 | **C09** Compatibility + schema evolution | C08 | Implement needed additive reader/upcaster behavior for old jobs/artifacts; do not use destructive renames. | Golden fixtures V(old)→V(current) and tolerant-reader tests pass with no semantic misclassification. |
 | **C10** Complete contract checks | C03–C09 | Expand `runtime-contracts/src/test/java/...` contract, generative and security regression tests. | `:services:media:runtime-contracts:test` and API consumption tests pass, including malformed, unknown-enum and large numeric cases. |
+
+**PDP state repair:** PDP-1 defines nine `media-job` and ten `media-attempt` statuses. Current Java runtime enums are narrower (six `JobStatus` values). C05/J01/J11 must implement lossless domain state + attempt-state projection, durable transition handling, and compatibility upcasters; never silently call `PARTIALLY_SUCCEEDED` a `COMPLETED` job, or `RETRY_PENDING` `RUNNING`. Test every legal edge and each unsupported legacy projection.
 
 **Logical C exit:** No uncontrolled parallel definitions; full in-scope command/domain semantics are expressive and roundtrip correctly; C10 green; no unhandled ambiguous state; no changes demanded to official PDP state. Do not call all runtime capabilities implemented merely because their DTOs exist.
 
@@ -121,6 +133,8 @@ Times are **planning timeboxes, not assertions of elapsed implementation or guar
 | **S09** Secret and network hygiene | S05–S07 | TLS/trust selection, secret references, outbound allowlist, max body and request timeout; no dev-key production fallback. | Invalid cert, ambiguous credentials, unsafe redirect/URL, oversize body and connection timeout fail closed. |
 | **S10** Security review and tests | S02–S09 | Extend `MediaSecurityFilterTest`, `MediaConsentRevocationTest`, `MediaRuntimeJobGovernanceTest` and container-backed tenant isolation IT. | AuthZ matrix, revocation race, privilege crossing, log snapshot, malicious metadata and policy/property tests pass. |
 
+**PDP erasure truth:** The PDP-1 privacy contract separately tracks logical hiding, access revocation, physical deletion, provider/backup copies, and owner-confirmed erasure. S08/A08 cannot report `ERASURE_CONFIRMED` after only local object deletion; unknown applicable copy receipt keeps `ERASURE_OUTCOME_UNKNOWN` or pending.
+
 **Logical S exit:** Every in-scope backend read/write/effect has verified tenant/purpose/rights path; sensitive work is denied on missing authority with bounded negative proof; no local identity shortcut is reachable in staging/production. Reviewer signs engineering review, **not** independent regulatory certification.
 
 ## 6. Unit A — durable assets, versioning, recovery and erasure
@@ -137,7 +151,7 @@ Times are **planning timeboxes, not assertions of elapsed implementation or guar
 | **A06** Idempotency/dedup policy | A04,S07 | Restrict hash dedup to same tenant + compatible principal/rights/classification/retention/key domain; safe object reference counts. | Same compatible upload shares permitted bytes; cross-scope equal hash stays isolated and deletion never destroys other owner's object. |
 | **A07** Atomic metadata and outbox hooks | A04,C05 | Insert durable artifact/job state and outbox intent in the same DB transaction when lifecycle semantics require; use S3 reconciliation for DB↔object non-atomic boundary. | Crash between object commit and DB update leaves recoverable orphan/claim, not visible phantom or lost complete event. |
 | **A08** Retention, hold and erasure | A05,S08 | Implement expiry scheduling, hold precedence, physical object/chunk deletion, tombstones and proof of purge; idempotent repeated deletes. | Erasure removes qualifying bytes and index; legal hold survives; kill/retry resumes without deleting held/shared object. |
-| **A09** Forward-only migration | A01,A05,A07 | Introduce additive schema/index changes only after canonical applied migration history; bounded resumable backfill with dual-read/compat, safe rollback-by-forward-fix. | Apply to old-populated DB, stop mid-backfill, retry, check counts/hash/row invariants; old readers still function in declared compatibility period. |
+| **A09** Reconciled forward-only migration | M04,M05,A01,A05,A07 | In Media, reconcile divergent applied V007–V009 histories first; then add migrations after BOTH historical version ranges with explicit adoption/backfill and dual-read compatibility. Never rename/replace applied files or force Flyway repair. | Historical DB fixtures for both lineages migrate without checksum conflicts, row loss or phantom state; mid-backfill crash/retry and old reader compatibility pass. |
 | **A10** Index/query efficiency | A05,A09 | Tenant/status/createdAt + cursor indexes, bounded pagination, no eager large-object materialization, stable snapshot sort keys. | Query plans and p99 under seeded 100k-artifact dataset documented, no cross-tenant result and no unbounded memory. |
 | **A11** Format/security hardening | A02–A10 | Enforce content sniffing vs extensions, decompression bomb bounds, AV/format verifier policy, S3 encryption and least-privilege key scoping. | Adversarial zip/container, metadata spoof and object corruption cases rejected/quarantined; secrets not logged. |
 | **A12** Real durable test gate | A03–A11 | Expand `S3PostgresqlMediaArtifactAdmissionTest`, `MediaAwsPostgresqlRuntimeStateIntegrationTest` and new `MediaUploadCrashRecoveryIT` against PostgreSQL and S3-compatible storage. | Clean unmocked DB/object roundtrip; restart/crash, concurrency, version, dedup, retention, delete and migration matrix green. |
@@ -160,7 +174,7 @@ Times are **planning timeboxes, not assertions of elapsed implementation or guar
 | **J08** UNKNOWN reconciliation | J06,J07 | On startup/lease expiry enumerate recoverable jobs; query same provider operation when eligible, adopt signed/identifiable result, otherwise park as OUTCOME_UNKNOWN with explicit check-outcome. | Process kill at every critical edge recovers exact state, no phantom completion or duplicated external charge. |
 | **J09** Retry/fallback safety | J08,S06 | Retry only when idempotent/no-effect proven and eligible; bound attempts/backoff/circuit breaker; preserve chosen provider/model/purpose/version and actual cost. | Safe retry succeeds; unsafe ambiguous timeout never causes second external effect; ineligible fallback blocked. |
 | **J10** Result/version atomicity | J08,A05,A07 | Verify resulting artifact and governance/redaction before durable final result and outbox transaction; use provider receipt and immutable output version/provenance. | Successful job has re-readable derived bytes/metadata and exact receipt; result sanitization failure cannot falsely finalize success. |
-| **J11** API observations | J02–J10 | Expose exact job status, attempt, cancellation, failure and UNKNOWN through existing HTTP/gRPC/SDK contracts; cursor pagination and stable permission-scoped reads. | GET/list/watch/check-outcome agree; conflict/404/403/409/terminal response semantics have contract tests. |
+| **J11** API observations | C08,J02–J10 | Implement only existing `submitMediaJob`, `getMediaJob`, `listMediaJobs`, `cancelMediaJob` public routes with truthful state/finality; add internal check-outcome reader. `watch` and new `check-outcome` HTTP paths require explicit PDP-1/2/3/OpenAPI/route bindings first. | Existing APIs parity-tested; job read never conflates the nine logical statuses; added routes only after source authorization. |
 | **J12** Queue/worker observability | J05–J10 | Metrics for accepted/queued/running/unknown/lease overdue, wait time, in-flight bytes, retries and cost; tracing by tenant-scoped correlation without payload leak. | Metrics reconcile against DB during restart and known failed attempts; no secrets or content in labels. |
 | **J13** Fault and contention suite | J03–J12 | Extend `MediaRuntimeRestartReconciliationTest`, `MediaRuntimeJobGovernanceTest`, `PostgresqlMediaJobStoreMetricsTest`; add `MediaDurableWorkerCrashIT` with DB and a receipt-capable deterministic provider. | Kill before/after claim/dispatch/receipt/commit, network partition, stale fence, duplicate key, cancellation races, 2-worker contention all deterministic and green. |
 
@@ -173,16 +187,18 @@ Times are **planning timeboxes, not assertions of elapsed implementation or guar
 | Task | Prerequisite | Exact work | Acceptance case |
 | --- | --- | --- | --- |
 | **E01** Two-outbox truth inventory | B01,A01 | Compare `media_processing_lifecycle_outbox` and `media_lifecycle_outbox`, V009/V014/V016, publisher scheduling, claim/ACK/fence/attempts and published Shared SPI. Choose one canonical publication/read contract, document existing legacy compatibility. | No event type silently emitted twice; source and target event identifiers mapped and versioned. |
-| **E02** Canonical event meaning | C07,E01 | Source-bound immutable event ID, subject/tenant, job/artifact/version, state transition, correlation and minimum disclosure. Reuse `.product-experience/pdp-1-domain-data/events.yaml`. | Schema/serializer tests for success/failure/cancelled/unknown, no access token/biometric/raw transcript leakage. |
+| **E02** Canonical event meaning | C07,E01 | Reuse PDP-1 cataloged `media.upload.started`, `media.artifact.completed`, job accepted/cancel_requested/cancelled/completed/failed and stream opened/closed event identities, with stable IDs and privacy-safe fields. Artifact erasure is a PDP-1 event-family intent but the actual canonical event type is not established: do not invent it. | Event names must match PDP-1 catalog; no unapproved `erased` type, sensitive payload or false delivery receipt; reconcile missing erasure type with semantic owner. |
 | **E03** Transactional intent | A07,J02,E02 | Include accepted/finality/erasure lifecycle outbox insert in the **same DB commit** as owning state transition. Remove any double independent publish on these paths. | Fault after DB commit before publish leaves durable event; DB rollback leaves neither state nor event. |
 | **E04** Canonical publisher adapter | E01,E03 | Prefer the existing Shared `OutboxPublicationSource` adapter + Event Plane public client if admitted. Retain legacy outbox reader only as bounded compatibility with drain proof; no new bus/database source. | Unique active claim owner/transport path, no double send across old/new publisher configurations. |
 | **E05** Lease/fence/ACK uncertainty | E04 | Fence publisher owner, bounded batches, authoritative broker acknowledgment, lease-expiry handling and unknown publication attempt state. | Crash after broker ACK before DB ACK may redeliver same ID, **never** claim exactly-once delivery; stale claimant cannot ack. |
 | **E06** Retry/dead letter | E05 | Exponential backoff with capped jitter, poison-event quarantine, DLQ/replay interface and alert; preserve stable event ID on replay. | Broker down/backpressure never blocks DB commit indefinitely; poison event bounded retries; operator replay idempotent. |
-| **E07** Consumer idempotency | E05 | Contract test with event ID dedup, ordering constraints per aggregate and version checks across Shared/Event Plane consumer. | Duplicate, out-of-order and replay produce one observable downstream materialization or explicit conflict/UNKNOWN. |
+| **E07** Consumer idempotency | E05 | Exercise event ID dedup and aggregate ordering with the admitted Shared/Event Plane public consumer if available. A local fake is a unit-test only and does not prove external provider/consumer admission. | Duplicate/out-of-order/replayed event yields one logical materialization or explicit conflict/UNKNOWN; exact external receipt proof required to mark integrated delivery complete. |
 | **E08** Legacy compatibility | E04,E07 | Read-only old-event reconciliation, drain/dual-read only where safe; forward-only conversion and feature toggles with one active publisher. | Compare event count/digests before/after cutover; no dropped or duplicated lifecycle facts. |
 | **E09** Privacy and observability | E02,E06 | Log/metric event age, oldest pending, retries, DLQ, delivery latency and rejected payload; encrypt or redact sensitive fields. | Metrics exact against store, no raw source content or secrets in emitted payload/log. |
 | **E10** Operational runbook | E06,E08 | Define publisher start/stop/drain, safe replay, schema changes, Event Plane outage, external admission not available and rollback. | Inject broker down and restore without data loss; operator can distinguish delayed vs unknown vs delivered. |
 | **E11** Integration/fault tests | E03–E10 | Extend `PostgresqlMediaLifecycleOutboxSourceTest`, `PostgresqlMediaOutboxPublicationSourceTest`, `MediaLifecyclePublisherTest`; add `MediaEventCrashRecoveryIT`. | Atomic state+outbox, kill before/after send, stale lease, duplicate delivery, partial outages, schema and privacy negative cases pass. |
+
+**PDP event proof:** Event Plane exact append/lookup admission is currently `NOT_ADMITTED` in PDP-1 dependency detail, and PDP-3 event registry is mainly client-local. E04–E11 require a real owner-public adapter and durable receipt to claim integrated delivery. No fake exactly-once promise.
 
 **Logical E exit:** One active publisher authority; durable atomic event intents; at-least-once broker delivery with ID-based dedup and honest ACK uncertainty; crash/replay and Event Plane outage matrix green. The Event Plane platform's deployment is **not** claimed as Media implementation.
 
@@ -203,7 +219,7 @@ Run all scenarios with **real Postgres and S3-compatible object store** and the 
 | **V09** | Cross-tenant/cross-principal reads, dedup, role spoof, disallowed purpose, biometric attempt, erasure with hold | All blocked with appropriate typed result; no data/byte/event disclosure |
 | **V10** | Migrated old populated DB and prior public client fixtures | Forward schema compatible; old IDs readable where supported; no loss/rewritten migration checksum |
 
-**Build and runtime test commands (execute from the selected canonical `ghatana` workspace, verify actual project coordinates and test selectors first):**
+**Build and runtime test commands (execute from the `ghatana-media` repository root using its standalone `:services:media:*` Gradle coordinates; NEVER use tests from old `ghatana/services/media` to claim completed Media-repo implementation):**
 
 ```sh
 ./gradlew :services:media:runtime-contracts:test --no-build-cache
@@ -215,7 +231,7 @@ Run all scenarios with **real Postgres and S3-compatible object store** and the 
 ./gradlew :services:media:integration-tests:test --no-build-cache
 ```
 
-Use the canonical repo's settings/Gradle names if they differ; only report the commands actually run. Integration-tagged suites use Testcontainers/PostgreSQL/S3-compatible local infrastructure and may require Docker; distinguish lack of infrastructure from a passed integration run. Media PDP/source checker commands (`pnpm check:product-experience-local` etc.) validate product sources and are **not substitutes** for backend verification or build admission.
+Verify the target `ghatana-media/settings.gradle.kts` project names. Its source-composite development profile currently uses some sibling Ghatana **platform** projects; that is a separate dependency-owner issue and is not permission to edit or run old Media runtime code. Only report commands actually run. Integration-tagged suites use Testcontainers/PostgreSQL/S3-compatible local infrastructure and may require Docker; distinguish lack of infrastructure from a passed integration run. Media PDP/source checker commands (`pnpm check:product-experience-local` etc.) validate product sources and are **not substitutes** for backend verification or build admission.
 
 ## 10. Performance, correctness and extensibility gates
 
@@ -234,7 +250,7 @@ Use the canonical repo's settings/Gradle names if they differ; only report the c
 | Compatibility | Known prior wire clients and applied DB history remain readable; serialized schema evolution only and one active writer/publisher |
 | Observability | Stage metrics reconcile with durable store; positive and error/failure paths are traceable without leaking payload bytes, secrets or sensitive identity |
 
-Do not invent throughput/SLO outcomes. Missing measured baseline means performance **NOT_VERIFIED**, not a passing package. Pick test machine and acceptance threshold where existing PDP nonfunctional requirements specify one; any stricter proposed benchmark belongs to this engineering slice until source owner adopts it.
+Do not invent throughput/SLO outcomes. Missing measured baseline means performance **NOT_VERIFIED**, not a passing package. When the reference environment is pinned, test PDP-0 `NFR-PERF-001` **proposed** metadata/control p95 ≤300ms at 50req/s, bounded job admission p95 ≤500ms, cancellation acknowledgment ≤1s (NOT provider cancellation finality). These are not approved SLOs or observed performance. Apply `NFR-COST-001` finite CPU, RAM, VRAM, GPU, network, storage, retry, wall time, process and cost limits; unknown applicable budgets must block dispatch.
 
 **Extensibility design:** typed provider SPI selected through `config/provider-manifest.json`; exact capability eligibility and normalized results; immutable artifact/version IDs; source-bound job templates for future recorder, animation, simulation, speech and vision; structured transitions not dynamic unvalidated maps; post-commit outbox integration instead of inline external side effects. Preserve Ghatana platform boundaries; no copy of Document Intelligence/AI Inference, no speculative new service or contract version.
 
@@ -278,7 +294,7 @@ Counts are **this focused execution checklist only**, not official gtool Build t
 
 ### Definition of done for this request versus later work
 
-**Done now (planning/instruction task):** AGENTS.md authorizes nonblocking backend engineering; canonical writer and five module scopes are identified; 56 exact tasks with dependencies, ownership, tests, fault cases and gates are executable.
+**Done now (planning/instruction task):** Media is selected as the code-development repo; the 56 foundational tasks and destination scopes are defined. Source reconciliation and PDP binding gaps remain explicit and are NOT counted as implemented, fully source-bound, or formally accepted.
 
 **Not done until code is run and demonstrated:** actual implementations/hardening, any claimed passing integrated tests, source/data cutover, formally current PDP stages, gtool native verification, signed proof, PDP closure or product delivery. Those are not implied by this plan.
 
