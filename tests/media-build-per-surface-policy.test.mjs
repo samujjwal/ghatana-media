@@ -40,10 +40,11 @@ test('backend engineering is independently permitted without counterfeit formal 
     `${ROOT}/docs/implementation/MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md`,
     'utf8',
   );
-  assert.match(agents, /Default action: inspect relevant source, implement, test, integrate and report the changed unit/u);
+  assert.match(agents, /Default action: inspect and implement in .ghatana-media./u);
   assert.match(agents, /not prerequisites to starting/u);
   assert.match(agents, /exclusively a rule for formal BUILD stage admission/u);
-  assert.match(agents, /sole canonical executable runtime and migration\/queue writer/u);
+  assert.match(agents, /ALL new Media-owned runtime/u);
+  assert.match(agents, /committed to .samujjwal\/ghatana-media./u);
   assert.match(agents, /No native closure run is needed to call a backend package logically implementation-ready/u);
   assert.match(claude, /backend engineering may proceed on existing PDP product intent despite incomplete PDP formalization or gtool admission/u);
   assert.match(claude, /formal DISCOVERY → BUILD → DELIVER → ENHANCE/u);
@@ -58,7 +59,7 @@ test('backend engineering is independently permitted without counterfeit formal 
 });
 
 test('Media backend implementation has exactly one source-code destination and all 56 PDP references are source-backed', async () => {
-  const agents = await readFile("" + ROOT + '/AGENTS.md', 'utf8');
+  const agents = await readFile(ROOT + '/AGENTS.md', 'utf8');
   const boundary = await readFile(ROOT + '/BOUNDARY.md', 'utf8');
   const plan = await readFile(ROOT + '/docs/implementation/MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md', 'utf8');
   assert.match(agents, /ALL new Media-owned runtime/u);
@@ -86,7 +87,7 @@ test('Media backend implementation has exactly one source-code destination and a
     for (const anchor of p1.split('; ')) {
       assert.ok(sourceFiles.p1.some(source => source.includes(anchor)), id + ' missing PDP-1 anchor ' + anchor);
     }
-    const p2Path = p2.replaceAll('\`','').replace(/^api\//u,'');
+    const p2Path = p2.replaceAll(String.fromCharCode(96),'').replace(/^api\//u,'');
     await readFile(ROOT + '/.product-experience/pdp-2-design-interface-system/api/' + p2Path);
     if (p3.startsWith('media.http.')) assert.ok(sourceFiles.p3.includes('id: ' + p3), id + ' missing PDP-3 API');
     if (p3.startsWith('media.recovery.')) assert.ok(sourceFiles.recovery.includes('id: ' + p3), id + ' missing recovery');
