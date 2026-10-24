@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "media.pdp0.current-source-review-record.v1",
+  "criterionId": "P0-01",
+  "phaseScope": "PDP-0",
+  "reviewer": {
+    "identity": "agent:thread:REPLACE_WITH_DISTINCT_REVIEWER_THREAD",
+    "reviewRole": "DISTINCT_TECHNICAL_REVIEWER",
+    "reviewRecordRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-01.json"
+  },
+  "scopeRef": "docs/implementation/media-pdp-38-readiness.json#tasks/P0-01",
+  "reviewedSources": [
+    {"sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml", "sha256": "REPLACE_WITH_CURRENT_SHA256"},
+    {"sourceRef": "tests/pdp-truth-domain.test.mjs", "sha256": "REPLACE_WITH_CURRENT_SHA256"}
+  ],
+  "criterionVerification": {
+    "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+    "statusRecordSha256": "REPLACE_WITH_CURRENT_SHA256",
+    "testReceiptRef": "docs/implementation/verification/pdp-38/P0-01.log",
+    "testReceiptSha256": "REPLACE_WITH_CURRENT_SHA256",
+    "testStatus": "PASS",
+    "testCount": 31,
+    "passedTestCount": 31,
+    "skippedTestCount": 0,
+    "outputSha256": "REPLACE_WITH_CURRENT_SHA256"
+  },
+  "reviewConclusion": "NO_MATERIAL_PDP0_SEMANTIC_CHANGE_IDENTIFIED",
+  "reviewNotes": "Summarize the reviewed current source cut and exact criterion boundary. Do not infer phase acceptance or closure.",
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "pdp010Acceptance": "NOT_PERFORMED",
+    "phaseStatusEffect": "NONE"
+  }
+}

@@ -1,0 +1,350 @@
+{
+  "schemaVersion": "media.pdp0.cohort-source-content-peer.v2",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-01-R7-SOURCE-INTEGRATION-PEER-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "DISTINCT_INDEPENDENT_R7_FEATURE_TO_CANONICAL_SOURCE_INTEGRATION_REVIEW",
+  "reviewer": {
+    "identityKind": "codex-thread",
+    "fullThreadId": "01a16a6c-d506-7a73-801a-609c602a12e9",
+    "hostId": "local",
+    "role": "distinct technical peer reviewer assigned to exact cohort-01 R7 source integration review",
+    "humanOwnerOrCryptographicAttestation": false
+  },
+  "candidateAuthorIdentity": "NOT_RECORDED_IN_R7_CANDIDATE",
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "cohortOrdinal": 1,
+    "selectedDecisionCount": 7,
+    "selectedAuditIds": [
+      "AUD-CAP-028",
+      "AUD-CLONE-004",
+      "AUD-CLONE-006",
+      "AUD-CLONE-017",
+      "AUD-COLOR-007",
+      "AUD-DELIV-007",
+      "AUD-COLOR-001"
+    ],
+    "fullCampaignSurfaceDenominator": {
+      "physical": 26,
+      "compositeIncludingRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "selectedReviewSet": "The seven R7 decisions/features named in the pinned root direction; this scoped peer result does not replace the full campaign matrix.",
+    "canonicalMutation": "NONE"
+  },
+  "inputBaseline": {
+    "rootDirectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort01-root-source-authoring-direction-r1-2026-10-23.json",
+    "rootDirectionSha256": "fdbec76f5ff5801c686e1f3a3b2ee0e984691b92ef2b8e042c85cd8829e52c6d",
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r7.json",
+    "candidateSha256": "994d1a90995d0ed058515c613c08697b9ac0e96dd8dbddd177186ee0de59bcbc",
+    "candidateStatus": "ADDITIVE_CANDIDATE_READY_FOR_EXACT_INDEPENDENT_PEER_AND_AUTHENTIC_OWNER_REVIEW",
+    "featureSourceRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
+    "featureSourceSha256": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
+    "featureCasesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-cases.r7.json",
+    "featureCasesSha256": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5",
+    "postimagesManifestRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-postimages.r7.json",
+    "postimagesManifestSha256": "c276a1ae709e11bc185a86811d4f6e6fb7e2ed5b3189491366da89e78c3ad7b0",
+    "authoringVerificationRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r7-authoring-verification-2026-10-23.json",
+    "authoringVerificationSha256": "0e6d6999b7426d3faa2ec3be1ede666d03cd6579acb8a80101b9d7554065df47",
+    "sourceBaseline": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "declaredSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "actualLiveSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "matchesLive": true,
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "declaredSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "actualLiveSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "matchesLive": true,
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "declaredSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "actualLiveSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "matchesLive": true,
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "declaredSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "actualLiveSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "matchesLive": true,
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "declaredSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "actualLiveSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "matchesLive": true,
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "declaredSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "actualLiveSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "matchesLive": true,
+        "sourceLineage": "CURRENT_REVIEWED_QUALITY_SUCCESSOR_DECISION_LOG; PXD-227"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "declaredSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "actualLiveSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "matchesLive": true,
+        "sourceLineage": "CURRENT_REVIEWED_QUALITY_SUCCESSOR_POLICY"
+      }
+    ],
+    "postimages": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "preimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r7.yaml",
+        "postimageSha256": "d79eb99c50ccda8c53d03699fed861e8cb5d58fed6280bc7eab8d84a950c4175",
+        "semanticMutationCount": 44,
+        "actualPostimageSha256": "d79eb99c50ccda8c53d03699fed861e8cb5d58fed6280bc7eab8d84a950c4175",
+        "hashMatchesManifest": true,
+        "postimageEqualsPreimage": false
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "preimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-requirements.postimage.r7.yaml",
+        "postimageSha256": "d29dfcea65ffb25589fb01cc8a0823b3440d5710aa5b46932b9319991f930e6d",
+        "semanticMutationCount": 46,
+        "actualPostimageSha256": "d29dfcea65ffb25589fb01cc8a0823b3440d5710aa5b46932b9319991f930e6d",
+        "hashMatchesManifest": true,
+        "postimageEqualsPreimage": false
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "preimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capability-leaf-review.postimage.r7.yaml",
+        "postimageSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+        "semanticMutationCount": 44,
+        "actualPostimageSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+        "hashMatchesManifest": true,
+        "postimageEqualsPreimage": false
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-pdp0-501-disposition-crosswalk.postimage.r7.json",
+        "postimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "semanticMutationCount": 44,
+        "actualPostimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "hashMatchesManifest": true,
+        "postimageEqualsPreimage": true
+      }
+    ]
+  },
+  "reviewSummary": {
+    "decisionCount": 7,
+    "externalFeatureDefinitionCount": 7,
+    "fullFeatureDefinitionCount": 6,
+    "featureAcceptanceCaseCount": 34,
+    "uniqueFeatureAcceptanceCaseCount": 34,
+    "fullFeatureSourceProposalReview": "PASS_SCOPED_CONTENT_PRESENT_IN_EXTERNAL_FEATURE_PROPOSAL",
+    "satAParameterContract": "PASS_SCOPED_CONTRACT_AND_CASE_COVERAGE",
+    "featureDefinitionsAndCasesInOwningPostimages": "FAIL_OMITTED",
+    "featureIdsAndOperationIdsAbsentFromAllFourPostimages": true,
+    "featureAcceptanceCaseIdsAbsentFromAllFourPostimages": true,
+    "liveSevenFileBaselineMatches": "PASS",
+    "declaredPostimageHashesMatch": "PASS",
+    "crosswalkMutationCountIntegrity": "FAIL_POSTIMAGE_BYTES_EQUAL_PREIMAGE_WITH_44_MUTATIONS_DECLARED",
+    "remainingBlockingFindings": 2,
+    "nextAction": "REQUEST_CHANGES; integrate semantic definitions and cases into owning PDP-0 postimages, regenerate affected dependent projections and hashes, and submit a new exact peer cut."
+  },
+  "rows": [
+    {
+      "findingId": "COH01-R7-001",
+      "ordinal": 1,
+      "auditIds": [
+        "AUD-CAP-028",
+        "AUD-CLONE-004",
+        "AUD-CLONE-006",
+        "AUD-CLONE-017",
+        "AUD-COLOR-007",
+        "AUD-DELIV-007",
+        "AUD-COLOR-001"
+      ],
+      "technicalDisposition": "REQUEST_CHANGES",
+      "ownerTargets": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+      ],
+      "finding": "R7 contains seven complete semantic feature definitions and 34 unique acceptance cases in external proposal artifacts, but none is integrated into the four proposed owning-source postimages. The exact featureId and operation strings for all seven are absent from all four postimages, and all 34 caseId values are absent. The postimages therefore continue to carry the rebased R6 source operations without the newly defined R7 semantics.",
+      "evidence": {
+        "featureSourceRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
+        "featureCasesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-cases.r7.json",
+        "featureIds": [
+          "media.stream.session.product-effect.readback.observe",
+          "media.speech.synthesis.speaker.tune-authorized",
+          "media.speech.synthesis.speaker.design-synthetic-persona",
+          "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "media.color.profile.compatibility.observe",
+          "media.deliver.readiness.observe",
+          "media.color.saturation"
+        ],
+        "operationIds": [
+          "product-effect.observe",
+          "speaker.tune-authorized",
+          "speaker.persona.design-synthetic",
+          "speaker.persona.enroll-authorized",
+          "color.profile.compatibility.observe",
+          "deliver.readiness.observe",
+          "color.saturation.adjust"
+        ],
+        "featureAcceptanceCaseCount": 34,
+        "featureCaseIdsAbsentFromAllFourPostimages": 34,
+        "postimageRefs": [
+          "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r7.yaml",
+          "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-requirements.postimage.r7.yaml",
+          "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capability-leaf-review.postimage.r7.yaml",
+          "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-pdp0-501-disposition-crosswalk.postimage.r7.json"
+        ]
+      },
+      "repair": "Place each selected semantic definition in its canonical PDP-0 owning source, place its applicable positive/adverse acceptance cases in the owning capability and requirement sources, and refresh only affected leaf-review/crosswalk projections. Regenerate full-document postimages and manifests from the exact pinned baseline.",
+      "predecessor": "The exact R7 root direction and candidate pin; authentic canonical owner adoption remains a separate required gate.",
+      "acceptanceCriterion": "A new pinned candidate/postimage cut contains all seven feature definitions and all 34 cases in their correct owning canonical source structures; schema and linkage are valid; all preimage/postimage/candidate/source hashes agree; exact peer review confirms integration and dependent projections. No canonical apply is implied.",
+      "nextLegalAction": "Return R7 for source integration; keep canonicalApply NONE until owner adoption and required authorization."
+    },
+    {
+      "findingId": "COH01-R7-002",
+      "ordinal": 2,
+      "auditId": "AUD-COLOR-001",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "finding": "The crosswalk postimage hash equals its declared preimage hash byte-for-byte, while the postimage manifest declares semanticMutationCount 44. This is internally inconsistent and does not evidence a refreshed crosswalk projection.",
+      "evidence": {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "declaredPostimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "actualPostimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "semanticMutationCount": 44
+      },
+      "repair": "Regenerate the crosswalk only if the new canonical definitions require a changed mapping; otherwise declare zero mutations and retain the exact preimage hash. Reconcile manifest count with an auditable semantic diff.",
+      "predecessor": "Resolution of COH01-R7-001 and the exact source-owner mapping for each selected feature.",
+      "acceptanceCriterion": "Crosswalk mutation count equals the semantic diff; changed projection has a new verified hash, or unchanged projection has mutation count zero.",
+      "nextLegalAction": "Correct the candidate postimage manifest and include the regenerated crosswalk in the next exact review cut."
+    }
+  ],
+  "scopedContentReview": {
+    "sixFullFeatures": {
+      "count": 6,
+      "auditIds": [
+        "AUD-CAP-028",
+        "AUD-CLONE-004",
+        "AUD-CLONE-006",
+        "AUD-CLONE-017",
+        "AUD-COLOR-007",
+        "AUD-DELIV-007"
+      ],
+      "selectedRootChoices": "A for the six full feature decisions",
+      "externalDefinitionsPresent": true,
+      "exclusionDetected": false
+    },
+    "satA": {
+      "auditId": "AUD-COLOR-001",
+      "selectedChoice": "SAT-A",
+      "contract": {
+        "parameterId": "saturationFactor",
+        "type": "finite-number",
+        "unit": "multiplicative-saturation-factor",
+        "minimum": 0,
+        "maximum": 2,
+        "inclusive": true,
+        "precisionDecimalPlaces": 2,
+        "step": 0.01,
+        "default": 1,
+        "neutralValue": 1,
+        "requestedAndEffectiveValuesRecordedSeparately": true
+      },
+      "caseCount": 10,
+      "cases": [
+        {
+          "caseId": "R7-AUD-COLOR-001-01",
+          "polarity": "LOWER_BOUND",
+          "criterion": "Inclusive minimum."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-02",
+          "polarity": "UPPER_BOUND",
+          "criterion": "Inclusive maximum."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-03",
+          "polarity": "DEFAULT",
+          "criterion": "Default is explicit semantics."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-04",
+          "polarity": "NEUTRAL",
+          "criterion": "Neutral value is 1."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-05",
+          "polarity": "STEP",
+          "criterion": "Step is 0.01."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-06",
+          "polarity": "OUT_OF_RANGE",
+          "criterion": "Only inclusive [0,2]."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-07",
+          "polarity": "PRECISION",
+          "criterion": "At most two decimal places."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-08",
+          "polarity": "NONFINITE",
+          "criterion": "Input must be finite."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-09",
+          "polarity": "UNSUPPORTED_PROFILE",
+          "criterion": "No fallback."
+        },
+        {
+          "caseId": "R7-AUD-COLOR-001-10",
+          "polarity": "MISSING_SOURCE_VERSION",
+          "criterion": "Source version required."
+        }
+      ],
+      "caseCoverageAssessment": "Includes lower and upper inclusive bounds, default, neutral, step, out-of-range, precision, non-finite, unsupported profile, and missing source-version cases. Contract stays proposal-only pending integration."
+    }
+  },
+  "discoveryState": {
+    "earliestApplicablePhase": "PDP-0 Product Truth",
+    "selectedCohortSourceIntegration": "FAIL",
+    "campaignAggregateDiscovery": "UNKNOWN_NOT_REASSESSED_BY_THIS_SCOPED_PEER",
+    "phaseLocalDefinitionTaskInventory": "UNKNOWN_PENDING_INTEGRATED_SOURCE_AND_NATIVE_VALIDATION",
+    "nextAllowedPhase": "Continue PDP-0 authoring and validation; do not claim PDP-0 DEV_COMPLETE for these definitions."
+  },
+  "nonClaims": [
+    "No canonical source files were changed or applied by this peer review.",
+    "No owner adoption, owner authorization, native phase validation, PDP acceptance/closure, Build eligibility, release qualification, or deployment is asserted.",
+    "The reviewer identity is a real Codex thread identity; it does not constitute a human-owner signature or cryptographic attestation.",
+    "This is a scoped seven-decision peer review and does not replace the 54-surface campaign denominator or its full phase matrix."
+  ],
+  "validation": {
+    "liveBaselinePinsMatch": true,
+    "postimageHashesMatchManifest": true,
+    "featureDefinitionsCount": 7,
+    "caseIdsUnique": true,
+    "caseCount": 34,
+    "featureIdentifiersAndOperationsAbsentFromPostimages": true,
+    "caseIdentifiersAbsentFromPostimages": true,
+    "satAContractChecked": true,
+    "testsRun": false
+  }
+}

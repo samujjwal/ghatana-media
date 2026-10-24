@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r03.repair-map.v1",
+  "status": "CANDIDATE_REPAIR_MAP_ONLY",
+  "predecessor": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.freeze.v1.json",
+    "freezeSha256": "a828f8ebe54e9854d9d5dd1d3d22f5b61c636056584713b3977e626db3fbedab",
+    "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.independent-peer.actual-h-r02-full.json",
+    "actualHReviewSha256": "c215cd3937c401fa5c4252ce86af3bbb25f644aebaa9b584d5c9f45660c19a7c"
+  },
+  "findingIds": [
+    "F-01",
+    "F-02",
+    "F-03",
+    "F-04",
+    "F-05"
+  ],
+  "repairedAudits": [
+    {
+      "auditId": "AUD-DELIV-019",
+      "capabilityId": "media.deliver.live-stream-output",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-POS",
+        "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-NEG"
+      ],
+      "changedField": "when",
+      "identityPreserved": true,
+      "polarityPreserved": true,
+      "parentLeafInvocationParity": true
+    },
+    {
+      "auditId": "AUD-DUB-015",
+      "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-POS",
+        "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-NEG"
+      ],
+      "changedField": "when",
+      "identityPreserved": true,
+      "polarityPreserved": true,
+      "parentLeafInvocationParity": true
+    },
+    {
+      "auditId": "AUD-EDIT-016",
+      "capabilityId": "media.edit.matte-composite",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-POS",
+        "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-NEG"
+      ],
+      "changedField": "when",
+      "identityPreserved": true,
+      "polarityPreserved": true,
+      "parentLeafInvocationParity": true
+    },
+    {
+      "auditId": "AUD-EDIT-024",
+      "capabilityId": "media.accessibility.control-equivalent-action",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-POS",
+        "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-NEG",
+        "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-POS",
+        "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-NEG"
+      ],
+      "changedField": "when",
+      "identityPreserved": true,
+      "polarityPreserved": true,
+      "parentLeafInvocationParity": true
+    },
+    {
+      "auditId": "AUD-GEN-010",
+      "capabilityId": "media.generate.video.continue",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG"
+      ],
+      "changedField": "when",
+      "identityPreserved": true,
+      "polarityPreserved": true,
+      "parentLeafInvocationParity": true
+    },
+    {
+      "auditId": "AUD-GEN-020",
+      "capabilityId": "media.generate.motion.text-and-style-reference",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-NEG"
+      ],
+      "changedField": "when",
+      "identityPreserved": true,
+      "polarityPreserved": true,
+      "parentLeafInvocationParity": true
+    },
+    {
+      "auditId": "AUD-GEN-021",
+      "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG"
+      ],
+      "changedField": "when",
+      "identityPreserved": true,
+      "polarityPreserved": true,
+      "parentLeafInvocationParity": true
+    },
+    {
+      "auditId": "AUD-GEN-023",
+      "capabilityId": "media.generate.video.local-offline-generation",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-NEG"
+      ],
+      "changedField": "when",
+      "identityPreserved": true,
+      "polarityPreserved": true,
+      "parentLeafInvocationParity": true
+    },
+    {
+      "auditId": "AUD-GEN-024",
+      "capabilityId": "media.capability.provider-class-separation",
+      "leafCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-024-LEAF-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-024-LEAF-NEG"
+      ],
+      "parentCaseIds": [
+        "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-POS",
+        "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-NEG"
+      ],
+      "changedFields": [
+        "when",
+        "positive given",
+        "positive then",
+        "observable successOutputs contract"
+      ],
+      "negativeUnknownBehaviorPreserved": true
+    }
+  ],
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE"
+}

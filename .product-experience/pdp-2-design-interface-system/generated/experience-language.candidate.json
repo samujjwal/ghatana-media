@@ -1391,8 +1391,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-23T11:47:25.880Z",
-    "updatedAt": "2026-10-23T11:47:25.880Z"
+    "createdAt": "2026-10-23T18:03:46.711Z",
+    "updatedAt": "2026-10-23T18:03:46.711Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

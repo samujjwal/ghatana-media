@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "media.pdp0.quality-extension-source-candidate.v2",
+  "artifactKind": "TWO_TARGET_PDP0_SOURCE_QUALITY_EXTENSION_CANDIDATE",
+  "status": "CANDIDATE_ONLY_PENDING_DISTINCT_SOURCE_ADOPTION_REVIEW_AND_ROOT_DECISION",
+  "candidateAuthor": {
+    "identity": "agent:/root/phase_io",
+    "role": "DELEGATED_TECHNICAL_SOURCE_AUTHOR_NOT_EXTERNAL_QUALITY_SPECIALIST"
+  },
+  "predecessor": {
+    "v7CandidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json",
+    "v7CandidateSha256": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc",
+    "v7ManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json",
+    "v7ManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54",
+    "correctedPeerRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-v7-quality-extension-independent-peer.v2.json",
+    "correctedPeerSha256": "fe1f0d98b7835f12a9aa7e31b511854ae0996e3242ed5866874b4d1cc7381db1",
+    "predecessorQualityUnknownPreservedInV7": true
+  },
+  "sourceChoice": {
+    "ref": "../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-quality-applicability-root-choice-r01.json",
+    "sha256": "f26831abe430b0f48b5f00e1fcde0ceca4ed70f6dcb109eecf8577d078589228"
+  },
+  "priorQualityCandidate": {
+    "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-applicability-extension-candidate.v1.json",
+    "sha256": "98e156dc880564b81b2525b756fc7b45318d5aeeb413fcc2ca43797304f51df3"
+  },
+  "proposedDecisionSection": {
+    "decisionId": "PXD-227",
+    "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-pxd227-section-candidate.v1.md",
+    "sha256": "21fc1803e7a778e3f7e5f65e6df84bac673c2dfa4a12a24040c757710917bca2"
+  },
+  "targetOrder": [
+    ".product-experience/decision-log.md",
+    ".product-experience/pdp-0-product-truth/quality-policy.yaml"
+  ],
+  "targets": [
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "preimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-decision-log-postimage.v6.md",
+      "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-decision-log-postimage.v2.md",
+      "preimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+      "postimageSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "preimageRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-policy-extension-postimage.v2.yaml",
+      "preimageSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      "postimageSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+    }
+  ],
+  "candidatePostimageSha256": "a7a292b33f1571a487bc2fa5b68ffcb636956a5096a3fa24247f21487eac62d4",
+  "population": {
+    "historicalRowsPreserved": 462,
+    "currentExtensionRows": 1,
+    "currentRows": 463,
+    "futureExtensionRows": 6
+  },
+  "sourceMeaning": {
+    "rightsSafety": "APPLICABLE",
+    "otherFiveDimensions": "NOT_APPLICABLE",
+    "metrics": {
+      "count": 16,
+      "status": "NOT_APPLICABLE"
+    },
+    "measurement": "NOT_EVALUATED",
+    "qualification": "NOT_EVALUATED",
+    "thresholds": "NONE_DEFINED_OR_ADDED",
+    "acceptanceEffect": "none"
+  },
+  "authority": {
+    "sourceOwnerDecision": "PENDING",
+    "technicalPeerReview": "PENDING_FOR_THIS_EXACT_TWO_TARGET_SUCCESSOR",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeProof": "NOT_CLAIMED"
+  },
+  "effects": {
+    "canonicalApply": "NOT_PERFORMED",
+    "sourceCurrentness": "NOT_CLAIMED",
+    "phaseStatus": "UNCHANGED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "measurement": "NOT_EVALUATED",
+    "qualification": "NOT_EVALUATED"
+  }
+}

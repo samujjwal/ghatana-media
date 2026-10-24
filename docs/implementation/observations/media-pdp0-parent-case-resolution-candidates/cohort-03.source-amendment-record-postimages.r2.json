@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "1.0.0",
+  "artifactId": "MEDIA-PDP0-P0-07-C03-SOURCE-RECORD-POSTIMAGES-R2",
+  "status": "CANDIDATE_POSTIMAGES_PENDING_OWNER_DECISION",
+  "sourceBaseline": {
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+  },
+  "postimages": {
+    "capabilitiesSha256": "f290dca86ab664f8935dcf36551d79e8e24da2512feac77ae7ad1540fcb80e58",
+    "requirementsSha256": "7a12743a4cf287322e739b5e0e5079408101bb27887ac8cd5c40121b391c0bba"
+  },
+  "records": [
+    {
+      "auditId": "AUD-OPS-001",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.discover",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-OPS-001-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-OPS-001",
+      "proposedCases": {
+        "capability": "      - given: \"Exact operation/profile, machine, purpose/rights scope; separate source-declared capability choices from any authoritative job lineage.\"\n        when: \"Request provider choices and, separately, inspect effective choice.\"\n        then: \"Expose declared choices; populate effective provider/model/checkpoint/machine/license only from authoritative exact job lineage, else UNKNOWN/UNAVAILABLE. Catalog presence is not qualification, license admission, execution or selection; no default or silent cloud/provider fallback. PDP-0 choice/uncertainty; PDP-1 identities and lineage; qualification/runtime admission separate.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-OPS-001\n    given: \"Exact operation/profile, machine, purpose/rights scope; separate source-declared capability choices from any authoritative job lineage.\"\n    when: \"Request provider choices and, separately, inspect effective choice.\"\n    then: \"Expose declared choices; populate effective provider/model/checkpoint/machine/license only from authoritative exact job lineage, else UNKNOWN/UNAVAILABLE. Catalog presence is not qualification, license admission, execution or selection; no default or silent cloud/provider fallback. PDP-0 choice/uncertainty; PDP-1 identities and lineage; qualification/runtime admission separate.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-OPS-002",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.validate",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-OPS-002-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-OPS-002",
+      "proposedCases": {
+        "capability": "      - given: \"Exact engine/model/checkpoint/tokenizer/license versions, operation/profile, purpose and source scope.\"\n        when: \"Request pinned engine choice or inspect declared profile.\"\n        then: \"Expose declaration pins separately; missing/stale pins UNKNOWN/UNAVAILABLE; effective job choice only from authoritative lineage. Names do not prove model/license/admission/qualification; no silent substitution. PDP-0 choice meaning; PDP-1 identities/state; runtime qualification separate.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-OPS-002\n    given: \"Exact engine/model/checkpoint/tokenizer/license versions, operation/profile, purpose and source scope.\"\n    when: \"Request pinned engine choice or inspect declared profile.\"\n    then: \"Expose declaration pins separately; missing/stale pins UNKNOWN/UNAVAILABLE; effective job choice only from authoritative lineage. Names do not prove model/license/admission/qualification; no silent substitution. PDP-0 choice meaning; PDP-1 identities/state; runtime qualification separate.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-OPS-003",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-OPS-003-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-OPS-003",
+      "proposedCases": {
+        "capability": "      - given: \"Exact machine and requested operation/profile, plus authorized resource observation context.\"\n        when: \"Request processor/accelerator facts.\"\n        then: \"Return only observed/source-declared CPU/CUDA/Metal/MPS/ROCm/Intel facts with scope/provenance; unsupported fields UNKNOWN. Compatibility declaration is not a measured device or performance; no fallback inferred. PDP-0 observable inventory; PDP-1 resource identities; detector/qualification later.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-OPS-003\n    given: \"Exact machine and requested operation/profile, plus authorized resource observation context.\"\n    when: \"Request processor/accelerator facts.\"\n    then: \"Return only observed/source-declared CPU/CUDA/Metal/MPS/ROCm/Intel facts with scope/provenance; unsupported fields UNKNOWN. Compatibility declaration is not a measured device or performance; no fallback inferred. PDP-0 observable inventory; PDP-1 resource identities; detector/qualification later.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-OPS-006",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-OPS-006-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-OPS-006",
+      "proposedCases": {
+        "capability": "      - given: \"Exact worker identity, tenant/trust boundary, operation/profile, enrollment authority and current scope refs.\"\n        when: \"Request enrollment/isolation-bound operation.\"\n        then: \"Return owner-issued versioned enrollment/isolation disposition bound to identity, tenant, scope and authority; unresolved is UNKNOWN/UNAVAILABLE. Connectivity is not trust/enrollment; no dispatch or cross-tenant access. PDP-0 visible outcome; PDP-1 identities/transitions; enforcement/qualification later.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-OPS-006\n    given: \"Exact worker identity, tenant/trust boundary, operation/profile, enrollment authority and current scope refs.\"\n    when: \"Request enrollment/isolation-bound operation.\"\n    then: \"Return owner-issued versioned enrollment/isolation disposition bound to identity, tenant, scope and authority; unresolved is UNKNOWN/UNAVAILABLE. Connectivity is not trust/enrollment; no dispatch or cross-tenant access. PDP-0 visible outcome; PDP-1 identities/transitions; enforcement/qualification later.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-OPS-017",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-OPS-017-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-OPS-017",
+      "proposedCases": {
+        "capability": "      - given: \"Exact input versions, transform/profile digest, output/bounds, tenant, purpose and current rights.\"\n        when: \"Request a derivative when same-scope reuse may exist.\"\n        then: \"Return derivative candidate or no-reuse outcome with lineage; reuse eligibility only for identical source/profile/output/tenant/purpose/rights bindings. Hash alone is not rights equivalence; no stale/cross-tenant reuse or cache implementation claim without evidence. PDP-0 reuse intent if owner confirms visible value; cache keys/freshness/persistence PDP-1/BUILD.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-OPS-017\n    given: \"Exact input versions, transform/profile digest, output/bounds, tenant, purpose and current rights.\"\n    when: \"Request a derivative when same-scope reuse may exist.\"\n    then: \"Return derivative candidate or no-reuse outcome with lineage; reuse eligibility only for identical source/profile/output/tenant/purpose/rights bindings. Hash alone is not rights equivalence; no stale/cross-tenant reuse or cache implementation claim without evidence. PDP-0 reuse intent if owner confirms visible value; cache keys/freshness/persistence PDP-1/BUILD.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-OPS-019",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-OPS-019-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-OPS-019",
+      "proposedCases": {
+        "capability": "      - given: \"Exact declared OS/browser/hardware context, operation/profile, source and output.\"\n        when: \"Request compatibility for enumerated platform cells.\"\n        then: \"Return per-cell compatible/unsupported/UNKNOWN with exact evidence basis. No inference from another platform; compatibility is not qualification, capture, encode or release. PDP-0 per-cell meaning; PDP-1 platform identities; runtime validation separate.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-OPS-019\n    given: \"Exact declared OS/browser/hardware context, operation/profile, source and output.\"\n    when: \"Request compatibility for enumerated platform cells.\"\n    then: \"Return per-cell compatible/unsupported/UNKNOWN with exact evidence basis. No inference from another platform; compatibility is not qualification, capture, encode or release. PDP-0 per-cell meaning; PDP-1 platform identities; runtime validation separate.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-QA-006",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.speaker.diarize",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-QA-006-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-QA-006",
+      "proposedCases": {
+        "capability": "      - given: \"Exact diarization result/audio version, authorized comparison reference, reference labels and declared DER method/denominator.\"\n        when: \"Request diarization metric and voice similarity review.\"\n        then: \"Return DER only with method/reference/denominator; return speaker similarity as separate scoped value/unit or abstention. Diarization alone is not DER; similarity is not identity or human review; absent labels/method UNKNOWN. PDP-0 observation intent; PDP-1 annotation/method identities; no measurement/signoff claim.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-QA-006\n    given: \"Exact diarization result/audio version, authorized comparison reference, reference labels and declared DER method/denominator.\"\n    when: \"Request diarization metric and voice similarity review.\"\n    then: \"Return DER only with method/reference/denominator; return speaker similarity as separate scoped value/unit or abstention. Diarization alone is not DER; similarity is not identity or human review; absent labels/method UNKNOWN. PDP-0 observation intent; PDP-1 annotation/method identities; no measurement/signoff claim.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-QA-011",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-QA-011-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-QA-011",
+      "proposedCases": {
+        "capability": "      - given: \"Exact caption/timing/source version, requested safe-area placement and declared contrast/readability measurement method/context.\"\n        when: \"Assess placement and readability/contrast.\"\n        then: \"Report placement separately from measured contrast/readability with method, scope, evidence and abstention; no pass/fail absent owner threshold. Placement is not readability; absent method/threshold UNKNOWN; no face-safe claim absent evidence. PDP-0 separate intents; metric schema/threshold owner definition; no quality acceptance.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-QA-011\n    given: \"Exact caption/timing/source version, requested safe-area placement and declared contrast/readability measurement method/context.\"\n    when: \"Assess placement and readability/contrast.\"\n    then: \"Report placement separately from measured contrast/readability with method, scope, evidence and abstention; no pass/fail absent owner threshold. Placement is not readability; absent method/threshold UNKNOWN; no face-safe claim absent evidence. PDP-0 separate intents; metric schema/threshold owner definition; no quality acceptance.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-QA-012",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.vision.scene-text.observation.create",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-QA-012-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-QA-012",
+      "proposedCases": {
+        "capability": "      - given: \"Exact media version/time range, OCR-observed text/logo regions, intended use and authoritative permitted-use evidence.\"\n        when: \"Request protected text/logo use review.\"\n        then: \"Return OCR observation separately from owner-issued permitted-use disposition; missing/ambiguous evidence UNKNOWN/blocked. OCR is not legal analysis, ownership, copyright/trademark clearance or use permission. PDP-0 observation/right-result distinction; OCR/right state identities later; no legal signoff.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-QA-012\n    given: \"Exact media version/time range, OCR-observed text/logo regions, intended use and authoritative permitted-use evidence.\"\n    when: \"Request protected text/logo use review.\"\n    then: \"Return OCR observation separately from owner-issued permitted-use disposition; missing/ambiguous evidence UNKNOWN/blocked. OCR is not legal analysis, ownership, copyright/trademark clearance or use permission. PDP-0 observation/right-result distinction; OCR/right state identities later; no legal signoff.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-SOCIAL-011",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.infographic",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-SOCIAL-011-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-SOCIAL-011",
+      "proposedCases": {
+        "capability": "      - given: \"Exact versioned source values/claims, chart intent and declared animation parameters.\"\n        when: \"Request animated chart/metric candidate.\"\n        then: \"Return versioned candidate with every displayed value linked to exact source field and transform. Invalid/missing values UNKNOWN; no invented labels/trends/claims; no render/publication. PDP-0 truthful output; data/animation identities PDP-1; rendering BUILD.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-SOCIAL-011\n    given: \"Exact versioned source values/claims, chart intent and declared animation parameters.\"\n    when: \"Request animated chart/metric candidate.\"\n    then: \"Return versioned candidate with every displayed value linked to exact source field and transform. Invalid/missing values UNKNOWN; no invented labels/trends/claims; no render/publication. PDP-0 truthful output; data/animation identities PDP-1; rendering BUILD.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-SPEC-005",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.source-asset.attach",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-SPEC-005-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-SPEC-005",
+      "proposedCases": {
+        "capability": "      - given: \"Exact source asset/version, recipe/spec version, model/provider/checkpoint/tokenizer/license pins, purpose and rights evidence.\"\n        when: \"Request reproducible specification and rights snapshot.\"\n        then: \"Return candidate pin snapshot with evidence independently listed; stale/missing pin or rights UNKNOWN and no qualified-use claim. Snapshot is not admission, qualification, runtime availability or asset consumption; no defaults. PDP-0 evidence outcome; identities PDP-1; admission/execution separate.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-SPEC-005\n    given: \"Exact source asset/version, recipe/spec version, model/provider/checkpoint/tokenizer/license pins, purpose and rights evidence.\"\n    when: \"Request reproducible specification and rights snapshot.\"\n    then: \"Return candidate pin snapshot with evidence independently listed; stale/missing pin or rights UNKNOWN and no qualified-use claim. Snapshot is not admission, qualification, runtime availability or asset consumption; no defaults. PDP-0 evidence outcome; identities PDP-1; admission/execution separate.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-TRUST-005",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.retention.effect.record",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-TRUST-005-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-TRUST-005",
+      "proposedCases": {
+        "capability": "      - given: \"Exact subject/artifact/version, purpose, authority, retention/hold scope and any owner-issued request/effect/readback evidence.\"\n        when: \"Request or inspect revocation, retention, hold or erasure.\"\n        then: \"Expose requested/authorized/observed/readback results separately only when exact authority evidence exists; else pending/UNKNOWN. Access restriction is not erasure; request is not effect; internal record is not external deletion; no legal outcome inferred. PDP-0 user-visible distinction; lifecycle states PDP-1; legal/effect evidence actual authority.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-TRUST-005\n    given: \"Exact subject/artifact/version, purpose, authority, retention/hold scope and any owner-issued request/effect/readback evidence.\"\n    when: \"Request or inspect revocation, retention, hold or erasure.\"\n    then: \"Expose requested/authorized/observed/readback results separately only when exact authority evidence exists; else pending/UNKNOWN. Access restriction is not erasure; request is not effect; internal record is not external deletion; no legal outcome inferred. PDP-0 user-visible distinction; lifecycle states PDP-1; legal/effect evidence actual authority.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-TRUST-006",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.provenance-manifest",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-TRUST-006-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-TRUST-006",
+      "proposedCases": {
+        "capability": "      - given: \"Exact immutable bytes/version, manifest, signer/key/trust refs and requested creation or verification action.\"\n        when: \"Request credential creation or verification.\"\n        then: \"Report creation and verification separately against exact bytes and trust evidence; absent/invalid evidence remains UNKNOWN/invalid. Manifest is not signature validity; no authenticity or delivery claim without evidence. PDP-0 outcome; signature/trust state PDP-1; no proof fabricated.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-TRUST-006\n    given: \"Exact immutable bytes/version, manifest, signer/key/trust refs and requested creation or verification action.\"\n    when: \"Request credential creation or verification.\"\n    then: \"Report creation and verification separately against exact bytes and trust evidence; absent/invalid evidence remains UNKNOWN/invalid. Manifest is not signature validity; no authenticity or delivery claim without evidence. PDP-0 outcome; signature/trust state PDP-1; no proof fabricated.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-TRUST-010",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-TRUST-010-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-TRUST-010",
+      "proposedCases": {
+        "capability": "      - given: \"Exact model/checkpoint/license, cache artifact/version/digest, signer/key/trust evidence and execution lineage.\"\n        when: \"Request secure provenance or signed-cache verification.\"\n        then: \"Return distinct hash-integrity, signature/trust, license and lineage observations, each with exact evidence or UNKNOWN. Hash is not signature/license proof; path/name/export manifest is not verification. PDP-0 assurance outcomes; lineage identities PDP-1; security proof separately evidenced.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-TRUST-010\n    given: \"Exact model/checkpoint/license, cache artifact/version/digest, signer/key/trust evidence and execution lineage.\"\n    when: \"Request secure provenance or signed-cache verification.\"\n    then: \"Return distinct hash-integrity, signature/trust, license and lineage observations, each with exact evidence or UNKNOWN. Hash is not signature/license proof; path/name/export manifest is not verification. PDP-0 assurance outcomes; lineage identities PDP-1; security proof separately evidenced.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-TRUST-015",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.derived-asset.attach",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-TRUST-015-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-TRUST-015",
+      "proposedCases": {
+        "capability": "      - given: \"Exact tenant IDs, source version, derivative/cache candidate, purpose and rights/retention evidence.\"\n        when: \"Request derivative reuse within/across tenant scope.\"\n        then: \"Allow reuse candidate only if exact tenant/purpose/source/rights match; else deny/no-reuse or UNKNOWN. Attachment is not cache authorization; no cross-tenant disclosure/reuse or hash-only equivalence. PDP-0 reuse result; tenant/cache state PDP-1; isolation enforcement implementation evidence.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-TRUST-015\n    given: \"Exact tenant IDs, source version, derivative/cache candidate, purpose and rights/retention evidence.\"\n    when: \"Request derivative reuse within/across tenant scope.\"\n    then: \"Allow reuse candidate only if exact tenant/purpose/source/rights match; else deny/no-reuse or UNKNOWN. Attachment is not cache authorization; no cross-tenant disclosure/reuse or hash-only equivalence. PDP-0 reuse result; tenant/cache state PDP-1; isolation enforcement implementation evidence.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-TRUST-018",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.erasure.effect.record",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-TRUST-018-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-TRUST-018",
+      "proposedCases": {
+        "capability": "      - given: \"Exact artifact/version, authority, rights/retention/hold state, owner effect and external readback when applicable.\"\n        when: \"Request deletion confirmation or access restriction.\"\n        then: \"Return access restriction, deletion request, recorded effect and external readback separately; confirm only with authoritative exact effect/readback else pending/UNKNOWN. Blocked access is not deletion; request is not completion; no external erasure inferred. PDP-0 outcome distinction; effect/readback identities PDP-1; external proof from actual authority.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-TRUST-018\n    given: \"Exact artifact/version, authority, rights/retention/hold state, owner effect and external readback when applicable.\"\n    when: \"Request deletion confirmation or access restriction.\"\n    then: \"Return access restriction, deletion request, recorded effect and external readback separately; confirm only with authoritative exact effect/readback else pending/UNKNOWN. Blocked access is not deletion; request is not completion; no external erasure inferred. PDP-0 outcome distinction; effect/readback identities PDP-1; external proof from actual authority.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-TTS-001",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.discover",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-TTS-001-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-TTS-001",
+      "proposedCases": {
+        "capability": "      - given: \"Declared voice-catalog scope/query and language/style/use constraints with source-owned catalog/version metadata.\"\n        when: \"Search voice choices.\"\n        then: \"Return exact versioned entries and source-declared metadata/applicability; catalog coverage UNKNOWN when missing/unindexed. Listing is not engine availability, license admission, effective voice or synthesis; no default voice. PDP-0 search outcome; catalog identities PDP-1; execution separate.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-TTS-001\n    given: \"Declared voice-catalog scope/query and language/style/use constraints with source-owned catalog/version metadata.\"\n    when: \"Search voice choices.\"\n    then: \"Return exact versioned entries and source-declared metadata/applicability; catalog coverage UNKNOWN when missing/unindexed. Listing is not engine availability, license admission, effective voice or synthesis; no default voice. PDP-0 search outcome; catalog identities PDP-1; execution separate.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-TTS-002",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.discover",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-TTS-002-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-TTS-002",
+      "proposedCases": {
+        "capability": "      - given: \"Requested text/profile/engine/model/voice versions, license/purpose context and exact job lineage if executed.\"\n        when: \"Select approved engine and inspect result.\"\n        then: \"Return requested selection/admission separately; effective engine/model/voice only from exact authoritative lineage else UNKNOWN. No silent switch/default; discovery is not effective execution; missing license/pin unavailable. PDP-0 truthful choice; job lineage PDP-1; runtime qualification separate.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-TTS-002\n    given: \"Requested text/profile/engine/model/voice versions, license/purpose context and exact job lineage if executed.\"\n    when: \"Select approved engine and inspect result.\"\n    then: \"Return requested selection/admission separately; effective engine/model/voice only from exact authoritative lineage else UNKNOWN. No silent switch/default; discovery is not effective execution; missing license/pin unavailable. PDP-0 truthful choice; job lineage PDP-1; runtime qualification separate.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    },
+    {
+      "auditId": "AUD-TTS-010",
+      "capabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech",
+      "requirementSelector": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "capabilityCaseId": "MEDIA-PDP0-P0-07-C03-AUD-TTS-010-CAP",
+      "requirementAcceptanceCaseId": "MEDIA-REQ-P0-C03-AUD-TTS-010",
+      "proposedCases": {
+        "capability": "      - given: \"Exact input text/version and ordered text spans, selected profile and explicit output-time/alignment/crossfade intent.\"\n        when: \"Generate long-form chunk candidates.\"\n        then: \"Return ordered chunks tied to input-text boundaries; output-time/alignment/crossfade disposition stated separately; partial/unaligned remains explicit. Text span is not media-time span; no hidden truncation/loss; no alignment claim without timing evidence. PDP-0 output intent; text/timeline identities PDP-1; synthesis/render BUILD.\"\n",
+        "requirement": "  - id: MEDIA-REQ-P0-C03-AUD-TTS-010\n    given: \"Exact input text/version and ordered text spans, selected profile and explicit output-time/alignment/crossfade intent.\"\n    when: \"Generate long-form chunk candidates.\"\n    then: \"Return ordered chunks tied to input-text boundaries; output-time/alignment/crossfade disposition stated separately; partial/unaligned remains explicit. Text span is not media-time span; no hidden truncation/loss; no alignment claim without timing evidence. PDP-0 output intent; text/timeline identities PDP-1; synthesis/render BUILD.\"\n"
+      },
+      "peerDisposition": "TECHNICAL_PASS",
+      "proposalStatus": "CANDIDATE_PENDING_SOURCE_OWNER_DECISION"
+    }
+  ],
+  "counts": {
+    "peerPassedAuditRows": 19,
+    "capabilityCaseAdditions": 19,
+    "requirementAcceptanceCaseAdditions": 19
+  },
+  "nonClaims": [
+    "No canonical apply performed.",
+    "Candidate postimages do not establish owner acceptance or PDP-0 completion."
+  ]
+}

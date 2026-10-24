@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.source-amendment-apply-authorization.v7",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "effect",
+    "authorizationId",
+    "candidateRef",
+    "candidateSha256",
+    "candidatePostimageSha256",
+    "sourceOwnerDecisionRef",
+    "sourceOwnerDecisionSha256",
+    "technicalPeerReviewRef",
+    "technicalPeerReviewSha256",
+    "decisionRef",
+    "decisionSectionSha256",
+    "targetPostimages",
+    "currentRootGrant",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.source-amendment-apply-authorization.v7"
+    },
+    "effect": {
+      "const": "APPLY_EXACT_AUD_SPEC_002_SOURCE_AMENDMENT_V7"
+    },
+    "authorizationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "candidateRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json"
+    },
+    "candidateSha256": {
+      "const": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc"
+    },
+    "candidatePostimageSha256": {
+      "const": "d1e0b9b8cea7e7f23aa339fd4a12cde29fc9d14b52e821e8a00f8f113fb8d187"
+    },
+    "sourceOwnerDecisionRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-owner-decision.v7.json"
+    },
+    "sourceOwnerDecisionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "technicalPeerReviewRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v7.json"
+    },
+    "technicalPeerReviewSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "decisionRef": {
+      "const": ".product-experience/decision-log.md#PXD-226"
+    },
+    "decisionSectionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "targetPostimages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        ".product-experience/decision-log.md"
+      ],
+      "properties": {
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        ".product-experience/pdp-0-product-truth/requirements.yaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        ".product-experience/decision-log.md": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "currentRootGrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grantId",
+        "status",
+        "issuerIdentity",
+        "candidateSha256",
+        "candidatePostimageSha256",
+        "sourceOwnerDecisionSha256",
+        "technicalPeerReviewSha256",
+        "decisionRef",
+        "decisionSectionSha256",
+        "targetPostimages"
+      ],
+      "properties": {
+        "grantId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "const": "CURRENT"
+        },
+        "issuerIdentity": {
+          "const": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e"
+        },
+        "candidateSha256": {
+          "const": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc"
+        },
+        "candidatePostimageSha256": {
+          "const": "d1e0b9b8cea7e7f23aa339fd4a12cde29fc9d14b52e821e8a00f8f113fb8d187"
+        },
+        "sourceOwnerDecisionSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "technicalPeerReviewSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "decisionRef": {
+          "const": ".product-experience/decision-log.md#PXD-226"
+        },
+        "decisionSectionSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "targetPostimages": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+            ".product-experience/decision-log.md"
+          ],
+          "properties": {
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            ".product-experience/pdp-0-product-truth/requirements.yaml": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            ".product-experience/decision-log.md": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ownerApproval",
+        "independentAcceptance",
+        "phaseStatusEffect",
+        "runtimeAdmission",
+        "nativeClosure"
+      ],
+      "properties": {
+        "ownerApproval": {
+          "const": "NOT_CLAIMED"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "runtimeAdmission": {
+          "const": "NOT_ADMITTED"
+        },
+        "nativeClosure": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    }
+  }
+}

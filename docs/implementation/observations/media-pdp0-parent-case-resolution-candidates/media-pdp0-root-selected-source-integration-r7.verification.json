@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-verification.v1",
+  "artifactId": "MEDIA-PDP0-COHORT01-COHORT02-R7-ROOT-SELECTED-SOURCE-INTEGRATION-VERIFICATION-2026-10-23",
+  "manifestRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.postimages.json",
+  "manifestSha256": "e2a1f83cd357cc64288a5725dbe441a55c3800424cee110e698349cebb09bca5",
+  "operationLedgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.operations.json",
+  "operationLedgerSha256": "8a1ffe62d90a0655a036459fb925a68849d8bffd8c20494af106a0ac9222dc52",
+  "counts": {
+    "projectionOperations": 248,
+    "featureDefinitions": 16,
+    "capabilityCases": 52,
+    "parentRequirementCases": 54,
+    "requirementBindings": 17,
+    "crosswalkFeatureRowUpdates": 16,
+    "cohort01Features": 7,
+    "cohort01Cases": 34,
+    "cohort02Features": 9,
+    "cohort02CapabilityCases": 18,
+    "cohort02ParentRequirementCaseRecords": 20,
+    "sharedPacketDefinitions": 1,
+    "splitPacketDefinitions": 2
+  },
+  "checks": {
+    "sevenBaselinePinsCurrent": true,
+    "postimagesParseAndHash": true,
+    "featureDefinitionsAndCasesResolve": true,
+    "parentRelationsResolve": true,
+    "parentSourceCapabilityCaseLineageResolves": true,
+    "crosswalkMappingsResolve": true,
+    "sharedAndSplitVariantsPresent": true,
+    "historicalLeafRecordsPreserved": true,
+    "liveCanonicalSourcesUnchanged": true
+  },
+  "postimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capabilities.postimage.yaml",
+      "postimageSha256": "da6bed5705d46d81c8addb03f64dffb7c50d0c27ad636adffdbbaafcc2e4b862",
+      "byteLength": 8240511
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.requirements.postimage.yaml",
+      "postimageSha256": "3f70087709a925997d34b8a4e294bde38f3337fdd819344844f283714f092943",
+      "byteLength": 610354
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capability-leaf-review.postimage.yaml",
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "byteLength": 7703731
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.crosswalk.postimage.json",
+      "postimageSha256": "cff6f51b59734859418c376e6d2e908db07f59cb54ff6a4b678ab99a7a019e4f",
+      "byteLength": 1872936
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capabilities.postimage.yaml",
+      "postimageSha256": "9e4e61c68aef52bbffd45b270ba27ca15a7712fcfd33d66d7aead59533c6a9ef",
+      "byteLength": 8247602
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.requirements.postimage.yaml",
+      "postimageSha256": "4290f3f2ecc57835c81204922eea3c94cc9d9f6f0e48933ffca3660e0fbdccec",
+      "byteLength": 617634
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capability-leaf-review.postimage.yaml",
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "byteLength": 7703731
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.crosswalk.postimage.json",
+      "postimageSha256": "4a9d054d69d502c7977b0f6114436ea448dae85d4d74a14ea9b43232eee0c0af",
+      "byteLength": 1880876
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capabilities.postimage.yaml",
+      "postimageSha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9",
+      "byteLength": 8252406
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.requirements.postimage.yaml",
+      "postimageSha256": "ec4df072d4d28aeccb00cfaf557d80c2be1f019abb47a0c64a77ae5090c1e1de",
+      "byteLength": 616406
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capability-leaf-review.postimage.yaml",
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "byteLength": 7703731
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.crosswalk.postimage.json",
+      "postimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672",
+      "byteLength": 1878679
+    }
+  ],
+  "nonClaims": [
+    "Postimages use canonical owner-source formats but remain candidate artifacts; live canonical sources remain unchanged.",
+    "Owner adoption, owner adjudication, trust reconstruction, independent acceptance, phase completion, implementation, closure and release are not asserted.",
+    "The 462 historical owner records remain byte-identical."
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "effect",
+    "candidateRef",
+    "candidateSha256",
+    "freezeRef",
+    "freezeSha256",
+    "profileRegistrationRef",
+    "profileRegistrationSha256",
+    "sourceOwnerDecisionRef",
+    "sourceOwnerDecisionSha256",
+    "rootAdoptionDecisionRef",
+    "rootAdoptionDecisionSha256",
+    "hReviewRef",
+    "hReviewSha256",
+    "targetRows",
+    "sourceBaseline",
+    "decisionRef",
+    "decisionSectionSha256",
+    "applyAuthority",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "candidateRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.successor-bundle.candidate.v1.json"
+    },
+    "candidateSha256": {
+      "const": "a4ed01253c422b3044ec415d9e065ddf9de6a373307c0b4e1f5284fef99669cb"
+    },
+    "freezeRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.freeze.v1.json"
+    },
+    "freezeSha256": {
+      "const": "3d85b88e11d0c037f806696d888c4d5e76cf97fd6dd989e3603ad5a9bca4cc4a"
+    },
+    "hReviewRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.independent-peer.actual-h-r07-full.json"
+    },
+    "hReviewSha256": {
+      "const": "e7abc9e67237494a974997dca8a5fe0b664b5eb9e3fd78057d14f95a0eb08d3c"
+    },
+    "schemaVersion": {
+      "const": "media.pdp0.root-selected-source-integration-r9-r07.apply-authorization.v2"
+    },
+    "effect": {
+      "const": "APPLY_EXACT_R9_R07_SPLIT_SOURCE_SUCCESSOR"
+    },
+    "profileRegistrationRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.operation-profile-registration.v1.json"
+    },
+    "profileRegistrationSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sourceOwnerDecisionRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.source-owner-decision.v1.json"
+    },
+    "sourceOwnerDecisionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "rootAdoptionDecisionRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.root-adoption-decision.v1.json"
+    },
+    "rootAdoptionDecisionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "targetRows": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "oneOf": [
+          {
+            "const": {
+              "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+              "preimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+              "postimageSha256": "3fa48a2a84d96acfef798193646007365eedbdee2a7482fa8e8912da23cfa18e"
+            }
+          },
+          {
+            "const": {
+              "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+              "preimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+              "postimageSha256": "a6d892f87847b56bc601efd4cba2e85a763840f082b991d282fbbd408a2e4508"
+            }
+          },
+          {
+            "const": {
+              "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+              "preimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+              "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+            }
+          },
+          {
+            "const": {
+              "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+              "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+              "postimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+            }
+          }
+        ]
+      }
+    },
+    "sourceBaseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        ".product-experience/decision-log.md",
+        ".product-experience/pdp-0-product-truth/quality-policy.yaml"
+      ],
+      "properties": {
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+          "const": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+        },
+        ".product-experience/pdp-0-product-truth/requirements.yaml": {
+          "const": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+        },
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": {
+          "const": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+        },
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": {
+          "const": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+        },
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": {
+          "const": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+        },
+        ".product-experience/decision-log.md": {
+          "const": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+        },
+        ".product-experience/pdp-0-product-truth/quality-policy.yaml": {
+          "const": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+        }
+      }
+    },
+    "decisionRef": {
+      "type": "string",
+      "pattern": "^\\.product-experience/decision-log\\.md#PXD-[0-9]{3}$"
+    },
+    "decisionSectionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "applyAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "const": "CANONICAL_APPLY_AUTHORITY"
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonicalApply"
+      ],
+      "properties": {
+        "canonicalApply": {
+          "const": "EXACT_R9_R07_CANONICAL_SOURCE_APPLY_AUTHORIZED"
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.root-selected-source-integration-r9-r07.apply.v3",
+  "title": "Candidate R9-R07 apply authority record schema"
+}

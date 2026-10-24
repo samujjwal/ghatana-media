@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "media.pdp0.quality-extension-source-adoption-apply-journal.v2",
+  "state": "COMMITTED_EXACT_READBACK",
+  "candidateSha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a",
+  "decisionRef": ".product-experience/decision-log.md#PXD-227",
+  "decisionSectionSha256": "21fc1803e7a778e3f7e5f65e6df84bac673c2dfa4a12a24040c757710917bca2",
+  "applyAuthorizationSha256": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354",
+  "targets": [
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "expectedPreimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+      "postimageSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "expectedTargetMode": 420,
+      "immutablePreimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a/0-decision-log.md",
+      "state": "COMMITTED_EXACT_READBACK",
+      "exactReadbackSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "expectedPreimageSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      "postimageSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+      "expectedTargetMode": 420,
+      "immutablePreimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a/1-quality-policy.yaml",
+      "state": "COMMITTED_EXACT_READBACK",
+      "exactReadbackSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+    }
+  ]
+}

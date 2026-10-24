@@ -7,8 +7,8 @@
   "sourcePins": {
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
     ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
-    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "b2901f3efc54920b1d280897fc2d95eb10029d092944d7bbf046b6dbd8f97c48",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
+    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08",
     ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
     ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
     ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
@@ -31,10 +31,10 @@
     ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
     "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json": "92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32",
     "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "9afdd942f81381979b887b0653829885f7207078ffc5e6f905cd8a435c4f188a",
-    "docs/implementation/pdp-0-phase-dev-status.json": "8b3f208a1a07a88bd66b569f9b7764cc0f0d8419ba9710c3e61494040957119f",
-    "docs/implementation/pdp-1-phase-dev-status.json": "f41b12357cf172ee623dbaba4daca1186fc23e3e1be333c1f3361f106902bc3c",
-    "docs/implementation/pdp-2-phase-dev-status.json": "cb5a9af6956b7b5ccd77502f3d4ce621e1c3d47beceb33e5642f59d525645e81",
-    "docs/implementation/pdp-3-phase-dev-status.json": "dad373ce9545eaae2d200027761044507a91a873c5cb612407a7aea4e30fb30e"
+    "docs/implementation/pdp-0-phase-dev-status.json": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d",
+    "docs/implementation/pdp-1-phase-dev-status.json": "7cbe7addda6e4ea2df16d358d5f39f02bae83b4822fd8aa0ee94f0d55d65f084",
+    "docs/implementation/pdp-2-phase-dev-status.json": "71d34a6c0013e85c4570faed2c525b0d6a6d2976310f4d11275ecd05761734e6",
+    "docs/implementation/pdp-3-phase-dev-status.json": "244f6495ddbf90d19c8bce6fa664ebf4e20643c3a019d332f089e62ca2b81a5f"
   },
   "census": {
     "identityCount": 3186,

@@ -410,37 +410,92 @@ function projectionReport(root, source, diagnostics) {
   };
 }
 
+export function resolvePdp0CurrentCapabilityPopulation({capabilityLeafReview, capabilitiesDocument, campaignExtensionsDocument}) {
+  const diagnostics = [];
+  const capabilities = capabilitiesDocument?.capabilities ?? [];
+  const version = campaignExtensionsDocument?.currentDefinitionPopulation?.versionDisposition ?? {};
+  const futureProposals = version.futureVersionProposals ?? [];
+  const futureIds = futureProposals.map(({capabilityId}) => capabilityId).filter(Boolean);
+  const futureIdSet = new Set(futureIds);
+  const capabilityIds = new Set(capabilities.map(({id}) => id));
+  const currentCapabilityIds = [...capabilityIds].filter(id => !futureIdSet.has(id));
+  const currentExtensionIds = version.currentVersionExtensionCapabilityIds ?? [];
+  const extensionReview = capabilityLeafReview?.currentVersionExtensionOwnerAndTrust;
+  const extensionOwnerRows = extensionReview?.ownerAdjudications ?? [];
+  const extensionTrustRows = extensionReview?.trustReconstructionDispositions ?? [];
+  const declaredCurrentCount = version.currentVersionCapabilityLeaves;
+  const declaredTotalCount = version.totalSourceCapabilityDefinitions;
+  // The canonical source currently has no extension promoted into the current
+  // version. The additive AUD-SPEC-002 proposal may select exactly the compile
+  // extension while keeping its owner/trust rows outside the historical 462.
+  // Accept those two explicit states; reject any other population shape.
+  const expectedCurrentExtensionIds = currentExtensionIds.length === 0
+    ? []
+    : ['media.recipe.specification.compile'];
+  const expectedFutureCount = 7 - expectedCurrentExtensionIds.length;
+  const expectedCurrentCount = 462 + expectedCurrentExtensionIds.length;
+  const hasCurrentExtension = expectedCurrentExtensionIds.length === 1;
+  const expectedDecisionRefs = hasCurrentExtension
+    ? ['.product-experience/decision-log.md#PXD-220', '.product-experience/decision-log.md#PXD-221', '.product-experience/decision-log.md#PXD-226']
+    : ['.product-experience/decision-log.md#PXD-220', '.product-experience/decision-log.md#PXD-221'];
+  const expectedFutureDecisionRefByCapability = new Map([
+    ['media.recipe.specification.compile', '.product-experience/decision-log.md#PXD-220'],
+    ['media.project.scene.patch-merge', '.product-experience/decision-log.md#PXD-220'],
+    ['media.quality.audio.content-similarity.assess', '.product-experience/decision-log.md#PXD-220'],
+    ['media.generate.video.preset.manage', '.product-experience/decision-log.md#PXD-220'],
+    ['media.generate.video.shot-condition', '.product-experience/decision-log.md#PXD-220'],
+    ['media.job.schedule.manage', '.product-experience/decision-log.md#PXD-220'],
+    ['media.master.audio.creative-effect.apply', '.product-experience/decision-log.md#PXD-221'],
+  ]);
+  if (capabilityIds.size !== capabilities.length) diagnostics.push('capabilities.yaml contains duplicate capability IDs');
+  if (futureIds.length !== futureProposals.length || futureIdSet.size !== futureIds.length
+      || futureIds.some(id => !capabilityIds.has(id))) diagnostics.push('future-version proposals must identify unique source capability IDs');
+  if (futureProposals.some(({capabilityId, scopeStatus, version: proposalVersion, decisionRef}) => scopeStatus !== 'DEFERRED'
+      || proposalVersion !== 'later-governed-version'
+      || expectedFutureDecisionRefByCapability.get(capabilityId) !== decisionRef
+      || expectedCurrentExtensionIds.includes(capabilityId))) {
+    diagnostics.push('future-version capability exclusions must retain explicit deferred PXD-220/PXD-221 decisions');
+  }
+  if (JSON.stringify(version.decisionRefs ?? []) !== JSON.stringify(expectedDecisionRefs)) {
+    diagnostics.push('version decision refs must include PXD-226 exactly when the compile extension is current');
+  }
+  if (declaredTotalCount !== capabilities.length || declaredCurrentCount !== currentCapabilityIds.length
+      || version.historicalCanonicalCapabilityLeaves !== declaredCurrentCount - currentExtensionIds.length
+      || JSON.stringify(currentExtensionIds) !== JSON.stringify(expectedCurrentExtensionIds)
+      || version.futureVersionProposalCapabilityLeaves !== expectedFutureCount
+      || currentExtensionIds.some(id => futureIdSet.has(id) || !capabilityIds.has(id))
+      || (hasCurrentExtension && (extensionReview?.schemaVersion !== 'media.pdp0.current-version-extension-owner-and-trust.v1'
+        || extensionReview?.population?.historicalBaseCount !== 462 || extensionReview?.population?.currentVersionExtensionCount !== 1
+        || extensionReview?.population?.futureVersionExtensionCount !== expectedFutureCount || extensionReview?.population?.currentVersionTotal !== expectedCurrentCount
+        || extensionOwnerRows.length !== 1 || extensionTrustRows.length !== 1
+        || extensionOwnerRows[0]?.capabilityRef !== 'media.recipe.specification.compile'
+        || extensionTrustRows[0]?.capabilityRef !== 'media.recipe.specification.compile'))
+      || (!hasCurrentExtension && (extensionReview !== undefined || extensionOwnerRows.length !== 0 || extensionTrustRows.length !== 0))) {
+    diagnostics.push('current-version and future-version capability populations do not match the source definitions');
+  }
+  const historicalOwnerRows = capabilityLeafReview?.ownerCapabilityLeafAdjudication?.records ?? [];
+  if (historicalOwnerRows.length !== 462) diagnostics.push('historical owner-adjudication population must remain exactly 462');
+  const ownerRows = [...historicalOwnerRows, ...extensionOwnerRows];
+  const currentRows = ownerRows.filter(row => currentCapabilityIds.includes(row.capabilityRef));
+  const nonCurrentRows = ownerRows.filter(row => !currentCapabilityIds.includes(row.capabilityRef));
+  if (nonCurrentRows.length) diagnostics.push('active owner adjudications include deferred or unknown capability IDs');
+  return {ok: diagnostics.length === 0, diagnostics, capabilities, capabilityIds, currentCapabilityIds, declaredCurrentCount,
+    declaredTotalCount, futureIds, futureIdSet, currentExtensionIds, extensionOwnerRows, extensionTrustRows,
+    historicalOwnerRows, ownerRows, currentRows, nonCurrentRows};
+}
+
 function capabilityCoverageReport(root, diagnostics) {
   const path = ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml";
   const source = readText(root, path);
   const parsed = parseYaml(source);
   const capabilitiesPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
-  const capabilities = parseYaml(readText(root, capabilitiesPath)).capabilities ?? [];
+  const capabilitiesDocument = parseYaml(readText(root, capabilitiesPath));
+  const capabilities = capabilitiesDocument.capabilities ?? [];
   const extensionsPath = ".product-experience/pdp-0-product-truth/campaign-extensions.yaml";
-  const extensionPopulation = parseYaml(readText(root, extensionsPath)).currentDefinitionPopulation?.versionDisposition ?? {};
-  const futureProposals = extensionPopulation.futureVersionProposals ?? [];
-  const futureIds = futureProposals.map(({capabilityId}) => capabilityId).filter(Boolean);
-  const futureIdSet = new Set(futureIds);
-  const capabilityIds = new Set(capabilities.map(({ id }) => id));
-  const currentCapabilityIds = [...capabilityIds].filter(id => !futureIdSet.has(id));
-  const declaredCurrentCount = extensionPopulation.currentVersionCapabilityLeaves;
-  const declaredTotalCount = extensionPopulation.totalSourceCapabilityDefinitions;
-  if (capabilityIds.size !== capabilities.length) diagnostics.push(`${capabilitiesPath} contains duplicate capability IDs`);
-  if (futureIds.length !== futureProposals.length || futureIdSet.size !== futureIds.length
-      || futureIds.some(id => !capabilityIds.has(id))) diagnostics.push(`${extensionsPath} future-version proposals must identify unique source capability IDs`);
-  if (futureProposals.some(({scopeStatus, version, decisionRef}) => scopeStatus !== "DEFERRED"
-      || version !== "later-governed-version" || !/^\.product-experience\/decision-log\.md#PXD-(220|221)$/u.test(decisionRef ?? ""))) {
-    diagnostics.push(`${extensionsPath} future-version capability exclusions must retain explicit deferred PXD-220/PXD-221 decisions`);
-  }
-  if (declaredTotalCount !== capabilities.length || declaredCurrentCount !== currentCapabilityIds.length
-      || extensionPopulation.historicalCanonicalCapabilityLeaves !== declaredCurrentCount
-      || extensionPopulation.currentVersionExtensionCapabilityIds?.length !== 0) {
-    diagnostics.push(`${extensionsPath} current-version and future-version capability populations do not match the source definitions`);
-  }
-  const ownerRows = parsed.ownerCapabilityLeafAdjudication?.records ?? [];
-  const currentRows = ownerRows.filter(row => currentCapabilityIds.includes(row.capabilityRef));
-  const nonCurrentRows = ownerRows.filter(row => !currentCapabilityIds.includes(row.capabilityRef));
-  if (nonCurrentRows.length) diagnostics.push(`${path} active owner adjudications include deferred or unknown capability IDs`);
+  const extensionsDocument = parseYaml(readText(root, extensionsPath));
+  const population = resolvePdp0CurrentCapabilityPopulation({capabilityLeafReview: parsed, capabilitiesDocument, campaignExtensionsDocument: extensionsDocument});
+  diagnostics.push(...population.diagnostics.map(message => `${extensionsPath}: ${message}`));
+  const {futureIds, futureIdSet, capabilityIds, currentCapabilityIds, declaredCurrentCount, ownerRows, currentRows, nonCurrentRows} = population;
   const currentDispositionCounts = {};
   const currentUnresolvedIds = [];
   const knownCurrentDispositions = new Set([
@@ -511,14 +566,14 @@ function capabilityCoverageReport(root, diagnostics) {
   if (!pins.length) diagnostics.push(`${path} has no source inventory pins`);
   return {
     source: path,
-    authority: "current PDP-0 capability meaning is read from ownerCapabilityLeafAdjudication; legacy leaves are a historical operation-evidence audit",
+      authority: "current PDP-0 capability meaning is read from the immutable 462-row ownerCapabilityLeafAdjudication base plus separately typed currentVersionExtensionOwnerAndTrust; legacy leaves are a historical operation-evidence audit",
     leafCount: currentRows.length,
     applicability: {
       total: currentCapabilityIds.length,
       classified: currentRows.length - currentUnresolvedIds.length,
       unresolved: currentUnresolvedIds.length,
       dispositionCounts: Object.fromEntries(Object.entries(currentDispositionCounts).sort(([left], [right]) => left.localeCompare(right))),
-      source: `${path}#ownerCapabilityLeafAdjudication/records; ${extensionsPath}#currentDefinitionPopulation/versionDisposition`,
+      source: `${path}#ownerCapabilityLeafAdjudication/records + #currentVersionExtensionOwnerAndTrust/ownerAdjudications; ${extensionsPath}#currentDefinitionPopulation/versionDisposition`,
     },
     ownerDefinedCount: currentCapabilityIds.length - currentUnresolvedIds.length,
     unresolvedCount: currentUnresolvedIds.length,

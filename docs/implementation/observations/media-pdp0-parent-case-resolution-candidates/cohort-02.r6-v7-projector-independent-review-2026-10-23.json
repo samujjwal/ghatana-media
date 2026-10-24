@@ -1,0 +1,203 @@
+{
+  "schemaVersion": "media.pdp0.projector-and-v7-projection-independent-review.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-02-R6-V7-PROJECTOR-INDEPENDENT-REVIEW-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_READ_ONLY_SOURCE_CODE_AND_PROJECTION_REVIEW",
+  "reviewer": {
+    "role": "DISTINCT_SOURCE_CONTENT_PEER",
+    "identityKind": "codex-thread",
+    "fullThreadId": "01a16a6c-df0b-7601-bddf-9153395d37a4",
+    "hostId": "local",
+    "resolutionEvidence": "Codex read_thread resolved this exact ID as an active kind=codex thread on host local. This establishes that the recorded thread ID is real; it does not authenticate a caller-authored peer PASS payload."
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "surfaceSet": [
+      "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs peer identity and workflow validation",
+      "cohort-02 R6 120-case projection on the frozen v7 baseline",
+      "TRUST014 recast profile registry/schema candidate"
+    ],
+    "campaignDenominator": {
+      "identityCount": 54,
+      "physicalLeafCount": 26,
+      "compositeCount": 7,
+      "logicalSurfaceCount": 21
+    },
+    "cohort02Denominator": {
+      "auditRows": 77,
+      "residuals": 231
+    },
+    "phaseStatus": "IN_PROGRESS",
+    "canonicalApply": "NOT_PERFORMED"
+  },
+  "sourceBaseline": {
+    "projector": {
+      "path": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+      "sha256": "a85ab600f27b556f7fbe5fcd1334ccfb20bc036e0c65fff674dd2c043526f93d"
+    },
+    "projectorTests": {
+      "path": "tests/media-pdp0-semantic-case-batch-projector.test.mjs",
+      "sha256": "a342b47407f3b1807c226c8dc5d60f185bb6096112fe10c608de7338b9cb1a6c"
+    },
+    "sourcePeerTests": {
+      "path": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+      "sha256": "1f882376d89debd45b9679030b20d2161b9f73fca32dedddc1f13bd594733387"
+    },
+    "fixedTechnicalPeerRecord": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.independent-peer-2026-10-23.json",
+      "sha256": "7551b0367917e71ef1874a93bdc9b8b10450c83a97cc4b939a453c7f7234680c",
+      "fullThreadId": "01a16a6c-df0b-7601-bddf-9153395d37a4"
+    },
+    "v7Projection": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.v7-casebatch-projection.v1.json",
+      "sha256": "c5cba03f0814d58a786f480e11dbabca710a7892962c10b41833676f2772096d",
+      "sourceFreezeManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54"
+    },
+    "trust014SchemaCandidate": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry-schema.candidate.v1.json",
+      "sha256": "b987583a94abb8bd1325eb787cbc7ee38d780dff0b32f49ce41c5f634b185bbb"
+    },
+    "trust014RegistryCandidate": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry.candidate.v1.json",
+      "sha256": "85fefab6dcb9614e31eede28b582d2d0764bb5bb1728650f271c7720c060f710"
+    }
+  },
+  "positiveEvidence": {
+    "registeredIdentityResolution": "The projector loads the fixed peer record from a repository-relative path, checks its exact SHA-256, requires the expected review schema/artifact/role and a full thread ID, then compares reviewer.identity with codex-thread:<record.fullThreadId> and checks it differs from builderIdentity and the owner role. The pinned ID was independently resolved by Codex as the current local Codex thread.",
+    "intendedNegativeTest": "The forged-peer regression preserves an otherwise source-valid candidate, owner decision, and row verdicts, replaces the reviewer identity with agent:unregistered-peer, and asserts the projector rejects at 'does not resolve to the fixed technical review record'.",
+    "projectionRebuild": {
+      "result": "BYTE_EXACT",
+      "verifiedFreezeManifest": true,
+      "verifiedV7BaseAndRetainedPostimages": 8,
+      "operations": 120,
+      "positiveCases": 60,
+      "negativeCases": 60,
+      "featureCasePairs": 60,
+      "distinctAuditRowIds": 53,
+      "generatedTargetPostimagesMatchingDeclaredBytes": 4,
+      "canonicalApply": "NOT_PERFORMED"
+    },
+    "focusedTests": {
+      "command": "node --test tests/media-pdp0-semantic-case-batch-projector.test.mjs tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+      "passed": 7,
+      "failed": 0,
+      "notableCases": [
+        "source-valid named case passes with the fixed registry identity",
+        "malformed R4 source cases reject at exact live semantic contract validation",
+        "unregistered forged reviewer identity rejects at fixed-record identity resolution",
+        "stale source pins, caller-supplied review byte fields, missing choices, non-PASS review, conflicting operations, and altered postimages reject"
+      ]
+    },
+    "trust014SchemaValidation": {
+      "validator": "Ajv 8.20.0 Draft 2020-12, loaded from the existing sibling ghatana-tools dependency used by repository planning scripts",
+      "strictCompilation": "PASS",
+      "positiveRegistryEntryFixture": "PASS; fixture-only record, not source evidence or owner choice",
+      "negativeChecks": {
+        "numericParameterMissingUnitRefRejected": true,
+        "profileRefFamilyProfileRefMismatchRejected": true,
+        "openParameterSchemaRejected": true
+      }
+    }
+  },
+  "findings": [
+    {
+      "findingId": "PDP0-BATCH-PEER-PASS-AUTHENTICITY-001",
+      "severity": "P1",
+      "title": "Fixed reviewer identity resolution does not authenticate who authored the PASS payload",
+      "exactWhere": [
+        {
+          "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+          "lines": [410, 430]
+        },
+        {
+          "file": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+          "lines": [115, 123]
+        }
+      ],
+      "evidence": "The registry check correctly resolves the identity string to a fixed, hash-pinned record containing a real Codex thread ID, and the unregistered-identity negative test reaches that check and rejects. However, the passing test constructs the peerReview PASS object itself and sets reviewer.identity to the known registered string. The projector checks equality to the record but has no signed review assertion, authenticated author channel, or app-resolved review event proving that this thread authored the submitted peerReview JSON. A different caller can copy the same registered identity string and construct the same PASS payload.",
+      "impact": "The fix establishes registered identity-string matching, not proof of peer authorship or genuine review execution. Do not interpret this validator or test harness as authenticated independent acceptance.",
+      "repair": "Bind the peer result to an authenticated review workflow record, signed attestation, or other trusted event proving the registered principal authored the exact candidate-bound review. If only identity registration is intended, rename the result/claims so they do not assert an actual independent PASS.",
+      "acceptanceCriterion": "A caller that copies the registered thread ID and submits a forged PASS is rejected; a genuine workflow-authenticated review record bound to the exact candidate and postimages is accepted."
+    },
+    {
+      "findingId": "PDP0-BATCH-OWNER-WORKFLOW-ROOT-002",
+      "severity": "P1",
+      "title": "The workflow root is caller-selected, so owner-choice checks can run against a synthetic repository snapshot",
+      "exactWhere": [
+        {
+          "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+          "lines": [393, 402, 433, 459]
+        },
+        {
+          "file": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+          "lines": [81, 100, 105, 123]
+        }
+      ],
+      "evidence": "projectMediaPdp0SemanticCaseBatches accepts repositoryRoot from its caller and hashes workflow files found under that root without resolving it to the actual canonical checkout or a trusted source service. The positive harness creates a temporary root, copies the authority map and fixed peer registry, writes a synthetic PXD-998 decision section and owner-choice JSON, writes a peerReview PASS JSON, and the test expects projection to succeed. The harness labels this test-only and claims no signature, but the same root selection and structural checks are available to a production caller.",
+      "impact": "A structurally valid caller-created PXD and owner-choice record can be mistaken for an actual source owner workflow record if this projector's returned review fields are treated as authority evidence.",
+      "repair": "Bind workflow resolution to an externally trusted repository root/source snapshot and owner decision record; do not treat hashes computed from a caller-selected temporary root as owner authorization. Keep test fixture success explicitly separated from authority acceptance.",
+      "acceptanceCriterion": "A synthetic temporary repository with copied authority data and a caller-authored PXD choice cannot produce an authority-bearing projection; the exact canonical owner workflow record is resolved from a trusted root and its authorship/authority is independently established."
+    },
+    {
+      "findingId": "TRUST014-BOUNDS-ORDER-VALIDATION-003",
+      "severity": "P2",
+      "title": "The Draft 2020-12 schema accepts reversed numeric bounds",
+      "exactWhere": [
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry-schema.candidate.v1.json",
+          "lines": [150, 162]
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry.candidate.v1.json",
+          "lines": [205, 212]
+        }
+      ],
+      "evidence": "Ajv strict validation accepts a bounded-number parameter with minimum=2 and maximum=1. The registry candidate states minimum must be less than or equal to maximum, but that relation is not enforced by the current Draft 2020-12 schema or a companion semantic validator.",
+      "impact": "The schema is structurally valid but does not by itself validate a nonempty numeric interval. Such a profile would reject every value and remain unusable, even though it passes registry-entry validation.",
+      "repair": "Add a repository-native semantic check for minimum <= maximum (and any selected step consistency) after schema validation; keep all bound values owner-supplied.",
+      "acceptanceCriterion": "The validator rejects reversed bounds and accepts a finite owner-specified interval with a resolvable owner unit and meaning reference."
+    }
+  ],
+  "scopeClaims": {
+    "workPerformed": "Read-only source/code peer review; deterministic rebuild of the 120-case R6 projection; Ajv strict validation of the TRUST014 schema candidate; focused projector tests.",
+    "canonicalSourceChanges": false,
+    "canonicalApply": "NOT_PERFORMED",
+    "ownerChoice": "NOT_PERFORMED",
+    "independentAcceptance": false,
+    "nativeClosure": false,
+    "buildCompletion": false,
+    "releaseQualification": false
+  },
+  "surfacePhaseMatrix": [
+    {
+      "surfaceId": "cohort-02 R6 projector and v7 case projection",
+      "type": "PDP-0 P0-07 source-definition review surface",
+      "pdpPhaseApplicability": "PDP-0 applicable",
+      "sourceCurrentStatus": "120-case v7 projection rebuilt byte-exactly on its hash-pinned base; projector now resolves reviewer identity to fixed source record; PDP-0 remains IN_PROGRESS",
+      "remainingPhaseLocalTasks": [
+        "Authenticate peer review authorship rather than matching a caller-supplied identity string",
+        "Resolve owner decision workflow from a trusted canonical root",
+        "Add numeric bound-order semantic validation to TRUST014 registry validation"
+      ],
+      "blockerOwner": "Projector owner for trusted peer/owner workflow resolution; profile-schema owner for bound semantic validator",
+      "acceptanceCriteria": "Authenticated candidate-bound peer record and trusted exact owner workflow are required; reversed numeric ranges reject.",
+      "nextLegalAction": "Continue PDP-0 review and validation; no owner choice or source apply."
+    }
+  ],
+  "gateSummary": {
+    "discoveryBarrier": "UNKNOWN",
+    "buildLane": "NOT_REVIEWED; no Build eligibility inferred",
+    "pdpClosureLane": "NOT_ENTERED",
+    "deliveryGate": "NOT_ENTERED",
+    "nextAllowedPhase": "PDP-0 Product Truth, earliest unfinished applicable Discovery phase"
+  },
+  "nonClaims": [
+    "The real Codex thread ID resolves to an active thread, but its presence in the fixed source record does not cryptographically authenticate a peerReview PASS payload.",
+    "Temporary PXD-998 and peer PASS records in tests are test fixtures and are not source owner decisions or independent acceptance.",
+    "The v7 projection is a deterministic postimage projection only; no canonical source was applied.",
+    "No owner choice, acceptance receipt, native closure, implementation, qualification, or release claim is made."
+  ]
+}

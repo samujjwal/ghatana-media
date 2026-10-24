@@ -1,0 +1,503 @@
+{
+  "schemaVersion": "media.pdp0.cohort02.root-directed-source-integration-independent-peer.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-02-R7-ROOT-DIRECTED-SOURCE-INTEGRATION-INDEPENDENT-PEER-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_READ_ONLY_ROOT_DIRECTION_AND_SOURCE_POSTIMAGE_INTEGRATION_REVIEW",
+  "reviewer": {
+    "role": "DISTINCT_SOURCE_CONTENT_PEER",
+    "identityKind": "codex-thread",
+    "peerIdentity": "codex-peer:cohort02-r7:01a16a6c-df0b-7601-bddf-9153395d37a4",
+    "fullThreadId": "01a16a6c-df0b-7601-bddf-9153395d37a4",
+    "hostId": "local",
+    "identityBasis": "Actual full task thread identity; distinct from source direction issuer agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e. No human owner identity, canonical source adoption, or specialist approval is claimed."
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "surfaceSet": [
+      "cohort-02 root-directed 11-decision source candidate",
+      "nine root-directed feature definitions and cases",
+      "DIRECT-010/EDIT-022 shared and split packet candidates",
+      "231/248 consolidated case projection and declared postimages"
+    ],
+    "phaseStatus": "IN_PROGRESS",
+    "campaignDenominator": {
+      "identityCount": 54,
+      "physicalLeafCount": 26,
+      "compositeCount": 7,
+      "logicalSurfaceCount": 21,
+      "phaseCells": 216,
+      "historicalBaseRecords": 462,
+      "cohort02ResidualRows": 77,
+      "cohort02ResidualDenominator": 231,
+      "projectionCaseOperations": 248
+    },
+    "canonicalApply": "NOT_PERFORMED"
+  },
+  "sourceBaseline": {
+    "rootDirection": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
+      "sha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a"
+    },
+    "rootCandidate": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+      "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239"
+    },
+    "projection": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+      "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc"
+    },
+    "currentSourceBaselineRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
+    "currentSourceBaselineSha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+    "currentSourcePinMismatches": [],
+    "postimageHashMismatches": []
+  },
+  "evidence": {
+    "rootDirection": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
+      "sha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+      "expectedSha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+      "recordId": "MEDIA-PDP0-231-COHORT02-ROOT-SOURCE-DIRECTION-R1-2026-10-23",
+      "decisionCount": 11
+    },
+    "rootDirectedCandidate": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+      "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
+      "selectedFeatureCount": 9,
+      "sourcePacketRepairCount": 2
+    },
+    "historicalFeatureCandidateFile": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-feature-source-candidates.v1.json",
+      "sha256": "ab28fa686ec0be369a7347a719d4ad69526b886f98db6974be50501997b1f996",
+      "status": "HISTORICAL_CANDIDATE_SUPERSEDED_BY_ROOT_DIRECTED_V2_SOURCE_AUTHORING"
+    },
+    "currentBaseline": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
+      "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+      "targetChecks": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "expectedSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+          "actualSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+          "current": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "expectedSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+          "actualSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+          "current": true
+        },
+        {
+          "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "expectedSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+          "actualSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+          "current": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "expectedSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+          "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+          "current": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+          "expectedSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+          "actualSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+          "current": true
+        },
+        {
+          "targetRef": ".product-experience/decision-log.md",
+          "expectedSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "actualSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "current": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+          "expectedSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+          "actualSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+          "current": true
+        }
+      ]
+    },
+    "projection": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+      "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+      "caseOperationCount": 248,
+      "featureAuditOperationCount": 0,
+      "projectedTargets": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capabilities.postimage.yaml",
+          "expectedSha256": "fdd48e9b2021384cf0a86d8cb2b562ca8121a586c40aba0931f1f47fd16a2b84",
+          "actualSha256": "fdd48e9b2021384cf0a86d8cb2b562ca8121a586c40aba0931f1f47fd16a2b84",
+          "hashCurrent": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-requirements.postimage.yaml",
+          "expectedSha256": "8db5ae557abab13c06509c293168a56280c99da22abfda727db09b1061f49be0",
+          "actualSha256": "8db5ae557abab13c06509c293168a56280c99da22abfda727db09b1061f49be0",
+          "hashCurrent": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capability-leaf-review.postimage.yaml",
+          "expectedSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+          "actualSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+          "hashCurrent": true
+        },
+        {
+          "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-crosswalk.postimage.json",
+          "expectedSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+          "actualSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+          "hashCurrent": true
+        }
+      ]
+    },
+    "featureCoverage": [
+      {
+        "auditId": "AUD-DELIV-019",
+        "capabilityId": "media.deliver.live-stream-output",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 1,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-DELIVER",
+            "present": false
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-DUB-015",
+        "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 1,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+            "present": false
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-EDIT-016",
+        "capabilityId": "media.edit.matte-composite",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 1,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-EDIT",
+            "present": false
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-EDIT-024",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 2,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-EDIT",
+            "present": false
+          },
+          {
+            "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+            "present": false
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-GEN-010",
+        "capabilityId": "media.generate.video.continue",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 1,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+            "present": false
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-GEN-020",
+        "capabilityId": "media.generate.motion.text-and-style-reference",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 1,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-ANIMATION",
+            "present": false
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-GEN-021",
+        "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 1,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+            "present": false
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-GEN-023",
+        "capabilityId": "media.generate.video.local-offline-generation",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 1,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+            "present": false
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-GEN-024",
+        "capabilityId": "media.capability.provider-class-separation",
+        "capabilityPresent": false,
+        "proposedCapabilityCaseCount": 2,
+        "capabilityCaseIdsPresent": [],
+        "parentRequirementCaseCount": 1,
+        "parentRequirementCasesPresent": 0,
+        "parentRequirementCaseChecks": [
+          {
+            "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+            "present": false
+          }
+        ]
+      }
+    ],
+    "packetCoverage": [
+      {
+        "auditId": "AUD-DIRECT-010",
+        "alternatives": [
+          {
+            "optionId": "A_ONE_SHARED_SEMANTIC_CONTRACT",
+            "capabilities": [
+              {
+                "capabilityId": "media.agent.edit.safe-change-transaction",
+                "present": false,
+                "capabilityCaseIds": [
+                  "MEDIA-P0-AUD-DIRECT-010-AUD-EDIT-022-A_SHARED-POS",
+                  "MEDIA-P0-AUD-DIRECT-010-AUD-EDIT-022-A_SHARED-NEG"
+                ],
+                "requirementCaseIds": [
+                  null,
+                  null
+                ]
+              }
+            ]
+          },
+          {
+            "optionId": "B_SPLIT_BY_OPERATION_SCOPE",
+            "capabilities": [
+              {
+                "capabilityId": "media.agent.edit.preview-scope-guard",
+                "present": false,
+                "capabilityCaseIds": [
+                  "MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-POS",
+                  "MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-NEG"
+                ],
+                "requirementCaseIds": [
+                  null
+                ]
+              },
+              {
+                "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+                "present": false,
+                "capabilityCaseIds": [
+                  "MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-POS",
+                  "MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-NEG"
+                ],
+                "requirementCaseIds": [
+                  null
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "auditId": "AUD-EDIT-022",
+        "alternatives": [
+          {
+            "optionId": "A_ONE_SHARED_SEMANTIC_CONTRACT",
+            "capabilities": [
+              {
+                "capabilityId": "media.agent.edit.safe-change-transaction",
+                "present": false,
+                "capabilityCaseIds": [
+                  "MEDIA-P0-AUD-DIRECT-010-AUD-EDIT-022-A_SHARED-POS",
+                  "MEDIA-P0-AUD-DIRECT-010-AUD-EDIT-022-A_SHARED-NEG"
+                ],
+                "requirementCaseIds": [
+                  null,
+                  null
+                ]
+              }
+            ]
+          },
+          {
+            "optionId": "B_SPLIT_BY_OPERATION_SCOPE",
+            "capabilities": [
+              {
+                "capabilityId": "media.agent.edit.preview-scope-guard",
+                "present": false,
+                "capabilityCaseIds": [
+                  "MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-POS",
+                  "MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-NEG"
+                ],
+                "requirementCaseIds": [
+                  null
+                ]
+              },
+              {
+                "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+                "present": false,
+                "capabilityCaseIds": [
+                  "MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-POS",
+                  "MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-NEG"
+                ],
+                "requirementCaseIds": [
+                  null
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "findings": [
+    {
+      "findingId": "PDP0-COHORT02-R7-FEATURE-POSTIMAGE-INTEGRATION-001",
+      "severity": "P1",
+      "surfaceOwner": "PDP-0 canonical capability and requirement source owner; exact physical/composite owner mapping is not established by this review",
+      "title": "Root-directed feature definitions and their cases remain outside the proposed canonical source postimages",
+      "exactWhere": [
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+          "jsonPointer": "/selectedFeatureCandidates"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+          "jsonPointer": "/operations"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capabilities.postimage.yaml",
+          "jsonPointer": "/capabilities"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-requirements.postimage.yaml",
+          "jsonPointer": "/requirements"
+        }
+      ],
+      "evidence": "The root direction selects nine features for authoring. The v2 candidate carries nine proposed capability definitions, 18 capability acceptance cases, and 10 parent-requirement cases. The 248-operation projection has zero operations for the nine root-directed feature audit IDs. In its declared capability/requirement postimages, 0/9 proposed capability IDs are present, 0/18 feature case IDs are present, and 0/10 parent requirement case IDs are present.",
+      "impact": "The projection count and external candidate JSON do not establish that the directed feature meanings/cases would enter canonical owner sources. These are material PDP-0 definitions, not follow-up projection metadata.",
+      "repair": "Generate a new exact candidate-source postimage set from the current seven-file quality-successor baseline. Map every selected feature definition into the canonical capability source; map its exact positive/adverse cases into that capability; map every parent case to the exact declared parent requirement. Keep owner adoption and canonical apply unrecorded until genuine source-owner authorization, and retain all 54/216/462 denominators.",
+      "predecessor": "Root direction 3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a and root-directed candidate 80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239.",
+      "acceptanceCriterion": "A source-bound candidate postimage contains all nine selected capability definitions; all 18 capability case IDs and all 10 parent requirement case IDs resolve exactly once at the intended canonical owner targets; projected operation counts and postimage hashes reproduce from the pinned current inputs; no canonical source or status is changed by peer authoring.",
+      "nextAction": "Return to BUILD CANDIDATE AUTHORING within PDP-0: produce complete source postimages and regenerate the projection before requesting a fresh combined peer review."
+    },
+    {
+      "findingId": "PDP0-COHORT02-R7-PACKET-POSTIMAGE-INTEGRATION-002",
+      "severity": "P1",
+      "surfaceOwner": "PDP-0 canonical capability and requirement source owner; DIRECT-010/EDIT-022 overlap mapping remains an owner choice",
+      "title": "DIRECT-010 and EDIT-022 shared and split source packets are authored only as external alternatives",
+      "exactWhere": [
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+          "jsonPointer": "/sourcePacketRepairs"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+          "jsonPointer": "/operations"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capabilities.postimage.yaml",
+          "jsonPointer": "/capabilities"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-requirements.postimage.yaml",
+          "jsonPointer": "/requirements"
+        }
+      ],
+      "evidence": "Both packet-repair records retain a shared option and a split-by-operation-scope option in the external candidate. The declared source postimages contain none of the proposed shared/split capability IDs or corresponding packet case IDs. The alternatives correctly remain unselected pending owner mapping, but they have no source-bound postimage representation.",
+      "impact": "The shared and split packet alternatives cannot be independently reviewed against exact canonical-owner source outputs, so the full DIRECT-010/EDIT-022 meaning is not integrated into this candidate source cut.",
+      "repair": "Create distinct, explicitly labeled postimage candidates for both packet alternatives: one shared capability with its positive/adverse and parent cases; and split preview/scope-guard plus approval/apply/compensating-rollback capabilities with their own positive/adverse and parent cases. Keep the owner mapping alternative unselected; do not merge incompatible alternatives or claim adoption.",
+      "predecessor": "PDP0-COHORT02-R7-FEATURE-POSTIMAGE-INTEGRATION-001.",
+      "acceptanceCriterion": "Both shared and split packet variants are represented by separately hash-pinned source postimages; every capability and case ID resolves exactly once in its variant, and the owner mapping remains explicitly unresolved until an authentic owner decision.",
+      "nextAction": "Include both packet variants in the rebuilt PDP-0 source candidate and projection, then request a fresh distinct peer review."
+    }
+  ],
+  "positiveObservations": [
+    {
+      "observationId": "COHORT02-R7-GEN023-001",
+      "auditId": "AUD-GEN-023",
+      "detail": "External candidate preserves actual LOCAL_OFFLINE/no-network-egress placement, candidate generation outcome/provenance, and a separately timed GPU memory estimate/warning; missing/stale model or host evidence remains UNKNOWN."
+    },
+    {
+      "observationId": "COHORT02-R7-GEN024-001",
+      "auditId": "AUD-GEN-024",
+      "detail": "External candidate correctly treats versioned license/rights and LOCAL/HOSTED execution placement as orthogonal axes; labels do not imply admission, egress or fallback."
+    },
+    {
+      "observationId": "COHORT02-R7-EDIT024-001",
+      "auditId": "AUD-EDIT-024",
+      "detail": "External candidate preserves control parity across all applicable 52 typed edit kinds and GUI, keyboard/text, CLI and SDK/API, binding stable control/action/focus, authorization and resulting revision; animation parent requirement applies only to animation controls."
+    },
+    {
+      "observationId": "COHORT02-R7-PACKETS-001",
+      "detail": "External packet records retain both shared and split alternatives for DIRECT-010/EDIT-022; neither is selected as canonical owner mapping."
+    }
+  ],
+  "preservation": {
+    "cohort01FrozenHReviews": "NOT_MODIFIED",
+    "hFilesAndTests": "NOT_MODIFIED",
+    "canonicalSourcesAndPhaseStatus": "NOT_MODIFIED"
+  },
+  "gateSummary": {
+    "discoveryBarrier": "FAIL_FOR_COHORT02_SOURCE_ADOPTION_AND_CANDIDATE_INTEGRATION",
+    "buildLane": "NOT_ESTABLISHED_FOR_THESE_PDP0_FEATURES",
+    "pdpClosureLane": "NOT_RUN",
+    "deliveryGate": "NOT_MET",
+    "nextAllowedPhase": "PDP-0 candidate authoring must first produce exact source postimages for all nine features and both packet alternatives; then fresh peer and authentic owner review."
+  },
+  "nonClaims": [
+    "Candidate correctness in the external JSON is not canonical source integration.",
+    "The projection operation count is not acceptance or owner adoption.",
+    "No human owner, legal/security specialist, or canonical source authority is impersonated.",
+    "No implementation, test pass, PDP completion, closure, qualification or release is claimed."
+  ]
+}

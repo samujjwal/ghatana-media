@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.root-selected-source-integration.r9-r08.technical-source-role-delegation.v1",
+  "title": "R9-R08 exact technical source-only role delegation",
+  "description": "Schema for a future root-authored delegation of ordinary technical PDP-0 source decisions. It grants no native verifier, acceptance, receipt, Build, Delivery, or release authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "recordKind", "delegationId", "status", "repository", "macroStage", "phaseId",
+    "effect", "profileId", "delegatingPrincipal", "policyRef",
+    "policySha256", "rootBoundaryDecisionRef", "rootBoundaryDecisionSha256", "agentsRef", "agentsSha256", "candidateRef", "candidateSha256",
+    "freezeRef", "freezeSha256", "semanticReviewRef", "semanticReviewSha256", "semanticSelector",
+    "semanticSectionSha256", "delegationDecisionSectionSha256", "sourceBaseline", "targetRows", "roles", "issuedAt", "expiresAt",
+    "revocationStatus", "revocationRegisterRef", "revocationRegisterSha256", "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "media.pdp0.root-selected-source-integration.r9-r08.technical-source-role-delegation.v1"},
+    "recordKind": {"const": "ROOT_DELEGATED_NON_SPECIALIST_TECHNICAL_SOURCE_ROLES"},
+    "delegationId": {"type": "string", "minLength": 1},
+    "status": {"const": "ACTIVE"},
+    "repository": {"const": "samujjwal/ghatana-media"},
+    "macroStage": {"const": "DISCOVERY"},
+    "phaseId": {"const": "PDP-0"},
+    "effect": {"const": "APPLY_EXACT_R9_R08_SOURCE_ONLY_TECHNICAL_SUCCESSOR"},
+    "profileId": {"const": "media.pdp0.root-selected-source-integration.r9-r08.source-only-technical.v3"},
+    "delegatingPrincipal": {"$ref": "#/$defs/principal"},
+    "policyRef": {"const": "config/closure/media-product-definition/owner-execution-authorization.v1.json"},
+    "policySha256": {"const": "9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"},
+    "rootBoundaryDecisionRef": {"const": "../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/central/media-r08-source-technical-authority-boundary-root-decision-r01.json"},
+    "rootBoundaryDecisionSha256": {"const": "26e437be25c5ad465b3e48fb1a9c53e1bec58f85ac667cb60fa358dd41d65a70"},
+    "agentsRef": {"const": "AGENTS.md"},
+    "agentsSha256": {"const": "a3ad22a9d18f264329ab64264efdf81fdd407f2ea9f33bd4f7f982787b83b829"},
+    "candidateRef": {"type": "string", "minLength": 1},
+    "candidateSha256": {"$ref": "#/$defs/sha256"},
+    "freezeRef": {"type": "string", "minLength": 1},
+    "freezeSha256": {"$ref": "#/$defs/sha256"},
+    "semanticReviewRef": {"type": "string", "minLength": 1},
+    "semanticReviewSha256": {"$ref": "#/$defs/sha256"},
+    "semanticSelector": {"const": ".product-experience/decision-log.md#PXD-225-section"},
+    "semanticSectionSha256": {"$ref": "#/$defs/sha256"},
+    "delegationDecisionSectionSha256": {"$ref": "#/$defs/sha256"},
+    "sourceBaseline": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/sourcePin"}},
+    "targetRows": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "#/$defs/targetPin"}},
+    "roles": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "items": {"$ref": "#/$defs/role"}
+    },
+    "issuedAt": {"type": "string", "format": "date-time"},
+    "expiresAt": {"type": "string", "format": "date-time"},
+    "revocationStatus": {"const": "NOT_REVOKED"},
+    "revocationRegisterRef": {"type": "string", "minLength": 1},
+    "revocationRegisterSha256": {"$ref": "#/$defs/sha256"},
+    "authorityBoundary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sourceApply", "nativeVerifier", "pdpAcceptance", "nativeReceipt", "build", "delivery", "release"],
+      "properties": {
+        "sourceApply": {"const": "EXACT_FOUR_TARGET_R9_R08_ONLY"},
+        "nativeVerifier": {"const": "NONE"},
+        "pdpAcceptance": {"const": "NONE"},
+        "nativeReceipt": {"const": "NONE"},
+        "build": {"const": "NONE"},
+        "delivery": {"const": "NONE"},
+        "release": {"const": "NONE"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "principal": {"type": "string", "pattern": "^agent:thread:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"},
+    "sourcePin": {
+      "type": "object", "additionalProperties": false, "required": ["targetRef", "sha256"],
+      "properties": {"targetRef": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "targetPin": {
+      "type": "object", "additionalProperties": false,
+      "required": ["targetRef", "preimageSha256", "postimageSha256"],
+      "properties": {"targetRef": {"type": "string", "minLength": 1}, "preimageSha256": {"$ref": "#/$defs/sha256"}, "postimageSha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "role": {
+      "type": "object", "additionalProperties": false,
+      "required": ["role", "principal", "scopeId", "decisionRef", "decisionSectionSha256"],
+      "properties": {
+        "role": {"enum": ["PDP0_TECHNICAL_SOURCE_OWNER", "PDP0_TECHNICAL_ROOT_ADOPTER", "PDP0_TECHNICAL_PROFILE_REGISTRAR", "PDP0_TECHNICAL_APPLY_AUTHORITY"]},
+        "principal": {"$ref": "#/$defs/principal"},
+        "scopeId": {"type": "string", "minLength": 1},
+        "decisionRef": {"type": "string", "pattern": "^\\.product-experience/decision-log\\.md#PXD-90[2-5]-section$"},
+        "decisionSectionSha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

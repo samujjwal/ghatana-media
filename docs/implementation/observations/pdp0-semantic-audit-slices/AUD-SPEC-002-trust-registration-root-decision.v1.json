@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-trust-registration-root-decision.v1",
+  "artifactKind": "PENDING_TECHNICAL_SOURCE_OWNER_DISPOSITION_TEMPLATE",
+  "status": "PENDING",
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capability-leaf-review-postimage.v1.json",
+  "candidateSha256": "404b3bbc34faf2e7377d976c257e2a41c65fb068faa266f7baa902326790c0ad",
+  "candidateCapabilityRef": "media.recipe.specification.compile",
+  "conditionalOutputArtifactType": "reviewable-version-bound-schema-migration-candidate-and-semantic-diff",
+  "conditionalOutputSelectorRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v3.json#/capability/ownerDefinition/successOutputs/1/requiredWhenSelector",
+  "expectedSourceOwnerDecisionMaker": "agent:/root",
+  "decisionAuthority": "Delegated PDP-0 technical source-owner decision for the exact source-definition proposal only; not human identity proof, credential issuance, trusted-issuer registration, independent acceptance, native proof, closure, or runtime admission.",
+  "allowedDisposition": [
+    "APPROVE_PROPOSED_SOURCE_REGISTRATION_AFTER_SELECTOR_SUCCESSOR",
+    "REQUEST_CHANGES",
+    "REJECT_PROPOSED_SOURCE_REGISTRATION"
+  ],
+  "requiredDecisions": {
+    "populationTreatment": "PENDING_EXPLICIT_DECISION; historical 462 adjudication/trust records remain immutable either way",
+    "extensionOwnerAdjudication": "PENDING_EXPLICIT_DECISION; do not reuse MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01 as authority for this extension",
+    "channelApplicability": "PENDING_EXACT_PXD-207_OWNER_RESULT; capability currently declares CLI only and does not claim owner approval",
+    "trustDisposition": "PENDING_EXPLICIT_SELECTION_AND_RATIONALE_FROM_EXISTING_OWNER_TRUST_POLICY",
+    "variantSelector": "PENDING_ADDITIVE_SUCCESSOR_RESOLVING_PXD-128_EXACT_RESULTKIND_AND_APPLICABLE_PROVENANCE_EPISTEMIC_FIELDS",
+    "sourceAuthorityClass": "PDP0_SOURCE_DEFINITION_REGISTRATION; no external attestation needed for defining the result's epistemic role"
+  },
+  "distinctTechnicalPeer": {
+    "status": "PENDING",
+    "reviewRef": null,
+    "reviewerIdentity": null,
+    "reviewedCandidateSha256": null,
+    "mustBeDistinctFrom": "agent:/root"
+  },
+  "rootTechnicalDecision": {
+    "disposition": "PENDING",
+    "decisionMaker": null,
+    "decisionTimestamp": null,
+    "reviewedCandidateSha256": null,
+    "rationale": null,
+    "exactApprovedPostimageSha256": null,
+    "decisionLogEntryRef": null
+  },
+  "application": {
+    "canonicalApply": "NOT_AUTHORIZED_BY_THIS_TEMPLATE",
+    "applyRequires": [
+      "completed distinct technical peer review of the exact candidate and exact selector successor",
+      "completed root technical source-owner decision bound to exact postimage hash and PXD decision-log entry",
+      "resolved owner adjudication, channel disposition, trust branch, and exact selector semantics",
+      "existing owner workflow and compare-and-swap against exact current target hash",
+      "immutable preservation of all prior adjudication/trust rows and historical records"
+    ],
+    "automaticRetryAfterUnknownOutcome": false,
+    "credentialRegistration": "PROHIBITED_BY_THIS_SOURCE_DEFINITION_DECISION"
+  }
+}

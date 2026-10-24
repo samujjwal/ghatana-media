@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readSources, validatePdp0SurfaceDenominator } from '../scripts/check-media-pdp0-surface-denominator.mjs';
+import { projectPdp0DefinitionExtensionApplicability, readSources, validatePdp0SurfaceDenominator } from '../scripts/check-media-pdp0-surface-denominator.mjs';
 
 const sourceBaseline = readSources();
 const cloneSources = () => structuredClone(sourceBaseline);
@@ -60,6 +60,23 @@ test('keeps seven PXD-207 extensions outside the 462 owner denominator and resol
     [...new Set(applicability.records.filter(row => ['OWNER_DECIDED_APPLICABLE', 'DERIVED_AGGREGATE_OWNER_DECISION'].includes(row.disposition)).map(row => row.capabilityRef))].sort(),
     authority.campaignExtensions.currentDefinitionPopulation.records.map(row => row.capabilityId).sort(),
   );
+});
+
+test('binds version decision refs to the exact future capability identity', () => {
+  const { registry, topology, authority } = cloneSources();
+  const futureProjectProposal = authority.campaignExtensions.currentDefinitionPopulation.versionDisposition.futureVersionProposals
+    .find(row => row.capabilityId === 'media.project.scene.patch-merge');
+  futureProjectProposal.decisionRef = '.product-experience/decision-log.md#PXD-226';
+  const result = validatePdp0SurfaceDenominator(registry, topology, authority);
+  assert.equal(result.ok, false);
+  assert.ok(codes(result).includes('PDP0_VERSION_SCOPE_PARTITION'));
+
+  const projectionAuthority = cloneSources().authority;
+  projectionAuthority.campaignExtensions.currentDefinitionPopulation.versionDisposition.futureVersionProposals
+    .find(row => row.capabilityId === 'media.project.scene.patch-merge').decisionRef = '.product-experience/decision-log.md#PXD-226';
+  const projection = projectPdp0DefinitionExtensionApplicability(cloneSources().registry, cloneSources().topology, projectionAuthority);
+  assert.equal(projection.ok, false);
+  assert.ok(projection.findings.some(row => row.code === 'PDP0_VERSION_SCOPE_PARTITION'));
 });
 
 test('rejects extension applicability that promotes an unmatched API map or changes the owner boundary', () => {

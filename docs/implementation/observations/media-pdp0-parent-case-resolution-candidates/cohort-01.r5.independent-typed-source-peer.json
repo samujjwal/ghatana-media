@@ -1,0 +1,4777 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.source-content-peer.v2",
+  "artifactId": "media-pdp0-parent-case-resolution-cohort-01-r5-typed-source-peer",
+  "reviewStatus": "TECHNICAL_CASE_REPAIRS_PASS; OWNER_CHOICES_AND_PDP0_MATERIAL_CURRENTNESS_UNKNOWN",
+  "reviewKind": "READ_ONLY_TYPED_SOURCE_CONTENT_PEER_REVIEW",
+  "reviewer": "Automated source-content peer process; no owner, human acceptance, or trusted reviewer authority claimed.",
+  "campaign": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "cohortDenominator": 77,
+    "residualDenominator": 231,
+    "identityDenominator": {
+      "physical": 26,
+      "compositionsIncludingRoot": 7,
+      "logical": 21,
+      "total": 54
+    }
+  },
+  "inputBaseline": {
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json",
+    "candidateSha256": "c9bbc4ccc05d2a84403477f1b88d219c382d6352b83c229116aba56b6d714a07",
+    "postimagesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-postimages.r5.json",
+    "postimagesSha256": "1b5627fe1cdc3ba9bb5e391281950857ead684fa9776f17cc3c456a4f6f28aca",
+    "recordPostimagesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-record-postimages.r5.json",
+    "recordPostimagesSha256": "9cfeb89e4f9f9ab92ca03f10ed84881ceb560d7f4f86eeee85838d3bf9191ec3",
+    "priorR3PeerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-content-peer.v1.json",
+    "priorR3PeerSha256": "857889973eed3e561934a5db4680aca231172c34b5d45ccfa5c6db0b94487974",
+    "r2Ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
+    "r2Sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4",
+    "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "capabilitySourceSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+    "requirementSourceSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+  },
+  "reviewSummary": {
+    "cohortRows": 77,
+    "reusedFrozenPeerPasses": 53,
+    "sourceResolutionProposalsReviewed": 18,
+    "sourceResolutionTechnicalPasses": 18,
+    "sourceResolutionRequestChanges": 0,
+    "boundedOwnerChoiceRowsUnknown": 6,
+    "capabilityCaseRecordsReviewed": 44,
+    "requirementCaseRecordsReviewed": 46,
+    "liveTypedInputSlotMatches": 44,
+    "liveOutputArtifactTypeMatches": 44,
+    "sourcePinMismatches": 0,
+    "integrityFindings": 0
+  },
+  "typedSourceReview": {
+    "method": "For every proposed capability case, compare semanticEvidence.typedInputSlots.sourceType in order to the live capability inputArtifactTypes and compare semanticEvidence.successOutputs.artifactType in order to the live outputArtifactTypes. Verify exact requirement parent-case IDs and feature capability references. Content checks are separate from presence/schema checks.",
+    "checks": [
+      {
+        "auditId": "AUD-ASR-003",
+        "caseId": "MEDIA-P0-COHORT01-AUD-ASR-003-POS",
+        "capabilityId": "media.speech.transcription.voice-activity.detect",
+        "sourceInputArtifactTypes": [
+          "audio-artifact-or-live-stream",
+          "language-hint-when-provided"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "audio-artifact-or-live-stream",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "audio-artifact",
+              "live-stream"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "language-hint-when-provided",
+            "cardinality": "ZERO_OR_ONE",
+            "required": false
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "transcript-or-speech-analysis-artifact-with-timing-and-uncertainty"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "transcript-or-speech-analysis-artifact-with-timing-and-uncertainty",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-ASR-003",
+        "caseId": "MEDIA-P0-COHORT01-AUD-ASR-003-NEG",
+        "capabilityId": "media.speech.transcription.voice-activity.detect",
+        "sourceInputArtifactTypes": [
+          "audio-artifact-or-live-stream",
+          "language-hint-when-provided"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "audio-artifact-or-live-stream",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "audio-artifact",
+              "live-stream"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "language-hint-when-provided",
+            "cardinality": "ZERO_OR_ONE",
+            "required": false
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "transcript-or-speech-analysis-artifact-with-timing-and-uncertainty"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "transcript-or-speech-analysis-artifact-with-timing-and-uncertainty",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-ASR-020",
+        "caseId": "MEDIA-P0-COHORT01-AUD-ASR-020-POS",
+        "capabilityId": "media.audio.analysis.segment.content-kind",
+        "sourceInputArtifactTypes": [
+          "audio-artifact",
+          "analysis-request"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "audio-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "analysis-request",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "speech-music-nonspeech-segmentation-observation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "speech-music-nonspeech-segmentation-observation",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-ASR-020",
+        "caseId": "MEDIA-P0-COHORT01-AUD-ASR-020-NEG",
+        "capabilityId": "media.audio.analysis.segment.content-kind",
+        "sourceInputArtifactTypes": [
+          "audio-artifact",
+          "analysis-request"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "audio-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "analysis-request",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "speech-music-nonspeech-segmentation-observation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "speech-music-nonspeech-segmentation-observation",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-ASSET-015",
+        "caseId": "MEDIA-P0-COHORT01-AUD-ASSET-015-POS",
+        "capabilityId": "media.artifact.search",
+        "sourceInputArtifactTypes": [
+          "source-media-or-project-reference",
+          "rights-and-retention-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-or-project-reference",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "source-media",
+              "project-reference"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "rights-and-retention-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "bounded-governed-artifact-result-page-and-opaque-continuation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "bounded-governed-artifact-result-page-and-opaque-continuation",
+            "requiredOnSuccess": true,
+            "optionalSemanticObservations": [
+              {
+                "id": "transcriptSearchCandidates",
+                "when": "searchIntent=SEMANTIC_TRANSCRIPT_CANDIDATES",
+                "fields": {
+                  "sourceVersionRef": "Exact source-media or project version searched.",
+                  "transcriptTimeRange": "Source-time range associated with each candidate.",
+                  "matchingUncertainty": "Explicit uncertainty for candidate matching."
+                },
+                "constraints": [
+                  "Candidate matches do not establish transcript correctness, complete coverage, or ranking."
+                ]
+              },
+              {
+                "id": "duplicateCandidateGroups",
+                "when": "searchIntent=DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES",
+                "fields": {
+                  "candidateGroupRef": "Opaque candidate-group identity.",
+                  "sourceArtifactVersionRefs": "Exact source artifact/version identities in the group.",
+                  "matchingUncertainty": "Explicit uncertainty for candidate grouping."
+                },
+                "constraints": [
+                  "Candidate groups do not establish duplicate identity or authorize merge, replacement, or deletion."
+                ]
+              },
+              {
+                "id": "timelineFacetCandidates",
+                "when": "searchIntent=TIMELINE_FACET_CANDIDATES",
+                "fields": {
+                  "sourceVersionRef": "Exact immutable source/project version searched.",
+                  "sourceTimeRange": "Optional declared range in that version source timebase.",
+                  "facetKindAndValue": "Requested person, scene, speaker, or timeline facet values.",
+                  "evidenceDisposition": "OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.",
+                  "matchingUncertainty": "Explicit uncertainty for each candidate match."
+                },
+                "constraints": [
+                  "Candidate facts remain distinguishable from verified identity or complete index coverage."
+                ]
+              },
+              {
+                "id": "visualMetadataCandidates",
+                "when": "searchIntent=VISUAL_METADATA_CANDIDATES",
+                "fields": {
+                  "sourceVersionRef": "Exact immutable source/project version searched.",
+                  "sourceTimeRange": "Optional declared range in that version source timebase.",
+                  "evidenceDisposition": "OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.",
+                  "matchingUncertainty": "Explicit uncertainty for each candidate match."
+                },
+                "constraints": [
+                  "Unknown or unindexed scope is not represented as an empty result."
+                ]
+              },
+              {
+                "id": "licenseEligibleAssetCandidates",
+                "when": "searchIntent=LICENSE_ELIGIBLE_ASSET_CANDIDATES",
+                "fields": {
+                  "sourceArtifactVersionRef": "Exact immutable asset version searched and returned.",
+                  "rightsLicenseDispositionRef": "Current authoritative per-version rights/license evidence for the declared scope.",
+                  "declaredIntendedUseScopeRef": "Exact caller-declared scope used for this eligibility filter."
+                },
+                "constraints": [
+                  "Only affirmative, current, scope-compatible rights/license evidence makes a candidate eligible.",
+                  "Unknown, missing, denied, expired, revoked, restricted, incompatible, or unresolved evidence is not eligible.",
+                  "Search eligibility is not legal clearance, and candidate ranking or complete catalog coverage is not guaranteed."
+                ]
+              }
+            ]
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-ASSET-015",
+        "caseId": "MEDIA-P0-COHORT01-AUD-ASSET-015-NEG",
+        "capabilityId": "media.artifact.search",
+        "sourceInputArtifactTypes": [
+          "source-media-or-project-reference",
+          "rights-and-retention-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-or-project-reference",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "source-media",
+              "project-reference"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "rights-and-retention-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "bounded-governed-artifact-result-page-and-opaque-continuation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "bounded-governed-artifact-result-page-and-opaque-continuation",
+            "requiredOnSuccess": true,
+            "optionalSemanticObservations": [
+              {
+                "id": "transcriptSearchCandidates",
+                "when": "searchIntent=SEMANTIC_TRANSCRIPT_CANDIDATES",
+                "fields": {
+                  "sourceVersionRef": "Exact source-media or project version searched.",
+                  "transcriptTimeRange": "Source-time range associated with each candidate.",
+                  "matchingUncertainty": "Explicit uncertainty for candidate matching."
+                },
+                "constraints": [
+                  "Candidate matches do not establish transcript correctness, complete coverage, or ranking."
+                ]
+              },
+              {
+                "id": "duplicateCandidateGroups",
+                "when": "searchIntent=DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES",
+                "fields": {
+                  "candidateGroupRef": "Opaque candidate-group identity.",
+                  "sourceArtifactVersionRefs": "Exact source artifact/version identities in the group.",
+                  "matchingUncertainty": "Explicit uncertainty for candidate grouping."
+                },
+                "constraints": [
+                  "Candidate groups do not establish duplicate identity or authorize merge, replacement, or deletion."
+                ]
+              },
+              {
+                "id": "timelineFacetCandidates",
+                "when": "searchIntent=TIMELINE_FACET_CANDIDATES",
+                "fields": {
+                  "sourceVersionRef": "Exact immutable source/project version searched.",
+                  "sourceTimeRange": "Optional declared range in that version source timebase.",
+                  "facetKindAndValue": "Requested person, scene, speaker, or timeline facet values.",
+                  "evidenceDisposition": "OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.",
+                  "matchingUncertainty": "Explicit uncertainty for each candidate match."
+                },
+                "constraints": [
+                  "Candidate facts remain distinguishable from verified identity or complete index coverage."
+                ]
+              },
+              {
+                "id": "visualMetadataCandidates",
+                "when": "searchIntent=VISUAL_METADATA_CANDIDATES",
+                "fields": {
+                  "sourceVersionRef": "Exact immutable source/project version searched.",
+                  "sourceTimeRange": "Optional declared range in that version source timebase.",
+                  "evidenceDisposition": "OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.",
+                  "matchingUncertainty": "Explicit uncertainty for each candidate match."
+                },
+                "constraints": [
+                  "Unknown or unindexed scope is not represented as an empty result."
+                ]
+              },
+              {
+                "id": "licenseEligibleAssetCandidates",
+                "when": "searchIntent=LICENSE_ELIGIBLE_ASSET_CANDIDATES",
+                "fields": {
+                  "sourceArtifactVersionRef": "Exact immutable asset version searched and returned.",
+                  "rightsLicenseDispositionRef": "Current authoritative per-version rights/license evidence for the declared scope.",
+                  "declaredIntendedUseScopeRef": "Exact caller-declared scope used for this eligibility filter."
+                },
+                "constraints": [
+                  "Only affirmative, current, scope-compatible rights/license evidence makes a candidate eligible.",
+                  "Unknown, missing, denied, expired, revoked, restricted, incompatible, or unresolved evidence is not eligible.",
+                  "Search eligibility is not legal clearance, and candidate ranking or complete catalog coverage is not guaranteed."
+                ]
+              }
+            ]
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-ASSET-016",
+        "caseId": "MEDIA-P0-COHORT01-AUD-ASSET-016-POS",
+        "capabilityId": "media.artifact.derive",
+        "sourceInputArtifactTypes": [
+          "exact-source-versioned-media-or-project-reference",
+          "transformation-profile-identity-version-and-digest",
+          "requested-output-artifact-type-media-type-and-byte-budget",
+          "purpose-and-rights-decision-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "exact-source-versioned-media-or-project-reference",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "source-media",
+              "project-reference"
+            ],
+            "optionalSemanticComponents": [
+              {
+                "id": "clipSourceTimeRange",
+                "when": "Requested output is a source-derived clip.",
+                "fields": {
+                  "sourceTimeRange": "Required explicit interval in the exact source version timebase."
+                },
+                "constraints": [
+                  "Never infer or rebase the interval without an explicit mapping contract."
+                ]
+              }
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "transformation-profile-identity-version-and-digest",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input3",
+            "sourceType": "requested-output-artifact-type-media-type-and-byte-budget",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input4",
+            "sourceType": "purpose-and-rights-decision-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "governed-artifact-reference-or-lifecycle-observation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "governed-artifact-reference-or-lifecycle-observation",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-ASSET-016",
+        "caseId": "MEDIA-P0-COHORT01-AUD-ASSET-016-NEG",
+        "capabilityId": "media.artifact.derive",
+        "sourceInputArtifactTypes": [
+          "exact-source-versioned-media-or-project-reference",
+          "transformation-profile-identity-version-and-digest",
+          "requested-output-artifact-type-media-type-and-byte-budget",
+          "purpose-and-rights-decision-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "exact-source-versioned-media-or-project-reference",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "source-media",
+              "project-reference"
+            ],
+            "optionalSemanticComponents": [
+              {
+                "id": "clipSourceTimeRange",
+                "when": "Requested output is a source-derived clip.",
+                "fields": {
+                  "sourceTimeRange": "Required explicit interval in the exact source version timebase."
+                },
+                "constraints": [
+                  "Never infer or rebase the interval without an explicit mapping contract."
+                ]
+              }
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "transformation-profile-identity-version-and-digest",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input3",
+            "sourceType": "requested-output-artifact-type-media-type-and-byte-budget",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input4",
+            "sourceType": "purpose-and-rights-decision-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "governed-artifact-reference-or-lifecycle-observation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "governed-artifact-reference-or-lifecycle-observation",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-CLONE-005",
+        "caseId": "MEDIA-P0-COHORT01-AUD-CLONE-005-POS",
+        "capabilityId": "media.rights.consent.reference",
+        "sourceInputArtifactTypes": [
+          "identity-and-authority-context",
+          "rights-evidence-reference"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "identity-and-authority-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "rights-evidence-reference",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "policy-decision-reference-or-rights-observation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "policy-decision-reference-or-rights-observation",
+            "requiredOnSuccess": true,
+            "resultVariants": [
+              {
+                "resultKind": "POLICY_DECISION_REFERENCE",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=POLICY_DECISION_REFERENCE"
+              },
+              {
+                "resultKind": "RIGHTS_OBSERVATION",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=RIGHTS_OBSERVATION"
+              }
+            ]
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-CLONE-005",
+        "caseId": "MEDIA-P0-COHORT01-AUD-CLONE-005-NEG",
+        "capabilityId": "media.rights.consent.reference",
+        "sourceInputArtifactTypes": [
+          "identity-and-authority-context",
+          "rights-evidence-reference"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "identity-and-authority-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "rights-evidence-reference",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "policy-decision-reference-or-rights-observation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "policy-decision-reference-or-rights-observation",
+            "requiredOnSuccess": true,
+            "resultVariants": [
+              {
+                "resultKind": "POLICY_DECISION_REFERENCE",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=POLICY_DECISION_REFERENCE"
+              },
+              {
+                "resultKind": "RIGHTS_OBSERVATION",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=RIGHTS_OBSERVATION"
+              }
+            ]
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-CLONE-007",
+        "caseId": "MEDIA-P0-COHORT01-AUD-CLONE-007-POS",
+        "capabilityId": "media.quality.audio.audio.assess-authorized-speaker-similarity",
+        "sourceInputArtifactTypes": [
+          "audio-candidate",
+          "applicable-reference-and-measurement-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "audio-candidate",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "applicable-reference-and-measurement-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "audio-quality-observations-by-applicable-dimension"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "audio-quality-observations-by-applicable-dimension",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-CLONE-007",
+        "caseId": "MEDIA-P0-COHORT01-AUD-CLONE-007-NEG",
+        "capabilityId": "media.quality.audio.audio.assess-authorized-speaker-similarity",
+        "sourceInputArtifactTypes": [
+          "audio-candidate",
+          "applicable-reference-and-measurement-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "audio-candidate",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "applicable-reference-and-measurement-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "audio-quality-observations-by-applicable-dimension"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "audio-quality-observations-by-applicable-dimension",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-002",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-002-POS",
+        "capabilityId": "media.project.review",
+        "sourceInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "user-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "versioned-project",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-project-state"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-project-state",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-002",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-002-NEG",
+        "capabilityId": "media.project.review",
+        "sourceInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "user-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "versioned-project",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-project-state"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-project-state",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-007",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-007-POS",
+        "capabilityId": "media.artifact.share",
+        "sourceInputArtifactTypes": [
+          "governed-artifact-reference",
+          "recipient-and-sharing-scope",
+          "rights-and-retention-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "artifact",
+            "sourceType": "governed-artifact-reference",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "recipientScope",
+            "sourceType": "recipient-and-sharing-scope",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "policyContext",
+            "sourceType": "rights-and-retention-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "artifact-sharing-grant-observation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "artifact-sharing-grant-observation",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-007",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-007-NEG",
+        "capabilityId": "media.artifact.share",
+        "sourceInputArtifactTypes": [
+          "governed-artifact-reference",
+          "recipient-and-sharing-scope",
+          "rights-and-retention-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "artifact",
+            "sourceType": "governed-artifact-reference",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "recipientScope",
+            "sourceType": "recipient-and-sharing-scope",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "policyContext",
+            "sourceType": "rights-and-retention-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "artifact-sharing-grant-observation"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "artifact-sharing-grant-observation",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-008",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-008-POS",
+        "capabilityId": "media.project.review",
+        "sourceInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "user-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "versioned-project",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-project-state"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-project-state",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-008",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-008-NEG",
+        "capabilityId": "media.project.review",
+        "sourceInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "user-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "versioned-project",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-project-state"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-project-state",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-011",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-011-POS",
+        "capabilityId": "media.project.organize",
+        "sourceInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "user-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true,
+            "optionalSemanticComponents": [
+              {
+                "id": "organizationRequest",
+                "fields": {
+                  "hierarchyOperations": "User-declared project/library parent, collection, and ordering changes.",
+                  "smartBinMode": "LIVE_QUERY or SNAPSHOT, explicitly selected per smart bin.",
+                  "membershipEvidenceDisposition": "OBSERVED, INFERRED, or UNKNOWN for each membership fact."
+                },
+                "constraints": [
+                  "Do not infer a taxonomy or convert inferred/unknown membership into observed membership."
+                ]
+              }
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "versioned-project",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-project-state"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-project-state",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-011",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-011-NEG",
+        "capabilityId": "media.project.organize",
+        "sourceInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "user-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true,
+            "optionalSemanticComponents": [
+              {
+                "id": "organizationRequest",
+                "fields": {
+                  "hierarchyOperations": "User-declared project/library parent, collection, and ordering changes.",
+                  "smartBinMode": "LIVE_QUERY or SNAPSHOT, explicitly selected per smart bin.",
+                  "membershipEvidenceDisposition": "OBSERVED, INFERRED, or UNKNOWN for each membership fact."
+                },
+                "constraints": [
+                  "Do not infer a taxonomy or convert inferred/unknown membership into observed membership."
+                ]
+              }
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "versioned-project",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-project-state"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-project-state",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLOR-002",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-002-POS",
+        "capabilityId": "media.color.curves",
+        "sourceInputArtifactTypes": [
+          "source-media-artifact",
+          "declared-source-and-target-color-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "declared-source-and-target-color-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "color-managed-media-derivative-and-transform-provenance"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "color-managed-media-derivative-and-transform-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLOR-002",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-002-NEG",
+        "capabilityId": "media.color.curves",
+        "sourceInputArtifactTypes": [
+          "source-media-artifact",
+          "declared-source-and-target-color-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "declared-source-and-target-color-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "color-managed-media-derivative-and-transform-provenance"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "color-managed-media-derivative-and-transform-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-001",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-001-POS",
+        "capabilityId": "media.compose.render-manifest",
+        "sourceInputArtifactTypes": [
+          "versioned-project-and-selected-artifacts",
+          "composition-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "versioned-project-and-selected-artifacts",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "composition-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-composition-and-render-manifest"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-composition-and-render-manifest",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-001",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-001-NEG",
+        "capabilityId": "media.compose.render-manifest",
+        "sourceInputArtifactTypes": [
+          "versioned-project-and-selected-artifacts",
+          "composition-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "versioned-project-and-selected-artifacts",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "composition-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-composition-and-render-manifest"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-composition-and-render-manifest",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-002",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-002-POS",
+        "capabilityId": "media.compose.render-manifest",
+        "sourceInputArtifactTypes": [
+          "versioned-project-and-selected-artifacts",
+          "composition-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "versioned-project-and-selected-artifacts",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "composition-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-composition-and-render-manifest"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-composition-and-render-manifest",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-002",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-002-NEG",
+        "capabilityId": "media.compose.render-manifest",
+        "sourceInputArtifactTypes": [
+          "versioned-project-and-selected-artifacts",
+          "composition-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "versioned-project-and-selected-artifacts",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "composition-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-composition-and-render-manifest"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-composition-and-render-manifest",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-003",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-POS",
+        "capabilityId": "media.quality.compare",
+        "sourceInputArtifactTypes": [
+          "candidate-artifacts-or-execution-observation",
+          "quality-question-and-bounds"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "candidate-artifacts-or-execution-observation",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "candidate-artifacts",
+              "execution-observation"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "quality-question-and-bounds",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "quality-observation-or-bounded-repair-plan"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "quality-observation-or-bounded-repair-plan",
+            "requiredOnSuccess": true,
+            "resultVariants": [
+              {
+                "resultKind": "QUALITY_OBSERVATION",
+                "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+              },
+              {
+                "resultKind": "BOUNDED_REPAIR_PLAN",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+              }
+            ]
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-003",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-NEG",
+        "capabilityId": "media.quality.compare",
+        "sourceInputArtifactTypes": [
+          "candidate-artifacts-or-execution-observation",
+          "quality-question-and-bounds"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "candidate-artifacts-or-execution-observation",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "candidate-artifacts",
+              "execution-observation"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "quality-question-and-bounds",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "quality-observation-or-bounded-repair-plan"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "quality-observation-or-bounded-repair-plan",
+            "requiredOnSuccess": true,
+            "resultVariants": [
+              {
+                "resultKind": "QUALITY_OBSERVATION",
+                "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+              },
+              {
+                "resultKind": "BOUNDED_REPAIR_PLAN",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+              }
+            ]
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-003",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-POS",
+        "capabilityId": "media.project.review",
+        "sourceInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "user-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "versioned-project",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-project-state"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-project-state",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLLAB-003",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-NEG",
+        "capabilityId": "media.project.review",
+        "sourceInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "user-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "versioned-project",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-project-state"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-project-state",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLOR-010",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-POS",
+        "capabilityId": "media.color.skin-tone-preserve",
+        "sourceInputArtifactTypes": [
+          "source-media-artifact",
+          "declared-source-and-target-color-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "declared-source-and-target-color-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "color-managed-media-derivative-and-transform-provenance"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "color-managed-media-derivative-and-transform-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLOR-010",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-NEG",
+        "capabilityId": "media.color.skin-tone-preserve",
+        "sourceInputArtifactTypes": [
+          "source-media-artifact",
+          "declared-source-and-target-color-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "declared-source-and-target-color-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "color-managed-media-derivative-and-transform-provenance"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "color-managed-media-derivative-and-transform-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLOR-010",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-POS",
+        "capabilityId": "media.compose.track.video-audio-caption-overlay",
+        "sourceInputArtifactTypes": [
+          "versioned-project-and-selected-artifacts",
+          "composition-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "versioned-project-and-selected-artifacts",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "composition-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-composition-and-render-manifest"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-composition-and-render-manifest",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-COLOR-010",
+        "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-NEG",
+        "capabilityId": "media.compose.track.video-audio-caption-overlay",
+        "sourceInputArtifactTypes": [
+          "versioned-project-and-selected-artifacts",
+          "composition-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "versioned-project-and-selected-artifacts",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "composition-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-composition-and-render-manifest"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-composition-and-render-manifest",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-013",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-POS",
+        "capabilityId": "media.speech.transcription.subtitle.generate",
+        "sourceInputArtifactTypes": [
+          "exact-transcript-or-recognition-result-version",
+          "source-audio-or-video-version",
+          "requested-output-language-and-profile"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "exact-transcript-or-recognition-result-version",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "exact-transcript",
+              "recognition-result-version"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "source-audio-or-video-version",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "source-audio",
+              "video-version"
+            ]
+          },
+          {
+            "slotId": "input3",
+            "sourceType": "requested-output-language-and-profile",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "subtitle-draft-version",
+          "segment-timing-and-alignment-disposition",
+          "source-and-operation-provenance"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "subtitle-draft-version",
+            "requiredOnSuccess": true
+          },
+          {
+            "artifactType": "segment-timing-and-alignment-disposition",
+            "requiredOnSuccess": true
+          },
+          {
+            "artifactType": "source-and-operation-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-013",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-NEG",
+        "capabilityId": "media.speech.transcription.subtitle.generate",
+        "sourceInputArtifactTypes": [
+          "exact-transcript-or-recognition-result-version",
+          "source-audio-or-video-version",
+          "requested-output-language-and-profile"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "exact-transcript-or-recognition-result-version",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "exact-transcript",
+              "recognition-result-version"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "source-audio-or-video-version",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "source-audio",
+              "video-version"
+            ]
+          },
+          {
+            "slotId": "input3",
+            "sourceType": "requested-output-language-and-profile",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "subtitle-draft-version",
+          "segment-timing-and-alignment-disposition",
+          "source-and-operation-provenance"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "subtitle-draft-version",
+            "requiredOnSuccess": true
+          },
+          {
+            "artifactType": "segment-timing-and-alignment-disposition",
+            "requiredOnSuccess": true
+          },
+          {
+            "artifactType": "source-and-operation-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-013",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-POS",
+        "capabilityId": "media.compose.track.video-audio-caption-overlay",
+        "sourceInputArtifactTypes": [
+          "versioned-project-and-selected-artifacts",
+          "composition-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "versioned-project-and-selected-artifacts",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "composition-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-composition-and-render-manifest"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-composition-and-render-manifest",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-013",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-NEG",
+        "capabilityId": "media.compose.track.video-audio-caption-overlay",
+        "sourceInputArtifactTypes": [
+          "versioned-project-and-selected-artifacts",
+          "composition-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "versioned-project-and-selected-artifacts",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "composition-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "versioned-composition-and-render-manifest"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "versioned-composition-and-render-manifest",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-013",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-POS",
+        "capabilityId": "media.deliver.subtitles",
+        "sourceInputArtifactTypes": [
+          "accepted-media-artifact-or-composition",
+          "requested-delivery-profile-and-destination"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "accepted-media-artifact-or-composition",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "accepted-media-artifact",
+              "composition"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "requested-delivery-profile-and-destination",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "delivery-package-or-explicit-delivery-outcome"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "delivery-package-or-explicit-delivery-outcome",
+            "requiredOnSuccess": true,
+            "resultVariants": [
+              {
+                "resultKind": "DELIVERY_PACKAGE",
+                "originRelation": "SOURCE_DERIVED",
+                "optionalSemanticObservations": [
+                  {
+                    "id": "subtitleTrackDelivery",
+                    "fields": {
+                      "subtitleTrackRef": "Exact authorized source subtitle track/version.",
+                      "packagingForm": "SIDECAR or EMBEDDED as explicitly requested and supported by the selected profile.",
+                      "sourceTimebaseAndMapping": "Timing source and any explicit mapping represented in the package.",
+                      "provenance": "Exact source/version and transformation profile reference."
+                    },
+                    "constraints": [
+                      "Unsupported or unresolved packaging form is explicit; no silent substitute.",
+                      "Packaging does not establish subtitle correctness or delivery success."
+                    ]
+                  }
+                ],
+                "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+                "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+              },
+              {
+                "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+              }
+            ]
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-013",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-NEG",
+        "capabilityId": "media.deliver.subtitles",
+        "sourceInputArtifactTypes": [
+          "accepted-media-artifact-or-composition",
+          "requested-delivery-profile-and-destination"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "accepted-media-artifact-or-composition",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "accepted-media-artifact",
+              "composition"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "requested-delivery-profile-and-destination",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "delivery-package-or-explicit-delivery-outcome"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "delivery-package-or-explicit-delivery-outcome",
+            "requiredOnSuccess": true,
+            "resultVariants": [
+              {
+                "resultKind": "DELIVERY_PACKAGE",
+                "originRelation": "SOURCE_DERIVED",
+                "optionalSemanticObservations": [
+                  {
+                    "id": "subtitleTrackDelivery",
+                    "fields": {
+                      "subtitleTrackRef": "Exact authorized source subtitle track/version.",
+                      "packagingForm": "SIDECAR or EMBEDDED as explicitly requested and supported by the selected profile.",
+                      "sourceTimebaseAndMapping": "Timing source and any explicit mapping represented in the package.",
+                      "provenance": "Exact source/version and transformation profile reference."
+                    },
+                    "constraints": [
+                      "Unsupported or unresolved packaging form is explicit; no silent substitute.",
+                      "Packaging does not establish subtitle correctness or delivery success."
+                    ]
+                  }
+                ],
+                "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+                "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+              },
+              {
+                "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+              }
+            ]
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-015",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-POS",
+        "capabilityId": "media.sync.sample-accurate-av-map",
+        "sourceInputArtifactTypes": [
+          "timestamped-audio-video-or-caption-artifacts",
+          "alignment-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "timestamped-audio-video-or-caption-artifacts",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "timestamped-audio-video",
+              "caption-artifacts"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "alignment-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "alignment-map-and-derived-synchronized-artifact"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "alignment-map-and-derived-synchronized-artifact",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-015",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-NEG",
+        "capabilityId": "media.sync.sample-accurate-av-map",
+        "sourceInputArtifactTypes": [
+          "timestamped-audio-video-or-caption-artifacts",
+          "alignment-intent"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "timestamped-audio-video-or-caption-artifacts",
+            "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+            "required": true,
+            "alternatives": [
+              "timestamped-audio-video",
+              "caption-artifacts"
+            ]
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "alignment-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "alignment-map-and-derived-synchronized-artifact"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "alignment-map-and-derived-synchronized-artifact",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-015",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-POS",
+        "capabilityId": "media.quality.video.video.assess-av-sync",
+        "sourceInputArtifactTypes": [
+          "video-candidate",
+          "applicable-reference-and-measurement-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "video-candidate",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "applicable-reference-and-measurement-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "video-quality-observations-by-applicable-dimension"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "video-quality-observations-by-applicable-dimension",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      },
+      {
+        "auditId": "AUD-DELIV-015",
+        "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-NEG",
+        "capabilityId": "media.quality.video.video.assess-av-sync",
+        "sourceInputArtifactTypes": [
+          "video-candidate",
+          "applicable-reference-and-measurement-context"
+        ],
+        "candidateTypedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "video-candidate",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "applicable-reference-and-measurement-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "inputTypesMatch": true,
+        "sourceOutputArtifactTypes": [
+          "video-quality-observations-by-applicable-dimension"
+        ],
+        "candidateSuccessOutputs": [
+          {
+            "artifactType": "video-quality-observations-by-applicable-dimension",
+            "requiredOnSuccess": true
+          }
+        ],
+        "outputTypesMatch": true,
+        "sourceRefMatch": true,
+        "givenWhenThenPresent": true
+      }
+    ],
+    "specificR3FindingResolutions": [
+      {
+        "auditId": "AUD-COLOR-001",
+        "rule": "Saturation remains UNKNOWN/UNAVAILABLE pending owner finite typed range; no substitution",
+        "pass": true
+      },
+      {
+        "auditId": "AUD-COLLAB-003",
+        "rule": "Comparison and review cases are separately target-bound",
+        "pass": true
+      },
+      {
+        "auditId": "AUD-COLOR-010",
+        "rule": "Color treatment and overlay composition cases do not share cross-operation results",
+        "pass": true
+      },
+      {
+        "auditId": "AUD-DELIV-013",
+        "rule": "Subtitle generation, overlay composition, and delivery are separately target-bound",
+        "pass": true
+      },
+      {
+        "auditId": "AUD-DELIV-015",
+        "rule": "Alignment map and read-only assessment remain separate; map is not measurement",
+        "pass": true
+      }
+    ]
+  },
+  "rows": [
+    {
+      "auditId": "AUD-ASR-001",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-002",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-003",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-ASR-003",
+          "caseId": "MEDIA-P0-COHORT01-AUD-ASR-003-POS",
+          "capabilityId": "media.speech.transcription.voice-activity.detect",
+          "sourceInputArtifactTypes": [
+            "audio-artifact-or-live-stream",
+            "language-hint-when-provided"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "audio-artifact-or-live-stream",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "audio-artifact",
+                "live-stream"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "language-hint-when-provided",
+              "cardinality": "ZERO_OR_ONE",
+              "required": false
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "transcript-or-speech-analysis-artifact-with-timing-and-uncertainty"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "transcript-or-speech-analysis-artifact-with-timing-and-uncertainty",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-ASR-003",
+          "caseId": "MEDIA-P0-COHORT01-AUD-ASR-003-NEG",
+          "capabilityId": "media.speech.transcription.voice-activity.detect",
+          "sourceInputArtifactTypes": [
+            "audio-artifact-or-live-stream",
+            "language-hint-when-provided"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "audio-artifact-or-live-stream",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "audio-artifact",
+                "live-stream"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "language-hint-when-provided",
+              "cardinality": "ZERO_OR_ONE",
+              "required": false
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "transcript-or-speech-analysis-artifact-with-timing-and-uncertainty"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "transcript-or-speech-analysis-artifact-with-timing-and-uncertainty",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-ASR-004",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-005",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-006",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-007",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-008",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-013",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-014",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-016",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-018",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-019",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASR-020",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-ASR-020",
+          "caseId": "MEDIA-P0-COHORT01-AUD-ASR-020-POS",
+          "capabilityId": "media.audio.analysis.segment.content-kind",
+          "sourceInputArtifactTypes": [
+            "audio-artifact",
+            "analysis-request"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "audio-artifact",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "analysis-request",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "speech-music-nonspeech-segmentation-observation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "speech-music-nonspeech-segmentation-observation",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-ASR-020",
+          "caseId": "MEDIA-P0-COHORT01-AUD-ASR-020-NEG",
+          "capabilityId": "media.audio.analysis.segment.content-kind",
+          "sourceInputArtifactTypes": [
+            "audio-artifact",
+            "analysis-request"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "audio-artifact",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "analysis-request",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "speech-music-nonspeech-segmentation-observation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "speech-music-nonspeech-segmentation-observation",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-ASSET-001",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASSET-002",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASSET-007",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASSET-008",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASSET-011",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASSET-014",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-ASSET-015",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-ASSET-015",
+          "caseId": "MEDIA-P0-COHORT01-AUD-ASSET-015-POS",
+          "capabilityId": "media.artifact.search",
+          "sourceInputArtifactTypes": [
+            "source-media-or-project-reference",
+            "rights-and-retention-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "source-media-or-project-reference",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "source-media",
+                "project-reference"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "rights-and-retention-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "bounded-governed-artifact-result-page-and-opaque-continuation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "bounded-governed-artifact-result-page-and-opaque-continuation",
+              "requiredOnSuccess": true,
+              "optionalSemanticObservations": [
+                {
+                  "id": "transcriptSearchCandidates",
+                  "when": "searchIntent=SEMANTIC_TRANSCRIPT_CANDIDATES",
+                  "fields": {
+                    "sourceVersionRef": "Exact source-media or project version searched.",
+                    "transcriptTimeRange": "Source-time range associated with each candidate.",
+                    "matchingUncertainty": "Explicit uncertainty for candidate matching."
+                  },
+                  "constraints": [
+                    "Candidate matches do not establish transcript correctness, complete coverage, or ranking."
+                  ]
+                },
+                {
+                  "id": "duplicateCandidateGroups",
+                  "when": "searchIntent=DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES",
+                  "fields": {
+                    "candidateGroupRef": "Opaque candidate-group identity.",
+                    "sourceArtifactVersionRefs": "Exact source artifact/version identities in the group.",
+                    "matchingUncertainty": "Explicit uncertainty for candidate grouping."
+                  },
+                  "constraints": [
+                    "Candidate groups do not establish duplicate identity or authorize merge, replacement, or deletion."
+                  ]
+                },
+                {
+                  "id": "timelineFacetCandidates",
+                  "when": "searchIntent=TIMELINE_FACET_CANDIDATES",
+                  "fields": {
+                    "sourceVersionRef": "Exact immutable source/project version searched.",
+                    "sourceTimeRange": "Optional declared range in that version source timebase.",
+                    "facetKindAndValue": "Requested person, scene, speaker, or timeline facet values.",
+                    "evidenceDisposition": "OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.",
+                    "matchingUncertainty": "Explicit uncertainty for each candidate match."
+                  },
+                  "constraints": [
+                    "Candidate facts remain distinguishable from verified identity or complete index coverage."
+                  ]
+                },
+                {
+                  "id": "visualMetadataCandidates",
+                  "when": "searchIntent=VISUAL_METADATA_CANDIDATES",
+                  "fields": {
+                    "sourceVersionRef": "Exact immutable source/project version searched.",
+                    "sourceTimeRange": "Optional declared range in that version source timebase.",
+                    "evidenceDisposition": "OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.",
+                    "matchingUncertainty": "Explicit uncertainty for each candidate match."
+                  },
+                  "constraints": [
+                    "Unknown or unindexed scope is not represented as an empty result."
+                  ]
+                },
+                {
+                  "id": "licenseEligibleAssetCandidates",
+                  "when": "searchIntent=LICENSE_ELIGIBLE_ASSET_CANDIDATES",
+                  "fields": {
+                    "sourceArtifactVersionRef": "Exact immutable asset version searched and returned.",
+                    "rightsLicenseDispositionRef": "Current authoritative per-version rights/license evidence for the declared scope.",
+                    "declaredIntendedUseScopeRef": "Exact caller-declared scope used for this eligibility filter."
+                  },
+                  "constraints": [
+                    "Only affirmative, current, scope-compatible rights/license evidence makes a candidate eligible.",
+                    "Unknown, missing, denied, expired, revoked, restricted, incompatible, or unresolved evidence is not eligible.",
+                    "Search eligibility is not legal clearance, and candidate ranking or complete catalog coverage is not guaranteed."
+                  ]
+                }
+              ]
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-ASSET-015",
+          "caseId": "MEDIA-P0-COHORT01-AUD-ASSET-015-NEG",
+          "capabilityId": "media.artifact.search",
+          "sourceInputArtifactTypes": [
+            "source-media-or-project-reference",
+            "rights-and-retention-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "source-media-or-project-reference",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "source-media",
+                "project-reference"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "rights-and-retention-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "bounded-governed-artifact-result-page-and-opaque-continuation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "bounded-governed-artifact-result-page-and-opaque-continuation",
+              "requiredOnSuccess": true,
+              "optionalSemanticObservations": [
+                {
+                  "id": "transcriptSearchCandidates",
+                  "when": "searchIntent=SEMANTIC_TRANSCRIPT_CANDIDATES",
+                  "fields": {
+                    "sourceVersionRef": "Exact source-media or project version searched.",
+                    "transcriptTimeRange": "Source-time range associated with each candidate.",
+                    "matchingUncertainty": "Explicit uncertainty for candidate matching."
+                  },
+                  "constraints": [
+                    "Candidate matches do not establish transcript correctness, complete coverage, or ranking."
+                  ]
+                },
+                {
+                  "id": "duplicateCandidateGroups",
+                  "when": "searchIntent=DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES",
+                  "fields": {
+                    "candidateGroupRef": "Opaque candidate-group identity.",
+                    "sourceArtifactVersionRefs": "Exact source artifact/version identities in the group.",
+                    "matchingUncertainty": "Explicit uncertainty for candidate grouping."
+                  },
+                  "constraints": [
+                    "Candidate groups do not establish duplicate identity or authorize merge, replacement, or deletion."
+                  ]
+                },
+                {
+                  "id": "timelineFacetCandidates",
+                  "when": "searchIntent=TIMELINE_FACET_CANDIDATES",
+                  "fields": {
+                    "sourceVersionRef": "Exact immutable source/project version searched.",
+                    "sourceTimeRange": "Optional declared range in that version source timebase.",
+                    "facetKindAndValue": "Requested person, scene, speaker, or timeline facet values.",
+                    "evidenceDisposition": "OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.",
+                    "matchingUncertainty": "Explicit uncertainty for each candidate match."
+                  },
+                  "constraints": [
+                    "Candidate facts remain distinguishable from verified identity or complete index coverage."
+                  ]
+                },
+                {
+                  "id": "visualMetadataCandidates",
+                  "when": "searchIntent=VISUAL_METADATA_CANDIDATES",
+                  "fields": {
+                    "sourceVersionRef": "Exact immutable source/project version searched.",
+                    "sourceTimeRange": "Optional declared range in that version source timebase.",
+                    "evidenceDisposition": "OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.",
+                    "matchingUncertainty": "Explicit uncertainty for each candidate match."
+                  },
+                  "constraints": [
+                    "Unknown or unindexed scope is not represented as an empty result."
+                  ]
+                },
+                {
+                  "id": "licenseEligibleAssetCandidates",
+                  "when": "searchIntent=LICENSE_ELIGIBLE_ASSET_CANDIDATES",
+                  "fields": {
+                    "sourceArtifactVersionRef": "Exact immutable asset version searched and returned.",
+                    "rightsLicenseDispositionRef": "Current authoritative per-version rights/license evidence for the declared scope.",
+                    "declaredIntendedUseScopeRef": "Exact caller-declared scope used for this eligibility filter."
+                  },
+                  "constraints": [
+                    "Only affirmative, current, scope-compatible rights/license evidence makes a candidate eligible.",
+                    "Unknown, missing, denied, expired, revoked, restricted, incompatible, or unresolved evidence is not eligible.",
+                    "Search eligibility is not legal clearance, and candidate ranking or complete catalog coverage is not guaranteed."
+                  ]
+                }
+              ]
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-ASSET-016",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-ASSET-016",
+          "caseId": "MEDIA-P0-COHORT01-AUD-ASSET-016-POS",
+          "capabilityId": "media.artifact.derive",
+          "sourceInputArtifactTypes": [
+            "exact-source-versioned-media-or-project-reference",
+            "transformation-profile-identity-version-and-digest",
+            "requested-output-artifact-type-media-type-and-byte-budget",
+            "purpose-and-rights-decision-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "exact-source-versioned-media-or-project-reference",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "source-media",
+                "project-reference"
+              ],
+              "optionalSemanticComponents": [
+                {
+                  "id": "clipSourceTimeRange",
+                  "when": "Requested output is a source-derived clip.",
+                  "fields": {
+                    "sourceTimeRange": "Required explicit interval in the exact source version timebase."
+                  },
+                  "constraints": [
+                    "Never infer or rebase the interval without an explicit mapping contract."
+                  ]
+                }
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "transformation-profile-identity-version-and-digest",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input3",
+              "sourceType": "requested-output-artifact-type-media-type-and-byte-budget",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input4",
+              "sourceType": "purpose-and-rights-decision-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "governed-artifact-reference-or-lifecycle-observation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "governed-artifact-reference-or-lifecycle-observation",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-ASSET-016",
+          "caseId": "MEDIA-P0-COHORT01-AUD-ASSET-016-NEG",
+          "capabilityId": "media.artifact.derive",
+          "sourceInputArtifactTypes": [
+            "exact-source-versioned-media-or-project-reference",
+            "transformation-profile-identity-version-and-digest",
+            "requested-output-artifact-type-media-type-and-byte-budget",
+            "purpose-and-rights-decision-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "exact-source-versioned-media-or-project-reference",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "source-media",
+                "project-reference"
+              ],
+              "optionalSemanticComponents": [
+                {
+                  "id": "clipSourceTimeRange",
+                  "when": "Requested output is a source-derived clip.",
+                  "fields": {
+                    "sourceTimeRange": "Required explicit interval in the exact source version timebase."
+                  },
+                  "constraints": [
+                    "Never infer or rebase the interval without an explicit mapping contract."
+                  ]
+                }
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "transformation-profile-identity-version-and-digest",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input3",
+              "sourceType": "requested-output-artifact-type-media-type-and-byte-budget",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input4",
+              "sourceType": "purpose-and-rights-decision-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "governed-artifact-reference-or-lifecycle-observation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "governed-artifact-reference-or-lifecycle-observation",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-CAP-011",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-CAP-013",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-CAP-016",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-CAP-018",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-CAP-019",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-CAP-027",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-CAP-028",
+      "reviewTreatment": "ROOT_BOUNDED_OWNER_CHOICE_RETAINED",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "optionsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json#/rootChoiceDecisions/@auditId=AUD-CAP-028"
+    },
+    {
+      "auditId": "AUD-CLONE-003",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "reviewTreatment": "ROOT_BOUNDED_OWNER_CHOICE_RETAINED",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "optionsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json#/rootChoiceDecisions/@auditId=AUD-CLONE-004"
+    },
+    {
+      "auditId": "AUD-CLONE-005",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-CLONE-005",
+          "caseId": "MEDIA-P0-COHORT01-AUD-CLONE-005-POS",
+          "capabilityId": "media.rights.consent.reference",
+          "sourceInputArtifactTypes": [
+            "identity-and-authority-context",
+            "rights-evidence-reference"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "identity-and-authority-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "rights-evidence-reference",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "policy-decision-reference-or-rights-observation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "policy-decision-reference-or-rights-observation",
+              "requiredOnSuccess": true,
+              "resultVariants": [
+                {
+                  "resultKind": "POLICY_DECISION_REFERENCE",
+                  "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                  "selector": "resultKind=POLICY_DECISION_REFERENCE"
+                },
+                {
+                  "resultKind": "RIGHTS_OBSERVATION",
+                  "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                  "selector": "resultKind=RIGHTS_OBSERVATION"
+                }
+              ]
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-CLONE-005",
+          "caseId": "MEDIA-P0-COHORT01-AUD-CLONE-005-NEG",
+          "capabilityId": "media.rights.consent.reference",
+          "sourceInputArtifactTypes": [
+            "identity-and-authority-context",
+            "rights-evidence-reference"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "identity-and-authority-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "rights-evidence-reference",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "policy-decision-reference-or-rights-observation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "policy-decision-reference-or-rights-observation",
+              "requiredOnSuccess": true,
+              "resultVariants": [
+                {
+                  "resultKind": "POLICY_DECISION_REFERENCE",
+                  "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                  "selector": "resultKind=POLICY_DECISION_REFERENCE"
+                },
+                {
+                  "resultKind": "RIGHTS_OBSERVATION",
+                  "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                  "selector": "resultKind=RIGHTS_OBSERVATION"
+                }
+              ]
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "reviewTreatment": "ROOT_BOUNDED_OWNER_CHOICE_RETAINED",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "optionsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json#/rootChoiceDecisions/@auditId=AUD-CLONE-006"
+    },
+    {
+      "auditId": "AUD-CLONE-007",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-CLONE-007",
+          "caseId": "MEDIA-P0-COHORT01-AUD-CLONE-007-POS",
+          "capabilityId": "media.quality.audio.audio.assess-authorized-speaker-similarity",
+          "sourceInputArtifactTypes": [
+            "audio-candidate",
+            "applicable-reference-and-measurement-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "audio-candidate",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "applicable-reference-and-measurement-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "audio-quality-observations-by-applicable-dimension"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "audio-quality-observations-by-applicable-dimension",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-CLONE-007",
+          "caseId": "MEDIA-P0-COHORT01-AUD-CLONE-007-NEG",
+          "capabilityId": "media.quality.audio.audio.assess-authorized-speaker-similarity",
+          "sourceInputArtifactTypes": [
+            "audio-candidate",
+            "applicable-reference-and-measurement-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "audio-candidate",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "applicable-reference-and-measurement-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "audio-quality-observations-by-applicable-dimension"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "audio-quality-observations-by-applicable-dimension",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "reviewTreatment": "ROOT_BOUNDED_OWNER_CHOICE_RETAINED",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "optionsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json#/rootChoiceDecisions/@auditId=AUD-CLONE-017"
+    },
+    {
+      "auditId": "AUD-COLLAB-001",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLLAB-002",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-COLLAB-002",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-002-POS",
+          "capabilityId": "media.project.review",
+          "sourceInputArtifactTypes": [
+            "user-intent",
+            "versioned-project"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "user-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "versioned-project",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-project-state"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-project-state",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLLAB-002",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-002-NEG",
+          "capabilityId": "media.project.review",
+          "sourceInputArtifactTypes": [
+            "user-intent",
+            "versioned-project"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "user-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "versioned-project",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-project-state"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-project-state",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-COLLAB-003",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 4,
+      "requirementCaseCount": 4,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-COLLAB-003",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-POS",
+          "capabilityId": "media.quality.compare",
+          "sourceInputArtifactTypes": [
+            "candidate-artifacts-or-execution-observation",
+            "quality-question-and-bounds"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "candidate-artifacts-or-execution-observation",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "candidate-artifacts",
+                "execution-observation"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "quality-question-and-bounds",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "quality-observation-or-bounded-repair-plan"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "quality-observation-or-bounded-repair-plan",
+              "requiredOnSuccess": true,
+              "resultVariants": [
+                {
+                  "resultKind": "QUALITY_OBSERVATION",
+                  "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                  "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                  "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+                },
+                {
+                  "resultKind": "BOUNDED_REPAIR_PLAN",
+                  "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                  "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+                }
+              ]
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLLAB-003",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-NEG",
+          "capabilityId": "media.quality.compare",
+          "sourceInputArtifactTypes": [
+            "candidate-artifacts-or-execution-observation",
+            "quality-question-and-bounds"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "candidate-artifacts-or-execution-observation",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "candidate-artifacts",
+                "execution-observation"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "quality-question-and-bounds",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "quality-observation-or-bounded-repair-plan"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "quality-observation-or-bounded-repair-plan",
+              "requiredOnSuccess": true,
+              "resultVariants": [
+                {
+                  "resultKind": "QUALITY_OBSERVATION",
+                  "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                  "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                  "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+                },
+                {
+                  "resultKind": "BOUNDED_REPAIR_PLAN",
+                  "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                  "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+                }
+              ]
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLLAB-003",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-POS",
+          "capabilityId": "media.project.review",
+          "sourceInputArtifactTypes": [
+            "user-intent",
+            "versioned-project"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "user-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "versioned-project",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-project-state"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-project-state",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLLAB-003",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-NEG",
+          "capabilityId": "media.project.review",
+          "sourceInputArtifactTypes": [
+            "user-intent",
+            "versioned-project"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "user-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "versioned-project",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-project-state"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-project-state",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": {
+        "auditId": "AUD-COLLAB-003",
+        "rule": "Comparison and review cases are separately target-bound",
+        "pass": true
+      },
+      "priorR3FindingId": "R3-SOURCE-02"
+    },
+    {
+      "auditId": "AUD-COLLAB-005",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLLAB-006",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLLAB-007",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-COLLAB-007",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-007-POS",
+          "capabilityId": "media.artifact.share",
+          "sourceInputArtifactTypes": [
+            "governed-artifact-reference",
+            "recipient-and-sharing-scope",
+            "rights-and-retention-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "artifact",
+              "sourceType": "governed-artifact-reference",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "recipientScope",
+              "sourceType": "recipient-and-sharing-scope",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "policyContext",
+              "sourceType": "rights-and-retention-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "artifact-sharing-grant-observation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "artifact-sharing-grant-observation",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLLAB-007",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-007-NEG",
+          "capabilityId": "media.artifact.share",
+          "sourceInputArtifactTypes": [
+            "governed-artifact-reference",
+            "recipient-and-sharing-scope",
+            "rights-and-retention-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "artifact",
+              "sourceType": "governed-artifact-reference",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "recipientScope",
+              "sourceType": "recipient-and-sharing-scope",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "policyContext",
+              "sourceType": "rights-and-retention-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "artifact-sharing-grant-observation"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "artifact-sharing-grant-observation",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-COLLAB-008",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-COLLAB-008",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-008-POS",
+          "capabilityId": "media.project.review",
+          "sourceInputArtifactTypes": [
+            "user-intent",
+            "versioned-project"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "user-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "versioned-project",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-project-state"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-project-state",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLLAB-008",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-008-NEG",
+          "capabilityId": "media.project.review",
+          "sourceInputArtifactTypes": [
+            "user-intent",
+            "versioned-project"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "user-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "versioned-project",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-project-state"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-project-state",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-COLLAB-010",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLLAB-011",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-COLLAB-011",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-011-POS",
+          "capabilityId": "media.project.organize",
+          "sourceInputArtifactTypes": [
+            "user-intent",
+            "versioned-project"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "user-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true,
+              "optionalSemanticComponents": [
+                {
+                  "id": "organizationRequest",
+                  "fields": {
+                    "hierarchyOperations": "User-declared project/library parent, collection, and ordering changes.",
+                    "smartBinMode": "LIVE_QUERY or SNAPSHOT, explicitly selected per smart bin.",
+                    "membershipEvidenceDisposition": "OBSERVED, INFERRED, or UNKNOWN for each membership fact."
+                  },
+                  "constraints": [
+                    "Do not infer a taxonomy or convert inferred/unknown membership into observed membership."
+                  ]
+                }
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "versioned-project",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-project-state"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-project-state",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLLAB-011",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-011-NEG",
+          "capabilityId": "media.project.organize",
+          "sourceInputArtifactTypes": [
+            "user-intent",
+            "versioned-project"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "user-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true,
+              "optionalSemanticComponents": [
+                {
+                  "id": "organizationRequest",
+                  "fields": {
+                    "hierarchyOperations": "User-declared project/library parent, collection, and ordering changes.",
+                    "smartBinMode": "LIVE_QUERY or SNAPSHOT, explicitly selected per smart bin.",
+                    "membershipEvidenceDisposition": "OBSERVED, INFERRED, or UNKNOWN for each membership fact."
+                  },
+                  "constraints": [
+                    "Do not infer a taxonomy or convert inferred/unknown membership into observed membership."
+                  ]
+                }
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "versioned-project",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-project-state"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-project-state",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-COLLAB-012",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLLAB-013",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-001",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 0,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [],
+      "specificAssessment": {
+        "auditId": "AUD-COLOR-001",
+        "rule": "Saturation remains UNKNOWN/UNAVAILABLE pending owner finite typed range; no substitution",
+        "pass": true
+      },
+      "priorR3FindingId": "R3-SOURCE-01"
+    },
+    {
+      "auditId": "AUD-COLOR-002",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-COLOR-002",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-002-POS",
+          "capabilityId": "media.color.curves",
+          "sourceInputArtifactTypes": [
+            "source-media-artifact",
+            "declared-source-and-target-color-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "source-media-artifact",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "declared-source-and-target-color-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "color-managed-media-derivative-and-transform-provenance"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "color-managed-media-derivative-and-transform-provenance",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLOR-002",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-002-NEG",
+          "capabilityId": "media.color.curves",
+          "sourceInputArtifactTypes": [
+            "source-media-artifact",
+            "declared-source-and-target-color-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "source-media-artifact",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "declared-source-and-target-color-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "color-managed-media-derivative-and-transform-provenance"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "color-managed-media-derivative-and-transform-provenance",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-COLOR-003",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-004",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-005",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-006",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "reviewTreatment": "ROOT_BOUNDED_OWNER_CHOICE_RETAINED",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "optionsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json#/rootChoiceDecisions/@auditId=AUD-COLOR-007"
+    },
+    {
+      "auditId": "AUD-COLOR-008",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-009",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-010",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 4,
+      "requirementCaseCount": 4,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-COLOR-010",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-POS",
+          "capabilityId": "media.color.skin-tone-preserve",
+          "sourceInputArtifactTypes": [
+            "source-media-artifact",
+            "declared-source-and-target-color-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "source-media-artifact",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "declared-source-and-target-color-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "color-managed-media-derivative-and-transform-provenance"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "color-managed-media-derivative-and-transform-provenance",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLOR-010",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-NEG",
+          "capabilityId": "media.color.skin-tone-preserve",
+          "sourceInputArtifactTypes": [
+            "source-media-artifact",
+            "declared-source-and-target-color-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "source-media-artifact",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "declared-source-and-target-color-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "color-managed-media-derivative-and-transform-provenance"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "color-managed-media-derivative-and-transform-provenance",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLOR-010",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-POS",
+          "capabilityId": "media.compose.track.video-audio-caption-overlay",
+          "sourceInputArtifactTypes": [
+            "versioned-project-and-selected-artifacts",
+            "composition-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "versioned-project-and-selected-artifacts",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "composition-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-composition-and-render-manifest"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-COLOR-010",
+          "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-NEG",
+          "capabilityId": "media.compose.track.video-audio-caption-overlay",
+          "sourceInputArtifactTypes": [
+            "versioned-project-and-selected-artifacts",
+            "composition-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "versioned-project-and-selected-artifacts",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "composition-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-composition-and-render-manifest"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": {
+        "auditId": "AUD-COLOR-010",
+        "rule": "Color treatment and overlay composition cases do not share cross-operation results",
+        "pass": true
+      },
+      "priorR3FindingId": "R3-SOURCE-03"
+    },
+    {
+      "auditId": "AUD-COLOR-011",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-012",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-013",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-014",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-015",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-016",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-COLOR-017",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-001",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-DELIV-001",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-001-POS",
+          "capabilityId": "media.compose.render-manifest",
+          "sourceInputArtifactTypes": [
+            "versioned-project-and-selected-artifacts",
+            "composition-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "versioned-project-and-selected-artifacts",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "composition-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-composition-and-render-manifest"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-001",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-001-NEG",
+          "capabilityId": "media.compose.render-manifest",
+          "sourceInputArtifactTypes": [
+            "versioned-project-and-selected-artifacts",
+            "composition-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "versioned-project-and-selected-artifacts",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "composition-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-composition-and-render-manifest"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-DELIV-002",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 2,
+      "requirementCaseCount": 2,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-DELIV-002",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-002-POS",
+          "capabilityId": "media.compose.render-manifest",
+          "sourceInputArtifactTypes": [
+            "versioned-project-and-selected-artifacts",
+            "composition-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "versioned-project-and-selected-artifacts",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "composition-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-composition-and-render-manifest"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-002",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-002-NEG",
+          "capabilityId": "media.compose.render-manifest",
+          "sourceInputArtifactTypes": [
+            "versioned-project-and-selected-artifacts",
+            "composition-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "versioned-project-and-selected-artifacts",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "composition-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-composition-and-render-manifest"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": null,
+      "priorR3FindingId": null
+    },
+    {
+      "auditId": "AUD-DELIV-003",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-004",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-005",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-006",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "reviewTreatment": "ROOT_BOUNDED_OWNER_CHOICE_RETAINED",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "optionsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json#/rootChoiceDecisions/@auditId=AUD-DELIV-007"
+    },
+    {
+      "auditId": "AUD-DELIV-009",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-010",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-011",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-012",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-013",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 6,
+      "requirementCaseCount": 6,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-DELIV-013",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-POS",
+          "capabilityId": "media.speech.transcription.subtitle.generate",
+          "sourceInputArtifactTypes": [
+            "exact-transcript-or-recognition-result-version",
+            "source-audio-or-video-version",
+            "requested-output-language-and-profile"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "exact-transcript-or-recognition-result-version",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "exact-transcript",
+                "recognition-result-version"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "source-audio-or-video-version",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "source-audio",
+                "video-version"
+              ]
+            },
+            {
+              "slotId": "input3",
+              "sourceType": "requested-output-language-and-profile",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "subtitle-draft-version",
+            "segment-timing-and-alignment-disposition",
+            "source-and-operation-provenance"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "subtitle-draft-version",
+              "requiredOnSuccess": true
+            },
+            {
+              "artifactType": "segment-timing-and-alignment-disposition",
+              "requiredOnSuccess": true
+            },
+            {
+              "artifactType": "source-and-operation-provenance",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-013",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-NEG",
+          "capabilityId": "media.speech.transcription.subtitle.generate",
+          "sourceInputArtifactTypes": [
+            "exact-transcript-or-recognition-result-version",
+            "source-audio-or-video-version",
+            "requested-output-language-and-profile"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "exact-transcript-or-recognition-result-version",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "exact-transcript",
+                "recognition-result-version"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "source-audio-or-video-version",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "source-audio",
+                "video-version"
+              ]
+            },
+            {
+              "slotId": "input3",
+              "sourceType": "requested-output-language-and-profile",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "subtitle-draft-version",
+            "segment-timing-and-alignment-disposition",
+            "source-and-operation-provenance"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "subtitle-draft-version",
+              "requiredOnSuccess": true
+            },
+            {
+              "artifactType": "segment-timing-and-alignment-disposition",
+              "requiredOnSuccess": true
+            },
+            {
+              "artifactType": "source-and-operation-provenance",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-013",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-POS",
+          "capabilityId": "media.compose.track.video-audio-caption-overlay",
+          "sourceInputArtifactTypes": [
+            "versioned-project-and-selected-artifacts",
+            "composition-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "versioned-project-and-selected-artifacts",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "composition-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-composition-and-render-manifest"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-013",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-NEG",
+          "capabilityId": "media.compose.track.video-audio-caption-overlay",
+          "sourceInputArtifactTypes": [
+            "versioned-project-and-selected-artifacts",
+            "composition-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "versioned-project-and-selected-artifacts",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "composition-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "versioned-composition-and-render-manifest"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-013",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-POS",
+          "capabilityId": "media.deliver.subtitles",
+          "sourceInputArtifactTypes": [
+            "accepted-media-artifact-or-composition",
+            "requested-delivery-profile-and-destination"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "accepted-media-artifact-or-composition",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "accepted-media-artifact",
+                "composition"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "requested-delivery-profile-and-destination",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "delivery-package-or-explicit-delivery-outcome"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "delivery-package-or-explicit-delivery-outcome",
+              "requiredOnSuccess": true,
+              "resultVariants": [
+                {
+                  "resultKind": "DELIVERY_PACKAGE",
+                  "originRelation": "SOURCE_DERIVED",
+                  "optionalSemanticObservations": [
+                    {
+                      "id": "subtitleTrackDelivery",
+                      "fields": {
+                        "subtitleTrackRef": "Exact authorized source subtitle track/version.",
+                        "packagingForm": "SIDECAR or EMBEDDED as explicitly requested and supported by the selected profile.",
+                        "sourceTimebaseAndMapping": "Timing source and any explicit mapping represented in the package.",
+                        "provenance": "Exact source/version and transformation profile reference."
+                      },
+                      "constraints": [
+                        "Unsupported or unresolved packaging form is explicit; no silent substitute.",
+                        "Packaging does not establish subtitle correctness or delivery success."
+                      ]
+                    }
+                  ],
+                  "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+                },
+                {
+                  "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+                  "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                  "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+                }
+              ]
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-013",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-NEG",
+          "capabilityId": "media.deliver.subtitles",
+          "sourceInputArtifactTypes": [
+            "accepted-media-artifact-or-composition",
+            "requested-delivery-profile-and-destination"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "accepted-media-artifact-or-composition",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "accepted-media-artifact",
+                "composition"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "requested-delivery-profile-and-destination",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "delivery-package-or-explicit-delivery-outcome"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "delivery-package-or-explicit-delivery-outcome",
+              "requiredOnSuccess": true,
+              "resultVariants": [
+                {
+                  "resultKind": "DELIVERY_PACKAGE",
+                  "originRelation": "SOURCE_DERIVED",
+                  "optionalSemanticObservations": [
+                    {
+                      "id": "subtitleTrackDelivery",
+                      "fields": {
+                        "subtitleTrackRef": "Exact authorized source subtitle track/version.",
+                        "packagingForm": "SIDECAR or EMBEDDED as explicitly requested and supported by the selected profile.",
+                        "sourceTimebaseAndMapping": "Timing source and any explicit mapping represented in the package.",
+                        "provenance": "Exact source/version and transformation profile reference."
+                      },
+                      "constraints": [
+                        "Unsupported or unresolved packaging form is explicit; no silent substitute.",
+                        "Packaging does not establish subtitle correctness or delivery success."
+                      ]
+                    }
+                  ],
+                  "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+                },
+                {
+                  "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+                  "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                  "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+                }
+              ]
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": {
+        "auditId": "AUD-DELIV-013",
+        "rule": "Subtitle generation, overlay composition, and delivery are separately target-bound",
+        "pass": true
+      },
+      "priorR3FindingId": "R3-SOURCE-04"
+    },
+    {
+      "auditId": "AUD-DELIV-014",
+      "reviewTreatment": "REUSE_FROZEN_R2_PEER_PASS",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "No R5 content mutation for this row; frozen source peer PASS reused."
+    },
+    {
+      "auditId": "AUD-DELIV-015",
+      "reviewTreatment": "R5_ACTUAL_TYPED_SOURCE_AND_REQUIREMENT_CASE_REVIEWED",
+      "technicalDisposition": "PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "capabilityCaseCount": 4,
+      "requirementCaseCount": 4,
+      "typedSourceChecks": [
+        {
+          "auditId": "AUD-DELIV-015",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-POS",
+          "capabilityId": "media.sync.sample-accurate-av-map",
+          "sourceInputArtifactTypes": [
+            "timestamped-audio-video-or-caption-artifacts",
+            "alignment-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "timestamped-audio-video-or-caption-artifacts",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "timestamped-audio-video",
+                "caption-artifacts"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "alignment-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "alignment-map-and-derived-synchronized-artifact"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "alignment-map-and-derived-synchronized-artifact",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-015",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-NEG",
+          "capabilityId": "media.sync.sample-accurate-av-map",
+          "sourceInputArtifactTypes": [
+            "timestamped-audio-video-or-caption-artifacts",
+            "alignment-intent"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "timestamped-audio-video-or-caption-artifacts",
+              "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+              "required": true,
+              "alternatives": [
+                "timestamped-audio-video",
+                "caption-artifacts"
+              ]
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "alignment-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "alignment-map-and-derived-synchronized-artifact"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "alignment-map-and-derived-synchronized-artifact",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-015",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-POS",
+          "capabilityId": "media.quality.video.video.assess-av-sync",
+          "sourceInputArtifactTypes": [
+            "video-candidate",
+            "applicable-reference-and-measurement-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "video-candidate",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "applicable-reference-and-measurement-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "video-quality-observations-by-applicable-dimension"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "video-quality-observations-by-applicable-dimension",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-015",
+          "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-NEG",
+          "capabilityId": "media.quality.video.video.assess-av-sync",
+          "sourceInputArtifactTypes": [
+            "video-candidate",
+            "applicable-reference-and-measurement-context"
+          ],
+          "candidateTypedInputSlots": [
+            {
+              "slotId": "input1",
+              "sourceType": "video-candidate",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "input2",
+              "sourceType": "applicable-reference-and-measurement-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "inputTypesMatch": true,
+          "sourceOutputArtifactTypes": [
+            "video-quality-observations-by-applicable-dimension"
+          ],
+          "candidateSuccessOutputs": [
+            {
+              "artifactType": "video-quality-observations-by-applicable-dimension",
+              "requiredOnSuccess": true
+            }
+          ],
+          "outputTypesMatch": true,
+          "sourceRefMatch": true,
+          "givenWhenThenPresent": true
+        }
+      ],
+      "specificAssessment": {
+        "auditId": "AUD-DELIV-015",
+        "rule": "Alignment map and read-only assessment remain separate; map is not measurement",
+        "pass": true
+      },
+      "priorR3FindingId": "R3-SOURCE-05"
+    }
+  ],
+  "findings": [],
+  "nonClaims": [
+    "No canonical capability or requirement file was written.",
+    "No owner choice, owner adoption, source currentness, DEV_COMPLETE, independent acceptance, native closure, Build admission, or release claim is made.",
+    "A saturation range/effective-value schema is absent; its result remains UNKNOWN/UNAVAILABLE pending owner definition."
+  ],
+  "validation": {
+    "exactCohortOrder": true,
+    "candidateAndPostimageCrossHashesMatch": true,
+    "allCapabilitySlotsCheckedAgainstLiveTypes": true,
+    "allOutputsCheckedAgainstLiveTypes": true,
+    "canonicalWrites": 0
+  }
+}

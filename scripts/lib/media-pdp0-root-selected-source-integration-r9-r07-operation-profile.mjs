@@ -1,0 +1,32 @@
+/** Immutable candidate profile for the R9-R07 exact four-target PDP-0 source application. */
+const dir='docs/implementation/observations/media-pdp0-parent-case-resolution-candidates';
+export const MEDIA_PDP0_ROOT_SELECTED_R9_R07_PROFILE=Object.freeze({
+  profileId:'media.pdp0.root-selected-source-integration.r9-r07.source-owner.v1',
+  schemaVersion:'media.pdp0.root-selected-source-integration-r9-r07.operation-profile-registration.v2',
+  candidateRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.successor-bundle.candidate.v1.json`,
+  freezeRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.freeze.v1.json`,
+  actualHReviewRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.independent-peer.actual-h-r07-full.json`,
+  ledgerRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json`,
+  operationSchemaRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r02.allowed-operations.schema.candidate.v1.json`,
+  retainedProjectionRef:`${dir}/media-pdp0-231-cases-v7-consolidated-projection.v1.json`,
+  sourceOwnerDecisionRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.source-owner-decision.v1.json`,
+  sourceOwnerDecisionSchemaRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.source-owner-decision.schema.v4.json`,
+  rootAdoptionDecisionRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.root-adoption-decision.v1.json`,
+  rootAdoptionDecisionSchemaRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.root-adoption-decision.schema.v4.json`,
+  registrationRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.operation-profile-registration.v1.json`,
+  registrationSchemaRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.operation-profile-registration.schema.v4.json`,
+  applyAuthorizationRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.apply-authorization.v1.json`,
+  applyAuthorizationSchemaRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.apply-authorization.schema.v4.json`,
+  diagnosticCorrectionRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07-currentness-diagnostic-correction.v1.json`,
+  recordTemplatesRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.authority-record-templates.v1.json`,
+  guardedPacketRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.guarded-application-packet.v2.json`,
+  planRef:`${dir}/media-pdp0-root-selected-source-integration-r9-r07.root-application-plan.v6.json`,
+  targets:Object.freeze([
+    '.product-experience/pdp-0-product-truth/capabilities.yaml',
+    '.product-experience/pdp-0-product-truth/requirements.yaml',
+    '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
+    'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json',
+  ]),
+  writeTargetCount:4,sourceGuardCount:7,readOnlyGuardCount:3,
+  authorityDecisionRefs:Object.freeze(['sourceOwnerDecisionRef','rootAdoptionDecisionRef','registrationRef','applyAuthorizationRef']),
+});

@@ -61,11 +61,13 @@ const corrections = [
 test('semantic corrections preserve historical owner adjudications and all current definition identities', () => {
   const historicalIds = capabilityLeafReview.ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef).sort();
   const extensionIds = campaignExtensions.currentDefinitionPopulation.records.map(({ capabilityId }) => capabilityId).sort();
-  const proposalIds = [
-    'media.recipe.specification.compile', 'media.project.scene.patch-merge',
+  const futureVersionProposalIds = [
+    'media.project.scene.patch-merge',
     'media.quality.audio.content-similarity.assess', 'media.generate.video.preset.manage',
     'media.generate.video.shot-condition', 'media.job.schedule.manage',
+    'media.master.audio.creative-effect.apply',
   ].sort();
+  const currentVersionExtensionIds = ['media.recipe.specification.compile'];
   assert.equal(capabilities.length, 469, 'the 462 historical leaves, six proposals, and one delegated definition remain present');
   assert.equal(campaignExtensions.currentDefinitionPopulation.historicalCapabilityLeavesPreserved, 462);
   assert.equal(campaignExtensions.currentDefinitionPopulation.currentCapabilityDefinitions, 469);
@@ -76,12 +78,16 @@ test('semantic corrections preserve historical owner adjudications and all curre
   assert.equal(new Set(historicalIds).size, 462);
   assert.equal(new Set(capabilities.map(item => item.id)).size, 469, 'all current capability IDs remain unique');
   assert.equal(extensionIds.length, 7);
-  assert.deepEqual(extensionIds.filter(id => proposalIds.includes(id)), proposalIds);
-  assert.deepEqual(extensionIds.filter(id => !proposalIds.includes(id)), ['media.master.audio.creative-effect.apply']);
+  assert.deepEqual(extensionIds.filter(id => futureVersionProposalIds.includes(id)).sort(), futureVersionProposalIds);
+  assert.deepEqual(extensionIds.filter(id => currentVersionExtensionIds.includes(id)), currentVersionExtensionIds);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.versionDisposition.currentVersionCapabilityLeaves, 463);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.versionDisposition.futureVersionProposalCapabilityLeaves, 6);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.versionDisposition.totalSourceCapabilityDefinitions, 469);
   assert.ok(extensionIds.every(id => !historicalIds.includes(id)), 'all seven extensions remain outside historical adjudications');
   assert.equal(campaignExtensions.currentDefinitionPopulation.ownerApproval, 'NOT_CLAIMED');
   assert.equal(campaignExtensions.currentDefinitionPopulation.independentAcceptance, 'NOT_CLAIMED');
-  assert.match(campaignExtensions.currentDefinitionPopulation.meaning, /six coordinator-authored capability proposals[\s\S]*one creative-effect capability[\s\S]*independent acceptance is not claimed/iu);
+  assert.match(campaignExtensions.currentDefinitionPopulation.meaning,
+    /462 historical owner-adjudicated capability leaves[\s\S]*media\.recipe\.specification\.compile[\s\S]*six existing extension identities remain future-version proposals[\s\S]*not implementation, runtime, independent acceptance, or phase status/iu);
   const allCaseIds = requirements.flatMap(requirement => (requirement.acceptanceCases ?? []).map(item => item.id));
   assert.equal(new Set(allCaseIds).size, allCaseIds.length, 'acceptance case IDs remain unique');
 

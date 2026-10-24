@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.cohort02.source-amendment-candidate.v6",
+  "artifactKind": "NON_CANONICAL_EXACT_SOURCE_AMENDMENT_CANDIDATE",
+  "artifactId": "media-pdp0-cohort02-source-amendment-candidate-r6",
+  "predecessorCandidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.r5.json",
+  "predecessorCandidateSha256": "ca45c5db1066d95224a3db751773d0515e714d83056bed075a6c08812de92bd6",
+  "predecessorWasApplied": false,
+  "proposalRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.json",
+  "proposalSha256": "a4c7e7d2d23a4c0c23684a65d557ec944164ed1fb0abee0b664adededccfa963",
+  "sourceBindings": {
+    "r5ProposalSha256": "8f5df2728b5d96fcdcaae2ee7f645ac32d9a991f0083e09aece5e958c2a06723",
+    "r5CandidateSha256": "ca45c5db1066d95224a3db751773d0515e714d83056bed075a6c08812de92bd6",
+    "r5PostimagesSha256": "fbbd1e35162c8298e4d54ef6a6e16edc38a60f224b9ed1d68d9eca25226a3bbe",
+    "r5PeerSha256": "9d5aff6e2c49f047103ea26251342bd5b896857540472e997b74ff925d266ac1",
+    "capabilitiesPreimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsPreimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "authorityMapSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+    "phaseStatusSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "capabilitiesPostimageSha256": "7be8b38c925cb25a1287e0eccd378fb3ee98d0b04de610feaf2e0d7e80dffc57",
+    "requirementsPostimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+  },
+  "candidatePostimageSha256": "43080bea0fe8cf45663e4f85e9676596f934ca182ce7c9440cc7647b23ddc062",
+  "exactTargetPostimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "postimageSha256": "7be8b38c925cb25a1287e0eccd378fb3ee98d0b04de610feaf2e0d7e80dffc57",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-capabilities.postimage.r6.yaml",
+      "semanticMutationCount": 60,
+      "acceptanceCaseRecordCount": 120
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "postimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-requirements.postimage.r6.yaml",
+      "semanticMutationCount": 0
+    }
+  ],
+  "exactSemanticPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.r6.json",
+  "exactSemanticPostimageSha256": "57e0f04d7a2ac281c5baeb6c08826ee878db2199e91de2df5e0c77f24bb92db2",
+  "counts": {
+    "cohortRows": 77,
+    "peerSupportedPreserved": 13,
+    "peerRequestChangesAddressed": 64,
+    "r5PeerFindings": 25,
+    "r5PeerRequestChangesRows": 21,
+    "correctedCaseIndexes": 8,
+    "correctedDirectRequirementBindings": 7,
+    "importCriterionMismatchResolved": 1,
+    "ownerRoleFieldsResolved": 9,
+    "featureRows": 44,
+    "distinctRebindRows": 9,
+    "rebindTargetOperations": 16,
+    "featureCasePairs": 60,
+    "capabilityCaseRecordAdditions": 120,
+    "rootChoicesPending": 11,
+    "historicalLeafAdjudicationsPreserved": 462
+  },
+  "sourceOwnerRole": {
+    "role": "media-product",
+    "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+    "ownerAdoption": "UNKNOWN"
+  },
+  "rootOwnerDecisionRequirement": {
+    "required": true,
+    "selectedOptions": 0,
+    "binds": [
+      "candidateSha256",
+      "candidatePostimageSha256",
+      "sourceBindings",
+      "exactTargetPostimages",
+      "allRootChoiceRecords"
+    ],
+    "role": "media-product"
+  },
+  "distinctPeerReviewRequirement": {
+    "required": true,
+    "verdictRequiredPerChangedAuditRow": "PASS",
+    "binds": [
+      "candidateSha256",
+      "candidatePostimageSha256",
+      "sourceBindings",
+      "exactTargetPostimages",
+      "allRootChoiceRecords"
+    ],
+    "role": "DISTINCT_SOURCE_CONTENT_PEER"
+  },
+  "r5PeerReview": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r5.independent-typed-source-peer.v1.json",
+    "sha256": "9d5aff6e2c49f047103ea26251342bd5b896857540472e997b74ff925d266ac1",
+    "verdictDisposition": "REQUEST_CHANGES_RETAINED; NOT_R6_APPROVAL"
+  },
+  "canonicalApply": "NOT_PERFORMED",
+  "effects": {
+    "canonicalSourceWrite": "NOT_PERFORMED",
+    "historical462": "PRESERVED_SEPARATELY",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED"
+  }
+}

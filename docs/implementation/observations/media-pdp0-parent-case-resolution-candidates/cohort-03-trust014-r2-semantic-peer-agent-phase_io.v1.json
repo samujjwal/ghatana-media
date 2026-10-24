@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.trust014-semantic-peer-review.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-C03-AUD-TRUST-014-R2-SEMANTIC-PEER-AGENT-PHASE-IO-V1",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "DISTINCT_TECHNICAL_SEMANTIC_PEER_REVIEW",
+  "reviewer": {
+    "identity": "agent:/root/phase_io",
+    "role": "independent technical peer for the bounded R2 semantic proposal",
+    "humanCredentialClaimed": false,
+    "sourceOwnerAuthorityClaimed": false
+  },
+  "target": {
+    "campaign": "Media P0-07 source amendment cohort 03 R2",
+    "proposalRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r2.json",
+    "proposalSha256": "c299e7057fb6c1de07feead506c90d0f127b079599526d2846c18d4342bfd2f5",
+    "rowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r2.json#/rows/@auditId=AUD-TRUST-014",
+    "auditId": "AUD-TRUST-014",
+    "criterionId": "P0-07",
+    "rowOrdinal": 49,
+    "priorPeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-049"
+  },
+  "sourceBaseline": {
+    "algorithm": "SHA-256 exact raw bytes",
+    "pins": {
+      "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+      "docs/implementation/pdp-0-phase-dev-status.json": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "docs/implementation/observations/media-pdp0-p0-07-parent-case-residual-classification-2026-10-23.json": "4e6973ce4abfc1e551151ec36335e0920632a12dfca92276b5b900284006f91c",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.json": "21cd6213b54f3999afd5b4588a4402fa5d94436531df9607d1046b4b0e025c50",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.independent-peer.json": "dc768d699907202d087da9270ad03721de8c0cb64408118c8cf60f7b16c3807f",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-independent-peer.v1.json": "7c3b92597c72070c73da5b56e919af74abf69d83885667156b30fa7a1f155503"
+    },
+    "pinsMatchProposalRow": true
+  },
+  "reviewMethod": {
+    "checks": [
+      "Compared proposal row to the exact AUD-TRUST-014 source audit item and P0-07 parent-case R2 finding.",
+      "Inspected current video-to-video capability input/output and guards, requirements AC-07 and rights AC-03/AC-04, and PDP-0 authority map.",
+      "Checked whether the proposed profile and transformation bounds have an exact current typed source selector and whether the positive branch is decidable from those sources."
+    ],
+    "reused": [
+      "The existing R2 independent peer finding MEDIA-PDP0-P0-07-C03-R2-PEER-049 remains historical input and was not rewritten.",
+      "Existing exact source fingerprints and requirements are reused where unchanged."
+    ]
+  },
+  "findings": [
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-TRUST014-R2-SEMANTIC-01",
+      "disposition": "REQUEST_CHANGES",
+      "ownerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_DECISION",
+      "location": "rows[@auditId=AUD-TRUST-014].proposedPdp0Meaning.input; authorityDisposition.candidateFiniteProfile",
+      "finding": "The R2 proposal improves the prior request-preserving meaning by limiting dimensions and explicitly rejecting unlisted transformations. The required profile still has no exact typed source selector or profile-registry contract. The current media.generate.video.video-to-video capability inputs are text-or-video-intent and source-video-artifact; the proposal's versioned profile, subject/reference, purpose/scope, and exact consent decision are not all bound as typed inputs or exact source refs. Consequently candidateAvailableOnlyWhen cannot yet be checked against current owner data.",
+      "sourceEvidenceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video/inputArtifactTypes",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video/ownerDefinition",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04"
+      ],
+      "requiredCorrection": "Before treating AUD-TRUST-014 as resolved, bind a versioned profile to an exact owner-authored source type/path and capability selector, or explicitly keep this branch unavailable/UNKNOWN until that source exists. Preserve the no-candidate behavior when the profile or consent scope is absent."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-TRUST014-R2-SEMANTIC-02",
+      "disposition": "SOURCE_OWNER_CONFIRMATION_REQUIRED",
+      "ownerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_DECISION",
+      "location": "trust014BoundedProfileProposal.profile.allowedDimensions.appearance.recast.strength",
+      "finding": "The numeric strength interval 0..1 with step 0.01 is newly proposed and no current Media P0 source defines that scale or step. It may be a valid owner choice, but this peer review cannot treat it as inherited meaning or a validated profile constraint.",
+      "sourceEvidenceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-014"
+      ],
+      "requiredCorrection": "Have the Media source owner explicitly select and define the numeric scale in the versioned profile source, or make the profile itself carry the exact range/step without asserting a global scale here. Keep out-of-range/unknown values blocked."
+    }
+  ],
+  "positiveObservations": [
+    "The R2 failure branch now explicitly blocks or returns UNKNOWN for missing, ambiguous, unknown, denied, restricted, revoked, or expired consent/profile authority.",
+    "It rejects unlisted dimensions and values, excludes identity substitution and other high-risk dimensions, preserves source and rights lineage, and separates synthetic disclosure from authorization.",
+    "The proposal does not claim an owner choice, implementation, runtime, legal/security signoff, qualification, acceptance, or closure."
+  ],
+  "nonClaims": {
+    "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_DECISION",
+    "sourceApply": "NOT_PERFORMED",
+    "implementation": "NOT_CLAIMED",
+    "runtimeSupport": "NOT_CLAIMED",
+    "legalOrSecuritySignoff": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "phaseStatus": "UNCHANGED"
+  }
+}

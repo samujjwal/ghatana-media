@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.aud-spec-002-source-amendment-candidate.v6",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactKind",
+    "auditId",
+    "predecessorCandidateRef",
+    "predecessorCandidateSha256",
+    "rootDecisionRef",
+    "sourceBindings",
+    "population",
+    "exactFileTargets",
+    "postimageSha256",
+    "candidatePostimageSha256",
+    "blockers",
+    "canonicalApply",
+    "effects"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.aud-spec-002-source-amendment-candidate.v6"
+    },
+    "artifactKind": {
+      "const": "NON_CANONICAL_EXACT_SOURCE_AMENDMENT_CANDIDATE"
+    },
+    "auditId": {
+      "const": "AUD-SPEC-002"
+    },
+    "predecessorCandidateRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v5.json"
+    },
+    "predecessorCandidateSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "rootDecisionRef": {
+      "const": "ghatana-lifecycle:docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-version-population-root-decision.json"
+    },
+    "sourceBindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rootDecisionSha256",
+        "capabilitiesSha256",
+        "requirementsSha256",
+        "crosswalkSha256",
+        "capabilityLeafReviewSha256",
+        "campaignExtensionsSha256",
+        "applicationsChannelsSha256",
+        "auditSha256",
+        "decisionLogSha256"
+      ],
+      "properties": {
+        "rootDecisionSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilitiesSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "requirementsSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "crosswalkSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilityLeafReviewSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "campaignExtensionsSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "applicationsChannelsSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "auditSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "decisionLogSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "population": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "historicalBase",
+        "currentExtension",
+        "futureProposals",
+        "currentVersionTotal",
+        "allDefinitions",
+        "surfaceIdentityCount",
+        "phaseCellCount"
+      ],
+      "properties": {
+        "historicalBase": {
+          "const": 462
+        },
+        "currentExtension": {
+          "const": 1
+        },
+        "futureProposals": {
+          "const": 6
+        },
+        "currentVersionTotal": {
+          "const": 463
+        },
+        "allDefinitions": {
+          "const": 469
+        },
+        "surfaceIdentityCount": {
+          "const": 54
+        },
+        "phaseCellCount": {
+          "const": 216
+        }
+      }
+    },
+    "exactFileTargets": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/requirements.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/decision-log.md"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "postimageSha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilitiesYaml",
+        "requirementsYaml",
+        "crosswalkJson",
+        "capabilityLeafReviewYaml",
+        "campaignExtensionsYaml",
+        "decisionLogMarkdown"
+      ],
+      "properties": {
+        "capabilitiesYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "requirementsYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "crosswalkJson": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilityLeafReviewYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "campaignExtensionsYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "decisionLogMarkdown": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "candidatePostimageSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "blockers": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string"
+      }
+    },
+    "canonicalApply": {
+      "const": "NOT_PERFORMED"
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceWrite",
+        "phaseStatus",
+        "sourceCurrentness",
+        "qualityApplicability",
+        "runtimeAdmission",
+        "independentAcceptance",
+        "nativeClosure",
+        "release"
+      ],
+      "properties": {
+        "sourceWrite": {
+          "const": "NOT_PERFORMED"
+        },
+        "phaseStatus": {
+          "const": "UNCHANGED"
+        },
+        "sourceCurrentness": {
+          "const": "NOT_CLAIMED"
+        },
+        "qualityApplicability": {
+          "const": "UNKNOWN_PENDING_REVIEW"
+        },
+        "runtimeAdmission": {
+          "const": "NOT_ADMITTED"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeClosure": {
+          "const": "NOT_CLAIMED"
+        },
+        "release": {
+          "const": "NOT_AUTHORIZED"
+        }
+      }
+    }
+  }
+}

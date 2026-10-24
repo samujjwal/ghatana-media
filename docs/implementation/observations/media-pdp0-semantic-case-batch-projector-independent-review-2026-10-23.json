@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "media.pdp0.independent-code-review.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-SEMANTIC-CASE-BATCH-PROJECTOR-INDEPENDENT-REVIEW-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_CODE_AND_SOURCE_EVIDENCE_REVIEW",
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "reviewSurface": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs and its R4 source/case inputs",
+    "canonicalApply": "NONE"
+  },
+  "inputBaseline": {
+    "projector": {
+      "path": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+      "sha256": "87c099af358a99f1cd2724777ccb2141aead4d09a4df74e6d6dbeed703cf4ecb"
+    },
+    "projectorTests": {
+      "path": "tests/media-pdp0-semantic-case-batch-projector.test.mjs",
+      "sha256": "807a00a51933a5babc9d61540df8c024d6a1c97e2afff82ed7fb4d9e5013eeba"
+    },
+    "r4Builder": {
+      "path": "scripts/build-media-pdp0-cohort02-r4-amendment.mjs",
+      "sha256": "a0ea09aefa58e957149af586ae66caae744061e837eae0fb81137b0e97414e1c"
+    },
+    "r4Tests": {
+      "path": "tests/media-pdp0-cohort02-r4-amendment.test.mjs",
+      "sha256": "0dea1d30f68fe6421c66c807d13e0c6c316cf5d1d7c9a5d796ac3e002437af8c"
+    },
+    "r4Artifact": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r4.json",
+      "sha256": "dafce83cdb8a93feed3b43db66cb1230988a9eaff051c641f84812e2d3ef5d39"
+    },
+    "sourcePeerTests": {
+      "path": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+      "sha256": "bc0f5b3d05c3ef31c0845710e73b2d6f2d1cbb2d8db8a486df4cc951ff9523f3"
+    },
+    "capabilitySource": {
+      "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+    },
+    "requirementSource": {
+      "path": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+    },
+    "leafSource": {
+      "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "sha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad"
+    }
+  },
+  "findings": [
+    {
+      "findingId": "PDP0-BATCH-PEER-AUTHORITY-001",
+      "severity": "P1",
+      "title": "Caller-authored JSON can manufacture owner approval and peer PASS",
+      "exactWhere": [
+        {
+          "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+          "lines": [
+            316,
+            352
+          ]
+        },
+        {
+          "file": "tests/media-pdp0-semantic-case-batch-projector.test.mjs",
+          "lines": [
+            60,
+            76
+          ]
+        }
+      ],
+      "evidence": "verifyReviewFiles checks caller-supplied role strings, identities, hash-shaped fields, candidate bindings, and row verdict text. It never resolves the decisionRef/source-owner identity through an authoritative owner registry/workflow or the peer ref/reviewer identity through a distinct peer-workflow record. The existing fixture supplies test/decision-log.json#section-1, an all-a digest, owner-test-1 and peer-test-2 and is accepted. The new source-peer test changes these to nonexistent refs/identities and the projector still accepts them.",
+      "repair": "Resolve the exact root decision selector and owner identity against the authoritative owner registry/workflow, and resolve the exact peer review ref/reviewer against an authoritative distinct-peer workflow record. Caller-provided PASS/APPROVE JSON and digest-shaped strings must not supply that authority.",
+      "acceptanceCriterion": "An otherwise hash-correct batch with fabricated or unresolved owner/peer refs is rejected; a batch proceeds only with exact real owner-decision and independent-peer records bound to the same candidate/postimages."
+    },
+    {
+      "findingId": "PDP0-BATCH-CANONICAL-CASE-002",
+      "severity": "P1",
+      "title": "Operation and case payloads are not checked against actual canonical capability semantics",
+      "exactWhere": [
+        {
+          "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+          "lines": [
+            165,
+            174
+          ]
+        },
+        {
+          "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+          "lines": [
+            228,
+            235
+          ]
+        },
+        {
+          "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+          "lines": [
+            177,
+            195
+          ]
+        }
+      ],
+      "evidence": "The operation validator checks IDs and an allowlisted kind. Existing capability cases are accepted when given/when/then are strings, including strings containing undefined operation names and empty typed-input/output descriptions. New capability definitions only require nonempty arrays; the projector does not resolve typed slots, success outputs, operation identity, case meaning, or requirement trace from canonical sources. The R4 artifact contains 60 named feature rows and 120 cases; all 120 contain undefined, and 60 positive cases each state current typed inputs [] and declared output []. The source-backed negative test builds operations from these actual R4 case records; buildSemanticBatchPostimages does not throw.",
+      "repair": "For each typed operation resolve the exact target record in current canonical source, validate the operation identity and required canonical fields, require nonempty actual typed inputs/success outputs where the operation contract requires them, validate case shape and source-specific non-success behavior, and reject placeholder values. Keep owner/peer authorization as a separate evidence gate.",
+      "acceptanceCriterion": "A malformed R4 case batch with unresolved operations or empty typed inputs/outputs is rejected before a postimage is produced; a named case derived from actual live fields projects deterministically."
+    },
+    {
+      "findingId": "PDP0-R4-CASE-CONSTRUCTION-003",
+      "severity": "P1",
+      "title": "R4 case construction reads canonical fields from the wrong object level",
+      "exactWhere": [
+        {
+          "file": "scripts/build-media-pdp0-cohort02-r4-amendment.mjs",
+          "lines": [
+            35,
+            48
+          ]
+        },
+        {
+          "file": "tests/media-pdp0-cohort02-r4-amendment.test.mjs",
+          "lines": [
+            49,
+            63
+          ]
+        }
+      ],
+      "evidence": "The builder receives a live capability object whose typedInputSlots and successOutputs are nested under ownerDefinition, but featurePair reads capability.typedInputSlots and capability.successOutputs. It also formats capability.capabilityId although the source field is id. These accesses render undefined and [] into all 120 cases. The existing R4 test checks that these strings include “current typed inputs” and “owner outcome” but does not require nonempty resolved input/output values.",
+      "repair": "Read exact fields from ownerDefinition and id from the canonical capability record; fail closed if source records lack required fields. Strengthen the R4 test with nonempty actual typed inputs/success outputs and no undefined placeholders.",
+      "acceptanceCriterion": "Every proposed case resolves an existing capability operation plus nonempty current typedInputSlots and successOutputs; source-specific positives and negative cases use actual values rather than empty interpolations."
+    }
+  ],
+  "testEvidence": {
+    "existingCommand": "node --test tests/media-pdp0-semantic-case-batch-projector.test.mjs tests/media-pdp0-cohort02-r4-amendment.test.mjs",
+    "existingResult": {
+      "passed": 9,
+      "failed": 0
+    },
+    "newCommand": "node --test tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+    "newResult": {
+      "passed": 1,
+      "failed": 2,
+      "expectedFailures": [
+        "R4 malformed 120-case batch did not throw",
+        "fabricated owner and peer records did not throw"
+      ]
+    },
+    "positiveEvidence": "One live named-case projection passed and preserved 462 owner-capability adjudications plus 462 current owner-trust reconstruction records as separate arrays; current extensionImplementationLaneDispositions remained separate and unchanged."
+  },
+  "changesMade": [
+    "Added tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs.",
+    "No edits to scripts/lib/media-pdp0-semantic-case-batch-projector.mjs or canonical PDP-0 sources."
+  ],
+  "nonClaims": [
+    "No owner approval, peer acceptance, application, or closure is asserted.",
+    "The positive test uses buildSemanticBatchPostimages as a deterministic content projection only; it does not authorize a source write."
+  ]
+}

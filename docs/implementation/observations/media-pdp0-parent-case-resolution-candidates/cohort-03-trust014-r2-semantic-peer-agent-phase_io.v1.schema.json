@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana.media.pdp0.trust014-semantic-peer-review.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "artifactId", "reviewStatus", "reviewKind", "reviewer", "target", "sourceBaseline", "reviewMethod", "findings", "positiveObservations", "nonClaims"],
+  "properties": {
+    "schemaVersion": {"const": "ghatana.media.pdp0.trust014-semantic-peer-review.v1"},
+    "artifactId": {"const": "MEDIA-PDP0-P0-07-C03-AUD-TRUST-014-R2-SEMANTIC-PEER-AGENT-PHASE-IO-V1"},
+    "reviewStatus": {"const": "REQUEST_CHANGES"},
+    "reviewKind": {"const": "DISTINCT_TECHNICAL_SEMANTIC_PEER_REVIEW"},
+    "reviewer": {"type": "object", "additionalProperties": false, "required": ["identity", "role", "humanCredentialClaimed", "sourceOwnerAuthorityClaimed"], "properties": {"identity": {"const": "agent:/root/phase_io"}, "role": {"type": "string", "minLength": 1}, "humanCredentialClaimed": {"const": false}, "sourceOwnerAuthorityClaimed": {"const": false}}},
+    "target": {"type": "object", "additionalProperties": false, "required": ["campaign", "proposalRef", "proposalSha256", "rowRef", "auditId", "criterionId", "rowOrdinal", "priorPeerFindingId"], "properties": {"campaign": {"type": "string"}, "proposalRef": {"type": "string"}, "proposalSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "rowRef": {"type": "string"}, "auditId": {"const": "AUD-TRUST-014"}, "criterionId": {"const": "P0-07"}, "rowOrdinal": {"const": 49}, "priorPeerFindingId": {"type": "string"}}},
+    "sourceBaseline": {"type": "object", "additionalProperties": false, "required": ["algorithm", "pins", "pinsMatchProposalRow"], "properties": {"algorithm": {"const": "SHA-256 exact raw bytes"}, "pins": {"type": "object", "minProperties": 8, "additionalProperties": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}, "pinsMatchProposalRow": {"const": true}}},
+    "reviewMethod": {"type": "object", "additionalProperties": false, "required": ["checks", "reused"], "properties": {"checks": {"type": "array", "minItems": 3, "items": {"type": "string"}}, "reused": {"type": "array", "minItems": 2, "items": {"type": "string"}}}},
+    "findings": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "object", "additionalProperties": false, "required": ["findingId", "disposition", "ownerDisposition", "location", "finding", "sourceEvidenceRefs", "requiredCorrection"], "properties": {"findingId": {"type": "string"}, "disposition": {"enum": ["REQUEST_CHANGES", "SOURCE_OWNER_CONFIRMATION_REQUIRED"]}, "ownerDisposition": {"const": "UNKNOWN_PENDING_SOURCE_OWNER_DECISION"}, "location": {"type": "string"}, "finding": {"type": "string"}, "sourceEvidenceRefs": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "requiredCorrection": {"type": "string"}}}},
+    "positiveObservations": {"type": "array", "minItems": 3, "items": {"type": "string"}},
+    "nonClaims": {"type": "object", "additionalProperties": false, "required": ["canonicalOwnerDisposition", "sourceApply", "implementation", "runtimeSupport", "legalOrSecuritySignoff", "independentAcceptance", "phaseStatus"], "properties": {"canonicalOwnerDisposition": {"const": "UNKNOWN_PENDING_SOURCE_OWNER_DECISION"}, "sourceApply": {"const": "NOT_PERFORMED"}, "implementation": {"const": "NOT_CLAIMED"}, "runtimeSupport": {"const": "NOT_CLAIMED"}, "legalOrSecuritySignoff": {"const": "NOT_CLAIMED"}, "independentAcceptance": {"const": "NOT_CLAIMED"}, "phaseStatus": {"const": "UNCHANGED"}}}
+  }
+}

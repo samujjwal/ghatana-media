@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "media.pdp0.cohort-source-content-peer.v2",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-01-R3-R5-INDEPENDENT-RECHECK-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_R5_SOURCE_CONTENT_AND_POSTIMAGE_RECHECK",
+  "campaign": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "cohortOrdinal": 1,
+    "recheckRows": 5,
+    "cohortDenominator": 77,
+    "fullCampaignSurfaceDenominator": 54,
+    "canonicalApply": "NONE"
+  },
+  "inputBaseline": {
+    "priorPeerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-content-peer.v1.json",
+    "priorPeerSha256": "857889973eed3e561934a5db4680aca231172c34b5d45ccfa5c6db0b94487974",
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json",
+    "candidateSha256": "c9bbc4ccc05d2a84403477f1b88d219c382d6352b83c229116aba56b6d714a07",
+    "recordPostimagesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-record-postimages.r5.json",
+    "recordPostimagesSha256": "9cfeb89e4f9f9ab92ca03f10ed84881ceb560d7f4f86eeee85838d3bf9191ec3",
+    "fullPostimagesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-postimages.r5.json",
+    "fullPostimagesSha256": "1b5627fe1cdc3ba9bb5e391281950857ead684fa9776f17cc3c456a4f6f28aca",
+    "liveCapabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "liveRequirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "declaredPreimages": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+    },
+    "candidateHashMatchesRecordAndPostimages": true,
+    "postimages": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r5.yaml",
+        "postimageSha256": "676a36965d7e6f3e237171db70b8f3533e7349fc0d05c610acb6b14a9adcddb1",
+        "actualPostimageSha256": "676a36965d7e6f3e237171db70b8f3533e7349fc0d05c610acb6b14a9adcddb1",
+        "matches": true,
+        "semanticMutationCount": 44
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-requirements.postimage.r5.yaml",
+        "postimageSha256": "2cf2a94dadb53187cd66a974026cd900da4f83f520ef99462ad578dc91235dc8",
+        "actualPostimageSha256": "2cf2a94dadb53187cd66a974026cd900da4f83f520ef99462ad578dc91235dc8",
+        "matches": true,
+        "semanticMutationCount": 46
+      }
+    ]
+  },
+  "reviewSummary": {
+    "correctionsRechecked": 5,
+    "ownerSchemaDeferredUnknown": 1,
+    "remainingRequestChanges": 4,
+    "candidateAndPostimageHashIntegrity": "PASS",
+    "liveSourcePreimagesMatch": "PASS",
+    "allSixRootChoicesStillUnselected": true
+  },
+  "rows": [
+    {
+      "auditId": "AUD-COLOR-001",
+      "technicalDisposition": "UNKNOWN_PENDING_OWNER_SCHEMA",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "findingResolution": "The requirement case now returns UNKNOWN/UNAVAILABLE without applying a transform until owner-defined typed intent, finite values, and effective-value semantics exist. The proposed new capability remains non-applicable: its saturation schema is OWNER_SCHEMA_NOT_SUPPLIED and successOutputs is empty.",
+      "nextOwnerInput": "Provide the finite typed saturation schema and success output, or keep the capability excluded/UNKNOWN; no transform candidate is available meanwhile.",
+      "sourceRefs": [
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json#/newCapabilityDefinitionCandidates/@auditId=AUD-COLOR-001",
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json#/requirementAcceptanceCaseAdditions/@auditId=AUD-COLOR-001"
+      ]
+    },
+    {
+      "auditId": "AUD-COLLAB-003",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "finding": "The comparison and review outcomes are now split across their correct capability/requirement targets. However, each target capability still receives positive and negative cases with identical given/when/then payloads.",
+      "repair": "Give each negative capability case an explicit missing/stale/denied/unsupported input or authority condition and a no-result/UNKNOWN/BLOCKED response, distinct from its positive case.",
+      "acceptanceCriterion": "media.quality.compare negative differs from its positive and emits no comparison when unsupported; media.project.review negative differs and records no action or state change."
+    },
+    {
+      "auditId": "AUD-COLOR-010",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "finding": "Skin-tone treatment and caption-overlay cases are now separate and correctly targeted, but each capability positive/negative pair has identical payloads.",
+      "repair": "Add a source-specific negative condition and no-result/UNKNOWN/REJECTED behavior for each target capability.",
+      "acceptanceCriterion": "The color leaf negative blocks/abstains on unsupported color context or authority; the composition leaf negative produces no composition for unsupported profile/authority."
+    },
+    {
+      "auditId": "AUD-DELIV-013",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "finding": "Subtitle generation, overlay composition, and subtitle delivery are now separate and correctly targeted, but each target capability positive/negative pair has identical payloads.",
+      "repair": "Add exact operation-specific negative conditions and non-success outcomes for generation, composition, and delivery independently.",
+      "acceptanceCriterion": "Each capability negative case blocks/returns UNKNOWN or UNAVAILABLE for its own missing source, profile, authority, or output conditions and never produces that operation result."
+    },
+    {
+      "auditId": "AUD-DELIV-015",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "finding": "Alignment map and A/V assessment are now separate and correctly targeted, but each target capability positive/negative pair has identical payloads.",
+      "repair": "Add separate negative cases: map conditions for missing source/timebase/support; assessment conditions for missing method/scope/tolerance/evidence with UNKNOWN/abstention.",
+      "acceptanceCriterion": "The mapping negative produces no map under unsupported conditions; the assessment negative returns UNKNOWN/abstention and never claims measured verification."
+    }
+  ],
+  "ownerChoiceState": {
+    "count": 6,
+    "rows": [
+      {
+        "auditId": "AUD-CAP-028",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "optionCount": 2,
+        "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION"
+      },
+      {
+        "auditId": "AUD-CLONE-004",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "optionCount": 2,
+        "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION"
+      },
+      {
+        "auditId": "AUD-CLONE-006",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "optionCount": 2,
+        "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION"
+      },
+      {
+        "auditId": "AUD-CLONE-017",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "optionCount": 2,
+        "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION"
+      },
+      {
+        "auditId": "AUD-COLOR-007",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "optionCount": 2,
+        "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION"
+      },
+      {
+        "auditId": "AUD-DELIV-007",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "optionCount": 2,
+        "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION"
+      }
+    ],
+    "allRemainUnselected": true
+  },
+  "nonClaims": [
+    "No canonical source apply or owner choice is made.",
+    "R5 replaces the prior candidate/postimage hash mismatch; exact hash integrity and source preimage matching do not imply semantic completeness or acceptance."
+  ]
+}

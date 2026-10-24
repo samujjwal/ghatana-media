@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.quality-extension-source-adoption-cas-plan.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "planKind", "planDisposition", "candidateRef", "candidateSchemaVersion", "candidateSha256", "candidatePostimageSha256", "sourceOwnerDecisionRef", "sourceOwnerDecisionSha256", "technicalPeerReviewRef", "technicalPeerReviewSha256", "v7Predecessor", "decisionRef", "decisionSectionSha256", "applyAuthorizationSha256", "sourceOwnerIdentity", "sourceOwnerRole", "peerIdentity", "blockers", "targets", "authorityBoundary"],
+  "properties": {
+    "schemaVersion": {"const": "media.pdp0.quality-extension-source-adoption-cas-plan.v2"},
+    "planKind": {"const": "NON_MUTATING_EXACT_TWO_TARGET_QUALITY_EXTENSION_SOURCE_CAS_PLAN"},
+    "planDisposition": {"enum": ["BLOCKED_PENDING_EXACT_PREREQUISITES", "READY_FOR_SHARED_OWNER_CONTROLLED_CAS"]},
+    "candidateRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json"},
+    "candidateSchemaVersion": {"const": "media.pdp0.quality-extension-source-candidate.v2"},
+    "candidateSha256": {"$ref": "#/$defs/sha256"}, "candidatePostimageSha256": {"$ref": "#/$defs/sha256"},
+    "sourceOwnerDecisionRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-owner-decision.v2.json"},
+    "sourceOwnerDecisionSha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]},
+    "technicalPeerReviewRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-independent-peer.v2.json"},
+    "technicalPeerReviewSha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]},
+    "v7Predecessor": {"type": "object", "additionalProperties": false, "required": ["manifestRef", "manifestSha256", "peerRef", "peerSha256", "state", "targets"], "properties": {
+      "manifestRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json"},
+      "manifestSha256": {"$ref": "#/$defs/sha256"}, "peerRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-v7-quality-extension-independent-peer.v2.json"}, "peerSha256": {"$ref": "#/$defs/sha256"},
+      "state": {"enum": ["EXACT_CURRENT_READBACK", "NOT_APPLIED", "DIVERGED"]},
+      "targets": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"type": "object", "additionalProperties": false, "required": ["targetRef", "expectedPreimageSha256", "expectedPostimageSha256", "actualSha256"], "properties": {
+        "targetRef": {"type": "string"}, "expectedPreimageSha256": {"$ref": "#/$defs/sha256"}, "expectedPostimageSha256": {"$ref": "#/$defs/sha256"}, "actualSha256": {"$ref": "#/$defs/sha256"}
+      }}}
+    }},
+    "decisionRef": {"const": ".product-experience/decision-log.md#PXD-227"}, "decisionSectionSha256": {"$ref": "#/$defs/sha256"},
+    "applyAuthorizationSha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]},
+    "sourceOwnerIdentity": {"const": "agent:/root"}, "sourceOwnerRole": {"const": "PDP0_SOURCE_OWNER"},
+    "peerIdentity": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1, "not": {"enum": ["agent:/root", "agent:/root/phase_io"]}}]},
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"enum": ["V7_SIX_SOURCE_AMENDMENT_NOT_APPLIED", "V7_SOURCE_TARGET_DIVERGED_REQUIRES_EXPLICIT_RECONCILIATION", "TWO_TARGET_SOURCE_PREIMAGE_NOT_CURRENT", "DISTINCT_PEER_REVIEW_OF_EXACT_TWO_TARGET_CANDIDATE_REQUIRED", "ROOT_SOURCE_OWNER_DECISION_REQUIRED", "EXACT_TWO_TARGET_APPLY_AUTHORIZATION_REQUIRED"]}},
+    "targets": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "object", "additionalProperties": false, "required": ["targetRef", "expectedPreimageSha256", "expectedPostimageSha256"], "properties": {
+      "targetRef": {"enum": [".product-experience/decision-log.md", ".product-experience/pdp-0-product-truth/quality-policy.yaml"]}, "expectedPreimageSha256": {"$ref": "#/$defs/sha256"}, "expectedPostimageSha256": {"$ref": "#/$defs/sha256"}
+    }}},
+    "authorityBoundary": {"type": "object", "additionalProperties": false, "required": ["sourceOwnerAdoption", "canonicalApply", "sourceCurrentness", "phaseStatusEffect", "independentAcceptance", "nativeProof", "runtimeAdmission"], "properties": {
+      "sourceOwnerAdoption": {"enum": ["PENDING", "EXACT_DECISION_RECORDED"]}, "canonicalApply": {"const": "NOT_PERFORMED"}, "sourceCurrentness": {"const": "NOT_CLAIMED"}, "phaseStatusEffect": {"const": "NONE"}, "independentAcceptance": {"const": "NOT_CLAIMED"}, "nativeProof": {"const": "NOT_CLAIMED"}, "runtimeAdmission": {"const": "NOT_ADMITTED"}
+    }}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+}

@@ -1,0 +1,32 @@
+/** Versioned operation contract for the R8 split source-successor writer. */
+export const MEDIA_PDP0_ROOT_SELECTED_R8_PROFILE = Object.freeze({
+  profileId: 'media.pdp0.root-selected-source-integration.r8.source-owner.v1',
+  version: 1,
+  schemaVersion: 'media.pdp0.root-selected-source-integration-r8-operation-profile-registration.v1',
+  operationKinds: Object.freeze([
+    'ADD_CAPABILITY_DEFINITION',
+    'APPEND_REQUIREMENT_CASE',
+    'APPEND_REQUIREMENT_CAPABILITY_BINDING',
+    'PATCH_CROSSWALK_TRACE',
+  ]),
+  counts: Object.freeze({
+    retainedProjectionOperations: 248,
+    selectedOperations: 113,
+    capabilityDefinitions: 18,
+    embeddedCapabilityCases: 56,
+    parentCases: 58,
+    bindings: 19,
+    crosswalkPatches: 18,
+    historicalOwnerRows: 462,
+    writeTargets: 4,
+    readOnlyGuards: 3,
+  }),
+  candidateSchemaRef: 'docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.allowed-operations.schema.candidate.v1.json',
+  ledgerRef: 'docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.allowed-operations.candidate.v1.json',
+  registrationRef: 'docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.operation-profile-registration.r1.json',
+  sourcePeerReviewRef: 'docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.source-peer-r2.json',
+  sourceOwnerDecisionRef: 'docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.source-owner-decision.r1.json',
+  rootAdoptionDecisionRef: 'docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.root-adoption-decision.r1.json',
+  applyAuthorizationRef: 'docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.apply-authorization.r1.json',
+  actualHReviewerThreadId: '01a16a6c-d506-7a73-801a-609c602a12e9',
+});

@@ -130654,3 +130654,205 @@ extensionImplementationLaneDispositions:
       ownerApproval: NOT_CLAIMED
       acceptanceEffect: none
       sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.creative-effect.apply
+
+# Current-version extension population is distinct from the immutable historical
+# 462-row adjudication and trust arrays above. The quality and PDP-1 boundaries
+# below intentionally remain unresolved where no current source decision exists.
+currentVersionExtensionOwnerAndTrust:
+  schemaVersion: media.pdp0.current-version-extension-owner-and-trust.v1
+  sourceOwnerDecisionRef: .product-experience/decision-log.md#PXD-226
+  sourceOwnerDecisionRootRef: ghatana-lifecycle:docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-version-population-root-decision.json
+  population:
+    historicalBaseCount: 462
+    currentVersionExtensionCount: 1
+    futureVersionExtensionCount: 6
+    currentVersionTotal: 463
+    allDefinitionExtensions: 7
+    totalCapabilityDefinitions: 469
+    surfaceIdentityCount: 54
+    phaseCellCount: 216
+  ownerAdjudications:
+    - capabilityRef: media.recipe.specification.compile
+      ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
+      capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile
+      requirementRefs:
+        - MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      journeyRefs: []
+      platformDependencyRefs: []
+      profileRef: media.capability-profile.media-recipe-template
+      boundsRef: media.capability-bounds.media-recipe-specification-compile
+      authorityRefs:
+        - identity-and-tenant-context
+        - operation-specific-policy-and-rights
+        - artifact-read-or-write-permission-as-applicable
+      channelApplicability:
+        - channelRef: media.channel.web
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.api
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.embedded
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.http-api
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.grpc-api
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.sdk
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.cli
+          disposition: SOURCE_DECLARED_DEFINITION_APPLICABLE
+          sourceLabel: cli
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.product-integration
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.legacy-desktop
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.agent
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+        - channelRef: media.channel.event
+          disposition: OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF
+          sourceLabel: null
+          ruleRef: PXD-207_EXACT_EXTENSION_CHANNEL_EXCLUSION
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+      definitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      independentAcceptance: P0-010-independent-review-open
+      id: media.capability-adjudication.recipe-specification-compile
+      recordKind: ADDITIVE_PDP0_SOURCE_DEFINITION_EXTENSION
+      decisionAuthority: User-delegated PDP-0 technical source-owner proposal; adoption is pending distinct peer review and root disposition.
+      decisionRefs:
+        - .product-experience/decision-log.md#PXD-207
+        - .product-experience/decision-log.md#PXD-226
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE
+        - .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.recipe.specification.compile
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-002
+        - .product-experience/decision-log.md#PXD-226
+      normativeMeaning: "Current-version extension row selected by PXD-226 for the existing compile capability: ordinary compilation remains distinct; the exact supported schema-migration request yields a reviewable version-bound candidate and semantic diff, with fail-closed UNKNOWN/UNSUPPORTED behavior. This definition row does not establish quality applicability, a PDP-1 operation, implementation, runtime availability, independent acceptance, or phase completion."
+      inputArtifactTypes:
+        - versioned-production-specification
+        - versioned-production-specification-schema
+        - versioned-compiler-contract
+        - optional-versioned-project-revision
+        - versioned-target-production-specification-schema
+        - versioned-schema-migration-transformation
+      outputArtifactTypes:
+        - normalized-semantic-graph-and-reviewable-project-plan-candidate
+        - reviewable-version-bound-schema-migration-candidate-and-semantic-diff
+      qualityApplicability:
+        status: UNKNOWN_PENDING_SEPARATE_SOURCE_BOUND_QUALITY_REVIEW
+        applicableQualityReviewRef: null
+        historicalReviewBoundary: PXD-225 quality review covers 462 historical leaves and explicitly excludes all seven extensions; no extension quality disposition is inferred.
+      downstreamPdp1Disposition: NO_CURRENT_PDP1_OPERATION_CONTRACT; HISTORICAL_HANDOFF_REMAINS_462
+  trustReconstructionDispositions:
+    - id: media.capability-trust-reconstruction.media-capability-adjudication-recipe-specification-compile.v1
+      capabilityRef: media.recipe.specification.compile
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile
+        - .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.recipe-specification-compile
+        - .product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedLeafTrustReconstructionPolicy
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-16
+        - .product-experience/decision-log.md#PXD-226
+      outputBranches:
+        - outputArtifactType: normalized-semantic-graph-and-reviewable-project-plan-candidate
+          outcomes:
+            - when: outputArtifactType=normalized-semantic-graph-and-reviewable-project-plan-candidate
+              disposition: SOURCE_DERIVED_TRANSFORMATION
+              epistemicRole: SOURCE_DERIVED_SPECIFICATION_CANDIDATE
+              meaning: The normalized semantic graph and project-plan candidate derive from the exact versioned specification, schema, and compiler-contract inputs, with the optional exact project revision only when consumed. The candidate is a reviewable specification interpretation, not a media artifact, execution, project mutation, job, publication, or claim that a transformation was applied. Bind exact input identities/versions and method; unknown or unsupported inputs remain UNKNOWN/UNSUPPORTED.
+          missingOrUnknown: UNKNOWN; preserve exact source identities and block an unsupported candidate
+          sourceArtifactTypeRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile/outputArtifactTypes/0
+          when: outputArtifactType=normalized-semantic-graph-and-reviewable-project-plan-candidate
+        - outputArtifactType: reviewable-version-bound-schema-migration-candidate-and-semantic-diff
+          outcomes:
+            - when: resultKind=SUPPORTED_VERSION_BOUND_SCHEMA_MIGRATION_CANDIDATE_AND_SEMANTIC_DIFF;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION;migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED;compilerContract=EXACT_VERSIONED
+              disposition: SOURCE_DERIVED_TRANSFORMATION
+              epistemicRole: SOURCE_DERIVED_SPECIFICATION_CANDIDATE
+              meaning: The reviewable semantic candidate and diff derive only from the exact source specification/schema, requested target schema, explicitly declared supported transformation, and compiler-contract version. They are not a migrated media artifact and do not assert that a migration was applied, any project mutated, or any execution or external effect occurred. Preserve the original; bind exact source/target/transformation identities and versions, method, provenance, and limits. Unsupported, lossy, ambiguous, stale, or unknown inputs remain UNKNOWN/UNSUPPORTED and produce no migration candidate.
+          missingOrUnknown: UNKNOWN; preserve exact source/request identities and block unsupported migration candidate output
+          sourceArtifactTypeRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile/outputArtifactTypes/1
+          when: outputArtifactType=reviewable-version-bound-schema-migration-candidate-and-semantic-diff;resultKind=SUPPORTED_VERSION_BOUND_SCHEMA_MIGRATION_CANDIDATE_AND_SEMANTIC_DIFF;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION;migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED;compilerContract=EXACT_VERSIONED
+      unknownPolicy: UNKNOWN_OR_ABSTAINED; reject foreign/stale source, missing typed provenance, unsupported/unbound schema or transformation versions, or missing capability identity or current authority before claiming candidate output truth
+      definitionStatus: OWNER_DEFINED_DEFINITION_ONLY
+      runtimeAdmission: NOT_ADMITTED
+      qualification: NOT_EVALUATED
+      acceptanceEffect: none
+      inputArtifactTypes:
+        - versioned-production-specification
+        - versioned-production-specification-schema
+        - versioned-compiler-contract
+        - optional-versioned-project-revision
+        - versioned-target-production-specification-schema
+        - versioned-schema-migration-transformation
+      outputArtifactTypes:
+        - normalized-semantic-graph-and-reviewable-project-plan-candidate
+        - reviewable-version-bound-schema-migration-candidate-and-semantic-diff
+      currentPopulationDisposition: CURRENT_VERSION_EXTENSION_SEPARATE_FROM_HISTORICAL_462
+      qualityApplicability: UNKNOWN_PENDING_SEPARATE_SOURCE_BOUND_QUALITY_REVIEW
+      downstreamPdp1Disposition: NO_CURRENT_PDP1_OPERATION_CONTRACT; HISTORICAL_HANDOFF_REMAINS_462
+      population:
+        historicalBaseCount: 462
+        currentExtensionCount: 1
+        futureExtensionCount: 6
+        currentVersionCount: 463
+        trustRecordScope: one exact compile extension row; not part of historical trust population
+  qualityApplicability:
+    status: UNKNOWN_PENDING_SEPARATE_SOURCE_BOUND_QUALITY_REVIEW
+    capabilityRef: media.recipe.specification.compile
+    existingQualityReviewRef: docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json
+    existingQualityReviewCapabilityCount: 462
+    currentExtensionIncludedInExistingQualityReview: false
+    rationale: The existing quality review has 462 historical rows and expressly excludes all seven extensions. No applicability or exclusion is inferred for this now-current extension.
+    blocks:
+      - CURRENT_QUALITY_APPLICABILITY_AND_REVIEW_FOR_COMPILE_EXTENSION
+  downstreamPdp1:
+    status: NOT_DEFINED_IN_THIS_PDP0_SOURCE_CYCLE
+    historicalCapabilityOperationCount: 462
+    currentExtensionCapabilityRef: media.recipe.specification.compile
+    operationContractRef: null
+    runtimeAdmission: NOT_ADMITTED
+    effect: NONE
+  phaseStatusEffect: NONE
+  ownerAcceptance: NOT_CLAIMED
+  independentAcceptance: NOT_CLAIMED

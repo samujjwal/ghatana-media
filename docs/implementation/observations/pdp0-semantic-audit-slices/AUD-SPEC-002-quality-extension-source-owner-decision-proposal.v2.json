@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "media.pdp0.quality-extension-source-owner-decision-proposal.v2",
+  "status": "TEMPLATE_ONLY_NOT_A_SOURCE_OWNER_DECISION",
+  "decisionKind": "ADOPT_EXACT_QUALITY_EXTENSION_TWO_TARGET_SOURCE_CANDIDATE",
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json",
+  "candidateSha256": null,
+  "candidatePostimageSha256": null,
+  "peerReviewRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-independent-peer.v2.json",
+  "peerReviewSha256": null,
+  "v7ManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54",
+  "decisionRef": ".product-experience/decision-log.md#PXD-227",
+  "decisionSectionSha256": null,
+  "targetRows": [
+    {"targetRef": ".product-experience/decision-log.md", "expectedPreimageSha256": null, "expectedPostimageSha256": null},
+    {"targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml", "expectedPreimageSha256": null, "expectedPostimageSha256": null}
+  ],
+  "sourceOwner": {"identity": null, "role": "PDP0_SOURCE_OWNER"},
+  "disposition": "APPROVE_EXACT_CANDIDATE_FOR_SOURCE_APPLY",
+  "authorityBoundary": {
+    "sourceDefinitionOnly": true,
+    "independentAcceptance": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE",
+    "nativeProof": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "measurement": "NOT_EVALUATED",
+    "qualification": "NOT_EVALUATED"
+  },
+  "instruction": "Root must author a new source-owner decision against the frozen candidate, actual distinct peer record, exact target hashes, and current PXD-227 section. This template itself authorizes nothing."
+}

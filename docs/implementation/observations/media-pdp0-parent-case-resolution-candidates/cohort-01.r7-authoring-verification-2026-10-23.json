@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "media.pdp0.cohort01.r7.authoring-verification.v1",
+  "artifactId": "MEDIA-PDP0-COHORT-01-R7-AUTHORING-VERIFICATION-2026-10-23",
+  "summary": {
+    "featureDefinitions": 7,
+    "featureAcceptanceCases": 34,
+    "r6OperationsRebased": 90,
+    "r6CapabilityCases": 44,
+    "r6RequirementCases": 46,
+    "r6FullDocumentPostimages": 4,
+    "trust014PinsCurrent": 9,
+    "canonicalMutation": "NONE",
+    "canonicalApply": "NONE",
+    "testsRun": false
+  },
+  "checks": {
+    "directionExact": true,
+    "r6Exact": true,
+    "sevenFeatureChoicesExact": true,
+    "featureCasesUnique": true,
+    "sevenCurrentBaselinePins": true,
+    "trust014PinsCurrent": true,
+    "fourR6PostimagesRebuilt": true,
+    "canonicalSourceTargetsUnchanged": true,
+    "semanticMutationCountsTruthful": true,
+    "canonicalSourcesUnmodified": true
+  },
+  "hashes": {
+    "candidate": "74d6d0802add1f4346f4fce6d22c7e99c00f5280c7a8461d0ce5ba544da39b10",
+    "featureSource": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
+    "featureCases": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5",
+    "postimages": "91825cee133fea95b923c97f81cef86956fd2107822b1d5e469ea61a3f45ebf1",
+    "recordPostimages": "2a4ad0f948deb82d41a556ffdeff4a627ade336ecfee8dcbd2df4bfe81c07f15"
+  },
+  "trust014Candidate": {
+    "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry.candidate.v2.json",
+    "sha256": "e3b3b2501df6bf5901edf5bfd4149484b25354a1b59c296dcc7756462971e9ba"
+  },
+  "nonClaims": [
+    "Integrity verification covers candidate and current-source pins only.",
+    "No owner adoption, peer acceptance, implementation, test pass, phase completion, closure or release is established."
+  ]
+}

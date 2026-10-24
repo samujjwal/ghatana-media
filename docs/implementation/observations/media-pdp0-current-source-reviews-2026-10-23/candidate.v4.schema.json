@@ -1,0 +1,398 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.current-source-review-candidate.v4",
+  "title": "Assembled PDP-0 current-source technical review candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactKind",
+    "phaseScope",
+    "sourceCut",
+    "criteria",
+    "findings",
+    "priorReviewSourcePinMismatches",
+    "statusBoundary",
+    "preservedAuthorityRef",
+    "preservedHistoricalReviewRefs",
+    "claimBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.current-source-review-candidate.v4"
+    },
+    "artifactKind": {
+      "const": "COORDINATOR_ASSEMBLED_TECHNICAL_SOURCE_REVIEW_INPUTS"
+    },
+    "phaseScope": {
+      "const": "PDP-0"
+    },
+    "sourceCut": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceRecordRef",
+        "sourceRecordSha256",
+        "surfaceMatrixRef",
+        "surfaceMatrixSha256",
+        "sourceShaSet",
+        "reviewedCurrentSourceFingerprints",
+        "sourceRecordCount",
+        "campaignDenominator"
+      ],
+      "properties": {
+        "sourceRecordRef": {
+          "const": "docs/implementation/pdp-0-phase-dev-status.json"
+        },
+        "sourceRecordSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "surfaceMatrixRef": {
+          "const": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json"
+        },
+        "surfaceMatrixSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sourceShaSet": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "reviewedCurrentSourceFingerprints": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "sourceRecordCount": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "campaignDenominator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "totalSurfaceIdentities",
+            "physical",
+            "compositions",
+            "logicalConsumers"
+          ],
+          "properties": {
+            "totalSurfaceIdentities": {
+              "const": 54
+            },
+            "physical": {
+              "const": 26
+            },
+            "compositions": {
+              "const": 7
+            },
+            "logicalConsumers": {
+              "const": 21
+            }
+          }
+        }
+      }
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "criterionId",
+          "reviewer",
+          "scopeRef",
+          "reviewConclusion",
+          "reviewNotes",
+          "findings",
+          "knownUnknowns",
+          "reviewedSourceCount",
+          "reviewedSourceFingerprints",
+          "criterionVerification",
+          "authorityBoundary"
+        ],
+        "properties": {
+          "criterionId": {
+            "enum": [
+              "P0-01",
+              "P0-02",
+              "P0-03",
+              "P0-04",
+              "P0-05",
+              "P0-06",
+              "P0-07",
+              "P0-08"
+            ]
+          },
+          "reviewer": {
+            "type": "object",
+            "required": [
+              "identity",
+              "reviewRole",
+              "reviewRecordRef"
+            ],
+            "properties": {
+              "identity": {
+                "type": "string"
+              },
+              "reviewRole": {
+                "const": "DISTINCT_TECHNICAL_REVIEWER"
+              },
+              "reviewRecordRef": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "scopeRef": {
+            "type": "string"
+          },
+          "reviewConclusion": {
+            "const": "SOURCE_MEANING_REVIEWED; FINDINGS_ARE_SEPARATELY_TYPED"
+          },
+          "reviewNotes": {
+            "type": "object"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "classification",
+                "evidenceRef",
+                "finding",
+                "owner",
+                "correction",
+                "nextAction"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "classification": {
+                  "type": "string"
+                },
+                "evidenceRef": {
+                  "type": "string"
+                },
+                "finding": {
+                  "type": "string"
+                },
+                "owner": {
+                  "type": "string"
+                },
+                "correction": {
+                  "type": "string"
+                },
+                "nextAction": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "knownUnknowns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reviewedSourceCount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reviewedSourceFingerprints": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "criterionVerification": {
+            "type": "object"
+          },
+          "authorityBoundary": {
+            "type": "object",
+            "required": [
+              "ownerApproval",
+              "independentAcceptance",
+              "pdp010Acceptance",
+              "phaseStatusEffect"
+            ],
+            "properties": {
+              "ownerApproval": {
+                "const": "NOT_CLAIMED"
+              },
+              "independentAcceptance": {
+                "const": "NOT_CLAIMED"
+              },
+              "pdp010Acceptance": {
+                "const": "NOT_PERFORMED"
+              },
+              "phaseStatusEffect": {
+                "const": "NONE"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "criterionId",
+          "id",
+          "classification",
+          "evidenceRef",
+          "finding",
+          "owner",
+          "correction",
+          "nextAction"
+        ],
+        "properties": {
+          "criterionId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "classification": {
+            "type": "string"
+          },
+          "evidenceRef": {
+            "type": "string"
+          },
+          "finding": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "correction": {
+            "type": "string"
+          },
+          "nextAction": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "priorReviewSourcePinMismatches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "criterionId",
+          "sourceRef",
+          "priorSha256",
+          "currentSha256"
+        ],
+        "properties": {
+          "criterionId": {
+            "type": "string"
+          },
+          "sourceRef": {
+            "type": "string"
+          },
+          "priorSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "currentSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "pinField": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "statusBoundary": {
+      "type": "object",
+      "required": [
+        "currentVerifierStatus",
+        "criterionTestStatus",
+        "semanticSourceReview",
+        "openFindingCount",
+        "openFindingIds",
+        "ownerApproval",
+        "independentAcceptance",
+        "pdp010Acceptance",
+        "phaseStatusEffect",
+        "currentStatusMutation"
+      ],
+      "properties": {
+        "currentVerifierStatus": {
+          "type": "string"
+        },
+        "criterionTestStatus": {
+          "const": "PASS_FOR_ALL_EIGHT_DIRECT_CRITERION_SUITES"
+        },
+        "semanticSourceReview": {
+          "const": "TECHNICAL_REVIEW_INPUTS_ASSEMBLED; CRITERION_REVIEWS_RECORDED"
+        },
+        "openFindingCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "openFindingIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ownerApproval": {
+          "const": "NOT_CLAIMED"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "pdp010Acceptance": {
+          "const": "NOT_PERFORMED"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "currentStatusMutation": {
+          "const": "NOT_PERFORMED"
+        }
+      },
+      "additionalProperties": false
+    },
+    "preservedAuthorityRef": {
+      "const": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json"
+    },
+    "preservedHistoricalReviewRefs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "claimBoundary": {
+      "type": "string",
+      "minLength": 30
+    }
+  }
+}

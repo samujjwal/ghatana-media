@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "media.pdp0.quality-extension-current-provenance-independent-peer.v1",
+  "reviewId": "AUD-SPEC-002",
+  "reviewer": {
+    "identity": "agent:thread:01a16a35-bbcf-74d2-ac99-1ed74c29c3c9",
+    "role": "DISTINCT_TECHNICAL_PEER",
+    "candidateAuthorIdentity": "agent:/root/phase_io",
+    "independentHumanReviewer": false,
+    "credentialedAttestation": false
+  },
+  "scope": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0",
+    "reviewType": "FROZEN_QUALITY_CANDIDATE_PROVENANCE_AND_GUARDED_APPLY_CODE_REVIEW",
+    "surfaceDenominator": "ONE_AUD-SPEC-002_CANDIDATE_CUT; NOT FULL MEDIA CAMPAIGN"
+  },
+  "frozenInputs": {
+    "candidate": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json",
+      "sha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a"
+    },
+    "provenanceSuccessor": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-provenance-successor.v3.json",
+      "sha256": "bc4dee91c2517fe19efde31702b931ec870c1af174ce1a465dfcc0ac0dd49bb7"
+    },
+    "provenanceSchema": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-provenance-successor.v3.schema.json",
+      "sha256": "6bd93b4663c5c866172604e68e29da3848094d95a04bbc7164a0d3449d5ab24b"
+    },
+    "receipt": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-hardening-implementation-receipt.v2.json",
+      "sha256": "23012adec76241aa606f9503e2eb27e29a96d132078d3218951c2db41a8a2cd2"
+    },
+    "resolver": {
+      "ref": "scripts/lib/media-pdp0-quality-extension-provenance-plan-v3.mjs",
+      "sha256": "72e4b4290918cfddbe644966e5b6288a9239447146cc86722dc338ee85425b61"
+    },
+    "resolverTest": {
+      "ref": "tests/media-pdp0-quality-extension-provenance-plan-v3.test.mjs",
+      "sha256": "d6795909dc815686b07b0779fc3d27b89f75d89bc9a8e872f40ef98c7845277e"
+    },
+    "adoptionPlanner": {
+      "ref": "scripts/lib/media-pdp0-quality-extension-source-adoption-v2.mjs",
+      "sha256": "a12e56fac4553c5a4d525ec45b0c775b25a7012732feb7fab2f21d1e99cead7e"
+    },
+    "adoptionPlannerCli": {
+      "ref": "scripts/plan-media-pdp0-quality-extension-source-adoption-v2.mjs",
+      "sha256": "9dd36535cce2f015d90fbe4e97b2c7f2007e6eed0f1271e562bbd3453e2abde2"
+    },
+    "provenancePlannerCli": {
+      "ref": "scripts/plan-media-pdp0-quality-extension-provenance-v3.mjs",
+      "sha256": "368cf03b27dee5aafa8c45ca62ca91920a4ebd8a9ac44607e3898a3593144a48"
+    },
+    "adoptionTest": {
+      "ref": "tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs",
+      "sha256": "27287b35cf462b9519120a87344161a6bf06d44292078e979d67c25705243f88"
+    },
+    "candidateTest": {
+      "ref": "tests/media-pdp0-quality-extension-source-candidate-v2.test.mjs",
+      "sha256": "990d620f500772245896f5a5f9f0e0a391b8effdd46fac925076096f577b6b40"
+    },
+    "cas": {
+      "ref": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+      "sha256": "1eafc742bd4af8f2ddbde0170bc4fd01774754944a9a27fb0911a3e668bd3e44"
+    },
+    "adapter": {
+      "ref": "scripts/lib/media-pdp0-quality-extension-source-adoption-v2.mjs",
+      "sha256": "a12e56fac4553c5a4d525ec45b0c775b25a7012732feb7fab2f21d1e99cead7e"
+    },
+    "sourceChoice": {
+      "ref": "../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-quality-applicability-root-choice-r01.json",
+      "sha256": "f26831abe430b0f48b5f00e1fcde0ceca4ed70f6dcb109eecf8577d078589228"
+    },
+    "v7Peer": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-v7-quality-extension-independent-peer.v2.json",
+      "sha256": "fe1f0d98b7835f12a9aa7e31b511854ae0996e3242ed5866874b4d1cc7381db1"
+    },
+    "decisionLogPostimage": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-decision-log-postimage.v2.md",
+      "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    "qualityPolicyPostimage": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-policy-extension-postimage.v2.yaml",
+      "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+    },
+    "v7Manifest": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json",
+      "sha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54"
+    }
+  },
+  "assessment": {
+    "candidateSha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a",
+    "candidatePostimageSha256": "a7a292b33f1571a487bc2fa5b68ffcb636956a5096a3fa24247f21487eac62d4",
+    "targets": [
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "preimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+        "postimageSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "preimageSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+        "postimageSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      }
+    ],
+    "provenancePlanDisposition": "CURRENT_PROVENANCE_EVIDENCE_VALIDATED",
+    "v7PredecessorState": "EXACT_CURRENT_READBACK",
+    "adoptionPlanDisposition": "BLOCKED_PENDING_EXACT_PREREQUISITES",
+    "adoptionBlockers": [
+      "ROOT_SOURCE_OWNER_DECISION_REQUIRED",
+      "EXACT_TWO_TARGET_APPLY_AUTHORIZATION_REQUIRED"
+    ],
+    "codeAssessment": [
+      "The v3 provenance successor is additive metadata: it pins the unchanged v2 candidate and exact two target pre/postimage hashes, current resolver/CLI/tests, adapter/adoption planner, and implementation receipt. It explicitly leaves old freeze and old producer-pin currentness unclaimed.",
+      "The apply adapter accepts only the expected reviewed plan fingerprint, snapshots fixed source inputs, rebuilds the plan, and refuses if plan or blocker state changes.",
+      "The public quality CAS accepts only plan and targets, uses fixed native filesystem operations, acquires an exclusive owner lock, re-reads current fixed authority and source bytes under that lock before preparation, and enforces exact ordered target/pre/postimage bindings.",
+      "No effect path is available on this current cut: the live adoption plan has no root source-owner decision or exact two-target apply authorization.",
+      "The shared owner lock serializes this governed CAS writer. The final pre-rename hash/mode read detects changes observed before rename; it is not a kernel-level compare-and-swap against an uncooperating external writer racing after that read, as documented in the writer.",
+      "This new peer record is additive and is not consumed by the current adoption planner, whose fixed quality-peer ref remains the existing independent-peer.v2.json. No adapter or authority-reader source was changed; an owner-controlled successor workflow must decide whether and how to bind this record."
+    ],
+    "v7ReadbackTargets": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "actualSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "actualSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "actualSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "actualSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "actualSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+      }
+    ]
+  },
+  "verification": {
+    "provenanceTests": {
+      "command": "node --test tests/media-pdp0-quality-extension-provenance-plan-v3.test.mjs",
+      "passed": 5,
+      "failed": 0
+    },
+    "adoptionAndCandidateTests": {
+      "commands": [
+        "node --test tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs",
+        "node --test tests/media-pdp0-quality-extension-source-candidate-v2.test.mjs"
+      ],
+      "passed": 11,
+      "failed": 0
+    },
+    "canonicalWrites": "NONE",
+    "sourceEdits": "NONE"
+  },
+  "findings": [],
+  "disposition": "TECHNICAL_APPROVE_EXACT_CANDIDATE_AND_GUARDED_APPLY_PATH_ONLY",
+  "authorityBoundary": {
+    "sourceOwnerDecision": "PENDING",
+    "applyAuthorization": "PENDING",
+    "canonicalApply": "NOT_PERFORMED",
+    "sourceCurrentness": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeProof": "NOT_CLAIMED",
+    "delivery": "NOT_AUTHORIZED",
+    "rootProvenanceReview": "PENDING"
+  }
+}

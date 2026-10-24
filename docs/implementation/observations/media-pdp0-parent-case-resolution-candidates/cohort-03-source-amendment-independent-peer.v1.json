@@ -1,0 +1,1725 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.parent-case-resolution-source-amendment-peer.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-03-SOURCE-AMENDMENT-INDEPENDENT-PEER-2026-10-23",
+  "reviewStatus": "TECHNICAL_PEER_REVIEW_ONLY_REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_TECHNICAL_REVIEW_OF_COHORT_03_SOURCE_AMENDMENT_PROPOSALS",
+  "reviewer": {
+    "identity": "agent:/root/phase_io",
+    "role": "DISTINCT_TECHNICAL_PEER",
+    "independentHumanReviewer": false,
+    "credentialedAttestation": false
+  },
+  "campaign": {
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth / P0-07",
+    "campaignDenominator": {
+      "physical": 26,
+      "compositionsIncludingRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "cohortOrdinal": 3,
+    "cohortDenominator": 77,
+    "selectedProposalRows": 20
+  },
+  "sourceBaseline": {
+    "proposalRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r1.json",
+    "proposalSha256": "d2d8d6f042fa686819dfb8ae93cf4a3d24a3e99da600dfc717d785d4d725fdc3",
+    "cohortR2Ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.json",
+    "cohortR2Sha256": "21cd6213b54f3999afd5b4588a4402fa5d94436531df9607d1046b4b0e025c50",
+    "cohortR2PeerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.independent-peer.json",
+    "cohortR2PeerSha256": "dc768d699907202d087da9270ad03721de8c0cb64408118c8cf60f7b16c3807f",
+    "sourceFingerprints": {
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r1.json": "d2d8d6f042fa686819dfb8ae93cf4a3d24a3e99da600dfc717d785d4d725fdc3",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.json": "21cd6213b54f3999afd5b4588a4402fa5d94436531df9607d1046b4b0e025c50",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.independent-peer.json": "dc768d699907202d087da9270ad03721de8c0cb64408118c8cf60f7b16c3807f",
+      "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24",
+      "docs/implementation/observations/media-pdp0-p0-07-parent-case-residual-classification-2026-10-23.json": "4e6973ce4abfc1e551151ec36335e0920632a12dfca92276b5b900284006f91c",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+      "docs/implementation/pdp-0-phase-dev-status.json": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    },
+    "assignmentManifestRef": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-pdp0-resolution-cohort-assignments.json",
+    "assignmentManifestSha256": "b3157a9eece4016ddbd3e32bb37ff5a1f771c618960815fd60c6c4ce17843fd1",
+    "actualR2MissingDefinitionIds": [
+      "AUD-OPS-001",
+      "AUD-OPS-002",
+      "AUD-OPS-003",
+      "AUD-OPS-006",
+      "AUD-OPS-017",
+      "AUD-OPS-019",
+      "AUD-QA-006",
+      "AUD-QA-011",
+      "AUD-QA-012",
+      "AUD-SOCIAL-011",
+      "AUD-SPEC-005",
+      "AUD-TRUST-005",
+      "AUD-TRUST-006",
+      "AUD-TRUST-010",
+      "AUD-TRUST-014",
+      "AUD-TRUST-015",
+      "AUD-TRUST-018",
+      "AUD-TTS-001",
+      "AUD-TTS-002",
+      "AUD-TTS-010"
+    ],
+    "exactProposalMembership": [
+      "AUD-OPS-001",
+      "AUD-OPS-002",
+      "AUD-OPS-003",
+      "AUD-OPS-006",
+      "AUD-OPS-017",
+      "AUD-OPS-019",
+      "AUD-QA-006",
+      "AUD-QA-011",
+      "AUD-QA-012",
+      "AUD-SOCIAL-011",
+      "AUD-SPEC-005",
+      "AUD-TRUST-005",
+      "AUD-TRUST-006",
+      "AUD-TRUST-010",
+      "AUD-TRUST-014",
+      "AUD-TRUST-015",
+      "AUD-TRUST-018",
+      "AUD-TTS-001",
+      "AUD-TTS-002",
+      "AUD-TTS-010"
+    ],
+    "liveSourceMismatches": []
+  },
+  "auditFindings": {
+    "rowCount": 20,
+    "technicalDispositionCounts": {
+      "TECHNICAL_PASS": 19,
+      "REQUEST_CHANGES": 1,
+      "UNKNOWN": 0
+    }
+  },
+  "rows": [
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-01",
+      "ordinal": 1,
+      "auditId": "AUD-OPS-001",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "One model/provider capability registry and effective-choice receipt",
+        "acceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-001"
+      },
+      "proposedMeaning": {
+        "input": "Exact operation/profile, machine, purpose/rights scope; separate source-declared capability choices from any authoritative job lineage.",
+        "trigger": "Request provider choices and, separately, inspect effective choice.",
+        "positiveOutcome": "Expose declared choices; populate effective provider/model/checkpoint/machine/license only from authoritative exact job lineage, else UNKNOWN/UNAVAILABLE.",
+        "failureAndNegativeBehavior": "Catalog presence is not qualification, license admission, execution or selection; no default or silent cloud/provider fallback.",
+        "authorityBoundary": "PDP-0 choice/uncertainty; PDP-1 identities and lineage; qualification/runtime admission separate."
+      },
+      "proposedAcceptanceCriterion": "AUD-OPS-001: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.discover"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.discover",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.health.readiness.inspect"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-HEALTH"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases/@id=MEDIA-REQ-CAP-HEALTH-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases/@id=MEDIA-REQ-CAP-HEALTH-AC-02"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-001",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.discover",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.health.readiness.inspect",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-HEALTH",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases/@id=MEDIA-REQ-CAP-HEALTH-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases/@id=MEDIA-REQ-CAP-HEALTH-AC-02",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-004",
+      "rationale": "The candidate separates declared provider/capability choices from effective job choices and requires exact authoritative lineage for the latter; it preserves UNKNOWN and forbids silent provider/cloud fallback.",
+      "ownerReviewConditions": [
+        "Owner adoption must keep model/checkpoint, machine, license, purpose and policy evidence as separate exact bindings; discovery never implies qualification or admission."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-02",
+      "ordinal": 2,
+      "auditId": "AUD-OPS-002",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Per-engine model/license/weight/tokenizer pinning",
+        "acceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-002"
+      },
+      "proposedMeaning": {
+        "input": "Exact engine/model/checkpoint/tokenizer/license versions, operation/profile, purpose and source scope.",
+        "trigger": "Request pinned engine choice or inspect declared profile.",
+        "positiveOutcome": "Expose declaration pins separately; missing/stale pins UNKNOWN/UNAVAILABLE; effective job choice only from authoritative lineage.",
+        "failureAndNegativeBehavior": "Names do not prove model/license/admission/qualification; no silent substitution.",
+        "authorityBoundary": "PDP-0 choice meaning; PDP-1 identities/state; runtime qualification separate."
+      },
+      "proposedAcceptanceCriterion": "AUD-OPS-002: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.validate"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.validate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-002",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.validate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-005",
+      "rationale": "Exact engine/model/checkpoint/tokenizer/license declarations are distinguished from actual effective job selection, and missing or stale pins remain UNKNOWN/UNAVAILABLE.",
+      "ownerReviewConditions": [
+        "The owner must not treat package/provider names as version or license evidence, or this definition as runtime qualification."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-03",
+      "ordinal": 3,
+      "auditId": "AUD-OPS-003",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "CPU, CUDA, Metal/MPS, ROCm, Intel resource detection",
+        "acceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-003"
+      },
+      "proposedMeaning": {
+        "input": "Exact machine and requested operation/profile, plus authorized resource observation context.",
+        "trigger": "Request processor/accelerator facts.",
+        "positiveOutcome": "Return only observed/source-declared CPU/CUDA/Metal/MPS/ROCm/Intel facts with scope/provenance; unsupported fields UNKNOWN.",
+        "failureAndNegativeBehavior": "Compatibility declaration is not a measured device or performance; no fallback inferred.",
+        "authorityBoundary": "PDP-0 observable inventory; PDP-1 resource identities; detector/qualification later."
+      },
+      "proposedAcceptanceCriterion": "AUD-OPS-003: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-003",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-006",
+      "rationale": "The proposal limits the result to scoped observed or source-declared resource facts and explicitly denies inferring physical hardware or performance from a compatibility declaration.",
+      "ownerReviewConditions": [
+        "Keep observed machine facts and declared support separate; unsupported resource dimensions remain UNKNOWN."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-04",
+      "ordinal": 4,
+      "auditId": "AUD-OPS-006",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "External/remote worker enrollment and isolation",
+        "acceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-006"
+      },
+      "proposedMeaning": {
+        "input": "Exact worker identity, tenant/trust boundary, operation/profile, enrollment authority and current scope refs.",
+        "trigger": "Request enrollment/isolation-bound operation.",
+        "positiveOutcome": "Return owner-issued versioned enrollment/isolation disposition bound to identity, tenant, scope and authority; unresolved is UNKNOWN/UNAVAILABLE.",
+        "failureAndNegativeBehavior": "Connectivity is not trust/enrollment; no dispatch or cross-tenant access.",
+        "authorityBoundary": "PDP-0 visible outcome; PDP-1 identities/transitions; enforcement/qualification later."
+      },
+      "proposedAcceptanceCriterion": "AUD-OPS-006: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.session.connect"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-07"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-006",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.session.connect",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-07",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-009",
+      "rationale": "Enrollment is an owner-issued, versioned disposition bound to worker identity, tenant/trust scope and authority; connectivity does not enroll a worker or permit dispatch.",
+      "ownerReviewConditions": [
+        "No trusted enrollment issuer, isolation enforcement or remote execution is established by this source definition."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-05",
+      "ordinal": 5,
+      "auditId": "AUD-OPS-017",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Content-addressed output cache scoped to rights/tenant",
+        "acceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-017"
+      },
+      "proposedMeaning": {
+        "input": "Exact input versions, transform/profile digest, output/bounds, tenant, purpose and current rights.",
+        "trigger": "Request a derivative when same-scope reuse may exist.",
+        "positiveOutcome": "Return derivative candidate or no-reuse outcome with lineage; reuse eligibility only for identical source/profile/output/tenant/purpose/rights bindings.",
+        "failureAndNegativeBehavior": "Hash alone is not rights equivalence; no stale/cross-tenant reuse or cache implementation claim without evidence.",
+        "authorityBoundary": "PDP-0 reuse intent if owner confirms visible value; cache keys/freshness/persistence PDP-1/BUILD."
+      },
+      "proposedAcceptanceCriterion": "AUD-OPS-017: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.derived-asset.attach"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-08"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-017",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.derived-asset.attach",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-08",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-016",
+      "rationale": "Reuse is limited to identical source/profile/output/tenant/purpose/rights bindings and hash equality is explicitly insufficient; the proposal does not claim cache implementation.",
+      "ownerReviewConditions": [
+        "Owner must retain rights revalidation and stale/cross-tenant miss or UNKNOWN behavior; caching mechanics remain later-phase work."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-06",
+      "ordinal": 6,
+      "auditId": "AUD-OPS-019",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Export/capture compatibility capability matrix per OS",
+        "acceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-019"
+      },
+      "proposedMeaning": {
+        "input": "Exact declared OS/browser/hardware context, operation/profile, source and output.",
+        "trigger": "Request compatibility for enumerated platform cells.",
+        "positiveOutcome": "Return per-cell compatible/unsupported/UNKNOWN with exact evidence basis.",
+        "failureAndNegativeBehavior": "No inference from another platform; compatibility is not qualification, capture, encode or release.",
+        "authorityBoundary": "PDP-0 per-cell meaning; PDP-1 platform identities; runtime validation separate."
+      },
+      "proposedAcceptanceCriterion": "AUD-OPS-019: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.validate"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-02"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-019",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.validate",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-02",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-017",
+      "rationale": "The matrix is per declared OS/browser/hardware cell with exact evidence and explicit UNKNOWN/unsupported values, without extrapolation across platforms or qualification claims.",
+      "ownerReviewConditions": [
+        "Each platform cell needs its own evidence; no capture/codec/release support follows from this definition."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-07",
+      "ordinal": 7,
+      "auditId": "AUD-QA-006",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Speaker diarization DER and voice-match review",
+        "acceptanceText": "Actual decoded media, not job ACK alone, is checked for A/V sync, black/silent tails, voices, text, rights, protected crop and target profile thresholds.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-006"
+      },
+      "proposedMeaning": {
+        "input": "Exact diarization result/audio version, authorized comparison reference, reference labels and declared DER method/denominator.",
+        "trigger": "Request diarization metric and voice similarity review.",
+        "positiveOutcome": "Return DER only with method/reference/denominator; return speaker similarity as separate scoped value/unit or abstention.",
+        "failureAndNegativeBehavior": "Diarization alone is not DER; similarity is not identity or human review; absent labels/method UNKNOWN.",
+        "authorityBoundary": "PDP-0 observation intent; PDP-1 annotation/method identities; no measurement/signoff claim."
+      },
+      "proposedAcceptanceCriterion": "AUD-QA-006: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.audio.assess-authorized-speaker-similarity",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.speaker.diarize"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.speaker.diarize",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.audio.assess-authorized-speaker-similarity"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AUDIO-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AUDIO-AC-02"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-006",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.audio.assess-authorized-speaker-similarity",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.speaker.diarize",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AUDIO-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AUDIO-AC-02",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-021",
+      "rationale": "DER is conditioned on reference labels, method and denominator; similarity remains a separate bounded observation and is not identity or human review.",
+      "ownerReviewConditions": [
+        "The owner must define metric/method identities and keep absent labels/methods as UNKNOWN or abstention."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-08",
+      "ordinal": 8,
+      "auditId": "AUD-QA-011",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Caption contrast/readability and face-safe placement",
+        "acceptanceText": "Actual decoded media, not job ACK alone, is checked for A/V sync, black/silent tails, voices, text, rights, protected crop and target profile thresholds.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-011"
+      },
+      "proposedMeaning": {
+        "input": "Exact caption/timing/source version, requested safe-area placement and declared contrast/readability measurement method/context.",
+        "trigger": "Assess placement and readability/contrast.",
+        "positiveOutcome": "Report placement separately from measured contrast/readability with method, scope, evidence and abstention; no pass/fail absent owner threshold.",
+        "failureAndNegativeBehavior": "Placement is not readability; absent method/threshold UNKNOWN; no face-safe claim absent evidence.",
+        "authorityBoundary": "PDP-0 separate intents; metric schema/threshold owner definition; no quality acceptance."
+      },
+      "proposedAcceptanceCriterion": "AUD-QA-011: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-11"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-011",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-11",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-026",
+      "rationale": "Placement is separated from measured readability/contrast and the proposal refuses pass/fail without an owner-defined threshold or evidence.",
+      "ownerReviewConditions": [
+        "No face-safe or readability acceptance may be inferred from placement alone; thresholds require owner definition."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-09",
+      "ordinal": 9,
+      "auditId": "AUD-QA-012",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Protected OCR text/logo/brand legality validation",
+        "acceptanceText": "Actual decoded media, not job ACK alone, is checked for A/V sync, black/silent tails, voices, text, rights, protected crop and target profile thresholds.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-012"
+      },
+      "proposedMeaning": {
+        "input": "Exact media version/time range, OCR-observed text/logo regions, intended use and authoritative permitted-use evidence.",
+        "trigger": "Request protected text/logo use review.",
+        "positiveOutcome": "Return OCR observation separately from owner-issued permitted-use disposition; missing/ambiguous evidence UNKNOWN/blocked.",
+        "failureAndNegativeBehavior": "OCR is not legal analysis, ownership, copyright/trademark clearance or use permission.",
+        "authorityBoundary": "PDP-0 observation/right-result distinction; OCR/right state identities later; no legal signoff."
+      },
+      "proposedAcceptanceCriterion": "AUD-QA-012: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.vision.scene-text.observation.create"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.vision.scene-text.observation.create",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT/acceptanceCases/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT/acceptanceCases/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-012",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.vision.scene-text.observation.create",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT/acceptanceCases/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT/acceptanceCases/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-027",
+      "rationale": "OCR observations are kept separate from permitted-use decisions, which require a separately authorized rights/legal owner; no legality conclusion is claimed.",
+      "ownerReviewConditions": [
+        "Only an actual owner disposition can establish permitted use; OCR alone remains evidence, not clearance."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-10",
+      "ordinal": 10,
+      "auditId": "AUD-SOCIAL-011",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Animated charts/metrics with source values",
+        "acceptanceText": "A single approved source revision generates aspect- and locale-specific variants with safe zones and exact voice/caption/provenance lineage.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SOCIAL-011"
+      },
+      "proposedMeaning": {
+        "input": "Exact versioned source values/claims, chart intent and declared animation parameters.",
+        "trigger": "Request animated chart/metric candidate.",
+        "positiveOutcome": "Return versioned candidate with every displayed value linked to exact source field and transform.",
+        "failureAndNegativeBehavior": "Invalid/missing values UNKNOWN; no invented labels/trends/claims; no render/publication.",
+        "authorityBoundary": "PDP-0 truthful output; data/animation identities PDP-1; rendering BUILD."
+      },
+      "proposedAcceptanceCriterion": "AUD-SOCIAL-011: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.infographic"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.infographic",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.drive.audio"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-04"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SOCIAL-011",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.infographic",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.drive.audio",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-04",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-038",
+      "rationale": "Displayed values remain linked to exact source fields and transformation; missing values are UNKNOWN and the candidate does not claim rendering or publication.",
+      "ownerReviewConditions": [
+        "Owner must bind source units/time/context and preserve original values; chart animation/rendering remains implementation work."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-11",
+      "ordinal": 11,
+      "auditId": "AUD-SPEC-005",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Asset/model/provider pin and rights snapshot",
+        "acceptanceText": "Compiling the same specification twice produces equivalent normalized semantic graphs and stable fingerprints; invalid or unauthorized inputs create no effects.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-005"
+      },
+      "proposedMeaning": {
+        "input": "Exact source asset/version, recipe/spec version, model/provider/checkpoint/tokenizer/license pins, purpose and rights evidence.",
+        "trigger": "Request reproducible specification and rights snapshot.",
+        "positiveOutcome": "Return candidate pin snapshot with evidence independently listed; stale/missing pin or rights UNKNOWN and no qualified-use claim.",
+        "failureAndNegativeBehavior": "Snapshot is not admission, qualification, runtime availability or asset consumption; no defaults.",
+        "authorityBoundary": "PDP-0 evidence outcome; identities PDP-1; admission/execution separate."
+      },
+      "proposedAcceptanceCriterion": "AUD-SPEC-005: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.source-asset.attach"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.source-asset.attach",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-005",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.source-asset.attach",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-041",
+      "rationale": "The proposal binds versioned asset/model/provider/license and rights evidence into a reviewable snapshot while explicitly withholding admission, qualification and asset-consumption claims.",
+      "ownerReviewConditions": [
+        "Snapshot presence must not be reused as current rights approval or an admitted compile result."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-12",
+      "ordinal": 12,
+      "auditId": "AUD-TRUST-005",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Revocation/retention/legal hold/erasure state machine",
+        "acceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-005"
+      },
+      "proposedMeaning": {
+        "input": "Exact subject/artifact/version, purpose, authority, retention/hold scope and any owner-issued request/effect/readback evidence.",
+        "trigger": "Request or inspect revocation, retention, hold or erasure.",
+        "positiveOutcome": "Expose requested/authorized/observed/readback results separately only when exact authority evidence exists; else pending/UNKNOWN.",
+        "failureAndNegativeBehavior": "Access restriction is not erasure; request is not effect; internal record is not external deletion; no legal outcome inferred.",
+        "authorityBoundary": "PDP-0 user-visible distinction; lifecycle states PDP-1; legal/effect evidence actual authority."
+      },
+      "proposedAcceptanceCriterion": "AUD-TRUST-005: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.erasure.effect.record"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.retention.effect.record",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.erasure.effect.record",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-005",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.erasure.effect.record",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.retention.effect.record",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-046",
+      "rationale": "Revocation, retention, legal hold and erasure are distinct source-bound dispositions; request, authorization, observed effect and external readback are separated, with external completion UNKNOWN absent evidence.",
+      "ownerReviewConditions": [
+        "Do not infer legal status or external erasure; effects and legal authority must come from their actual owners."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-13",
+      "ordinal": 13,
+      "auditId": "AUD-TRUST-006",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "C2PA signatures and verified content credentials",
+        "acceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-006"
+      },
+      "proposedMeaning": {
+        "input": "Exact immutable bytes/version, manifest, signer/key/trust refs and requested creation or verification action.",
+        "trigger": "Request credential creation or verification.",
+        "positiveOutcome": "Report creation and verification separately against exact bytes and trust evidence; absent/invalid evidence remains UNKNOWN/invalid.",
+        "failureAndNegativeBehavior": "Manifest is not signature validity; no authenticity or delivery claim without evidence.",
+        "authorityBoundary": "PDP-0 outcome; signature/trust state PDP-1; no proof fabricated."
+      },
+      "proposedAcceptanceCriterion": "AUD-TRUST-006: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.provenance-manifest"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.provenance-manifest",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.provenance.export"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-006",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.provenance-manifest",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.provenance.export",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-047",
+      "rationale": "Credential creation and verification are distinct and exact-byte/trust-evidence bound; manifest presence is not signature validity or authenticity.",
+      "ownerReviewConditions": [
+        "No signer, key, trust issuer, signature, delivery or credential verification is granted by this proposal."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-14",
+      "ordinal": 14,
+      "auditId": "AUD-TRUST-010",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Secure model provenance, signed cache and hash verification",
+        "acceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-010"
+      },
+      "proposedMeaning": {
+        "input": "Exact model/checkpoint/license, cache artifact/version/digest, signer/key/trust evidence and execution lineage.",
+        "trigger": "Request secure provenance or signed-cache verification.",
+        "positiveOutcome": "Return distinct hash-integrity, signature/trust, license and lineage observations, each with exact evidence or UNKNOWN.",
+        "failureAndNegativeBehavior": "Hash is not signature/license proof; path/name/export manifest is not verification.",
+        "authorityBoundary": "PDP-0 assurance outcomes; lineage identities PDP-1; security proof separately evidenced."
+      },
+      "proposedAcceptanceCriterion": "AUD-TRUST-010: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.provenance.export"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.provenance.export"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-010",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.provenance.export",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.inspect",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-048",
+      "rationale": "Hash integrity, signature/trust, license and lineage are separate evidence outcomes; hash or manifest alone cannot yield verified provenance.",
+      "ownerReviewConditions": [
+        "Every assurance must cite exact evidence; absent/invalid evidence remains UNKNOWN and no security proof is issued."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-15",
+      "ordinal": 15,
+      "auditId": "AUD-TRUST-014",
+      "criterionId": "P0-07",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Consent-aware faces, likeness and appearance recast",
+        "acceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-014"
+      },
+      "proposedMeaning": {
+        "input": "Exact source version, declared subject/reference, purpose/scope, consent evidence and explicit requested appearance transformations.",
+        "trigger": "Request authorized appearance-recast candidate.",
+        "positiveOutcome": "Return reviewable source-bound candidate with exact requested transformations and estimated/unresolved fields; preserve source and rights lineage.",
+        "failureAndNegativeBehavior": "Missing/revoked/ambiguous consent blocks; no identity/ownership permission inferred; restoration is not recast; no render claim.",
+        "authorityBoundary": "PDP-0 user intent/result; protected identities PDP-1; enforcement/model qualification later."
+      },
+      "proposedAcceptanceCriterion": "AUD-TRUST-014: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.face-restoration",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.clone-authorized"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/acceptanceCases/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/acceptanceCases/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-014",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.face-restoration",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.clone-authorized",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/acceptanceCases/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/acceptanceCases/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "REQUEST_CHANGES",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-049",
+      "rationale": "The proposal identifies exact source, subject, purpose, consent and requested transformations, but it still does not define which transformation dimensions are permitted after authorization. A request-preserving candidate is not a bounded recast outcome and leaves scope for arbitrary identity/likeness changes.",
+      "ownerReviewConditions": [
+        "Add a source-owned bounded set of permitted recast transformation dimensions and an explicit unsupported/UNKNOWN/blocked result for every unlisted, ambiguous or out-of-scope transformation; preserve exact consent scope and prohibit identity/ownership inference. If the owner cannot define that boundary, keep the feature unresolved rather than treating this proposal as complete."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-16",
+      "ordinal": 16,
+      "auditId": "AUD-TRUST-015",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Cross-tenant derivative/cache isolation",
+        "acceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-015"
+      },
+      "proposedMeaning": {
+        "input": "Exact tenant IDs, source version, derivative/cache candidate, purpose and rights/retention evidence.",
+        "trigger": "Request derivative reuse within/across tenant scope.",
+        "positiveOutcome": "Allow reuse candidate only if exact tenant/purpose/source/rights match; else deny/no-reuse or UNKNOWN.",
+        "failureAndNegativeBehavior": "Attachment is not cache authorization; no cross-tenant disclosure/reuse or hash-only equivalence.",
+        "authorityBoundary": "PDP-0 reuse result; tenant/cache state PDP-1; isolation enforcement implementation evidence."
+      },
+      "proposedAcceptanceCriterion": "AUD-TRUST-015: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.derived-asset.attach"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.derived-asset.attach",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-015",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.derived-asset.attach",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-11",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-050",
+      "rationale": "Cross-tenant reuse is constrained by exact tenant, purpose, source and rights bindings; attachment is not cache authorization and hash-only equivalence is rejected.",
+      "ownerReviewConditions": [
+        "A mismatched or unknown tenant/rights scope must remain denied, miss or UNKNOWN; no cross-tenant disclosure follows."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-17",
+      "ordinal": 17,
+      "auditId": "AUD-TRUST-018",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Deletion confirmation distinct from access restriction",
+        "acceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-018"
+      },
+      "proposedMeaning": {
+        "input": "Exact artifact/version, authority, rights/retention/hold state, owner effect and external readback when applicable.",
+        "trigger": "Request deletion confirmation or access restriction.",
+        "positiveOutcome": "Return access restriction, deletion request, recorded effect and external readback separately; confirm only with authoritative exact effect/readback else pending/UNKNOWN.",
+        "failureAndNegativeBehavior": "Blocked access is not deletion; request is not completion; no external erasure inferred.",
+        "authorityBoundary": "PDP-0 outcome distinction; effect/readback identities PDP-1; external proof from actual authority."
+      },
+      "proposedAcceptanceCriterion": "AUD-TRUST-018: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.erasure.effect.record"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.erasure.effect.record",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.retention.effect.record"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-018",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.erasure.effect.record",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.retention.effect.record",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-051",
+      "rationale": "Access restriction, deletion request, recorded effect and external readback are distinguished; confirmation requires exact authoritative effect/readback.",
+      "ownerReviewConditions": [
+        "Do not interpret blocked access, request receipt or internal record as deletion completion."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-18",
+      "ordinal": 18,
+      "auditId": "AUD-TTS-001",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Preset voice library and search",
+        "acceptanceText": "Two chosen voice profiles produce distinguishable audible output and exact configured/effective/worker voice IDs; unsupported style or cloning requests deny honestly.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TTS-001"
+      },
+      "proposedMeaning": {
+        "input": "Declared voice-catalog scope/query and language/style/use constraints with source-owned catalog/version metadata.",
+        "trigger": "Search voice choices.",
+        "positiveOutcome": "Return exact versioned entries and source-declared metadata/applicability; catalog coverage UNKNOWN when missing/unindexed.",
+        "failureAndNegativeBehavior": "Listing is not engine availability, license admission, effective voice or synthesis; no default voice.",
+        "authorityBoundary": "PDP-0 search outcome; catalog identities PDP-1; execution separate."
+      },
+      "proposedAcceptanceCriterion": "AUD-TTS-001: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.discover"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.discover",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TTS-001",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.discover",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "PASS",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-052",
+      "rationale": "Voice-catalog search returns versioned declared choices and metadata while separating catalog presence from availability, license admission, effective choice and synthesis.",
+      "ownerReviewConditions": [
+        "Missing or unindexed catalog coverage stays UNKNOWN; no default voice or engine availability is inferred."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-19",
+      "ordinal": 19,
+      "auditId": "AUD-TTS-002",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Multiple approved TTS engines and per-job selection",
+        "acceptanceText": "Two chosen voice profiles produce distinguishable audible output and exact configured/effective/worker voice IDs; unsupported style or cloning requests deny honestly.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TTS-002"
+      },
+      "proposedMeaning": {
+        "input": "Requested text/profile/engine/model/voice versions, license/purpose context and exact job lineage if executed.",
+        "trigger": "Select approved engine and inspect result.",
+        "positiveOutcome": "Return requested selection/admission separately; effective engine/model/voice only from exact authoritative lineage else UNKNOWN.",
+        "failureAndNegativeBehavior": "No silent switch/default; discovery is not effective execution; missing license/pin unavailable.",
+        "authorityBoundary": "PDP-0 truthful choice; job lineage PDP-1; runtime qualification separate."
+      },
+      "proposedAcceptanceCriterion": "AUD-TTS-002: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.discover"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.discover",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TTS-002",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.discover",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases/@id=MEDIA-REQ-CAP-CAPABILITY-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "REQUEST_CHANGES",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-053",
+      "rationale": "The candidate now binds requested choice separately and conditions effective engine/model/voice on exact authoritative job lineage; this resolves the R2 lineage issue without permitting silent substitution.",
+      "ownerReviewConditions": [
+        "Keep effective values UNKNOWN without exact authoritative lineage/readback; requested values alone are not proof of execution."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-20",
+      "ordinal": 20,
+      "auditId": "AUD-TTS-010",
+      "criterionId": "P0-07",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+      "originalFeature": {
+        "text": "Long-form sentence chunking and crossfade alignment",
+        "acceptanceText": "Two chosen voice profiles produce distinguishable audible output and exact configured/effective/worker voice IDs; unsupported style or cloning requests deny honestly.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TTS-010"
+      },
+      "proposedMeaning": {
+        "input": "Exact input text/version and ordered text spans, selected profile and explicit output-time/alignment/crossfade intent.",
+        "trigger": "Generate long-form chunk candidates.",
+        "positiveOutcome": "Return ordered chunks tied to input-text boundaries; output-time/alignment/crossfade disposition stated separately; partial/unaligned remains explicit.",
+        "failureAndNegativeBehavior": "Text span is not media-time span; no hidden truncation/loss; no alignment claim without timing evidence.",
+        "authorityBoundary": "PDP-0 output intent; text/timeline identities PDP-1; synthesis/render BUILD."
+      },
+      "proposedAcceptanceCriterion": "AUD-TTS-010: owner review must confirm the stated observable outcome and each failure boundary against exact source authorities; unsupported values remain UNKNOWN/UNAVAILABLE and no execution, qualification, or closure is claimed.",
+      "exactCurrentCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.dub-subtitle-voiceover-time"
+      ],
+      "candidateCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.dub-subtitle-voiceover-time"
+      ],
+      "candidateRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SYNC"
+      ],
+      "candidateAcceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SYNC/acceptanceCases/@id=MEDIA-REQ-CAP-SYNC-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SYNC/acceptanceCases/@id=MEDIA-REQ-CAP-SYNC-AC-02"
+      ],
+      "sourceEvidenceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TTS-010",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.dub-subtitle-voiceover-time",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SYNC",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SYNC/acceptanceCases/@id=MEDIA-REQ-CAP-SYNC-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SYNC/acceptanceCases/@id=MEDIA-REQ-CAP-SYNC-AC-02",
+        ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0"
+      ],
+      "priorR2PeerDisposition": "REQUEST_CHANGES",
+      "priorR2PeerFindingId": "MEDIA-PDP0-P0-07-C03-R2-PEER-061",
+      "rationale": "The revised proposal uses ordered exact input-text spans and states output-time/alignment/crossfade disposition separately, addressing the R2 source-span ambiguity; partial or unaligned chunks remain explicit.",
+      "ownerReviewConditions": [
+        "Keep text boundaries distinct from media-time boundaries and make missing timing evidence UNKNOWN; no hidden truncation or render claim."
+      ],
+      "nonClaims": [
+        "No canonical source edit or PDP-0 owner decision is made.",
+        "No implementation, runtime, qualification, legal/security signoff, acceptance, or closure is claimed."
+      ]
+    }
+  ],
+  "sourceAmendmentBoundary": {
+    "acceptedForTechnicalUse": [
+      "AUD-OPS-001",
+      "AUD-OPS-002",
+      "AUD-OPS-003",
+      "AUD-OPS-006",
+      "AUD-OPS-017",
+      "AUD-OPS-019",
+      "AUD-QA-006",
+      "AUD-QA-011",
+      "AUD-QA-012",
+      "AUD-SOCIAL-011",
+      "AUD-SPEC-005",
+      "AUD-TRUST-005",
+      "AUD-TRUST-006",
+      "AUD-TRUST-010",
+      "AUD-TRUST-015",
+      "AUD-TRUST-018",
+      "AUD-TTS-001",
+      "AUD-TTS-002",
+      "AUD-TTS-010"
+    ],
+    "requiresChanges": [
+      "AUD-TRUST-014"
+    ],
+    "canonicalOwnerDisposition": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+    "phaseStatusEffect": "NONE",
+    "noSourceApply": true
+  },
+  "excludedFromThisVerdict": {
+    "auditIds": [
+      "AUD-SPEC-002"
+    ],
+    "reason": "AUD-SPEC-002 is separately reviewed under the frozen v4 source-amendment candidate; this peer record does not assess that proposal.",
+    "relatedV4PeerRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v4.json"
+  },
+  "nonClaims": [
+    "Technical peer review is not source-owner adoption.",
+    "No independent human review, credentialed attestation, canonical source write, DEV_COMPLETE, PDP acceptance, runtime, qualification, or closure is claimed."
+  ]
+}

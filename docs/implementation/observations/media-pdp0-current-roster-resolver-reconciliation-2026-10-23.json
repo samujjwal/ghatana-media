@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "media.pdp0-current-roster-resolver-reconciliation.v1",
+  "recordId": "MEDIA-PDP0-CURRENT-ROSTER-RESOLVER-RECONCILIATION-2026-10-23",
+  "phase": "PDP-0",
+  "classification": "CURRENT_INVENTORY_RESOLVER_CORRECTION_NO_MEANING_CHANGE",
+  "authority": "agent:/root/phase_io under explicit root-delegated Media technical-owner authority; no owner approval or independent acceptance is claimed.",
+  "currentInventory": {
+    "physicalCandidates": 26,
+    "semanticCompositions": 6,
+    "repositoryRoots": 1,
+    "consumers": 21,
+    "totalCells": 54,
+    "derivation": "Counts are derived from the current physical-topology arrays and exact consumer-surface-registry identity set; topology candidate count, composition kind partition, unique IDs, and consumer/physical inverse mappings are validated."
+  },
+  "historicalBoundary": {
+    "priorR12Denominator": { "physicalCandidates": 26, "semanticCompositions": 6, "repositoryRoots": 1, "consumers": 17, "totalCells": 50 },
+    "priorR12ReceiptMutated": false,
+    "currentnessClaimForPriorR12": "NONE"
+  },
+  "sourceSha256": {
+    "scripts/media-discovery-currentness.mjs": "aed1bbb1aa5ca6d21a35f33c94abe1cbe2b6cedf8f3e73c7821f51edf8e4afbb",
+    "scripts/record-media-discovery-pdp0-currentness.mjs": "415e0a46dfbf1f1dbfb81fdfad6da2d7966aafc37ec796e7d33c433ae579cb26",
+    "tests/media-discovery-currentness.test.mjs": "d0b4437852cce1f631698c9a75e634639ac317b2c2d82608ca6f7a7ed4e424e5",
+    "tests/media-discovery-current-roster.test.mjs": "ca3e02737ebf23139ca1584e40d75b268ec260f2a118c06dcb8434046072d07d",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+    ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+  },
+  "historicalSupportSnapshots": [
+    {
+      "path": "docs/implementation/observations/media-discovery-currentness-test-predecessor-snapshot-2026-10-23.mjs",
+      "sha256": "c9a8dbf034fababa21cacf5d38319c03a1cf7ac242f3140b6982899706288143",
+      "purpose": "Preserves exact test bytes used by immutable R11/R12 historical support hashes while allowing active current-roster tests to evolve."
+    },
+    {
+      "path": "docs/implementation/observations/record-media-discovery-pdp0-currentness-predecessor-snapshot-2026-10-23.mjs",
+      "sha256": "652e8d774e2f89478f52be114df6ab969ced82c60b70ccfb330891a084ad4780",
+      "purpose": "Preserves exact recorder bytes used by immutable R11/R12 historical support hashes."
+    }
+  ],
+  "verification": {
+    "command": "node --test tests/media-discovery-currentness.test.mjs tests/media-discovery-current-roster.test.mjs",
+    "result": "PASS",
+    "tests": 19,
+    "negativeCoverage": ["consumer roster missing a registry identity is rejected"]
+  },
+  "meaningChanges": [],
+  "ownerApproval": "NOT_CLAIMED",
+  "independentAcceptance": "NOT_CLAIMED",
+  "phaseClosure": "NOT_ENTERED",
+  "runtimeAdmission": "NOT_ADMITTED",
+  "delivery": "NOT_AUTHORIZED",
+  "limitation": "This record documents the resolver correction and focused tests only. It does not establish current PDP-0 source receipt, DEV_COMPLETE, acceptance, native closure, Build admission, Delivery, or release."
+}

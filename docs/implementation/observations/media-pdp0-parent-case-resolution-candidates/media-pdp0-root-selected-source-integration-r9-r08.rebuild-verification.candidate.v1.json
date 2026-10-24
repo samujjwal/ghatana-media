@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r08-rebuild-verification.v1",
+  "status": "R9_R08_CANDIDATE_REPLAY_VERIFIED_PENDING_DISTINCT_H_REVIEW",
+  "candidateBundle": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
+    "sha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+  },
+  "sourceBaselineTargets": 7,
+  "crosswalkRowsBefore": 501,
+  "crosswalkRowsAfter": 501,
+  "crosswalkTraceRows": 18,
+  "crosswalkCandidateSelectorsAppended": 132,
+  "selectedOperations": 122,
+  "retainedProjectionOperations": 248,
+  "r9R07PostimagesPreservedExactly": {
+    "capabilities": "3fa48a2a84d96acfef798193646007365eedbdee2a7482fa8e8912da23cfa18e",
+    "requirements": "a6d892f87847b56bc601efd4cba2e85a763840f082b991d282fbbd408a2e4508",
+    "capabilityLeafReview": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+  },
+  "currentStatus": {
+    "status": "IN_PROGRESS",
+    "staleTargetPins": 7,
+    "completeTargetPins": 0
+  },
+  "denominators": {
+    "registeredIdentities": 54,
+    "phaseCells": 216,
+    "historicalOwnerRows": 462,
+    "pdp0AuditRows": 501
+  },
+  "historicalHReview": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.independent-peer.actual-h-r07-full.json",
+    "result": "PASS_FOR_R9_R07_ONLY"
+  },
+  "independentR08Review": "NOT_PERFORMED; DISTINCT_REVIEWER_REQUIRED",
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE",
+  "ownerAdoption": "NONE",
+  "replayCommand": "node scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-candidate.mjs --check"
+}

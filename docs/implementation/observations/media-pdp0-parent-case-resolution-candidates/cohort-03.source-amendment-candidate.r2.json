@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "1.0.0",
+  "artifactId": "MEDIA-PDP0-P0-07-C03-SOURCE-AMENDMENT-CANDIDATE-BATCH-R2",
+  "status": "PREPARED_NOT_APPLIED",
+  "campaign": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "campaignDenominator": {
+      "physical": 26,
+      "compositionsIncludingRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "cohortOrdinal": 3,
+    "rowCount": 20,
+    "membershipSource": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-pdp0-resolution-cohort-assignments.json",
+    "origin": "Exactly the rows classified MISSING_PDP0_DEFINITION in frozen cohort-03.r2.json."
+  },
+  "sourceProposalR1Sha256": "d2d8d6f042fa686819dfb8ae93cf4a3d24a3e99da600dfc717d785d4d725fdc3",
+  "sourceProposalR2Sha256": "c299e7057fb6c1de07feead506c90d0f127b079599526d2846c18d4342bfd2f5",
+  "peerReviewSha256": "7c3b92597c72070c73da5b56e919af74abf69d83885667156b30fa7a1f155503",
+  "targets": [
+    {
+      "canonicalPath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "selectorRoot": "capabilities",
+      "preimagePath": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.source-amendment-capabilities.preimage.r2.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "candidatePostimagePath": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.source-amendment-capabilities.postimage.r2.yaml",
+      "candidatePostimageSha256": "f290dca86ab664f8935dcf36551d79e8e24da2512feac77ae7ad1540fcb80e58",
+      "additiveCaseCount": 19
+    },
+    {
+      "canonicalPath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "selectorRoot": "requirements",
+      "preimagePath": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.source-amendment-requirements.preimage.r2.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "candidatePostimagePath": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.source-amendment-requirements.postimage.r2.yaml",
+      "candidatePostimageSha256": "7a12743a4cf287322e739b5e0e5079408101bb27887ac8cd5c40121b391c0bba",
+      "additiveCaseCount": 19
+    }
+  ],
+  "recordPostimagesPath": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.source-amendment-record-postimages.r2.json",
+  "canonicalApply": false,
+  "applyPreconditions": [
+    "source owner decision for every proposed row",
+    "validate all exact selectors and capability-to-requirement traces against current sources",
+    "recompute and review PDP-0 phase status/currentness after an authorized apply"
+  ],
+  "cohort01UnknownOptions": [
+    {
+      "auditId": "AUD-CAP-028",
+      "options": [
+        "Keep UNKNOWN until receipt authority and evidence are source-bound.",
+        "If owner confirms a distinction, split reconnect/session observation from separately authorized recording-resume effect."
+      ]
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "options": [
+        "Keep outside P0 pending owner applicability decision.",
+        "If applicable, define source, purpose, retention, and profile versions without implying training admission."
+      ]
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "options": [
+        "Record explicit owner N/A/out-of-scope with rationale.",
+        "If owner confirms applicability, create a new PDP-0 definition with rights and synthetic-origin bounds."
+      ]
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "options": [
+        "Remain UNKNOWN pending applicability and authority.",
+        "If applicable, define enrollment result against subject, purpose, scope, and rights; never infer identity."
+      ]
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "options": [
+        "Remain UNKNOWN until compatibility/conformance authority and evidence exist.",
+        "If applicable, define only a declared source/target transform candidate without an ACES certification claim."
+      ]
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "options": [
+        "Keep legal/hardware compatibility UNKNOWN pending exact review records.",
+        "If applicable, narrow to a profile-bound compatibility request without legal/hardware support claims."
+      ]
+    }
+  ],
+  "nonClaims": [
+    "No canonical apply, owner adoption, acceptance, closure, implementation, qualification, delivery or release is claimed."
+  ]
+}

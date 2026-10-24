@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r06.repair-map.v1",
+  "status": "CANDIDATE_REPAIR_MAP_ONLY",
+  "predecessor": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.freeze.v1.json",
+    "freezeSha256": "4ce72424e401e58cc16b59a28f552c79ffad60ef25094f005537d7322c4f0b37",
+    "bundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.successor-bundle.candidate.v1.json",
+    "bundleSha256": "aa32fd81b73f9dd1063d3e51c30a93842ae9dc655840a6a1188dcad0e5c9ca4d",
+    "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.independent-peer.actual-h-r05-full.json",
+    "actualHReviewSha256": "1f00faf797417d68bc7e192dbc2e3450299a6b3f8262fb93fe62eee36841915d"
+  },
+  "findingId": "F-09",
+  "auditId": "AUD-GEN-024",
+  "changedFields": [
+    "ownerDefinition.semanticOutcomeContract.conditions",
+    "positive-to-unknown outcome wording in negative leaf given",
+    "positive-to-unknown outcome wording in linked negative parent given"
+  ],
+  "replacement": {
+    "from": "UNKNOWN",
+    "to": "UNKNOWN_OUTCOME"
+  },
+  "exactLeafParentGivenParity": true,
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE"
+}

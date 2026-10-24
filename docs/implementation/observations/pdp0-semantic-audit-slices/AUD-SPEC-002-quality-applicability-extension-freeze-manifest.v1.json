@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "media.pdp0.quality-applicability-extension-freeze-manifest.v1",
+  "status": "CANDIDATE_ONLY_PENDING_DISTINCT_TECHNICAL_PEER_AND_SOURCE_OWNER_APPLY",
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-applicability-extension-candidate.v1.json",
+  "candidateSha256": "98e156dc880564b81b2525b756fc7b45318d5aeeb413fcc2ca43797304f51df3",
+  "schemaRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-applicability-extension-candidate.v1.schema.json",
+  "schemaSha256": "c0886c375fca3b550fe1edad7db011954c7193c27daae2a6e1a1fc30e90b91b9",
+  "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-policy-extension-postimage.v1.yaml",
+  "postimageSha256": "1fde3bbb3137d1ae3f00926b117abc0564ede328f14a5f19d42ba58a6f11a284",
+  "targetPreimageSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+  "sourcePins": {
+    "qualityPolicySha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+    "capabilityPostimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+    "campaignPostimageSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+    "currentCapabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "pxd225Sha256": "efbfe052755dfe3af7fcf7ef82736d66d0a03c484feebb48f5880a954566abb8",
+    "v6ManifestSha256": "89982f72fe43c5b4d2dd4ee39e1064c1fcdd3ecf909de5e9c2852946bdc44826",
+    "rootChoiceSha256": "f26831abe430b0f48b5f00e1fcde0ceca4ed70f6dcb109eecf8577d078589228",
+    "qualityOptionsSha256": "8f9ddb76bd05628b81a3400910378fef210c17cf99e414ef38870a5b1e7e476a"
+  },
+  "producerPins": {
+    "scripts/lib/media-pdp0-quality-applicability-extension.mjs": "150b09b1c91dedeb6eab08f146c2535f65c08b04279b7ab60bf03eceb929efc5",
+    "scripts/lib/media-pdp0-quality-applicability-extension-candidate.mjs": "16f63afe1684d24da90accc383098ddc0a517cd8dfd3fcd3a290de4a47937f72",
+    "scripts/plan-media-pdp0-quality-applicability-extension.mjs": "a29f4eb32738435032229341be4165a4d0b22d34a215d89e83240b458527c64d",
+    "tests/media-pdp0-quality-applicability-extension.test.mjs": "ace43cabb3e3ce4bd99fe8e3d981e222abe0195d5a38aea98b0afef6e4ed914a"
+  },
+  "canonicalApply": "NOT_PERFORMED",
+  "independentAcceptance": "NOT_CLAIMED",
+  "nativeProof": "NOT_CLAIMED"
+}

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "media.pdp0.actual-quality-successor-current-source-baseline.v1",
+  "artifactId": "MEDIA-PDP0-QUALITY-SUCCESSOR-CURRENT-SOURCE-BASELINE-2026-10-23",
+  "status": "CURRENT_BASELINE_EXACT_READBACK_VERIFIED",
+  "scope": "PDP-0 source baseline for remaining 231-case projection work",
+  "v7Predecessor": {
+    "readbackRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-v7-actual-root-source-readback-2026-10-23.json",
+    "readbackSha256": "813b23c2ca4ceaaa59086b8fb093582e2f2240fb0e494f494a65980f5587467f",
+    "disposition": "CONSUMED_PREDECESSOR_AFTER_QUALITY_TWO_TARGET_SUCCESSOR",
+    "targets": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+      }
+    ]
+  },
+  "currentTargets": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+    },
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+    }
+  ],
+  "successorTransaction": {
+    "readbackRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-actual-root-source-readback-2026-10-23.json",
+    "readbackSha256": "7e4cc90c156d8116d755d5d7308d6a78bfa8c753ac8131b58ec1dd4400e9fe62",
+    "state": "COMMITTED_EXACT_READBACK",
+    "canonicalWrite": "PERFORMED",
+    "journalRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a.json",
+    "authorizationSha256": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354",
+    "targets": [
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      }
+    ]
+  },
+  "declaredSourceImpact": {
+    "decisionId": "PXD-227",
+    "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json",
+    "candidateSha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a",
+    "peerReviewRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-independent-peer.v2.json",
+    "peerReviewSha256": "b7a9cbcee391d9a892cf0b023b302c8e5e08bc4eadd8c54dc56b20a1815c783d",
+    "sourceOwnerDecisionRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-owner-decision.v2.json",
+    "sourceOwnerDecisionSha256": "5691a35413dac65942738cf1e4cbe1ca648320e2bfa2228f2431ac5aa8b7fb8c",
+    "applyAuthorizationRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-authorization.v2.json",
+    "applyAuthorizationSha256": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354",
+    "population": {
+      "historicalRowsPreserved": 462,
+      "currentExtensionRows": 1,
+      "currentRows": 463,
+      "futureExtensionRows": 6
+    },
+    "meaning": {
+      "rightsSafety": "APPLICABLE",
+      "otherFiveDimensions": "NOT_APPLICABLE",
+      "metricDefinitions": 16,
+      "metrics": "NOT_APPLICABLE"
+    },
+    "effects": {
+      "measurement": "NOT_EVALUATED",
+      "qualification": "NOT_EVALUATED",
+      "phaseStatus": "UNCHANGED",
+      "acceptanceEffect": "NONE",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  },
+  "preservation": {
+    "fiveOtherV7TargetsRemainByteExact": true,
+    "targets": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      }
+    ],
+    "pxd226": {
+      "priorSectionSha256": "a98524f567639635b9dd5f43e53b8a60e40b2ea4f21d57ac19697098e9ef4dc8",
+      "currentSectionSha256": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b",
+      "textEqualAfterTrimEnd": true,
+      "priorTrailingNewlineCount": 1,
+      "currentTrailingNewlineCount": 2,
+      "interpretation": "PXD-226 prose is unchanged after trimming the added separator newline; the exact section hash is updated to the current successor value."
+    }
+  },
+  "phaseStatusWritten": false,
+  "formalAcceptance": false,
+  "nativeClosure": false,
+  "qualification": false,
+  "release": false,
+  "nonClaims": [
+    "The exact source readback does not establish PDP-0 phase completion, currentness across all surfaces, formal acceptance, native closure, implementation qualification, or delivery.",
+    "Case operations are semantically projected against unchanged relevant v7 product sources and explicitly carry this PXD-227 quality-source successor impact; no canonical case projection apply is performed."
+  ]
+}

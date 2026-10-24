@@ -1,0 +1,380 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r04.repair-map.v1",
+  "status": "CANDIDATE_REPAIR_MAP_ONLY",
+  "predecessor": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r03.freeze.v1.json",
+    "freezeSha256": "5c6f180b3c0a67013d33d9c452116489922be411f91cd63de1a3bc41eb2523bc",
+    "bundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r03.successor-bundle.candidate.v1.json",
+    "bundleSha256": "eb6784ead1b0397f8f95c420c3bbf4580ad2fb1cf0f93ef232118ad885da1259",
+    "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r03.independent-peer.actual-h-r03-full.json",
+    "actualHReviewSha256": "34e20d2ce3095103008444f9d4f6804ac6b9547403ef424d4f1b312c84f55976"
+  },
+  "repairs": [
+    {
+      "findingId": "F-06",
+      "audits": [
+        "AUD-CAP-028",
+        "AUD-CLONE-004",
+        "AUD-CLONE-006",
+        "AUD-CLONE-017",
+        "AUD-COLOR-007",
+        "AUD-DELIV-007",
+        "AUD-COLOR-001"
+      ],
+      "changedParentWhenCount": 34,
+      "parentChanges": [
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "leafCaseId": "R7-AUD-CAP-028-01",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-01",
+          "requirementId": "MEDIA-REQ-CAP-STREAM",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Caller requests product-effect observation. Parent relation: MEDIA-REQ-CAP-STREAM includes capability media.stream.session.product-effect.readback.observe.",
+          "afterWhen": "Caller requests product-effect observation."
+        },
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "leafCaseId": "R7-AUD-CAP-028-02",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-02",
+          "requirementId": "MEDIA-REQ-CAP-STREAM",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Caller requests observation or resume. Parent relation: MEDIA-REQ-CAP-STREAM includes capability media.stream.session.product-effect.readback.observe.",
+          "afterWhen": "Caller requests observation or resume."
+        },
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "leafCaseId": "R7-AUD-CAP-028-03",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-03",
+          "requirementId": "MEDIA-REQ-CAP-STREAM",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Caller retries the effect instead of reading it. Parent relation: MEDIA-REQ-CAP-STREAM includes capability media.stream.session.product-effect.readback.observe.",
+          "afterWhen": "Caller retries the effect instead of reading it."
+        },
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "leafCaseId": "R7-AUD-CAP-028-04",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-04",
+          "requirementId": "MEDIA-REQ-CAP-STREAM",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Caller requests observation. Parent relation: MEDIA-REQ-CAP-STREAM includes capability media.stream.session.product-effect.readback.observe.",
+          "afterWhen": "Caller requests observation."
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "leafCaseId": "R7-AUD-CLONE-004-01",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-01",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Caller requests authorized tuning. Parent relation: MEDIA-REQ-CAP-SPEECH-SYNTHESIS includes capability media.speech.synthesis.speaker.tune-authorized.",
+          "afterWhen": "Caller requests authorized tuning."
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "leafCaseId": "R7-AUD-CLONE-004-02",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-02",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Caller requests tuning. Parent relation: MEDIA-REQ-CAP-SPEECH-SYNTHESIS includes capability media.speech.synthesis.speaker.tune-authorized.",
+          "afterWhen": "Caller requests tuning."
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "leafCaseId": "R7-AUD-CLONE-004-03",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-03",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Request is evaluated. Parent relation: MEDIA-REQ-CAP-SPEECH-SYNTHESIS includes capability media.speech.synthesis.speaker.tune-authorized.",
+          "afterWhen": "Request is evaluated."
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "leafCaseId": "R7-AUD-CLONE-004-04",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-04",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Caller retries automatically. Parent relation: MEDIA-REQ-CAP-SPEECH-SYNTHESIS includes capability media.speech.synthesis.speaker.tune-authorized.",
+          "afterWhen": "Caller retries automatically."
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "leafCaseId": "R7-AUD-CLONE-006-01",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-01",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Caller designs source-free persona. Parent relation: MEDIA-REQ-CAP-SPEECH-SYNTHESIS includes capability media.speech.synthesis.speaker.design-synthetic-persona.",
+          "afterWhen": "Caller designs source-free persona."
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "leafCaseId": "R7-AUD-CLONE-006-02",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-02",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Caller requests source-free design. Parent relation: MEDIA-REQ-CAP-SPEECH-SYNTHESIS includes capability media.speech.synthesis.speaker.design-synthetic-persona.",
+          "afterWhen": "Caller requests source-free design."
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "leafCaseId": "R7-AUD-CLONE-006-03",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-03",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Caller requests persona design. Parent relation: MEDIA-REQ-CAP-SPEECH-SYNTHESIS includes capability media.speech.synthesis.speaker.design-synthetic-persona.",
+          "afterWhen": "Caller requests persona design."
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "leafCaseId": "R7-AUD-CLONE-006-04",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-04",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Request is evaluated. Parent relation: MEDIA-REQ-CAP-SPEECH-SYNTHESIS includes capability media.speech.synthesis.speaker.design-synthetic-persona.",
+          "afterWhen": "Request is evaluated."
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "leafCaseId": "R7-AUD-CLONE-017-01",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-01",
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Enrollment decision is made. Parent relation: MEDIA-REQ-CAP-RIGHTS includes capability media.speech.synthesis.speaker.enroll-persona-authorized.",
+          "afterWhen": "Enrollment decision is made."
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "leafCaseId": "R7-AUD-CLONE-017-02",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-02",
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Enrollment is requested. Parent relation: MEDIA-REQ-CAP-RIGHTS includes capability media.speech.synthesis.speaker.enroll-persona-authorized.",
+          "afterWhen": "Enrollment is requested."
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "leafCaseId": "R7-AUD-CLONE-017-03",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-03",
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Enrollment is requested. Parent relation: MEDIA-REQ-CAP-RIGHTS includes capability media.speech.synthesis.speaker.enroll-persona-authorized.",
+          "afterWhen": "Enrollment is requested."
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "leafCaseId": "R7-AUD-CLONE-017-04",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-04",
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Caller treats resolution as enrollment. Parent relation: MEDIA-REQ-CAP-RIGHTS includes capability media.speech.synthesis.speaker.enroll-persona-authorized.",
+          "afterWhen": "Caller treats resolution as enrollment."
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "leafCaseId": "R7-AUD-COLOR-007-01",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-01",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Caller requests compatibility observation. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.profile.compatibility.observe.",
+          "afterWhen": "Caller requests compatibility observation."
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "leafCaseId": "R7-AUD-COLOR-007-02",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-02",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Compatibility is evaluated. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.profile.compatibility.observe.",
+          "afterWhen": "Compatibility is evaluated."
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "leafCaseId": "R7-AUD-COLOR-007-03",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-03",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Request is evaluated. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.profile.compatibility.observe.",
+          "afterWhen": "Request is evaluated."
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "leafCaseId": "R7-AUD-COLOR-007-04",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-04",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Compatibility is evaluated. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.profile.compatibility.observe.",
+          "afterWhen": "Compatibility is evaluated."
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "leafCaseId": "R7-AUD-DELIV-007-01",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-01",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Caller requests readiness observation. Parent relation: MEDIA-REQ-CAP-DELIVER includes capability media.deliver.readiness.observe.",
+          "afterWhen": "Caller requests readiness observation."
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "leafCaseId": "R7-AUD-DELIV-007-02",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-02",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Readiness is evaluated. Parent relation: MEDIA-REQ-CAP-DELIVER includes capability media.deliver.readiness.observe.",
+          "afterWhen": "Readiness is evaluated."
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "leafCaseId": "R7-AUD-DELIV-007-03",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-03",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Readiness is evaluated. Parent relation: MEDIA-REQ-CAP-DELIVER includes capability media.deliver.readiness.observe.",
+          "afterWhen": "Readiness is evaluated."
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "leafCaseId": "R7-AUD-DELIV-007-04",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-04",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Readiness is evaluated. Parent relation: MEDIA-REQ-CAP-DELIVER includes capability media.deliver.readiness.observe.",
+          "afterWhen": "Readiness is evaluated."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-01",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-01",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Saturation adjustment is requested. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Saturation adjustment is requested."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-02",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-02",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Saturation adjustment is requested. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Saturation adjustment is requested."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-03",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-03",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Saturation adjustment is requested. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Saturation adjustment is requested."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-04",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-04",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Saturation adjustment is requested. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Saturation adjustment is requested."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-05",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-05",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "POSITIVE",
+          "beforeWhen": "Validate request. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Validate request."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-06",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-06",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Validate request. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Validate request."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-07",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-07",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Validate request. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Validate request."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-08",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-08",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Validate request. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Validate request."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-09",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-09",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Adjustment is requested. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Adjustment is requested."
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "leafCaseId": "R7-AUD-COLOR-001-10",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-10",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "polarity": "NEGATIVE",
+          "beforeWhen": "Adjustment is requested. Parent relation: MEDIA-REQ-CAP-COLOR includes capability media.color.saturation.",
+          "afterWhen": "Adjustment is requested."
+        }
+      ]
+    },
+    {
+      "findingId": "F-07",
+      "auditId": "AUD-GEN-024",
+      "branchRepair": {
+        "missingStaleAmbiguousEvidence": "UNKNOWN_OUTCOME only",
+        "rejected": "explicit invalid, unsupported, or denied request only",
+        "mirroredLeafParentThen": true
+      }
+    }
+  ],
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE"
+}

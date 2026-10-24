@@ -29,6 +29,38 @@ export function selectCommittedPxd225Predecessor(headChannels, parentChannels) {
   return JSON.stringify(expectedHead) === JSON.stringify(headChannels) ? parentChannels : headChannels;
 }
 
+export function selectPxd225PredecessorFromHistory(currentChannels, commits) {
+  for (const commit of commits) {
+    if (!commit || !commit.postimage || !commit.parentImage
+        || JSON.stringify(commit.postimage) !== JSON.stringify(currentChannels)) continue;
+    const predecessor = selectCommittedPxd225Predecessor(commit.postimage, commit.parentImage);
+    if (predecessor === commit.parentImage) return predecessor;
+  }
+  return currentChannels;
+}
+
+function committedChannelHistory(currentChannels) {
+  const hashes = execFileSync('git', ['log', '--all', '--full-history', '--format=%H', '-Sai-voice-desktop/README.md', '--', channelsPath], {
+    cwd: root, encoding: 'utf8', maxBuffer: 1024 * 1024,
+  }).trim().split(/\s+/u).filter(hash => /^[0-9a-f]{40}$/u.test(hash));
+  const history = [];
+  for (const hash of hashes) {
+    const parents = execFileSync('git', ['rev-list', '--parents', '-n', '1', hash], {
+      cwd: root, encoding: 'utf8', maxBuffer: 1024 * 1024,
+    }).trim().split(/\s+/u).slice(1);
+    if (parents.length !== 1) continue;
+    try {
+      const show = ref => parseYaml(execFileSync('git', ['show', `${ref}:${channelsPath}`], {
+        cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],
+      }));
+      history.push({postimage: show(hash), parentImage: show(parents[0])});
+    } catch {
+      // Older repository-history records can predate this source path.
+    }
+  }
+  return selectPxd225PredecessorFromHistory(currentChannels, history);
+}
+
 function historicalCapabilities(predecessor) {
   const commit = predecessor.sourceCut?.repositoryHead;
   if (!/^[0-9a-f]{40}$/.test(commit ?? '')) throw new Error('PXD-223 must identify the historical source commit');
@@ -57,24 +89,10 @@ export function buildPxd225Reconciliation({read = readText, historicalText} = {}
       || currentRowsSha256 !== historicalRowsSha256) throw new Error('PXD-216 20-leaf semantic projection changed or differs from preserved PXD-223 evidence');
 
   const channels = parseYaml(read(channelsPath));
-  const headChannelsText = execFileSync('git', ['show', `HEAD:${channelsPath}`], {
-    cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
-  });
   const archivedId = 'media.channel.legacy-desktop';
   const archivedLocator = 'archive/media-desktop-apps/ai-voice-desktop/README.md';
   const retainedLocator = 'archive/media-desktop-apps/desktop/README.md';
-  const headChannels = parseYaml(headChannelsText);
-  let predecessorChannels = headChannels;
-  if (!headChannels.channels?.find(row => row.id === archivedId)?.evidence
-    ?.endsWith(` and ${archivedLocator}`)) {
-    // If HEAD is the commit that made the approved locator-only edit, compare
-    // against its parent so the reconciliation remains reproducible afterward.
-    const parentChannelsText = execFileSync('git', ['show', `HEAD^:${channelsPath}`], {
-      cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
-    });
-    const parentChannels = parseYaml(parentChannelsText);
-    predecessorChannels = selectCommittedPxd225Predecessor(headChannels, parentChannels);
-  }
+  const predecessorChannels = committedChannelHistory(channels);
   if (execFileSync('git', ['rev-parse', '--is-shallow-repository'], {cwd: root, encoding: 'utf8'}).trim() !== 'false') {
     throw new Error('PXD-225 requires complete local Git history to validate the absent archived evidence locator');
   }

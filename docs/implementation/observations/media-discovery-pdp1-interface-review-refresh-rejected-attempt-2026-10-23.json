@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "media.pdp1-source-impact.v1",
+  "recordId": "MEDIA-PDP1-INTERFACE-REVIEW-REFRESH-REJECTED-ATTEMPT-2026-10-23",
+  "phase": "PDP-1",
+  "classification": "UNCONSUMED_PRECHECK_ATTEMPT_REJECTED_AND_ROLLED_BACK",
+  "agent": "agent:/root/phase_io",
+  "attempt": {
+    "predecessorReviewPath": ".product-experience/interface-parity/current-source-review.json",
+    "predecessorReviewSha256": "sha256:1fc1b192822d246d5a9c319aa6f7267ca4e2a8caee6931f81fbccefceee3a4ba",
+    "proposedReviewSha256": "sha256:963501110b65bdb595be4e7c3254870db48ee7c108a821eef7d748b2748f756c",
+    "proposedChange": "PDP-0 status pin only",
+    "statusSha256": "sha256:71d801cd97076e708d1ee705e6f2cf5a7ff40edcfdaf06cc6903b5bd0114353d",
+    "matrixActualSha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+    "matrixPriorPinnedSha256": "sha256:767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9"
+  },
+  "disposition": {
+    "result": "REJECTED_BEFORE_PHASE_VERIFICATION",
+    "reason": "The existing PDP-0 54-surface matrix pin was also stale; the P1 current-source review test correctly rejected the incomplete one-pin proposal.",
+    "rollback": "The exact predecessor review bytes were restored from the captured snapshot before the final R3 producer was run.",
+    "consumedByPdp1Verifier": false
+  },
+  "boundaries": {
+    "pdp1MeaningChanged": false,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "closure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "release": "NOT_AUTHORIZED"
+  }
+}

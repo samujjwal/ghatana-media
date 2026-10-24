@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.root-selected-source-integration-r9-r02.operation-profile-registration.r2",
+  "title": "Candidate operation profile registration schema for exact R9-R02 source application",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "registrationStatus",
+    "profileId",
+    "registrationSchemaRef",
+    "registrationSchemaSha256",
+    "operationSchemaRef",
+    "operationSchemaSha256",
+    "operationLedgerRef",
+    "operationLedgerSha256",
+    "sourceOwnerDecisionRef",
+    "sourceOwnerDecisionSha256",
+    "rootAdoptionDecisionRef",
+    "rootAdoptionDecisionSha256",
+    "actualHReviewRef",
+    "actualHReviewSha256",
+    "fullCutHReviewRef",
+    "fullCutHReviewSha256",
+    "sourceOwnerIdentity",
+    "rootAuthorityIdentity",
+    "decisionRef",
+    "decisionSectionSha256",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.root-selected-source-integration-r9-r02-operation-profile-registration.v2"
+    },
+    "registrationStatus": {
+      "const": "REGISTERED_FOR_EXACT_R9_R02_SOURCE_SUCCESSOR_ONLY"
+    },
+    "profileId": {
+      "const": "media.pdp0.root-selected-source-integration.r9-r02.source-owner.v2"
+    },
+    "registrationSchemaRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.operation-profile-registration.schema.r2.json"
+    },
+    "registrationSchemaSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "operationSchemaRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.allowed-operations.schema.candidate.v1.json"
+    },
+    "operationSchemaSha256": {
+      "const": "619548ce011fee7b1825817170dacb0782f1597278559813fbbc9b82ab59b066"
+    },
+    "operationLedgerRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json"
+    },
+    "operationLedgerSha256": {
+      "const": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8"
+    },
+    "sourceOwnerDecisionRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.source-owner-decision.r2.json"
+    },
+    "sourceOwnerDecisionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "rootAdoptionDecisionRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.root-adoption-decision.r2.json"
+    },
+    "rootAdoptionDecisionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "actualHReviewRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.independent-peer.actual-h-r02.json"
+    },
+    "actualHReviewSha256": {
+      "const": "b9c93569b8711030195f6003de7494ee8a359cdba50f2f88b2f55cfb1eecacc2"
+    },
+    "fullCutHReviewRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.independent-peer.actual-h-r02-full.json"
+    },
+    "fullCutHReviewSha256": {
+      "const": "c215cd3937c401fa5c4252ce86af3bbb25f644aebaa9b584d5c9f45660c19a7c"
+    },
+    "sourceOwnerIdentity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rootAuthorityIdentity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decisionRef": {
+      "type": "string",
+      "pattern": "^\\.product-experience/decision-log\\.md#PXD-[0-9]{3}$"
+    },
+    "decisionSectionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonicalApply"
+      ],
+      "properties": {
+        "canonicalApply": {
+          "const": "NOT_AUTHORIZED_BY_PROFILE_REGISTRATION"
+        }
+      }
+    }
+  }
+}

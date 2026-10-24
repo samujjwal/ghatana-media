@@ -1,0 +1,136 @@
+{
+  "artifactType": "media-pdp0-candidate-case-when-patch",
+  "candidateOnly": true,
+  "status": "PROPOSED_NOT_APPLIED",
+  "sourcePostimageSha256Preconditions": {
+    "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.capabilities.postimage.yaml": "59746d493ab1bd0ebee93e3b1b7efd594689cb5cfa42abf222c04a863988a133",
+    "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.requirements.postimage.yaml": "80c54dd68c30199feeaf84e7e6550ffb52ae5a0f082a5f0c9b65b7d1c7783fe2"
+  },
+  "changes": [
+    {
+      "findingId": "F-01",
+      "auditId": "AUD-DELIV-019",
+      "capabilityId": "media.deliver.live-stream-output",
+      "capabilityLeafCases": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-POS",
+          "polarity": "POSITIVE"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-NEG",
+          "polarity": "NEGATIVE"
+        }
+      ],
+      "linkedRequirementParentCases": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-POS",
+          "polarity": "POSITIVE",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-POS"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-NEG",
+          "polarity": "NEGATIVE",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-NEG"
+        }
+      ],
+      "whenReplacement": {
+        "old": "Invoke media.deliver.live-stream-output.live-stream-output.",
+        "new": "Invoke media.deliver.live-stream-output."
+      },
+      "preservationProof": {
+        "allIdsPreserved": true,
+        "polaritiesPreserved": true,
+        "sourceAuditIdPreserved": "AUD-DELIV-019",
+        "sourceCapabilityIdPreserved": "media.deliver.live-stream-output",
+        "leafToParentSourceCaseLinksPreserved": true
+      }
+    },
+    {
+      "findingId": "F-02",
+      "auditId": "AUD-DUB-015",
+      "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+      "capabilityLeafCases": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-POS",
+          "polarity": "POSITIVE"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-NEG",
+          "polarity": "NEGATIVE"
+        }
+      ],
+      "linkedRequirementParentCases": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-POS",
+          "polarity": "POSITIVE",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-POS"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-NEG",
+          "polarity": "NEGATIVE",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-NEG"
+        }
+      ],
+      "whenReplacement": {
+        "old": "Invoke media.speech.conversation.translated-speech-to-speech.translated-speech-to-speech.",
+        "new": "Invoke media.speech.conversation.translated-speech-to-speech."
+      },
+      "preservationProof": {
+        "allIdsPreserved": true,
+        "polaritiesPreserved": true,
+        "sourceAuditIdPreserved": "AUD-DUB-015",
+        "sourceCapabilityIdPreserved": "media.speech.conversation.translated-speech-to-speech",
+        "leafToParentSourceCaseLinksPreserved": true
+      }
+    },
+    {
+      "findingId": "F-03",
+      "auditId": "AUD-EDIT-016",
+      "capabilityId": "media.edit.matte-composite",
+      "capabilityLeafCases": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-POS",
+          "polarity": "POSITIVE"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-NEG",
+          "polarity": "NEGATIVE"
+        }
+      ],
+      "linkedRequirementParentCases": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-POS",
+          "polarity": "POSITIVE",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-POS"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-NEG",
+          "polarity": "NEGATIVE",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-NEG"
+        }
+      ],
+      "whenReplacement": {
+        "old": "Invoke media.edit.matte-composite.matte-composite.",
+        "new": "Invoke media.edit.matte-composite."
+      },
+      "preservationProof": {
+        "allIdsPreserved": true,
+        "polaritiesPreserved": true,
+        "sourceAuditIdPreserved": "AUD-EDIT-016",
+        "sourceCapabilityIdPreserved": "media.edit.matte-composite",
+        "leafToParentSourceCaseLinksPreserved": true
+      }
+    }
+  ],
+  "proofSummary": {
+    "caseIdsChanged": false,
+    "polarityChanged": false,
+    "sourceAuditLinksChanged": false,
+    "sourceCapabilityLinksChanged": false,
+    "parentLeafLinksChanged": false,
+    "onlyFieldProposedForChange": "when",
+    "invocationPhraseRule": "Invoke the canonical capability identifier exactly once; do not append its operation suffix again.",
+    "peerApproval": "NOT_RECORDED",
+    "ownerApproval": "NOT_RECORDED"
+  }
+}

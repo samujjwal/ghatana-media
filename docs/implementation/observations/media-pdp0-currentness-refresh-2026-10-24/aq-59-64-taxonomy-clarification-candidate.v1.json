@@ -1,0 +1,217 @@
+{
+  "schemaVersion": "media.pdp0.aq-taxonomy-clarification-candidate.v1",
+  "recordId": "MEDIA-PDP0-AQ-59-64-TAXONOMY-CLARIFICATION-CANDIDATE-2026-10-24",
+  "state": "CONDITIONAL_OWNER_REVIEW_CANDIDATE; NOT_ADOPTED",
+  "scope": {
+    "phase": "PDP-0",
+    "macroStage": "DISCOVERY",
+    "aqRows": {
+      "start": 1,
+      "end": 154,
+      "count": 154
+    },
+    "affectedRows": [
+      59,
+      60,
+      61,
+      62,
+      63,
+      64
+    ]
+  },
+  "denominators": {
+    "surfaceIdentities": 54,
+    "phaseCells": 216,
+    "capabilities": 469,
+    "auditRows": 501
+  },
+  "sourcePins": {
+    "aqRecommendation": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json",
+      "sha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5"
+    },
+    "blueprint": {
+      "ref": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+      "sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947",
+      "section": "§2 Capability completeness ledger"
+    },
+    "capabilities": {
+      "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+    },
+    "requirements": {
+      "ref": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+    }
+  },
+  "candidateRule": "For AQ taxonomy indexing only, use Q as primary when the defined PDP-0 outcome is a bounded observation of declared profiles, capabilities, processing options, compatibility, or capability-scoped readiness and does not execute, render, publish, or distribute. Add P or O as related only when the capability or parent requirement explicitly includes that delivery or review/quality/compliance outcome. Resolve each related-cluster link separately against the exact output contract.",
+  "candidateRuleRationale": "This applies existing blueprint meanings for P (render/publish/distribute), Q (operations/API/agents), and O (review/quality/compliance) to current observation-only outcomes. It adds no capability, requirement, acceptance case, taxonomy cluster, or execution/admission claim.",
+  "affectedRows": [
+    {
+      "sourceOrderIndex": 59,
+      "capabilityId": "media.profile.discover",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.profile.discover",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROFILE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE",
+      "currentRecommendedMapping": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "P",
+          "O"
+        ],
+        "semanticRationale": "The taxonomy has no dedicated processing-profile discovery cluster; Q is the closest operational fit because this is an eligibility/selection operation, not proof that a profile is admitted.",
+        "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+        "mappingUncertainty": true,
+        "ownerAcceptance": "NOT_CLAIMED"
+      },
+      "currentOutcome": "Discover declared profile definitions and return the exact profile/catalog observation supported by the source; discovery reports declarations and does not admit execution.",
+      "ownerQuestion": "For profile-catalog discovery, should Q remain primary with P and O as related indexes, given the outcome is a bounded observation of declared profiles and does not admit execution?",
+      "permittedOwnerChoices": [
+        "CONFIRM_CURRENT_MAPPING",
+        "CONFIRM_Q_PRIMARY_AND_ADJUDICATE_RELATED_CLUSTERS",
+        "RECLASSIFY_USING_EXISTING_A_Q_CLUSTERS",
+        "REQUEST_SEPARATE_SOURCE_AMENDMENT_FOR_NEW_TAXONOMY_MEANING",
+        "KEEP_UNRESOLVED_PENDING_EVIDENCE"
+      ],
+      "noDefaultDecision": true
+    },
+    {
+      "sourceOrderIndex": 60,
+      "capabilityId": "media.profile.validate",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.profile.validate",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROFILE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE",
+      "currentRecommendedMapping": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "P"
+        ],
+        "semanticRationale": "The taxonomy has no dedicated profile-validation cluster; Q is the closest operational fit because compatibility is checked as an execution option, not a publishing guarantee.",
+        "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+        "mappingUncertainty": true,
+        "ownerAcceptance": "NOT_CLAIMED"
+      },
+      "currentOutcome": "Evaluate one named output profile against an explicit outcome and input constraints, returning per-dimension compatibility and blockers without executing delivery.",
+      "ownerQuestion": "For non-executing profile compatibility validation, should Q remain primary and P related, given the outcome reports per-dimension compatibility without delivering or publishing?",
+      "permittedOwnerChoices": [
+        "CONFIRM_CURRENT_MAPPING",
+        "CONFIRM_Q_PRIMARY_AND_ADJUDICATE_RELATED_CLUSTERS",
+        "RECLASSIFY_USING_EXISTING_A_Q_CLUSTERS",
+        "REQUEST_SEPARATE_SOURCE_AMENDMENT_FOR_NEW_TAXONOMY_MEANING",
+        "KEEP_UNRESOLVED_PENDING_EVIDENCE"
+      ],
+      "noDefaultDecision": true
+    },
+    {
+      "sourceOrderIndex": 61,
+      "capabilityId": "media.capability.discover",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.discover",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+      "currentRecommendedMapping": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "O"
+        ],
+        "semanticRationale": "The taxonomy has no standalone capability-registry cluster; Q is the closest fit for capability discovery as an operational/API concern.",
+        "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+        "mappingUncertainty": true,
+        "ownerAcceptance": "NOT_CLAIMED"
+      },
+      "currentOutcome": "Discover declared capability leaves and their source-declared metadata, returning an observation of the requested catalog scope.",
+      "ownerQuestion": "For declared capability-catalog discovery, should Q remain primary with O related, and what exact review/evidence outcome, if any, justifies the O cross-link?",
+      "permittedOwnerChoices": [
+        "CONFIRM_CURRENT_MAPPING",
+        "CONFIRM_Q_PRIMARY_AND_ADJUDICATE_RELATED_CLUSTERS",
+        "RECLASSIFY_USING_EXISTING_A_Q_CLUSTERS",
+        "REQUEST_SEPARATE_SOURCE_AMENDMENT_FOR_NEW_TAXONOMY_MEANING",
+        "KEEP_UNRESOLVED_PENDING_EVIDENCE"
+      ],
+      "noDefaultDecision": true
+    },
+    {
+      "sourceOrderIndex": 62,
+      "capabilityId": "media.capability.check-declared-options",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.check-declared-options",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+      "currentRecommendedMapping": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "O"
+        ],
+        "semanticRationale": "The taxonomy has no standalone option-registry cluster; Q is the closest fit for checking declared operational options.",
+        "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+        "mappingUncertainty": true,
+        "ownerAcceptance": "NOT_CLAIMED"
+      },
+      "currentOutcome": "A caller can check declared processing options and their capability evidence; current runtime readiness remains a separate check.",
+      "ownerQuestion": "For declared processing-option and evidence inspection, should Q remain primary with O related, and is the evidence merely observed or reviewed as a quality/compliance decision?",
+      "permittedOwnerChoices": [
+        "CONFIRM_CURRENT_MAPPING",
+        "CONFIRM_Q_PRIMARY_AND_ADJUDICATE_RELATED_CLUSTERS",
+        "RECLASSIFY_USING_EXISTING_A_Q_CLUSTERS",
+        "REQUEST_SEPARATE_SOURCE_AMENDMENT_FOR_NEW_TAXONOMY_MEANING",
+        "KEEP_UNRESOLVED_PENDING_EVIDENCE"
+      ],
+      "noDefaultDecision": true
+    },
+    {
+      "sourceOrderIndex": 63,
+      "capabilityId": "media.capability.execution.compatibility",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.execution.compatibility",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+      "currentRecommendedMapping": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "O"
+        ],
+        "semanticRationale": "The taxonomy has no standalone execution-compatibility cluster; Q is the closest fit for a bounded orchestration preflight.",
+        "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+        "mappingUncertainty": true,
+        "ownerAcceptance": "NOT_CLAIMED"
+      },
+      "currentOutcome": "Compare a declared capability query with the requested operation and profile, returning a declared-capability-and-compatibility result as an observation only.",
+      "ownerQuestion": "For observational execution-compatibility preflight, should Q remain primary with O related, and does the intended result include a distinct review decision beyond comparison of declared inputs?",
+      "permittedOwnerChoices": [
+        "CONFIRM_CURRENT_MAPPING",
+        "CONFIRM_Q_PRIMARY_AND_ADJUDICATE_RELATED_CLUSTERS",
+        "RECLASSIFY_USING_EXISTING_A_Q_CLUSTERS",
+        "REQUEST_SEPARATE_SOURCE_AMENDMENT_FOR_NEW_TAXONOMY_MEANING",
+        "KEEP_UNRESOLVED_PENDING_EVIDENCE"
+      ],
+      "noDefaultDecision": true
+    },
+    {
+      "sourceOrderIndex": 64,
+      "capabilityId": "media.health.readiness.inspect",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.health.readiness.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-HEALTH",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH",
+      "currentRecommendedMapping": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "O"
+        ],
+        "semanticRationale": "Readiness is not a promised capability in any single A–Q feature cluster; Q is the closest operational fit for reporting capability-scoped readiness.",
+        "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+        "mappingUncertainty": true,
+        "ownerAcceptance": "NOT_CLAIMED"
+      },
+      "currentOutcome": "Inspect readiness for the requested capability scope and return a capability-scoped readiness observation, preserving the boundary and source of each observed check.",
+      "ownerQuestion": "For capability-scoped readiness observation, should Q remain primary with O related, or should O be primary; which exact readiness evidence is intended as review/quality/compliance disposition?",
+      "permittedOwnerChoices": [
+        "CONFIRM_CURRENT_MAPPING",
+        "CONFIRM_Q_PRIMARY_AND_ADJUDICATE_RELATED_CLUSTERS",
+        "RECLASSIFY_USING_EXISTING_A_Q_CLUSTERS",
+        "REQUEST_SEPARATE_SOURCE_AMENDMENT_FOR_NEW_TAXONOMY_MEANING",
+        "KEEP_UNRESOLVED_PENDING_EVIDENCE"
+      ],
+      "noDefaultDecision": true
+    }
+  ],
+  "sourceDeltaIfAdopted": "None until the authentic owner selects an option. If adopted, create a separate append-only AQ recommendation successor recording the rule and row-level disposition; do not edit capabilities.yaml, requirements.yaml, the 501-row crosswalk, or phase status from this candidate.",
+  "ownerAcceptance": "NOT_CLAIMED",
+  "independentAcceptance": "NOT_CLAIMED"
+}

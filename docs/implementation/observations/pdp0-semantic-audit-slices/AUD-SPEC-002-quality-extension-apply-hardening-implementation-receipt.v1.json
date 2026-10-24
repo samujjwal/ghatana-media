@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "media.pdp0.quality-extension-apply-hardening-implementation-receipt.v1",
+  "receiptKind": "NON_AUTHORITATIVE_QUALITY_EXTENSION_APPLY_IMPLEMENTATION_EVIDENCE",
+  "sourceCandidate": {
+    "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json",
+    "sha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a",
+    "freezeManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-freeze-manifest.v1.json",
+    "freezeManifestSha256": "a12b054fcd2a20ad19b91993e7fce642c1c4cd5067cbb3bae98bd9a22717545d",
+    "candidatePostimages": [
+      {
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-decision-log-postimage.v2.md",
+        "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      },
+      {
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-policy-extension-postimage.v2.yaml",
+        "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      }
+    ]
+  },
+  "implementation": {
+    "adapterRef": "scripts/lib/media-pdp0-quality-extension-source-adoption-v2.mjs",
+    "adapterSha256": "a87ea5556e6c937848e65392abb7e1570c1e8d531f16e2b85b7d4e2a3ead1518",
+    "testRef": "tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs",
+    "testSha256": "e361122a86988d31f2f11ad382abd07c25fffd05720b1d291884b9e5209d2151",
+    "behavior": [
+      "Apply accepts only an expected plan SHA-256 as review identity; no caller-supplied root, filesystem operations, authority records, or byte readers are accepted.",
+      "At dispatch the adapter snapshots fixed repository-contained source and authority refs, rebuilds the plan from that snapshot, and rejects any plan fingerprint mismatch or current blocker.",
+      "The effect path delegates only fixed-root ordered two-target writes to the shared quality CAS, which independently rechecks current fixed records and exact source bytes.",
+      "Sibling Lifecycle references using ghatana-lifecycle: or ../ghatana-lifecycle/ resolve to the fixed sibling repository, with symlink components rejected."
+    ]
+  },
+  "verification": {
+    "command": "node --test tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs tests/media-pdp0-quality-extension-source-candidate-v2.test.mjs",
+    "result": "PASS",
+    "tests": 11,
+    "failures": 0,
+    "canonicalWrites": "NONE",
+    "negativeCoverage": [
+      "A preflight assembled from caller-held peer, source-owner decision, and apply authorization is rejected when the fixed peer changes before dispatch; all eight source targets remain byte-identical.",
+      "A preflight is rejected when the fixed apply-authorization record is deleted before dispatch; all eight source targets remain byte-identical."
+    ]
+  },
+  "frozenProducerPinState": {
+    "oldFreezeManifestPreserved": true,
+    "oldProducerPinsClaimedCurrent": false,
+    "note": "The frozen v1 manifest still records the earlier adapter/test hashes. This receipt binds the current implementation evidence without rewriting that historical freeze."
+  },
+  "authorityBoundary": {
+    "sourceOwnerDecision": "NOT_PRESENT_IN_CURRENT_FIXED_SOURCE_CUT",
+    "canonicalApply": "NOT_PERFORMED",
+    "sourceCurrentness": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeProof": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED"
+  }
+}

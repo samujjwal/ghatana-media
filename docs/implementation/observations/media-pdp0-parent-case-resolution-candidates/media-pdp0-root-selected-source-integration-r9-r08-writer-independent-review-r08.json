@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration.r9-r08.writer-independent-review.v1",
+  "artifactId": "MEDIA-PDP0-R9-R08-WRITER-INDEPENDENT-REVIEW-R08-2026-10-24",
+  "supersedes": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-writer-independent-review-r07.json",
+  "supersedesSha256": "55b3bc5c202b6d4127b4e512671cd6c62fe01fbd704afe4eeb5600a2389c4e10",
+  "recordKind": "INDEPENDENT_DISCOVERY_TOOLING_REVIEW_AND_ADVERSARIAL_TEST_REPORT",
+  "reviewStatus": "FOUR_EFFECT_ROLES_DISTINCT_WITH_OPTIONAL_ROOT_ADOPTER_OVERLAP; LIVE_ROOT_DELEGATION_AND_REVOCATION_RECORDS_ABSENT",
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "denominator": {"identities":54,"physical":26,"compositionsIncludingRoot":7,"logical":21,"phaseCells":216},
+    "selectedCut": {"definitions":18,"leaves":56,"parentCases":58},
+    "permittedWork": "Implement and adversarially verify the fixed-path technical source-only role delegation workflow."
+  },
+  "identityRule": {
+    "effectRoles": ["PDP0_TECHNICAL_SOURCE_OWNER","PDP0_TECHNICAL_ROOT_ADOPTER","PDP0_TECHNICAL_PROFILE_REGISTRAR","PDP0_TECHNICAL_APPLY_AUTHORITY"],
+    "effectRolePrincipals": "FOUR_MUTUALLY_DISTINCT",
+    "delegatorOverlap": "The delegating principal may equal the PDP0_TECHNICAL_ROOT_ADOPTER principal. The delegator may not equal any other role principal.",
+    "noSeparateFivePrincipalRequirement": true
+  },
+  "sourceBaseline": [
+    {"ref":"config/closure/media-product-definition/owner-execution-authorization.v1.json","sha256":"9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"},
+    {"ref":"../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/central/media-r08-source-technical-authority-boundary-root-decision-r01.json","sha256":"26e437be25c5ad465b3e48fb1a9c53e1bec58f85ac667cb60fa358dd41d65a70"},
+    {"ref":"AGENTS.md","sha256":"a3ad22a9d18f264329ab64264efdf81fdd407f2ea9f33bd4f7f982787b83b829"},
+    {"ref":"scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v2-guard.mjs","sha256":"e6f2f06d9507eafdc20b30378b402bf9f22448511c0355f95272ab75d8ec0895"},
+    {"ref":".product-experience/decision-log.md","sha256":"0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"},
+    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-writer-independent-review-r07.json","sha256":"55b3bc5c202b6d4127b4e512671cd6c62fe01fbd704afe4eeb5600a2389c4e10"}
+  ],
+  "implementation": [
+    {"ref":"scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v3-technical-guard.mjs","sha256":"e145b8f640148795af73a62c10e23e838942ec71c9cc6f76e734660e75810185"},
+    {"ref":"scripts/lib/media-pdp0-review-successor-cas.mjs","sha256":"7dcaa3d9a1651fc415291799ec3331d92fd01505f828a3d97853ce0ce0bf1a1f"},
+    {"ref":"tests/media-pdp0-r9-r08-v3-technical-source-adversarial.test.mjs","sha256":"26ac0f1d2f25f02990c0927e148a9a97acafdb8841025e9592e128ccd0a4323f"},
+    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.technical-source-role-delegation-proposal.v1.json","sha256":"0808b9b233e7e83d69c9d7b2f8219f5d53cd84be2346127a05f48cfae9b9a645"},
+    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.technical-source-role-delegation.schema.v1.json","sha256":"97934a79667d83dd4f6029ebabed4350f71183f2e63f25d9f569f9ae2ef3c953"}
+  ],
+  "independentReview": {
+    "result": "PASS_FOR_REQUESTED_ROLE_IDENTITY_BOUNDARY",
+    "checks": [
+      "four role principals remain mutually distinct",
+      "delegator equal to root-adopter principal is accepted",
+      "delegator collision with source-owner, registrar, or apply-authority role is rejected",
+      "role and root typed PXD decisions, fixed scopes and section hashes are checked",
+      "expiry, revocation, seven read pins, four exact target pins, policy and PXD semantic pins remain enforced",
+      "native/v2 trust remains separate and fail-closed"
+    ],
+    "focusedSuite": {"passed":17,"failed":0},
+    "independentPeer": "No findings on requested identity rule; publication coverage used disposable copies only."
+  },
+  "verification": {
+    "combinedCommand": "node --test tests/media-pdp0-r9-r08-v3-technical-source-adversarial.test.mjs tests/media-pdp0-r9-r08-writer-temp-adversarial.test.mjs tests/media-pdp0-r9-r08-under-lease-readset-probe.test.mjs tests/media-pdp0-r9-r08-material-binding-negative-review-r01.test.mjs",
+    "combinedResult": {"passed":57,"failed":0},
+    "syntax": "node --check passed for v3 technical guard, source CAS writer, and v3 adversarial test",
+    "json": "delegation proposal and schema parse successfully"
+  },
+  "readiness": {
+    "result": "BLOCKED",
+    "blocker": "Fixed-path root technical role delegation record is absent; the revocation register is also absent.",
+    "canonicalApply": "NONE",
+    "sourceWrites": "NONE"
+  },
+  "effectBoundary": {
+    "canonicalSourceWrites": "NONE",
+    "statusWrites": "NONE",
+    "delegationOrRevocationRecordsCreated": "NONE",
+    "nativeTrustAcceptanceReceiptBuildDeliveryRelease": "NONE",
+    "v2ProtectedNativeAuthorization": "UNCHANGED_AND_FAIL_CLOSED"
+  },
+  "phaseDisposition": {
+    "discovery": "FAIL_FOR_SELECTED_CUT; this identity-rule correction does not complete PDP-0 source currentness or definitions.",
+    "build": "NOT_ADMITTED",
+    "pdpClosure": "NOT_RUN",
+    "delivery": "NOT_ENTERED",
+    "nextAllowedAction": "Root authorizes the prospective delegation with four distinct effect-role principals, allowing the root principal in the root-adopter role, and supplies the revocation record. Then rerun readiness and proceed only on current owner-authorized source inputs."
+  }
+}

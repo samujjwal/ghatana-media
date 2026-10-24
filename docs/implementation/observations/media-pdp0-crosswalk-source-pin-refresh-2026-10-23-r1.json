@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "media.pdp0.source-currentness-refresh.v1",
+  "recordId": "MEDIA-PDP0-CROSSWALK-SOURCE-PIN-REFRESH-2026-10-23-R1",
+  "phase": "PDP-0",
+  "decisionRef": ".product-experience/decision-log.md#PXD-225",
+  "classification": "CURRENT_SOURCE_PIN_REFRESH_NO_ADDITIONAL_AUDIT_ROW_OR_PDP0_MEANING_CHANGE",
+  "authority": "agent:/root/phase_io under explicit root-delegated Media technical-owner source-currentness authority; independent acceptance and owner approval are not claimed.",
+  "predecessor": {
+    "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+    "sha256": "sha256:dbd27e398c350fad6e8d617b23cf60d5754effcd7b4bbae214109b85d2983181",
+    "snapshotPath": "docs/implementation/observations/media-pdp0-crosswalk-source-pin-refresh-2026-10-23-r1-predecessor.json",
+    "snapshotSha256": "sha256:dbd27e398c350fad6e8d617b23cf60d5754effcd7b4bbae214109b85d2983181"
+  },
+  "sourceDelta": [
+    {
+      "path": ".product-experience/source-manifest.yaml#PDP-0-projection",
+      "previousSha256": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
+      "currentSha256": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
+      "disposition": "PDP0_PROJECTION_CURRENTNESS_REBIND_NO_ROW_MEANING_CHANGE"
+    }
+  ],
+  "preservedDenominators": {
+    "auditRows": 501,
+    "originalAuditRows": 428,
+    "thirdPassRows": 73,
+    "canonicalCapabilityLeaves": 462,
+    "currentCapabilityDefinitions": 469,
+    "currentDefinitionExtensions": 7
+  },
+  "preservedReviewHistoryDecisionRefs": [
+    "PXD-186",
+    "PXD-190",
+    "PXD-191",
+    "PXD-192",
+    "PXD-193",
+    "PXD-194",
+    "PXD-198",
+    "PXD-199",
+    "PXD-200",
+    "PXD-201",
+    "PXD-202",
+    "PXD-203",
+    "PXD-204",
+    "PXD-205",
+    "PXD-206",
+    "PXD-207",
+    "PXD-212",
+    "PXD-213",
+    "PXD-214",
+    "PXD-215",
+    "PXD-216",
+    "PXD-223"
+  ],
+  "semanticRowDelta": [],
+  "resultingCrosswalkSha256": "sha256:6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+  "boundaries": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "implementation": "NOT_CLAIMED",
+    "qualification": "NOT_EVALUATED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  }
+}

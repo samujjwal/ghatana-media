@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-source-amendment-v5-freeze-manifest.v1",
+  "status": "CANDIDATE_ONLY_PENDING_DISTINCT_TECHNICAL_PEER_AND_ROOT_SOURCE_OWNER_REVIEW",
+  "candidateSha256": "c2ef7de190ecc854c1a8ab451d88ede43f9b98d7cdf3a54a6b977d019ac4aa6c",
+  "candidatePostimageSha256": "35816de61123068888b7d013e92e67f9c1246426db97df4c5618108f20857c5b",
+  "candidateSchemaSha256": "299af71ccc9bd776a412687935588e2cee938db2460d795dda78cd669e3aa197",
+  "sourceAmendmentSha256": "5c54b7c785df464050990725ba114a827a655224e1c812b19f4f023bd8040777",
+  "sourceAmendmentSchemaSha256": "8ffe60daf33462ed614942ae07adad697cc3e21e62081c6f2aa0d32123482371",
+  "sourcePins": {
+    "rootDecisionSha256": "384026c46cd5dbdcc092daa213a68e00e8502a5b38626a65600c26be2b4f05a1",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "campaignExtensionsSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+    "applicationsChannelsSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "decisionLogSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2"
+  },
+  "exactArtifactPins": {
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v5.schema.json": "299af71ccc9bd776a412687935588e2cee938db2460d795dda78cd669e3aa197",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v5.schema.json": "8ffe60daf33462ed614942ae07adad697cc3e21e62081c6f2aa0d32123482371",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v5.json": "c2ef7de190ecc854c1a8ab451d88ede43f9b98d7cdf3a54a6b977d019ac4aa6c",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v5.json": "5c54b7c785df464050990725ba114a827a655224e1c812b19f4f023bd8040777",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capabilities-file-postimage.v5.yaml": "44eda57faf9d129a31bbe713e58dc6d6df17bc675e10a5b3821979f9b505cbe0",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-requirements-file-postimage.v5.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-crosswalk-postimage.v5.json": "56a9a74ff2d3e420bc60f4a305f4d0810176e06a0219fbb76646c83f53c7cab0",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capability-leaf-review-postimage.v5.yaml": "48f3ba485d6bc382d8b525464f3db382ab4cbf30fc60f0715be58cb86339e5dc",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-campaign-extensions-postimage.v5.yaml": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-decision-log-postimage.v5.md": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+  },
+  "producerPins": {
+    "scripts/lib/media-pdp0-aud-spec-002-source-amendment-v5.mjs": "a12c9dd49ad0e76c9b659e592ad57dac8be8b7425045698497a2379256ce90f9",
+    "scripts/plan-media-pdp0-aud-spec-002-source-amendment-v5.mjs": "b342e9049ae7c0f142a52183e2e0cd19a827b96b173ca73337f3a20331c73834",
+    "tests/media-pdp0-aud-spec-002-source-amendment-v5.test.mjs": "a4828ca01dc5532fa74d6ba66687bac84206e99b50eb49357dcb847d905fda80",
+    "scripts/check-media-pdp0-surface-denominator.mjs": "cc6b89715d3c46af2e24620e95261d2ab10376a9d6469bbd7778af05776f3b47",
+    "scripts/lib/media-product-definition-residuals.mjs": "3f0ffe23bec0eb4a95f5b4ec66c0c06c11a30fe357dca9cd19fab143c63c821d"
+  },
+  "targetPostimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "postimageSha256": "44eda57faf9d129a31bbe713e58dc6d6df17bc675e10a5b3821979f9b505cbe0"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "postimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "preimageSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+      "postimageSha256": "56a9a74ff2d3e420bc60f4a305f4d0810176e06a0219fbb76646c83f53c7cab0"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "preimageSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+      "postimageSha256": "48f3ba485d6bc382d8b525464f3db382ab4cbf30fc60f0715be58cb86339e5dc"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "preimageSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+      "postimageSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+    },
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "preimageSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+      "postimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+    }
+  ],
+  "canonicalApply": "NOT_PERFORMED",
+  "boundary": {
+    "currentVersion": "462_HISTORICAL_BASE_PLUS_ONE_CURRENT_COMPILE_EXTENSION",
+    "futureExtensions": 6,
+    "qualityApplicability": "UNKNOWN_PENDING_SEPARATE_SOURCE_BOUND_REVIEW",
+    "pdp1Handoff": "HISTORICAL_462_ONLY",
+    "phaseStatus": "UNCHANGED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeProof": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED"
+  }
+}

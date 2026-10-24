@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "media.pdp0.trust014.recast-profile-registry-candidate.v2",
+  "artifactId": "MEDIA-PDP0-P0-07-TRUST014-RECAST-PROFILE-REGISTRY-CANDIDATE-V2",
+  "candidateStatus": "ADDITIVE_SOURCE_PIN_SUCCESSOR; OWNER_DECISION_REQUIRED; NOT_ADOPTED; NOT_APPLIED",
+  "schemaCandidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry-schema.candidate.v1.json",
+  "campaignScope": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "auditId": "AUD-TRUST-014",
+    "cohort": "cohort-03",
+    "campaignIdentityDenominator": 54,
+    "cohortRowCount": 20,
+    "cohortMembershipSource": "Exactly the rows classified MISSING_PDP0_DEFINITION in frozen cohort-03.r2.json."
+  },
+  "sourceOwner": {
+    "semanticOwnerRole": "media-product",
+    "roleAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+    "ownerGroup": "ghatana-media-product-owners",
+    "ownerGroupAuthorityRef": ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0/owner",
+    "namedOwnerStatus": "OWNER_APPOINTMENT_UNKNOWN",
+    "namedOwner": null
+  },
+  "sourceBaseline": {
+    "authorityMap": {
+      "path": ".product-experience/authority-map.yaml",
+      "sha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff"
+    },
+    "profileSemantics": {
+      "path": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+      "sha256": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
+    },
+    "capabilities": {
+      "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+    },
+    "requirements": {
+      "path": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+    },
+    "policyAuthorityModel": {
+      "path": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+      "sha256": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8"
+    },
+    "existingBoundsAlternative": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-trust014-bounds-envelope-alternative-2026-10-23.json",
+      "sha256": "41b35e435aa4c3b56472d37c4ea6e547222de85977c7e91b3862b3ce8f0bdab3"
+    },
+    "cohort03R2Proposal": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r2.json",
+      "sha256": "c299e7057fb6c1de07feead506c90d0f127b079599526d2846c18d4342bfd2f5"
+    },
+    "cohort03Audit": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.json",
+      "sha256": "0b6173712d93b42286d4f9e2b145fab1419ad425102d5a38df3790ebe70f76c4"
+    },
+    "capabilityLeafReview": {
+      "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    }
+  },
+  "sourceBackedCurrentEnvelope": {
+    "capabilityIntentId": "media.generate.video.video-to-video",
+    "familyProfileRef": "media.capability-profile.media-generate-video",
+    "boundsRef": "media.capability-bounds.media-generate-video-video-to-video",
+    "typedInputSlots": [
+      {
+        "slotId": "input1",
+        "sourceType": "text-or-video-intent",
+        "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+        "required": true,
+        "alternatives": [
+          "text",
+          "video-intent"
+        ]
+      },
+      {
+        "slotId": "input2",
+        "sourceType": "source-video-artifact",
+        "cardinality": "EXACTLY_ONE",
+        "required": true
+      }
+    ],
+    "currentParameterSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {},
+      "emptyDisposition": "NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES"
+    },
+    "successfulOutput": {
+      "artifactType": "candidate-video-artifact-with-execution-provenance",
+      "requiredOnSuccess": true
+    },
+    "sourceBoundProfileSelectorType": {
+      "type": "versioned-profile-reference",
+      "shapeAuthorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video/ownerDefinition/parameterSchema/properties/outputProfileRef",
+      "transferStatus": "SHAPE_REFERENCE_ONLY; DOES_NOT_AUTHORIZE_RECAST_SUPPORT_OR_FAMILY_INHERITANCE"
+    }
+  },
+  "proposedRegistryEntry": {
+    "profileRef": null,
+    "profileVersion": null,
+    "profileRefStatus": "OWNER_MUST_SELECT_ONE_EXACT_REF_OPTION_BELOW",
+    "versionStatus": "OWNER_MUST_ASSIGN_IMMUTABLE_VERSION",
+    "currentLeafBindingBeforeOwnerChoice": {
+      "capabilityIntentId": "media.generate.video.video-to-video",
+      "familyProfileRef": "media.capability-profile.media-generate-video",
+      "boundsRef": "media.capability-bounds.media-generate-video-video-to-video",
+      "bindingRule": "Final registered profileRef must equal the exact video-to-video leaf ownerDefinition.familyProfileRef; boundsRef remains unique to that leaf."
+    },
+    "typedRequestSelector": {
+      "candidateFieldName": "requestedProfileRefAndVersion",
+      "candidateType": "versioned-profile-reference",
+      "typeSourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video/ownerDefinition/parameterSchema/properties/outputProfileRef",
+      "candidateWireShape": {
+        "profileRef": "string owner-adopted stable ref",
+        "version": "string owner-assigned immutable version"
+      },
+      "wireShapeStatus": "PROPOSED_ENCODING_REQUIRES_OWNER_ADOPTION"
+    },
+    "parameterSchemaCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {},
+      "emptyDisposition": "NO_RECAST_CONTROL_IS_ADMITTED_UNTIL_OWNER_ADDS_EXACT_TYPED_PROPERTIES",
+      "ownerMayAddOnlyClosedTypedForms": [
+        {
+          "form": "FINITE_ENUM",
+          "typedShape": {
+            "type": "string",
+            "enum": "owner-authored finite unique values",
+            "meaningRef": "owner-authored source reference"
+          }
+        },
+        {
+          "form": "BOUNDED_NUMERIC",
+          "typedShape": {
+            "type": "integer or number",
+            "minimum": "owner-authored finite lower bound",
+            "maximum": "owner-authored finite upper bound",
+            "unitRef": "owner-authored canonical unit reference",
+            "meaningRef": "owner-authored source reference",
+            "step": "optional owner-authored finite increment"
+          }
+        },
+        {
+          "form": "VERSIONED_PROFILE_REFERENCE",
+          "typedShape": {
+            "type": "versioned-profile-reference"
+          }
+        }
+      ],
+      "status": "FINITE_SCHEMA_SHAPES_PROPOSED; OWNER MUST SELECT NAMES, TYPES, UNITS, BOUNDS, ENUMS, REQUIREDNESS, AND CROSS-FIELD RULES"
+    },
+    "resourceBounds": {
+      "mustResolveThrough": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission",
+      "dimensions": [
+        "cpu",
+        "ram",
+        "vram",
+        "gpu-time",
+        "storage",
+        "network",
+        "process-count",
+        "time",
+        "retry-count",
+        "cost"
+      ],
+      "units": {
+        "cpu": "CPU-milliseconds per job",
+        "ram": "bytes of system memory per job",
+        "vram": "bytes of video memory per job",
+        "gpu-time": "GPU-milliseconds per job",
+        "storage": "bytes per job",
+        "network": "bytes transferred per job",
+        "process-count": "process count per job",
+        "time": "wall-milliseconds per job",
+        "retry-count": "retry count per job",
+        "cost": "currency minor units per job"
+      },
+      "applicabilityBoundAuthoritySourceEnforcement": "OWNER_DECISION_AND_EVIDENCE_REQUIRED_PER_PROFILE_AND_INVOCATION",
+      "currentDisposition": "UNKNOWN_OR_NOT_EVALUATED_MEANS_NOT_ADMITTED",
+      "scopeWarning": "These are resource units only; none defines an appearance transformation unit, strength scale, or recast threshold."
+    }
+  },
+  "rootDecisionChoices": [
+    {
+      "decisionId": "TRUST014-PROFILE-SELECTOR-CHOICE",
+      "decisionOwnerRole": "media-product",
+      "namedDecisionOwnerStatus": "OWNER_APPOINTMENT_UNKNOWN",
+      "question": "Should video-to-video acquire an explicit requested versioned-profile reference for appearance recast?",
+      "options": [
+        {
+          "optionId": "ADOPT_LEAF_SCOPED_VERSIONED_PROFILE_SELECTOR",
+          "sourceBasis": "Use the existing versioned-profile-reference type as a shape reference, then bind the profile to the exact video-to-video familyProfileRef and boundsRef envelope.",
+          "requires": [
+            "owner-adopted field/wire shape",
+            "owner-assigned profile identity and version",
+            "exact leaf schema update"
+          ],
+          "effect": "Makes a profile selection expressible in definition only; does not establish profile support, availability, rights, or qualification."
+        },
+        {
+          "optionId": "RETAIN_EMPTY_PARAMETER_SCHEMA_AND_BLOCK_RECAST",
+          "sourceBasis": "Preserve the current exact video-to-video closed empty parameter schema and its declared input slots.",
+          "effect": "No profile-selected recast control is admitted; leave recast candidate unavailable or UNKNOWN."
+        }
+      ],
+      "selectedOptionId": null
+    },
+    {
+      "decisionId": "TRUST014-TRANSFORMATION-PARAMETER-SHAPE-CHOICE",
+      "decisionOwnerRole": "media-product",
+      "namedDecisionOwnerStatus": "OWNER_APPOINTMENT_UNKNOWN",
+      "question": "If a selector is adopted, which closed owner-authored parameter shape represents the allowed recast controls?",
+      "options": [
+        {
+          "optionId": "NO_ADDITIONAL_CONTROLS",
+          "basis": "Keep the existing empty closed schema; no transformation value is accepted."
+        },
+        {
+          "optionId": "FINITE_ENUM_CONTROLS",
+          "basis": "Owner supplies finite unique values and source meanings for each chosen categorical parameter."
+        },
+        {
+          "optionId": "BOUNDED_NUMERIC_CONTROLS_WITH_UNIT",
+          "basis": "Owner supplies finite min/max and canonical unit/source meanings for each chosen numeric parameter; optional step only if owner-defined."
+        },
+        {
+          "optionId": "MIXED_ENUM_AND_BOUNDED_NUMERIC_CONTROLS",
+          "basis": "Owner defines a closed combination of the two preceding typed forms and explicit cross-field rules."
+        }
+      ],
+      "selectedOptionId": null,
+      "ownerMustSupply": [
+        "parameter names and meanings",
+        "type",
+        "requiredness",
+        "finite enum values or numeric bounds",
+        "canonical unit where numeric",
+        "cross-field constraints",
+        "unknown/out-of-range behavior"
+      ]
+    },
+    {
+      "decisionId": "TRUST014-PROFILE-IDENTITY-AND-VERSION-CHOICE",
+      "decisionOwnerRole": "media-product",
+      "namedDecisionOwnerStatus": "OWNER_APPOINTMENT_UNKNOWN",
+      "question": "What exact immutable profile identity and version are owner-authorized for this leaf?",
+      "options": [
+        {
+          "optionId": "RETAIN_CURRENT_EXACT_FAMILY_PROFILE_REF",
+          "value": "media.capability-profile.media-generate-video",
+          "basis": "Owner must decide whether this exact family profile itself will declare the finite recast schema; no profile behavior is inherited merely from the family name."
+        },
+        {
+          "optionId": "ADOPT_DEDICATED_LEAF_PROFILE_REF",
+          "value": "media.capability-profile.media-generate-video.appearance-recast",
+          "basis": "Proposed identity only; owner must adopt it and update this exact leaf familyProfileRef to the same value before the bounds envelope can resolve."
+        },
+        {
+          "optionId": "NO_PROFILE_ADOPTION",
+          "value": null,
+          "basis": "Keep candidate unavailable/UNKNOWN and retain current source schema."
+        }
+      ],
+      "selectedOptionId": null,
+      "versionValue": null
+    }
+  ],
+  "proposedSchemaInvariantsRequiringOwnerAdoption": [
+    "The registered profileRef must equal the exact target capability leaf ownerDefinition.familyProfileRef; boundsRef must resolve one-to-one to that same leaf.",
+    "The adopted parameter schema is closed, has no implicit defaults, and declares requiredness and each property at the exact leaf; no family-level field or value is inherited.",
+    "A bounded numeric parameter has finite minimum and maximum with minimum less than or equal to maximum, an owner-defined meaningRef, and a resolvable owner-defined unitRef. Values outside the declared bounds are rejected or remain UNKNOWN.",
+    "A finite-enum parameter declares a nonempty unique complete set of owner-defined values and a source meaning; unlisted values are rejected or remain UNKNOWN.",
+    "Any numeric parameter increment, if used, is explicitly owner-defined; no step, normalization, default, scale, or strength value is inferred.",
+    "The requested and effective profile references and versions are separately recorded; any effective change requires the exact policy-authorized fallback record, reason, and confirmation outcome required by profile-semantics.yaml#profileResolutionRecord and fallbackSemantics."
+  ],
+  "conditionalPolicyBindings": [
+    {
+      "conditionId": "SOURCE_DERIVATIVE",
+      "trigger": "The required video-to-video source artifact is consumed or a derivative is prepared.",
+      "sourceDecisionRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+      "requiredFacts": [
+        "exact source version",
+        "declared purpose and scope",
+        "current permitted-use decision"
+      ],
+      "missingUnknownDeniedRestrictedRevokedExpired": "BLOCK_OR_UNKNOWN_BEFORE_CANDIDATE_CREATION"
+    },
+    {
+      "conditionId": "IDENTIFIABLE_PERSON_VOICE_OR_MODEL",
+      "trigger": "The requested appearance transformation involves an identifiable person, voice, or model.",
+      "sourceDecisionRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04"
+      ],
+      "requiredFacts": [
+        "exact source version",
+        "declared purpose",
+        "applicable current rights/consent/license decision"
+      ],
+      "disclosureIsAuthorization": false,
+      "missingUnknownDeniedRestrictedRevokedExpired": "BLOCK_OR_UNKNOWN_BEFORE_CANDIDATE_CREATION"
+    },
+    {
+      "conditionId": "POLICY_APPLICABILITY_UNKNOWN",
+      "trigger": "Source-use or identifiable-person policy applicability cannot be established from declared inputs and authoritative records.",
+      "disposition": "HOLD_FOR_ACCOUNTABLE_POLICY_OWNER; DO_NOT_INFER_INAPPLICABLE"
+    }
+  ],
+  "sourceTrace": [
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml#profileResolutionRecord",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml#capabilityBoundsEnvelope",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video/ownerDefinition",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video/ownerDefinition/parameterSchema/properties/outputProfileRef",
+    ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+    ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+    ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+    ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+    ".product-experience/authority-map.yaml#/phaseAuthorities/@phase=PDP-0/owner"
+  ],
+  "ownerDecisionStatus": "NOT_REQUESTED_OR_RECORDED_BY_THIS_ARTIFACT",
+  "runtimeAvailability": "UNKNOWN",
+  "implementationState": "UNKNOWN",
+  "qualificationState": "NOT_EVALUATED",
+  "executionAdmission": "NOT_ADMITTED_UNTIL_EXACT_PROFILE_AND_CONDITIONAL_POLICY_EVIDENCE_RESOLVE",
+  "nonClaims": [
+    "No appearance strength scale, numeric bounds, increments, thresholds, units, enum values, or defaults are selected or implied.",
+    "The proposed profile identity and profileRef/version wire shape are candidates, not current source declarations.",
+    "Resource units are not appearance transformation units.",
+    "No source owner decision, canonical source edit, application, implementation, availability, qualification, acceptance, or closure is asserted.",
+    "Candidate v2 only refreshes source-file pins after a documented delta review; it does not select a profile, owner choice, apply source changes, or authorize runtime use."
+  ],
+  "predecessor": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry.candidate.v1.json",
+    "sha256": "85fefab6dcb9614e31eede28b582d2d0764bb5bb1728650f271c7720c060f710",
+    "disposition": "SUPERSEDED_AS_STALE_WHOLE_FILE_SOURCE_PIN_SET; SEMANTIC_PROPOSAL_UNCHANGED"
+  },
+  "sourceDeltaReview": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-content-review-2026-10-23.json",
+    "sha256": "26fea207918cbf703dd92c1ddb4dd4e214c98e91f3aa1b03614e524d886cc443",
+    "conclusion": "TRUST014 reviewed semantic fields and exact owner adjudication row are unchanged across the v7 source delta; new pins identify current whole-file inputs and do not encode a new source-owner decision.",
+    "v7Readback": {
+      "authorizationRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-apply-authorization.v7.json",
+      "authorizationSha256": "7ca0e76d4d99a870a69c047ab616f8a448adc62b9d95e387fd3decf69a774114",
+      "journalRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc.json",
+      "journalSha256": "ca2098003e15460bcb579f095a1b2cd84045dd134174b3f9ca854855612f123b"
+    },
+    "refreshedPins": [
+      {
+        "key": "capabilities",
+        "oldSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "newSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "reviewedSemanticFieldsUnchanged": true
+      },
+      {
+        "key": "requirements",
+        "oldSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+        "newSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "reviewedSemanticFieldsUnchanged": true
+      },
+      {
+        "key": "capabilityLeafReview",
+        "oldSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+        "newSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "reviewedOwnerAdjudicationRowUnchanged": true
+      }
+    ]
+  },
+  "sourceDeltaReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-content-review-2026-10-23.json",
+  "sourceDeltaReviewSha256": "26fea207918cbf703dd92c1ddb4dd4e214c98e91f3aa1b03614e524d886cc443",
+  "schemaCandidateSha256": "b987583a94abb8bd1325eb787cbc7ee38d780dff0b32f49ce41c5f634b185bbb"
+}

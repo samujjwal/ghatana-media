@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-successor-bundle.v1",
+  "candidateRevision": "R8",
+  "status": "CANDIDATE_ONLY_NOT_FROZEN_NOT_REGISTERED",
+  "predecessor": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.freeze.v1.json",
+    "sha256": "ca127314158567b5402708923fd2491b7537d399183aa10ca7e3a8c2b2b4c8f6"
+  },
+  "actualRootMappingDecision": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
+    "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+    "optionId": "B_SPLIT_BY_OPERATION_SCOPE"
+  },
+  "selectedBranch": "split",
+  "branches": {
+    "core": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.core.capabilities.postimage.yaml",
+        "postimageSha256": "da6bed5705d46d81c8addb03f64dffb7c50d0c27ad636adffdbbaafcc2e4b862",
+        "bytes": 8240511
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.core.requirements.postimage.yaml",
+        "postimageSha256": "3f70087709a925997d34b8a4e294bde38f3337fdd819344844f283714f092943",
+        "bytes": 610354
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.core.capability-leaf-review.postimage.yaml",
+        "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "bytes": 7703731
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.core.pdp0-501-disposition-crosswalk.postimage.json",
+        "postimageSha256": "cff6f51b59734859418c376e6d2e908db07f59cb54ff6a4b678ab99a7a019e4f",
+        "bytes": 1872936
+      }
+    ],
+    "shared": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.shared.capabilities.postimage.yaml",
+        "postimageSha256": "9e4e61c68aef52bbffd45b270ba27ca15a7712fcfd33d66d7aead59533c6a9ef",
+        "bytes": 8247602
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.shared.requirements.postimage.yaml",
+        "postimageSha256": "5b7bd0d65b9213c1ccc146a5974496f144da8d87f0982b0b77322953f8f24066",
+        "bytes": 617962
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.shared.capability-leaf-review.postimage.yaml",
+        "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "bytes": 7703731
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.shared.pdp0-501-disposition-crosswalk.postimage.json",
+        "postimageSha256": "4a9d054d69d502c7977b0f6114436ea448dae85d4d74a14ea9b43232eee0c0af",
+        "bytes": 1880876
+      }
+    ],
+    "split": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capabilities.postimage.yaml",
+        "postimageSha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9",
+        "bytes": 8252406
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.requirements.postimage.yaml",
+        "postimageSha256": "0ecf4fc0d301e851100612f5bfb9a5aa5c83714f7e7eb077f91ba06379ff9dd8",
+        "bytes": 616698
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capability-leaf-review.postimage.yaml",
+        "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "bytes": 7703731
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.pdp0-501-disposition-crosswalk.postimage.json",
+        "postimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672",
+        "bytes": 1878679
+      }
+    ]
+  },
+  "ledgers": {
+    "core": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.core.allowed-operations.candidate.v1.json",
+    "shared": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.shared.allowed-operations.candidate.v1.json",
+    "split": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.allowed-operations.candidate.v1.json"
+  },
+  "schemaCandidate": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.allowed-operations.schema.candidate.v1.json",
+  "canonicalApply": "NONE"
+}

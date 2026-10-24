@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-decision-template.v1",
+  "templateType": "CANONICAL_SOURCE_APPLY_AUTHORIZATION",
+  "candidateBundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.successor-bundle.candidate.v1.json",
+  "candidateBundleSha256": "bf8be9fd5693b76136be553a9cc692727605e31769b35bbf991f01adffb88626",
+  "selectedAllowedOperationsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.allowed-operations.candidate.v1.json",
+  "requiredFields": [
+    "distinct authorized apply authority",
+    "exact proposal and decision artifact hashes",
+    "seven exact current preimage hashes and four exact postimage hashes",
+    "registered schema and allowed-operation versions",
+    "fresh independent peer-review artifact hash",
+    "explicit target allowlist and decision-log evidence"
+  ],
+  "decisionStatus": "NOT_SET",
+  "decisionLogEvidenceRef": null,
+  "decisionLogEvidenceSha256": null,
+  "deciderIdentity": null,
+  "decidedAt": null,
+  "canonicalApplyAuthorized": false,
+  "phaseStatusChanged": false
+}

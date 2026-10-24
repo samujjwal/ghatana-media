@@ -1,0 +1,874 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.owner-schema-options.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-AUD-COLOR-001-SATURATION-OWNER-OPTIONS-R1-2026-10-23",
+  "status": "NONCANONICAL_OWNER_DECISION_CANDIDATE_PENDING_OWNER_SELECTION",
+  "scope": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "auditId": "AUD-COLOR-001",
+    "meaning": "Saturation is not presently defined as a typed P0 operation. This artifact offers finite owner choices for whether and how to define it; it selects none.",
+    "cohortOrdinal": 1,
+    "cohortRows": 77,
+    "residualDenominator": 231,
+    "sourceOwner": "media-product",
+    "canonicalMutation": "NONE",
+    "orderedAuditIds": [
+      "AUD-ASR-001",
+      "AUD-ASR-002",
+      "AUD-ASR-003",
+      "AUD-ASR-004",
+      "AUD-ASR-005",
+      "AUD-ASR-006",
+      "AUD-ASR-007",
+      "AUD-ASR-008",
+      "AUD-ASR-013",
+      "AUD-ASR-014",
+      "AUD-ASR-016",
+      "AUD-ASR-018",
+      "AUD-ASR-019",
+      "AUD-ASR-020",
+      "AUD-ASSET-001",
+      "AUD-ASSET-002",
+      "AUD-ASSET-007",
+      "AUD-ASSET-008",
+      "AUD-ASSET-011",
+      "AUD-ASSET-014",
+      "AUD-ASSET-015",
+      "AUD-ASSET-016",
+      "AUD-CAP-011",
+      "AUD-CAP-013",
+      "AUD-CAP-016",
+      "AUD-CAP-018",
+      "AUD-CAP-019",
+      "AUD-CAP-027",
+      "AUD-CAP-028",
+      "AUD-CLONE-003",
+      "AUD-CLONE-004",
+      "AUD-CLONE-005",
+      "AUD-CLONE-006",
+      "AUD-CLONE-007",
+      "AUD-CLONE-017",
+      "AUD-COLLAB-001",
+      "AUD-COLLAB-002",
+      "AUD-COLLAB-003",
+      "AUD-COLLAB-005",
+      "AUD-COLLAB-006",
+      "AUD-COLLAB-007",
+      "AUD-COLLAB-008",
+      "AUD-COLLAB-010",
+      "AUD-COLLAB-011",
+      "AUD-COLLAB-012",
+      "AUD-COLLAB-013",
+      "AUD-COLOR-001",
+      "AUD-COLOR-002",
+      "AUD-COLOR-003",
+      "AUD-COLOR-004",
+      "AUD-COLOR-005",
+      "AUD-COLOR-006",
+      "AUD-COLOR-007",
+      "AUD-COLOR-008",
+      "AUD-COLOR-009",
+      "AUD-COLOR-010",
+      "AUD-COLOR-011",
+      "AUD-COLOR-012",
+      "AUD-COLOR-013",
+      "AUD-COLOR-014",
+      "AUD-COLOR-015",
+      "AUD-COLOR-016",
+      "AUD-COLOR-017",
+      "AUD-DELIV-001",
+      "AUD-DELIV-002",
+      "AUD-DELIV-003",
+      "AUD-DELIV-004",
+      "AUD-DELIV-005",
+      "AUD-DELIV-006",
+      "AUD-DELIV-007",
+      "AUD-DELIV-009",
+      "AUD-DELIV-010",
+      "AUD-DELIV-011",
+      "AUD-DELIV-012",
+      "AUD-DELIV-013",
+      "AUD-DELIV-014",
+      "AUD-DELIV-015"
+    ]
+  },
+  "ownerAuthority": {
+    "role": "Canonical PDP-0 semantic source owner",
+    "ownerId": "media-product",
+    "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+    "adoption": "UNKNOWN_PENDING_AUTHENTIC_OWNER_RECORD"
+  },
+  "sourceBaseline": {
+    "sourceHashes": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+      "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568",
+      "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+      "libs/java/common/src/main/java/com/ghatana/media/common/ColorSpace.java": "62cd4f63db643b5859306ee61a5f5d774937632c913fb88307ab180bdbb28b48",
+      "tests/pdp-truth-domain.test.mjs": "d29472b12db8f7e3cfdff21f5f42fa0a3a8ec8c47f39bc2106889ff5bf605f03",
+      "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "63e543ae5691c547cbb23a61fd847d6ccf5e1280e82b57c8fd435da34370cbf0",
+      "tests/media-p0-07-feature-channel-review.test.mjs": "d24816e776b10bab7300fb3157be2e6a658be028f40c6f34f30157f8d14d4a0e",
+      "tests/pdp-truth-domain-schema-validation.test.mjs": "146abf8b84ab88bc35958e7f84c709f8ebfce56f0077fc77dfd9036d6d9ac52c"
+    },
+    "r6CandidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json",
+    "r6CandidateSha256": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361",
+    "r5IndependentPeerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-content-peer.r5.v1.json",
+    "r5IndependentPeerSha256": "b7871785625e4a3582847097e78603bed8d5b5b0bf820088f6bf74eaefbd9523",
+    "canonicalMutation": "NONE"
+  },
+  "sourceBackedEvidence": {
+    "criterion": {
+      "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
+      "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
+      "decisionRef": ".product-experience/decision-log.md#PXD-105",
+      "scope": "PDP-0 feature, requirement and channel/profile applicability definitions with exact source referents or explicit exclusions. Referenced PDP-1/PDP-2 clauses are source context only; this criterion approves no downstream contract, conformance, runtime behavior or phase acceptance.",
+      "acceptanceBoundary": "Direct source criterion only; P0-01/02 task dependencies, original full-task ledger, qualified independent acceptance, runtime admission and authoritative Lifecycle receipts remain separate.",
+      "materialPinStatus": "29_OF_34_NESTED_MATERIAL_PINS_STALE_OR_MISSING_PER_FROZEN_R6_CANDIDATE"
+    },
+    "audit": {
+      "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-001",
+      "capability": "Exposure, contrast, white balance and saturation",
+      "acceptanceFamily": "Qualified SDR/HDR fixtures compare input/output pixel transforms and relevant color tags; unsupported color profiles fail visibly rather than silently changing interpretation.",
+      "validationsRequired": [
+        "positive",
+        "negative",
+        "unavailable",
+        "UNKNOWN_or_explicit_NA",
+        "rights_license",
+        "manual_agent_parity_when_applicable",
+        "source_version_and_provenance"
+      ]
+    },
+    "requirement": {
+      "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+      "statement": "Every operation in media.color retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+      "expectedBehavior": "The system performs only the requested White balance/exposure/contrast/curves; temperature/tint/selective color; skin-tone preservation; shot matching; LUTs; color-space/gamut conversion; HDR grading; SDR/HDR conversion; tone mapping and highlight/shadow recovery operation using typed inputs and outputs; reports actual effective parameters and provenance; preserves source versions; and does not substitute an unsupported engine, model, format, language, or delivery profile silently.",
+      "preconditions": [
+        "The caller identity, tenant/workspace context, and delegated authority are verified by the owning platform contracts.",
+        "Inputs, rights, consent, privacy, egress, retention, budget, and policy are admitted for this specific operation.",
+        "A capability binding and profile are declared; qualification and runtime availability are checked for the requested dimensions."
+      ],
+      "failureDegradationRecovery": [
+        "Return typed validation, authority, rights/license, unsupported-capability, capacity, timeout, cancellation, provider-ambiguity, and internal-failure outcomes as applicable.",
+        "Expose safe remediation, retry/cancel/reconcile eligibility, and finality; do not silently downgrade preservation, quality, spatial/scientific fidelity, or delivery constraints.",
+        "Preserve accepted source and completed outputs; require policy-permitted explicit fallback or stop for review."
+      ],
+      "sourceAcceptanceCases": [
+        {
+          "id": "MEDIA-REQ-CAP-COLOR-AC-01",
+          "given": "A declared leaf, authorized input, and a binding that satisfies the requested profile and policy.",
+          "when": "The caller requests the operation.",
+          "then": "The typed result, effective parameters, provenance, terminal/finality state, and measured dimensions are returned; only the declared effect occurs."
+        },
+        {
+          "id": "MEDIA-REQ-CAP-COLOR-AC-02",
+          "given": "The requested language, format, right, profile, license, capability, or qualification is absent or unknown.",
+          "when": "Admission is evaluated.",
+          "then": "The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported as available."
+        }
+      ]
+    },
+    "existingColorOperationComparators": [
+      {
+        "id": "media.color.exposure",
+        "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.exposure",
+        "outcome": "P0 defines the adjust exposure result as a local color-treatment candidate or draft whose intended operation is to adjust exposure in the declared source and target color context; it does not define a canonical artifact change.",
+        "typedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "declared-source-and-target-color-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "parameterSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {},
+          "emptyDisposition": "NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES"
+        },
+        "successOutputs": [
+          {
+            "artifactType": "color-managed-media-derivative-and-transform-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "unknownDisposition": "UNKNOWN: this leaf does not specify numerical transform values, concrete source/target profile identities, gamut limits, or fidelity thresholds. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, completion, canonical artifact change, or external effect; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
+      },
+      {
+        "id": "media.color.contrast",
+        "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.contrast",
+        "outcome": "P0 defines the adjust contrast result as a local color-treatment candidate or draft whose intended operation is to adjust contrast in the declared source and target color context; it does not define a canonical artifact change.",
+        "typedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "declared-source-and-target-color-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "parameterSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {},
+          "emptyDisposition": "NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES"
+        },
+        "successOutputs": [
+          {
+            "artifactType": "color-managed-media-derivative-and-transform-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "unknownDisposition": "UNKNOWN: this leaf does not specify numerical transform values, concrete source/target profile identities, gamut limits, or fidelity thresholds. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, completion, canonical artifact change, or external effect; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
+      },
+      {
+        "id": "media.color.curves",
+        "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.curves",
+        "outcome": "P0 defines the adjust curves result as a local color-treatment candidate or draft whose intended operation is to adjust tonal or color curves in the declared source and target color context; it does not define a canonical artifact change.",
+        "typedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "declared-source-and-target-color-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "parameterSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {},
+          "emptyDisposition": "NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES"
+        },
+        "successOutputs": [
+          {
+            "artifactType": "color-managed-media-derivative-and-transform-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "unknownDisposition": "UNKNOWN: this leaf does not specify numerical transform values, concrete source/target profile identities, gamut limits, or fidelity thresholds. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, completion, canonical artifact change, or external effect; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
+      },
+      {
+        "id": "media.color.selective-color",
+        "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.selective-color",
+        "outcome": "P0 defines the adjust selective color result as a local color-treatment candidate or draft whose intended operation is to adjust selected color ranges in the declared source and target color context; it does not define a canonical artifact change.",
+        "typedInputSlots": [
+          {
+            "slotId": "input1",
+            "sourceType": "source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "input2",
+            "sourceType": "declared-source-and-target-color-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "parameterSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {},
+          "emptyDisposition": "NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES"
+        },
+        "successOutputs": [
+          {
+            "artifactType": "color-managed-media-derivative-and-transform-provenance",
+            "requiredOnSuccess": true
+          }
+        ],
+        "unknownDisposition": "UNKNOWN: this leaf does not specify numerical transform values, concrete source/target profile identities, gamut limits, or fidelity thresholds. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, completion, canonical artifact change, or external effect; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
+      }
+    ],
+    "codeAndTestInspection": {
+      "colorSpaceValueObject": {
+        "ref": "libs/java/common/src/main/java/com/ghatana/media/common/ColorSpace.java",
+        "sha256": "62cd4f63db643b5859306ee61a5f5d774937632c913fb88307ab180bdbb28b48",
+        "observedContent": "ColorSpace enum lists RGB, RGBA, BGR, BGRA, GRAYSCALE, YUV, HSV; it does not define a saturation operation or saturation parameter semantics."
+      },
+      "searchedFiles": [
+        "tests/pdp-truth-domain.test.mjs",
+        "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+        "tests/media-p0-07-feature-channel-review.test.mjs",
+        "tests/pdp-truth-domain-schema-validation.test.mjs"
+      ],
+      "result": "No saturation-specific P0 operation or acceptance test was found in these inspected sources. This scoped observation is not a claim that no related implementation exists anywhere else."
+    }
+  },
+  "decision": {
+    "status": "OWNER_SELECTION_REQUIRED",
+    "selectedOption": null,
+    "selectionAuthority": {
+      "role": "Canonical PDP-0 semantic source owner",
+      "ownerId": "media-product",
+      "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+    },
+    "alternatives": [
+      {
+        "id": "SAT-A-BOUNDED_NUMERIC_INTENT",
+        "meaning": "Define saturation as a typed continuous intent over the existing source-media-artifact and declared-source-and-target-color-context inputs.",
+        "candidateParameterSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requestedSaturation"
+          ],
+          "properties": {
+            "requestedSaturation": {
+              "type": "owner-defined-finite-number",
+              "unit": "OWNER_TO_DEFINE",
+              "minimum": "OWNER_TO_DEFINE",
+              "maximum": "OWNER_TO_DEFINE",
+              "stepOrPrecision": "OWNER_TO_DEFINE",
+              "scaleMeaning": "OWNER_TO_DEFINE",
+              "effectiveValueSemantics": "OWNER_TO_DEFINE"
+            }
+          }
+        },
+        "requiredOwnerInputs": [
+          "Define the numeric scale and units (for example, relative factor versus percentage) without inheriting an unstated convention.",
+          "Supply finite minimum, maximum, and step/precision; specify reject versus clamp behavior.",
+          "Define what effective saturation means in the declared source/target color context and how requested versus effective values appear in provenance.",
+          "Define supported source/target profile applicability and unsupported-profile outcomes."
+        ],
+        "p0CriterionEffect": {
+          "adds": "A direct user-adjustable saturation operation with typed finite bounds and effective-value reporting; qualified SDR/HDR fixtures can exercise boundary and transform behavior.",
+          "excludes": "No saturation success output, numeric range, unit, transform, or fidelity claim is valid before owner supplies these fields; no exposure/contrast/white-balance substitution."
+        },
+        "evidenceRefs": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.contrast",
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-001",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ],
+        "disposition": "UNSELECTED; schema values remain owner-supplied"
+      },
+      {
+        "id": "SAT-B-FINITE_VERSIONED_PRESETS",
+        "meaning": "Define saturation as a finite owner-authored enum of named, versioned treatment presets; each preset identifies a supported source/target context and an immutable transformation definition.",
+        "candidateParameterSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "presetId",
+            "presetVersion"
+          ],
+          "properties": {
+            "presetId": {
+              "type": "owner-defined-enum",
+              "values": "OWNER_TO_SUPPLY_FINITE_SET"
+            },
+            "presetVersion": {
+              "type": "versioned-reference",
+              "mapping": "OWNER_TO_SUPPLY_FOR_EACH_PRESET"
+            }
+          }
+        },
+        "requiredOwnerInputs": [
+          "Supply the finite preset identifiers and versioned transformation mappings.",
+          "Define applicability for source/target color contexts and unsupported profile behavior.",
+          "Define how applied preset/version and actual effective transform are recorded in derivative provenance.",
+          "Provide qualified SDR/HDR fixtures for each supported profile/preset pair and input/output pixel/color-tag expectations."
+        ],
+        "p0CriterionEffect": {
+          "adds": "A bounded, enumerable saturation intent whose supported values can be tested against qualified fixtures and recorded as effective parameters.",
+          "excludes": "No arbitrary user value, undocumented numeric scale, automatic profile substitution, or unqualified fidelity guarantee."
+        },
+        "evidenceRefs": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.contrast",
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-001",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ],
+        "disposition": "UNSELECTED; preset set and mappings remain owner-supplied"
+      },
+      {
+        "id": "SAT-C-EXPLICITLY_EXCLUDED",
+        "meaning": "Do not define saturation as an invocable P0 operation in this feature scope; record an explicit exclusion and retain no positive saturation output.",
+        "candidateParameterSchema": null,
+        "requiredOwnerInputs": [
+          "Confirm the explicit exclusion and its scope through the canonical PDP-0 owner record.",
+          "State that any future saturation intent requires a new owner-authored PDP-0 definition and applicable qualified fixture basis."
+        ],
+        "p0CriterionEffect": {
+          "adds": "An explicit P0-07 exclusion that makes the current absence unambiguous and prevents treating exposure, contrast, selective color, or skin-tone preservation as saturation.",
+          "excludes": "No saturation capability, parameter schema, derivative, or positive acceptance case."
+        },
+        "evidenceRefs": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-001",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ],
+        "disposition": "UNSELECTED; explicit exclusion not yet owner-adopted"
+      }
+    ]
+  },
+  "acceptanceBoundary": {
+    "beforePositiveDefinition": [
+      "Owner selects one finite alternative.",
+      "Owner supplies the typed schema details required by that alternative.",
+      "Source/target context applicability, authority, unsupported profile handling, provenance/effective-value meaning are explicit.",
+      "Qualified SDR/HDR fixtures cover input/output pixel transforms and relevant color tags; unsupported profiles fail visibly."
+    ],
+    "untilThen": {
+      "technicalDisposition": "UNKNOWN_PENDING_OWNER_SCHEMA",
+      "successOutputs": [],
+      "canonicalMutation": "NONE"
+    }
+  },
+  "rootDecisionPackage": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json",
+    "sha256": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361",
+    "choiceCount": 6,
+    "choiceIds": [
+      "AUD-CAP-028",
+      "AUD-CLONE-004",
+      "AUD-CLONE-006",
+      "AUD-CLONE-017",
+      "AUD-COLOR-007",
+      "AUD-DELIV-007"
+    ],
+    "selectedChoices": 0,
+    "decisions": [
+      {
+        "auditId": "AUD-CAP-028",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "options": [
+          {
+            "id": "A",
+            "meaning": "Define a product-level readback observation only: identify the exact owner, authoritative effect source, evidence reference, and permitted finality states; missing evidence yields UNKNOWN/UNAVAILABLE and never authorizes replay.",
+            "sourceProof": [
+              "media.stream.session.reconnect outcome covers owner-observed session state only",
+              "source feature acceptance requires authoritative product-effect readback where applicable"
+            ]
+          },
+          {
+            "id": "B",
+            "meaning": "Exclude resume safety/scene ownership/effect finality from this feature and retain only reconnect session state; a separate named owner supplies any later product-effect decision.",
+            "sourceProof": [
+              "Current reconnect inputs include session request and consent/capability context",
+              "No exact owner/effect receipt schema or issuer is cited in current bindings"
+            ]
+          }
+        ],
+        "technicalRecommendation": "A only if the actual effect authority and evidence source can be named in the owner source; otherwise B with the effect claims explicitly unresolved.",
+        "authority": {
+          "role": "Canonical PDP-0 semantic source owner",
+          "ownerId": "media-product",
+          "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+        },
+        "criterionEffects": {
+          "optionEffects": [
+            {
+              "optionId": "A",
+              "adds": "P0-07 gains a bounded product-effect readback observation only when an exact owner, authority source, evidence reference, and finality states are named.",
+              "excludes": "Does not authorize replay or assert effect finality without source-backed owner/evidence."
+            },
+            {
+              "optionId": "B",
+              "adds": "P0-07 explicitly excludes resume safety, scene ownership, and effect finality from this feature.",
+              "excludes": "No product-effect result is added to reconnect semantics."
+            }
+          ],
+          "selectedEffect": null,
+          "canonicalMutation": "NONE",
+          "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+        },
+        "sourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-028",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.session.reconnect",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM",
+          ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ]
+      },
+      {
+        "auditId": "AUD-CLONE-004",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "options": [
+          {
+            "id": "A",
+            "meaning": "Define user-facing custom voice tuning as a separate product intent with source version, rights/purpose, requested tuning dimensions, output/version semantics, retention, and authorized actor.",
+            "sourceProof": [
+              "media.speech.synthesis.speaker.clone-authorized covers authorized clone intent",
+              "Current evidence does not supply tuning-specific input/output or retention contract"
+            ]
+          },
+          {
+            "id": "B",
+            "meaning": "Declare no separate tuning product intent; tuning remains implementation behavior under the already authorized clone contract and does not create an independently selectable result.",
+            "sourceProof": [
+              "No exact audit-bound tuning capability or feature-specific case exists",
+              "Implementation route cannot independently establish P0 product semantics"
+            ]
+          }
+        ],
+        "technicalRecommendation": "B is the bounded default unless the owner source establishes an independently selectable tuning outcome; do not claim training or model adaptation.",
+        "authority": {
+          "role": "Canonical PDP-0 semantic source owner",
+          "ownerId": "media-product",
+          "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+        },
+        "criterionEffects": {
+          "optionEffects": [
+            {
+              "optionId": "A",
+              "adds": "P0-07 gains a separately selectable custom voice tuning intent with source version, rights/purpose, dimensions, output/version, retention, and actor semantics.",
+              "excludes": "Does not claim training or model adaptation absent explicit source semantics."
+            },
+            {
+              "optionId": "B",
+              "adds": "P0-07 keeps tuning within the authorized clone contract.",
+              "excludes": "No independently selectable tuning result is added."
+            }
+          ],
+          "selectedEffect": null,
+          "canonicalMutation": "NONE",
+          "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+        },
+        "sourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-004",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.clone-authorized",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ]
+      },
+      {
+        "auditId": "AUD-CLONE-006",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "options": [
+          {
+            "id": "A",
+            "meaning": "Define a source-free synthetic voice persona feature with explicit non-identity claims, identity policy, rights boundary, selection inputs, output, and prohibited impersonation cases.",
+            "sourceProof": [
+              "Authorized-clone capability requires authorized source/consent context",
+              "No exact source-free persona capability or acceptance case is cited"
+            ]
+          },
+          {
+            "id": "B",
+            "meaning": "Declare source-free synthetic voice persona creation out of scope for this feature; preserve only the authorized cloning intent and do not substitute it.",
+            "sourceProof": [
+              "Current clone capability is explicitly source-authorized",
+              "No product authority record establishes source-free persona applicability"
+            ]
+          }
+        ],
+        "technicalRecommendation": "B until an explicit product authority and identity policy establish A; cloning semantics cannot stand in for synthetic persona design.",
+        "authority": {
+          "role": "Canonical PDP-0 semantic source owner",
+          "ownerId": "media-product",
+          "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+        },
+        "criterionEffects": {
+          "optionEffects": [
+            {
+              "optionId": "A",
+              "adds": "P0-07 gains a source-free synthetic persona feature with explicit identity, rights, selection, and prohibited-impersonation semantics.",
+              "excludes": "Does not inherit authorized-clone semantics as identity proof."
+            },
+            {
+              "optionId": "B",
+              "adds": "P0-07 explicitly excludes source-free persona creation and retains authorized cloning only.",
+              "excludes": "No source-free persona capability is added."
+            }
+          ],
+          "selectedEffect": null,
+          "canonicalMutation": "NONE",
+          "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+        },
+        "sourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-006",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.clone-authorized",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ]
+      },
+      {
+        "auditId": "AUD-CLONE-017",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "options": [
+          {
+            "id": "A",
+            "meaning": "Define enrollment only with exact subject/avatar identity, consent/rights scope, enrollment purpose, authorized decision authority, revocation and lifecycle semantics.",
+            "sourceProof": [
+              "media.rights.consent.reference resolves a consent reference",
+              "Current source does not establish avatar/persona enrollment schema or likeness authority"
+            ]
+          },
+          {
+            "id": "B",
+            "meaning": "Declare no enrollment outcome; retain only consent-reference resolution and leave any avatar/persona binding to a separately authorized source.",
+            "sourceProof": [
+              "Current consent leaf has no avatar/persona output",
+              "No exact owner or authority record for enrollment is cited"
+            ]
+          }
+        ],
+        "technicalRecommendation": "B unless the rights owner supplies the named authority and enrollment source; never infer enrollment from consent resolution.",
+        "authority": {
+          "role": "Canonical PDP-0 semantic source owner",
+          "ownerId": "media-product",
+          "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+        },
+        "criterionEffects": {
+          "optionEffects": [
+            {
+              "optionId": "A",
+              "adds": "P0-07 gains enrollment semantics with subject/avatar identity, consent/rights, purpose, authority, revocation, and lifecycle.",
+              "excludes": "Does not infer enrollment from consent-reference resolution."
+            },
+            {
+              "optionId": "B",
+              "adds": "P0-07 retains consent-reference resolution only and declares no enrollment outcome.",
+              "excludes": "No avatar/persona binding or enrollment state is added."
+            }
+          ],
+          "selectedEffect": null,
+          "canonicalMutation": "NONE",
+          "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+        },
+        "sourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-017",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+          ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ]
+      },
+      {
+        "auditId": "AUD-COLOR-007",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "options": [
+          {
+            "id": "A",
+            "meaning": "Define a compatibility observation against one explicitly named profile/target and disclose supported, unsupported, and unknown dimensions; make no standards-conformance claim.",
+            "sourceProof": [
+              "media.profile.validate and media.color.colorspace-gamut-convert cover bounded profile/conversion semantics",
+              "No certification authority or conformance evidence is cited"
+            ]
+          },
+          {
+            "id": "B",
+            "meaning": "Claim conformance only after naming the governing standard/version, authorized decision body, test method, target, and evidence artifact.",
+            "sourceProof": [
+              "No current binding supplies those standard/authority/evidence fields"
+            ]
+          }
+        ],
+        "technicalRecommendation": "A; B remains unavailable until a real authority and evidence source are bound.",
+        "authority": {
+          "role": "Canonical PDP-0 semantic source owner",
+          "ownerId": "media-product",
+          "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+        },
+        "criterionEffects": {
+          "optionEffects": [
+            {
+              "optionId": "A",
+              "adds": "P0-07 gains a bounded compatibility observation against one named profile/target with supported, unsupported, and unknown dimensions.",
+              "excludes": "No standards-conformance claim is added."
+            },
+            {
+              "optionId": "B",
+              "adds": "P0-07 may define conformance only after standard/version, authorized decision body, test method, target, and evidence are bound.",
+              "excludes": "No conformance claim is valid while any required authority/evidence field is absent."
+            }
+          ],
+          "selectedEffect": null,
+          "canonicalMutation": "NONE",
+          "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+        },
+        "sourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-007",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.colorspace-gamut-convert",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+          ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ]
+      },
+      {
+        "auditId": "AUD-DELIV-007",
+        "decisionStatus": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+        "selectedBoundedChoice": null,
+        "options": [
+          {
+            "id": "A",
+            "meaning": "Define only a product readiness observation from explicitly declared legal and hardware criteria and current evidence; unknown criteria/evidence must remain UNKNOWN and never become legal clearance.",
+            "sourceProof": [
+              "Existing encode/compatibility/profile leaves describe technical request and compatibility outcomes",
+              "No authorized legal reviewer, hardware source, or qualification evidence is cited"
+            ]
+          },
+          {
+            "id": "B",
+            "meaning": "Exclude legal/hardware qualification from Media PDP-0; require a separately authorized external decision source before any such result is exposed.",
+            "sourceProof": [
+              "Current capability bindings do not establish legal or hardware authority",
+              "No exact legal/hardware evidence contract exists"
+            ]
+          }
+        ],
+        "technicalRecommendation": "B for legal qualification; A can cover technical availability observation only if criteria/evidence source is explicitly named.",
+        "authority": {
+          "role": "Canonical PDP-0 semantic source owner",
+          "ownerId": "media-product",
+          "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+        },
+        "criterionEffects": {
+          "optionEffects": [
+            {
+              "optionId": "A",
+              "adds": "P0-07 gains a readiness observation only from declared legal/hardware criteria and current evidence.",
+              "excludes": "Unknown criteria/evidence remain UNKNOWN and do not establish readiness."
+            },
+            {
+              "optionId": "B",
+              "adds": "P0-07 keeps readiness UNKNOWN until criteria/evidence and their legitimate authorities are bound.",
+              "excludes": "No readiness result or commercial/specialist approval is inferred."
+            }
+          ],
+          "selectedEffect": null,
+          "canonicalMutation": "NONE",
+          "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+        },
+        "sourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-007",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.encode",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER",
+          ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+        ]
+      }
+    ],
+    "completeScope": {
+      "macroStage": "DISCOVERY",
+      "phase": "PDP-0 Product Truth",
+      "criterionId": "P0-07",
+      "cohortOrdinal": 1,
+      "cohortRows": 77,
+      "residualDenominator": 231,
+      "orderedAuditIds": [
+        "AUD-ASR-001",
+        "AUD-ASR-002",
+        "AUD-ASR-003",
+        "AUD-ASR-004",
+        "AUD-ASR-005",
+        "AUD-ASR-006",
+        "AUD-ASR-007",
+        "AUD-ASR-008",
+        "AUD-ASR-013",
+        "AUD-ASR-014",
+        "AUD-ASR-016",
+        "AUD-ASR-018",
+        "AUD-ASR-019",
+        "AUD-ASR-020",
+        "AUD-ASSET-001",
+        "AUD-ASSET-002",
+        "AUD-ASSET-007",
+        "AUD-ASSET-008",
+        "AUD-ASSET-011",
+        "AUD-ASSET-014",
+        "AUD-ASSET-015",
+        "AUD-ASSET-016",
+        "AUD-CAP-011",
+        "AUD-CAP-013",
+        "AUD-CAP-016",
+        "AUD-CAP-018",
+        "AUD-CAP-019",
+        "AUD-CAP-027",
+        "AUD-CAP-028",
+        "AUD-CLONE-003",
+        "AUD-CLONE-004",
+        "AUD-CLONE-005",
+        "AUD-CLONE-006",
+        "AUD-CLONE-007",
+        "AUD-CLONE-017",
+        "AUD-COLLAB-001",
+        "AUD-COLLAB-002",
+        "AUD-COLLAB-003",
+        "AUD-COLLAB-005",
+        "AUD-COLLAB-006",
+        "AUD-COLLAB-007",
+        "AUD-COLLAB-008",
+        "AUD-COLLAB-010",
+        "AUD-COLLAB-011",
+        "AUD-COLLAB-012",
+        "AUD-COLLAB-013",
+        "AUD-COLOR-001",
+        "AUD-COLOR-002",
+        "AUD-COLOR-003",
+        "AUD-COLOR-004",
+        "AUD-COLOR-005",
+        "AUD-COLOR-006",
+        "AUD-COLOR-007",
+        "AUD-COLOR-008",
+        "AUD-COLOR-009",
+        "AUD-COLOR-010",
+        "AUD-COLOR-011",
+        "AUD-COLOR-012",
+        "AUD-COLOR-013",
+        "AUD-COLOR-014",
+        "AUD-COLOR-015",
+        "AUD-COLOR-016",
+        "AUD-COLOR-017",
+        "AUD-DELIV-001",
+        "AUD-DELIV-002",
+        "AUD-DELIV-003",
+        "AUD-DELIV-004",
+        "AUD-DELIV-005",
+        "AUD-DELIV-006",
+        "AUD-DELIV-007",
+        "AUD-DELIV-009",
+        "AUD-DELIV-010",
+        "AUD-DELIV-011",
+        "AUD-DELIV-012",
+        "AUD-DELIV-013",
+        "AUD-DELIV-014",
+        "AUD-DELIV-015"
+      ],
+      "sourceOwner": "media-product",
+      "ownerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+      "ownerAdoptionDisposition": "UNKNOWN_PENDING_AUTHENTIC_OWNER_RECORD",
+      "p0CriterionMaterialStatus": "29_OF_34_NESTED_MATERIAL_PINS_STALE_OR_MISSING",
+      "canonicalMutation": "NONE"
+    }
+  },
+  "nonClaims": [
+    "No owner decision or adoption is made by this candidate.",
+    "No numeric saturation range, unit, scale, preset, output, applicability, or runtime behavior is inferred.",
+    "The R6 candidate is not an independent peer acceptance; the independent R5 peer remains the latest peer result until a new independent R6 review exists.",
+    "No PDP-0 currentness, DEV_COMPLETE, Build admission, acceptance, closure, Delivery, or release state is claimed."
+  ]
+}

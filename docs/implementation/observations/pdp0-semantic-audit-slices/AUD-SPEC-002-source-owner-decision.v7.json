@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "media.pdp0.source-amendment-owner-decision.v7",
+  "decisionKind": "EXACT_PDP0_SOURCE_AMENDMENT",
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json",
+  "candidateSha256": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc",
+  "candidatePostimageSha256": "d1e0b9b8cea7e7f23aa339fd4a12cde29fc9d14b52e821e8a00f8f113fb8d187",
+  "freezeManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json",
+  "freezeManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54",
+  "sourceBindings": {
+    "rootDecisionSha256": "384026c46cd5dbdcc092daa213a68e00e8502a5b38626a65600c26be2b4f05a1",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "campaignExtensionsSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+    "applicationsChannelsSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "decisionLogSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2"
+  },
+  "targetPostimages": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+    ".product-experience/decision-log.md": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+  },
+  "decisionRef": ".product-experience/decision-log.md#PXD-226",
+  "decisionSectionSha256": "a98524f567639635b9dd5f43e53b8a60e40b2ea4f21d57ac19697098e9ef4dc8",
+  "sourceOwner": {
+    "identity": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
+    "role": "PDP0_SOURCE_OWNER"
+  },
+  "technicalPeerReviewRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v7.json",
+  "technicalPeerReviewSha256": "ec642cd46c008f7dd4172b3ef186ce6c7f9f74eecc8bf6e53168f477c2aee025",
+  "disposition": "APPROVE_EXACT_CANDIDATE_FOR_SOURCE_APPLY",
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "nativeClosure": "NOT_CLAIMED"
+  }
+}

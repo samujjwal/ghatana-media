@@ -1,0 +1,445 @@
+{
+  "schemaVersion": "media.pdp0.aq-pxd216-currentness-successors.candidate.v4",
+  "recordId": "MEDIA-PDP0-AQ-PXD216-CURRENTNESS-SUCCESSORS-2026-10-24-V4",
+  "candidateState": "SOURCE_BOUND_CURRENTNESS_ONLY_CANDIDATE; OWNER_DECISION_NOT_RECORDED",
+  "campaign": {
+    "phase": "PDP-0",
+    "macroStage": "DISCOVERY",
+    "identityDenominator": 54,
+    "phaseCells": 216,
+    "auditRows": 501,
+    "historicalOwnerRows": 462
+  },
+  "stableSourceCut": {
+    "repositoryHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+    "currentSourcePins": {
+      "docs/implementation/pdp-0-phase-dev-status.json": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-001-154.json": "541f12e1d7edac1f49d798afc941e2b0847d3952099ec6027ba1baea0888b748",
+      "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54",
+      "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json": "33b9da4aef5c83f6f8c3695494fba9f012954bec0059708fccc584ad1775cfd6",
+      "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+      "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r3/pdp0-current-source-reconciliation-pxd225.candidate.json": "bb85bea6745147bc72202b3bcc54d4b0f527838ed439773f38791f9484a67f6b",
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+      ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+      ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+      ".product-experience/decision-log.md": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.root-adoption-decision.input.r10.candidate.v1.json": "9fc791a5e29c85a2b6e3b5b9cb8f7c12f293bcf2f62e231dded9c5acb2594d02",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json": "64083d1e155a0a9903a81d5cd01ac74deb86892a8989e9d230abe9131901a6c7"
+    },
+    "inputReadSetSha256": "79e05de8c3d9fa9d336d869f307e547e480a1a0eea22717da9c3835f374dc4e5",
+    "repeatedReadMatched": true
+  },
+  "predecessors": {
+    "aqCurrentSourceReview": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-001-154.json",
+      "sha256": "541f12e1d7edac1f49d798afc941e2b0847d3952099ec6027ba1baea0888b748"
+    },
+    "aqRecommendation": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json",
+      "sha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5"
+    },
+    "pxd216SemanticReview": {
+      "ref": "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json",
+      "sha256": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54"
+    },
+    "pxd223Currentness": {
+      "ref": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
+      "sha256": "33b9da4aef5c83f6f8c3695494fba9f012954bec0059708fccc584ad1775cfd6"
+    },
+    "pxd225Currentness": {
+      "ref": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
+      "sha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd"
+    }
+  },
+  "sourceDelta": {
+    "aq1To154": {
+      "capabilityIdsAndOrderMatch": true,
+      "capabilityRowsChanged": [],
+      "historicalRows1To462Unchanged": true,
+      "requirementSourceChangedIds": [
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
+      ],
+      "changedRequirementIdsUsedBySlice": [],
+      "appendedRecipeAcceptanceCaseIds": [
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-13",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-16",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-17"
+      ],
+      "classification": "NO_MEANING_CHANGE_IN_AQ_ROWS_1_TO_154"
+    },
+    "pxd216": {
+      "reviewedCapabilityCount": 20,
+      "reviewedCapabilityIds": [
+        "media.project.organize",
+        "media.artifact.import",
+        "media.artifact.search",
+        "media.artifact.list",
+        "media.artifact.derive",
+        "media.multimodal.describe",
+        "media.multimodal.summarize",
+        "media.audio.analysis.detect.beat-onset",
+        "media.speech.synthesis.speaker.condition",
+        "media.generate.spatial.create.spatial-audio",
+        "media.animation.material",
+        "media.edit.inpaint",
+        "media.edit.matte",
+        "media.edit.retime-slow-motion-speed-ramp",
+        "media.compose.multitrack-timeline",
+        "media.compose.safe-area",
+        "media.compose.reusable-composition",
+        "media.master.audio.stereo-width",
+        "media.quality.rank",
+        "media.deliver.subtitles"
+      ],
+      "historicalReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+      "currentReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+      "changedReviewedCapabilityIds": [],
+      "historicalCapabilityDeltaOutsideReviewedSlice": {
+        "changedRows": [
+          {
+            "capabilityId": "media.recipe.specification.compile",
+            "changedFields": [
+              "constraints",
+              "explicitUnsupportedCases",
+              "idempotency",
+              "inputArtifactTypes",
+              "outcome",
+              "outputArtifactTypes",
+              "ownerDefinition",
+              "preconditions"
+            ],
+            "priorScopeStatus": "TARGET",
+            "currentScopeStatus": "TARGET",
+            "classification": "PXD-226_CURRENT_VERSION_EXTENSION_MEANING_CHANGE_OUTSIDE_PXD216_SLICE"
+          },
+          {
+            "capabilityId": "media.project.scene.patch-merge",
+            "changedFields": [
+              "scopeStatus"
+            ],
+            "priorScopeStatus": "TARGET",
+            "currentScopeStatus": "DEFERRED",
+            "classification": "PXD-221_FUTURE_VERSION_SCOPE_CHANGE_OUTSIDE_PXD216_SLICE"
+          },
+          {
+            "capabilityId": "media.quality.audio.content-similarity.assess",
+            "changedFields": [
+              "scopeStatus"
+            ],
+            "priorScopeStatus": "TARGET",
+            "currentScopeStatus": "DEFERRED",
+            "classification": "PXD-221_FUTURE_VERSION_SCOPE_CHANGE_OUTSIDE_PXD216_SLICE"
+          },
+          {
+            "capabilityId": "media.generate.video.preset.manage",
+            "changedFields": [
+              "scopeStatus"
+            ],
+            "priorScopeStatus": "TARGET",
+            "currentScopeStatus": "DEFERRED",
+            "classification": "PXD-221_FUTURE_VERSION_SCOPE_CHANGE_OUTSIDE_PXD216_SLICE"
+          },
+          {
+            "capabilityId": "media.generate.video.shot-condition",
+            "changedFields": [
+              "scopeStatus"
+            ],
+            "priorScopeStatus": "TARGET",
+            "currentScopeStatus": "DEFERRED",
+            "classification": "PXD-221_FUTURE_VERSION_SCOPE_CHANGE_OUTSIDE_PXD216_SLICE"
+          },
+          {
+            "capabilityId": "media.job.schedule.manage",
+            "changedFields": [
+              "scopeStatus"
+            ],
+            "priorScopeStatus": "TARGET",
+            "currentScopeStatus": "DEFERRED",
+            "classification": "PXD-221_FUTURE_VERSION_SCOPE_CHANGE_OUTSIDE_PXD216_SLICE"
+          },
+          {
+            "capabilityId": "media.master.audio.creative-effect.apply",
+            "changedFields": [
+              "scopeStatus"
+            ],
+            "priorScopeStatus": "TARGET",
+            "currentScopeStatus": "DEFERRED",
+            "classification": "PXD-221_FUTURE_VERSION_SCOPE_CHANGE_OUTSIDE_PXD216_SLICE"
+          }
+        ],
+        "addedCapabilityIds": [],
+        "removedCapabilityIds": []
+      },
+      "historicalOwnerAdjudicationCount": 462,
+      "historicalOwnerAdjudicationRowsUnchanged": true,
+      "reviewedOwnerTrustRowsUnchanged": true,
+      "changedSourceRecordsOutsideSlice": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "scope": "extension rows 463-469; recipe row has PXD-226 current-version meaning changes; six extension rows remain outside PXD-216",
+          "classification": "MEANING_CHANGE_OUTSIDE_REVIEWED_SLICE"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "scope": "MEDIA-REQ-CAP-RECIPE-TEMPLATE only; AC-13 through AC-17 appended",
+          "classification": "MEANING_CHANGE_OUTSIDE_REVIEWED_SLICE"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "scope": "currentVersionExtensionOwnerAndTrust adds only media.recipe.specification.compile; 462 owner rows unchanged",
+          "classification": "ADDITIVE_OWNER_RECORD_OUTSIDE_REVIEWED_SLICE"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+          "scope": "ownerQualityApplicabilityCrosswalkExtensions adds only media.recipe.specification.compile",
+          "classification": "ADDITIVE_QUALITY_RECORD_OUTSIDE_REVIEWED_SLICE"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+          "historicalPxd216PinSha256": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+          "currentSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+          "scope": "Historical PXD-216 channel pin to current source is explained by the PXD-225 archived-only locator reconciliation; channel bytes are unchanged from the immediate PXD-223 baseline",
+          "classification": "NO_CHANNEL_CHANGE_FROM_PXD223_BASELINE; PXD225_RECONCILIATION_EXPLAINS_HISTORICAL_PIN"
+        }
+      ],
+      "classification": "NO_MEANING_CHANGE_TO_THE_20_PXD216_REVIEWED_ROWS; SOURCE_EXTENSIONS_OUTSIDE_SLICE_REMAIN_SEPARATELY_GOVERNED"
+    }
+  },
+  "aqSuccessor": {
+    "schemaVersion": "media.pdp0.aq-capability-current-source-review.v1",
+    "review": {
+      "reviewType": "AI-assisted read-only semantic recheck",
+      "campaignScope": "Recheck existing PDP-0 A-Q capability mapping recommendations for source-order rows 1-154 against current Media capability definitions and Blueprint V3 section 2.",
+      "phase": "PDP-0 Product Truth",
+      "macroStage": "DISCOVERY",
+      "repository": "ghatana-media",
+      "branch": "main",
+      "headAtReview": "b3f11733d2b997c12f0438d95b5330d1516c4f1d",
+      "sourceOrderRange": {
+        "startIndex": 1,
+        "endIndex": 154,
+        "count": 154,
+        "indexing": "1-based YAML list order"
+      },
+      "readOnly": true,
+      "phaseReadinessRerun": false,
+      "ownerAcceptance": "NOT_CLAIMED",
+      "independentReview": "NOT_CLAIMED",
+      "limitations": "This is an AI-assisted semantic recheck of existing recommendations. It does not establish owner acceptance, independent review, PDP source currentness, native closure, or implementation status.",
+      "currentnessRefresh": {
+        "refreshKind": "CURRENT_SOURCE_FINGERPRINT_ONLY",
+        "refreshDate": "2026-10-24",
+        "priorCapabilitySourceSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "currentCapabilitySourceSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "currentRequirementsSourceSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "currentBlueprintV3Sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947",
+        "recommendationFileSha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5",
+        "sliceEvidence": {
+          "sourceOrderRange": {
+            "startIndex": 1,
+            "endIndex": 154,
+            "count": 154,
+            "indexing": "1-based YAML list order"
+          },
+          "liveCapabilityCount": 469,
+          "historicalCanonicalRowsComparedToPriorSource": 462,
+          "historicalCanonicalRowsUnchanged": true,
+          "sliceCapabilityIdsAndOrderMatch": true,
+          "sliceParentRequirementIdsResolveAndMatch": true,
+          "semanticFindingsPreserved": {
+            "supported": 148,
+            "ambiguous": 6,
+            "mismatched": 0
+          },
+          "changedCapabilityIdsWithinSlice": [],
+          "changedParentRequirementIdsWithinSlice": []
+        },
+        "decisionBoundary": "Only extension rows 463-469 and the MEDIA-REQ-CAP-RECIPE-TEMPLATE acceptance cases changed after the predecessor current-source review. AQ rows 1-154, their source order, IDs, and parent requirement records are identical. This successor updates current-source pins and provenance only; it does not change recommendation rows, findings, meaning, taxonomy assignments, acceptance, or closure claims.",
+        "predecessorCurrentSourceReviewSha256": "541f12e1d7edac1f49d798afc941e2b0847d3952099ec6027ba1baea0888b748"
+      }
+    },
+    "materialInputs": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "liveCapabilityCount": 469,
+        "previouslyReviewedSha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+      },
+      ".product-experience/pdp-0-product-truth/requirements.yaml": {
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": {
+        "section": "§2 Capability completeness ledger",
+        "sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+      },
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json": {
+        "sha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5",
+        "recordedCapabilityFingerprintIsCurrent": false,
+        "recordedRequirementsFingerprintIsCurrent": false
+      }
+    },
+    "structuralResults": {
+      "recommendationEntryCount": 154,
+      "sourceOrderIndexesAreExactly1Through154": true,
+      "allRecommendationCapabilityIdsUnique": true,
+      "duplicateCapabilityIds": [],
+      "allCapabilityIdsMatchLiveSourceAtRecordedOrder": true,
+      "missingParentRequirementIds": [],
+      "capabilityParentRequirementLinkMismatches": [],
+      "result": "PASS"
+    },
+    "semanticDisposition": {
+      "supportedRecommendationCount": 148,
+      "ambiguousRecommendationCount": 6,
+      "mismatchedRecommendationCount": 0,
+      "ambiguousCapabilityIds": [
+        "media.profile.discover",
+        "media.profile.validate",
+        "media.capability.discover",
+        "media.capability.check-declared-options",
+        "media.capability.execution.compatibility",
+        "media.health.readiness.inspect"
+      ],
+      "mismatchedCapabilityIds": [],
+      "changedOutcomeRowsSinceRecommendationBaseline": [
+        {
+          "sourceOrderIndex": 5,
+          "capabilityId": "media.project.organize",
+          "recheckedPrimaryClusterId": "C"
+        },
+        {
+          "sourceOrderIndex": 20,
+          "capabilityId": "media.artifact.import",
+          "recheckedPrimaryClusterId": "A"
+        },
+        {
+          "sourceOrderIndex": 22,
+          "capabilityId": "media.artifact.search",
+          "recheckedPrimaryClusterId": "C"
+        },
+        {
+          "sourceOrderIndex": 25,
+          "capabilityId": "media.artifact.derive",
+          "recheckedPrimaryClusterId": "C"
+        },
+        {
+          "sourceOrderIndex": 112,
+          "capabilityId": "media.multimodal.describe",
+          "recheckedPrimaryClusterId": "L"
+        },
+        {
+          "sourceOrderIndex": 113,
+          "capabilityId": "media.multimodal.summarize",
+          "recheckedPrimaryClusterId": "L"
+        },
+        {
+          "sourceOrderIndex": 126,
+          "capabilityId": "media.audio.analysis.detect.beat-onset",
+          "recheckedPrimaryClusterId": "I"
+        }
+      ],
+      "changedOutcomeRowDisposition": "The current meanings remain consistent with the existing primary cluster and related-cluster recommendations."
+    },
+    "sourceCurrentnessCaveat": "Current-source review fingerprints are refreshed for the live capability, requirement, Blueprint V3, and recommendation files listed above. The recommendation record itself retains its older declared capability and requirements baseline, as reflected by recordedCapabilityFingerprintIsCurrent=false and recordedRequirementsFingerprintIsCurrent=false; this provenance refresh does not rewrite or upgrade that recommendation record. The recheck remains limited to rows 1-154 and makes no owner-acceptance, independent-acceptance, implementation, qualification, or closure claim.",
+    "successorState": "APPEND_ONLY_CURRENT_SOURCE_SUCCESSOR; OWNER_ACCEPTANCE_NOT_CLAIMED",
+    "predecessorRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-001-154.json",
+    "predecessorSha256": "541f12e1d7edac1f49d798afc941e2b0847d3952099ec6027ba1baea0888b748",
+    "sourceDeltaProof": {
+      "capabilityIdsAndOrderMatch": true,
+      "capabilityRowsChanged": [],
+      "historicalRows1To462Unchanged": true,
+      "requirementSourceChangedIds": [
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
+      ],
+      "changedRequirementIdsUsedBySlice": [],
+      "appendedRecipeAcceptanceCaseIds": [
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-13",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-16",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-17"
+      ],
+      "classification": "NO_MEANING_CHANGE_IN_AQ_ROWS_1_TO_154"
+    }
+  },
+  "pxd216Successor": {
+    "schemaVersion": "media.pdp0.capability-meaning-current-source-review.successor.v1",
+    "semanticReviewRef": "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json",
+    "semanticReviewSha256": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54",
+    "historicalSourceFingerprints": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+      ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
+    },
+    "predecessorCurrentnessRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
+    "currentSources": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+      ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+      ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
+    },
+    "reviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+    "reviewedCapabilityIds": [
+      "media.project.organize",
+      "media.artifact.import",
+      "media.artifact.search",
+      "media.artifact.list",
+      "media.artifact.derive",
+      "media.multimodal.describe",
+      "media.multimodal.summarize",
+      "media.audio.analysis.detect.beat-onset",
+      "media.speech.synthesis.speaker.condition",
+      "media.generate.spatial.create.spatial-audio",
+      "media.animation.material",
+      "media.edit.inpaint",
+      "media.edit.matte",
+      "media.edit.retime-slow-motion-speed-ramp",
+      "media.compose.multitrack-timeline",
+      "media.compose.safe-area",
+      "media.compose.reusable-composition",
+      "media.master.audio.stereo-width",
+      "media.quality.rank",
+      "media.deliver.subtitles"
+    ],
+    "changedReviewedCapabilityIds": [],
+    "pxd225Selector": {
+      "predecessorRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
+      "predecessorSha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+      "candidateRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r3/pdp0-current-source-reconciliation-pxd225.candidate.json",
+      "candidateSha256": "bb85bea6745147bc72202b3bcc54d4b0f527838ed439773f38791f9484a67f6b",
+      "oldDecisionSectionSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+      "currentDecisionSectionSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
+      "changedFields": [
+        "decisionSectionSha256"
+      ]
+    },
+    "semanticReviewStatus": "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none"
+  },
+  "authorityBoundary": {
+    "canonicalPdp0StatusWrite": "NONE",
+    "crosswalkWrite": "NONE",
+    "sourceDefinitionWrite": "NONE",
+    "sourceOwnerDecision": "NOT_RECORDED",
+    "rootDisposition": "NOT_RECORDED",
+    "phaseAcceptance": "NOT_CLAIMED"
+  }
+}

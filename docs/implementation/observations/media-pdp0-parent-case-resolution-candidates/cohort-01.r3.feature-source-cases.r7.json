@@ -1,0 +1,351 @@
+{
+  "schemaVersion": "media.pdp0.feature-source-acceptance-cases-candidate.v1",
+  "artifactId": "MEDIA-PDP0-COHORT-01-R7-FEATURE-SOURCE-CASES-2026-10-23",
+  "featureSourceRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
+  "caseCount": 34,
+  "caseIdsUnique": true,
+  "cases": [
+    {
+      "caseId": "R7-AUD-CAP-028-01",
+      "auditId": "AUD-CAP-028",
+      "polarity": "POSITIVE",
+      "given": "Exact owner binding, effect identity, current revision, typed evidence, observation time and finality are available.",
+      "when": "Caller requests product-effect observation.",
+      "then": "Return source-bound observation with all exact fields.",
+      "acceptanceCriterion": "Session state remains separate from product-effect state.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CAP-028-02",
+      "auditId": "AUD-CAP-028",
+      "polarity": "ADVERSE_UNKNOWN",
+      "given": "Owner binding or evidence is missing, unavailable or unverified.",
+      "when": "Caller requests observation or resume.",
+      "then": "Return UNKNOWN/UNAVAILABLE; grant no resume or replay.",
+      "acceptanceCriterion": "Unknown inputs cannot authorize an effect.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CAP-028-03",
+      "auditId": "AUD-CAP-028",
+      "polarity": "ADVERSE_NO_REPLAY",
+      "given": "External effect outcome is ambiguous or final.",
+      "when": "Caller retries the effect instead of reading it.",
+      "then": "Do not replay; require reconciliation.",
+      "acceptanceCriterion": "Readback never triggers an effect.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CAP-028-04",
+      "auditId": "AUD-CAP-028",
+      "polarity": "ADVERSE_REVISION",
+      "given": "Evidence revision conflicts with owner-source revision.",
+      "when": "Caller requests observation.",
+      "then": "Return UNKNOWN/UNAVAILABLE.",
+      "acceptanceCriterion": "Stale/conflicting revision is never final.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-004-01",
+      "auditId": "AUD-CLONE-004",
+      "polarity": "POSITIVE",
+      "given": "Immutable source version, admitted tuning profile, purpose, current rights scope, actor and retention policy are present.",
+      "when": "Caller requests authorized tuning.",
+      "then": "Create only a local versioned candidate with full lineage.",
+      "acceptanceCriterion": "Candidate is distinct from activation/model replacement.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-004-02",
+      "auditId": "AUD-CLONE-004",
+      "polarity": "ADVERSE_RIGHTS",
+      "given": "Rights/consent is absent, revoked or excludes purpose.",
+      "when": "Caller requests tuning.",
+      "then": "Reject with RIGHTS_OR_CONSENT_DENIED.",
+      "acceptanceCriterion": "No candidate on rights failure.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-004-03",
+      "auditId": "AUD-CLONE-004",
+      "polarity": "ADVERSE_UNGOVERNED_TRAINING",
+      "given": "Caller asks tuning to silently train, adapt or replace canonical model.",
+      "when": "Request is evaluated.",
+      "then": "Reject as unsupported.",
+      "acceptanceCriterion": "Separate governed operation required.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-004-04",
+      "auditId": "AUD-CLONE-004",
+      "polarity": "ADVERSE_UNKNOWN",
+      "given": "External tuning outcome is ambiguous.",
+      "when": "Caller retries automatically.",
+      "then": "Preserve UNKNOWN; require reconciliation.",
+      "acceptanceCriterion": "No replay of ambiguous outcomes.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-006-01",
+      "auditId": "AUD-CLONE-006",
+      "polarity": "POSITIVE",
+      "given": "Non-identity attributes, admitted profile, tenant/actor and rights/identity policy are present.",
+      "when": "Caller designs source-free persona.",
+      "then": "Return synthetic disclosed candidate with design provenance.",
+      "acceptanceCriterion": "No real-person representation/endorsement claim.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-006-02",
+      "auditId": "AUD-CLONE-006",
+      "polarity": "ADVERSE_IMPERSONATION",
+      "given": "Requested attributes identify or imitate a real person.",
+      "when": "Caller requests source-free design.",
+      "then": "Reject or mark unavailable under this branch.",
+      "acceptanceCriterion": "Requires separate genuine identity, rights and consent authority.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-006-03",
+      "auditId": "AUD-CLONE-006",
+      "polarity": "ADVERSE_POLICY_UNKNOWN",
+      "given": "Policy or profile admission is unavailable/unresolved.",
+      "when": "Caller requests persona design.",
+      "then": "Return UNKNOWN/UNAVAILABLE.",
+      "acceptanceCriterion": "No identity use is inferred as permitted.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-006-04",
+      "auditId": "AUD-CLONE-006",
+      "polarity": "ADVERSE_SOURCE_BOUNDARY",
+      "given": "Real-person voice source is supplied to source-free operation.",
+      "when": "Request is evaluated.",
+      "then": "Reject as wrong operation.",
+      "acceptanceCriterion": "Source-free and authorized-cloning flows stay distinct.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-017-01",
+      "auditId": "AUD-CLONE-017",
+      "polarity": "POSITIVE",
+      "given": "Exact subject/persona version, current scoped consent, authorized decision source and lifecycle contract are present.",
+      "when": "Enrollment decision is made.",
+      "then": "Return auditable outcome bound to all inputs.",
+      "acceptanceCriterion": "Enrollment is a distinct governed operation.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-017-02",
+      "auditId": "AUD-CLONE-017",
+      "polarity": "ADVERSE_SCOPE",
+      "given": "Subject, persona, purpose or consent scope mismatches.",
+      "when": "Enrollment is requested.",
+      "then": "Reject.",
+      "acceptanceCriterion": "No mismatched identity/scope enrollment.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-017-03",
+      "auditId": "AUD-CLONE-017",
+      "polarity": "ADVERSE_REVOKED",
+      "given": "Consent is expired/revoked or authority unavailable.",
+      "when": "Enrollment is requested.",
+      "then": "Reject expired/revoked consent; unavailable authority remains UNKNOWN.",
+      "acceptanceCriterion": "No guessed enrollment state.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-CLONE-017-04",
+      "auditId": "AUD-CLONE-017",
+      "polarity": "ADVERSE_REFERENCE_ONLY",
+      "given": "Consent reference resolves without actual enrollment authority/outcome.",
+      "when": "Caller treats resolution as enrollment.",
+      "then": "Do not report enrollment; return UNKNOWN/UNAVAILABLE.",
+      "acceptanceCriterion": "Reference resolution is not enrollment.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-007-01",
+      "auditId": "AUD-COLOR-007",
+      "polarity": "POSITIVE",
+      "given": "Named profile, target, applicability dimensions and current evidence are provided.",
+      "when": "Caller requests compatibility observation.",
+      "then": "Return supported, unsupported and unknown dimensions with evidence.",
+      "acceptanceCriterion": "Result is scoped to named profile/target.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-007-02",
+      "auditId": "AUD-COLOR-007",
+      "polarity": "ADVERSE_UNKNOWN",
+      "given": "One or more required dimensions lack evidence.",
+      "when": "Compatibility is evaluated.",
+      "then": "Mark affected dimensions UNKNOWN.",
+      "acceptanceCriterion": "Unknown is not supported.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-007-03",
+      "auditId": "AUD-COLOR-007",
+      "polarity": "ADVERSE_CONFORMANCE",
+      "given": "Conformance requested without real standard/version, authorized decision source, method, target and authentic evidence.",
+      "when": "Request is evaluated.",
+      "then": "Return UNKNOWN/UNAVAILABLE; issue no conformance claim.",
+      "acceptanceCriterion": "Compatibility never implies certification.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-007-04",
+      "auditId": "AUD-COLOR-007",
+      "polarity": "ADVERSE_STALE_PROFILE",
+      "given": "Requested/effective versions or target binding disagree.",
+      "when": "Compatibility is evaluated.",
+      "then": "Return UNKNOWN/UNAVAILABLE.",
+      "acceptanceCriterion": "No silent version mismatch.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-DELIV-007-01",
+      "auditId": "AUD-DELIV-007",
+      "polarity": "POSITIVE",
+      "given": "Exact target/profile/hardware plus separate current technical and legal criteria/evidence are available.",
+      "when": "Caller requests readiness observation.",
+      "then": "Return separate technical and legal results.",
+      "acceptanceCriterion": "Observation does not equal release approval.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-DELIV-007-02",
+      "auditId": "AUD-DELIV-007",
+      "polarity": "ADVERSE_LEGAL_UNKNOWN",
+      "given": "Legal criteria or genuine authorized legal evidence are missing.",
+      "when": "Readiness is evaluated.",
+      "then": "Legal result stays UNKNOWN; no clearance claim.",
+      "acceptanceCriterion": "Technical result cannot replace legal authority.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-DELIV-007-03",
+      "auditId": "AUD-DELIV-007",
+      "polarity": "ADVERSE_HARDWARE_UNKNOWN",
+      "given": "Hardware admission evidence is absent or stale.",
+      "when": "Readiness is evaluated.",
+      "then": "Hardware result stays UNKNOWN/UNAVAILABLE.",
+      "acceptanceCriterion": "No equipment qualification inferred.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-DELIV-007-04",
+      "auditId": "AUD-DELIV-007",
+      "polarity": "ADVERSE_CONFLATION",
+      "given": "Technical evidence is the only basis offered for legal clearance.",
+      "when": "Readiness is evaluated.",
+      "then": "Keep legal UNKNOWN; do not assert clearance.",
+      "acceptanceCriterion": "Legal and technical lanes remain separate.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-01",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "LOWER_BOUND",
+      "given": "Immutable source/version and supported profile with factor 0.",
+      "when": "Saturation adjustment is requested.",
+      "then": "Accept 0; record requested=0 and effective=0.",
+      "acceptanceCriterion": "Inclusive minimum.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-02",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "UPPER_BOUND",
+      "given": "Immutable source/version and supported profile with factor 2.",
+      "when": "Saturation adjustment is requested.",
+      "then": "Accept 2; record requested=2 and effective=2.",
+      "acceptanceCriterion": "Inclusive maximum.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-03",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "DEFAULT",
+      "given": "Valid source/profile; factor omitted.",
+      "when": "Saturation adjustment is requested.",
+      "then": "Use candidate default 1; record requested/default and effective values.",
+      "acceptanceCriterion": "Default is explicit semantics.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-04",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "NEUTRAL",
+      "given": "Valid source/profile with factor 1.",
+      "when": "Saturation adjustment is requested.",
+      "then": "Record requested=1 and effective=1.",
+      "acceptanceCriterion": "Neutral value is 1.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-05",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "STEP",
+      "given": "Valid source/profile with factor 1.01.",
+      "when": "Validate request.",
+      "then": "Accept hundredth-step value.",
+      "acceptanceCriterion": "Step is 0.01.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-06",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "OUT_OF_RANGE",
+      "given": "Factor below 0 or above 2.",
+      "when": "Validate request.",
+      "then": "Reject BOUNDS_EXCEEDED without clamp/substitution.",
+      "acceptanceCriterion": "Only inclusive [0,2].",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-07",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "PRECISION",
+      "given": "Factor has more than two decimal places.",
+      "when": "Validate request.",
+      "then": "Reject INVALID_REQUEST without rounding.",
+      "acceptanceCriterion": "At most two decimal places.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-08",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "NONFINITE",
+      "given": "NaN or positive/negative infinity is supplied.",
+      "when": "Validate request.",
+      "then": "Reject INVALID_REQUEST.",
+      "acceptanceCriterion": "Input must be finite.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-09",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "UNSUPPORTED_PROFILE",
+      "given": "Profile/color space is unsupported or unknown.",
+      "when": "Adjustment is requested.",
+      "then": "Reject/return UNKNOWN without substitution.",
+      "acceptanceCriterion": "No fallback.",
+      "canonicalApplication": "NONE"
+    },
+    {
+      "caseId": "R7-AUD-COLOR-001-10",
+      "auditId": "AUD-COLOR-001",
+      "polarity": "MISSING_SOURCE_VERSION",
+      "given": "Source artifact version is absent.",
+      "when": "Adjustment is requested.",
+      "then": "Return UNKNOWN/UNAVAILABLE; create no candidate.",
+      "acceptanceCriterion": "Source version required.",
+      "canonicalApplication": "NONE"
+    }
+  ],
+  "sourceAdoption": "SEPARATE_EXACT_PEER_AND_OWNER_DECISION_REQUIRED",
+  "canonicalApplication": "NONE"
+}

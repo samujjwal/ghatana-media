@@ -16,6 +16,8 @@ import {
   PDP0_PXD225_RECONCILIATION_PATH,
   validatePdp0Pxd225Currentness,
 } from '../scripts/lib/pdp0-feature-review-applicability.mjs';
+import {buildPxd225QualityCurrentness} from '../scripts/generate-pdp0-quality-current-source-review-pxd225.mjs';
+import {pdp0PhaseScopedSourcePins} from '../scripts/report-media-pdp-readiness.mjs';
 
 const root = resolve(new URL('..', import.meta.url).pathname);
 const require = createRequire(resolve(root, '../ghatana-tools/package.json'));
@@ -85,6 +87,15 @@ test('PXD-225 quality currentness preserves PXD-222 history and binds the live d
     'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json'
   ], '6b01fea74bc26c25fea97e5108073025cbc1284a4753a98e74b9994c70342a95',
   'PXD-222 retains its historical crosswalk pin');
+});
+
+test('PXD-225 quality refresh binds the current PDP-0 source-manifest projection', () => {
+  const generated = buildPxd225QualityCurrentness();
+  const projectionRef = '.product-experience/source-manifest.yaml#PDP-0-projection';
+  assert.equal(
+    generated.latestCurrentnessRefresh.sourceFingerprints[projectionRef],
+    pdp0PhaseScopedSourcePins()[projectionRef],
+  );
 });
 
 test('PXD-225 quality currentness rejects stale dependent pins and changed semantic joins', () => {

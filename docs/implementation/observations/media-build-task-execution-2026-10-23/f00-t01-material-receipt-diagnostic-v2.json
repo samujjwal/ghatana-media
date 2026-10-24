@@ -1,0 +1,254 @@
+{
+  "schemaVersion": "media.build-f00-t01-material-receipt-diagnostic.v2",
+  "recordKind": "READ_ONLY_CURRENT_MATERIAL_DIAGNOSTIC_NOT_ADMISSION_OR_COMPLETION",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "BUILD",
+    "phase": "KDEV-STAGE-PLAN-IMPLEMENTATION",
+    "head": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+    "denominators": {
+      "sourceIdentities": 54,
+      "phaseCells": 216,
+      "packages": 50,
+      "tasks": 57,
+      "traceIdentities": 3186,
+      "ownerApprovedOpenTasks": 19
+    }
+  },
+  "receipt": {
+    "projectionPath": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
+    "projectionStatus": "STALE_BLOCKED",
+    "projectionCount": 872,
+    "projectionRecordCount": 872,
+    "projectionStaleCount": 1,
+    "liveExpectedCount": 872,
+    "liveRecordCount": 872,
+    "staleOrMismatchedSelectorCount": 27,
+    "staleOrMismatchedSelectors": [
+      {
+        "phase": "PDP-0",
+        "selector": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "expectedSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+        "currentSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20"
+      },
+      {
+        "phase": "PDP-0",
+        "selector": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+        "expectedSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
+        "currentSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c"
+      },
+      {
+        "phase": "PDP-0",
+        "selector": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json",
+        "expectedSha256": "efbfe052755dfe3af7fcf7ef82736d66d0a03c484feebb48f5880a954566abb8",
+        "currentSha256": "efbfe052755dfe3af7fcf7ef82736d66d0a03c484feebb48f5880a954566abb8"
+      },
+      {
+        "phase": "PDP-0",
+        "selector": "scripts/generate-media-phase-projections.mjs",
+        "expectedSha256": "0b02e2b587ed01d41f4f2ec31a80cd01b9d277dd25965b5ee9d046d5c02d915e",
+        "currentSha256": "0b02e2b587ed01d41f4f2ec31a80cd01b9d277dd25965b5ee9d046d5c02d915e"
+      },
+      {
+        "phase": "PDP-0",
+        "selector": "scripts/generate-pdp0-current-source-reconciliation-pxd225.mjs",
+        "expectedSha256": "bd2b5eca57ac53a1aa1af6f8fcb775b9ca0a5256f40e0d28442630353dd0a746",
+        "currentSha256": "bd2b5eca57ac53a1aa1af6f8fcb775b9ca0a5256f40e0d28442630353dd0a746"
+      },
+      {
+        "phase": "PDP-0",
+        "selector": "scripts/generate-pdp0-quality-current-source-review-pxd225.mjs",
+        "expectedSha256": "a4848c1140c7ce8b0a9dc9dc1592df2668613262f61d47d413ecabddefb005ec",
+        "currentSha256": "a4848c1140c7ce8b0a9dc9dc1592df2668613262f61d47d413ecabddefb005ec"
+      },
+      {
+        "phase": "PDP-0",
+        "selector": "tests/pdp0-current-source-reconciliation-pxd225.test.mjs",
+        "expectedSha256": "3104c16b88babeabaf372d7ea305805a434cc06c634f41d0b7055abd378136de",
+        "currentSha256": "3104c16b88babeabaf372d7ea305805a434cc06c634f41d0b7055abd378136de"
+      },
+      {
+        "phase": "PDP-0",
+        "selector": "tests/pdp0-quality-current-source-review-pxd225.test.mjs",
+        "expectedSha256": "67a106e7685703f620cd2ff455034a3f43a664288f85b78a466c8317c94d9ae5",
+        "currentSha256": "67a106e7685703f620cd2ff455034a3f43a664288f85b78a466c8317c94d9ae5"
+      },
+      {
+        "phase": "PDP-0",
+        "selector": ".product-experience/source-manifest.yaml#PDP-0-projection",
+        "expectedSha256": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
+        "currentSha256": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db"
+      },
+      {
+        "phase": "PDP-1",
+        "selector": ".product-experience/interface-parity/current-source-review.json",
+        "expectedSha256": "d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6",
+        "currentSha256": "d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6"
+      },
+      {
+        "phase": "PDP-1",
+        "selector": ".product-experience/source-manifest.yaml",
+        "expectedSha256": "c076129f4d1e39109fe7e3c66ce5e8e16ef06e4011039fcdfec48d2d2c112ace",
+        "currentSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4"
+      },
+      {
+        "phase": "PDP-1",
+        "selector": "docs/implementation/pdp-0-phase-dev-status.json",
+        "expectedSha256": "71d801cd97076e708d1ee705e6f2cf5a7ff40edcfdaf06cc6903b5bd0114353d",
+        "currentSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+      },
+      {
+        "phase": "PDP-1",
+        "selector": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "expectedSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+        "currentSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
+      },
+      {
+        "phase": "PDP-1",
+        "selector": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
+        "expectedSha256": "01a6bfc7424647e332c3adbaeab82e9153aa03779d585047dae040d1f2e53fa0",
+        "currentSha256": "01a6bfc7424647e332c3adbaeab82e9153aa03779d585047dae040d1f2e53fa0"
+      },
+      {
+        "phase": "PDP-2",
+        "selector": ".product-experience/interface-parity/current-source-review.json",
+        "expectedSha256": "1fc1b192822d246d5a9c319aa6f7267ca4e2a8caee6931f81fbccefceee3a4ba",
+        "currentSha256": "d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6"
+      },
+      {
+        "phase": "PDP-2",
+        "selector": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "expectedSha256": "dbd27e398c350fad6e8d617b23cf60d5754effcd7b4bbae214109b85d2983181",
+        "currentSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20"
+      },
+      {
+        "phase": "PDP-2",
+        "selector": "docs/implementation/pdp-1-phase-dev-status.json",
+        "expectedSha256": "7cbe7addda6e4ea2df16d358d5f39f02bae83b4822fd8aa0ee94f0d55d65f084",
+        "currentSha256": "2f6bf005ba16bbeda814705f1c4290fde32949f90aaed15dcd13941030d8f42b"
+      },
+      {
+        "phase": "PDP-2",
+        "selector": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "expectedSha256": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9",
+        "currentSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
+      },
+      {
+        "phase": "PDP-2",
+        "selector": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
+        "expectedSha256": "8ae394b7e14f2bfc0275a1f49cb0b9d4a891913f71d28c69b9127ae9c300d6e8",
+        "currentSha256": "01a6bfc7424647e332c3adbaeab82e9153aa03779d585047dae040d1f2e53fa0"
+      },
+      {
+        "phase": "PDP-2",
+        "selector": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "expectedSha256": "ee18975ce61cf3f0cfe404ae16e03b7af7fb2c8f23aec10c1a8941ad5c90ede7",
+        "currentSha256": "542e6058b3148646aad42e44716bedaa1371849cabba167e39b7f5cc1ab7126c"
+      },
+      {
+        "phase": "PDP-2",
+        "selector": "scripts/generate-media-phase-projections.mjs",
+        "expectedSha256": "a08a8d254ce29eb4c1aebd5187d1c06f8a11426aecf3abe0226355a76d2dd4ce",
+        "currentSha256": "0b02e2b587ed01d41f4f2ec31a80cd01b9d277dd25965b5ee9d046d5c02d915e"
+      },
+      {
+        "phase": "PDP-3",
+        "selector": ".product-experience/source-manifest.yaml",
+        "expectedSha256": "c076129f4d1e39109fe7e3c66ce5e8e16ef06e4011039fcdfec48d2d2c112ace",
+        "currentSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4"
+      },
+      {
+        "phase": "PDP-3",
+        "selector": "docs/implementation/pdp-0-phase-dev-status.json",
+        "expectedSha256": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d",
+        "currentSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+      },
+      {
+        "phase": "PDP-3",
+        "selector": "docs/implementation/pdp-1-phase-dev-status.json",
+        "expectedSha256": "7cbe7addda6e4ea2df16d358d5f39f02bae83b4822fd8aa0ee94f0d55d65f084",
+        "currentSha256": "2f6bf005ba16bbeda814705f1c4290fde32949f90aaed15dcd13941030d8f42b"
+      },
+      {
+        "phase": "PDP-3",
+        "selector": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+        "expectedSha256": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9",
+        "currentSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
+      },
+      {
+        "phase": "PDP-3",
+        "selector": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+        "expectedSha256": "ee18975ce61cf3f0cfe404ae16e03b7af7fb2c8f23aec10c1a8941ad5c90ede7",
+        "currentSha256": "542e6058b3148646aad42e44716bedaa1371849cabba167e39b7f5cc1ab7126c"
+      },
+      {
+        "phase": "PDP-3",
+        "selector": "scripts/generate-media-phase-projections.mjs",
+        "expectedSha256": "a08a8d254ce29eb4c1aebd5187d1c06f8a11426aecf3abe0226355a76d2dd4ce",
+        "currentSha256": "0b02e2b587ed01d41f4f2ec31a80cd01b9d277dd25965b5ee9d046d5c02d915e"
+      }
+    ]
+  },
+  "phaseSourceRecords": [
+    {
+      "phase": "PDP-0",
+      "statusRecord": "IN_PROGRESS",
+      "statusRecordPinCount": 188,
+      "matrixStatus": "DEV_COMPLETE",
+      "matrixSourceCurrentness": "CURRENT",
+      "staleMatrixPinCount": 0,
+      "remainingPhaseLocalTaskCount": 0
+    },
+    {
+      "phase": "PDP-1",
+      "statusRecord": "DEV_COMPLETE",
+      "statusRecordPinCount": 137,
+      "matrixStatus": "DEV_COMPLETE",
+      "matrixSourceCurrentness": "CURRENT",
+      "staleMatrixPinCount": 0,
+      "remainingPhaseLocalTaskCount": 0
+    },
+    {
+      "phase": "PDP-2",
+      "statusRecord": "DEV_COMPLETE",
+      "statusRecordPinCount": 180,
+      "matrixStatus": "DEV_COMPLETE",
+      "matrixSourceCurrentness": "CURRENT",
+      "staleMatrixPinCount": 0,
+      "remainingPhaseLocalTaskCount": 0
+    },
+    {
+      "phase": "PDP-3",
+      "statusRecord": "DEV_COMPLETE",
+      "statusRecordPinCount": 367,
+      "matrixStatus": "DEV_COMPLETE",
+      "matrixSourceCurrentness": "CURRENT",
+      "staleMatrixPinCount": 0,
+      "remainingPhaseLocalTaskCount": 0
+    }
+  ],
+  "classification": {
+    "globalReceipt": "STALE_OR_MISMATCHED",
+    "globalReceiptIsNotPerUnitBuildGate": true,
+    "perUnitBuildEligibility": "NOT_EVALUATED_BY_THIS_F00_T01_RECEIPT",
+    "reason": "F00.T01 reconciles the aggregate material receipt. Task eligibility must use exact task source joins, the applicable 54-row phase-matrix unit rows, explicit dependencies, and Kernel owner readback; this artifact does not promote its aggregate receipt into a global Build lock."
+  },
+  "authority": {
+    "gtoolSourceProjection": "READ_ONLY",
+    "kernelTaskClosure": "NOT_PROVEN",
+    "kernelPlanReady": "NOT_PROVEN",
+    "nativeClosure": "NOT_EVALUATED",
+    "deliveryAuthorization": false
+  },
+  "inputRefs": [
+    "docs/implementation/pdp-0-phase-dev-status.json",
+    "docs/implementation/pdp-1-phase-dev-status.json",
+    "docs/implementation/pdp-2-phase-dev-status.json",
+    "docs/implementation/pdp-3-phase-dev-status.json",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
+    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
+    "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json"
+  ],
+  "testEvidence": "node --test --test-name-pattern=\"derives the receipt denominator\" tests/media-build-f00-t01-observation.test.mjs PASS"
+}

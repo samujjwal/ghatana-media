@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.root-selected-source-integration-allowed-operations.v1.candidate",
+  "title": "Candidate schema for root-selected PDP-0 source postimage operations",
+  "description": "Candidate-only schema. It is not registered or self-admitted; authentic source-owner and root decisions plus independent review are required before any use for canonical source adoption.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactId",
+    "candidateSchemaRef",
+    "candidateSchemaStatus",
+    "predecessorFreeze",
+    "rootMappingDecision",
+    "candidateRevision",
+    "branch",
+    "branchStatus",
+    "sourceBaseline",
+    "retainedProjection",
+    "operations",
+    "counts",
+    "outputPostimages",
+    "validation"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.root-selected-source-integration-allowed-operations.v1"
+    },
+    "artifactId": {
+      "type": "string"
+    },
+    "candidateSchemaRef": {
+      "type": "string"
+    },
+    "candidateSchemaStatus": {
+      "const": "NOT_REGISTERED; ROOT_AND_SOURCE_OWNER_ADOPTION_REQUIRED"
+    },
+    "predecessorFreeze": {
+      "type": "object"
+    },
+    "rootMappingDecision": {
+      "type": "object"
+    },
+    "candidateRevision": {
+      "type": "string"
+    },
+    "branch": {
+      "enum": [
+        "core",
+        "shared",
+        "split"
+      ]
+    },
+    "branchStatus": {
+      "type": "string"
+    },
+    "sourceBaseline": {
+      "type": "object"
+    },
+    "retainedProjection": {
+      "type": "object"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "capabilityId",
+              "record"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "ADD_CAPABILITY_DEFINITION"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "capabilityId": {
+                "type": "string"
+              },
+              "record": {
+                "type": "object"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "requirementId",
+              "sourceCapabilityId",
+              "sourceCapabilityCaseId",
+              "polarity",
+              "record"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "APPEND_REQUIREMENT_CASE"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "requirementId": {
+                "type": "string"
+              },
+              "sourceCapabilityId": {
+                "type": "string"
+              },
+              "sourceCapabilityCaseId": {
+                "type": "string"
+              },
+              "polarity": {
+                "enum": [
+                  "POSITIVE",
+                  "NEGATIVE"
+                ]
+              },
+              "record": {
+                "type": "object"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "capabilityId",
+              "requirementId"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "APPEND_REQUIREMENT_CAPABILITY_BINDING"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "capabilityId": {
+                "type": "string"
+              },
+              "requirementId": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "patch"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "PATCH_CROSSWALK_TRACE"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "patch": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pdp0EvidenceRefs",
+                  "rootDirectedSourceCandidate",
+                  "proposedPdp0SourceChange"
+                ],
+                "properties": {
+                  "pdp0EvidenceRefs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "rootDirectedSourceCandidate": {
+                    "type": "object"
+                  },
+                  "proposedPdp0SourceChange": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "counts": {
+      "type": "object"
+    },
+    "outputPostimages": {
+      "type": "array"
+    },
+    "validation": {
+      "type": "object"
+    }
+  }
+}

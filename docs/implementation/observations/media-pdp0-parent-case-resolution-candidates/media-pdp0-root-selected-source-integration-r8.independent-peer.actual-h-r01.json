@@ -1,0 +1,218 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-independent-peer.v1",
+  "artifactId": "MEDIA-PDP0-ROOT-SELECTED-SOURCE-INTEGRATION-R8-ACTUAL-H-INDEPENDENT-PEER-R01-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_TECHNICAL_SOURCE_SEMANTIC_REVIEW_OF_FROZEN_SELECTED_SPLIT_CUT",
+  "reviewer": {
+    "identityKind": "codex-thread",
+    "identity": "01a16a6c-d506-7a73-801a-609c602a12e9",
+    "host": "local",
+    "role": "distinct technical source peer reviewer",
+    "humanOwnerAuthority": false,
+    "humanOwnerAdoptionOrAcceptanceClaimed": false
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "surfaceSet": "R8 selected split source packet: media.agent.edit.preview-scope-guard and media.agent.edit.approval-apply-compensating-rollback, with their requirement parent cases and crosswalk traces",
+    "denominator": {
+      "physicalCandidates": 26,
+      "compositionsIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "registeredIdentities": 54,
+      "phaseCells": 216,
+      "historicalOwnerRecords": 462
+    },
+    "pdp0PhaseStatus": {
+      "status": "IN_PROGRESS",
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    },
+    "canonicalApply": "NONE"
+  },
+  "reviewedInputs": {
+    "freezeManifest": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.freeze.v1.json",
+      "sha256": "413ec491503aa77722629e66e3cafc0d43c15024f244c90ac1e1294f6e3aab4e",
+      "freezeStatus": "FROZEN_FOR_SOURCE_OWNER_AND_ROOT_REVIEW_ONLY",
+      "selectedBranch": "split"
+    },
+    "rootMappingDecision": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
+      "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+      "selectedOptionId": "B_SPLIT_BY_OPERATION_SCOPE"
+    },
+    "selectedOperations": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.allowed-operations.candidate.v1.json",
+      "sha256": "8f5ddbb28836f8999571d9667ce0e06a604335074dcfc39856d228447fc117d8"
+    },
+    "retainedProjection": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+      "operationCount": 248,
+      "operationIdsSha256": "5001ca541f2e14472e4ae265c61dc6b9ea13cc1a1e59117379f20fa8787fe43a"
+    },
+    "sourcePeerR2": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.source-peer-r2.json",
+      "sha256": "7dce2d406a01f6f8c06c2292742e1e1e54752e6c3dbf35b5da4480d8fdd10842",
+      "use": "hash pin only; its trust conclusion was not adopted"
+    },
+    "priorR8RequestChanges": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.source-peer-r1.json",
+      "sha256": "5ba54c6a318a33d0ca9697d473e1bf9f44f71f82c1208c65d7bd65f63ba813d0",
+      "disposition": "PRESERVED_UNCHANGED_AS_PRIOR_CUT_REVIEW"
+    },
+    "selectedPostimages": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capabilities.postimage.yaml",
+        "sha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.requirements.postimage.yaml",
+        "sha256": "0ecf4fc0d301e851100612f5bfb9a5aa5c83714f7e7eb077f91ba06379ff9dd8"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capability-leaf-review.postimage.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.pdp0-501-disposition-crosswalk.postimage.json",
+        "sha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+      }
+    ],
+    "guardedSevenTargetPreimages": [
+      {"targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml", "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"},
+      {"targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml", "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"},
+      {"targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json", "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"},
+      {"targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml", "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"},
+      {"targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml", "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"},
+      {"targetRef": ".product-experience/decision-log.md", "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"},
+      {"targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml", "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"}
+    ]
+  },
+  "verifiedFacts": [
+    {"check": "freeze_pins_and_selected_postimage_hashes", "status": "PASS", "detail": "Freeze, root decision, selected operation ledger, seven live preimages, and all four selected postimage hashes matched their recorded SHA-256 values."},
+    {"check": "independent_selected_split_rebuild", "status": "PASS", "detail": "Rebuilt in memory from the exact 248 retained operations, 113 selected split operations, and current seven-target preimage cut; rebuilt semantics matched all four frozen postimages. No files were written."},
+    {"check": "retained_operation_history", "status": "PASS", "detail": "All 248 retained operation IDs and their order match the ledger list; their ID digest is 5001ca541f2e14472e4ae265c61dc6b9ea13cc1a1e59117379f20fa8787fe43a. The combined old and new operation IDs are unique."},
+    {"check": "selected_parent_case_lineage_and_polarity", "status": "PASS", "detail": "All 58 new parent cases have unique IDs and resolve to an exact sourceCapabilityCaseId, sourceCapabilityId, and matching polarity."},
+    {"check": "feature_definitions_and_52_edit_kind_criterion", "status": "PASS_WITH_SEMANTIC_FINDINGS", "detail": "The selected ledger contains 16 complete feature definitions plus the two selected packet capability definitions. The AUD-EDIT-022 52-edit-kind, GUI/keyboard-text/CLI/SDK-API parity, and machine/human round-trip criterion exactly matches the original crosswalk criterion."},
+    {"check": "historical_owner_rows", "status": "PASS", "detail": "All 462 capability-leaf owner rows remain unique and byte-identical; the selected leaf-review postimage equals its live preimage."},
+    {"check": "crosswalk_denominator_and_patch_scope", "status": "PASS", "detail": "The crosswalk retains 501 unique audit rows (428 original plus 73 third-pass); 18 changed rows match the 18 declared PATCH_CROSSWALK_TRACE operations with no unaccounted row changes."},
+    {"check": "source_owner_and_root_apply_authority", "status": "NOT_SET", "detail": "The freeze records sourceOwnerDecision, rootAdoptionDecision, and applyAuthorization as NOT_SET, candidate schema as NOT_REGISTERED, and canonicalApply as NONE."}
+  ],
+  "rootExecutableOwnerApplyReadiness": {
+    "status": "NOT_READY_REQUEST_CHANGES",
+    "blockers": [
+      "R8-SPLIT-MAP01-PREVIEW-BINDING",
+      "R8-SPLIT-MAP01-CASE-OUTCOME-SEPARATION",
+      "R8-SPLIT-MAP05-CANONICAL-CAPABILITY-IDENTITY",
+      "SOURCE_OWNER_DECISION_NOT_SET",
+      "ROOT_ADOPTION_DECISION_NOT_SET",
+      "APPLY_AUTHORIZATION_NOT_SET",
+      "CANDIDATE_SCHEMA_NOT_REGISTERED"
+    ],
+    "canonicalApply": "NONE"
+  },
+  "findings": [
+    {
+      "findingId": "R8-SPLIT-MAP01-PREVIEW-BINDING",
+      "severity": "P1",
+      "status": "OPEN",
+      "surfaceOwner": "media.agent.edit.approval-apply-compensating-rollback",
+      "title": "Apply is not explicitly bound to the exact preview revision and diff",
+      "exactWhere": [
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capabilities.postimage.yaml#/capabilities/@id=media.agent.edit.approval-apply-compensating-rollback/ownerDefinition/typedInputSlots",
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capabilities.postimage.yaml#/capabilities/@id=media.agent.edit.approval-apply-compensating-rollback/ownerDefinition/successOutputs"
+      ],
+      "evidence": "The apply capability requires baseRevision, approvedTypedEditSet, approvalEvidence, scope, and optional rollbackTarget. Its approvalEvidence source type names approval for an exact diff and revision, but the typed contract has no required reference to the preview plan/output or its exact preview revision; the success result also records no preview reference or exact diff identity. This does not satisfy root condition MAP-01's explicit apply-to-preview-revision/diff dependency.",
+      "impact": "The selected split leaves it unverifiable that the approved edit set is the exact diff produced by the observation-only preview for the same base revision and scope.",
+      "repair": "In a source successor, add a required typed binding from apply to the exact preview result and its base revision, diff identity, and declared scope. Keep actual owner approval bound to those same values; define mismatch/stale behavior as a non-commit outcome and include the binding in the resulting transaction record.",
+      "predecessor": "Actual root mapping decision MAP-01 in docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json.",
+      "acceptanceCriterion": "The apply definition and positive/adverse cases consume one exact preview result and reject stale, mismatched, out-of-scope, denied, or unknown preview/effect state without commit or blind retry; output traces the preview identity, base revision, exact diff, approval evidence, resulting revision, and compensating rollback revision when applicable.",
+      "nextLegalAction": "Source author repairs the PDP-0 definition and cases in a new successor cut; freeze its exact postimages before a fresh technical peer review."
+    },
+    {
+      "findingId": "R8-SPLIT-MAP01-CASE-OUTCOME-SEPARATION",
+      "severity": "P1",
+      "status": "OPEN",
+      "surfaceOwner": "AUD-DIRECT-010 and AUD-EDIT-022 split capability cases",
+      "title": "Positive case outcomes still mix observation-only preview with approved application",
+      "exactWhere": [
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capabilities.postimage.yaml#/capabilities/@id=media.agent.edit.preview-scope-guard/acceptanceCases",
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capabilities.postimage.yaml#/capabilities/@id=media.agent.edit.approval-apply-compensating-rollback/acceptanceCases",
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.requirements.postimage.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases",
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.requirements.postimage.yaml#/requirements/@id=MEDIA-REQ-CAP-EDIT/acceptanceCases"
+      ],
+      "evidence": "Both positive leaf cases use the generic text 'Return the exact preview, approval, revision, and effect result'. The preview capability's actual success output is a read-only semantic diff plan with neverApplies=true, yet its case text includes approval and effect results. The apply capability's output is an approved edit transaction result, yet its positive case appends 'dry-run never commits'. The two corresponding positive parent cases mirror these mismatched success statements; adverse parent cases remain separately defined.",
+      "impact": "The root-selected split by operation scope is not expressed in the success-case contracts; a preview could be read as producing approval/effect, and an apply could be read as a dry-run.",
+      "repair": "Write separate operation-specific success statements in a successor: preview returns only its exact read-only plan and never applies; apply returns the authorized transaction result and resulting revision; rollback appends a compensating revision. Keep preview, approval, and effect evidence linked without merging their outcomes.",
+      "predecessor": "Actual root mapping decision MAP-01 and selectedOptionId B_SPLIT_BY_OPERATION_SCOPE.",
+      "acceptanceCriterion": "Positive and adverse capability cases and their parent requirement counterparts state only the operation's own input/output/effect boundary and remain consistent with each capability's typed output schema.",
+      "nextLegalAction": "Source author repairs the PDP-0 cases in a new successor cut and regenerates its requirement and crosswalk projections."
+    },
+    {
+      "findingId": "R8-SPLIT-MAP05-CANONICAL-CAPABILITY-IDENTITY",
+      "severity": "P1",
+      "status": "OPEN",
+      "surfaceOwner": "AUD-DIRECT-010 and AUD-EDIT-022 capability and parent cases",
+      "title": "Case invocation strings concatenate the capability identity and its operation again",
+      "exactWhere": [
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capabilities.postimage.yaml#/capabilities/@id=media.agent.edit.preview-scope-guard/acceptanceCases/@id=MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-POS|NEG/when",
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capabilities.postimage.yaml#/capabilities/@id=media.agent.edit.approval-apply-compensating-rollback/acceptanceCases/@id=MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-POS|NEG/when",
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.requirements.postimage.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT|MEDIA-REQ-CAP-EDIT/acceptanceCases/@id=AUD-DIRECT-010|AUD-EDIT-022-B_SPLIT-*/when"
+      ],
+      "evidence": "Eight selected case records (four capability cases and their four parent cases) contain strings such as 'Invoke media.agent.edit.preview-scope-guard.agent.edit.preview-scope-guard' and the analogous apply string. The canonical capability IDs are already media.agent.edit.preview-scope-guard and media.agent.edit.approval-apply-compensating-rollback; each operation field repeats the trailing agent.edit.* portion. The structured 58 parent sourceCapabilityCaseId links themselves resolve with matching sourceCapabilityId and polarity.",
+      "impact": "The selected cases violate MAP-05 and describe a duplicated, noncanonical operation identity even though their structured lineage links are correct.",
+      "repair": "Use the exact canonical capability identity once in each case invocation, and keep the parent case invocation identical to its referenced capability case.",
+      "predecessor": "Actual root mapping decision MAP-05.",
+      "acceptanceCriterion": "All eight selected capability/parent case invocation references use the exact canonical capability identity without concatenated duplicate feature.operation text; all 58 parent case IDs, source capability case IDs, source capability IDs, and polarities still match exactly.",
+      "nextLegalAction": "Source author repairs the PDP-0 case text in a new successor cut; rerun exact lineage and polarity checks and obtain a fresh technical peer review."
+    }
+  ],
+  "phaseSurfaceMatrix": [
+    {
+      "surfaceId": "media.agent.edit.preview-scope-guard",
+      "surfaceType": "PDP-0 capability source definition with MEDIA-REQ-CAP-PROJECT parent cases and crosswalk trace",
+      "pdpApplicability": ["PDP-0"],
+      "sourceCurrentStatus": "FROZEN_CANDIDATE_HASHES_MATCH; NOT_OWNER_ADOPTED_OR_CANONICALLY_APPLIED",
+      "remainingPhaseLocalTasks": ["R8-SPLIT-MAP01-CASE-OUTCOME-SEPARATION", "R8-SPLIT-MAP05-CANONICAL-CAPABILITY-IDENTITY"],
+      "blockerOwner": "PDP-0 source author for definition repair; authentic source owner adoption remains NOT_SET",
+      "acceptanceCriteria": "Preview is observation-only, returns only the exact preview plan, never applies, and uses one canonical capability identity; parent cases link by exact case ID and matching polarity.",
+      "nextLegalAction": "Repair in a new source successor, freeze exact postimages, then request a fresh peer review."
+    },
+    {
+      "surfaceId": "media.agent.edit.approval-apply-compensating-rollback",
+      "surfaceType": "PDP-0 capability source definition with MEDIA-REQ-CAP-EDIT parent cases and crosswalk trace",
+      "pdpApplicability": ["PDP-0"],
+      "sourceCurrentStatus": "FROZEN_CANDIDATE_HASHES_MATCH; NOT_OWNER_ADOPTED_OR_CANONICALLY_APPLIED",
+      "remainingPhaseLocalTasks": ["R8-SPLIT-MAP01-PREVIEW-BINDING", "R8-SPLIT-MAP01-CASE-OUTCOME-SEPARATION", "R8-SPLIT-MAP05-CANONICAL-CAPABILITY-IDENTITY"],
+      "blockerOwner": "PDP-0 source author for definition repair; authentic source owner adoption remains NOT_SET",
+      "acceptanceCriteria": "Apply is bound to the exact preview revision/diff and genuine approval; effects are revision-consistent; rollback is compensating; stale, denied, or unknown outcomes do not commit or blindly retry; case uses one canonical identity.",
+      "nextLegalAction": "Repair in a new source successor, freeze exact postimages, then request a fresh peer review."
+    }
+  ],
+  "phaseDisposition": {
+    "selectedPhaseFindingState": "REQUEST_CHANGES",
+    "remainingPhaseLocalTasks": [
+      "R8-SPLIT-MAP01-PREVIEW-BINDING",
+      "R8-SPLIT-MAP01-CASE-OUTCOME-SEPARATION",
+      "R8-SPLIT-MAP05-CANONICAL-CAPABILITY-IDENTITY"
+    ],
+    "discoveryBarrier": "FAIL",
+    "buildLane": "NOT_AUTHORIZED_OR_ASSESSED; no Build work performed",
+    "pdpClosureLane": "NOT_ENTERED; no acceptance or closure claimed",
+    "deliveryGate": "NOT_MET; not assessed",
+    "nextAllowedPhase": "Continue PDP-0 source-definition repair and review; do not advance this campaign from its current IN_PROGRESS PDP-0 status"
+  },
+  "nonClaims": [
+    "This record reviews the frozen selected split only; it does not review or select the shared alternative.",
+    "Source-peer-r2's recorded conclusion was not reused; only the freeze-bound file hash was checked.",
+    "The prior R8 source-peer-r1 REQUEST_CHANGES record remains unchanged and applies to its earlier reviewed cut.",
+    "No source owner decision, root adoption decision, apply authorization, owner approval, independent acceptance, implementation, runtime admission, phase completion, native closure, qualification, or release is claimed.",
+    "No canonical source, candidate, root decision, phase status, or authorization record was changed by this review."
+  ]
+}

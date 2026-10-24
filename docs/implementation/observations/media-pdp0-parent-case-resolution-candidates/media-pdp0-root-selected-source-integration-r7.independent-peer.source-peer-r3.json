@@ -1,0 +1,344 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-independent-peer.v1",
+  "artifactId": "MEDIA-PDP0-COHORT01-COHORT02-R7-INDEPENDENT-PEER-REVIEW-R3-2026-10-23",
+  "reviewStatus": "PASS_SCOPED_SOURCE_SEMANTIC_REVIEW",
+  "reviewKind": "FRESH_READ_ONLY_INDEPENDENT_REVIEW_OF_R7_ROOT_SELECTED_SOURCE_CANDIDATE_CUT",
+  "reviewer": {
+    "identityKind": "codex-thread",
+    "identity": "01a16a6c-d506-7a73-801a-609c602a12e9",
+    "host": "local",
+    "role": "independent technical peer reviewer of the R7 integrated source candidate cut",
+    "humanOwnerAuthority": false,
+    "humanOwnerAdoptionOrAcceptanceClaimed": false
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "surfaceSet": "Selected cohort-01 seven feature candidates and cohort-02 nine feature candidates; two cohort-02 packet-repair mappings reviewed as unselected alternatives. This is a subset review, not a full 54-surface PDP-0 review.",
+    "denominator": {
+      "physical": 26,
+      "compositeIncludingRoot": 7,
+      "logical": 21,
+      "total": 54,
+      "phaseCells": 216,
+      "historicalBaseRecords": 462
+    },
+    "pdp0PhaseStatus": "IN_PROGRESS",
+    "pdp0OutstandingMeaningIds": 0,
+    "canonicalApply": "NONE"
+  },
+  "reviewedCut": {
+    "manifestRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.postimages.json",
+    "manifestSha256": "e2a1f83cd357cc64288a5725dbe441a55c3800424cee110e698349cebb09bca5",
+    "operationLedgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.operations.json",
+    "operationLedgerSha256": "8a1ffe62d90a0655a036459fb925a68849d8bffd8c20494af106a0ac9222dc52",
+    "verificationRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.verification.json",
+    "verificationSha256": "bbcf7e5bf3fcc3c5d0d864602ff8f0e00e6e6f3e29b19284fa02347713c8ef49",
+    "rootIssuer": {
+      "identityKind": "codex-thread",
+      "identity": "01a169b7-6b81-71b0-89c7-19ae122dc16e",
+      "host": "local"
+    },
+    "rootDirections": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort01-root-source-authoring-direction-r1-2026-10-23.json",
+        "sha256": "fdbec76f5ff5801c686e1f3a3b2ee0e984691b92ef2b8e042c85cd8829e52c6d",
+        "decisions": 7,
+        "selectedFeatureDecisions": 7,
+        "hashMatches": true
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
+        "sha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+        "decisions": 11,
+        "selectedFeatureDecisions": 9,
+        "packetRepairDirections": 2,
+        "hashMatches": true
+      }
+    ],
+    "rootCandidates": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
+        "sha256": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
+        "hashMatches": true
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+        "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
+        "hashMatches": true
+      }
+    ],
+    "priorPeerArtifacts": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.independent-peer.source-peer.json",
+        "sha256": "cac01e9b6aa888ade255401b3ebb0265916e1371b12c96ad66850fa3ed58720e",
+        "reviewStatus": "REQUEST_CHANGES"
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.independent-peer.source-peer-r2.json",
+        "sha256": "050ea65fd71736ef782f598992d7a0f47721b95d54131c1bd09c8486ae3417fa",
+        "reviewStatus": "PASS"
+      }
+    ],
+    "baselineSource": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
+      "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+      "liveTargetPins": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+          "matchesLive": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+          "matchesLive": true
+        },
+        {
+          "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+          "matchesLive": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+          "matchesLive": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+          "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+          "matchesLive": true
+        },
+        {
+          "targetRef": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "matchesLive": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+          "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+          "matchesLive": true
+        }
+      ]
+    },
+    "postimages": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capabilities.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "da6bed5705d46d81c8addb03f64dffb7c50d0c27ad636adffdbbaafcc2e4b862"
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.requirements.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "3f70087709a925997d34b8a4e294bde38f3337fdd819344844f283714f092943"
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capability-leaf-review.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.crosswalk.postimage.json",
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "cff6f51b59734859418c376e6d2e908db07f59cb54ff6a4b678ab99a7a019e4f"
+      },
+      {
+        "variant": "shared",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capabilities.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "9e4e61c68aef52bbffd45b270ba27ca15a7712fcfd33d66d7aead59533c6a9ef"
+      },
+      {
+        "variant": "shared",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.requirements.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "4290f3f2ecc57835c81204922eea3c94cc9d9f6f0e48933ffca3660e0fbdccec"
+      },
+      {
+        "variant": "shared",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capability-leaf-review.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "variant": "shared",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.crosswalk.postimage.json",
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "4a9d054d69d502c7977b0f6114436ea448dae85d4d74a14ea9b43232eee0c0af"
+      },
+      {
+        "variant": "split",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capabilities.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9"
+      },
+      {
+        "variant": "split",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.requirements.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "ec4df072d4d28aeccb00cfaf557d80c2be1f019abb47a0c64a77ae5090c1e1de"
+      },
+      {
+        "variant": "split",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capability-leaf-review.postimage.yaml",
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "variant": "split",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.crosswalk.postimage.json",
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+      }
+    ]
+  },
+  "independentChecks": [
+    {
+      "checkId": "R7-POSTIMAGE-PARSE-AND-HASH",
+      "result": "PASS",
+      "evidence": "Independently parsed and SHA-256 checked all 12 advertised core/shared/split postimages against their manifest hashes."
+    },
+    {
+      "checkId": "R7-BASELINE-CURRENTNESS",
+      "result": "PASS",
+      "evidence": "All seven current canonical source target hashes in the R7 baseline match live files."
+    },
+    {
+      "checkId": "R7-ROOT-DIRECTION-LINEAGE",
+      "result": "PASS",
+      "evidence": "Cohort-01 direction has all 7/7 selected feature decisions; cohort-02 direction has all 11/11 decisions, including 9 feature decisions and both packet-repair directions. Both direction hashes match the live files and R7 references."
+    },
+    {
+      "checkId": "R7-COUNT-AND-HISTORY-PRESERVATION",
+      "result": "PASS",
+      "evidence": "Operation ledger retains 248 unique prior projection operation IDs (c1-001 through c3-248) and declares 16 features, 52 capability cases, 54 parent cases, 17 bindings, and 16 crosswalk updates; counts agree with the verification record."
+    },
+    {
+      "checkId": "R7-COHORT02-PARENT-SOURCE-LINEAGE",
+      "result": "PASS",
+      "evidence": "All 20 cohort-02 parent sourceCapabilityCaseId references resolve to one of the 18 cohort-02 capability cases. Capability, audit ID, and POSITIVE/NEGATIVE polarity agree; all 20 crosswalk parent relations equal the operation-ledger relations."
+    },
+    {
+      "checkId": "R7-OWNER-AND-TRUST-BOUNDARY",
+      "result": "PASS",
+      "evidence": "Operation ledger adds zero owner-adjudication and zero trust-reconstruction records; canonicalApply is NONE. Manifest records no phase-status write, formal acceptance, native closure, or release."
+    },
+    {
+      "checkId": "R7-PRIOR-PEER-DEFECT-RECHECK",
+      "result": "PASS_WITH_PROVENANCE_LIMIT",
+      "evidence": "The R1 peer finding that cohort-02 sourceCapabilityCaseId values pointed to parent IDs is corrected in R7 and independently resolves as above. The R2 PASS artifact itself identifies reviewer only as agent:task:/root/source_peer#review-2; it supplies no full thread ID or host, and its distinct task identity cannot be corroborated from that record."
+    }
+  ],
+  "rootExecutableOwnerApplyReadiness": {
+    "overall": "NOT_READY_FOR_UNAMBIGUOUS_FULL_CUT_APPLY",
+    "coreFeatureCut": "SEMANTICALLY_REVIEWABLE_PENDING_AUTHENTIC_OWNER_ADOPTION",
+    "packetRepairCut": "OWNER_MAPPING_CHOICE_REQUIRED_BEFORE_FULL_CUT_APPLY",
+    "reason": "R7 is a candidate-only bundle. Its shared and split packet postimages are explicitly ALTERNATIVE_POSTIMAGE_ONLY_OWNER_MAPPING_NOT_SELECTED, owner adoption remains pending, and canonicalApply is NONE. The exact cut can be presented to the owner for decision; this review does not supply that decision or authorize application."
+  },
+  "findings": [
+    {
+      "findingId": "PDP0-R7-PACKET-MAPPING-OWNER-CHOICE-001",
+      "severity": "P1",
+      "status": "OPEN_OWNER_DECISION",
+      "surfaceOwner": "Cohort-02 packet source mapping for AUD-DIRECT-010 and AUD-EDIT-022; PDP-0 capability and requirement owners",
+      "title": "The integrated full cut preserves two mutually exclusive packet mappings without an owner selection",
+      "exactWhere": [
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.postimages.json",
+          "jsonPointer": "/packetAlternatives/shared/status"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.postimages.json",
+          "jsonPointer": "/packetAlternatives/split/status"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
+          "jsonPointer": "/decisions/@auditId={AUD-DIRECT-010|AUD-EDIT-022}"
+        }
+      ],
+      "evidence": "Both R7 alternatives remain marked ALTERNATIVE_POSTIMAGE_ONLY_OWNER_MAPPING_NOT_SELECTED: A_ONE_SHARED_SEMANTIC_CONTRACT versus B_SPLIT_BY_OPERATION_SCOPE. The two root directions are preserved; the cohort-02 direction explicitly classifies these packet source rows as incomplete and directs repair without making this mapping choice.",
+      "impact": "The selected 16-feature core cut is reviewable, but the integrated package cannot be applied as one unambiguous full source cut while the packet mapping is unresolved. No owner adoption is present.",
+      "nextAction": "The authentic PDP-0 owner records the shared-versus-split mapping decision (or an explicit scoped deferral), then regenerates the exact integrated packet postimages and verification hashes. Keep all current alternatives and canonical files unchanged until that decision is recorded.",
+      "predecessor": "Cohort-02 root direction with 11 decisions, including the two source-packet repair directions.",
+      "acceptanceCriterion": "One source-bound owner decision covers both packet identities and maps the selected semantic structure to the exact feature/capability/requirement/case IDs; final postimages and verification pin that decision without silently dropping either source obligation."
+    },
+    {
+      "findingId": "PDP0-R7-PRIOR-PEER-IDENTITY-TRACE-001",
+      "severity": "P2",
+      "status": "TRACEABILITY_LIMIT",
+      "surfaceOwner": "R7 independent peer review provenance",
+      "title": "The recorded R2 PASS identity is not linked to a full reviewer thread identity",
+      "exactWhere": [
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.independent-peer.source-peer-r2.json",
+          "jsonPointer": "/reviewer"
+        }
+      ],
+      "evidence": "The R2 peer file records identityKind=assigned-agent and identity=agent:task:/root/source_peer#review-2, but no full thread identifier or host. The R1 and R2 labels are different assigned-agent strings; the R2 artifact does not itself establish their execution lineage. This review records its own distinct Codex thread identity above and does not upgrade the R2 assertion to authenticated independent acceptance.",
+      "impact": "The semantic correction is independently confirmed by this R3 review, but the historical R2 reviewer identity/lineage remains unauditable from the artifact metadata alone.",
+      "nextAction": "If R2 is relied on as a separate peer record, append an auditable task/thread identity and provenance relation; otherwise retain it as a recorded peer assertion only.",
+      "predecessor": "R1 peer finding PDP0-COHORT02-R7-PARENT-SOURCE-CASE-LINK-001; R2 recorded PASS after the source-case correction.",
+      "acceptanceCriterion": "Reviewer identity, originating task/thread, reviewed hashes, and distinction from source author are explicitly traceable; no owner authorization or acceptance is inferred."
+    }
+  ],
+  "phaseDisposition": {
+    "selectedPhaseFindingState": "Source semantic checks pass for the R7 candidate cut; owner decisions remain open as listed.",
+    "remainingPhaseLocalTasks": [
+      "PDP0-R7-PACKET-MAPPING-OWNER-CHOICE-001"
+    ],
+    "discoveryBarrier": "FAIL_FOR_FULL_54_SURFACE_CAMPAIGN; this review covers only the designated R7 candidate subset and does not establish campaign PDP-0 currentness or completion.",
+    "buildLane": "No BUILD work authorized or assessed by this PDP-0 review.",
+    "pdpClosureLane": "No acceptance receipt, owner closure, native closure, or independent acceptance claimed.",
+    "deliveryGate": "Not eligible; no current PDP closure/build/release gate evidence is established here.",
+    "nextAllowedPhase": "Continue PDP-0 owner decision/adoption work for this source candidate cut; assess the campaign’s earliest unfinished applicable PDP phase from live source records before any later-phase transition."
+  },
+  "nonClaims": [
+    "This artifact is a technical peer review only; it is not authentic owner adoption, owner adjudication, independent acceptance, execution admission, implementation proof, phase DEV_COMPLETE, PDP closure, release qualification, or release readiness.",
+    "No canonical file or status record was edited by this review."
+  ],
+  "phaseSurfaceMatrix": [
+    {
+      "surfaceId": "COHORT-01-R7-SELECTED-FEATURE-CANDIDATE-SET",
+      "type": "source-candidate set; not a registered physical or composite surface",
+      "pdpPhaseApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "Candidate files and seven baseline pins hash-current; candidate not owner-adopted; repository PDP-0 status remains IN_PROGRESS.",
+      "remainingPhaseLocalTasks": [
+        "Authentic owner adoption decision for the seven feature definitions."
+      ],
+      "blockerOwner": "Media PDP-0 product source owner",
+      "acceptanceCriteria": "Owner adoption is explicitly source-bound to the reviewed candidate hashes and all seven cohort-01 root-direction decisions; canonical source and validation currentness are refreshed under the owning PDP-0 process.",
+      "nextLegalAction": "Owner review/adoption decision; no BUILD inference from this peer review."
+    },
+    {
+      "surfaceId": "COHORT-02-R7-SELECTED-FEATURE-CANDIDATE-SET",
+      "type": "source-candidate set; not a registered physical or composite surface",
+      "pdpPhaseApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "Candidate files and seven baseline pins hash-current; nine feature candidates not owner-adopted; repository PDP-0 status remains IN_PROGRESS.",
+      "remainingPhaseLocalTasks": [
+        "Authentic owner adoption decision for the nine feature definitions."
+      ],
+      "blockerOwner": "Media PDP-0 product source owner",
+      "acceptanceCriteria": "Owner adoption is explicitly source-bound to the reviewed candidate hashes and all nine selected cohort-02 feature decisions; canonical source and validation currentness are refreshed under the owning PDP-0 process.",
+      "nextLegalAction": "Owner review/adoption decision; no BUILD inference from this peer review."
+    },
+    {
+      "surfaceId": "AUD-DIRECT-010 + AUD-EDIT-022 R7 PACKET MAPPING",
+      "type": "two unresolved source-mapping alternatives; not registered physical or composite surfaces",
+      "pdpPhaseApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "Candidate alternatives hash-current and parseable; shared and split variants both unselected.",
+      "remainingPhaseLocalTasks": [
+        "PDP0-R7-PACKET-MAPPING-OWNER-CHOICE-001"
+      ],
+      "blockerOwner": "Media PDP-0 capability and requirement owners",
+      "acceptanceCriteria": "A source-bound owner decision chooses the shared or split mapping, or explicitly defers the exact case set; regenerated case, binding and crosswalk identities reconcile to that one decision.",
+      "nextLegalAction": "Record the owner mapping decision and regenerate the exact integrated source cut."
+    }
+  ]
+}

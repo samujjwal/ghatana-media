@@ -151,7 +151,7 @@ export function validatePdp0SurfaceDenominator(registry, topology, authority = r
     globalScopeIntegrity = false;
   }
   const versionDisposition = authority?.campaignExtensions?.currentDefinitionPopulation?.versionDisposition;
-  const expectedFutureVersionIds = [
+  const allExtensionIds = [
     'media.recipe.specification.compile',
     'media.project.scene.patch-merge',
     'media.quality.audio.content-similarity.assess',
@@ -160,30 +160,50 @@ export function validatePdp0SurfaceDenominator(registry, topology, authority = r
     'media.job.schedule.manage',
     'media.master.audio.creative-effect.apply',
   ];
-  const expectedDecisionRefs = [
+  const currentExtensionIds = versionDisposition?.currentVersionExtensionCapabilityIds ?? [];
+  const futureExtensionIds = allExtensionIds.filter(id => !currentExtensionIds.includes(id)).sort();
+  const expectedDecisionRefs = currentExtensionIds.length === 0
+    ? [
     '.product-experience/decision-log.md#PXD-220',
     '.product-experience/decision-log.md#PXD-221',
-  ];
+      ]
+    : [
+        '.product-experience/decision-log.md#PXD-220',
+        '.product-experience/decision-log.md#PXD-221',
+        '.product-experience/decision-log.md#PXD-226',
+      ];
   const actualDecisionRefs = versionDisposition?.decisionRefs ?? [];
-  const expectedCurrentExtensionIds = [];
+  const expectedCurrentExtensionIds = currentExtensionIds.length === 0 ? [] : ['media.recipe.specification.compile'];
   const actualFutureVersionRows = versionDisposition?.futureVersionProposals ?? [];
   const actualFutureVersionIds = actualFutureVersionRows.map((row) => row.capabilityId);
   const actualCurrentExtensionIds = versionDisposition?.currentVersionExtensionCapabilityIds ?? [];
+  const expectedFutureDecisionRefByCapability = new Map([
+    ['media.recipe.specification.compile', '.product-experience/decision-log.md#PXD-220'],
+    ['media.project.scene.patch-merge', '.product-experience/decision-log.md#PXD-220'],
+    ['media.quality.audio.content-similarity.assess', '.product-experience/decision-log.md#PXD-220'],
+    ['media.generate.video.preset.manage', '.product-experience/decision-log.md#PXD-220'],
+    ['media.generate.video.shot-condition', '.product-experience/decision-log.md#PXD-220'],
+    ['media.job.schedule.manage', '.product-experience/decision-log.md#PXD-220'],
+    ['media.master.audio.creative-effect.apply', '.product-experience/decision-log.md#PXD-221'],
+  ]);
   const versionPartitionValid = JSON.stringify(actualDecisionRefs) === JSON.stringify(expectedDecisionRefs)
     && authority?.campaignExtensions?.currentDefinitionPopulation?.extensionDisposition
-      === 'SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED'
+      === (currentExtensionIds.length === 0
+        ? 'SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED'
+        : 'ONE_CURRENT_VERSION_EXTENSION_AND_SIX_FUTURE_VERSION_PROPOSALS; ALL_SEVEN_EXTENSION_IDENTITIES_RETAINED; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED')
     && versionDisposition?.historicalCanonicalCapabilityLeaves === 462
-    && versionDisposition?.currentVersionCapabilityLeaves === 462
-    && versionDisposition?.futureVersionProposalCapabilityLeaves === 7
+    && versionDisposition?.currentVersionCapabilityLeaves === 462 + currentExtensionIds.length
+    && versionDisposition?.futureVersionProposalCapabilityLeaves === 7 - currentExtensionIds.length
     && versionDisposition?.totalSourceCapabilityDefinitions === 469
-    && JSON.stringify(actualFutureVersionIds) === JSON.stringify(expectedFutureVersionIds)
+    && JSON.stringify([...actualFutureVersionIds].sort()) === JSON.stringify(futureExtensionIds)
     && JSON.stringify(actualCurrentExtensionIds) === JSON.stringify(expectedCurrentExtensionIds)
     && actualFutureVersionRows.every((row) => row.scopeStatus === 'DEFERRED' && row.version === 'later-governed-version'
-      && expectedDecisionRefs.includes(row.decisionRef))
-    && expectedFutureVersionIds.every((id) => capabilityById.get(id)?.scopeStatus === 'DEFERRED')
-    && expectedCurrentExtensionIds.length === 0;
+      && expectedFutureDecisionRefByCapability.get(row.capabilityId) === row.decisionRef
+      && !expectedCurrentExtensionIds.includes(row.capabilityId))
+    && futureExtensionIds.every((id) => capabilityById.get(id)?.scopeStatus === 'DEFERRED')
+    && expectedCurrentExtensionIds.every((id) => capabilityById.get(id)?.scopeStatus === 'TARGET');
   if (!versionPartitionValid) {
-    error(findings, 'PDP0_VERSION_SCOPE_PARTITION', 'PDP-0', 'PXD-220/PXD-221 must partition exactly seven DEFERRED proposal leaves from the 462-leaf current-version baseline while preserving the 469-record source catalog.');
+    error(findings, 'PDP0_VERSION_SCOPE_PARTITION', 'PDP-0', 'The explicit version decision must partition the 462 historical base and exactly seven extension IDs into current and future populations while preserving the 469-record source catalog.');
     globalScopeIntegrity = false;
   }
   for (const extension of definitionExtensions) {
@@ -622,16 +642,33 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
   if (records.length !== 7 || JSON.stringify(recordIds) !== JSON.stringify(extensions) || new Set(recordIds).size !== 7) {
     findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_DENOMINATOR', owner: 'PDP-0', message: 'PXD-207 must decide each of the seven current definition extensions exactly once.' });
   }
-  if (JSON.stringify(versionDisposition?.decisionRefs ?? []) !== JSON.stringify([
-        '.product-experience/decision-log.md#PXD-220',
-        '.product-experience/decision-log.md#PXD-221',
-      ])
-      || versionDisposition?.futureVersionProposalCapabilityLeaves !== 7
-      || versionDisposition?.currentVersionCapabilityLeaves !== 462
-      || futureVersionById.size !== 7 || currentVersionExtensionIds.size !== 0
+  const declaredCurrentExtensions = versionDisposition?.currentVersionExtensionCapabilityIds ?? [];
+  const expectedCurrentExtensions = declaredCurrentExtensions.length === 0 ? [] : ['media.recipe.specification.compile'];
+  const expectedFutureExtensions = extensions.filter(id => !expectedCurrentExtensions.includes(id));
+  const expectedVersionDecisionRefs = expectedCurrentExtensions.length === 0
+    ? ['.product-experience/decision-log.md#PXD-220', '.product-experience/decision-log.md#PXD-221']
+    : ['.product-experience/decision-log.md#PXD-220', '.product-experience/decision-log.md#PXD-221', '.product-experience/decision-log.md#PXD-226'];
+  const expectedFutureDecisionRefByCapability = new Map([
+    ['media.recipe.specification.compile', '.product-experience/decision-log.md#PXD-220'],
+    ['media.project.scene.patch-merge', '.product-experience/decision-log.md#PXD-220'],
+    ['media.quality.audio.content-similarity.assess', '.product-experience/decision-log.md#PXD-220'],
+    ['media.generate.video.preset.manage', '.product-experience/decision-log.md#PXD-220'],
+    ['media.generate.video.shot-condition', '.product-experience/decision-log.md#PXD-220'],
+    ['media.job.schedule.manage', '.product-experience/decision-log.md#PXD-220'],
+    ['media.master.audio.creative-effect.apply', '.product-experience/decision-log.md#PXD-221'],
+  ]);
+  if (JSON.stringify(versionDisposition?.decisionRefs ?? []) !== JSON.stringify(expectedVersionDecisionRefs)
+      || versionDisposition?.futureVersionProposalCapabilityLeaves !== 7 - expectedCurrentExtensions.length
+      || versionDisposition?.historicalCanonicalCapabilityLeaves !== 462
+      || versionDisposition?.currentVersionCapabilityLeaves !== 462 + expectedCurrentExtensions.length
+      || JSON.stringify([...futureVersionById.keys()].sort()) !== JSON.stringify(expectedFutureExtensions)
+      || futureVersionById.size !== 7 - expectedCurrentExtensions.length
+      || JSON.stringify([...currentVersionExtensionIds].sort()) !== JSON.stringify(expectedCurrentExtensions)
       || [...futureVersionById.keys()].some((id) => !campaignById.has(id) || capabilityById.get(id)?.scopeStatus !== 'DEFERRED')
+      || [...futureVersionById].some(([id, row]) => expectedFutureDecisionRefByCapability.get(id) !== row.decisionRef
+        || expectedCurrentExtensions.includes(id))
       || [...currentVersionExtensionIds].some((id) => !campaignById.has(id) || capabilityById.get(id)?.scopeStatus !== 'TARGET')) {
-    findings.push({ code: 'PDP0_VERSION_SCOPE_PARTITION', owner: 'PDP-0', message: 'PXD-220/PXD-221 future-version proposal and current-version extension memberships must exactly cover the seven extension records.' });
+    findings.push({ code: 'PDP0_VERSION_SCOPE_PARTITION', owner: 'PDP-0', message: 'PXD-220/PXD-221/PXD-226 must partition the 462 historical base, one current extension, and six future extension records.' });
   }
   if (!source?.dispositionRule?.explicitExclusions?.includes('NOT_APPLICABLE_OWNER_DECISION')
       || !source?.dispositionRule?.derivedAggregate?.includes('DERIVED_AGGREGATE_OWNER_DECISION')

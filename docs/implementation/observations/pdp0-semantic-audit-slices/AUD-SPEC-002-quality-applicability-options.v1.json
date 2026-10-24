@@ -1,0 +1,497 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-quality-applicability-options.v1",
+  "artifactKind": "SOURCE_BOUND_OWNER_DECISION_OPTIONS_NOT_APPLICABILITY_DISPOSITION",
+  "status": "PENDING_EXPLICIT_ROOT_TECHNICAL_SOURCE_OWNER_CHOICE",
+  "authorIdentity": "agent:/root/phase_io",
+  "authorRole": "DELEGATED_TECHNICAL_SOURCE_AUTHOR_NOT_EXTERNAL_QUALITY_SPECIALIST",
+  "sourcePins": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+    "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json": "efbfe052755dfe3af7fcf7ef82736d66d0a03c484feebb48f5880a954566abb8",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v6-freeze-manifest.v1.json": "89982f72fe43c5b4d2dd4ee39e1064c1fcdd3ecf909de5e9c2852946bdc44826",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capabilities-file-postimage.v6.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+  },
+  "predecessorQualityReview": {
+    "ref": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json",
+    "status": "HISTORICAL_CURRENTNESS_REVIEW_FOR_462_ROWS_ONLY",
+    "currentRows": 462,
+    "excludedExtensions": 7,
+    "acceptance": "NOT_CLAIMED",
+    "measurement": "NOT_EVALUATED",
+    "qualification": "NOT_EVALUATED"
+  },
+  "proposedSubject": {
+    "capabilityRef": "media.recipe.specification.compile",
+    "familyRef": "media.recipe.template",
+    "inputArtifactTypes": [
+      "versioned-production-specification",
+      "versioned-production-specification-schema",
+      "versioned-compiler-contract",
+      "optional-versioned-project-revision",
+      "versioned-target-production-specification-schema",
+      "versioned-schema-migration-transformation"
+    ],
+    "outputArtifactTypes": [
+      "normalized-semantic-graph-and-reviewable-project-plan-candidate",
+      "reviewable-version-bound-schema-migration-candidate-and-semantic-diff"
+    ],
+    "typedMediaSignalInputOrOutputRefs": [],
+    "typedModalities": [],
+    "intentTargetInputs": [],
+    "explicitAuthorityScope": true,
+    "qualityPolicyPopulation": {
+      "capabilityLeaves": 462,
+      "qualityDimensions": 6,
+      "metricDefinitions": 16,
+      "dimensionDispositions": 2772,
+      "metricDispositions": 7392,
+      "domainScientificCandidateLeaves": 33
+    },
+    "dimensionCount": 6,
+    "metricCount": 16
+  },
+  "options": [
+    {
+      "optionId": "APPLY_EXISTING_EXACT_TYPED_APPLICABILITY_RULES",
+      "disposition": "PROPOSED_NOT_SELECTED",
+      "dimensions": [
+        {
+          "criterionId": "QUALITY-DIM-STRUCTURAL-VALIDITY",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SIGNAL_SUBJECT_TYPE_IN_CAPABILITY_INPUTS_OR_OUTPUTS",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/dimensionApplicabilityRules/QUALITY-DIM-STRUCTURAL-VALIDITY",
+          "sourceRule": "APPLICABLE iff an exact media-signal subject semantic artifact type is bound on input or output; transcript, analysis and quality-evidence semantic artifact types are not signal subjects."
+        },
+        {
+          "criterionId": "QUALITY-DIM-PERCEPTUAL",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SIGNAL_SUBJECT_TYPE_IN_CAPABILITY_INPUTS_OR_OUTPUTS",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/dimensionApplicabilityRules/QUALITY-DIM-PERCEPTUAL",
+          "sourceRule": "APPLICABLE iff an exact media-signal subject semantic artifact type is bound; method and calibration remain unqualified."
+        },
+        {
+          "criterionId": "QUALITY-DIM-INTENT-FIDELITY",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_TYPED_INTENT_TARGET_AND_MEDIA_SIGNAL_OUTPUT_PAIR",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/dimensionApplicabilityRules/QUALITY-DIM-INTENT-FIDELITY",
+          "sourceRule": "APPLICABLE iff an exact typed intent target input shares at least one modality with an exact media-signal output semantic artifact type."
+        },
+        {
+          "criterionId": "QUALITY-DIM-DOMAIN-SCIENTIFIC",
+          "status": "NOT_APPLICABLE",
+          "reason": "CAPABILITY_FAMILY_IS_NOT_MEDIA_SIMULATION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/dimensionApplicabilityRules/QUALITY-DIM-DOMAIN-SCIENTIFIC",
+          "sourceRule": "APPLICABLE iff capability family is media.simulation and its P0 simulation input/output artifact semantics are declared; measurement method/evidence remain unqualified."
+        },
+        {
+          "criterionId": "QUALITY-DIM-RIGHTS-SAFETY",
+          "status": "APPLICABLE",
+          "reason": "EXACT_CAPABILITY_AUTHORITY_SCOPE_PRESENT",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/dimensionApplicabilityRules/QUALITY-DIM-RIGHTS-SAFETY",
+          "sourceRule": "APPLICABLE iff a typed media subject or explicit authority scope exists; policy authority remains independently required."
+        },
+        {
+          "criterionId": "QUALITY-DIM-DELIVERY-COMPATIBILITY",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_TYPED_MEDIA_OUTPUT_MODALITY_OR_DELIVERY_PACKAGE",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/dimensionApplicabilityRules/QUALITY-DIM-DELIVERY-COMPATIBILITY",
+          "sourceRule": "APPLICABLE iff a typed media output modality or exact delivery-package output is bound; target conformance remains unknown."
+        }
+      ],
+      "metrics": [
+        {
+          "criterionId": "QUALITY-METRIC-IMAGE-DEFECTS",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-IMAGE-DEFECTS",
+          "sourceRule": {
+            "modalities": [
+              "image"
+            ],
+            "direction": "INPUT_OR_OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE",
+          "sourceRule": {
+            "modalities": [
+              "image"
+            ],
+            "direction": "OUTPUT",
+            "referenceTypes": [
+              "optional-authorized-image-or-multiview-references",
+              "optional-authorized-reference-artifacts"
+            ],
+            "condition": "An exact authorized, aligned image reference value must be present at evaluation; otherwise NOT_EVALUATED."
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-IMAGE-IDENTITY",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-IMAGE-IDENTITY",
+          "sourceRule": {
+            "modalities": [
+              "image"
+            ],
+            "direction": "OUTPUT",
+            "referenceTypes": [
+              "optional-authorized-image-or-multiview-references",
+              "optional-authorized-reference-artifacts"
+            ],
+            "condition": "An exact authorized identity reference and comparison purpose must be present; otherwise NOT_EVALUATED."
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-IMAGE-PERCEPTUAL",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-IMAGE-PERCEPTUAL",
+          "sourceRule": {
+            "modalities": [
+              "image"
+            ],
+            "direction": "OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS",
+          "sourceRule": {
+            "modalities": [
+              "video"
+            ],
+            "direction": "INPUT_OR_OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-CONTINUITY",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-VIDEO-CONTINUITY",
+          "sourceRule": {
+            "modalities": [
+              "video"
+            ],
+            "direction": "OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-IDENTITY-OBJECT-GEOMETRY",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-VIDEO-IDENTITY-OBJECT-GEOMETRY",
+          "sourceRule": {
+            "modalities": [
+              "video"
+            ],
+            "direction": "OUTPUT",
+            "referenceTypes": [
+              "video-or-frame-reference"
+            ],
+            "condition": "Exact frame/geometry reference and an authorized identity comparison are required; otherwise NOT_EVALUATED."
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY",
+          "sourceRule": {
+            "modalities": [
+              "video"
+            ],
+            "direction": "OUTPUT",
+            "condition": "A typed video signal linked to the exact simulation state/model input and corresponding MediaRun observation, a qualified domain method, and in-range validity evidence are required for video physical-plausibility; without a typed video signal this metric is NOT_APPLICABLE, and missing method/evidence remains NOT_EVALUATED."
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-LIP-AV-SYNC",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-VIDEO-LIP-AV-SYNC",
+          "sourceRule": {
+            "modalities": [
+              "video",
+              "audio"
+            ],
+            "direction": "OUTPUT",
+            "referenceTypes": [
+              "timestamped-audio-video-or-caption-artifacts"
+            ],
+            "condition": "Exact aligned audio and video subject versions and a declared synchronization reference are required; otherwise NOT_EVALUATED."
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-ENCODING",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-VIDEO-ENCODING",
+          "sourceRule": {
+            "modalities": [
+              "video"
+            ],
+            "direction": "OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-DEFECTS",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-AUDIO-DEFECTS",
+          "sourceRule": {
+            "modalities": [
+              "audio"
+            ],
+            "direction": "INPUT_OR_OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-SEPARATION-LEAKAGE",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-AUDIO-SEPARATION-LEAKAGE",
+          "sourceRule": {
+            "modalities": [
+              "audio"
+            ],
+            "direction": "OUTPUT",
+            "referenceTypes": [
+              "authorized-audio-artifactId-and-immutable-version",
+              "exact-audio-artifactId-and-versionId",
+              "optional-authorized-reference-artifacts"
+            ],
+            "condition": "An exact target stem and authorized source/reference version are required; otherwise NOT_EVALUATED."
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-AUDIO-SPECTRAL-PHASE",
+          "sourceRule": {
+            "modalities": [
+              "audio"
+            ],
+            "direction": "INPUT_OR_OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+          "sourceRule": {
+            "modalities": [
+              "audio"
+            ],
+            "direction": "INPUT_OR_OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-NATURALNESS",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-AUDIO-NATURALNESS",
+          "sourceRule": {
+            "modalities": [
+              "audio"
+            ],
+            "direction": "OUTPUT"
+          },
+          "matchedSubjectArtifactTypes": []
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-SPEAKER-SIMILARITY",
+          "status": "NOT_APPLICABLE",
+          "reason": "NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION",
+          "sourceRuleRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/metricModalityRules/QUALITY-METRIC-AUDIO-SPEAKER-SIMILARITY",
+          "sourceRule": {
+            "modalities": [
+              "audio"
+            ],
+            "direction": "OUTPUT",
+            "referenceTypes": [
+              "authorized-audio-artifactId-and-immutable-version",
+              "exact-audio-artifactId-and-versionId",
+              "optional-authorized-reference-artifacts"
+            ],
+            "condition": "An exact authorized identity reference and comparison purpose are required; otherwise NOT_EVALUATED."
+          },
+          "matchedSubjectArtifactTypes": []
+        }
+      ],
+      "inheritedObligations": [
+        "QUALITY_POLICY_ASSESSMENT_CONTRACT",
+        "EXACT_SUBJECT_VERSION_AND_METHOD_IDENTITY_WHEN_MEASURED",
+        "UNKNOWN_OR_STALE_EVIDENCE_REMAINS_NOT_EVALUATED",
+        "NO_CROSS_DIMENSION_TOTAL_SCORE"
+      ],
+      "newObligations": [],
+      "thresholds": "NONE_DEFINED_OR_ADDED",
+      "measurementState": "NOT_EVALUATED",
+      "qualificationState": "NOT_EVALUATED",
+      "basis": "Apply only the existing exact typed artifact/modality applicability predicates; do not equate source applicability with measured quality or qualification."
+    },
+    {
+      "optionId": "RETAIN_ALL_EXTENSION_QUALITY_APPLICABILITY_UNKNOWN",
+      "disposition": "PRESERVES_UNKNOWN; DOES_NOT_COMPLETE_THIS_DEFINITION_ITEM",
+      "dimensions": [
+        {
+          "criterionId": "QUALITY-DIM-STRUCTURAL-VALIDITY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-DIM-PERCEPTUAL",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-DIM-INTENT-FIDELITY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-DIM-DOMAIN-SCIENTIFIC",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-DIM-RIGHTS-SAFETY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-DIM-DELIVERY-COMPATIBILITY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        }
+      ],
+      "metrics": [
+        {
+          "criterionId": "QUALITY-METRIC-IMAGE-DEFECTS",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-IMAGE-IDENTITY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-IMAGE-PERCEPTUAL",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-CONTINUITY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-IDENTITY-OBJECT-GEOMETRY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-LIP-AV-SYNC",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-VIDEO-ENCODING",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-DEFECTS",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-SEPARATION-LEAKAGE",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-NATURALNESS",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        },
+        {
+          "criterionId": "QUALITY-METRIC-AUDIO-SPEAKER-SIMILARITY",
+          "status": "UNKNOWN",
+          "reason": "NO_EXPLICIT_OWNER_DISPOSITION_FOR_THIS_EXTENSION"
+        }
+      ],
+      "inheritedObligations": [],
+      "newObligations": [
+        "SOURCE_OWNER_MUST_DEFINE_EXPLICIT_APPLICABILITY_FOR_ALL_SIX_DIMENSIONS_AND_SIXTEEN_METRICS"
+      ],
+      "thresholds": "NONE_DEFINED_OR_ADDED",
+      "measurementState": "NOT_EVALUATED",
+      "qualificationState": "NOT_EVALUATED",
+      "basis": "Fail closed and preserve the unresolved source-definition task until an owner disposition is recorded."
+    }
+  ],
+  "unresolvedDecisions": [
+    "ROOT_MUST_SELECT_APPLICABILITY_OPTION",
+    "NO_EXISTING_NUMERIC_QUALITY_THRESHOLDS_OR_METRICS_MAY_BE_INVENTED",
+    "NO_MEASUREMENT_OR_QUALIFICATION_RESULT_IS_AUTHORIZED_BY_THIS_RECORD"
+  ],
+  "boundaries": {
+    "qualityReviewPopulationCurrent": 462,
+    "candidateCurrentCapabilityPopulation": 463,
+    "historicalQualityReviewReusableForExtension": false,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "measurement": "NOT_EVALUATED",
+    "qualification": "NOT_EVALUATED",
+    "runtimeAdmission": "NOT_ADMITTED"
+  }
+}

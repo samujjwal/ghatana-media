@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "media.pdp0.source-amendment-record-postimages.v1",
+  "artifactId": "MEDIA-PDP0-COHORT-01-R7-RECORD-POSTIMAGES-2026-10-23",
+  "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r7.json",
+  "candidateSha256": "74d6d0802add1f4346f4fce6d22c7e99c00f5280c7a8461d0ce5ba544da39b10",
+  "featureSourceRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
+  "featureCasesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-cases.r7.json",
+  "featureCount": 7,
+  "featureAcceptanceCaseCount": 34,
+  "r6CapabilityAcceptanceCaseCount": 44,
+  "r6RequirementAcceptanceCaseCount": 46,
+  "rootDirectionChoices": [
+    {
+      "auditId": "AUD-CAP-028",
+      "choice": "A",
+      "ownerAdoption": "NOT_RECORDED"
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "choice": "A",
+      "ownerAdoption": "NOT_RECORDED"
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "choice": "A",
+      "ownerAdoption": "NOT_RECORDED"
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "choice": "A",
+      "ownerAdoption": "NOT_RECORDED"
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "choice": "A",
+      "ownerAdoption": "NOT_RECORDED"
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "choice": "A",
+      "ownerAdoption": "NOT_RECORDED"
+    },
+    {
+      "auditId": "AUD-COLOR-001",
+      "choice": "SAT-A",
+      "ownerAdoption": "NOT_RECORDED"
+    }
+  ],
+  "trust014DirectPinReadback": [
+    {
+      "label": "authorityMap",
+      "targetRef": ".product-experience/authority-map.yaml",
+      "expectedSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+      "actualSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+      "current": true
+    },
+    {
+      "label": "profileSemantics",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+      "expectedSha256": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+      "actualSha256": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+      "current": true
+    },
+    {
+      "label": "capabilities",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "expectedSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      "actualSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      "current": true
+    },
+    {
+      "label": "requirements",
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "expectedSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "actualSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "current": true
+    },
+    {
+      "label": "policyAuthorityModel",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+      "expectedSha256": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+      "actualSha256": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+      "current": true
+    },
+    {
+      "label": "existingBoundsAlternative",
+      "targetRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-trust014-bounds-envelope-alternative-2026-10-23.json",
+      "expectedSha256": "41b35e435aa4c3b56472d37c4ea6e547222de85977c7e91b3862b3ce8f0bdab3",
+      "actualSha256": "41b35e435aa4c3b56472d37c4ea6e547222de85977c7e91b3862b3ce8f0bdab3",
+      "current": true
+    },
+    {
+      "label": "cohort03R2Proposal",
+      "targetRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r2.json",
+      "expectedSha256": "c299e7057fb6c1de07feead506c90d0f127b079599526d2846c18d4342bfd2f5",
+      "actualSha256": "c299e7057fb6c1de07feead506c90d0f127b079599526d2846c18d4342bfd2f5",
+      "current": true
+    },
+    {
+      "label": "cohort03Audit",
+      "targetRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.json",
+      "expectedSha256": "0b6173712d93b42286d4f9e2b145fab1419ad425102d5a38df3790ebe70f76c4",
+      "actualSha256": "0b6173712d93b42286d4f9e2b145fab1419ad425102d5a38df3790ebe70f76c4",
+      "current": true
+    },
+    {
+      "label": "capabilityLeafReview",
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "expectedSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "current": true
+    }
+  ],
+  "fullDocumentPostimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r7.yaml",
+      "postimageSha256": "d79eb99c50ccda8c53d03699fed861e8cb5d58fed6280bc7eab8d84a950c4175",
+      "semanticMutationCount": 44
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-requirements.postimage.r7.yaml",
+      "postimageSha256": "d29dfcea65ffb25589fb01cc8a0823b3440d5710aa5b46932b9319991f930e6d",
+      "semanticMutationCount": 46
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "preimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capability-leaf-review.postimage.r7.yaml",
+      "postimageSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+      "semanticMutationCount": 0
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-pdp0-501-disposition-crosswalk.postimage.r7.json",
+      "postimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      "semanticMutationCount": 0
+    }
+  ],
+  "canonicalApply": "NONE"
+}

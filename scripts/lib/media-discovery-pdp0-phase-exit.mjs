@@ -3,14 +3,30 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { classifyAdditionalPdp0SourceImpact, classifyPdp0SuccessorImpact } from '../record-media-discovery-pdp0-currentness.mjs';
+import { resolveMediaPdp0Cells } from '../media-discovery-currentness.mjs';
 
-const EXPECTED_SCOPE = {
+// Historical R12 and owner-direction classifications retain their recorded
+// 50-cell denominator. Current capture validation derives its live inventory
+// from the source topology and exact registry instead.
+const HISTORICAL_SCOPE = {
   physicalCandidates: 26,
   semanticCompositions: 6,
   repositoryRoots: 1,
   consumers: 17,
   totalCells: 50,
 };
+
+function currentPdp0Scope() {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../');
+  const { denominator } = resolveMediaPdp0Cells(root);
+  return {
+    physicalCandidates: denominator.physicalCandidates,
+    semanticCompositions: denominator.semanticCompositions,
+    repositoryRoots: denominator.repositoryRoots,
+    consumers: denominator.consumers,
+    totalCells: denominator.totalCells,
+  };
+}
 
 export function parseMediaPdp0PhaseExitArgs(argv) {
   const suffix = argv[2] ?? '2026-10-13-r2';
@@ -522,12 +538,12 @@ function validateOwnerAcceptance(acceptance, technicalCurrentness, historicalPdp
     blockers.push('STALE_APPROVAL_FOR_CHANGED_MATERIAL');
   }
   if (JSON.stringify(acceptance?.subject?.surfaceScope) !== JSON.stringify({
-    physicalCandidates: EXPECTED_SCOPE.physicalCandidates,
+    physicalCandidates: HISTORICAL_SCOPE.physicalCandidates,
     physicalDispositions: { PHYSICAL: 12, SUPPORT_ONLY: 12, SUBSUMED: 2 },
-    semanticCompositions: EXPECTED_SCOPE.semanticCompositions,
-    repositoryRoot: EXPECTED_SCOPE.repositoryRoots,
-    nonphysicalConsumerCrosswalks: EXPECTED_SCOPE.consumers,
-    totalPhaseCells: EXPECTED_SCOPE.totalCells,
+    semanticCompositions: HISTORICAL_SCOPE.semanticCompositions,
+    repositoryRoot: HISTORICAL_SCOPE.repositoryRoots,
+    nonphysicalConsumerCrosswalks: HISTORICAL_SCOPE.consumers,
+    totalPhaseCells: HISTORICAL_SCOPE.totalCells,
   })) blockers.push('OWNER_SCOPE_MISMATCH');
   if (!empty(acceptance?.subject?.changedMeaningIds) || !empty(acceptance?.subject?.outstandingMeaningIds)) {
     blockers.push('OWNER_REPORTS_MEANING_WORK');
@@ -548,23 +564,28 @@ function validateOwnerAcceptance(acceptance, technicalCurrentness, historicalPdp
 
 function validateTechnicalCurrentness(technicalCurrentness) {
   const blockers = [];
+  const expectedScope = currentPdp0Scope();
   if (technicalCurrentness?.phaseDisposition?.historicalDefinitionStatus !== 'DEV_COMPLETE') blockers.push('HISTORICAL_DEFINITION_NOT_DEV_COMPLETE');
   if (technicalCurrentness?.phaseDisposition?.historicalOutstandingMeaningIds?.length !== 0) blockers.push('HISTORICAL_MEANING_TASKS_REMAIN');
   if (technicalCurrentness?.phaseDisposition?.currentSourceCurrentness !== 'PASS'
       || technicalCurrentness?.phaseDisposition?.sourceCurrent !== true) blockers.push('TECHNICAL_CURRENTNESS_NOT_PASS');
-  if (technicalCurrentness?.denominators?.totalCells !== EXPECTED_SCOPE.totalCells
-      || technicalCurrentness?.physicalCompositeConsumerCells?.length !== EXPECTED_SCOPE.totalCells) blockers.push('TECHNICAL_CELL_DENOMINATOR_MISMATCH');
+  if (technicalCurrentness?.denominators?.totalCells !== expectedScope.totalCells
+      || technicalCurrentness?.physicalCompositeConsumerCells?.length !== expectedScope.totalCells
+      || technicalCurrentness?.denominators?.physicalCandidates !== expectedScope.physicalCandidates
+      || technicalCurrentness?.denominators?.semanticCompositions !== expectedScope.semanticCompositions
+      || technicalCurrentness?.denominators?.repositoryRoots !== expectedScope.repositoryRoots
+      || technicalCurrentness?.denominators?.consumers !== expectedScope.consumers) blockers.push('TECHNICAL_CELL_DENOMINATOR_MISMATCH');
   if (technicalCurrentness?.authority?.changedMeaningIds?.length !== 0) blockers.push('TECHNICAL_CAPTURE_REPORTS_CHANGED_MEANING');
   if (technicalCurrentness?.unclassifiedHistoricalPdp0PinChanges?.length !== 0) blockers.push('UNCLASSIFIED_HISTORICAL_PDP0_PIN_CHANGES');
   if (technicalCurrentness?.externalOwnerContracts?.totalFiles !== 30
       || technicalCurrentness?.externalOwnerContracts?.digestMatches !== 30
       || technicalCurrentness?.externalOwnerContracts?.digestMismatches?.length !== 0) blockers.push('EXTERNAL_CONTRACT_DIGESTS_NOT_CURRENT');
   const cells = technicalCurrentness?.physicalCompositeConsumerCells ?? [];
-  if (cells.length !== EXPECTED_SCOPE.totalCells || cells.some((cell) => cell.sourceCurrentness !== 'CURRENT')) {
+  if (cells.length !== expectedScope.totalCells || cells.some((cell) => cell.sourceCurrentness !== 'CURRENT')) {
     blockers.push('ONE_OR_MORE_PDP0_CELLS_NOT_CURRENT');
   }
   const ids = cells.map((cell) => cell.cellId);
-  if (new Set(ids).size !== EXPECTED_SCOPE.totalCells) blockers.push('DUPLICATE_OR_MISSING_PDP0_CELL_ID');
+  if (new Set(ids).size !== expectedScope.totalCells) blockers.push('DUPLICATE_OR_MISSING_PDP0_CELL_ID');
   if (cells.some((cell) => !cell.applicability?.disposition || !cell.applicability?.rationale?.trim())) blockers.push('APPLICABILITY_WITHOUT_DISPOSITION_OR_RATIONALE');
   return blockers;
 }

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.cohort02.source-amendment-candidate.v5",
+  "artifactKind": "NON_CANONICAL_EXACT_SOURCE_AMENDMENT_CANDIDATE",
+  "artifactId": "media-pdp0-cohort02-source-amendment-candidate-r5",
+  "predecessorCandidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.r4.json",
+  "predecessorCandidateSha256": "73b20208cce696ff7651b10e18d177f04502f90074218a2b13fc11c571c08bb6",
+  "predecessorWasApplied": false,
+  "proposalRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r5.json",
+  "proposalSha256": "8f5df2728b5d96fcdcaae2ee7f645ac32d9a991f0083e09aece5e958c2a06723",
+  "sourceBindings": {
+    "r4ProposalSha256": "dafce83cdb8a93feed3b43db66cb1230988a9eaff051c641f84812e2d3ef5d39",
+    "r4CandidateSha256": "73b20208cce696ff7651b10e18d177f04502f90074218a2b13fc11c571c08bb6",
+    "r4PostimagesSha256": "af0a13040da0a77793bf91a79a194bb16b1abe7bc0dc2f644cfdbadf63de7445",
+    "r4PeerSha256": "38f42d5044e7396c18ccd6a6905b528e9f89c266dcc1af2030539c9d7fc67e0f",
+    "capabilitiesPreimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsPreimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "capabilitiesPostimageSha256": "3c6d8cf0fce8424c07a818a90186bb011567dd759a1f22135e593f3099effc3e",
+    "requirementsPostimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "authorityMapSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+    "phaseStatusSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+  },
+  "candidatePostimageSha256": "f2d40980d1cf5eede2e315c603c4e8f67b6afc37a18a3b1d3913a9fbfd467661",
+  "exactTargetPostimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "postimageSha256": "3c6d8cf0fce8424c07a818a90186bb011567dd759a1f22135e593f3099effc3e",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-capabilities.postimage.r5.yaml",
+      "semanticMutationCount": 60,
+      "acceptanceCaseRecordCount": 120
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "postimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-requirements.postimage.r5.yaml",
+      "semanticMutationCount": 0
+    }
+  ],
+  "exactSemanticPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.r5.json",
+  "exactSemanticPostimageSha256": "fbbd1e35162c8298e4d54ef6a6e16edc38a60f224b9ed1d68d9eca25226a3bbe",
+  "counts": {
+    "cohortRows": 77,
+    "peerSupportedPreserved": 13,
+    "peerRequestChangesAddressed": 64,
+    "featureRowsRepaired": 44,
+    "distinctRebindRows": 9,
+    "rebindTargetOperations": 16,
+    "featureCasePairs": 60,
+    "capabilityCaseRecordAdditions": 120,
+    "newMeaningChoices": 9,
+    "overlapChoices": 2,
+    "historicalLeafAdjudicationsPreserved": 462
+  },
+  "rootOwnerDecisionRequirement": {
+    "required": true,
+    "selectedOptions": 0,
+    "binds": [
+      "candidateSha256",
+      "candidatePostimageSha256",
+      "sourceBindings",
+      "exactTargetPostimages",
+      "allRootChoiceRecords"
+    ],
+    "role": "PDP0_SOURCE_OWNER"
+  },
+  "distinctPeerReviewRequirement": {
+    "required": true,
+    "verdictRequiredPerChangedAuditRow": "PASS",
+    "binds": [
+      "candidateSha256",
+      "candidatePostimageSha256",
+      "sourceBindings",
+      "exactTargetPostimages",
+      "allRootChoiceRecords"
+    ],
+    "role": "DISTINCT_SOURCE_CONTENT_PEER"
+  },
+  "r4PeerReview": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r4.independent-peer.v1.json",
+    "sha256": "38f42d5044e7396c18ccd6a6905b528e9f89c266dcc1af2030539c9d7fc67e0f",
+    "verdictDisposition": "REQUEST_CHANGES_RETAINED; NOT_R5_APPROVAL"
+  },
+  "canonicalApply": "NOT_PERFORMED",
+  "effects": {
+    "canonicalSourceWrite": "NOT_PERFORMED",
+    "historical462": "PRESERVED_SEPARATELY",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED"
+  }
+}

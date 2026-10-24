@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-independent-peer.v1",
+  "artifactId": "MEDIA-PDP0-ROOT-SELECTED-SOURCE-INTEGRATION-R9-R08-LUNA-INTEGRITY-REVIEW-2026-10-23",
+  "recordedAt": "2026-10-24T06:52:13Z",
+  "reviewStatus": "PASS",
+  "reviewKind": "INDEPENDENT_READ_ONLY_CANDIDATE_INTEGRITY_AND_PROVENANCE_REVIEW",
+  "reviewScopeLimit": "Frozen R9-R08 candidate integrity/rebase only; not a complete semantic review of all R08 source definitions.",
+  "reviewer": {
+    "identityKind": "INDEPENDENT_AGENT_PEER",
+    "identity": "agent:/root/r08_review",
+    "model": "gpt-6-luna",
+    "humanOwnerAuthority": false,
+    "humanOwnerAdoptionOrAcceptanceClaimed": false
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "surfaceSet": "R9-R08 source candidate within the full registered 54-identity campaign",
+    "denominator": {
+      "registeredIdentities": 54,
+      "phaseCells": 216,
+      "crosswalkRows": 501,
+      "historicalOwnerRows": 462,
+      "featureDefinitions": 16,
+      "featureCases": 52,
+      "featureParentCases": 54,
+      "selectedOperations": 122,
+      "retainedProjectionOperations": 248
+    },
+    "pdp0PhaseStatus": "IN_PROGRESS; seven R9-R08 target pins stale",
+    "canonicalApply": "NONE"
+  },
+  "sourceBaseline": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
+    "freezeSha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+    "candidateBundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
+    "candidateBundleSha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb",
+    "crosswalkPreimageSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+    "crosswalkPostimageSha256": "d7cabf758d5c10712a3f07e31e54b0d38a045a655f38538f4e7189a2e5ac501b"
+  },
+  "verification": {
+    "deterministicReplay": "PASS",
+    "changedCrosswalkRows": 18,
+    "permittedChangedFields": [
+      "pdp0EvidenceRefs",
+      "proposedPdp0SourceChange",
+      "rootDirectedSourceCandidate"
+    ],
+    "appendedCandidateSelectors": 132,
+    "crosswalkIdentityAndOrderPreserved": true,
+    "currentEvidenceReferencesPreserved": true,
+    "audSpec002Pxd226DecisionRefPreserved": true,
+    "pxd225TopLevelSourceFingerprintPreserved": true,
+    "r07CapabilitiesPostimageSha256": "3fa48a2a84d96acfef798193646007365eedbdee2a7482fa8e8912da23cfa18e",
+    "r07RequirementsPostimageSha256": "a6d892f87847b56bc601efd4cba2e85a763840f082b991d282fbbd408a2e4508",
+    "r07LeafReviewPostimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+    "historicalR07HReview": "PASS_FOR_R9_R07_ONLY; NOT_TRANSFERRED_TO_R9_R08"
+  },
+  "findings": [],
+  "disposition": "PASS_FOR_FROZEN_R9_R08_CANDIDATE_INTEGRITY_AND_PROVENANCE_ONLY",
+  "r08FullSemanticReview": "PENDING_DISTINCT_REVIEWER",
+  "authorityBoundary": {
+    "sourceOwnerDecision": "NOT_CLAIMED",
+    "rootAdoption": "NOT_CLAIMED",
+    "independentPdpAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "buildCompletion": "NOT_CLAIMED",
+    "deliveryOrRelease": "NOT_CLAIMED",
+    "canonicalApply": "NONE",
+    "phaseStatusWrite": "NONE"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-source-amendment-candidate.v3",
+  "artifactKind": "NON_CANONICAL_EXACT_SOURCE_AMENDMENT_CANDIDATE",
+  "auditId": "AUD-SPEC-002",
+  "previousReviewedCandidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v2.json",
+  "previousReviewedCandidateSha256": "ab9c5455c50df60c33066b0253f996f67885f78429047a6afa995e845b65d867",
+  "previousReviewedPostimageSha256": "19a51122a52b27f10e0b2f429d73b028ea8cc4e6636745dc4a132a1abf01ed81",
+  "sourceBindings": {
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad"
+  },
+  "componentPostimageSha256": {
+    "capabilityYaml": "6a1e3b27742b107584d69e2b68ca23ccdfea5780feeffeb830e7063f4c559917",
+    "requirementsYaml": "707455c2daf67ce44e56bccae56c597f231cab7c25e05ba338152b147843a4fd",
+    "crosswalkJson": "0cff72b3a1315229bd270c61e89729ca1c2910d8245e58a6832875e8dc88005e",
+    "sourceAmendmentJson": "cb8487eb4d6440dcbb527cce120c7db118f2ecb34df07684fff842336032320f"
+  },
+  "candidatePostimageSha256": "0bc4cb63dfc40dbdcce21ae0bc3d4d99dfc8ff53f88261da908e0af3adb8f99a",
+  "conditionalOutputCorrection": "SUPPORTED_MIGRATION_ONLY; ordinary compilation retains its existing required graph/project-plan output; AC-14 emits no migration candidate.",
+  "unresolvedOwnerTrustBranch": {
+    "status": "UNRESOLVED_OWNER_CAPABILITY_ADJUDICATION_REQUIRED",
+    "outputArtifactType": "reviewable-version-bound-schema-migration-candidate-and-semantic-diff",
+    "selector": "migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED",
+    "capabilityRef": "media.recipe.specification.compile",
+    "exactOwnerCapabilityAdjudicationSelector": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=media.recipe.specification.compile",
+    "observedOwnerCapabilityAdjudicationRecordCount": 0,
+    "currentTrustReconstructionRecordCount": 0,
+    "noRecordInvented": true
+  },
+  "exactSourceAmendmentRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v3.json",
+  "exactTargetPostimages": {
+    "capabilityYaml": "6a1e3b27742b107584d69e2b68ca23ccdfea5780feeffeb830e7063f4c559917",
+    "requirementsYaml": "707455c2daf67ce44e56bccae56c597f231cab7c25e05ba338152b147843a4fd",
+    "crosswalkJson": "0cff72b3a1315229bd270c61e89729ca1c2910d8245e58a6832875e8dc88005e"
+  },
+  "exactFileTargets": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "recordId": "media.recipe.specification.compile"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "recordId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "preimageSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+      "recordId": "AUD-SPEC-002"
+    }
+  ],
+  "blockers": [
+    "EXACT_ROOT_TECHNICAL_SOURCE_OWNER_DECISION_REQUIRED",
+    "DISTINCT_TECHNICAL_PEER_REVIEW_OF_EXACT_V3_POSTIMAGE_REQUIRED",
+    "MATCHING_OWNER_TRUST_BRANCH_REQUIRES_EXISTING_OWNER_CAPABILITY_ADJUDICATION",
+    "OLD_FROZEN_V2_ARTIFACT_BYTES_NOT_RECOVERED; V2_REVIEW_HASHES_PRESERVED_AS_REFERENCES_ONLY"
+  ],
+  "canonicalApply": "NOT_PERFORMED",
+  "effects": {
+    "canonicalSourceWrite": "NOT_PERFORMED",
+    "sourceStatus": "UNCHANGED",
+    "applicability": "UNCHANGED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED"
+  }
+}

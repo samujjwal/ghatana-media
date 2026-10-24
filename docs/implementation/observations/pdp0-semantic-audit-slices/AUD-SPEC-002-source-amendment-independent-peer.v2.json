@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "media.pdp0.source-amendment-peer-review.v2",
+  "auditId": "AUD-SPEC-002",
+  "reviewerIdentity": "agent:thread:01a16a35-bbcf-74d2-ac99-1ed74c29c3c9",
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v2.json",
+  "candidateSha256": "ab9c5455c50df60c33066b0253f996f67885f78429047a6afa995e845b65d867",
+  "candidatePostimageSha256": "19a51122a52b27f10e0b2f429d73b028ea8cc4e6636745dc4a132a1abf01ed81",
+  "sourceAmendmentPostimageSha256": "7aa677ad4907818d0ca2ea140ab285de39298ba116de9704ce51f91e1781b2f0",
+  "crosswalkPostimageSha256": "cbdf13712ea57f11b1efa98c9932141a89e7f26cdc4a121ec124e464ddd2cc35",
+  "sourceBindings": {
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+  },
+  "disposition": "TECHNICALLY_REVIEWED_EXACT_POSTIMAGE",
+  "semanticReviewDisposition": "REQUEST_CHANGES",
+  "assessment": {
+    "existingCompilationMeaning": {
+      "status": "PRESERVED_IN_PROPOSED_RECORD",
+      "evidence": "The proposed capability retains the existing exact specification/schema/compiler inputs, normalized semantic graph, stable fingerprint, and no-effect compilation boundary. Current capability and requirement baseline records exactly match the candidate's embedded baseline records and baseline hashes."
+    },
+    "boundedMigrationMeaning": {
+      "status": "PROPOSED_WITH_OUTPUT_CONTRACT_DEFECT",
+      "evidence": "AC-13 and AC-14 define version-bound reviewable migration candidates, deterministic repeat behavior, explicit UNKNOWN/UNSUPPORTED handling, source preservation, and no apply/job/publication effects. The ownerDefinition success-output declaration currently makes the migration artifact required for every successful compilation, including ordinary compilation with no migration input."
+    },
+    "affectedScope": {
+      "status": "SUPPORTED_WITH_EXPLICIT_HOST_LIMIT",
+      "evidence": "The owner applicability record resolves the exact CLI logical owner, the selected physical source libs-audio-video-client, and the three named compositions. The physical topology also lists libs-media-experience-simulation as a host reference for recorder-orchestrator, but the PXD-207 applicability resolution selects only libs-audio-video-client for this feature. The simulation host is therefore recorded as a topology relationship, not silently added as a PDP-0 applicable source. PDP-1/2/3 feedback references are explicit and migration mechanics remain a PDP-1 handoff."
+    },
+    "authorityBoundary": "The candidate remains CANDIDATE_ONLY_BLOCKED. No root source-owner decision or distinct peer authority record is present; canonicalApply is NOT_PERFORMED. This peer review does not constitute owner approval, independent acceptance, PDP status, runtime admission, implementation, closure, or release evidence."
+  },
+  "findings": [
+    {
+      "id": "AUD-SPEC-002-MIGRATION-OUTPUT-CONDITIONALITY-001",
+      "priority": "P1",
+      "where": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v2.json#/capability/ownerDefinition/successOutputs",
+      "issue": "The migration candidate is appended with requiredOnSuccess=true and no result selector/variant. The migration target schema and transformation slots are optional for the existing compiler operation, so this declares the migration candidate as a mandatory output for ordinary non-migration compilation too. The existing handoff contract requires exact result variants and selectors to preserve output distinctions; the current proposal does not make this output conditional on an exact supported migration request.",
+      "correction": "Represent the migration candidate as a conditional success result selected only when both exact migration inputs are supplied and the declared transformation is supported. Preserve the existing normalized graph/project-plan output for ordinary compilation, and make AC-14's UNKNOWN/UNSUPPORTED branch return no migration candidate. Bind any output variant to its exact selector and result meaning under the existing output-variant convention.",
+      "acceptance": "A request with no migration inputs can succeed with the existing normalized semantic graph/project-plan candidate and does not require a migration artifact; a supported complete migration request produces the version-bound migration candidate and semantic diff; unsupported/lossy/ambiguous/unknown or partial migration input produces explicit UNKNOWN/UNSUPPORTED with no migration candidate or effect."
+    },
+    {
+      "id": "AUD-SPEC-002-COMBINED-POSTIMAGE-HASH-REPRODUCIBILITY-001",
+      "priority": "P2",
+      "where": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v2.json#/candidatePostimageSha256",
+      "issue": "The candidate records combined postimage hash 19a51122a52b27f10e0b2f429d73b028ea8cc4e6636745dc4a132a1abf01ed81. Rebuilding the exact proposed capability and requirement YAML postimages from the live, source-pinned files and the embedded proposal records, then hashing the crosswalk postimage, both YAML postimages, and source-amendment record using scripts/lib/media-pdp0-aud-spec-002-rebind-candidate.mjs's combined-postimage procedure yields cb78b39c5d3d2fe0b4915dbedd9ca004b217d20935e2d93066a55e5e41b7da35. The separate proposed capability, requirement, row, crosswalk-file, and source-amendment-file hashes do match their embedded values; the combined candidate hash does not.",
+      "correction": "Regenerate or correct the candidate hash against the exact frozen source inputs and proposed serialized postimages, retain the component postimage hashes needed to reproduce it, and freeze the resulting candidate again before any owner decision or apply.",
+      "acceptance": "An independent recomputation using the recorded component hashes and documented byte/serialization algorithm yields the exact candidatePostimageSha256; all source pins and individual postimage hashes still match the final frozen bytes."
+    }
+  ],
+  "sourceCurrentness": {
+    "selectedSurface": "media.surface.recorder-orchestrator",
+    "selectedSurfacePhase": "PDP-0",
+    "liveStatusRecord": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+    "recordedState": {
+      "sourceCurrent": true,
+      "developmentStatus": "DEV_COMPLETE",
+      "remainingPhaseLocalTaskIds": []
+    },
+    "candidateEffect": "The proposal is not canonical and does not change this state. If the source owner later applies the amendment through the owner-controlled workflow, re-open/revalidate the affected PDP-0 definition and declared dependents before preserving any completion claim."
+  },
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "canonicalApply": "NOT_PERFORMED",
+    "pdp0CompletionPromotion": "NOT_PERFORMED"
+  },
+  "verification": {
+    "performed": [
+      "Verified exact file SHA-256 values for the candidate and both postimage artifacts against the frozen values.",
+      "Verified source bindings against the current source files.",
+      "Verified embedded baseline records against the current parsed PDP-0 capability and requirement records.",
+      "Verified the proposed capability, requirement, row, crosswalk postimage, and source amendment postimage individual hashes.",
+      "Independently recomputed the candidate combined postimage hash and found a mismatch.",
+      "Inspected owner applicability and topology for the selected physical source and declared composition closure."
+    ],
+    "testsRun": false,
+    "canonicalFilesChanged": false,
+    "reviewArtifactOnly": true
+  }
+}

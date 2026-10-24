@@ -1,0 +1,52 @@
+{
+  "recordKind": "ACTUAL_PRIMARY_ROOT_PDP0_SOURCE_PACKET_MAPPING_DECISION",
+  "recordedAt": "2026-10-24T01:43:41.277987+00:00",
+  "authorIdentity": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
+  "authorityScope": "User-delegated product/source authoring decision; not independent acceptance/native authority",
+  "phase": "PDP-0",
+  "inputRef": {
+    "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+    "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239"
+  },
+  "selectedAuditIds": [
+    "AUD-DIRECT-010",
+    "AUD-EDIT-022"
+  ],
+  "selectedOptionId": "B_SPLIT_BY_OPERATION_SCOPE",
+  "selectedCapabilityIds": [
+    "media.agent.edit.preview-scope-guard",
+    "media.agent.edit.approval-apply-compensating-rollback"
+  ],
+  "decision": "AUTHOR_SOURCE_SUCCESSOR_WITH_SELECTED_MAPPING",
+  "rationale": "Preview is observation-only; apply and compensating rollback change canonical state and require genuine exact-diff approval. Separate typed input contracts make effect and approval boundaries explicit. Both original features remain fully in scope.",
+  "mandatoryConditions": [
+    {
+      "id": "MAP-01",
+      "criterion": "Retain both audit identities and trace the entire dry-run/diff/scope/undo feature across the two selected capabilities, with explicit dependency from apply to the exact preview revision/diff."
+    },
+    {
+      "id": "MAP-02",
+      "criterion": "Apply and rollback must explicitly identify action, expected revision, exact authorized scope, genuine approval evidence and resulting new revision; rollback is compensating revision, never history deletion."
+    },
+    {
+      "id": "MAP-03",
+      "criterion": "Unknown effect outcome is reconciled before any retry; stale/denied/missing approval cannot commit; dry-run never commits."
+    },
+    {
+      "id": "MAP-04",
+      "criterion": "Retain full existing 52 typed edit-kind semantics and applicable GUI/keyboard/text/CLI/SDK/API parity and round-trip criteria. Do not replace them with a generic transaction wrapper or claim runtime implementation."
+    },
+    {
+      "id": "MAP-05",
+      "criterion": "Capability operation references in cases use exact canonical identity, not concatenated duplicate feature.operation strings; parent-case source links resolve by matching polarity."
+    }
+  ],
+  "canonicalApplyAuthorizedByThisRecord": false,
+  "requiredNextAction": "Generate exact selected split postimages/current CAS proposal and obtain distinct source peer before actual owner application. Preserve unselected shared alternative as immutable history.",
+  "phaseStatusChanged": false,
+  "independentAcceptanceClaimed": false,
+  "nativeClosureClaimed": false,
+  "registeredSurfaceDenominator": 54,
+  "phaseCellDenominator": 216,
+  "historicalOwnerRecords": 462
+}

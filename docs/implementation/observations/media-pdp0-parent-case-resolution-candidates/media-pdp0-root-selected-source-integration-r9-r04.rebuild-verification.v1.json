@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r04-rebuild-verification.v1",
+  "status": "R9_R04_CANDIDATE_REPLAY_VERIFIED",
+  "predecessor": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r03.freeze.v1.json",
+    "freezeSha256": "5c6f180b3c0a67013d33d9c452116489922be411f91cd63de1a3bc41eb2523bc",
+    "hReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r03.independent-peer.actual-h-r03-full.json",
+    "hReviewSha256": "34e20d2ce3095103008444f9d4f6804ac6b9547403ef424d4f1b312c84f55976"
+  },
+  "candidateBundle": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.successor-bundle.candidate.v1.json",
+    "sha256": "2dc012294183d943a6fe12173929759f75b0dd20f50b7f4c586408b7d935aa06"
+  },
+  "repairMap": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.repair-map.v1.json",
+    "sha256": "96af72edd948ae71a65c812544d2f49748ffe1a6256799a95c4f0b620911d090"
+  },
+  "postimages": [
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.split.capabilities.postimage.yaml",
+      "sha256": "15f5336b36881ae628a5c171e97d0deab930f7d6b2ec92e778ea87383463c638"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.split.requirements.postimage.yaml",
+      "sha256": "e72f96576b1ea6440988f41cc75d306879b94a514c26e371300762abd3580fb4"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.split.capability-leaf-review.postimage.yaml",
+      "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.split.pdp0-501-disposition-crosswalk.postimage.json",
+      "sha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+    }
+  ],
+  "exactParity": {
+    "audits": [
+      "AUD-CAP-028",
+      "AUD-CLONE-004",
+      "AUD-CLONE-006",
+      "AUD-CLONE-017",
+      "AUD-COLOR-007",
+      "AUD-DELIV-007",
+      "AUD-COLOR-001"
+    ],
+    "parentCaseCountNormalized": 34,
+    "caseFields": [
+      "polarity",
+      "given",
+      "when",
+      "then"
+    ]
+  },
+  "gen024NegativeOutcomes": {
+    "unknownOutcomeForMissingStaleAmbiguous": true,
+    "rejectedOnlyExplicitInvalidUnsupportedDenied": true,
+    "leafParentThenEqual": true
+  },
+  "campaignDenominator": {
+    "registeredIdentities": 54,
+    "phaseCells": 216,
+    "historicalOwnerRows": 462,
+    "pdp0AuditRows": 501
+  },
+  "replayCommand": "node scripts/prepare-media-pdp0-root-selected-source-integration-r9-r04-candidate.mjs --check",
+  "focusedTest": "node --test tests/media-pdp0-root-selected-source-integration-r9-r04.test.mjs",
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE"
+}

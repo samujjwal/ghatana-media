@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "media.pdp0.aq-pxd216.source-owner-decision-input.v1",
+  "recordId": "MEDIA-PDP0-AQ-PXD216-SOURCE-OWNER-DECISION-INPUT-2026-10-24",
+  "state": "DECISION_NOT_RECORDED; CANDIDATE_FOR_AUTHENTIC_SOURCE_OWNER",
+  "requiredRole": "AUTHENTIC_MEDIA_PDP0_SOURCE_OWNER",
+  "candidate": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json",
+    "sha256": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87"
+  },
+  "pxd216CurrentnessSuccessor": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json",
+    "sha256": "0aafe87534b11e215414f0601825608bd12660a3d640e9bed5fe1b3b5bc903b8"
+  },
+  "protectedInputs": {
+    "status": {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "status": "IN_PROGRESS",
+      "phase": "PDP-0"
+    },
+    "crosswalk": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+      "rowCount": 501
+    },
+    "denominators": {
+      "surfaceIdentities": 54,
+      "phaseCells": 216,
+      "capabilities": 469,
+      "auditRows": 501
+    }
+  },
+  "currentnessChoices": [
+    "APPROVE_CURRENTNESS_ONLY_NO_REVIEWED_SLICE_MEANING_CHANGE",
+    "REJECT_AND_REQUEST_SEMANTIC_REVIEW",
+    "DEFER_PENDING_ADDITIONAL_SOURCE_EVIDENCE"
+  ],
+  "independentMappingAdjudications": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/aq-59-64-taxonomy-clarification-candidate.v1.json",
+    "sha256": "d77d361b2ea07a77f474e1c3d9ff96f50794c4338e87de71c75ffaa31dd44453",
+    "requiredForRows": [
+      59,
+      60,
+      61,
+      62,
+      63,
+      64
+    ],
+    "choicesMustBeRecordedPerRow": true,
+    "approvalOfCurrentnessDoesNotApproveRecommendations": true
+  },
+  "decisionRecordRequirements": {
+    "ownerIdentity": null,
+    "ownerRole": "AUTHENTIC_MEDIA_PDP0_SOURCE_OWNER",
+    "decision": null,
+    "rationale": null,
+    "decidedAt": null,
+    "candidateSha256": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87",
+    "rowLevelMappingDecisions": null,
+    "noAgentMayPopulateOwnerFields": true
+  },
+  "evidenceRefs": [
+    {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json",
+      "sha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5"
+    },
+    {
+      "ref": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+      "sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json",
+      "sha256": "0aafe87534b11e215414f0601825608bd12660a3d640e9bed5fe1b3b5bc903b8"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/root-application-input.candidate.v5.json",
+      "sha256": "eb9f6903db387375105f8d1b1653a297bf09e816d138749dc93f3d3c69ad27f5",
+      "state": "PREPARED_INPUT_ONLY; OWNER_AND_ROOT_DECISION_NOT_RECORDED"
+    }
+  ],
+  "semanticBoundary": "Currentness disposition is separate from all six AQ taxonomy choices. Neither decision adopts R9-R08, authorizes canonical PDP-0 meaning changes, changes status/crosswalk, claims acceptance/closure, or supplies root approval."
+}

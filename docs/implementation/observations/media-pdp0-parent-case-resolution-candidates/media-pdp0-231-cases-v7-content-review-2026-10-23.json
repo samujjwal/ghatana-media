@@ -1,0 +1,456 @@
+{
+  "schemaVersion": "media.pdp0.231-cases-v7-content-review.v1",
+  "artifactId": "MEDIA-PDP0-231-CASES-V7-CONTENT-REVIEW-2026-10-23",
+  "reviewScope": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "physicalCompositeCampaignDenominator": {
+      "physical": 26,
+      "compositeAndRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "selectedSourceSet": "H consolidated 231-candidate cohort projection plus TRUST014 video-to-video semantic source slice",
+    "projectionAuditRows": 231,
+    "projectionCaseOperations": 248,
+    "trust014CapabilityLeaf": "media.generate.video.video-to-video",
+    "selectedPhysicalSurfaces": [
+      {
+        "surfaceId": "media.physical.launcher",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 10,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-client",
+        "type": "PHYSICAL",
+        "owner": "media-client-owner",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 18,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-types",
+        "type": "PHYSICAL",
+        "owner": "media-types-owner",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 18,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-ui",
+        "type": "PHYSICAL",
+        "owner": "media-ui-owner",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 52,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-infrastructure-persistence",
+        "type": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 14,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-infrastructure-security",
+        "type": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 1,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+        "type": "PHYSICAL",
+        "owner": "media-ui-owner",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 1,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 5,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+        "type": "SUPPORT_ONLY",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 8,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-speech-stt-service",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 4,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-speech-tts-service",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 3,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-vision-vision-service",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 1,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.providers-aws-postgresql",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 10,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.runtime-contracts",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 14,
+        "localSurfaceReview": "NOT_PERFORMED"
+      }
+    ],
+    "remainingCampaignIdentitiesNotCoveredByThisArtifact": 40,
+    "surfaceMappingRule": "Selected physical identities are those whose source-owned PDP-0 capability intent list intersects a capability target in the projection. This is a case applicability join only; it does not prove product implementation, per-surface completion, or composite/logical review."
+  },
+  "reviewIdentity": {
+    "threadId": "01a16a6c-df0b-7601-bddf-9153395d37a4",
+    "hostId": "local",
+    "scope": "fresh in-thread source and projector review; not a distinct peer review, owner acceptance, or regulated specialist signoff"
+  },
+  "sourceBaseline": {
+    "v7RootReadbackReport": {
+      "ref": "/tmp/gtool-critical-20261023/media-v7-actual-root-source-readback.json",
+      "sha256": "813b23c2ca4ceaaa59086b8fb093582e2f2240fb0e494f494a65980f5587467f",
+      "result": {
+        "state": "COMMITTED_EXACT_READBACK",
+        "canonicalWrite": "PERFORMED",
+        "journalPath": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc.json",
+        "targets": [
+          {
+            "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "expectedPreimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+            "postimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+            "expectedTargetMode": 420,
+            "immutablePreimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc/0-capabilities.yaml",
+            "state": "COMMITTED_EXACT_READBACK",
+            "exactReadbackSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "expectedPreimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "postimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+            "expectedTargetMode": 420,
+            "immutablePreimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc/1-requirements.yaml",
+            "state": "COMMITTED_EXACT_READBACK",
+            "exactReadbackSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+            "expectedPreimageSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+            "postimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+            "expectedTargetMode": 420,
+            "immutablePreimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc/2-pdp0-501-disposition-crosswalk.json",
+            "state": "COMMITTED_EXACT_READBACK",
+            "exactReadbackSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+          },
+          {
+            "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "expectedPreimageSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+            "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+            "expectedTargetMode": 420,
+            "immutablePreimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc/3-capability-leaf-review.yaml",
+            "state": "COMMITTED_EXACT_READBACK",
+            "exactReadbackSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+          },
+          {
+            "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+            "expectedPreimageSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+            "postimageSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+            "expectedTargetMode": 420,
+            "immutablePreimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc/4-campaign-extensions.yaml",
+            "state": "COMMITTED_EXACT_READBACK",
+            "exactReadbackSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+          },
+          {
+            "targetRef": ".product-experience/decision-log.md",
+            "expectedPreimageSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+            "postimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+            "expectedTargetMode": 420,
+            "immutablePreimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc/5-decision-log.md",
+            "state": "COMMITTED_EXACT_READBACK",
+            "exactReadbackSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+          }
+        ]
+      }
+    },
+    "authorization": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-apply-authorization.v7.json",
+      "sha256": "7ca0e76d4d99a870a69c047ab616f8a448adc62b9d95e387fd3decf69a774114"
+    },
+    "journal": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc.json",
+      "sha256": "ca2098003e15460bcb579f095a1b2cd84045dd134174b3f9ca854855612f123b"
+    },
+    "exactSixFileReadback": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "declaredSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "exact": true,
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capabilities-file-postimage.v6.yaml",
+        "postimageRefSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "postimageRefMatchesExactV7Bytes": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "declaredSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "exact": true,
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-requirements-file-postimage.v6.yaml",
+        "postimageRefSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "postimageRefMatchesExactV7Bytes": true
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "declaredSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "exact": true,
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-crosswalk-postimage.v6.json",
+        "postimageRefSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "postimageRefMatchesExactV7Bytes": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "declaredSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "exact": true,
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capability-leaf-review-postimage.v6.yaml",
+        "postimageRefSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "postimageRefMatchesExactV7Bytes": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "declaredSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "exact": true,
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-campaign-extensions-postimage.v6.yaml",
+        "postimageRefSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "postimageRefMatchesExactV7Bytes": true
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+        "declaredSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+        "exact": true,
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-decision-log-postimage.v6.md",
+        "postimageRefSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+        "postimageRefMatchesExactV7Bytes": true
+      }
+    ],
+    "projectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+    "projectionSha256": "82e6a916384c44440039ec9c0866fdf7b5b801031a9b3964af087762fb96ca8b",
+    "sourceFreezeManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json",
+    "sourceFreezeManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54",
+    "projectorModuleRef": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+    "projectorModuleSha256": "d21c846d4b0fcab09d4aa2b0c3640736a123cffe8166f066df7e1af6253bf6c4",
+    "postimageRefNamingObservation": "The six postimage reference paths retain v6 names, but each referenced file byte hash equals the v7 root exact-readback SHA. The v7 authorization and journal, rather than filename suffix, establish this turn’s applied source transition.",
+    "retainedV7Targets": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "declaredSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "exact": true
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+        "declaredSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+        "exact": true
+      }
+    ]
+  },
+  "projectionReview": {
+    "verdict": "TECHNICAL_REBUILD_PASS; DISTINCT_COMBINED_PEER_REVIEW_AND_OWNER_DECISIONS_PENDING",
+    "operationCount": 248,
+    "counts": {
+      "caseOperations": 248,
+      "cohort01CapabilityCases": 44,
+      "cohort01RequirementCases": 46,
+      "cohort02R6CapabilityCases": 120,
+      "cohort03CapabilityCases": 19,
+      "cohort03RequirementCases": 19,
+      "rootChoicesSelected": 0,
+      "ownerDecisionsCreated": 0
+    },
+    "sourcePeerAndProposalPinsVerified": true,
+    "preimageAndPostimageRebuild": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "declaredPreimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "currentPreimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "postimageSha256": "fdd48e9b2021384cf0a86d8cb2b562ca8121a586c40aba0931f1f47fd16a2b84",
+        "declaredPostimageSha256": "fdd48e9b2021384cf0a86d8cb2b562ca8121a586c40aba0931f1f47fd16a2b84",
+        "preimageMatches": true,
+        "postimageMatches": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "declaredPreimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "currentPreimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "postimageSha256": "8db5ae557abab13c06509c293168a56280c99da22abfda727db09b1061f49be0",
+        "declaredPostimageSha256": "8db5ae557abab13c06509c293168a56280c99da22abfda727db09b1061f49be0",
+        "preimageMatches": true,
+        "postimageMatches": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "declaredPreimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "currentPreimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "postimageSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+        "declaredPostimageSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+        "preimageMatches": true,
+        "postimageMatches": true
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "declaredPreimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "currentPreimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "postimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "declaredPostimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "preimageMatches": true,
+        "postimageMatches": true
+      }
+    ],
+    "allDeclaredInputsMatch": true,
+    "rootChoiceSelectedCount": 0,
+    "ownerDecisionCreatedCount": 0,
+    "combinedPeerReviewState": "NOT_CREATED",
+    "canonicalApply": "NOT_PERFORMED",
+    "sharedCas": "NOT_INVOKED",
+    "findings": [
+      {
+        "id": "P0-231-V7-01",
+        "disposition": "PASS_TECHNICAL",
+        "detail": "All 248 typed case operations pass the current semantic batch projector validation and reproduce the four declared postimages byte-for-byte from live v7 sources.",
+        "owner": "current reviewer",
+        "predecessor": "Exact committed v7 six-file source readback and current H projection input pins",
+        "acceptanceCriterion": "Rebuild from exact v7 inputs yields all four declared postimage SHA-256 values byte-for-byte; satisfied in this review.",
+        "nextAction": "No further action for this technical rebuild result."
+      },
+      {
+        "id": "P0-231-V7-02",
+        "disposition": "PENDING_OWNER",
+        "detail": "The 11 source-bound owner choice records remain unresolved; zero root choices are selected and zero owner decisions are created.",
+        "owner": "media-product; named owner appointment unknown",
+        "predecessor": "Exact committed v7 six-file source readback and current H projection input pins",
+        "acceptanceCriterion": "Every one of the 11 source-bound choice IDs has an actual source-linked owner decision bound to its exact option and operation digest; currently not satisfied.",
+        "nextAction": "Keep the projection unselected and unapplied until the named predecessor evidence is recorded."
+      },
+      {
+        "id": "P0-231-V7-03",
+        "disposition": "PENDING_DISTINCT_REVIEW",
+        "detail": "H projection declares peerReviewForCombinedProjection=NOT_CREATED. This review records a rebuild, not the missing distinct peer-review artifact.",
+        "owner": "distinct technical peer reviewer; identity not present",
+        "predecessor": "Exact committed v7 six-file source readback and current H projection input pins",
+        "acceptanceCriterion": "A distinct peer artifact references current projection/input/postimage hashes and records explicit findings/disposition; currently not satisfied.",
+        "nextAction": "Keep the projection unselected and unapplied until the named predecessor evidence is recorded."
+      },
+      {
+        "id": "P0-231-V7-04",
+        "disposition": "PENDING_SOURCE_ADOPTION",
+        "detail": "No canonical apply or shared CAS occurred for the 231-candidate projection.",
+        "owner": "Media PDP-0 source owner under separate authorization",
+        "predecessor": "Exact committed v7 six-file source readback and current H projection input pins",
+        "acceptanceCriterion": "Separate source authorization and public CAS execution produce exact readback for the candidate inputs; not authorized or performed.",
+        "nextAction": "Keep the projection unselected and unapplied until the named predecessor evidence is recorded."
+      }
+    ]
+  },
+  "trust014SourceDeltaReview": {
+    "v7ReadbackAuthorizationHash": "7ca0e76d4d99a870a69c047ab616f8a448adc62b9d95e387fd3decf69a774114",
+    "semanticDelta": {
+      "capabilityIntentId": "media.generate.video.video-to-video",
+      "ownerDefinitionUnchanged": true,
+      "acceptanceCasesUnchanged": true,
+      "requirementIdsUnchanged": true,
+      "relatedRequirementCases": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "caseId": "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+          "preimageSha256": "486fe10fd3ca682c24e5c5eb2751438a5b0beb758e7bd36b405abefe748c1167",
+          "currentSha256": "486fe10fd3ca682c24e5c5eb2751438a5b0beb758e7bd36b405abefe748c1167",
+          "equal": true
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "caseId": "MEDIA-REQ-CAP-RIGHTS-AC-03",
+          "preimageSha256": "c2f43748703a65ee9180b35f7ea71a6a47d08c81d4556a9b60893a4ee5be5fc0",
+          "currentSha256": "c2f43748703a65ee9180b35f7ea71a6a47d08c81d4556a9b60893a4ee5be5fc0",
+          "equal": true
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "caseId": "MEDIA-REQ-CAP-RIGHTS-AC-04",
+          "preimageSha256": "4f1ae970a5f576cb45540923904712a3c6c1ea1dc3137f278487d174099dccf5",
+          "currentSha256": "4f1ae970a5f576cb45540923904712a3c6c1ea1dc3137f278487d174099dccf5",
+          "equal": true
+        }
+      ],
+      "ownerCapabilityAdjudicationId": "media.capability-adjudication.generate-video-video-to-video",
+      "ownerCapabilityAdjudicationUnchanged": true,
+      "profileSemanticsSha256": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+      "policyAuthorityModelSha256": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+      "authorityMapSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff"
+    },
+    "conclusion": "The v7 amendment changed the bytes of all six source files, but the reviewed TRUST014 video-to-video ownerDefinition, local acceptance cases, requirementIds, related source requirement cases, and exact owner adjudication row are unchanged. Refresh whole-file candidate pins in a new additive successor; do not infer a semantic TRUST014 source change.",
+    "currentCandidateV1Ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry.candidate.v1.json",
+    "currentCandidateV1Sha256": "85fefab6dcb9614e31eede28b582d2d0764bb5bb1728650f271c7720c060f710",
+    "acceptanceCriterion": "Successor sourceBaseline hashes must match the exact live source files; reviewed TRUST014 ownerDefinition, acceptance cases, requirement IDs, rights requirement cases, and exact leaf adjudication row must remain semantically equal to frozen preimages. Verified for candidate v2.",
+    "nextAction": "Retain candidate v2 as source-pin-current but unadopted. Accountable media-product owner must select profile identity/version, parameter shape and policy handling before any canonical source amendment."
+  },
+  "limits": [
+    "This is PDP-0 candidate content review only.",
+    "Does not select any of the 11 owner choices, create owner decision, or authorize canonical source application.",
+    "Does not establish independent owner acceptance, native proof, phase DEV_COMPLETE, PDP closure, Build eligibility, Delivery, or release.",
+    "This in-thread review is not the distinct combined peer-review artifact required by the candidate workflow."
+  ],
+  "phasePrerequisites": {
+    "pdp0Status": "IN_PROGRESS",
+    "sourceCurrentness": "FAIL_FOR_AFFECTED_SOURCE_SET; phase status sourceShaSet remains on pre-v7 hashes for capabilities, requirements, and capability-leaf-review",
+    "sourcePins": {
+      "capabilities": {
+        "recorded": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "current": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      "requirements": {
+        "recorded": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+        "current": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      "capabilityLeafReview": {
+        "recorded": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+        "current": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      }
+    },
+    "nextAllowedAction": "Continue source-authorized PDP-0 source currentness reconciliation; retain H projection as candidate pending source-bound owner decisions and a distinct combined peer review."
+  }
+}

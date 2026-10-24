@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.aud-spec-002-source-amendment-candidate.v4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactKind",
+    "auditId",
+    "predecessorCandidateRef",
+    "predecessorCandidateSha256",
+    "sourceBindings",
+    "postimageSha256",
+    "candidatePostimageSha256",
+    "conditionalOutputRule",
+    "resultVariantSelector",
+    "extensionRegistration",
+    "exactFileTargets",
+    "rootDecisionTemplateRef",
+    "blockers",
+    "canonicalApply",
+    "effects"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.aud-spec-002-source-amendment-candidate.v4"
+    },
+    "artifactKind": {
+      "const": "NON_CANONICAL_EXACT_SOURCE_AMENDMENT_CANDIDATE"
+    },
+    "auditId": {
+      "const": "AUD-SPEC-002"
+    },
+    "predecessorCandidateRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v3.json"
+    },
+    "predecessorCandidateSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sourceBindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "crosswalkSha256",
+        "auditSha256",
+        "capabilitiesSha256",
+        "requirementsSha256",
+        "capabilityLeafReviewSha256",
+        "applicationsChannelsSha256",
+        "decisionLogSha256"
+      ],
+      "properties": {
+        "crosswalkSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "auditSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilitiesSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "requirementsSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilityLeafReviewSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "applicationsChannelsSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "decisionLogSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "postimageSha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilityYaml",
+        "requirementsYaml",
+        "crosswalkJson",
+        "capabilityLeafReviewYaml"
+      ],
+      "properties": {
+        "capabilityYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "requirementsYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "crosswalkJson": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilityLeafReviewYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "candidatePostimageSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "conditionalOutputRule": {
+      "const": "ordinary compile requires only the existing graph/plan; migration candidate is additionally required only for the exact supported migration input selector; incomplete or unsupported migration inputs produce no candidate"
+    },
+    "resultVariantSelector": {
+      "const": "resultKind=SUPPORTED_VERSION_BOUND_SCHEMA_MIGRATION_CANDIDATE_AND_SEMANTIC_DIFF;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION;migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED"
+    },
+    "extensionRegistration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilityRef",
+        "ownerAdjudicationId",
+        "trustRecordId",
+        "historicalOwnerRowsPreserved",
+        "historicalTrustRowsPreserved",
+        "currentTotalAfterProposal"
+      ],
+      "properties": {
+        "capabilityRef": {
+          "const": "media.recipe.specification.compile"
+        },
+        "ownerAdjudicationId": {
+          "const": "media.capability-adjudication.recipe-specification-compile"
+        },
+        "trustRecordId": {
+          "const": "media.capability-trust-reconstruction.media-capability-adjudication-recipe-specification-compile.v1"
+        },
+        "historicalOwnerRowsPreserved": {
+          "const": 462
+        },
+        "historicalTrustRowsPreserved": {
+          "const": 462
+        },
+        "currentTotalAfterProposal": {
+          "const": 463
+        }
+      }
+    },
+    "exactFileTargets": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/requirements.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "rootDecisionTemplateRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-root-decision.v4.json"
+    },
+    "blockers": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string"
+      }
+    },
+    "canonicalApply": {
+      "const": "NOT_PERFORMED"
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonicalSourceWrite",
+        "historical462Population",
+        "independentAcceptance",
+        "runtimeAdmission",
+        "nativeProof"
+      ],
+      "properties": {
+        "canonicalSourceWrite": {
+          "const": "NOT_PERFORMED"
+        },
+        "historical462Population": {
+          "const": "PRESERVED_SEPARATELY"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "runtimeAdmission": {
+          "const": "NOT_ADMITTED"
+        },
+        "nativeProof": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    }
+  }
+}

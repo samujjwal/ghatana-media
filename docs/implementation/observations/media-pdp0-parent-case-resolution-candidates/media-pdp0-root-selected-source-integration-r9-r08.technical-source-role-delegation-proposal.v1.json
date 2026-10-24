@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration.r9-r08.technical-source-role-delegation-proposal.v1",
+  "recordKind": "PROPOSAL_ONLY_NOT_A_ROOT_DELEGATION_OR_APPLY_AUTHORIZATION",
+  "proposalId": "MEDIA-PDP0-R9-R08-TECHNICAL-SOURCE-ROLE-DELEGATION-PROPOSAL-V1-2026-10-24",
+  "delegationSchemaRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.technical-source-role-delegation.schema.v1.json",
+  "policy": {
+    "ref": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+    "sha256": "9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319",
+    "delegatedOwnerRole": "approvedOwnerDecisions.ownerRoles",
+    "boundary": "Ordinary non-specialist technical source decisions are delegated. AP-02/AP-03, trusted verifier registration, independent acceptance, native proof and receipt remain under requiresActualIndependentAuthority and are not included here."
+  },
+  "rootBoundaryDecision": {
+    "ref": "../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/central/media-r08-source-technical-authority-boundary-root-decision-r01.json",
+    "sha256": "26e437be25c5ad465b3e48fb1a9c53e1bec58f85ac667cb60fa358dd41d65a70",
+    "effectAuthorizedNow": "SOFTWARE_AND_PROPOSAL_PREPARATION_ONLY_NO_CANONICAL_SOURCE_APPLICATION",
+    "nativeTrustRegistered": false,
+    "nativeAcceptance": false,
+    "release": false
+  },
+  "agentGuidance": {
+    "ref": "AGENTS.md",
+    "sha256": "a3ad22a9d18f264329ab64264efdf81fdd407f2ea9f33bd4f7f982787b83b829"
+  },
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phaseId": "PDP-0",
+    "fullIdentityDenominator": 54,
+    "effect": "APPLY_EXACT_R9_R08_SOURCE_ONLY_TECHNICAL_SUCCESSOR",
+    "profileId": "media.pdp0.root-selected-source-integration.r9-r08.source-only-technical.v3"
+  },
+  "protectedInputs": {
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
+    "candidateSha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb",
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
+    "freezeSha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+    "semanticReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.r08-semantic-review.v1.json",
+    "semanticReviewSha256": "200aaaff4577426d4f91f16ecb74a3c64bcc76280ad92ca5fd278d531523fe5a",
+    "readSet": [
+      ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      ".product-experience/decision-log.md",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml"
+    ],
+    "writeTargets": [
+      ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      ".product-experience/pdp-0-product-truth/requirements.yaml",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+    ],
+    "semanticSelector": ".product-experience/decision-log.md#PXD-225-section"
+  },
+  "requiredRootDelegationInputs": {
+    "status": "AWAITING_ROOT_ROLE_ASSIGNMENT",
+    "delegatingPrincipal": null,
+    "proposedDelegatingPrincipal": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
+    "delegationDecisionRef": null,
+    "revocationRegisterRef": null,
+    "revocationRegisterSha256": null,
+    "validityWindow": {"issuedAt": null, "expiresAt": null},
+    "roles": [
+      {"role":"PDP0_TECHNICAL_SOURCE_OWNER","principal":null,"proposedPrincipal":"agent:thread:01a16a6c-d506-7a73-801a-609c602a12e9","scopeId":"R9-R08-PDP0-SOURCE-OWNER-DECISION"},
+      {"role":"PDP0_TECHNICAL_ROOT_ADOPTER","principal":null,"proposedPrincipal":"agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e","scopeId":"R9-R08-PDP0-ROOT-ADOPTION-DECISION"},
+      {"role":"PDP0_TECHNICAL_PROFILE_REGISTRAR","principal":null,"proposedPrincipal":"agent:thread:01a16a6c-df0b-7601-bddf-9153395d37a4","scopeId":"R9-R08-PDP0-EXACT-PROFILE-REGISTRATION"},
+      {"role":"PDP0_TECHNICAL_APPLY_AUTHORITY","principal":null,"proposedPrincipal":"agent:thread:01a16a3d-608a-7cf0-a1c7-e346d343016d","scopeId":"R9-R08-PDP0-EXACT-FOUR-TARGET-SOURCE-APPLY"}
+    ],
+    "identityRule": "Root must allocate four mutually distinct genuine agent:thread:<uuid> principals for the four effect roles. The delegating principal may also serve PDP0_TECHNICAL_ROOT_ADOPTER; it may not collide with any other role. Labels in this proposal are placeholders, not identities or approvals."
+  },
+  "requiredSemanticDecisionSections": {
+    "selector": ".product-experience/decision-log.md#PXD-901..PXD-905",
+    "rootAssignment": {
+      "sectionId": "PXD-901",
+      "recordKind": "ROOT_DELEGATED_NON_SPECIALIST_TECHNICAL_SOURCE_ROLES",
+      "mustBind": ["delegatingPrincipal", "delegationId", "repository", "macroStage", "phaseId", "effect", "profileId", "candidateRef", "candidateSha256", "freezeRef", "freezeSha256", "sixNonLogSourcePins", "fourOrderedTargetRows", "issuedAt", "expiresAt", "revocationStatus", "revocationRegisterRef", "revocationRegisterSha256", "authorityBoundary", "fourOrderedRoleAssignments"],
+      "sectionDigest": "Include the current fingerprintPxdDecisionSection SHA-256 in delegationDecisionSectionSha256."
+    },
+    "roleAssignments": [
+      {"sectionId":"PXD-902","role":"PDP0_TECHNICAL_SOURCE_OWNER","scopeId":"R9-R08-PDP0-SOURCE-OWNER-DECISION"},
+      {"sectionId":"PXD-903","role":"PDP0_TECHNICAL_ROOT_ADOPTER","scopeId":"R9-R08-PDP0-ROOT-ADOPTION-DECISION"},
+      {"sectionId":"PXD-904","role":"PDP0_TECHNICAL_PROFILE_REGISTRAR","scopeId":"R9-R08-PDP0-EXACT-PROFILE-REGISTRATION"},
+      {"sectionId":"PXD-905","role":"PDP0_TECHNICAL_APPLY_AUTHORITY","scopeId":"R9-R08-PDP0-EXACT-FOUR-TARGET-SOURCE-APPLY"}
+    ],
+    "roleRecordKind": "TECHNICAL_SOURCE_ROLE_ASSIGNMENT",
+    "eachRoleMustBind": ["delegationId", "repository", "macroStage", "phaseId", "effect", "profileId", "candidateRef", "candidateSha256", "freezeRef", "freezeSha256", "sixNonLogSourcePins", "fourOrderedTargetRows", "issuedAt", "expiresAt", "revocationStatus", "revocationRegisterRef", "revocationRegisterSha256", "authorityBoundary", "role", "principal", "scopeId"],
+    "digestRule": "Each role section SHA-256 is recorded at that role's decisionSectionSha256 and repeated in PXD-901. PXD role records exclude the whole decision-log digest and role-section digests to avoid self-reference; delegation JSON pins the whole log as the sixth row in the fixed seven-member read set."
+  },
+  "hardBoundaries": {
+    "v2ProtectedNativeAuthorization": "PRESERVED_UNCHANGED_AND_FAIL_CLOSED",
+    "credentialsOrSignatures": "NOT_REQUIRED_FOR_NON_SPECIALIST_SOURCE_ROLE_DELEGATION; NEVER_SYNTHESIZE",
+    "sourceApplication": "NOT_AUTHORIZED_BY_THIS_PROPOSAL",
+    "nativeVerifierAcceptanceReceiptBuildDeliveryRelease": "NONE",
+    "phaseStatusTaskOrMatrixMutation": "NONE"
+  }
+}

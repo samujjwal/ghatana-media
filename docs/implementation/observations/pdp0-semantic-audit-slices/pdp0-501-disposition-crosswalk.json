@@ -11,8 +11,8 @@
       "docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json": "6bb129f13519dc08fe4e85ff57e46c2ca1cb6d425cbd6fcbb207ae588a46ae40",
       "docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json": "84e4fa97094f5f018e779551eeb94cf7adabe08260ce125a616a4936c5a74df1",
       ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
       ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml": "481a8cc11205f1a3c5485f5fcc02ee8b3107be434880b78d05a32b649792bba5",
       "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json": "fa4ae72cf2644cf2815a31447f57e2768579a96550d66aa2e4594510005a7533",
       "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json": "71ad52105f6ea5953865faaf109e727daa9908c7cf7803b723d637311fb6632d",
@@ -21,15 +21,15 @@
       "docs/implementation/observations/pdp0-semantic-audit-slices/acceptance-case-outcome-qc.json": "6812b39cd6107615b92cc7c2ad89f5fb2af5a67767dc31515b25853c4f6987fa",
       "docs/implementation/observations/pdp0-semantic-audit-slices/capture-time-fidelity-review.json": "e685293898c453e2bf2c2bed8e1404adddfbbe12093ebf6f5a8ef90c93ff9c41",
       ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
-      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
       ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
       ".product-experience/pdp-0-product-truth/intent-resolutions.yaml": "2bbc74c35dfdae2d9e940ff31a5487a5707118fdb76f2ed4a250f51853530898",
       ".product-experience/pdp-0-product-truth/journey-catalog.yaml": "db98413dfc314d85528d87515e8e7b100afe12276bfc8a73ca5401bbc92355eb",
       ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
-      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
       "tests/pdp-migration-semantic-reconciliation.test.mjs": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719",
       ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
-      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
       ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
       "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json": "c7c7b927839d9f90c302fc99b6e0507ff8dd676505bf79561dffa5ebb10cd3a5",
       "tests/pdp-migration-p0-current-material-reviews.test.mjs": "fbec7f7a9829c3525fb6e44de306ff1b08bb1528c1f5a827309358d2c5bf5ac0",
@@ -53,9 +53,9 @@
     "sourceCutStatus": "CURRENT_PDP0_CROSSWALK_WITH_PXD225_SOURCE_RECONCILIATION",
     "phaseScopedFingerprintAlgorithm": "SHA-256 of canonical PDP-0 projection JSON; PXD sections hash exact UTF-8 bytes",
     "phaseScopedSourceFingerprintsSha256": {
-      ".product-experience/source-manifest.yaml#PDP-0-projection": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
+      ".product-experience/decision-log.md#PXD-225-section": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
     }
   },
   "denominator": {
@@ -484,14 +484,14 @@
       }
     ],
     "sourceFingerprints": {
-      ".product-experience/source-manifest.yaml#PDP-0-projection": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
+      ".product-experience/decision-log.md#PXD-225-section": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
     },
     "phaseScopedSourceFingerprintsSha256": {
-      ".product-experience/source-manifest.yaml#PDP-0-projection": "0b10b45391acf7e2ae9624f46c0850729cc57dc37bef56a6628e592a33c6338d",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
+      ".product-experience/decision-log.md#PXD-225-section": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
     },
     "independentAcceptance": "NOT_CLAIMED",
     "acceptanceEffect": "none"
@@ -617,21 +617,25 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-002",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-profile-validate.v1",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.profile.validate",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROFILE"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-13",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-16",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-17"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 semantic match: the source feature asks for production-specific schema validation and migrations; the canonical owner intent media.profile.validate defines the product result as Evaluate one named output profile against an explicit outcome and input constraints, returning per-dimension compatibility and blockers without executing delivery. The typed inputs [{'slotId': 'input1', 'sourceType': 'canonical-profileId-and-profileVersion', 'cardinality': 'EXACTLY_ONE', 'required': True}, {'slotId': 'input2', 'sourceType': 'intended-output-and-destination-constraints', 'cardinality': 'EXACTLY_ONE', 'required': True}, {'slotId': 'input3', 'sourceType': 'authorized-input-descriptors', 'cardinality': 'EXACTLY_ONE', 'required': True}] establish the request meaning; guards require verified authority and eligible inputs, failure/unknown outcomes are explicit in ['INVALID_REQUEST', 'ACCESS_DENIED', 'RIGHTS_OR_CONSENT_DENIED', 'UNSUPPORTED_PROFILE', 'BOUNDS_EXCEEDED', 'CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME'], and the leaf constraints preserve source/avoid silent substitution. The feature-specific details beyond that product purpose belong to the separate handoff, not a new P0 task.",
+      "phaseLocalRationale": "The existing recipe specification compiler and AC-07 cover typed semantic compilation. The additive AC-13/AC-14 proposal defines only a reviewable, version-bound migration candidate and semantic diff for an explicitly declared transformation between exact source and target schemas. Unsupported, lossy, ambiguous, or otherwise unknown transformations remain UNKNOWN/UNSUPPORTED; the source is preserved and no migration is applied, project/job is created, or content is published. The proposed candidate meaning is not yet canonical or owner-approved; PDP-1 retains migration implementation mechanics. AC-15 preserves ordinary compilation output when no migration is requested; the migration result is conditionally required only for the exact supported selector. This candidate carries separate typed owner-adjudication and trust-reconstruction rows for the current compile extension outside the immutable historical 462-row arrays. Those source-definition rows do not assert independent acceptance, external credential or issuer trust, quality applicability, or runtime admission. AC-16 specifies the source-bound supported migration candidate; AC-17 specifies unsupported/unknown fail-closed behavior. Exact result-kind, source-derived origin, and epistemic selectors are bound to PXD-128; the separate extension adjudication and trust rows preserve all 462 historic records. PXD-226 selects this one extension for the current PDP-0 version through an additive source cycle; the 462 historical base, one current extension, six future proposals, 54 surfaces, and 216 phase cells remain separately accounted. Quality applicability remains UNKNOWN, and the historical PDP-1 handoff remains 462.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-SPEC-002",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": {
         "ownerPhase": "PDP-1",
-        "gap": "production-schema-migration-semantics-unbound",
-        "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
+        "gap": "production-schema-migration-mechanics-unbound",
+        "status": "PDP1_MECHANICS_HANDOFF_AFTER_PDP0_PRODUCT_INTENT"
       },
       "ownerSurfaceProposal": "media.surface.recorder-orchestrator",
       "definitionScopeBinding": {
@@ -640,6 +644,16 @@
         "pdp0ScopeRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/logicalConsumerPdp0Scope/records/@surfaceRef=media.surface.recorder-orchestrator",
         "ownerApproval": "NOT_CLAIMED",
         "runtimeAdmission": "NOT_CLAIMED"
+      },
+      "decisionRef": {
+        "id": "PXD-226",
+        "path": ".product-experience/decision-log.md#PXD-226",
+        "sourceOwnerDecisionRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-owner-decision.v7.json",
+        "sourceOwnerDecisionSha256": "35775046645ea1b023d0f9a45a3fa40bb68808bf1339684d492ffec6b7f3f884",
+        "sourceOwnerDisposition": "APPROVE_EXACT_CANDIDATE_FOR_SOURCE_APPLY",
+        "decisionSectionSha256": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b",
+        "ownerApproval": "NOT_CLAIMED",
+        "independentAcceptance": "NOT_CLAIMED"
       }
     },
     {

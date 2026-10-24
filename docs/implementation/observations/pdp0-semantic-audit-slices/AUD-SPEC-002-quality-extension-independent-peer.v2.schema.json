@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.quality-extension-independent-peer.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "auditId", "candidateRef", "candidateSha256", "candidatePostimageSha256", "predecessor", "targetPostimages", "reviewer", "disposition", "findings", "authorityBoundary"],
+  "properties": {
+    "schemaVersion": {"const": "media.pdp0.quality-extension-independent-peer.v2"},
+    "auditId": {"const": "AUD-SPEC-002"},
+    "candidateRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json"},
+    "candidateSha256": {"$ref": "#/$defs/sha256"},
+    "candidatePostimageSha256": {"$ref": "#/$defs/sha256"},
+    "predecessor": {"type": "object", "additionalProperties": false, "required": ["v7CandidateRef", "v7CandidateSha256", "v7ManifestRef", "v7ManifestSha256", "v7PeerRef", "v7PeerSha256"], "properties": {
+      "v7CandidateRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json"},
+      "v7CandidateSha256": {"$ref": "#/$defs/sha256"},
+      "v7ManifestRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json"},
+      "v7ManifestSha256": {"$ref": "#/$defs/sha256"},
+      "v7PeerRef": {"const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-v7-quality-extension-independent-peer.v2.json"},
+      "v7PeerSha256": {"$ref": "#/$defs/sha256"}
+    }},
+    "targetPostimages": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "object", "additionalProperties": false, "required": ["targetRef", "preimageSha256", "postimageSha256"], "properties": {
+      "targetRef": {"enum": [".product-experience/decision-log.md", ".product-experience/pdp-0-product-truth/quality-policy.yaml"]},
+      "preimageSha256": {"$ref": "#/$defs/sha256"}, "postimageSha256": {"$ref": "#/$defs/sha256"}
+    }}},
+    "reviewer": {"type": "object", "additionalProperties": false, "required": ["identity", "role", "candidateAuthorIdentity", "independentHumanReviewer", "credentialedAttestation"], "properties": {
+      "identity": {"type": "string", "minLength": 1, "not": {"enum": ["agent:/root", "agent:/root/phase_io"]}},
+      "role": {"const": "DISTINCT_TECHNICAL_PEER"},
+      "candidateAuthorIdentity": {"const": "agent:/root/phase_io"},
+      "independentHumanReviewer": {"const": false}, "credentialedAttestation": {"const": false}
+    }},
+    "disposition": {"enum": ["TECHNICAL_APPROVE_EXACT_CANDIDATE_ONLY", "REQUEST_CHANGES"]},
+    "findings": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "severity", "targetRef", "finding", "requiredChange"], "properties": {
+      "id": {"type": "string", "minLength": 1}, "severity": {"enum": ["BLOCKING", "NON_BLOCKING"]}, "targetRef": {"type": "string", "minLength": 1}, "finding": {"type": "string", "minLength": 1}, "requiredChange": {"type": "string", "minLength": 1}
+    }}},
+    "authorityBoundary": {"type": "object", "additionalProperties": false, "required": ["sourceOwnerAdoption", "canonicalApply", "sourceCurrentness", "phaseStatusEffect", "independentAcceptance", "nativeProof"], "properties": {
+      "sourceOwnerAdoption": {"const": "PENDING"}, "canonicalApply": {"const": "NOT_PERFORMED"}, "sourceCurrentness": {"const": "NOT_CLAIMED"}, "phaseStatusEffect": {"const": "NONE"}, "independentAcceptance": {"const": "NOT_CLAIMED"}, "nativeProof": {"const": "NOT_CLAIMED"}
+    }}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+}

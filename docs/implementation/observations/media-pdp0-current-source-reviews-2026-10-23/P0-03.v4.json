@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "media.pdp0.current-source-review-record.v4",
+  "criterionId": "P0-03",
+  "phaseScope": "PDP-0",
+  "reviewer": {
+    "identity": "agent:thread:01a16a3d-608a-7cf0-a1c7-e346d343016d/AItechnicalrole",
+    "reviewRole": "DISTINCT_TECHNICAL_REVIEWER",
+    "reviewRecordRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-03.v4.json"
+  },
+  "scopeRef": "docs/implementation/media-pdp-38-readiness.json#tasks/P0-03",
+  "reviewedSources": [
+    {
+      "sourceRef": "docs/implementation/media-pdp-38-readiness.json",
+      "sha256": "5ccc340576a8cbebfa793f9b769532962f7a26cb0102c0e589d07e3bdb301dbe"
+    },
+    {
+      "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+      "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+      "sha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
+    },
+    {
+      "sourceRef": ".product-experience/source-manifest.yaml",
+      "sha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
+      "sha256": "b6109173145666f35b6c818f03ac8af37e87e9589b055f88e79928bb8e148131"
+    },
+    {
+      "sourceRef": "docs/migration/current-master-plan-claim-dispositions.json",
+      "sha256": "b67f8040a01409592b10272b395bbceb31fc9979ba8c4b67668618e9e19f7047"
+    },
+    {
+      "sourceRef": "docs/migration/expert-reviewed-master-plan.md",
+      "sha256": "c2d9d1f1fcc35b0804f69335657c3b8058ff5163ac1eefb78c6b9bc7d9ab11da"
+    },
+    {
+      "sourceRef": "scripts/lib/media-product-definition-residuals.mjs",
+      "sha256": "8683eef87a7d153b49b6f2b3c5788b00825a0eaa27870d8b267ad907716ac122"
+    },
+    {
+      "sourceRef": "tests/pdp-migration-current-source-claim-dispositions.test.mjs",
+      "sha256": "107cabb57c0f582b5f284e01922df7dc9e52da00bc902d1206f323576ec5d973"
+    },
+    {
+      "sourceRef": "tests/pdp-migration-semantic-reconciliation.test.mjs",
+      "sha256": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719"
+    },
+    {
+      "sourceRef": "tests/pdp-migration-p0-current-material-reviews.test.mjs",
+      "sha256": "fbec7f7a9829c3525fb6e44de306ff1b08bb1528c1f5a827309358d2c5bf5ac0"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/P0-03.log",
+      "sha256": "4a8b62ebbba5219cf66007c1fd838fdedc9b7ca56d9f33797ad823ce35c51b95"
+    }
+  ],
+  "criterionVerification": {
+    "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+    "statusRecordSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "testReceiptRef": "docs/implementation/verification/pdp-38/P0-03.log",
+    "testReceiptSha256": "4a8b62ebbba5219cf66007c1fd838fdedc9b7ca56d9f33797ad823ce35c51b95",
+    "testStatus": "PASS",
+    "testCount": 142,
+    "passedTestCount": 113,
+    "skippedTestCount": 29,
+    "outputSha256": "4a8b62ebbba5219cf66007c1fd838fdedc9b7ca56d9f33797ad823ce35c51b95"
+  },
+  "reviewConclusion": "SOURCE_MEANING_REVIEWED; FINDINGS_ARE_SEPARATELY_TYPED",
+  "reviewNotes": "{\"reviewKind\":\"AI_TECHNICAL_CURRENT_SOURCE_REVIEW\",\"criterionIdentity\":{\"criterionId\":\"P0-03\",\"readinessTaskRef\":\"docs/implementation/media-pdp-38-readiness.json#tasks/P0-03\",\"directDefinitionCriterionRecord\":\"ABSENT\",\"directDefinitionDecisionRef\":null,\"readinessCriterionState\":\"NOT_ESTABLISHED\",\"originalTaskState\":\"partial\"},\"baseline\":{\"repositoryHead\":\"b7685542a71a62c33f3a0cf074d22de6543e7935\",\"workingTree\":\"DIRTY_PRESERVED\",\"campaign\":\"Media PDP-0 Product Truth, criteria P0-01 through P0-04 only\",\"macroStage\":\"DISCOVERY\",\"exactPhase\":\"PDP-0 Product Truth\",\"registeredIdentityDenominator\":{\"physicalCandidates\":26,\"compositionSurfacesIncludingRoot\":7,\"logicalConsumers\":21,\"registeredIdentities\":54},\"requestedCurrentMaterialPathDenominator\":207,\"sourcePinObservation\":{\"reportedCurrentMaterialPathDenominator\":207,\"phaseStatusSourcePinRefs\":188,\"wholeFilePinsComparedAgainstLiveBytes\":167,\"wholeFilePinMismatches\":0,\"sectionPins\":21,\"sectionPinCurrentness\":\"All 21 section/projection refs recomputed through scripts/report-media-pdp-readiness.mjs#pdp0PhaseScopedSourcePins and matched their recorded status pins.\",\"wholeCutCurrentnessClaim\":\"NOT_MADE\",\"sectionPinBackerFilesMissing\":[]},\"sourceCurrentnessClaim\":\"NOT_MADE; this is a bounded criterion-level technical review, not a PDP-0 source-currentness/DEV_COMPLETE receipt.\"},\"criterionMeaning\":{\"scope\":\"P0-03 current migration-claim classification, normative ownership/disposition, and the extent to which the live current-source ledger supports the criterion task.\",\"observations\":[\"The live current source is docs/migration/current-master-plan-claim-dispositions.json, not the historical extraction census. It pins the current 2,829-line expert-reviewed plan and classifies 129 claims: 19 clarified, 11 adopted, 59 execution-only, 7 external-owner, 12 superseded, and 21 out-of-current-product-scope.\",\"The ledger records 49 residual hunk dispositions (24 clarified, 9 source-structure, 16 execution-only), and p0MeaningOnlyInOldPlan is empty. Its sole external handoff is explicitly pending PDP-1 scene-model contract validation and NOT_A_PDP0_MEANING_GAP.\",\"migration-semantics-review.yaml declares itself historical extraction and states that the current P0-03 delta dispositions are in the current JSON ledger; historical unresolved item counts are not treated as the current task exit gate.\",\"The persisted P0-03 receipt and output SHA-256 match the current P0-03.log: 142 tests total, 113 passed and 29 skipped. The skipped cases are later-phase source refresh/operational behaviors; the reviewer did not run tests.\"],\"nonClaims\":[\"No owner approval, independent acceptance, P0-010 acceptance, phase status transition, closure, Build admission, or Delivery is claimed.\"]},\"findings\":[{\"id\":\"P0-03-TASK-COMPLETION-NOT-ESTABLISHED\",\"classification\":\"CANONICAL_TASK_COMPLETION_NOT_ESTABLISHED\",\"evidenceRef\":\"docs/implementation/media-pdp-38-readiness.json\",\"finding\":\"The current migration ledger gives comprehensive typed classifications for its current 129 claim records and 49 residual hunks, but canonical readiness still marks P0-03 NOT_ESTABLISHED/partial and requires an independent migration semantic reconciliation. This technical source review cannot establish that required task completion or substitute for its independent reconciliation.\",\"owner\":\"Media migration semantic owner and required independent migration reviewer\",\"correction\":\"Keep P0-03 task completion open until the authorized task/current-source record and required independent migration semantic reconciliation establish its stated exit criteria; do not reinstate the historical 260-item count as the current gate.\",\"nextAction\":\"Continue the current claim-level reconciliation and independent review under PDP-0 authority; do not advance this task from the bounded technical review.\"},{\"id\":\"PDP0-MATRIX-STATUS-PIN-MISMATCH\",\"classification\":\"PDP0_STATUS_PROJECTION_STALE\",\"evidenceRef\":\"docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json\",\"finding\":\"The PDP-0 matrix statusRecordSha256 71d801cd97076e708d1ee705e6f2cf5a7ff40edcfdaf06cc6903b5bd0114353d differs from the live phase-status SHA-256 6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c.\",\"owner\":\"Media PDP-0 status/projection owner\",\"correction\":\"Reconcile or regenerate the status projection through its owner-controlled workflow after the applicable source cut is established.\",\"nextAction\":\"Do not infer phase status or whole-cut currentness from the stale matrix.\"},{\"id\":\"PDP0-MATERIAL-CUT-COVERAGE-NOT-ESTABLISHED\",\"classification\":\"WHOLE_CUT_CURRENTNESS_NOT_CLAIMED\",\"evidenceRef\":\"docs/implementation/pdp-0-phase-dev-status.json\",\"finding\":\"The canonical PDP-0 pin helper reproduces all 188 status references (167 whole-file pins and 21 section/projection pins), with no mismatches. The status reports a 207-material-path denominator; this bounded review does not establish complete membership or coverage of that larger cut, so whole-cut currentness remains NOT_MADE.\",\"owner\":\"Media PDP-0 source/currentness owner\",\"correction\":\"Reconcile the reported material-path denominator and its complete source inventory through the authorized PDP-0 currentness workflow before making a whole-cut currentness claim.\",\"nextAction\":\"Retain the 207-path denominator and the bounded 188-reference result separately; do not promote currentness from this review.\"}],\"verifierReceipt\":{\"statusRecordRef\":\"docs/implementation/pdp-0-phase-dev-status.json\",\"currentStatusRecordHashedInCriterionVerification\":true,\"testReceiptRef\":\"docs/implementation/verification/pdp-38/P0-03.log\",\"testReceiptSha256\":\"4a8b62ebbba5219cf66007c1fd838fdedc9b7ca56d9f33797ad823ce35c51b95\",\"testStatus\":\"PASS\",\"testCount\":142,\"passedTestCount\":113,\"skippedTestCount\":29,\"outputSha256\":\"4a8b62ebbba5219cf66007c1fd838fdedc9b7ca56d9f33797ad823ce35c51b95\",\"command\":\"PDP_MIGRATION_CANDIDATE_PHASE=PDP-0 node --test-reporter=tap --test /Users/samujjwal/Development/ghatana-media/tests/pdp-migration-current-source-claim-dispositions.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-migration-semantic-reconciliation.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-migration-capability-material-claims.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-migration-preservation-identity-wire-claims.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-migration-pxd120-current-target-observations.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-migration-constitution-claims.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-migration-p0-current-material-reviews.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-result-variant-trust-bindings.test.mjs /Users/samujjwal/Development/ghatana-media/tests/media-pdp0-501-audit-dispositions.test.mjs /Users/samujjwal/Development/ghatana-media/tests/media-pdp0-audit-aq-traceability.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-current-source-reconciliation-pxd215.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-current-source-reconciliation-pxd216.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-current-source-reconciliation-pxd225.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-constitution-single-source-current-claim.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-semantic-corrections.test.mjs\",\"distinction\":\"Persisted receipt and output digest were read and matched; no tests were run by the reviewer. This is not phase acceptance, currentness, owner approval, task completion, or runtime qualification.\"},\"sourceCoverage\":{\"sourceRefsWithCurrentWholeFileHashes\":13,\"sourceRefMap\":\"reviewedSources binds the exact bounded criterion source, current readiness/status and direct-review sources, matrix projection, source manifest, relevant tests, and persisted receipt by whole-file SHA-256. This is not the full 207-path source-currentness determination.\",\"knownUnknowns\":[\"Canonical readiness still records taskSpecificSourceDone NOT_ESTABLISHED, definitionCriterionSatisfied false, no direct owner criterion record, task-level verification NOT_RUN, and overall task partial; its done clause expressly requires independent migration semantic reconciliation.\",\"The canonical PDP-0 source-pin check revalidates all 188 current phase-status refs (167 whole-file and 21 section/projection refs), but the status reports a 207-material-path denominator. This bounded review does not establish complete membership/coverage of the 207-path cut, so whole-cut currentness is not claimed; the PDP-0 surface matrix also pins a different phase-status digest.\"]},\"nextAction\":\"Keep the task partial. Continue PDP-0 migration claim reconciliation and obtain the separately required independent semantic reconciliation before considering task completion.\",\"reviewerBoundary\":{\"role\":\"AI technical source reviewer only\",\"ownerApproval\":\"NOT_CLAIMED\",\"independentAcceptance\":\"NOT_CLAIMED\",\"pdp010Acceptance\":\"NOT_PERFORMED\",\"phaseStatusEffect\":\"NONE\"}}",
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "pdp010Acceptance": "NOT_PERFORMED",
+    "phaseStatusEffect": "NONE"
+  },
+  "reviewDisposition": "FRESH_REVIEW"
+}

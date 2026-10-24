@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-capability-leaf-review-postimage.v1",
+  "artifactKind": "NON_CANONICAL_SOURCE_POSTIMAGE_FRAGMENT",
+  "auditId": "AUD-SPEC-002",
+  "status": "CANDIDATE_ONLY_PENDING_SOURCE_OWNER_DECISION_AND_DISTINCT_TECHNICAL_REVIEW",
+  "target": {
+    "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    "currentSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "sections": [
+      "ownerCapabilityLeafAdjudication",
+      "ownerTrustReconstructionDispositions"
+    ]
+  },
+  "sourceAuthority": {
+    "decisionLogRef": ".product-experience/decision-log.md#PXD-122",
+    "variantDecisionRef": ".product-experience/decision-log.md#PXD-128",
+    "trustPolicyRef": ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedLeafTrustReconstructionPolicy",
+    "handoffContractRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#pdp0ToPdp1ConsumerHandoff",
+    "ownerAdjudicationSectionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication",
+    "trustDispositionSectionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions"
+  },
+  "currentInventory": {
+    "historicallyOwnerAdjudicatedCapabilityCount": 462,
+    "historicalTrustReconstructionRecordCount": 462,
+    "existingCapabilityAdjudicationDecisionId": "MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01",
+    "capabilityId": "media.recipe.specification.compile",
+    "capabilityScopeStatus": "DEFERRED",
+    "capabilityDefinitionState": "IN_SCOPE_DRAFT",
+    "exactOwnerAdjudicationRecordsForCapability": 0,
+    "exactTrustRecordsForCapability": 0,
+    "historicalRowsMutation": "NONE"
+  },
+  "conditionalVariant": {
+    "capabilityRef": "media.recipe.specification.compile",
+    "outputArtifactType": "reviewable-version-bound-schema-migration-candidate-and-semantic-diff",
+    "requiredWhenSelectorRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v3.json#/capability/ownerDefinition/successOutputs/1/requiredWhenSelector",
+    "requiredWhenSelector": "migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED",
+    "resultKind": "SUPPORTED_VERSION_BOUND_SCHEMA_MIGRATION_CANDIDATE_AND_SEMANTIC_DIFF",
+    "candidateOnly": true,
+    "noMigrationApplied": true
+  },
+  "proposedRegistration": {
+    "status": "PROPOSED_NOT_OWNER_ADJUDICATED",
+    "populationTreatment": "ADD_ONE_SEPARATELY_IDENTIFIED_CURRENT_EXTENSION_RECORD; PRESERVE_ALL_462_HISTORICAL_ROWS_AND_THEIR_IDENTITIES; DO_NOT_REWRITE_THE_2026-10-08_DECISION_AS_IF_IT_AUTHORED_THIS_EXTENSION",
+    "proposedOwnerAdjudication": {
+      "proposedRecordId": "media.capability-adjudication.recipe-specification-compile",
+      "capabilityRef": "media.recipe.specification.compile",
+      "authority": "PENDING_EXPLICIT_PDP0_SOURCE_OWNER_DECISION",
+      "ownerDisposition": "PENDING_SOURCE_OWNER_SELECTION",
+      "channelFact": "The capability source declares CLI only; the current capability text says the exact CLI channel decision is delegated to PXD-207 and owner approval is not claimed.",
+      "channelDecision": "PENDING_EXISTING_PXD-207_OWNER_WORKFLOW",
+      "decisionRef": null
+    },
+    "proposedTrustRecord": {
+      "proposedRecordId": "media.capability-trust-reconstruction.media-capability-adjudication-recipe-specification-compile.v1",
+      "capabilityRef": "media.recipe.specification.compile",
+      "matchingOwnerAdjudicationRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.recipe-specification-compile",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedLeafTrustReconstructionPolicy",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v3.json#/capability/ownerDefinition/successOutputs/1"
+      ],
+      "outputArtifactType": "reviewable-version-bound-schema-migration-candidate-and-semantic-diff",
+      "outcome": {
+        "when": "resultKind=SUPPORTED_VERSION_BOUND_SCHEMA_MIGRATION_CANDIDATE_AND_SEMANTIC_DIFF;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+        "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+        "epistemicRole": "SOURCE_DERIVED_SPECIFICATION_CANDIDATE",
+        "meaning": "A reviewable semantic candidate and diff derived only from the exact source specification/schema, requested target schema, declared supported transformation, and compiler-contract version. It is not a migrated media artifact, does not replace the original, and does not assert that any migration was applied, any project was mutated, or any execution or external effect occurred. Record exact source/target/transformation identities and versions, the method, provenance, and limits; if any are unsupported, lossy, ambiguous, stale, or unknown, preserve UNKNOWN/UNSUPPORTED and produce no migration candidate."
+      },
+      "branchSelector": "PENDING_ADDITIVE_CAPABILITY_SELECTOR_SUCCESSOR",
+      "definitionStatus": "PROPOSED_ONLY",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "qualification": "NOT_EVALUATED",
+      "acceptanceEffect": "none"
+    }
+  },
+  "compatibilityAndDenominators": {
+    "allExisting462AdjudicationAndTrustRecords": "PRESERVE_BYTE_FOR_BYTE",
+    "historicalDecisionId": "MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01",
+    "decisionIdReuse": "PROHIBITED",
+    "historical462Denominator": "PRESERVE_AS_HISTORICAL_POPULATION; A SEPARATE EXTENSION RECORD MUST NOT BE COUNTED AS ONE OF THOSE 462",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "credentialOrTrustedIssuerRegistration": "NOT_REQUESTED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeProofOrClosure": "NOT_CLAIMED"
+  },
+  "unresolvedSourceOwnerDecisions": [
+    "Whether this coordinator-authored DEFERRED capability is promoted into an owner-adjudicated extension population without changing the historical 462 rows.",
+    "The owner-selected capability/channel applicability disposition and exact decision reference for the CLI-only capability, using PXD-207's existing owner workflow.",
+    "Whether SOURCE_DERIVED_TRANSFORMATION with the proposed specification-candidate epistemic role is the exact trust branch for this output, or whether the candidate-only plan semantics require a different existing policy disposition.",
+    "The current frozen v3 result selector omits resultKind and the applicable origin/epistemic fields, while PXD-128 requires exact resultKind plus applicable provenance and epistemic fields. An additive capability-selector successor must resolve this before a matching trust branch can be registered."
+  ],
+  "canonicalApply": "NOT_PERFORMED",
+  "effects": {
+    "canonicalSourceWrite": "NOT_PERFORMED",
+    "ownerDecision": "PENDING",
+    "independentReview": "PENDING",
+    "phaseStatus": "UNCHANGED",
+    "acceptance": "NOT_CLAIMED"
+  }
+}

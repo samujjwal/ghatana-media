@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "media.pdp0.cohort02.root-directed-source-postimages.v1",
+  "artifactId": "MEDIA-PDP0-COHORT02-R8-ROOT-DIRECTED-SOURCE-POSTIMAGES-2026-10-23",
+  "status": "SOURCE_POSTIMAGES_REBUILT_EXACTLY; CANONICAL_APPLY_NOT_PERFORMED; OWNER_ADOPTION_PENDING",
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "physicalSurfaceDenominator": 26,
+    "compositeIncludingRootDenominator": 7,
+    "logicalSurfaceDenominator": 21,
+    "totalSurfaceDenominator": 54,
+    "phaseCellDenominator": 216,
+    "historicalBaseRecordDenominator": 462
+  },
+  "rootDirectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
+  "rootDirectionSha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+  "rootDirectedCandidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+  "rootDirectedCandidateSha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
+  "currentSourceBaselineRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
+  "currentSourceBaselineSha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+  "denominatorAuthorityPins": [
+    {
+      "ref": ".product-experience/surface-registry.yaml",
+      "sha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+      "logicalSurfaceCount": 21
+    },
+    {
+      "ref": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+      "physicalSurfaceCount": 26,
+      "compositeIncludingRootCount": 7,
+      "logicalConsumerCount": 21
+    },
+    {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "phaseStatus": "IN_PROGRESS",
+      "denominator": 54
+    }
+  ],
+  "priorProjectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+  "priorProjectionSha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+  "operationsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r8-root-directed-source-projector-operations.v1.json",
+  "operationsSha256": "6079b16985cae525ec39fbdc8b7942e293dc07ba8874a9f2b35478ccec887aa2",
+  "postimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capabilities.postimage.yaml",
+      "preimageSha256": "fdd48e9b2021384cf0a86d8cb2b562ca8121a586c40aba0931f1f47fd16a2b84",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r8-root-directed-capabilities.postimage.yaml",
+      "postimageSha256": "88544222d4a2f220e5b8e5498512182da8585df2de23df420705bd568fe99d40",
+      "semanticMutationCount": 27
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-requirements.postimage.yaml",
+      "preimageSha256": "8db5ae557abab13c06509c293168a56280c99da22abfda727db09b1061f49be0",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r8-root-directed-requirements.postimage.yaml",
+      "postimageSha256": "515b70afd01b5826d64ece148084e934c0faddf24741a3a837c583431d5ff86c",
+      "semanticMutationCount": 30
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "preimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capability-leaf-review.postimage.yaml",
+      "preimageSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r8-root-directed-capability-leaf-review.postimage.yaml",
+      "postimageSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+      "semanticMutationCount": 0
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "preimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-crosswalk.postimage.json",
+      "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r8-root-directed-crosswalk.postimage.json",
+      "postimageSha256": "ab8746780cb3a758fdbb3f10e44a501fcd5e7ccf77ed8e82b49352b0980bfc3f",
+      "semanticMutationCount": 9
+    }
+  ],
+  "denominatorsAndPreservation": {
+    "physicalSurfaces": 26,
+    "compositesIncludingRoot": 7,
+    "logicalSurfaces": 21,
+    "totalSurfaces": 54,
+    "phaseCells": 216,
+    "historicalOwnerLeafRecordsBefore": 462,
+    "historicalOwnerLeafRecordsAfter": 462,
+    "crosswalkRowsBefore": 501,
+    "crosswalkRowsAfter": 501,
+    "priorProjectorCaseOperations": 248,
+    "newFeatureLeafCases": 18,
+    "newParentRequirementCasePairs": 10,
+    "newParentRequirementAcceptanceCases": 20,
+    "cumulativeProjectorCaseOperations": 286,
+    "sourceFeaturesExcluded": 0
+  },
+  "overlapPacketDisposition": {
+    "packetCount": 2,
+    "alternativesPerPacket": [
+      {
+        "auditId": "AUD-DIRECT-010",
+        "options": [
+          "A_ONE_SHARED_SEMANTIC_CONTRACT",
+          "B_SPLIT_BY_OPERATION_SCOPE"
+        ]
+      },
+      {
+        "auditId": "AUD-EDIT-022",
+        "options": [
+          "A_ONE_SHARED_SEMANTIC_CONTRACT",
+          "B_SPLIT_BY_OPERATION_SCOPE"
+        ]
+      }
+    ],
+    "selectedAlternativeCount": 0,
+    "postimageMutation": "NONE_PENDING_ROOT_SELECTION"
+  },
+  "leafReviewDisposition": "UNCHANGED_EXACT_PRIOR_SOURCE_POSTIMAGE; 462 HISTORICAL OWNER ADJUDICATION RECORDS PRESERVED; NO NEW OWNER DECISION AUTHORED",
+  "sourceCurrentness": "Candidate postimages only. The live source baseline and source-bound PDP-0 status are unchanged; this artifact does not assert current PDP-0 DEV_COMPLETE.",
+  "canonicalApply": "NOT_PERFORMED",
+  "validations": {
+    "rootDirectionPinMatches": true,
+    "candidateDirectionPinMatches": true,
+    "sevenTargetCurrentBaselinePinsMatch": true,
+    "fourPriorPostimagePinsMatch": true,
+    "nineSelectedDefinitionsProjected": true,
+    "eighteenLeafCasesProjected": true,
+    "tenParentCasePairsProjected": true,
+    "allNewFeatureAndCaseIdsHaveTracePaths": true,
+    "overlapPacketsTypedAndUnselected": true,
+    "historicalDenominatorsPreserved": true,
+    "exactRebuild": "CHECK_WITH_BUILDER --check"
+  }
+}

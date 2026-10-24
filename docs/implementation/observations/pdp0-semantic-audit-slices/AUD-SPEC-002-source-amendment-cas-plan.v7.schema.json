@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.source-amendment-cas-plan.v7",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "planKind",
+    "planDisposition",
+    "candidateRef",
+    "candidateSchemaVersion",
+    "candidateSha256",
+    "candidatePostimageSha256",
+    "sourceOwnerDecisionRef",
+    "sourceOwnerDecisionSha256",
+    "technicalPeerReviewRef",
+    "technicalPeerReviewSha256",
+    "applyAuthorizationRef",
+    "applyAuthorizationSha256",
+    "decisionRef",
+    "decisionSectionSha256",
+    "sourceOwnerIdentity",
+    "sourceOwnerRole",
+    "peerIdentity",
+    "rootGrantRef",
+    "rootGrantCurrent",
+    "blockers",
+    "requiredSourceOwnerDecisionSchemaRef",
+    "requiredApplyAuthorizationSchemaRef",
+    "journalRef",
+    "effects",
+    "targets",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.source-amendment-cas-plan.six-file.v1"
+    },
+    "planKind": {
+      "const": "NON_MUTATING_EXACT_SOURCE_OWNER_MULTI_FILE_CAS_PLAN"
+    },
+    "planDisposition": {
+      "enum": [
+        "BLOCKED_AWAITING_EXACT_V7_OWNER_PEER_AND_CURRENT_ROOT_GRANT",
+        "READY_EXACT_V7_CUT_WITH_CURRENT_ROOT_GRANT_NO_WRITE_PERFORMED"
+      ]
+    },
+    "candidateRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json"
+    },
+    "candidateSchemaVersion": {
+      "const": "media.pdp0.aud-spec-002-source-amendment-candidate.v7"
+    },
+    "candidateSha256": {
+      "const": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc"
+    },
+    "candidatePostimageSha256": {
+      "const": "d1e0b9b8cea7e7f23aa339fd4a12cde29fc9d14b52e821e8a00f8f113fb8d187"
+    },
+    "sourceOwnerDecisionRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-owner-decision.v7.json"
+    },
+    "sourceOwnerDecisionSha256": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "technicalPeerReviewRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v7.json"
+    },
+    "technicalPeerReviewSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "applyAuthorizationRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-apply-authorization.v7.json"
+    },
+    "applyAuthorizationSha256": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decisionRef": {
+      "const": ".product-experience/decision-log.md#PXD-226"
+    },
+    "decisionSectionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sourceOwnerIdentity": {
+      "const": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e"
+    },
+    "sourceOwnerRole": {
+      "const": "PDP0_SOURCE_OWNER"
+    },
+    "peerIdentity": {
+      "const": "agent:thread:01a16a35-bbcf-74d2-ac99-1ed74c29c3c9"
+    },
+    "rootGrantRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-apply-authorization.v7.json"
+    },
+    "rootGrantCurrent": {
+      "type": "boolean"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requiredSourceOwnerDecisionSchemaRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-owner-decision.v7.schema.json"
+    },
+    "requiredApplyAuthorizationSchemaRef": {
+      "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-apply-authorization.v7.schema.json"
+    },
+    "journalRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonicalWrite",
+        "sourceStatus",
+        "phaseStatus",
+        "independentAcceptance",
+        "nativeClosure"
+      ],
+      "properties": {
+        "canonicalWrite": {
+          "const": "NOT_PERFORMED"
+        },
+        "sourceStatus": {
+          "const": "UNCHANGED"
+        },
+        "phaseStatus": {
+          "const": "UNCHANGED"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeClosure": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "targetRef",
+          "expectedPreimageSha256",
+          "expectedPostimageSha256",
+          "immutablePreimageRef"
+        ],
+        "properties": {
+          "targetRef": {
+            "enum": [
+              ".product-experience/pdp-0-product-truth/capabilities.yaml",
+              ".product-experience/pdp-0-product-truth/requirements.yaml",
+              "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+              ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+              ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+              ".product-experience/decision-log.md"
+            ]
+          },
+          "expectedPreimageSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "expectedPostimageSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "immutablePreimageRef": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ownerApproval",
+        "independentAcceptance",
+        "phaseStatusEffect",
+        "runtimeAdmission",
+        "nativeClosure"
+      ],
+      "properties": {
+        "ownerApproval": {
+          "const": "NOT_CLAIMED"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "runtimeAdmission": {
+          "const": "NOT_ADMITTED"
+        },
+        "nativeClosure": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    }
+  }
+}

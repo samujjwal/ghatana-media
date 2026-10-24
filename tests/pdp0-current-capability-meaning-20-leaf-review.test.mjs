@@ -48,6 +48,7 @@ const expected = [
 ];
 
 const reviewPath = "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json";
+const currentnessSuccessorPath = "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json";
 const refs = {
   requirement: id => `${paths.requirements}#requirements/@id=${id}`,
   channelRecord: id => `${paths.trust}#ownerCapabilityLeafAdjudication/records/@capabilityRef=${id}/channelApplicability`,
@@ -93,8 +94,15 @@ test("PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review", () 
 
   const documents = sourceDocuments();
   const pxd225Currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json"));
-  for (const path of Object.values(paths).filter(path => path !== paths.capabilities && path !== paths.channels)) {
-    assert.equal(review.sourceFingerprints?.[path], sha256(readText(path)), `${path} is pinned to current bytes`);
+  const currentnessSuccessors = JSON.parse(readText(currentnessSuccessorPath));
+  const pxd216Successor = currentnessSuccessors.pxd216Successor;
+  assert.equal(pxd216Successor.semanticReviewRef, reviewPath);
+  assert.equal(pxd216Successor.semanticReviewSha256, sha256(readText(reviewPath)),
+    "the historical PXD-216 semantic review remains byte-identical");
+  assert.deepEqual(pxd216Successor.historicalSourceFingerprints, review.sourceFingerprints,
+    "the successor preserves PXD-216's historical source pins");
+  for (const path of Object.values(paths)) {
+    assert.equal(pxd216Successor.currentSources?.[path], sha256(readText(path)), `${path} currentness successor pin`);
   }
   assert.equal(review.sourceFingerprints?.[paths.channels],
     "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
@@ -177,6 +185,8 @@ test("PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review", () 
 test("PXD-223 refreshes only source currentness for the preserved PXD-216 20-leaf review", () => {
   const currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"));
   const review = JSON.parse(readText(reviewPath));
+  const successorBundle = JSON.parse(readText(currentnessSuccessorPath));
+  const successor = successorBundle.pxd216Successor;
   const liveBytes = readText(paths.capabilities);
   const historicalHead = currentness.sourceCut.repositoryHead;
   assert.match(historicalHead, /^[0-9a-f]{40}$/u, "PXD-223 names the immutable source commit for PXD-216's historical pin");
@@ -198,33 +208,24 @@ test("PXD-223 refreshes only source currentness for the preserved PXD-216 20-lea
   assert.equal(currentness.authority.independentAcceptance, "NOT_CLAIMED");
   assert.equal(currentness.authority.acceptanceEffect, "none");
   assert.equal(currentness.authority.closure, "NOT_CLAIMED");
-  assert.equal(currentness.currentSource.capabilitiesSha256, sha256(liveBytes));
-  assert.equal(currentness.currentSource.capabilitiesSha256, "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac");
+  assert.equal(currentness.currentSource.capabilitiesSha256,
+    "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "the predecessor currentness record remains preserved at its original source cut");
+  assert.equal(successor.currentSources[paths.capabilities], sha256(liveBytes),
+    "the append-only successor binds the current capability source");
   assert.equal(sha256(historicalBytes), currentness.preservedSemanticReview.historicalCapabilitiesSha256);
   assert.equal(currentness.preservedSemanticReview.historicalCapabilitiesSha256, "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26");
   assert.equal(sliceHash(historicalSlice), currentness.preservedSemanticReview.historicalReviewedRowsSha256);
   assert.equal(sliceHash(liveSlice), currentness.preservedSemanticReview.currentReviewedRowsSha256);
   assert.deepEqual(liveSlice, historicalSlice);
   assert.deepEqual(currentness.preservedSemanticReview.changedReviewedCapabilityIds, []);
+  assert.equal(successor.reviewedRowsSha256, sliceHash(liveSlice));
+  assert.deepEqual(successor.changedReviewedCapabilityIds, []);
 
-  const historicalById = new Map(historical.capabilities.map(row => [row.id, row]));
-  const liveById = new Map(live.capabilities.map(row => [row.id, row]));
-  const changedRows = live.capabilities.flatMap(row => {
-    const prior = historicalById.get(row.id);
-    if (!prior || JSON.stringify(prior) === JSON.stringify(row)) return [];
-    const priorOtherFields = { ...prior }; delete priorOtherFields.scopeStatus;
-    const liveOtherFields = { ...row }; delete liveOtherFields.scopeStatus;
-    assert.deepEqual(liveOtherFields, priorOtherFields, `${row.id} changes only scopeStatus`);
-    return [{ capabilityId: row.id, field: "scopeStatus", from: prior.scopeStatus, to: row.scopeStatus }];
-  });
-  assert.deepEqual(live.capabilities.map(row => row.id).filter(id => !historicalById.has(id)), []);
-  assert.deepEqual(historical.capabilities.map(row => row.id).filter(id => !liveById.has(id)), []);
-  assert.deepEqual(currentness.currentSource.populationDelta.changedRows, changedRows);
-  assert.equal(changedRows.length, 7);
-  assert.equal(currentness.currentSource.populationDelta.addedRecordCount, 0);
-  assert.equal(currentness.currentSource.populationDelta.removedRecordCount, 0);
-  assert.equal(currentness.currentSource.populationDelta.otherCapabilityFieldsChanged, false);
-  assert.equal(currentness.currentSource.populationDelta.disposition, "FUTURE_VERSION_DEFERRED; NOT_ASSERTED_APPROVED_OR_CURRENT");
+  assert.equal(successor.reviewedRowsSha256, sliceHash(liveSlice),
+    "currentness is established for PXD-216's exact reviewed slice; unrelated population deltas remain outside this successor");
+  assert.deepEqual(successor.changedReviewedCapabilityIds, [],
+    "the exact PXD-216 slice has no semantic changes even though unrelated source rows evolved");
 
   const decisionLog = readText(".product-experience/decision-log.md");
   assert.equal(fingerprintPxdDecisionSection(decisionLog, "PXD-223").sha256, currentness.decisionSectionSha256);
@@ -234,6 +235,8 @@ test("PXD-225 refreshes archived-channel currentness while retaining PXD-216 mea
   const currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json"));
   const pxd223 = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"));
   const review = JSON.parse(readText(reviewPath));
+  const currentnessSuccessors = JSON.parse(readText(currentnessSuccessorPath));
+  const pxd225Selector = currentnessSuccessors.pxd216Successor.pxd225Selector;
   const channelsPath = paths.channels;
   const decisionLog = readText(".product-experience/decision-log.md");
   const sectionFingerprint = fingerprintPxdDecisionSection(decisionLog, "PXD-225");
@@ -242,7 +245,12 @@ test("PXD-225 refreshes archived-channel currentness while retaining PXD-216 mea
   assert.equal(currentness.phaseScope, "PDP-0");
   assert.equal(currentness.currentSource.channelsPath, channelsPath);
   assert.equal(currentness.currentSource.channelsSha256, sha256(readText(channelsPath)));
-  assert.equal(currentness.decisionSectionSha256, sectionFingerprint.sha256);
+  assert.equal(currentness.decisionSectionSha256,
+    "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+    "the historical PXD-225 reconciliation retains its recorded section digest");
+  assert.equal(pxd225Selector.oldDecisionSectionSha256, currentness.decisionSectionSha256);
+  assert.equal(pxd225Selector.currentDecisionSectionSha256, sectionFingerprint.sha256);
+  assert.deepEqual(pxd225Selector.changedFields, ["decisionSectionSha256"]);
   assert.equal(currentness.sourceCut.sourceCount, 2);
   assert.equal(currentness.preservedSemanticReview.decisionRef, ".product-experience/decision-log.md#PXD-216");
   assert.deepEqual(currentness.preservedSemanticReview.reviewedCapabilityIds, review.reviewedCapabilityIds);

@@ -6,6 +6,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {
   buildPxd225Reconciliation,
+  selectPxd225PredecessorFromHistory,
   selectCommittedPxd225Predecessor,
 } from '../scripts/generate-pdp0-current-source-reconciliation-pxd225.mjs';
 import {fingerprintPxdDecisionSection} from '../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs';
@@ -27,6 +28,21 @@ test('PXD-225 uses the parent source only when HEAD committed the exact locator 
   const changedHead = structuredClone(head);
   changedHead.channels[0].runtimeAvailability = 'AVAILABLE';
   assert.equal(selectCommittedPxd225Predecessor(changedHead, parent), changedHead);
+});
+
+test('PXD-225 finds the exact locator-removal commit after HEAD has advanced, and rejects a changed postimage', () => {
+  const parent = {channels: [{
+    id: 'media.channel.legacy-desktop',
+    evidence: 'archive/media-desktop-apps/desktop/README.md and archive/media-desktop-apps/ai-voice-desktop/README.md',
+    runtimeAvailability: 'NOT_ADMITTED',
+  }]};
+  const postimage = structuredClone(parent);
+  postimage.channels[0].evidence = 'archive/media-desktop-apps/desktop/README.md';
+  const current = structuredClone(postimage);
+  assert.equal(selectPxd225PredecessorFromHistory(current, [{postimage, parentImage: parent}]), parent);
+
+  current.channels[0].runtimeAvailability = 'AVAILABLE';
+  assert.equal(selectPxd225PredecessorFromHistory(current, [{postimage, parentImage: parent}]), current);
 });
 
 test('PXD-225 pins current applications-channels and exact decision section while preserving PXD-216 20-leaf semantics', () => {

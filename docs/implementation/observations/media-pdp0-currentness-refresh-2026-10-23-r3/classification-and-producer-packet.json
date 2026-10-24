@@ -1,0 +1,1238 @@
+{
+  "schemaVersion": "media.pdp0.currentness-refresh-review-packet.v1",
+  "recordId": "MEDIA-PDP0-CURRENTNESS-REFRESH-2026-10-23-R3-CLASSIFICATION-AND-PRODUCER",
+  "classification": "MATERIAL_ONLY_NINE_PIN_CANDIDATE_WITH_SELECTOR_CORRECTION; REVIEW_PACKET_ONLY",
+  "campaign": {
+    "identityDenominator": 54,
+    "phaseCells": 216,
+    "auditRows": 501,
+    "historicalOwnerRows": 462,
+    "phase": "PDP-0"
+  },
+  "liveBaseline": {
+    "statusRef": "docs/implementation/pdp-0-phase-dev-status.json",
+    "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "status": "IN_PROGRESS",
+    "sourcePinCount": 188,
+    "capabilityLeafAdjudications": 462,
+    "semanticallyResolvedCapabilityLeaves": 462,
+    "outstandingMeaningIds": [],
+    "auditDispositions": {
+      "original": 428,
+      "focused": 73,
+      "total": 501,
+      "dispositionCounts": {
+        "BOUND_EXISTING": 499,
+        "PDP0_MEANING_CHANGE_REQUIRED": 0,
+        "EXPLICIT_NOT_APPLICABLE": 0,
+        "POST_PDP_IMPLEMENTATION_ONLY": 2,
+        "BLOCKED_EXTERNAL_OWNER_DECISION": 0
+      },
+      "coordinatorReview": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
+      "boundExisting": 499,
+      "unresolvedPdp0": 0,
+      "validatorErrorCount": 0,
+      "resolvedPdp0": 501
+    }
+  },
+  "correctionToEarlierCounting": {
+    "earlierLabel": "21 missing source pins",
+    "correctedClassification": "21 PHASE_SCOPED_SELECTOR entries, not missing file paths",
+    "count": 21,
+    "currentCount": 20,
+    "staleCount": 1,
+    "reason": "Selector refs contain # and require phase-scoped projection; plain filesystem existence checks are invalid for them. media-discovery-currentness.mjs excludes selectors from path membership and record-media-discovery-pdp0-currentness.mjs overlays projected pins."
+  },
+  "selectorInventory": [
+    {
+      "selectorRef": ".product-experience/source-manifest.yaml#PDP-0-projection",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
+      "observedProjectedSha256": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/source-manifest.yaml",
+          "sha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+          "exists": true
+        },
+        {
+          "path": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
+          "sha256": "22319bb51b947ca105f99c8c970c6ae2efdf30ed53b34a91ce2981451278effa",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#PDP-0-projection",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "d4bcc9b9aa64534afe6d49d136dd130ba63d9fd7c1649a04d7c2a413b98c7006",
+      "observedProjectedSha256": "d4bcc9b9aa64534afe6d49d136dd130ba63d9fd7c1649a04d7c2a413b98c7006",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+      "observedProjectedSha256": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json",
+          "sha256": "ddacf6712c2396ee183b865c268e450cf2fea584bdecf9011f2bb201a489b208",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": "migration-current-owner-target-observations.json#PDP-0-targets",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "cfba9a2749deea13cb1d8876258739a94772317fdeeb2697b6407253f10b6738",
+      "observedProjectedSha256": "cfba9a2749deea13cb1d8876258739a94772317fdeeb2697b6407253f10b6738",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json",
+          "sha256": "505bdc5609f02efc3bf2b1d550de3959c78dceee95821034665629194948f0e5",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-225-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+      "observedProjectedSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
+      "current": false,
+      "classification": "STALE_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Obtain separate selector-bound owner disposition for PXD-225; do not include in nine-material pin update"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-216-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c",
+      "observedProjectedSha256": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-223-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206",
+      "observedProjectedSha256": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-196-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "279837dea0dde0a45d62f79f1cbb989ac27129c4bdda41334f8b444edd6edf7c",
+      "observedProjectedSha256": "279837dea0dde0a45d62f79f1cbb989ac27129c4bdda41334f8b444edd6edf7c",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-207-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
+      "observedProjectedSha256": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-099-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "88de3ae4f1d3a958612f0c95e5096d593062aa668a585382f2a72f59c8b862ac",
+      "observedProjectedSha256": "88de3ae4f1d3a958612f0c95e5096d593062aa668a585382f2a72f59c8b862ac",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-208-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec",
+      "observedProjectedSha256": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-211-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "b1e0e32ae20914152547c20f0fbe8b020070c77f3fd78572e1965753f943c4cf",
+      "observedProjectedSha256": "b1e0e32ae20914152547c20f0fbe8b020070c77f3fd78572e1965753f943c4cf",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-212-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "1cd0c87ee6a05c80685bd7766e4100adb7bb08cf2e5bb7449f6fdf6a2897030e",
+      "observedProjectedSha256": "1cd0c87ee6a05c80685bd7766e4100adb7bb08cf2e5bb7449f6fdf6a2897030e",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-213-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "d5b234b6e18cc6c916c25a9425d594b15238599ef1125812e75f097602984a59",
+      "observedProjectedSha256": "d5b234b6e18cc6c916c25a9425d594b15238599ef1125812e75f097602984a59",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-218-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "9a5a0c81efffd2c8591e9f23446798c95df43322363a66cc274152bcbcfee3bb",
+      "observedProjectedSha256": "9a5a0c81efffd2c8591e9f23446798c95df43322363a66cc274152bcbcfee3bb",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-219-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "268b9e428da99c34be1eba54cd8009e6919e36d555464093672d30fa5d6d0de5",
+      "observedProjectedSha256": "268b9e428da99c34be1eba54cd8009e6919e36d555464093672d30fa5d6d0de5",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-220-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
+      "observedProjectedSha256": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-221-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
+      "observedProjectedSha256": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-222-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "b4ec5530301c065595e7e678e163a255cb1fad5937a69987ed829c7bdc138f1e",
+      "observedProjectedSha256": "b4ec5530301c065595e7e678e163a255cb1fad5937a69987ed829c7bdc138f1e",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-105-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "5081da6c2252c32e2b983122a5a74085ca8be09303caba69743bdf7841cede63",
+      "observedProjectedSha256": "5081da6c2252c32e2b983122a5a74085ca8be09303caba69743bdf7841cede63",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    },
+    {
+      "selectorRef": ".product-experience/decision-log.md#PXD-209-section",
+      "kind": "PHASE_SCOPED_SELECTOR",
+      "expectedPinnedSha256": "d7b4f88b7506b20e7a69ceb0e3ee3e2de2440d05c0c60fdb3119cfd60ab18c31",
+      "observedProjectedSha256": "d7b4f88b7506b20e7a69ceb0e3ee3e2de2440d05c0c60fdb3119cfd60ab18c31",
+      "current": true,
+      "classification": "CURRENT_PHASE_SCOPED_SELECTOR",
+      "backingAndRecoveryInputs": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+          "exists": true
+        },
+        {
+          "path": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+          "sha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
+          "exists": true
+        },
+        {
+          "path": "scripts/report-media-pdp-readiness.mjs",
+          "sha256": "2e44678ab3498c99f852c41b5409ab8b8e8b359d190e31806cf2616037567a10",
+          "exists": true
+        }
+      ],
+      "sourceOwnerIdentity": "NOT_PRESENT_IN_CURRENTNESS_PIN_RECORD",
+      "recoverySource": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins via scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+      "requiredDisposition": "Reuse exact current projection"
+    }
+  ],
+  "nineMaterialPinCandidate": {
+    "ownerInputRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r1/owner-decision-input.json",
+    "ownerInputSha256": "f4d4aec32c7097941ea10e0ac365e6d8745c673705efb0b122e6316fcc3cde71",
+    "candidateRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r1/pdp-0-phase-dev-status.postimage.candidate.json",
+    "candidateSha256": "b27aeb164b7e7a5429939e76e9d6471e8a1c8822b4485942ad4857b35a94f356",
+    "preimageSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "preimageSourceShaSetSha256": "c176f882130dafbbe5be848f989076f892d889b37de5a6e3a2d28c94978623d1",
+    "candidateSourceShaSetSha256": "eae099f21dff96edea6e47f2dd0286c40c5f1de7cf74a0f2a4ed9ccd76aa4af9",
+    "changedSourceShaSetKeys": [
+      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "scripts/check-media-pdp0-surface-denominator.mjs",
+      "scripts/lib/media-product-definition-residuals.mjs",
+      "tests/media-pdp0-surface-denominator.test.mjs"
+    ],
+    "expectedChangedCount": 9,
+    "allOtherStatusFieldsByteEquivalentAtJSONValueLevel": true,
+    "candidateStatus": "IN_PROGRESS",
+    "candidatePinCount": 188,
+    "materialPins": [
+      {
+        "path": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "expectedPinnedSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+        "observedLiveSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "candidatePinSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "matchesCandidate": true
+      },
+      {
+        "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "expectedPinnedSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "observedLiveSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "candidatePinSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "matchesCandidate": true
+      },
+      {
+        "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "expectedPinnedSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+        "observedLiveSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "candidatePinSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "matchesCandidate": true
+      },
+      {
+        "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "expectedPinnedSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+        "observedLiveSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "candidatePinSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "matchesCandidate": true
+      },
+      {
+        "path": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "expectedPinnedSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+        "observedLiveSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "candidatePinSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "matchesCandidate": true
+      },
+      {
+        "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "expectedPinnedSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+        "observedLiveSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "candidatePinSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "matchesCandidate": true
+      },
+      {
+        "path": "scripts/check-media-pdp0-surface-denominator.mjs",
+        "expectedPinnedSha256": "e53bd97e006313e9936201f915d7f1eddf51b9e7e8764c426f1e793230f35a00",
+        "observedLiveSha256": "6ff8027ab787ae7b18ed6363eaadb7aa96ecffff33730c71057c6a28daa703a4",
+        "candidatePinSha256": "6ff8027ab787ae7b18ed6363eaadb7aa96ecffff33730c71057c6a28daa703a4",
+        "matchesCandidate": true
+      },
+      {
+        "path": "scripts/lib/media-product-definition-residuals.mjs",
+        "expectedPinnedSha256": "8683eef87a7d153b49b6f2b3c5788b00825a0eaa27870d8b267ad907716ac122",
+        "observedLiveSha256": "bb7b6f74738a0abd061b0d336fefc6a684e849fa176585a31de62d8274c80afd",
+        "candidatePinSha256": "bb7b6f74738a0abd061b0d336fefc6a684e849fa176585a31de62d8274c80afd",
+        "matchesCandidate": true
+      },
+      {
+        "path": "tests/media-pdp0-surface-denominator.test.mjs",
+        "expectedPinnedSha256": "9120977926864a85fefde9f272d7be1cb802ab126126d3fba99539eef0c40140",
+        "observedLiveSha256": "cacef08e635c114abbd92cfa795989f19895ebdcf06908fde4a54d598020a5ea",
+        "candidatePinSha256": "cacef08e635c114abbd92cfa795989f19895ebdcf06908fde4a54d598020a5ea",
+        "matchesCandidate": true
+      }
+    ],
+    "candidateMatchesExactlyNine": true,
+    "separatePXD225SelectorDelta": {
+      "ref": ".product-experience/decision-log.md#PXD-225-section",
+      "expectedPinnedSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+      "observedProjectedSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
+      "includedInNinePinCandidate": false,
+      "disposition": "Separate selector-bound owner disposition required"
+    },
+    "requestedDecision": {
+      "requiredRole": "AUTHENTIC_MEDIA_PDP0_SOURCE_STATUS_OWNER_AND_ROOT_AUTHORITY",
+      "choices": [
+        "APPROVE_EXACT_NINE_MATERIAL_PIN_POSTIMAGE",
+        "REJECT_AND_RETURN_FOR_REPAIR"
+      ],
+      "decisionStatus": "PENDING",
+      "actorIdentity": null,
+      "decisionRef": null,
+      "rationale": null,
+      "exactPostimageSha256": "b27aeb164b7e7a5429939e76e9d6471e8a1c8822b4485942ad4857b35a94f356"
+    },
+    "sourceAuthorityAndVerificationInputs": [
+      {
+        "label": "PXD-226 source-owner decision",
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-owner-decision.v7.json",
+        "sha256": "35775046645ea1b023d0f9a45a3fa40bb68808bf1339684d492ffec6b7f3f884"
+      },
+      {
+        "label": "PXD-226 apply authorization",
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-apply-authorization.v7.json",
+        "sha256": "7ca0e76d4d99a870a69c047ab616f8a448adc62b9d95e387fd3decf69a774114"
+      },
+      {
+        "label": "PXD-226 exact-apply journal",
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc.json",
+        "sha256": "ca2098003e15460bcb579f095a1b2cd84045dd134174b3f9ca854855612f123b"
+      },
+      {
+        "label": "PXD-227 source-owner decision",
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-owner-decision.v2.json",
+        "sha256": "5691a35413dac65942738cf1e4cbe1ca648320e2bfa2228f2431ac5aa8b7fb8c"
+      },
+      {
+        "label": "PXD-227 independent peer",
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-independent-peer.v2.json",
+        "sha256": "b7a9cbcee391d9a892cf0b023b302c8e5e08bc4eadd8c54dc56b20a1815c783d"
+      },
+      {
+        "label": "PXD-227 apply authorization",
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-authorization.v2.json",
+        "sha256": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354"
+      },
+      {
+        "label": "PXD-227 exact-apply journal",
+        "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a.json",
+        "sha256": "d35b925bc2545ef6012f53b9f214a40eb0579fb56ea7ee2713a978a74bccce03"
+      },
+      {
+        "label": "owner-execution policy",
+        "ref": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+        "sha256": "9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"
+      }
+    ],
+    "applyGuard": {
+      "requiredBeforeWrite": [
+        "status file SHA equals target.preimageSha256",
+        "all nine material sources equal the listed current hashes",
+        "all 188 observed source-pin readset entries equal pinReadSet.allObservedPins",
+        "candidate differs from preimage only in the nine listed sourceShaSet values",
+        "PDP-0 remains IN_PROGRESS",
+        "PXD-225 selector delta remains explicitly classified and is not silently rebound"
+      ],
+      "approvedWriter": "writePdp0DevStatus(status, repositoryRoot) from scripts/report-media-pdp-readiness.mjs",
+      "writerLimit": "The generic writer accepts IN_PROGRESS but does not implement this exact preimage/readset CAS. Root must enforce the listed guard before invoking it; do not use the full-suite CLI path for this pin-only candidate."
+    }
+  },
+  "producerAssessment": {
+    "producer": "scripts/report-media-pdp-readiness.mjs::buildPdp0DevStatus and writePdp0DevStatus",
+    "phaseScopedPinProducer": "scripts/report-media-pdp-readiness.mjs::pdp0PhaseScopedSourcePins",
+    "sourcePinComparison": "scripts/record-media-discovery-pdp0-currentness.mjs::phasePinComparison with pdp0PhaseScopedSourcePins overlay",
+    "result": "No DEV_COMPLETE gate defect for IN_PROGRESS material pin-only status update. writePhaseDevStatus accepts IN_PROGRESS. Its DEV_COMPLETE checks only protect a pre-existing DEV_COMPLETE record from downgrade when pins are invalid or unchanged.",
+    "limitation": "Generic writer does not implement exact preimage/readset compare-and-swap. Root must enforce the owner packet applyGuard before invoking the writer. Full CLI --write runs verification and is not the pin-only application path.",
+    "canonicalWrite": "NONE"
+  },
+  "authorizationAndProofBoundary": {
+    "ownerDecisionRecordState": "NOT_YET_RECORDED",
+    "actorIdentity": "NOT_RECORDED; DO NOT INFER APPROVAL",
+    "rootApplication": "NOT_PERFORMED; canonical status hash unchanged",
+    "nativeReceipt": "NOT_CREATED",
+    "acceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "release": "NOT_CLAIMED",
+    "discoveryBarrier": "FAIL: full producer run returned exit 1 with PDP-0 criteria failures; ten-pin successor remains unapplied"
+  },
+  "verification": {
+    "focusedTestResult": {
+      "commands": [
+        "node --test --test-reporter=tap tests/media-pdp0-surface-denominator.test.mjs tests/media-pdp0-current-capability-decision-binding.test.mjs"
+      ],
+      "exitCode": 0,
+      "tests": 21,
+      "passed": 21,
+      "failed": 0,
+      "cancelled": 0,
+      "durationMs": 167982.167834,
+      "classification": "LOCAL_TEST_RUN_NOT_NATIVE_RECEIPT"
+    },
+    "fullProducerDryRun": {
+      "command": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-0 --no-write-verification-logs",
+      "exitCode": 1,
+      "generatedStatus": "IN_PROGRESS",
+      "criteria": {
+        "P0-01": {
+          "result": "FAIL",
+          "passed": 28,
+          "total": 31
+        },
+        "P0-02": {
+          "result": "PASS",
+          "passed": 13,
+          "total": 13
+        },
+        "P0-03": {
+          "result": "FAIL",
+          "passed": 97,
+          "total": 142,
+          "skipped": 29
+        },
+        "P0-04": {
+          "result": "PASS",
+          "passed": 6,
+          "total": 6
+        },
+        "P0-05": {
+          "result": "PASS",
+          "passed": 10,
+          "total": 10
+        },
+        "P0-06": {
+          "result": "FAIL",
+          "passed": 13,
+          "total": 14
+        },
+        "P0-07": {
+          "result": "FAIL",
+          "passed": 9,
+          "total": 10
+        },
+        "P0-08": {
+          "result": "FAIL",
+          "passed": 117,
+          "total": 124
+        }
+      },
+      "auditDispositionValidatorErrorCount": 9,
+      "classification": "LOCAL_FULL_PRODUCER_RUN_FAILED; GENERATED OUTPUT WAS STDOUT ONLY; NO CANONICAL WRITE; NO NATIVE RECEIPT"
+    },
+    "canonicalStatusIntegrity": {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "expectedSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "observedSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "unchanged": true
+    },
+    "canonicalWrite": "NONE",
+    "tenPinCandidateProducer": {
+      "command": "node scripts/prepare-media-pdp0-pin-successor.mjs",
+      "exitCode": 0,
+      "candidateSha256": "ab2af9fb6731e2cc525b122f2af21d9bdc833cf2d182e3313da8df2bce0fd38c",
+      "ownerDecisionInputSha256": "ae785b3eeb1e1d3d946b405bbeb519f4d9db3b451d5f7d8af937898e3f466e23",
+      "updateCount": 10,
+      "canonicalWrite": "NONE"
+    },
+    "tenPinProducerTests": {
+      "command": "node --test --test-reporter=tap tests/media-pdp0-pin-successor.test.mjs",
+      "exitCode": 0,
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "cases": [
+        "full ten-pin positive preserves non-pin status and 462 owner history",
+        "stale non-target source rejection",
+        "status promotion and owner-history/status mutation rejection"
+      ]
+    },
+    "pxd225GeneratorTests": {
+      "command": "node --test --test-reporter=tap tests/pdp0-current-source-reconciliation-pxd225.test.mjs",
+      "exitCode": 0,
+      "tests": 4,
+      "passed": 4,
+      "failed": 0
+    }
+  },
+  "selectorClassificationSuccessor": {
+    "classification": "PHASE_SCOPED_SELECTOR_PROJECTION; NOT_MISSING_FILE",
+    "preimageStatusSelectorCurrentness": {
+      "current": 20,
+      "stale": 1,
+      "staleRef": ".product-experience/decision-log.md#PXD-225-section"
+    },
+    "successorCandidateSelectorCurrentness": {
+      "current": 21,
+      "stale": 0,
+      "selectorReadCount": 21
+    },
+    "pxd225SelectedRefresh": {
+      "selectorRef": ".product-experience/decision-log.md#PXD-225-section",
+      "candidateRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r3/pdp0-current-source-reconciliation-pxd225.candidate.json",
+      "candidateSha256": "bb85bea6745147bc72202b3bcc54d4b0f527838ed439773f38791f9484a67f6b",
+      "changedReconciliationFields": [
+        "decisionSectionSha256"
+      ],
+      "preservedSemanticReview": {
+        "decisionRef": ".product-experience/decision-log.md#PXD-216",
+        "reviewedCapabilityCount": 20,
+        "changedReviewedCapabilityIds": [],
+        "historicalReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+        "currentReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+        "semanticChange": "REMOVED_ABSENT_ARCHIVED_CHANNEL_EVIDENCE_LOCATOR_ONLY"
+      },
+      "phaseAwareSourceKind": "PHASE_SCOPED_SELECTOR"
+    },
+    "decision": "Exact current decision-log section projection only; no decision content, PXD-216 semantic review, support state, qualification, owner approval, or acceptance changed."
+  },
+  "tenPinSuccessor": {
+    "candidateRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r3/pdp-0-phase-dev-status.ten-pin.candidate.json",
+    "candidateSha256": "ab2af9fb6731e2cc525b122f2af21d9bdc833cf2d182e3313da8df2bce0fd38c",
+    "rootOwnerDecisionInputRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r3/root-owner-decision-input.ten-pin.json",
+    "rootOwnerDecisionInputSha256": "ae785b3eeb1e1d3d946b405bbeb519f4d9db3b451d5f7d8af937898e3f466e23",
+    "targetUpdateCount": 10,
+    "changedSourceRefs": [
+      {
+        "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+        "currentSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      },
+      {
+        "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+        "currentSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+        "currentSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      },
+      {
+        "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+        "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+        "currentSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "sourceRef": "scripts/check-media-pdp0-surface-denominator.mjs",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "e53bd97e006313e9936201f915d7f1eddf51b9e7e8764c426f1e793230f35a00",
+        "currentSha256": "6ff8027ab787ae7b18ed6363eaadb7aa96ecffff33730c71057c6a28daa703a4"
+      },
+      {
+        "sourceRef": "scripts/lib/media-product-definition-residuals.mjs",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "8683eef87a7d153b49b6f2b3c5788b00825a0eaa27870d8b267ad907716ac122",
+        "currentSha256": "bb7b6f74738a0abd061b0d336fefc6a684e849fa176585a31de62d8274c80afd"
+      },
+      {
+        "sourceRef": "tests/media-pdp0-surface-denominator.test.mjs",
+        "sourceKind": "MATERIAL_FILE",
+        "previousSha256": "9120977926864a85fefde9f272d7be1cb802ab126126d3fba99539eef0c40140",
+        "currentSha256": "cacef08e635c114abbd92cfa795989f19895ebdcf06908fde4a54d598020a5ea"
+      },
+      {
+        "sourceRef": ".product-experience/decision-log.md#PXD-225-section",
+        "sourceKind": "PHASE_SCOPED_SELECTOR",
+        "previousSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+        "currentSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
+      }
+    ],
+    "candidateStatus": "IN_PROGRESS",
+    "candidatePinCount": 188,
+    "capabilityLeafAdjudications": 462,
+    "nonPinFieldsPreserved": true,
+    "selectorReadset": {
+      "count": 21,
+      "currentAfterCandidate": 21
+    },
+    "ownerDecisionRecordState": "NOT_YET_RECORDED",
+    "accountableOwnerFromPolicy": "samujjwal",
+    "choiceSet": [
+      "APPROVE_EXACT_TEN_PIN_POSTIMAGE",
+      "REJECT_AND_RETURN_FOR_REPAIR"
+    ],
+    "nativeStatusWrite": "NOT_PERFORMED"
+  },
+  "producerImplementation": {
+    "module": "scripts/lib/media-pdp0-pin-successor.mjs",
+    "entrypoint": "scripts/prepare-media-pdp0-pin-successor.mjs",
+    "tests": "tests/media-pdp0-pin-successor.test.mjs",
+    "acceptance": "Requires exactly 188 observed pins, exactly nine material-file updates and the phase-projected PXD-225 selector; rejects stale sources outside the target set, source-kind mismatch, pin-count drift, status promotion, owner-history loss, and any non-pin status mutation."
+  },
+  "followUpReview": {
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0",
+    "campaignDenominator": {
+      "identities": 54,
+      "phaseCells": 216,
+      "auditRows": 501,
+      "historicalOwnerRows": 462
+    },
+    "frozenCrosswalk": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+      "mutationAfterFreeze": "NONE"
+    },
+    "canonicalStatus": {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "status": "IN_PROGRESS",
+      "writes": "NONE"
+    },
+    "focusedSourceAdjustment": {
+      "basis": ".product-experience/decision-log.md#PXD-226 and currentDefinitionPopulation in campaign-extensions.yaml",
+      "change": "Updated the applicability resolver and its test contract for 463 current-version leaves (462 historical adjudications plus one current extension), six future proposals, and 469 definitions; the returned historical applicability join remains exactly 462.",
+      "test": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs \u2014 15\u00d738/462-leaf join PASS",
+      "testCommand": "node --test --test-reporter=tap --test-name-pattern='15 review dimensions resolve every requirement type and all 462 exact leaf joins' tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+      "latestResult": "1/1 PASS after resolver and source-applicability assertion update"
+    },
+    "remainingCurrentnessFindings": [
+      {
+        "id": "P0-01-PXD216-PIN",
+        "owner": "PDP-0 currentness record owner",
+        "where": "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs:97",
+        "finding": "PXD-216 source pin expects capability-leaf-review.yaml SHA-256 3b1326a1\u2026; test execution observed dc50362c\u2026 while a post-run live read returned 3b1326a1\u2026. The phase-status sourceShaSet also retains dc50362c\u2026. This is an unstable/stale source baseline; do not rewrite PXD-216 semantic history.",
+        "predecessor": "R9-R08 distinct full semantic review and source-application serialization",
+        "acceptance": "Stable source snapshot; preserve exact 20-leaf PXD-216 semantics; publish an owner-authorized currentness successor covering PXD-226/227 source changes."
+      },
+      {
+        "id": "P0-01-PXD225-SECTION",
+        "owner": "PDP-0 currentness record owner",
+        "where": "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs:245",
+        "finding": "PXD-225 reconciliation records decision-section SHA-256 cb2d928f\u2026; live PXD-225 section projection is d979ecb4\u2026.",
+        "predecessor": "PXD-225 exact source-owner decision and R9-R08 semantic peer gate",
+        "acceptance": "A source-authorized currentness successor pins the exact decision section and preserves PXD-216/PXD-223 semantics with no acceptance claim."
+      }
+    ],
+    "rerunCriteriaAfterCrosswalkRepair": {
+      "command": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-0 --verify-tasks=P0-01,P0-03,P0-06,P0-07,P0-08 --no-write-verification-logs",
+      "exitCode": 1,
+      "results": {
+        "P0-01": "28/31 before the focused PXD-226 resolver/test correction",
+        "P0-03": "104/142; 29 skipped",
+        "P0-06": "13/14",
+        "P0-07": "9/10",
+        "P0-08": "117/124"
+      },
+      "crosswalkValidatorErrors": 0,
+      "phaseStatusWrite": "NONE",
+      "verificationLogs": "NONE"
+    },
+    "r9R08Gate": {
+      "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
+      "freezeSha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+      "integrityPeer": "PASS_FOR_FROZEN_R9_R08_CANDIDATE_INTEGRITY_AND_PROVENANCE_ONLY",
+      "fullSemanticPeer": "PENDING_DISTINCT_REVIEWER",
+      "canonicalApply": "NONE",
+      "nextAction": "Wait for distinct full semantic review and fresh owner/root disposition; then rebuild currentness from one stable source cut before any status application."
+    },
+    "surfaceProjection": "The checked-in 54-surface matrix is stale: it pins status SHA-256 71d801cd\u2026 while live PDP-0 status is 6e92932b\u2026. Its historical per-surface DEV_COMPLETE/zero-task cells are not current evidence.",
+    "authorityBoundary": {
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "nativeClosure": "NOT_PERFORMED",
+      "buildCompletion": "NOT_CLAIMED",
+      "delivery": "NOT_CLAIMED"
+    },
+    "latestExactProducerRerunSnapshot": {
+      "capturedAfterFocusedPxd226ResolverRepairBeforeSemanticCorrectionsAssertionRepair": true,
+      "suiteResults": {
+        "P0-01": {
+          "passed": 29,
+          "failed": 2,
+          "skipped": 0,
+          "failedCriteria": [
+            "PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review",
+            "PXD-225 refreshes archived-channel currentness while retaining PXD-216 meanings and PXD-223 currentness"
+          ]
+        },
+        "P0-03": {
+          "passed": 104,
+          "failed": 9,
+          "skipped": 29,
+          "failedCriteria": [
+            "audit traceability preserves all 501 source IDs and has no missing exact PDP-0 joins",
+            "PDP-0 joins, family scope, implementation handoffs, and A\u2013Q recommendations remain distinct",
+            "traceability validator verifies source pins and source disposition ledger",
+            "all non-whitespace changed-text residuals have exactly one source-bound disposition",
+            "PXD-108 and PXD-100 person-inference observations stay historical while PXD-130 records the live source",
+            "PXD-214 and PXD-216 retain historical source cuts while PXD-223 binds current PDP-0 capability meaning",
+            "PXD-216 remains historical semantic evidence while PXD-223 binds current source pins",
+            "PXD-225 advances archived-channel currentness and preserves PXD-216/PXD-223 evidence",
+            "semantic corrections preserve historical owner adjudications and all current definition identities"
+          ]
+        },
+        "P0-06": {
+          "passed": 13,
+          "failed": 1,
+          "skipped": 0,
+          "failedCriteria": [
+            "PXD-225 quality currentness preserves PXD-222 history and binds the live dependent inputs"
+          ]
+        },
+        "P0-07": {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "failedCriteria": []
+        },
+        "P0-08": {
+          "passed": 118,
+          "failed": 6,
+          "skipped": 0,
+          "failedCriteria": [
+            "traceability validator verifies source pins and source disposition ledger",
+            "PXD-108 and PXD-100 person-inference observations stay historical while PXD-130 records the live source",
+            "P0 capability semantic review pins current source checks without claiming historical equivalence or acceptance",
+            "PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review",
+            "PXD-225 refreshes archived-channel currentness while retaining PXD-216 meanings and PXD-223 currentness",
+            "PXD-225 quality currentness preserves PXD-222 history and binds the live dependent inputs"
+          ]
+        }
+      },
+      "sourceRace": {
+        "observed": true,
+        "evidence": "During test runs, current file hashes and failing assertion hashes disagreed across sequential reads. Post-run source snapshot was capabilities.yaml fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2; requirements.yaml 672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7; quality-policy.yaml 39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84; capability-leaf-review.yaml 3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253.",
+        "interpretation": "Counts are the exact completed suite outputs, but failures that disagree with the post-run snapshot are source-cut observations and need a serialized rerun from one stable source fingerprint before owner reconciliation."
+      },
+      "failureRootCauses": [
+        {
+          "id": "P0-03-AQ-001-154-CAPABILITY-PIN",
+          "where": "scripts/check-media-pdp0-audit-aq-traceability.mjs:278",
+          "rootCause": "The current-source review record for rows 1-154 pins capabilities.yaml at b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac while the post-run live source is fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2.",
+          "nextAction": "Coordinator/source-review owner to create an append-only currentness successor after proving the exact rows-1-154 delta; do not rewrite the review history or semantic disposition."
+        },
+        {
+          "id": "PXD-216-OWNER-CURRENTNESS",
+          "where": "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs:97 and PXD-216 source pin set",
+          "rootCause": "The recorded/current 20-leaf pin and live capability-leaf-review.yaml were observed at different hashes during the suite; this is not a semantic defect in the historical 20-leaf review.",
+          "nextAction": "Owner reconciliation from one stable source cut; preserve PXD-216 history."
+        },
+        {
+          "id": "PXD-225-SECTION-CURRENTNESS",
+          "where": "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs:245 and tests/pdp0-current-source-reconciliation-pxd216.test.mjs:122",
+          "rootCause": "The recorded PXD-225 section digest cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9 differed from the live projected section digest d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811.",
+          "nextAction": "PXD-225 currentness owner to reconcile the section binding. R9-R08 semantic peer does not grant adoption or canonical apply."
+        },
+        {
+          "id": "PXD-225-QUALITY-CURRENTNESS",
+          "where": "tests/pdp0-quality-current-source-review-pxd225.test.mjs:65",
+          "rootCause": "The currentness validator rejects stale dependent source pins and insufficient source-bound proof for the PXD-222/PXD-223 deferred delta and PXD-213 historical caption pin.",
+          "nextAction": "PXD-225/PXD-227 source owners to produce a valid append-only successor with exact dependent-input proof; do not edit historical records."
+        },
+        {
+          "id": "MSR-006-RESIDUAL-01-AUTHORITY-DIGEST",
+          "where": "tests/pdp-migration-current-source-claim-dispositions.test.mjs:178",
+          "rootCause": "The test expected authority digest 3902036ac5605f3d5614c06c574ab1b030572036b4f14200f40912c9deae1439 but observed ca6235977858800d845ef2a697a69d13d5e0900f05d82f775b8a2883cac4127c.",
+          "nextAction": "Disposition/current-authority record owner to reconcile the live authority digest and residual claim; no history rewrite."
+        },
+        {
+          "id": "PXD-213-PXD-214-TRANSIENT-PINS",
+          "where": "tests/pdp-migration-preservation-identity-wire-claims.test.mjs:143; tests/pdp-migration-semantic-reconciliation.test.mjs:701",
+          "rootCause": "Run-time quality-policy and requirements pins were stale in the captured test process, while post-run reads matched the recorded hashes; source-cut race prevents treating these as stable defects.",
+          "nextAction": "Repeat these exact producer tests after source application is serialized."
+        }
+      ],
+      "postRunFocusedRepair": {
+        "change": "Updated tests/pdp0-semantic-corrections.test.mjs to assert PXD-226 current-version/future-proposal population rather than the superseded seven-future-proposal wording.",
+        "command": "node --test --test-reporter=tap --test-name-pattern='semantic corrections preserve historical owner adjudications and all current definition identities' tests/pdp0-semantic-corrections.test.mjs",
+        "result": "1/1 PASS",
+        "priorFocusedApplicabilityContractCommand": "node --test --test-reporter=tap --test-name-pattern='15 review dimensions resolve every requirement type and all 462 exact leaf joins' tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+        "priorFocusedApplicabilityContractResult": "1/1 PASS"
+      },
+      "r9R08GateUpdate": {
+        "freezeSha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+        "fullSemanticPeer": "TECHNICAL_PASS_FOR_FROZEN_CANDIDATE_SEMANTICS_ONLY",
+        "peerScope": "18 candidate audit rows; 56 leaf cases; 58 requirement-parent cases; 501 audit identities retained; no relationship, polarity, or then mismatches.",
+        "canonicalApply": "NONE",
+        "ownerAdoption": "NOT_CLAIMED",
+        "acceptance": "NOT_CLAIMED"
+      },
+      "protectedBaselinesPostCheck": {
+        "crosswalkSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+        "pdp0StatusSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+        "pdp0Status": "IN_PROGRESS",
+        "writesToEither": "NONE"
+      }
+    }
+  }
+}

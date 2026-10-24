@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r08.root-adoption-decision-input.r5.v1",
+  "inputKind": "ROOT_APPROVAL_INPUT_TEMPLATE_NOT_A_DECISION",
+  "candidate": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
+    "sha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+  },
+  "freezeManifest": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
+    "sha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d"
+  },
+  "sourceOwnerDecision": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.source-owner-decision.r2.json",
+    "sha256": null,
+    "status": "NOT_RECORDED"
+  },
+  "fullSemanticReview": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.r08-semantic-review.v1.json",
+    "sha256": "200aaaff4577426d4f91f16ecb74a3c64bcc76280ad92ca5fd278d531523fe5a",
+    "reviewStatus": "PASS_FOR_SELECTED_CANDIDATE_SEMANTICS_ONLY_BLOCKED_FOR_CURRENTNESS_AND_AUTHORITY_CHAIN",
+    "reviewScope": "INDEPENDENT_READ_ONLY_FULL_R9_R08_SELECTED_CUT_PDP0_SEMANTIC_REVIEW",
+    "semanticDisposition": "PASS_FOR_FROZEN_R9_R08_SELECTED_CUT_ONLY",
+    "reviewedCandidateSha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb",
+    "reviewedFreezeSha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+    "reviewerIdentity": "/root/r08_semantic_peer",
+    "semanticFindingIds": []
+  },
+  "decisionEvidence": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r4.candidate.v1.json",
+    "sha256": "c3a5f6f455d36fb5bcb73813aa07c36e9298d79d8c2ac3ad4a7121a9a5c0dedd",
+    "schemaVersion": "media.pdp0.decision-section-material.r9-r08.v1",
+    "wholeDecisionLogCas": {
+      "targetRef": ".product-experience/decision-log.md",
+      "expectedWholeFileSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "observedWholeFileSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "comparison": "EXACT_WHOLE_FILE_SHA256",
+      "status": "CURRENT_EXACT"
+    },
+    "decisionSectionRawPin": {
+      "decisionRef": ".product-experience/decision-log.md#PXD-225",
+      "decisionSectionSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
+      "semantics": "RAW_SHA256_OF_EXACT_ANCHORED_PXD_SECTION"
+    },
+    "historicalSourceStatusPin": {
+      "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+      "statusRecordWholeFileSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "selector": ".product-experience/decision-log.md#PXD-225-section",
+      "historicalSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+      "semantics": "HISTORICAL_RAW_EXACT_SECTION_SHA; NOT_CURRENT_AUTHORITY",
+      "matchesCurrentRawSection": false
+    }
+  },
+  "rootDecision": {
+    "status": "NOT_SET",
+    "rootAuthority": {
+      "identity": null,
+      "role": "ROOT_AUTHORITY"
+    }
+  },
+  "readinessBlockers": [
+    {
+      "findingId": "R9-R08-SEM-CURRENTNESS-001",
+      "status": "OPEN",
+      "owner": "PDP-0 source-definition/status owner"
+    },
+    {
+      "findingId": "R9-R08-CAS-MATERIAL-BINDING-002",
+      "status": "OPEN",
+      "owner": "R9-R08 application-profile and guarded-writer owner"
+    },
+    {
+      "findingId": "R9-R08-AUTHORITY-INPUTS-003",
+      "status": "OPEN",
+      "owner": "Authentic source owner, root authority, operation-profile authority, and distinct apply authority through the registered workflow"
+    }
+  ],
+  "requiredBeforeDecision": [
+    "ACTUAL_PDP0_SOURCE_OWNER_DECISION_RECORDED_AND_VALIDATED",
+    "ROOT_AUTHORITY_IDENTITY_RESOLVED_BY_AUTHORITY",
+    "CURRENT_PDP0_STATUS_AND_PHASE_LOCAL_TASK_INVENTORY_VALIDATED"
+  ],
+  "authorityBoundary": {
+    "canonicalApply": "NOT_AUTHORIZED_BY_ROOT_ADOPTION_DECISION",
+    "phaseStatusEffect": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED"
+  },
+  "canonicalApply": "NONE"
+}

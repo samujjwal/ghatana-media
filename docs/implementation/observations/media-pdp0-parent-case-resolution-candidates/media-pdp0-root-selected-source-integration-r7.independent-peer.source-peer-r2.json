@@ -1,0 +1,1173 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-independent-peer.v1",
+  "artifactId": "MEDIA-PDP0-COHORT01-COHORT02-R7-INDEPENDENT-PEER-REVIEW-R2-2026-10-23",
+  "reviewStatus": "PASS",
+  "reviewKind": "FRESH_INDEPENDENT_PDP0_REVIEW_OF_REGENERATED_ROOT_SELECTED_SOURCE_POSTIMAGES",
+  "reviewer": {
+    "identityKind": "assigned-agent",
+    "identity": "agent:task:/root/source_peer#review-2",
+    "role": "distinct independent technical peer reviewer of regenerated candidate postimages",
+    "humanOwnerAuthority": false,
+    "humanOwnerAdoptionOrAcceptanceClaimed": false
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "surfaceSet": "cohort-01 selected seven features and cohort-02 selected nine features plus DIRECT-010/EDIT-022 shared and split packet alternatives; not a full surface review",
+    "denominator": {
+      "physical": 26,
+      "compositeIncludingRoot": 7,
+      "logical": 21,
+      "total": 54,
+      "phaseCells": 216,
+      "historicalBaseRecords": 462
+    },
+    "canonicalApply": "NONE"
+  },
+  "inputBaseline": {
+    "manifestRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.postimages.json",
+    "manifestSha256": "e2a1f83cd357cc64288a5725dbe441a55c3800424cee110e698349cebb09bca5",
+    "operationLedgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.operations.json",
+    "operationLedgerSha256": "8a1ffe62d90a0655a036459fb925a68849d8bffd8c20494af106a0ac9222dc52",
+    "verificationRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.verification.json",
+    "verificationSha256": "bbcf7e5bf3fcc3c5d0d864602ff8f0e00e6e6f3e29b19284fa02347713c8ef49",
+    "rootDirections": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort01-root-source-authoring-direction-r1-2026-10-23.json",
+        "sha256": "fdbec76f5ff5801c686e1f3a3b2ee0e984691b92ef2b8e042c85cd8829e52c6d",
+        "features": 7,
+        "cases": 34,
+        "actualSha256": "fdbec76f5ff5801c686e1f3a3b2ee0e984691b92ef2b8e042c85cd8829e52c6d",
+        "hashMatches": true
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
+        "sha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+        "features": 9,
+        "packetRepairs": 2,
+        "actualSha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+        "hashMatches": true
+      }
+    ],
+    "rootCandidates": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
+        "sha256": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
+        "casesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-cases.r7.json",
+        "casesSha256": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5",
+        "actualSha256": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
+        "hashMatches": true,
+        "casesActualSha256": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5",
+        "casesHashMatches": true
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+        "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
+        "actualSha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
+        "hashMatches": true
+      }
+    ],
+    "currentSourceBaseline": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "expectedSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "actualLiveSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "expectedSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "actualLiveSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "matchesLive": true
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "expectedSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "actualLiveSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "expectedSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "actualLiveSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "expectedSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "actualLiveSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "expectedSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "actualLiveSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "expectedSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "actualLiveSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "matchesLive": true
+      }
+    ]
+  },
+  "reviewedOutputs": [
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capabilities.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "declaredSha256": "da6bed5705d46d81c8addb03f64dffb7c50d0c27ad636adffdbbaafcc2e4b862",
+      "actualSha256": "da6bed5705d46d81c8addb03f64dffb7c50d0c27ad636adffdbbaafcc2e4b862",
+      "byteLength": 8240511,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.requirements.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "declaredSha256": "3f70087709a925997d34b8a4e294bde38f3337fdd819344844f283714f092943",
+      "actualSha256": "3f70087709a925997d34b8a4e294bde38f3337fdd819344844f283714f092943",
+      "byteLength": 610354,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capability-leaf-review.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "declaredSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "byteLength": 7703731,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.crosswalk.postimage.json",
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "declaredSha256": "cff6f51b59734859418c376e6d2e908db07f59cb54ff6a4b678ab99a7a019e4f",
+      "actualSha256": "cff6f51b59734859418c376e6d2e908db07f59cb54ff6a4b678ab99a7a019e4f",
+      "byteLength": 1872936,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capabilities.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "declaredSha256": "9e4e61c68aef52bbffd45b270ba27ca15a7712fcfd33d66d7aead59533c6a9ef",
+      "actualSha256": "9e4e61c68aef52bbffd45b270ba27ca15a7712fcfd33d66d7aead59533c6a9ef",
+      "byteLength": 8247602,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.requirements.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "declaredSha256": "4290f3f2ecc57835c81204922eea3c94cc9d9f6f0e48933ffca3660e0fbdccec",
+      "actualSha256": "4290f3f2ecc57835c81204922eea3c94cc9d9f6f0e48933ffca3660e0fbdccec",
+      "byteLength": 617634,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capability-leaf-review.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "declaredSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "byteLength": 7703731,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.crosswalk.postimage.json",
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "declaredSha256": "4a9d054d69d502c7977b0f6114436ea448dae85d4d74a14ea9b43232eee0c0af",
+      "actualSha256": "4a9d054d69d502c7977b0f6114436ea448dae85d4d74a14ea9b43232eee0c0af",
+      "byteLength": 1880876,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capabilities.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "declaredSha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9",
+      "actualSha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9",
+      "byteLength": 8252406,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.requirements.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "declaredSha256": "ec4df072d4d28aeccb00cfaf557d80c2be1f019abb47a0c64a77ae5090c1e1de",
+      "actualSha256": "ec4df072d4d28aeccb00cfaf557d80c2be1f019abb47a0c64a77ae5090c1e1de",
+      "byteLength": 616406,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capability-leaf-review.postimage.yaml",
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "declaredSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "byteLength": 7703731,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.crosswalk.postimage.json",
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "declaredSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672",
+      "actualSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672",
+      "byteLength": 1878679,
+      "matchesDeclaredHash": true,
+      "parseable": true
+    }
+  ],
+  "checks": {
+    "all12OutputsParseAndHashesMatch": true,
+    "retainedProjection": {
+      "count": 248,
+      "ledgerCount": 248,
+      "exactOrderedOperationIdMatch": true
+    },
+    "counts": {
+      "projectionOperations": 248,
+      "featureDefinitions": 16,
+      "capabilityCases": 52,
+      "parentRequirementCases": 54,
+      "requirementBindings": 17,
+      "crosswalkFeatureRowUpdates": 16,
+      "cohort01Features": 7,
+      "cohort01Cases": 34,
+      "cohort02Features": 9,
+      "cohort02CapabilityCases": 18,
+      "cohort02ParentRequirementCaseRecords": 20,
+      "sharedPacketDefinitions": 1,
+      "splitPacketDefinitions": 2
+    },
+    "featureAndCasePresence": {
+      "coreCapabilities": 16,
+      "capabilityCases": 52,
+      "parentRequirementCases": 54,
+      "requirementBindings": 17,
+      "featureCrosswalkRows": 16,
+      "allFeatureRowsAndLeafCasesResolve": true,
+      "featureRows": [
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-DELIV-019",
+          "capabilityId": "media.deliver.live-stream-output",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-DUB-015",
+          "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-EDIT-016",
+          "capabilityId": "media.edit.matte-composite",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-EDIT-024",
+          "capabilityId": "media.accessibility.control-equivalent-action",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-GEN-010",
+          "capabilityId": "media.generate.video.continue",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-GEN-020",
+          "capabilityId": "media.generate.motion.text-and-style-reference",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-GEN-021",
+          "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-GEN-023",
+          "capabilityId": "media.generate.video.local-offline-generation",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        },
+        {
+          "auditId": "AUD-GEN-024",
+          "capabilityId": "media.capability.provider-class-separation",
+          "capabilityRowMatches": true,
+          "caseIdsPresent": true
+        }
+      ]
+    },
+    "parentRequirementRelations": {
+      "checked": 54,
+      "allResolveToMatchingFeatureCapabilityCaseAndPolarity": true,
+      "relations": [
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "requirementId": "MEDIA-REQ-CAP-STREAM",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-01",
+          "sourceCapabilityCaseId": "R7-AUD-CAP-028-01",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "requirementId": "MEDIA-REQ-CAP-STREAM",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-02",
+          "sourceCapabilityCaseId": "R7-AUD-CAP-028-02",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "requirementId": "MEDIA-REQ-CAP-STREAM",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-03",
+          "sourceCapabilityCaseId": "R7-AUD-CAP-028-03",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CAP-028",
+          "capabilityId": "media.stream.session.product-effect.readback.observe",
+          "requirementId": "MEDIA-REQ-CAP-STREAM",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-04",
+          "sourceCapabilityCaseId": "R7-AUD-CAP-028-04",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-01",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-004-01",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-02",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-004-02",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-03",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-004-03",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-004",
+          "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-04",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-004-04",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-01",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-006-01",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-02",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-006-02",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-03",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-006-03",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-006",
+          "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-04",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-006-04",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-01",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-017-01",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-02",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-017-02",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-03",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-017-03",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-CLONE-017",
+          "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-04",
+          "sourceCapabilityCaseId": "R7-AUD-CLONE-017-04",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-01",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-007-01",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-02",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-007-02",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-03",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-007-03",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-007",
+          "capabilityId": "media.color.profile.compatibility.observe",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-04",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-007-04",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-01",
+          "sourceCapabilityCaseId": "R7-AUD-DELIV-007-01",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-02",
+          "sourceCapabilityCaseId": "R7-AUD-DELIV-007-02",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-03",
+          "sourceCapabilityCaseId": "R7-AUD-DELIV-007-03",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-DELIV-007",
+          "capabilityId": "media.deliver.readiness.observe",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-04",
+          "sourceCapabilityCaseId": "R7-AUD-DELIV-007-04",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-01",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-01",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-02",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-02",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-03",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-03",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-04",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-04",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-05",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-05",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-06",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-06",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-07",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-07",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-08",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-08",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-09",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-09",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "capabilityId": "media.color.saturation",
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "parentCaseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-10",
+          "sourceCapabilityCaseId": "R7-AUD-COLOR-001-10",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-DELIV-019",
+          "capabilityId": "media.deliver.live-stream-output",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-DELIV-019",
+          "capabilityId": "media.deliver.live-stream-output",
+          "requirementId": "MEDIA-REQ-CAP-DELIVER",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-DUB-015",
+          "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-DUB-015",
+          "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-EDIT-016",
+          "capabilityId": "media.edit.matte-composite",
+          "requirementId": "MEDIA-REQ-CAP-EDIT",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-EDIT-016",
+          "capabilityId": "media.edit.matte-composite",
+          "requirementId": "MEDIA-REQ-CAP-EDIT",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-EDIT-024",
+          "capabilityId": "media.accessibility.control-equivalent-action",
+          "requirementId": "MEDIA-REQ-CAP-EDIT",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-EDIT-024",
+          "capabilityId": "media.accessibility.control-equivalent-action",
+          "requirementId": "MEDIA-REQ-CAP-EDIT",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-EDIT-024",
+          "capabilityId": "media.accessibility.control-equivalent-action",
+          "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-EDIT-024",
+          "capabilityId": "media.accessibility.control-equivalent-action",
+          "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-010",
+          "capabilityId": "media.generate.video.continue",
+          "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-010",
+          "capabilityId": "media.generate.video.continue",
+          "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-020",
+          "capabilityId": "media.generate.motion.text-and-style-reference",
+          "requirementId": "MEDIA-REQ-CAP-ANIMATION",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-020",
+          "capabilityId": "media.generate.motion.text-and-style-reference",
+          "requirementId": "MEDIA-REQ-CAP-ANIMATION",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-021",
+          "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+          "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-021",
+          "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+          "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-023",
+          "capabilityId": "media.generate.video.local-offline-generation",
+          "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-023",
+          "capabilityId": "media.generate.video.local-offline-generation",
+          "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-024",
+          "capabilityId": "media.capability.provider-class-separation",
+          "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-POS",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-LEAF-POS",
+          "polarity": "POSITIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "POSITIVE",
+          "relationMatches": true,
+          "pass": true
+        },
+        {
+          "auditId": "AUD-GEN-024",
+          "capabilityId": "media.capability.provider-class-separation",
+          "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-NEG",
+          "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-LEAF-NEG",
+          "polarity": "NEGATIVE",
+          "leafCasePresent": true,
+          "parentCasePresent": true,
+          "leafPolarity": "NEGATIVE",
+          "relationMatches": true,
+          "pass": true
+        }
+      ]
+    },
+    "packetAlternatives": {
+      "shared": {
+        "packageCount": 1,
+        "allPackageCasesAndCrosswalkRelationsPresent": true,
+        "findings": [],
+        "ownerMappingStatus": "ALTERNATIVE_POSTIMAGE_ONLY_OWNER_MAPPING_NOT_SELECTED"
+      },
+      "split": {
+        "packageCount": 2,
+        "allPackageCasesAndCrosswalkRelationsPresent": true,
+        "findings": [],
+        "ownerMappingStatus": "ALTERNATIVE_POSTIMAGE_ONLY_OWNER_MAPPING_NOT_SELECTED"
+      }
+    },
+    "operationIds": {
+      "count": 180,
+      "uniqueCount": 180,
+      "allUnique": true
+    },
+    "historicalOwnerLeafRecords": {
+      "sourceRecordCount": 462,
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "byteIdentityPreserved": true,
+      "semanticMutationCount": 0,
+      "ownerRecordsAdded": 0
+    },
+    "previousCohort01R7Manifest": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-postimages.r7.json",
+      "sha256": "91825cee133fea95b923c97f81cef86956fd2107822b1d5e469ea61a3f45ebf1",
+      "byteIdenticalCrosswalkAndLeafSemanticMutationCounts": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "semanticMutationCount": 0
+        },
+        {
+          "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "semanticMutationCount": 0
+        }
+      ],
+      "bothZero": true
+    },
+    "semanticReview": {
+      "cohort01": {
+        "featureCount": 7,
+        "cases": 34,
+        "saturationFactor": {
+          "parameterId": "saturationFactor",
+          "type": "finite-number",
+          "caseIds": [
+            "R7-AUD-COLOR-001-01",
+            "R7-AUD-COLOR-001-02",
+            "R7-AUD-COLOR-001-03",
+            "R7-AUD-COLOR-001-04",
+            "R7-AUD-COLOR-001-05",
+            "R7-AUD-COLOR-001-06",
+            "R7-AUD-COLOR-001-07",
+            "R7-AUD-COLOR-001-08",
+            "R7-AUD-COLOR-001-09",
+            "R7-AUD-COLOR-001-10"
+          ],
+          "coversInclusiveBoundsDefaultNeutralStepPrecisionNonfiniteUnsupportedProfileAndMissingSourceVersion": true
+        }
+      },
+      "cohort02": {
+        "featureCount": 9,
+        "capabilityCases": 18,
+        "parentCases": 20,
+        "gen023": {
+          "placement": [
+            "LOCAL_OFFLINE"
+          ],
+          "actualCandidateOutput": true,
+          "separateMemoryObservation": true
+        },
+        "gen024": {
+          "intent": "Define independent license/policy and execution-placement axes for permissive and hosted providers.",
+          "placementValues": [
+            "LOCAL",
+            "HOSTED"
+          ],
+          "licenseAndPlacementSeparate": false
+        },
+        "edit024": {
+          "parityScope": "all applicable controls across GUI keyboard/text CLI SDK/API",
+          "traceRequirements": [
+            "MEDIA-REQ-CAP-EDIT",
+            "MEDIA-REQ-CAP-ANIMATION-EDITING"
+          ]
+        }
+      }
+    },
+    "canonicalApply": "NONE",
+    "phaseStatusWritten": false,
+    "formalAcceptance": false,
+    "nativeClosure": false,
+    "release": false,
+    "allSharedAndSplitPackageCasesAndCrosswalkRelationsPresent": true
+  },
+  "findings": [],
+  "gateSummary": {
+    "discoveryBarrier": "PASS_FOR_THIS_CANDIDATE_SOURCE_INTEGRATION_REVIEW; canonical owner adoption and campaign PDP-0 status remain unresolved",
+    "buildLane": "NOT_ESTABLISHED_BY_THIS PDP-0 REVIEW",
+    "pdpClosureLane": "NOT_RUN",
+    "deliveryGate": "NOT_MET",
+    "nextAllowedPhase": "Authentic owner review/adoption decision and separate reconciliation of PDP-0 phase-currentness; no phase completion inferred."
+  },
+  "nonClaims": [
+    "No canonical source or phase status was changed by this reviewer.",
+    "This review does not record owner adoption, owner acceptance, independent formal acceptance, implementation verification, native closure, qualification or release.",
+    "The full campaign denominator remains 54 surfaces, 216 phase cells and 462 historical records; this scoped review does not assert all campaign surfaces were reviewed."
+  ]
+}

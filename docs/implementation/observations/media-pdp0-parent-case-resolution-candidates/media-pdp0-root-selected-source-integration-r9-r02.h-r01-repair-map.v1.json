@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-h-r01-repair-map.v1",
+  "r8ReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.actual-h-r01.json",
+  "r8ReviewSha256": "bc607c46054f64dde4b0d645cd922dfc95ddf7197aa1e9d52e10330400267454",
+  "reviewerThreadId": "01a16a6c-d506-7a73-801a-609c602a12e9",
+  "reviewStatus": "REQUEST_CHANGES",
+  "findings": [
+    {
+      "findingId": "R8-SPLIT-MAP01-PREVIEW-BINDING",
+      "status": "REPAIRED_IN_R9_CANDIDATE",
+      "repairOperationIds": [
+        "r9.packet.split.definition.apply-exact-preview-binding",
+        "r9.packet.case.cap.preview.positive",
+        "r9.packet.case.cap.preview.negative",
+        "r9.packet.case.cap.apply.positive",
+        "r9.packet.case.cap.apply.negative",
+        "r9.packet.case.parent.aud-direct-010.pos",
+        "r9.packet.case.parent.aud-direct-010.neg"
+      ],
+      "acceptanceCriterion": "The apply definition and positive/adverse cases consume one exact preview result and reject stale, mismatched, out-of-scope, denied, or unknown preview/effect state without commit or blind retry; output traces the preview identity, base revision, exact diff, approval evidence, resulting revision, and compensating rollback revision when applicable."
+    },
+    {
+      "findingId": "R8-SPLIT-MAP01-CASE-OUTCOME-SEPARATION",
+      "status": "REPAIRED_IN_R9_CANDIDATE",
+      "repairOperationIds": [
+        "r9.packet.case.cap.preview.positive",
+        "r9.packet.case.cap.preview.negative",
+        "r9.packet.case.cap.apply.positive",
+        "r9.packet.case.cap.apply.negative",
+        "r9.packet.case.parent.aud-direct-010.pos",
+        "r9.packet.case.parent.aud-direct-010.neg",
+        "r9.packet.case.parent.aud-edit-022.pos",
+        "r9.packet.case.parent.aud-edit-022.neg"
+      ],
+      "acceptanceCriterion": "Positive and adverse capability cases and their parent requirement counterparts state only the operation's own input/output/effect boundary and remain consistent with each capability's typed output schema."
+    },
+    {
+      "findingId": "R8-SPLIT-MAP05-CANONICAL-CAPABILITY-IDENTITY",
+      "status": "REPAIRED_IN_R9_CANDIDATE",
+      "repairOperationIds": [
+        "r9.packet.case.cap.preview.positive",
+        "r9.packet.case.cap.preview.negative",
+        "r9.packet.case.cap.apply.positive",
+        "r9.packet.case.cap.apply.negative",
+        "r9.packet.case.parent.aud-direct-010.pos",
+        "r9.packet.case.parent.aud-direct-010.neg",
+        "r9.packet.case.parent.aud-edit-022.pos",
+        "r9.packet.case.parent.aud-edit-022.neg"
+      ],
+      "acceptanceCriterion": "All eight selected capability/parent case invocation references use the exact canonical capability identity without concatenated duplicate feature.operation text; all 58 parent case IDs, source capability case IDs, source capability IDs, and polarities still match exactly."
+    }
+  ],
+  "r9LedgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
+  "r9OperationCount": 122,
+  "canonicalApply": "NONE",
+  "sourceOwnerAdoption": "NOT_SET",
+  "rootAdoption": "NOT_SET",
+  "independentAcceptance": "NOT_CLAIMED"
+}

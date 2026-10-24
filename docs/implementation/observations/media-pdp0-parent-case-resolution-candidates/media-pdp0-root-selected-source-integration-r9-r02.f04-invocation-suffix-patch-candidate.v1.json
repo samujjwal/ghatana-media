@@ -1,0 +1,270 @@
+{
+  "schemaVersion": "media.pdp0.r9-r02.f04-invocation-suffix-patch-candidate.v1",
+  "artifactId": "MEDIA-PDP0-R9-R02-F04-INVOCATION-SUFFIX-PATCH-CANDIDATE-2026-10-23",
+  "status": "CANDIDATE_PATCH_ONLY_NOT_APPLIED",
+  "finding": "F-04 duplicated invocation suffixes",
+  "sourcePostimagePreconditions": [
+    {
+      "ref": "docs/implementation/observations/media-pdp0-root-selected-source-integration-r9-r02.split.capabilities.postimage.yaml",
+      "sha256": "59746d493ab1bd0ebee93e3b1b7efd594689cb5cfa42abf222c04a863988a133"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-root-selected-source-integration-r9-r02.split.requirements.postimage.yaml",
+      "sha256": "80c54dd68c30199feeaf84e7e6550ffb52ae5a0f082a5f0c9b65b7d1c7783fe2"
+    }
+  ],
+  "patches": [
+    {
+      "auditId": "AUD-EDIT-024",
+      "canonicalCapabilityId": "media.accessibility.control-equivalent-action",
+      "capabilityCaseIds": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS",
+          "polarity": "POSITIVE"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG",
+          "polarity": "NEGATIVE"
+        }
+      ],
+      "linkedParentRequirementIds": [
+        "MEDIA-REQ-CAP-EDIT",
+        "MEDIA-REQ-CAP-ANIMATION-EDITING"
+      ],
+      "linkedParentCases": [
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-POS",
+          "polarity": "POSITIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS"
+        },
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-NEG",
+          "polarity": "NEGATIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG"
+        },
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-POS",
+          "polarity": "POSITIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS"
+        },
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-NEG",
+          "polarity": "NEGATIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG"
+        }
+      ],
+      "replacement": {
+        "path": "capabilities.yaml acceptanceCases[].when and requirements.yaml acceptanceCases[].when",
+        "oldWhen": "Invoke media.accessibility.control-equivalent-action.accessibility.control-equivalent-action.",
+        "newWhen": "Invoke media.accessibility.control-equivalent-action.",
+        "scope": "when text only"
+      },
+      "unchangedProofAndTraceFields": [
+        "case IDs",
+        "polarity",
+        "sourceAuditId",
+        "sourceCapabilityId/sourceCapabilityCaseId",
+        "source refs/source links",
+        "given",
+        "then/rejection",
+        "authority and observable contracts"
+      ]
+    },
+    {
+      "auditId": "AUD-GEN-010",
+      "canonicalCapabilityId": "media.generate.video.continue",
+      "capabilityCaseIds": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-POS",
+          "polarity": "POSITIVE"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-NEG",
+          "polarity": "NEGATIVE"
+        }
+      ],
+      "linkedParentRequirementIds": [
+        "MEDIA-REQ-CAP-GENERATE-VIDEO"
+      ],
+      "linkedParentCases": [
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+          "polarity": "POSITIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-POS"
+        },
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+          "polarity": "NEGATIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-NEG"
+        }
+      ],
+      "replacement": {
+        "path": "capabilities.yaml acceptanceCases[].when and requirements.yaml acceptanceCases[].when",
+        "oldWhen": "Invoke media.generate.video.continue.generate.video.continue.",
+        "newWhen": "Invoke media.generate.video.continue.",
+        "scope": "when text only"
+      },
+      "unchangedProofAndTraceFields": [
+        "case IDs",
+        "polarity",
+        "sourceAuditId",
+        "sourceCapabilityId/sourceCapabilityCaseId",
+        "source refs/source links",
+        "given",
+        "then/rejection",
+        "authority and observable contracts"
+      ]
+    },
+    {
+      "auditId": "AUD-GEN-020",
+      "canonicalCapabilityId": "media.generate.motion.text-and-style-reference",
+      "capabilityCaseIds": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-POS",
+          "polarity": "POSITIVE"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-NEG",
+          "polarity": "NEGATIVE"
+        }
+      ],
+      "linkedParentRequirementIds": [
+        "MEDIA-REQ-CAP-ANIMATION"
+      ],
+      "linkedParentCases": [
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-POS",
+          "polarity": "POSITIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-POS"
+        },
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-NEG",
+          "polarity": "NEGATIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-NEG"
+        }
+      ],
+      "replacement": {
+        "path": "capabilities.yaml acceptanceCases[].when and requirements.yaml acceptanceCases[].when",
+        "oldWhen": "Invoke media.generate.motion.text-and-style-reference.generate.motion.text-and-style-reference.",
+        "newWhen": "Invoke media.generate.motion.text-and-style-reference.",
+        "scope": "when text only"
+      },
+      "unchangedProofAndTraceFields": [
+        "case IDs",
+        "polarity",
+        "sourceAuditId",
+        "sourceCapabilityId/sourceCapabilityCaseId",
+        "source refs/source links",
+        "given",
+        "then/rejection",
+        "authority and observable contracts"
+      ]
+    },
+    {
+      "auditId": "AUD-GEN-021",
+      "canonicalCapabilityId": "media.generate.video.text-to-video.render-style-preset",
+      "capabilityCaseIds": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-POS",
+          "polarity": "POSITIVE"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-NEG",
+          "polarity": "NEGATIVE"
+        }
+      ],
+      "linkedParentRequirementIds": [
+        "MEDIA-REQ-CAP-GENERATE-VIDEO"
+      ],
+      "linkedParentCases": [
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+          "polarity": "POSITIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-POS"
+        },
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+          "polarity": "NEGATIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-NEG"
+        }
+      ],
+      "replacement": {
+        "path": "capabilities.yaml acceptanceCases[].when and requirements.yaml acceptanceCases[].when",
+        "oldWhen": "Invoke media.generate.video.text-to-video.render-style-preset.generate.video.text-to-video.",
+        "newWhen": "Invoke media.generate.video.text-to-video.render-style-preset.",
+        "scope": "when text only"
+      },
+      "unchangedProofAndTraceFields": [
+        "case IDs",
+        "polarity",
+        "sourceAuditId",
+        "sourceCapabilityId/sourceCapabilityCaseId",
+        "source refs/source links",
+        "given",
+        "then/rejection",
+        "authority and observable contracts"
+      ]
+    },
+    {
+      "auditId": "AUD-GEN-023",
+      "canonicalCapabilityId": "media.generate.video.local-offline-generation",
+      "capabilityCaseIds": [
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-POS",
+          "polarity": "POSITIVE"
+        },
+        {
+          "caseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-NEG",
+          "polarity": "NEGATIVE"
+        }
+      ],
+      "linkedParentRequirementIds": [
+        "MEDIA-REQ-CAP-CAPABILITY"
+      ],
+      "linkedParentCases": [
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-POS",
+          "polarity": "POSITIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-POS"
+        },
+        {
+          "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+          "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-NEG",
+          "polarity": "NEGATIVE",
+          "linkedLeafCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-NEG"
+        }
+      ],
+      "replacement": {
+        "path": "capabilities.yaml acceptanceCases[].when and requirements.yaml acceptanceCases[].when",
+        "oldWhen": "Invoke media.generate.video.local-offline-generation.generate.video.local-offline-generation.",
+        "newWhen": "Invoke media.generate.video.local-offline-generation with LOCAL_OFFLINE placement and network egress disabled.",
+        "scope": "when text only"
+      },
+      "unchangedProofAndTraceFields": [
+        "case IDs",
+        "polarity",
+        "sourceAuditId",
+        "sourceCapabilityId/sourceCapabilityCaseId",
+        "source refs/source links",
+        "given",
+        "then/rejection",
+        "authority and observable contracts"
+      ]
+    }
+  ],
+  "proofIntegrity": "For each listed positive and negative leaf and linked parent case, proof/case identity, polarity, source audit/capability links, and all non-when fields are required to remain byte-semantically unchanged; this candidate asserts no new proof, approval, acceptance, or owner decision.",
+  "excludedAuditIds": [
+    "AUD-GEN-024"
+  ]
+}

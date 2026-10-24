@@ -1,0 +1,2604 @@
+{
+  "schemaVersion": "media.pdp0.cohort-source-content-peer.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-01-R3-INDEPENDENT-SOURCE-CONTENT-PEER-V1",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_SOURCE_CONTENT_AND_BINDING_REVIEW",
+  "reviewer": "independent-source-content-peer",
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "cohortOrdinal": 1,
+    "cohortRows": 77,
+    "fullCampaignDenominator": {
+      "physical": 26,
+      "compositionsIncludingRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "residualDenominator": 231,
+    "sourceOwner": "media-product",
+    "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION"
+  },
+  "inputBaseline": {
+    "artifacts": {
+      "cohort01R3": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.json",
+        "sha256": "62f517753a8096f7df9310f6cb04cae94360d6e75860ca3e05268b7001ff7ed8"
+      },
+      "candidateV2": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.v2.json",
+        "sha256": "ce28bc10acffd1a067d8fdf638fbfb191c131570b2be4c8859947e63548045af"
+      },
+      "recordPostimagesV2": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-record-postimages.v2.json",
+        "sha256": "b20e148e7f632fcdfaaa5380368980b873784d18ba6967d942036e9bbba01348"
+      },
+      "cohort01R2": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
+        "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+      },
+      "cohort01R2IndependentPeer": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.independent-peer.json",
+        "sha256": "570ef85540279e0f61145de505b8cd311bc7b757f6659eed5ca82487ab64a281"
+      },
+      "cohort01R3SourceProposalV1": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.v1.json",
+        "sha256": "742c96cd3a44914066685b30d944d67861b5fb507eb42b899a671ba5c7fcc818"
+      }
+    },
+    "liveSourceFingerprints": {
+      "docs/implementation/observations/media-pdp0-p0-07-parent-case-residual-classification-2026-10-23.json": {
+        "expectedSha256": "4e6973ce4abfc1e551151ec36335e0920632a12dfca92276b5b900284006f91c",
+        "currentSha256": "4e6973ce4abfc1e551151ec36335e0920632a12dfca92276b5b900284006f91c",
+        "matches": true
+      },
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": {
+        "expectedSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
+        "currentSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
+        "matches": true
+      },
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": {
+        "expectedSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+        "currentSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+        "matches": true
+      },
+      "docs/implementation/pdp-0-phase-dev-status.json": {
+        "expectedSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+        "currentSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+        "matches": true
+      },
+      "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json": {
+        "expectedSha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568",
+        "currentSha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568",
+        "matches": true
+      },
+      ".product-experience/authority-map.yaml": {
+        "expectedSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+        "currentSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+        "matches": true
+      },
+      ".product-experience/source-manifest.yaml": {
+        "expectedSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+        "currentSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+        "matches": true
+      },
+      ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": {
+        "expectedSha256": "e55a99a27e493fc63f14eb89be196b966c01d9a54f5ec1f0f9f5bf3075bc0648",
+        "currentSha256": "e55a99a27e493fc63f14eb89be196b966c01d9a54f5ec1f0f9f5bf3075bc0648",
+        "matches": true
+      },
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": {
+        "expectedSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+        "currentSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+        "matches": true
+      },
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+        "expectedSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "currentSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "matches": true
+      },
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": {
+        "expectedSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+        "currentSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+        "matches": true
+      },
+      ".product-experience/pdp-0-product-truth/requirements.yaml": {
+        "expectedSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+        "currentSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+        "matches": true
+      },
+      ".product-experience/artifact-identities.yaml": {
+        "expectedSha256": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
+        "currentSha256": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
+        "matches": true
+      },
+      ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": {
+        "expectedSha256": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+        "currentSha256": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+        "matches": true
+      },
+      ".product-experience/surface-registry.yaml": {
+        "expectedSha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        "currentSha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        "matches": true
+      },
+      ".product-experience/surfaces/media-physical-topology.v1.json": {
+        "expectedSha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+        "currentSha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+        "matches": true
+      },
+      ".product-experience/decision-log.md": {
+        "expectedSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+        "currentSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+        "matches": true
+      },
+      "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": {
+        "expectedSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+        "currentSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+        "matches": true
+      },
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01-supported-self-check.r2.json": {
+        "expectedSha256": "1789c3b074cc6c171c51f69110d121871cbb0cee96dba2fb3ee6ac886f501aab",
+        "currentSha256": "1789c3b074cc6c171c51f69110d121871cbb0cee96dba2fb3ee6ac886f501aab",
+        "matches": true
+      }
+    },
+    "allPinnedSourceFingerprintsMatch": true
+  },
+  "reviewSummary": {
+    "frozenPeerPassesReused": 53,
+    "sourceResolutionProposalsReviewed": 18,
+    "sourceResolutionTechnicalPasses": 13,
+    "sourceResolutionRequestChanges": 5,
+    "boundedOwnerChoiceRows": 6,
+    "overallTechnicalPass": 66,
+    "overallRequestChanges": 5,
+    "overallUnknown": 6,
+    "batchIntegrityBlockers": 1
+  },
+  "rows": [
+    {
+      "auditId": "AUD-ASR-001",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-002",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-003",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_AND_NARROW",
+      "sourceSpecificResolution": "Bind only the existing voice-activity leaf to temporal voice-activity observations. Silence segmentation is a distinct result and remains a missing PDP-0 definition until an exact source-owned capability/case is supplied; the broad ASR requirement is context, not feature proof.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.voice-activity.detect"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.speech.transcription.voice-activity.detect",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.voice-activity.detect/acceptanceCases",
+          "outcome": "The P0 result meaning is voice-activity detection as temporal observations of voice activity in audio.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASR-003-POS",
+            "given": "An authorized audio artifact or declared live stream is supplied with its source clock and any provided language hint.",
+            "when": "The caller requests voice-activity detection.",
+            "then": "Return source-clock voice-active intervals with uncertainty and exact source-version provenance; do not classify silence or emit transcript words."
+          }
+        },
+        {
+          "capabilityId": "media.speech.transcription.voice-activity.detect",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.voice-activity.detect/acceptanceCases",
+          "outcome": "The P0 result meaning is voice-activity detection as temporal observations of voice activity in audio.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASR-003-NEG",
+            "given": "An authorized audio artifact or declared live stream is supplied with its source clock and any provided language hint.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unknown source clock, unsupported channel, or missing rights yields UNKNOWN/UNAVAILABLE; do not infer silence segmentation, transcript, speaker identity, or model support."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases",
+          "capabilityIds": [
+            "media.speech.transcription.file",
+            "media.speech.transcription.stream",
+            "media.speech.transcription.language.detect",
+            "media.speech.transcription.voice-activity.detect",
+            "media.speech.transcription.speaker.diarize",
+            "media.speech.transcription.speaker.segment",
+            "media.speech.transcription.speaker.separate",
+            "media.speech.transcription.speaker.identify-authorized",
+            "media.speech.transcription.word-timestamp.create",
+            "media.speech.transcription.phoneme-timestamp.create",
+            "media.speech.transcription.forced-align",
+            "media.speech.transcription.punctuate-capitalize",
+            "media.speech.transcription.alternatives.provide",
+            "media.speech.transcription.confidence.provide",
+            "media.speech.transcription.translate",
+            "media.speech.transcription.subtitle.generate"
+          ],
+          "statement": "Every operation in media.speech.transcription retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-01",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-02",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-03",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-07"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASR-003-POS",
+            "given": "An authorized audio artifact or declared live stream is supplied with its source clock and any provided language hint.",
+            "when": "The caller requests voice-activity detection.",
+            "then": "Return source-clock voice-active intervals with uncertainty and exact source-version provenance; do not classify silence or emit transcript words."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases",
+          "capabilityIds": [
+            "media.speech.transcription.file",
+            "media.speech.transcription.stream",
+            "media.speech.transcription.language.detect",
+            "media.speech.transcription.voice-activity.detect",
+            "media.speech.transcription.speaker.diarize",
+            "media.speech.transcription.speaker.segment",
+            "media.speech.transcription.speaker.separate",
+            "media.speech.transcription.speaker.identify-authorized",
+            "media.speech.transcription.word-timestamp.create",
+            "media.speech.transcription.phoneme-timestamp.create",
+            "media.speech.transcription.forced-align",
+            "media.speech.transcription.punctuate-capitalize",
+            "media.speech.transcription.alternatives.provide",
+            "media.speech.transcription.confidence.provide",
+            "media.speech.transcription.translate",
+            "media.speech.transcription.subtitle.generate"
+          ],
+          "statement": "Every operation in media.speech.transcription retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-01",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-02",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-03",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06",
+            "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-07"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASR-003-NEG",
+            "given": "An authorized audio artifact or declared live stream is supplied with its source clock and any provided language hint.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unknown source clock, unsupported channel, or missing rights yields UNKNOWN/UNAVAILABLE; do not infer silence segmentation, transcript, speaker identity, or model support."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-ASR-004",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-005",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-006",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-007",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-008",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-013",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-014",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-016",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-018",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-019",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASR-020",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_AND_NARROW",
+      "sourceSpecificResolution": "Keep the existing content-kind segmentation leaf limited to its declared speech/music/non-speech intervals. Sound-event detection is a separate taxonomy/classification outcome and remains uncovered until its exact event classes and evidence are source-defined.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.segment.content-kind"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-AUDIO-ANALYSIS"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.audio.analysis.segment.content-kind",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.segment.content-kind/acceptanceCases",
+          "outcome": "The P0 result meaning is a temporal observation classifying audio portions as speech, music, or non-speech.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASR-020-POS",
+            "given": "Authorized timestamped audio and the declared content-kind analysis intent are supplied.",
+            "when": "The caller requests speech/music/non-speech segmentation.",
+            "then": "Return source-anchored intervals only for the declared three content kinds and disclose analysis uncertainty."
+          }
+        },
+        {
+          "capabilityId": "media.audio.analysis.segment.content-kind",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.segment.content-kind/acceptanceCases",
+          "outcome": "The P0 result meaning is a temporal observation classifying audio portions as speech, music, or non-speech.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASR-020-NEG",
+            "given": "Authorized timestamped audio and the declared content-kind analysis intent are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unknown taxonomy, source clock, or unsupported audio is UNKNOWN/UNAVAILABLE; do not emit sound-event labels or finer event classes."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-AUDIO-ANALYSIS/acceptanceCases",
+          "capabilityIds": [
+            "media.audio.analysis.segment.content-kind",
+            "media.audio.analysis.measure.loudness",
+            "media.audio.analysis.measure.peaks",
+            "media.audio.analysis.detect.clipping",
+            "media.audio.analysis.measure.noise",
+            "media.audio.analysis.analyze.spectral",
+            "media.audio.analysis.analyze.phase",
+            "media.audio.analysis.analyze.channels",
+            "media.audio.analysis.detect.beat-onset",
+            "media.audio.analysis.detect.silence",
+            "media.audio.analysis.diagnose.source-separation",
+            "media.audio.analysis.assess.timing",
+            "media.audio.analysis.assess.intelligibility"
+          ],
+          "statement": "Every operation in media.audio.analysis retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-01",
+            "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-02",
+            "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-03"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASR-020-POS",
+            "given": "Authorized timestamped audio and the declared content-kind analysis intent are supplied.",
+            "when": "The caller requests speech/music/non-speech segmentation.",
+            "then": "Return source-anchored intervals only for the declared three content kinds and disclose analysis uncertainty."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-AUDIO-ANALYSIS/acceptanceCases",
+          "capabilityIds": [
+            "media.audio.analysis.segment.content-kind",
+            "media.audio.analysis.measure.loudness",
+            "media.audio.analysis.measure.peaks",
+            "media.audio.analysis.detect.clipping",
+            "media.audio.analysis.measure.noise",
+            "media.audio.analysis.analyze.spectral",
+            "media.audio.analysis.analyze.phase",
+            "media.audio.analysis.analyze.channels",
+            "media.audio.analysis.detect.beat-onset",
+            "media.audio.analysis.detect.silence",
+            "media.audio.analysis.diagnose.source-separation",
+            "media.audio.analysis.assess.timing",
+            "media.audio.analysis.assess.intelligibility"
+          ],
+          "statement": "Every operation in media.audio.analysis retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-01",
+            "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-02",
+            "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-03"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASR-020-NEG",
+            "given": "Authorized timestamped audio and the declared content-kind analysis intent are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unknown taxonomy, source clock, or unsupported audio is UNKNOWN/UNAVAILABLE; do not emit sound-event labels or finer event classes."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-ASSET-001",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASSET-002",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASSET-007",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASSET-008",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASSET-011",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASSET-014",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-ASSET-015",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "NARROW_REBIND",
+      "sourceSpecificResolution": "Bind the feature only to bounded artifact search over explicitly admitted indexed sources. Reference-voice catalog creation, enrollment, durable membership, likeness authority, and reuse are not established by search and remain separately unresolved.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.artifact.search",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/acceptanceCases",
+          "outcome": "Return a bounded page of authorized governed records within the supplied exact immutable source-media or project version and any declared source-time range. The actor may request transcript, duplicate, rights-eligible, timeline/person/scene/speaker-facet, or visual/metadata search. Candidate matches retain exact version and applicable time scope, matching uncertainty, and whether evidence was observed or inferred. Unindexed or unknown coverage is distinct from an empty result; ranking, completeness, identity, legal clearance, and external-catalog search are not implied. Rights eligibility remains limited to affirmative current authoritative evidence for the exact declared use scope.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASSET-015-POS",
+            "given": "An authorized search query and explicitly admitted indexed source set with immutable version/time scope are supplied.",
+            "when": "The caller requests artifact search.",
+            "then": "Return bounded matching artifact references with source/version/time provenance and disclose index coverage."
+          }
+        },
+        {
+          "capabilityId": "media.artifact.search",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/acceptanceCases",
+          "outcome": "Return a bounded page of authorized governed records within the supplied exact immutable source-media or project version and any declared source-time range. The actor may request transcript, duplicate, rights-eligible, timeline/person/scene/speaker-facet, or visual/metadata search. Candidate matches retain exact version and applicable time scope, matching uncertainty, and whether evidence was observed or inferred. Unindexed or unknown coverage is distinct from an empty result; ranking, completeness, identity, legal clearance, and external-catalog search are not implied. Rights eligibility remains limited to affirmative current authoritative evidence for the exact declared use scope.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASSET-015-NEG",
+            "given": "An authorized search query and explicitly admitted indexed source set with immutable version/time scope are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unknown/unindexed coverage is distinct from no matches; search does not enroll a reference voice, create a durable catalog, or establish likeness/reuse authority."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-ARTIFACT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases",
+          "capabilityIds": [
+            "media.artifact.ingest",
+            "media.artifact.upload",
+            "media.artifact.upload.resume",
+            "media.artifact.import",
+            "media.artifact.inspect",
+            "media.artifact.search",
+            "media.artifact.list",
+            "media.artifact.download",
+            "media.artifact.derive",
+            "media.artifact.output.register",
+            "media.artifact.share",
+            "media.artifact.share.revoke",
+            "media.artifact.delete",
+            "media.artifact.retain",
+            "media.artifact.provenance.export",
+            "media.artifact.source-reference.resolve"
+          ],
+          "statement": "Every operation in media.artifact retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-ARTIFACT-AC-01",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-02",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-03",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-04",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-05",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-06",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-07",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-08",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-09",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-10",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASSET-015-POS",
+            "given": "An authorized search query and explicitly admitted indexed source set with immutable version/time scope are supplied.",
+            "when": "The caller requests artifact search.",
+            "then": "Return bounded matching artifact references with source/version/time provenance and disclose index coverage."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-ARTIFACT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases",
+          "capabilityIds": [
+            "media.artifact.ingest",
+            "media.artifact.upload",
+            "media.artifact.upload.resume",
+            "media.artifact.import",
+            "media.artifact.inspect",
+            "media.artifact.search",
+            "media.artifact.list",
+            "media.artifact.download",
+            "media.artifact.derive",
+            "media.artifact.output.register",
+            "media.artifact.share",
+            "media.artifact.share.revoke",
+            "media.artifact.delete",
+            "media.artifact.retain",
+            "media.artifact.provenance.export",
+            "media.artifact.source-reference.resolve"
+          ],
+          "statement": "Every operation in media.artifact retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-ARTIFACT-AC-01",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-02",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-03",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-04",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-05",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-06",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-07",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-08",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-09",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-10",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASSET-015-NEG",
+            "given": "An authorized search query and explicitly admitted indexed source set with immutable version/time scope are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unknown/unindexed coverage is distinct from no matches; search does not enroll a reference voice, create a durable catalog, or establish likeness/reuse authority."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-ASSET-016",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_INTENT_FROM_MECHANISM",
+      "sourceSpecificResolution": "Define the P0 intent as requesting a derivative from a specific source version under declared profile, purpose, and rights context, using the existing derive capability. Cache key construction, freshness, eviction, and hit/miss reuse are implementation mechanics and are not P0 user outcomes absent a distinct user-visible result.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.artifact.derive",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive/acceptanceCases",
+          "outcome": "Bind a derivation candidate to exact immutable source-version references and, when deriving a clip, an explicit source-time range; also bind the selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish queued-job observation, derived content, and registered artifact version. An identified profile is not a default, and the definition does not establish dispatch, persistence, or completion.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASSET-016-POS",
+            "given": "An immutable source version, declared derivative profile, purpose, and valid rights context are supplied.",
+            "when": "The caller requests a derivative.",
+            "then": "Return or track a derivative candidate linked to those inputs and disclose its result state."
+          }
+        },
+        {
+          "capabilityId": "media.artifact.derive",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive/acceptanceCases",
+          "outcome": "Bind a derivation candidate to exact immutable source-version references and, when deriving a clip, an explicit source-time range; also bind the selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish queued-job observation, derived content, and registered artifact version. An identified profile is not a default, and the definition does not establish dispatch, persistence, or completion.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASSET-016-NEG",
+            "given": "An immutable source version, declared derivative profile, purpose, and valid rights context are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unknown profile/rights blocks or marks the result UNKNOWN; no cache hit, freshness, eviction, or reuse guarantee is a product outcome."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-ARTIFACT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases",
+          "capabilityIds": [
+            "media.artifact.ingest",
+            "media.artifact.upload",
+            "media.artifact.upload.resume",
+            "media.artifact.import",
+            "media.artifact.inspect",
+            "media.artifact.search",
+            "media.artifact.list",
+            "media.artifact.download",
+            "media.artifact.derive",
+            "media.artifact.output.register",
+            "media.artifact.share",
+            "media.artifact.share.revoke",
+            "media.artifact.delete",
+            "media.artifact.retain",
+            "media.artifact.provenance.export",
+            "media.artifact.source-reference.resolve"
+          ],
+          "statement": "Every operation in media.artifact retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-ARTIFACT-AC-01",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-02",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-03",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-04",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-05",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-06",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-07",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-08",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-09",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-10",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASSET-016-POS",
+            "given": "An immutable source version, declared derivative profile, purpose, and valid rights context are supplied.",
+            "when": "The caller requests a derivative.",
+            "then": "Return or track a derivative candidate linked to those inputs and disclose its result state."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-ARTIFACT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases",
+          "capabilityIds": [
+            "media.artifact.ingest",
+            "media.artifact.upload",
+            "media.artifact.upload.resume",
+            "media.artifact.import",
+            "media.artifact.inspect",
+            "media.artifact.search",
+            "media.artifact.list",
+            "media.artifact.download",
+            "media.artifact.derive",
+            "media.artifact.output.register",
+            "media.artifact.share",
+            "media.artifact.share.revoke",
+            "media.artifact.delete",
+            "media.artifact.retain",
+            "media.artifact.provenance.export",
+            "media.artifact.source-reference.resolve"
+          ],
+          "statement": "Every operation in media.artifact retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-ARTIFACT-AC-01",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-02",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-03",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-04",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-05",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-06",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-07",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-08",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-09",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-10",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-ASSET-016-NEG",
+            "given": "An immutable source version, declared derivative profile, purpose, and valid rights context are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unknown profile/rights blocks or marks the result UNKNOWN; no cache hit, freshness, eviction, or reuse guarantee is a product outcome."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-CAP-011",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-CAP-013",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-CAP-016",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-CAP-018",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-CAP-019",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-CAP-027",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-CAP-028",
+      "reviewTreatment": "SOURCE_OPTIONS_REVIEWED; OWNER_CHOICE_REMAINS_OPEN",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "uncertainty": "Reconnect/session state does not establish capture resume safety, scene ownership, or product-effect finality; the cited “actual ownership receipt” has no source-grounded issuer, authority, or evidence contract.",
+      "boundedOptions": [
+        {
+          "id": "A",
+          "meaning": "Define a product-level readback observation only: identify the exact owner, authoritative effect source, evidence reference, and permitted finality states; missing evidence yields UNKNOWN/UNAVAILABLE and never authorizes replay.",
+          "sourceProof": [
+            "media.stream.session.reconnect outcome covers owner-observed session state only",
+            "source feature acceptance requires authoritative product-effect readback where applicable"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Exclude resume safety/scene ownership/effect finality from this feature and retain only reconnect session state; a separate named owner supplies any later product-effect decision.",
+          "sourceProof": [
+            "Current reconnect inputs include session request and consent/capability context",
+            "No exact owner/effect receipt schema or issuer is cited in current bindings"
+          ]
+        }
+      ],
+      "technicalRecommendation": "A only if the actual effect authority and evidence source can be named in the owner source; otherwise B with the effect claims explicitly unresolved.",
+      "candidatePreferenceIfAny": "B_NO_EFFECT_RECEIPT_OR_RESUME_SAFETY_FEATURE",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-CLONE-003",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "reviewTreatment": "SOURCE_OPTIONS_REVIEWED; OWNER_CHOICE_REMAINS_OPEN",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "uncertainty": "Current authorized-clone intent does not show whether tuning is a user-facing product outcome or an implementation route.",
+      "boundedOptions": [
+        {
+          "id": "A",
+          "meaning": "Define user-facing custom voice tuning as a separate product intent with source version, rights/purpose, requested tuning dimensions, output/version semantics, retention, and authorized actor.",
+          "sourceProof": [
+            "media.speech.synthesis.speaker.clone-authorized covers authorized clone intent",
+            "Current evidence does not supply tuning-specific input/output or retention contract"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Declare no separate tuning product intent; tuning remains implementation behavior under the already authorized clone contract and does not create an independently selectable result.",
+          "sourceProof": [
+            "No exact audit-bound tuning capability or feature-specific case exists",
+            "Implementation route cannot independently establish P0 product semantics"
+          ]
+        }
+      ],
+      "technicalRecommendation": "B is the bounded default unless the owner source establishes an independently selectable tuning outcome; do not claim training or model adaptation.",
+      "candidatePreferenceIfAny": "B_NO_SEPARATE_TUNING_PRODUCT_INTENT",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-CLONE-005",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "NARROW_AND_ROUTE",
+      "sourceSpecificResolution": "The exact current consent-reference capability resolves a consent reference only. A speaker profile, protected embedding, or clone target requires its own exact typed source and authority; preserve those as unresolved and keep encryption mechanics out of P0.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.rights.consent.reference",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference/acceptanceCases",
+          "outcome": "Resolve the supplied rights evidence reference in the given identity/authority context and return exactly one source-declared result variant: POLICY_DECISION_REFERENCE or RIGHTS_OBSERVATION. Preserve the variant selector and referenced evidence as supplied.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-CLONE-005-POS",
+            "given": "A consent reference and exact subject/purpose context are supplied.",
+            "when": "The caller requests consent-reference resolution.",
+            "then": "Return the reference resolution state and declared scope only."
+          }
+        },
+        {
+          "capabilityId": "media.rights.consent.reference",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference/acceptanceCases",
+          "outcome": "Resolve the supplied rights evidence reference in the given identity/authority context and return exactly one source-declared result variant: POLICY_DECISION_REFERENCE or RIGHTS_OBSERVATION. Preserve the variant selector and referenced evidence as supplied.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-CLONE-005-NEG",
+            "given": "A consent reference and exact subject/purpose context are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Missing, expired, revoked, or mismatched consent blocks dependent use; resolution does not create a speaker profile, embedding, clone target, or encryption guarantee."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases",
+          "capabilityIds": [
+            "media.rights.consent.reference",
+            "media.rights.permitted-use.evaluate",
+            "media.rights.attestation.record"
+          ],
+          "statement": "Every operation in media.rights retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-RIGHTS-AC-01",
+            "MEDIA-REQ-CAP-RIGHTS-AC-02",
+            "MEDIA-REQ-CAP-RIGHTS-AC-03",
+            "MEDIA-REQ-CAP-RIGHTS-AC-04",
+            "MEDIA-REQ-CAP-RIGHTS-AC-05",
+            "MEDIA-REQ-CAP-RIGHTS-AC-06",
+            "MEDIA-REQ-CAP-RIGHTS-AC-07",
+            "MEDIA-REQ-CAP-RIGHTS-AC-08",
+            "MEDIA-REQ-CAP-RIGHTS-AC-09",
+            "MEDIA-REQ-CAP-RIGHTS-AC-10",
+            "MEDIA-REQ-CAP-RIGHTS-AC-11",
+            "MEDIA-REQ-CAP-RIGHTS-AC-12",
+            "MEDIA-REQ-CAP-RIGHTS-AC-13"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-CLONE-005-POS",
+            "given": "A consent reference and exact subject/purpose context are supplied.",
+            "when": "The caller requests consent-reference resolution.",
+            "then": "Return the reference resolution state and declared scope only."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases",
+          "capabilityIds": [
+            "media.rights.consent.reference",
+            "media.rights.permitted-use.evaluate",
+            "media.rights.attestation.record"
+          ],
+          "statement": "Every operation in media.rights retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-RIGHTS-AC-01",
+            "MEDIA-REQ-CAP-RIGHTS-AC-02",
+            "MEDIA-REQ-CAP-RIGHTS-AC-03",
+            "MEDIA-REQ-CAP-RIGHTS-AC-04",
+            "MEDIA-REQ-CAP-RIGHTS-AC-05",
+            "MEDIA-REQ-CAP-RIGHTS-AC-06",
+            "MEDIA-REQ-CAP-RIGHTS-AC-07",
+            "MEDIA-REQ-CAP-RIGHTS-AC-08",
+            "MEDIA-REQ-CAP-RIGHTS-AC-09",
+            "MEDIA-REQ-CAP-RIGHTS-AC-10",
+            "MEDIA-REQ-CAP-RIGHTS-AC-11",
+            "MEDIA-REQ-CAP-RIGHTS-AC-12",
+            "MEDIA-REQ-CAP-RIGHTS-AC-13"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-CLONE-005-NEG",
+            "given": "A consent reference and exact subject/purpose context are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Missing, expired, revoked, or mismatched consent blocks dependent use; resolution does not create a speaker profile, embedding, clone target, or encryption guarantee."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "reviewTreatment": "SOURCE_OPTIONS_REVIEWED; OWNER_CHOICE_REMAINS_OPEN",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "uncertainty": "Source-free synthetic voice persona creation is semantically distinct from authorized voice cloning; no product applicability or identity/likeness policy is established.",
+      "boundedOptions": [
+        {
+          "id": "A",
+          "meaning": "Define a source-free synthetic voice persona feature with explicit non-identity claims, identity policy, rights boundary, selection inputs, output, and prohibited impersonation cases.",
+          "sourceProof": [
+            "Authorized-clone capability requires authorized source/consent context",
+            "No exact source-free persona capability or acceptance case is cited"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Declare source-free synthetic voice persona creation out of scope for this feature; preserve only the authorized cloning intent and do not substitute it.",
+          "sourceProof": [
+            "Current clone capability is explicitly source-authorized",
+            "No product authority record establishes source-free persona applicability"
+          ]
+        }
+      ],
+      "technicalRecommendation": "B until an explicit product authority and identity policy establish A; cloning semantics cannot stand in for synthetic persona design.",
+      "candidatePreferenceIfAny": "B_SOURCE_FREE_PERSONA_OUT_OF_SCOPE",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-CLONE-007",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_OUTCOMES",
+      "sourceSpecificResolution": "Bind speaker similarity assessment only to the existing authorized-speaker-similarity leaf. Identity consistency is a distinct assertion and remains unsupported unless a source defines identity evidence, threshold/uncertainty, authority, and intended use.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.audio.assess-authorized-speaker-similarity"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.quality.audio.audio.assess-authorized-speaker-similarity",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.audio.assess-authorized-speaker-similarity/acceptanceCases",
+          "outcome": "Return a read-only speaker similarity only for an explicitly authorized comparison purpose, exact valid voice reference/enrollment, and qualified locale/channel regime. Record method identity/version, declared scope and applicability, value and unit or abstention reason, uncertainty/limitations, evidence references, and observation time when available; this observation does not modify the media.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-CLONE-007-POS",
+            "given": "Audio, an authorized reference, and valid purpose/consent context are supplied.",
+            "when": "The caller requests authorized-speaker similarity assessment.",
+            "then": "Return a bounded similarity observation with exact source/profile provenance and uncertainty."
+          }
+        },
+        {
+          "capabilityId": "media.quality.audio.audio.assess-authorized-speaker-similarity",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.audio.assess-authorized-speaker-similarity/acceptanceCases",
+          "outcome": "Return a read-only speaker similarity only for an explicitly authorized comparison purpose, exact valid voice reference/enrollment, and qualified locale/channel regime. Record method identity/version, declared scope and applicability, value and unit or abstention reason, uncertainty/limitations, evidence references, and observation time when available; this observation does not modify the media.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-CLONE-007-NEG",
+            "given": "Audio, an authorized reference, and valid purpose/consent context are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Missing reference authority or method yields UNKNOWN/BLOCKED; similarity is not identity verification, attribution, or identity-consistency certification."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO/acceptanceCases",
+          "capabilityIds": [
+            "media.quality.audio.audio.assess-noise",
+            "media.quality.audio.audio.assess-clipping",
+            "media.quality.audio.audio.assess-distortion",
+            "media.quality.audio.audio.assess-intelligibility",
+            "media.quality.audio.audio.assess-separation-leakage",
+            "media.quality.audio.audio.assess-spectral",
+            "media.quality.audio.audio.assess-phase",
+            "media.quality.audio.audio.assess-loudness",
+            "media.quality.audio.audio.assess-true-peak",
+            "media.quality.audio.audio.assess-naturalness",
+            "media.quality.audio.audio.assess-authorized-speaker-similarity"
+          ],
+          "statement": "Every operation in media.quality.audio retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-QUALITY-AUDIO-AC-01",
+            "MEDIA-REQ-CAP-QUALITY-AUDIO-AC-02"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-CLONE-007-POS",
+            "given": "Audio, an authorized reference, and valid purpose/consent context are supplied.",
+            "when": "The caller requests authorized-speaker similarity assessment.",
+            "then": "Return a bounded similarity observation with exact source/profile provenance and uncertainty."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AUDIO/acceptanceCases",
+          "capabilityIds": [
+            "media.quality.audio.audio.assess-noise",
+            "media.quality.audio.audio.assess-clipping",
+            "media.quality.audio.audio.assess-distortion",
+            "media.quality.audio.audio.assess-intelligibility",
+            "media.quality.audio.audio.assess-separation-leakage",
+            "media.quality.audio.audio.assess-spectral",
+            "media.quality.audio.audio.assess-phase",
+            "media.quality.audio.audio.assess-loudness",
+            "media.quality.audio.audio.assess-true-peak",
+            "media.quality.audio.audio.assess-naturalness",
+            "media.quality.audio.audio.assess-authorized-speaker-similarity"
+          ],
+          "statement": "Every operation in media.quality.audio retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-QUALITY-AUDIO-AC-01",
+            "MEDIA-REQ-CAP-QUALITY-AUDIO-AC-02"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-CLONE-007-NEG",
+            "given": "Audio, an authorized reference, and valid purpose/consent context are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Missing reference authority or method yields UNKNOWN/BLOCKED; similarity is not identity verification, attribution, or identity-consistency certification."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "reviewTreatment": "SOURCE_OPTIONS_REVIEWED; OWNER_CHOICE_REMAINS_OPEN",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "uncertainty": "Consent-reference resolution does not define avatar/persona enrollment or likeness authority.",
+      "boundedOptions": [
+        {
+          "id": "A",
+          "meaning": "Define enrollment only with exact subject/avatar identity, consent/rights scope, enrollment purpose, authorized decision authority, revocation and lifecycle semantics.",
+          "sourceProof": [
+            "media.rights.consent.reference resolves a consent reference",
+            "Current source does not establish avatar/persona enrollment schema or likeness authority"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Declare no enrollment outcome; retain only consent-reference resolution and leave any avatar/persona binding to a separately authorized source.",
+          "sourceProof": [
+            "Current consent leaf has no avatar/persona output",
+            "No exact owner or authority record for enrollment is cited"
+          ]
+        }
+      ],
+      "technicalRecommendation": "B unless the rights owner supplies the named authority and enrollment source; never infer enrollment from consent resolution.",
+      "candidatePreferenceIfAny": "B_CONSENT_REFERENCE_ONLY_NO_ENROLLMENT",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-COLLAB-001",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLLAB-002",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "NARROW_REBIND",
+      "sourceSpecificResolution": "Bind only the scoped project review action and its review state to the existing project-review capability. Checklist criteria, quality evidence evaluation, and quality signoff require separately defined criteria, evidence, authority, and decision semantics.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.project.review",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review/acceptanceCases",
+          "outcome": "The result records a comment, approval, rejection, or request for changes for one exact immutable project version, within an explicit purpose and one or more selected review scopes (quality, rights, provenance, or approval), and only under current assigned reviewer authority with an explicit scope and expiry disposition. The review outcome remains linked to that exact version and scope; it does not mutate the reviewed version, clear rights, or authorize external publication. Missing or stale version, scope, purpose, evidence, authority, or expiry disposition leaves the result UNKNOWN or blocks the review.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-002-POS",
+            "given": "An authorized reviewer action targets an exact project version.",
+            "when": "The reviewer records a project review action.",
+            "then": "Record actor, scope, action, target version, and resulting review state only."
+          }
+        },
+        {
+          "capabilityId": "media.project.review",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review/acceptanceCases",
+          "outcome": "The result records a comment, approval, rejection, or request for changes for one exact immutable project version, within an explicit purpose and one or more selected review scopes (quality, rights, provenance, or approval), and only under current assigned reviewer authority with an explicit scope and expiry disposition. The review outcome remains linked to that exact version and scope; it does not mutate the reviewed version, clear rights, or authorize external publication. Missing or stale version, scope, purpose, evidence, authority, or expiry disposition leaves the result UNKNOWN or blocks the review.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-002-NEG",
+            "given": "An authorized reviewer action targets an exact project version.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "No checklist pass, evidence validity decision, or quality signoff is implied without explicit criteria and authorized signoff evidence."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-PROJECT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases",
+          "capabilityIds": [
+            "media.project.create",
+            "media.project.inspect",
+            "media.project.update",
+            "media.project.search",
+            "media.project.organize",
+            "media.project.archive",
+            "media.project.version",
+            "media.project.duplicate",
+            "media.project.branch",
+            "media.project.collaborate",
+            "media.project.review",
+            "media.project.restore",
+            "media.project.source-asset.attach",
+            "media.project.derived-asset.attach",
+            "media.project.composition.update",
+            "media.project.settings.update",
+            "media.project.scene.patch-merge"
+          ],
+          "statement": "Every operation in media.project retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-PROJECT-AC-01",
+            "MEDIA-REQ-CAP-PROJECT-AC-02",
+            "MEDIA-REQ-CAP-PROJECT-AC-03",
+            "MEDIA-REQ-CAP-PROJECT-AC-04",
+            "MEDIA-REQ-CAP-PROJECT-AC-05",
+            "MEDIA-REQ-CAP-PROJECT-AC-06",
+            "MEDIA-REQ-CAP-PROJECT-AC-07",
+            "MEDIA-REQ-CAP-PROJECT-AC-08"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-002-POS",
+            "given": "An authorized reviewer action targets an exact project version.",
+            "when": "The reviewer records a project review action.",
+            "then": "Record actor, scope, action, target version, and resulting review state only."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-PROJECT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases",
+          "capabilityIds": [
+            "media.project.create",
+            "media.project.inspect",
+            "media.project.update",
+            "media.project.search",
+            "media.project.organize",
+            "media.project.archive",
+            "media.project.version",
+            "media.project.duplicate",
+            "media.project.branch",
+            "media.project.collaborate",
+            "media.project.review",
+            "media.project.restore",
+            "media.project.source-asset.attach",
+            "media.project.derived-asset.attach",
+            "media.project.composition.update",
+            "media.project.settings.update",
+            "media.project.scene.patch-merge"
+          ],
+          "statement": "Every operation in media.project retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-PROJECT-AC-01",
+            "MEDIA-REQ-CAP-PROJECT-AC-02",
+            "MEDIA-REQ-CAP-PROJECT-AC-03",
+            "MEDIA-REQ-CAP-PROJECT-AC-04",
+            "MEDIA-REQ-CAP-PROJECT-AC-05",
+            "MEDIA-REQ-CAP-PROJECT-AC-06",
+            "MEDIA-REQ-CAP-PROJECT-AC-07",
+            "MEDIA-REQ-CAP-PROJECT-AC-08"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-002-NEG",
+            "given": "An authorized reviewer action targets an exact project version.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "No checklist pass, evidence validity decision, or quality signoff is implied without explicit criteria and authorized signoff evidence."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-COLLAB-003",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_AND_NARROW",
+      "finding": "Candidate cases added to both media.quality.compare and media.project.review share a combined “comparison or review” given/when/then. The project-review capability does not return comparison results, and the quality-comparison capability does not record review state. The same combined acceptance text is also placed under both quality and project requirements.",
+      "findingId": "R3-SOURCE-02",
+      "exactWhere": [
+        "cohort-01.r3.source-amendment-candidate.v2.json#/capabilityAcceptanceCaseAdditions/@auditId=AUD-COLLAB-003",
+        "cohort-01.r3.source-amendment-candidate.v2.json#/requirementAcceptanceCaseAdditions/@auditId=AUD-COLLAB-003",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.compare",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review"
+      ],
+      "repair": "Split into a comparison-only case bound to media.quality.compare and its quality requirement, and a review-action-only case bound to media.project.review and its project requirement. Keep frame markup/anchor creation unresolved unless an exact annotation source is found.",
+      "acceptanceCriterion": "Each case states only the target leaf outcome; comparison does not mutate project/review state and review does not assert comparison evidence or create markup."
+    },
+    {
+      "auditId": "AUD-COLLAB-005",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLLAB-006",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLLAB-007",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_GRANT_FROM_PACKAGE",
+      "sourceSpecificResolution": "Bind the existing sharing capability to a scoped, expiring share grant with declared recipient/resource and revocation state. Review package assembly/export is a separate operation and remains missing until an exact package source defines included records and export result.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.share"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.artifact.share",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.share/acceptanceCases",
+          "outcome": "The result is a sharing-grant observation for one governed artifact reference and one recipient/sharing scope under rights-and-retention context, when applicable authority permits that scope. A grant observation does not establish recipient access or download.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-007-POS",
+            "given": "An authorized resource, recipient scope, expiry, and applicable sharing authority are supplied.",
+            "when": "The caller creates a share grant.",
+            "then": "Return a grant reference with resource/recipient scope, expiry, and revocation state."
+          }
+        },
+        {
+          "capabilityId": "media.artifact.share",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.share/acceptanceCases",
+          "outcome": "The result is a sharing-grant observation for one governed artifact reference and one recipient/sharing scope under rights-and-retention context, when applicable authority permits that scope. A grant observation does not establish recipient access or download.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-007-NEG",
+            "given": "An authorized resource, recipient scope, expiry, and applicable sharing authority are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unspecified scope blocks grant creation; expiry/revocation does not delete or create a review package or prove export."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-ARTIFACT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases",
+          "capabilityIds": [
+            "media.artifact.ingest",
+            "media.artifact.upload",
+            "media.artifact.upload.resume",
+            "media.artifact.import",
+            "media.artifact.inspect",
+            "media.artifact.search",
+            "media.artifact.list",
+            "media.artifact.download",
+            "media.artifact.derive",
+            "media.artifact.output.register",
+            "media.artifact.share",
+            "media.artifact.share.revoke",
+            "media.artifact.delete",
+            "media.artifact.retain",
+            "media.artifact.provenance.export",
+            "media.artifact.source-reference.resolve"
+          ],
+          "statement": "Every operation in media.artifact retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-ARTIFACT-AC-01",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-02",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-03",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-04",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-05",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-06",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-07",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-08",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-09",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-10",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-007-POS",
+            "given": "An authorized resource, recipient scope, expiry, and applicable sharing authority are supplied.",
+            "when": "The caller creates a share grant.",
+            "then": "Return a grant reference with resource/recipient scope, expiry, and revocation state."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-ARTIFACT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases",
+          "capabilityIds": [
+            "media.artifact.ingest",
+            "media.artifact.upload",
+            "media.artifact.upload.resume",
+            "media.artifact.import",
+            "media.artifact.inspect",
+            "media.artifact.search",
+            "media.artifact.list",
+            "media.artifact.download",
+            "media.artifact.derive",
+            "media.artifact.output.register",
+            "media.artifact.share",
+            "media.artifact.share.revoke",
+            "media.artifact.delete",
+            "media.artifact.retain",
+            "media.artifact.provenance.export",
+            "media.artifact.source-reference.resolve"
+          ],
+          "statement": "Every operation in media.artifact retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-ARTIFACT-AC-01",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-02",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-03",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-04",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-05",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-06",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-07",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-08",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-09",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-10",
+            "MEDIA-REQ-CAP-ARTIFACT-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-007-NEG",
+            "given": "An authorized resource, recipient scope, expiry, and applicable sharing authority are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unspecified scope blocks grant creation; expiry/revocation does not delete or create a review package or prove export."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-COLLAB-008",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "NARROW_REBIND",
+      "sourceSpecificResolution": "Bind existing project-review actions only. Proposal creation and proposal payload semantics (author, target version, content, state transitions, and acceptance) are separate outcomes; add a feature case only if the exact proposal source exists.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.project.review",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review/acceptanceCases",
+          "outcome": "The result records a comment, approval, rejection, or request for changes for one exact immutable project version, within an explicit purpose and one or more selected review scopes (quality, rights, provenance, or approval), and only under current assigned reviewer authority with an explicit scope and expiry disposition. The review outcome remains linked to that exact version and scope; it does not mutate the reviewed version, clear rights, or authorize external publication. Missing or stale version, scope, purpose, evidence, authority, or expiry disposition leaves the result UNKNOWN or blocks the review.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-008-POS",
+            "given": "An authorized reviewer selects an exact project version and review action.",
+            "when": "The reviewer submits the action.",
+            "then": "Record the review action and resulting state against that version."
+          }
+        },
+        {
+          "capabilityId": "media.project.review",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review/acceptanceCases",
+          "outcome": "The result records a comment, approval, rejection, or request for changes for one exact immutable project version, within an explicit purpose and one or more selected review scopes (quality, rights, provenance, or approval), and only under current assigned reviewer authority with an explicit scope and expiry disposition. The review outcome remains linked to that exact version and scope; it does not mutate the reviewed version, clear rights, or authorize external publication. Missing or stale version, scope, purpose, evidence, authority, or expiry disposition leaves the result UNKNOWN or blocks the review.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-008-NEG",
+            "given": "An authorized reviewer selects an exact project version and review action.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Review does not create, accept, merge, or persist a proposal payload; unsupported proposal semantics remain unavailable."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-PROJECT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases",
+          "capabilityIds": [
+            "media.project.create",
+            "media.project.inspect",
+            "media.project.update",
+            "media.project.search",
+            "media.project.organize",
+            "media.project.archive",
+            "media.project.version",
+            "media.project.duplicate",
+            "media.project.branch",
+            "media.project.collaborate",
+            "media.project.review",
+            "media.project.restore",
+            "media.project.source-asset.attach",
+            "media.project.derived-asset.attach",
+            "media.project.composition.update",
+            "media.project.settings.update",
+            "media.project.scene.patch-merge"
+          ],
+          "statement": "Every operation in media.project retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-PROJECT-AC-01",
+            "MEDIA-REQ-CAP-PROJECT-AC-02",
+            "MEDIA-REQ-CAP-PROJECT-AC-03",
+            "MEDIA-REQ-CAP-PROJECT-AC-04",
+            "MEDIA-REQ-CAP-PROJECT-AC-05",
+            "MEDIA-REQ-CAP-PROJECT-AC-06",
+            "MEDIA-REQ-CAP-PROJECT-AC-07",
+            "MEDIA-REQ-CAP-PROJECT-AC-08"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-008-POS",
+            "given": "An authorized reviewer selects an exact project version and review action.",
+            "when": "The reviewer submits the action.",
+            "then": "Record the review action and resulting state against that version."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-PROJECT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases",
+          "capabilityIds": [
+            "media.project.create",
+            "media.project.inspect",
+            "media.project.update",
+            "media.project.search",
+            "media.project.organize",
+            "media.project.archive",
+            "media.project.version",
+            "media.project.duplicate",
+            "media.project.branch",
+            "media.project.collaborate",
+            "media.project.review",
+            "media.project.restore",
+            "media.project.source-asset.attach",
+            "media.project.derived-asset.attach",
+            "media.project.composition.update",
+            "media.project.settings.update",
+            "media.project.scene.patch-merge"
+          ],
+          "statement": "Every operation in media.project retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-PROJECT-AC-01",
+            "MEDIA-REQ-CAP-PROJECT-AC-02",
+            "MEDIA-REQ-CAP-PROJECT-AC-03",
+            "MEDIA-REQ-CAP-PROJECT-AC-04",
+            "MEDIA-REQ-CAP-PROJECT-AC-05",
+            "MEDIA-REQ-CAP-PROJECT-AC-06",
+            "MEDIA-REQ-CAP-PROJECT-AC-07",
+            "MEDIA-REQ-CAP-PROJECT-AC-08"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-008-NEG",
+            "given": "An authorized reviewer selects an exact project version and review action.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Review does not create, accept, merge, or persist a proposal payload; unsupported proposal semantics remain unavailable."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-COLLAB-010",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLLAB-011",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "NARROW_REBIND",
+      "sourceSpecificResolution": "Keep project organization limited to user-authored project hierarchy. A reusable team brand/voice/style library introduces shared ownership, access controls, tenant boundaries, and rights/reuse semantics not established by hierarchy organization.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.organize"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.project.organize",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.organize/acceptanceCases",
+          "outcome": "Organize the exact versioned project according to declared user intent, including user-authored project/library hierarchy and smart-bin membership. A smart bin is explicitly either a live query or a snapshot; membership facts retain observed, inferred, or unknown status and are not silently converted. The returned state distinguishes the requested arrangement from confirmed state and preserves unknown outcome; this definition does not imply any particular folder taxonomy, automatic classification, or runtime commit.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-011-POS",
+            "given": "A project and authorized editor are supplied with a user-scoped hierarchy change.",
+            "when": "Project organization is requested.",
+            "then": "Return the proposed or updated user-scoped hierarchy and its versioned state."
+          }
+        },
+        {
+          "capabilityId": "media.project.organize",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.organize/acceptanceCases",
+          "outcome": "Organize the exact versioned project according to declared user intent, including user-authored project/library hierarchy and smart-bin membership. A smart bin is explicitly either a live query or a snapshot; membership facts retain observed, inferred, or unknown status and are not silently converted. The returned state distinguishes the requested arrangement from confirmed state and preserves unknown outcome; this definition does not imply any particular folder taxonomy, automatic classification, or runtime commit.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-011-NEG",
+            "given": "A project and authorized editor are supplied with a user-scoped hierarchy change.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Do not infer team library membership, cross-tenant visibility, reusable brand/voice/style rights, or shared ownership."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-PROJECT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases",
+          "capabilityIds": [
+            "media.project.create",
+            "media.project.inspect",
+            "media.project.update",
+            "media.project.search",
+            "media.project.organize",
+            "media.project.archive",
+            "media.project.version",
+            "media.project.duplicate",
+            "media.project.branch",
+            "media.project.collaborate",
+            "media.project.review",
+            "media.project.restore",
+            "media.project.source-asset.attach",
+            "media.project.derived-asset.attach",
+            "media.project.composition.update",
+            "media.project.settings.update",
+            "media.project.scene.patch-merge"
+          ],
+          "statement": "Every operation in media.project retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-PROJECT-AC-01",
+            "MEDIA-REQ-CAP-PROJECT-AC-02",
+            "MEDIA-REQ-CAP-PROJECT-AC-03",
+            "MEDIA-REQ-CAP-PROJECT-AC-04",
+            "MEDIA-REQ-CAP-PROJECT-AC-05",
+            "MEDIA-REQ-CAP-PROJECT-AC-06",
+            "MEDIA-REQ-CAP-PROJECT-AC-07",
+            "MEDIA-REQ-CAP-PROJECT-AC-08"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-011-POS",
+            "given": "A project and authorized editor are supplied with a user-scoped hierarchy change.",
+            "when": "Project organization is requested.",
+            "then": "Return the proposed or updated user-scoped hierarchy and its versioned state."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-PROJECT",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases",
+          "capabilityIds": [
+            "media.project.create",
+            "media.project.inspect",
+            "media.project.update",
+            "media.project.search",
+            "media.project.organize",
+            "media.project.archive",
+            "media.project.version",
+            "media.project.duplicate",
+            "media.project.branch",
+            "media.project.collaborate",
+            "media.project.review",
+            "media.project.restore",
+            "media.project.source-asset.attach",
+            "media.project.derived-asset.attach",
+            "media.project.composition.update",
+            "media.project.settings.update",
+            "media.project.scene.patch-merge"
+          ],
+          "statement": "Every operation in media.project retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-PROJECT-AC-01",
+            "MEDIA-REQ-CAP-PROJECT-AC-02",
+            "MEDIA-REQ-CAP-PROJECT-AC-03",
+            "MEDIA-REQ-CAP-PROJECT-AC-04",
+            "MEDIA-REQ-CAP-PROJECT-AC-05",
+            "MEDIA-REQ-CAP-PROJECT-AC-06",
+            "MEDIA-REQ-CAP-PROJECT-AC-07",
+            "MEDIA-REQ-CAP-PROJECT-AC-08"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLLAB-011-NEG",
+            "given": "A project and authorized editor are supplied with a user-scoped hierarchy change.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Do not infer team library membership, cross-tenant visibility, reusable brand/voice/style rights, or shared ownership."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-COLLAB-012",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLLAB-013",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-001",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "ADD_MISSING_LEAF_CANDIDATE",
+      "finding": "The proposed new saturation capability is not an existing leaf, but the row retains media.color.exposure in proposedExistingCapabilityRefs. The candidate also declares no typed saturation parameter schema or finite range/effective-value semantics; “unknown parameter range” as a non-success note does not define the positive PDP-0 request/result.",
+      "findingId": "R3-SOURCE-01",
+      "exactWhere": [
+        "cohort-01.r3.json#/rows/@auditId=AUD-COLOR-001/proposedExistingCapabilityRefs",
+        "cohort-01.r3.source-amendment-candidate.v2.json#/newCapabilityDefinitionCandidates/@auditId=AUD-COLOR-001"
+      ],
+      "repair": "Keep the new-leaf status explicit, remove any implication that exposure is the saturation binding, and add an owner-decided typed saturation input with finite supported values/range and fail-closed behavior, or leave saturation applicability/result UNKNOWN until that authority exists.",
+      "acceptanceCriterion": "The candidate has an exact new capability identity and requirement trace, finite typed input/effective-value contract from owner authority, and explicit UNKNOWN/UNAVAILABLE behavior for unsupported contexts."
+    },
+    {
+      "auditId": "AUD-COLOR-002",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_CONTROL_FAMILIES",
+      "sourceSpecificResolution": "Bind lift/gamma/gain or color-wheel controls only to the exact existing curves capability if its current semantic contract expressly covers the requested control family; keep temperature, tint, and selective color as their own exact leaves. No family-level alias may claim all controls.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.curves"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.color.curves",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.curves/acceptanceCases",
+          "outcome": "P0 defines the adjust curves result as a local color-treatment candidate or draft whose intended operation is to adjust tonal or color curves in the declared source and target color context; it does not define a canonical artifact change.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLOR-002-POS",
+            "given": "A versioned source and explicit curve-adjustment intent in the declared color context are supplied.",
+            "when": "The caller requests tonal or color curve adjustment.",
+            "then": "Return a local curve-treatment candidate and identify the exact curve intent; this case does not imply lift/gamma/gain or wheel controls."
+          }
+        },
+        {
+          "capabilityId": "media.color.curves",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.curves/acceptanceCases",
+          "outcome": "P0 defines the adjust curves result as a local color-treatment candidate or draft whose intended operation is to adjust tonal or color curves in the declared source and target color context; it does not define a canonical artifact change.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLOR-002-NEG",
+            "given": "A versioned source and explicit curve-adjustment intent in the declared color context are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unbound curve parameters or color context remain UNKNOWN/UNAVAILABLE; do not substitute temperature, tint, or selective-color controls."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR/acceptanceCases",
+          "capabilityIds": [
+            "media.color.white-balance",
+            "media.color.exposure",
+            "media.color.contrast",
+            "media.color.curves",
+            "media.color.temperature",
+            "media.color.tint",
+            "media.color.selective-color",
+            "media.color.skin-tone-preserve",
+            "media.color.shot-match",
+            "media.color.lut",
+            "media.color.colorspace-gamut-convert",
+            "media.color.hdr-grade",
+            "media.color.sdr-hdr-convert",
+            "media.color.tone-map",
+            "media.color.highlight-shadow-recover"
+          ],
+          "statement": "Every operation in media.color retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-COLOR-AC-01",
+            "MEDIA-REQ-CAP-COLOR-AC-02"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLOR-002-POS",
+            "given": "A versioned source and explicit curve-adjustment intent in the declared color context are supplied.",
+            "when": "The caller requests tonal or color curve adjustment.",
+            "then": "Return a local curve-treatment candidate and identify the exact curve intent; this case does not imply lift/gamma/gain or wheel controls."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-COLOR",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR/acceptanceCases",
+          "capabilityIds": [
+            "media.color.white-balance",
+            "media.color.exposure",
+            "media.color.contrast",
+            "media.color.curves",
+            "media.color.temperature",
+            "media.color.tint",
+            "media.color.selective-color",
+            "media.color.skin-tone-preserve",
+            "media.color.shot-match",
+            "media.color.lut",
+            "media.color.colorspace-gamut-convert",
+            "media.color.hdr-grade",
+            "media.color.sdr-hdr-convert",
+            "media.color.tone-map",
+            "media.color.highlight-shadow-recover"
+          ],
+          "statement": "Every operation in media.color retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-COLOR-AC-01",
+            "MEDIA-REQ-CAP-COLOR-AC-02"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-COLOR-002-NEG",
+            "given": "A versioned source and explicit curve-adjustment intent in the declared color context are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "Unbound curve parameters or color context remain UNKNOWN/UNAVAILABLE; do not substitute temperature, tint, or selective-color controls."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [
+        {
+          "auditId": "AUD-COLOR-002",
+          "candidateId": "media.color.lift-gamma-gain",
+          "label": "Adjust lift, gamma, gain, and color wheels",
+          "operation": "color.lift-gamma-gain.adjust",
+          "outcome": "Create a local color-treatment candidate for explicitly named lift, gamma, gain, or color-wheel controls in a declared versioned source and color context; curves remain a distinct existing operation.",
+          "typedInputSlots": [
+            {
+              "slotId": "source",
+              "sourceType": "versioned-media-artifact",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "color-context",
+              "sourceType": "declared-source-and-target-color-context",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            },
+            {
+              "slotId": "control-intent",
+              "sourceType": "named-lift-gamma-gain-or-color-wheel-intent",
+              "cardinality": "EXACTLY_ONE",
+              "required": true
+            }
+          ],
+          "successOutputs": [
+            {
+              "artifactType": "color-treatment-candidate-with-source-version-control-family-and-effective-parameters",
+              "requiredOnSuccess": true
+            }
+          ],
+          "nonSuccessOutputs": [
+            "Unknown control family, unsupported parameter, or color context is explicit and no alternative control is substituted."
+          ],
+          "explicitUnsupportedCases": [
+            "Curve adjustment remains the separate media.color.curves capability.",
+            "No temperature, tint, selective-color, exposure, or contrast behavior is inferred."
+          ],
+          "requiredAuthority": [
+            "identity-and-tenant-context",
+            "operation-specific-policy-and-rights",
+            "artifact-read-or-write-permission-as-applicable"
+          ],
+          "requirementRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+          "channelApplicability": "UNRESOLVED; no inherited channel applicability",
+          "sourceFeatureRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-002",
+          "sourceAcceptanceCriterion": "Qualified SDR/HDR fixtures compare input/output pixel transforms and relevant color tags; unsupported color profiles fail visibly rather than silently changing interpretation."
+        }
+      ],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-COLOR-003",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-004",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-005",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-006",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "reviewTreatment": "SOURCE_OPTIONS_REVIEWED; OWNER_CHOICE_REMAINS_OPEN",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "uncertainty": "ACES compatibility/conformance has no current source-established decision authority; profile validation or gamut conversion is not certification.",
+      "boundedOptions": [
+        {
+          "id": "A",
+          "meaning": "Define a compatibility observation against one explicitly named profile/target and disclose supported, unsupported, and unknown dimensions; make no standards-conformance claim.",
+          "sourceProof": [
+            "media.profile.validate and media.color.colorspace-gamut-convert cover bounded profile/conversion semantics",
+            "No certification authority or conformance evidence is cited"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Claim conformance only after naming the governing standard/version, authorized decision body, test method, target, and evidence artifact.",
+          "sourceProof": [
+            "No current binding supplies those standard/authority/evidence fields"
+          ]
+        }
+      ],
+      "technicalRecommendation": "A; B remains unavailable until a real authority and evidence source are bound.",
+      "candidatePreferenceIfAny": "A_COMPATIBILITY_OBSERVATION_NO_CERTIFICATION",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-COLOR-008",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-009",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-010",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_AND_NARROW",
+      "finding": "The same skin-tone-preservation-or-caption-overlay case is added to both media.color.skin-tone-preserve and media.compose.track.video-audio-caption-overlay. Each target should describe only its own operation; an overlay capability case cannot carry the color-treatment outcome, and a color leaf cannot carry overlay composition.",
+      "findingId": "R3-SOURCE-03",
+      "exactWhere": [
+        "cohort-01.r3.source-amendment-candidate.v2.json#/capabilityAcceptanceCaseAdditions/@auditId=AUD-COLOR-010",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.skin-tone-preserve",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay"
+      ],
+      "repair": "Write separate cases: skin-tone treatment only on its color leaf, and overlay composition only on its composition leaf. Keep color-safety, contrast, and fidelity claims unknown until named criteria, reference authority, method, and evidence exist.",
+      "acceptanceCriterion": "Each capability and parent requirement case binds one operation and its own source/output semantics; neither implies the other or an unevidenced safety/fidelity result."
+    },
+    {
+      "auditId": "AUD-COLOR-011",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-012",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-013",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-014",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-015",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-016",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-COLOR-017",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-001",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SEPARATE_MANIFEST_GRAPH_EXECUTION",
+      "sourceSpecificResolution": "Define render-manifest as a declarative request containing source references, rational-time selections, and explicitly represented dependencies. Do not claim graph nodes, dependency evaluation, or rendered output unless those are separately modeled; render execution remains a distinct operation.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.render-manifest"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.compose.render-manifest",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.render-manifest/acceptanceCases",
+          "outcome": "P0 defines the create render manifest result as a local composition candidate or draft whose intended operation is to describe the composition inputs and render configuration in a manifest; it does not define a committed project change or rendered delivery.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-DELIV-001-POS",
+            "given": "Versioned source references, rational-time selections, and any declared dependencies are supplied.",
+            "when": "The caller authors a render manifest.",
+            "then": "Return a manifest candidate preserving exact source references, selected time ranges, and explicitly declared dependencies."
+          }
+        },
+        {
+          "capabilityId": "media.compose.render-manifest",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.render-manifest/acceptanceCases",
+          "outcome": "P0 defines the create render manifest result as a local composition candidate or draft whose intended operation is to describe the composition inputs and render configuration in a manifest; it does not define a committed project change or rendered delivery.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-DELIV-001-NEG",
+            "given": "Versioned source references, rational-time selections, and any declared dependencies are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "A manifest is not an executed graph or rendered result; unresolved dependencies block completion claims and no render is inferred."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-COMPOSE",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases",
+          "capabilityIds": [
+            "media.compose.multitrack-timeline",
+            "media.compose.scene-storyboard-assemble",
+            "media.compose.track.video-audio-caption-overlay",
+            "media.compose.transition",
+            "media.compose.titles-credits-lower-thirds",
+            "media.compose.exact-typography-logo-brand",
+            "media.compose.safe-area",
+            "media.compose.reusable-composition",
+            "media.compose.render-manifest"
+          ],
+          "statement": "Every operation in media.compose retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-COMPOSE-AC-01",
+            "MEDIA-REQ-CAP-COMPOSE-AC-02",
+            "MEDIA-REQ-CAP-COMPOSE-AC-03",
+            "MEDIA-REQ-CAP-COMPOSE-AC-04",
+            "MEDIA-REQ-CAP-COMPOSE-AC-05",
+            "MEDIA-REQ-CAP-COMPOSE-AC-06",
+            "MEDIA-REQ-CAP-COMPOSE-AC-07",
+            "MEDIA-REQ-CAP-COMPOSE-AC-08",
+            "MEDIA-REQ-CAP-COMPOSE-AC-09",
+            "MEDIA-REQ-CAP-COMPOSE-AC-10",
+            "MEDIA-REQ-CAP-COMPOSE-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-DELIV-001-POS",
+            "given": "Versioned source references, rational-time selections, and any declared dependencies are supplied.",
+            "when": "The caller authors a render manifest.",
+            "then": "Return a manifest candidate preserving exact source references, selected time ranges, and explicitly declared dependencies."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-COMPOSE",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases",
+          "capabilityIds": [
+            "media.compose.multitrack-timeline",
+            "media.compose.scene-storyboard-assemble",
+            "media.compose.track.video-audio-caption-overlay",
+            "media.compose.transition",
+            "media.compose.titles-credits-lower-thirds",
+            "media.compose.exact-typography-logo-brand",
+            "media.compose.safe-area",
+            "media.compose.reusable-composition",
+            "media.compose.render-manifest"
+          ],
+          "statement": "Every operation in media.compose retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-COMPOSE-AC-01",
+            "MEDIA-REQ-CAP-COMPOSE-AC-02",
+            "MEDIA-REQ-CAP-COMPOSE-AC-03",
+            "MEDIA-REQ-CAP-COMPOSE-AC-04",
+            "MEDIA-REQ-CAP-COMPOSE-AC-05",
+            "MEDIA-REQ-CAP-COMPOSE-AC-06",
+            "MEDIA-REQ-CAP-COMPOSE-AC-07",
+            "MEDIA-REQ-CAP-COMPOSE-AC-08",
+            "MEDIA-REQ-CAP-COMPOSE-AC-09",
+            "MEDIA-REQ-CAP-COMPOSE-AC-10",
+            "MEDIA-REQ-CAP-COMPOSE-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-DELIV-001-NEG",
+            "given": "Versioned source references, rational-time selections, and any declared dependencies are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "A manifest is not an executed graph or rendered result; unresolved dependencies block completion claims and no render is inferred."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-DELIV-002",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SEPARATE_REQUEST_FROM_RESULT",
+      "sourceSpecificResolution": "Keep PREVIEW/FINAL labels as request intent on the render-manifest only. Bind a produced preview/final render result to an exact output capability only when the source defines output artifact, profile, and result state; manifest creation alone is not rendering.",
+      "exactCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.render-manifest"
+      ],
+      "exactRequirementRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE"
+      ],
+      "liveCapabilityEvidence": [
+        {
+          "capabilityId": "media.compose.render-manifest",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.render-manifest/acceptanceCases",
+          "outcome": "P0 defines the create render manifest result as a local composition candidate or draft whose intended operation is to describe the composition inputs and render configuration in a manifest; it does not define a committed project change or rendered delivery.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-DELIV-002-POS",
+            "given": "A valid manifest and explicit PREVIEW or FINAL request intent are supplied.",
+            "when": "The caller authors the render manifest.",
+            "then": "Return the manifest and preserve request intent without asserting a produced preview/final output."
+          }
+        },
+        {
+          "capabilityId": "media.compose.render-manifest",
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.render-manifest/acceptanceCases",
+          "outcome": "P0 defines the create render manifest result as a local composition candidate or draft whose intended operation is to describe the composition inputs and render configuration in a manifest; it does not define a committed project change or rendered delivery.",
+          "existingAcceptanceCaseCount": 2,
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-DELIV-002-NEG",
+            "given": "A valid manifest and explicit PREVIEW or FINAL request intent are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "If render execution is unavailable or unbound, report not-produced/UNKNOWN; a request label is not an output artifact."
+          }
+        }
+      ],
+      "liveRequirementEvidence": [
+        {
+          "requirementId": "MEDIA-REQ-CAP-COMPOSE",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases",
+          "capabilityIds": [
+            "media.compose.multitrack-timeline",
+            "media.compose.scene-storyboard-assemble",
+            "media.compose.track.video-audio-caption-overlay",
+            "media.compose.transition",
+            "media.compose.titles-credits-lower-thirds",
+            "media.compose.exact-typography-logo-brand",
+            "media.compose.safe-area",
+            "media.compose.reusable-composition",
+            "media.compose.render-manifest"
+          ],
+          "statement": "Every operation in media.compose retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-COMPOSE-AC-01",
+            "MEDIA-REQ-CAP-COMPOSE-AC-02",
+            "MEDIA-REQ-CAP-COMPOSE-AC-03",
+            "MEDIA-REQ-CAP-COMPOSE-AC-04",
+            "MEDIA-REQ-CAP-COMPOSE-AC-05",
+            "MEDIA-REQ-CAP-COMPOSE-AC-06",
+            "MEDIA-REQ-CAP-COMPOSE-AC-07",
+            "MEDIA-REQ-CAP-COMPOSE-AC-08",
+            "MEDIA-REQ-CAP-COMPOSE-AC-09",
+            "MEDIA-REQ-CAP-COMPOSE-AC-10",
+            "MEDIA-REQ-CAP-COMPOSE-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-DELIV-002-POS",
+            "given": "A valid manifest and explicit PREVIEW or FINAL request intent are supplied.",
+            "when": "The caller authors the render manifest.",
+            "then": "Return the manifest and preserve request intent without asserting a produced preview/final output."
+          }
+        },
+        {
+          "requirementId": "MEDIA-REQ-CAP-COMPOSE",
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases",
+          "capabilityIds": [
+            "media.compose.multitrack-timeline",
+            "media.compose.scene-storyboard-assemble",
+            "media.compose.track.video-audio-caption-overlay",
+            "media.compose.transition",
+            "media.compose.titles-credits-lower-thirds",
+            "media.compose.exact-typography-logo-brand",
+            "media.compose.safe-area",
+            "media.compose.reusable-composition",
+            "media.compose.render-manifest"
+          ],
+          "statement": "Every operation in media.compose retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+          "existingAcceptanceCaseIds": [
+            "MEDIA-REQ-CAP-COMPOSE-AC-01",
+            "MEDIA-REQ-CAP-COMPOSE-AC-02",
+            "MEDIA-REQ-CAP-COMPOSE-AC-03",
+            "MEDIA-REQ-CAP-COMPOSE-AC-04",
+            "MEDIA-REQ-CAP-COMPOSE-AC-05",
+            "MEDIA-REQ-CAP-COMPOSE-AC-06",
+            "MEDIA-REQ-CAP-COMPOSE-AC-07",
+            "MEDIA-REQ-CAP-COMPOSE-AC-08",
+            "MEDIA-REQ-CAP-COMPOSE-AC-09",
+            "MEDIA-REQ-CAP-COMPOSE-AC-10",
+            "MEDIA-REQ-CAP-COMPOSE-AC-11"
+          ],
+          "proposedCase": {
+            "id": "MEDIA-P0-COHORT01-AUD-DELIV-002-NEG",
+            "given": "A valid manifest and explicit PREVIEW or FINAL request intent are supplied.",
+            "when": "Admission evaluates the same request with an unsupported, denied, stale, or unknown required condition.",
+            "then": "If render execution is unavailable or unbound, report not-produced/UNKNOWN; a request label is not an output artifact."
+          }
+        }
+      ],
+      "newCapabilityCandidates": [],
+      "sourceOutcomeBoundary": "Candidate retains only the live capability outcome; unrepresented operation, profile, identity, implementation, qualification, or authority remains unresolved."
+    },
+    {
+      "auditId": "AUD-DELIV-003",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-004",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-005",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-006",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "reviewTreatment": "SOURCE_OPTIONS_REVIEWED; OWNER_CHOICE_REMAINS_OPEN",
+      "technicalDisposition": "UNKNOWN",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "uncertainty": "Legal readiness and hardware availability have no authorized legal reviewer or source-bound platform availability evidence.",
+      "boundedOptions": [
+        {
+          "id": "A",
+          "meaning": "Define only a product readiness observation from explicitly declared legal and hardware criteria and current evidence; unknown criteria/evidence must remain UNKNOWN and never become legal clearance.",
+          "sourceProof": [
+            "Existing encode/compatibility/profile leaves describe technical request and compatibility outcomes",
+            "No authorized legal reviewer, hardware source, or qualification evidence is cited"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Exclude legal/hardware qualification from Media PDP-0; require a separately authorized external decision source before any such result is exposed.",
+          "sourceProof": [
+            "Current capability bindings do not establish legal or hardware authority",
+            "No exact legal/hardware evidence contract exists"
+          ]
+        }
+      ],
+      "technicalRecommendation": "B for legal qualification; A can cover technical availability observation only if criteria/evidence source is explicitly named.",
+      "candidatePreferenceIfAny": "B_EXCLUDE_LEGAL_AND_HARDWARE_QUALIFICATION",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-DELIV-009",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-010",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-011",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-012",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-013",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_ALIGNMENT_COMPOSITION_PACKAGING",
+      "finding": "One shared case is appended to subtitle generation, caption-overlay composition, and subtitle delivery. Its input is an existing subtitle artifact and its when clause names all three operations; this does not fit subtitle generation, which consumes media/source inputs and returns a draft. The same broad case also lands under multiple family requirements.",
+      "findingId": "R3-SOURCE-04",
+      "exactWhere": [
+        "cohort-01.r3.source-amendment-candidate.v2.json#/capabilityAcceptanceCaseAdditions/@auditId=AUD-DELIV-013",
+        "cohort-01.r3.source-amendment-candidate.v2.json#/requirementAcceptanceCaseAdditions/@auditId=AUD-DELIV-013",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.subtitle.generate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles"
+      ],
+      "repair": "Split exact cases by operation: subtitle generation from an authorized source/timebase to a draft; overlay composition from a versioned subtitle artifact plus composition source/profile to a composition candidate; delivery from an accepted artifact plus target profile/destination to a declared package/result. Keep these outcomes and requirements separately bound.",
+      "acceptanceCriterion": "Every case input, output, and parent requirement matches its exact capability; subtitle generation, burned-in composition, and sidecar/embedded delivery remain distinct."
+    },
+    {
+      "auditId": "AUD-DELIV-014",
+      "reviewTreatment": "REUSE_FROZEN_PEER_PASS_INPUTS_CURRENT",
+      "technicalDisposition": "TECHNICAL_PASS",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "basis": "Reuse unchanged frozen peer PASS; all R3 sourceBaseline fingerprints still match current bytes. No source meaning changed, so no repeat review."
+    },
+    {
+      "auditId": "AUD-DELIV-015",
+      "reviewTreatment": "LIVE_SOURCE_CONTENT_AND_ADDITIONS_REVIEWED",
+      "technicalDisposition": "REQUEST_CHANGES",
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceResolutionKind": "SPLIT_ALIGNMENT_FROM_ASSESSMENT",
+      "finding": "The same combined mapping/assessment case is appended to both media.sync.sample-accurate-av-map and media.quality.video.video.assess-av-sync. Each case then claims both a mapping candidate and measured assessment evidence, despite the two distinct operation contracts.",
+      "findingId": "R3-SOURCE-05",
+      "exactWhere": [
+        "cohort-01.r3.source-amendment-candidate.v2.json#/capabilityAcceptanceCaseAdditions/@auditId=AUD-DELIV-015",
+        "cohort-01.r3.source-amendment-candidate.v2.json#/requirementAcceptanceCaseAdditions/@auditId=AUD-DELIV-015",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.sample-accurate-av-map",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.video.video.assess-av-sync"
+      ],
+      "repair": "Split into an alignment-map-only case and an assessment-only case. The latter must bind method, scope, tolerance, exact source versions/timebase, evidence, uncertainty/abstention, and observation time; a map is never verification.",
+      "acceptanceCriterion": "The map leaf makes no measured-quality assertion; the assessment leaf produces only a read-only measurement/abstention under an explicit method and scope."
+    }
+  ],
+  "materialFindings": [
+    {
+      "verdict": "REQUEST_CHANGES",
+      "findingId": "R3-SOURCE-01",
+      "finding": "The proposed new saturation capability is not an existing leaf, but the row retains media.color.exposure in proposedExistingCapabilityRefs. The candidate also declares no typed saturation parameter schema or finite range/effective-value semantics; “unknown parameter range” as a non-success note does not define the positive PDP-0 request/result.",
+      "exactWhere": [
+        "cohort-01.r3.json#/rows/@auditId=AUD-COLOR-001/proposedExistingCapabilityRefs",
+        "cohort-01.r3.source-amendment-candidate.v2.json#/newCapabilityDefinitionCandidates/@auditId=AUD-COLOR-001"
+      ],
+      "repair": "Keep the new-leaf status explicit, remove any implication that exposure is the saturation binding, and add an owner-decided typed saturation input with finite supported values/range and fail-closed behavior, or leave saturation applicability/result UNKNOWN until that authority exists.",
+      "acceptanceCriterion": "The candidate has an exact new capability identity and requirement trace, finite typed input/effective-value contract from owner authority, and explicit UNKNOWN/UNAVAILABLE behavior for unsupported contexts."
+    },
+    {
+      "verdict": "REQUEST_CHANGES",
+      "findingId": "R3-SOURCE-02",
+      "finding": "Candidate cases added to both media.quality.compare and media.project.review share a combined “comparison or review” given/when/then. The project-review capability does not return comparison results, and the quality-comparison capability does not record review state. The same combined acceptance text is also placed under both quality and project requirements.",
+      "exactWhere": [
+        "cohort-01.r3.source-amendment-candidate.v2.json#/capabilityAcceptanceCaseAdditions/@auditId=AUD-COLLAB-003",
+        "cohort-01.r3.source-amendment-candidate.v2.json#/requirementAcceptanceCaseAdditions/@auditId=AUD-COLLAB-003",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.compare",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review"
+      ],
+      "repair": "Split into a comparison-only case bound to media.quality.compare and its quality requirement, and a review-action-only case bound to media.project.review and its project requirement. Keep frame markup/anchor creation unresolved unless an exact annotation source is found.",
+      "acceptanceCriterion": "Each case states only the target leaf outcome; comparison does not mutate project/review state and review does not assert comparison evidence or create markup."
+    },
+    {
+      "verdict": "REQUEST_CHANGES",
+      "findingId": "R3-SOURCE-03",
+      "finding": "The same skin-tone-preservation-or-caption-overlay case is added to both media.color.skin-tone-preserve and media.compose.track.video-audio-caption-overlay. Each target should describe only its own operation; an overlay capability case cannot carry the color-treatment outcome, and a color leaf cannot carry overlay composition.",
+      "exactWhere": [
+        "cohort-01.r3.source-amendment-candidate.v2.json#/capabilityAcceptanceCaseAdditions/@auditId=AUD-COLOR-010",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.skin-tone-preserve",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay"
+      ],
+      "repair": "Write separate cases: skin-tone treatment only on its color leaf, and overlay composition only on its composition leaf. Keep color-safety, contrast, and fidelity claims unknown until named criteria, reference authority, method, and evidence exist.",
+      "acceptanceCriterion": "Each capability and parent requirement case binds one operation and its own source/output semantics; neither implies the other or an unevidenced safety/fidelity result."
+    },
+    {
+      "verdict": "REQUEST_CHANGES",
+      "findingId": "R3-SOURCE-04",
+      "finding": "One shared case is appended to subtitle generation, caption-overlay composition, and subtitle delivery. Its input is an existing subtitle artifact and its when clause names all three operations; this does not fit subtitle generation, which consumes media/source inputs and returns a draft. The same broad case also lands under multiple family requirements.",
+      "exactWhere": [
+        "cohort-01.r3.source-amendment-candidate.v2.json#/capabilityAcceptanceCaseAdditions/@auditId=AUD-DELIV-013",
+        "cohort-01.r3.source-amendment-candidate.v2.json#/requirementAcceptanceCaseAdditions/@auditId=AUD-DELIV-013",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.subtitle.generate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles"
+      ],
+      "repair": "Split exact cases by operation: subtitle generation from an authorized source/timebase to a draft; overlay composition from a versioned subtitle artifact plus composition source/profile to a composition candidate; delivery from an accepted artifact plus target profile/destination to a declared package/result. Keep these outcomes and requirements separately bound.",
+      "acceptanceCriterion": "Every case input, output, and parent requirement matches its exact capability; subtitle generation, burned-in composition, and sidecar/embedded delivery remain distinct."
+    },
+    {
+      "verdict": "REQUEST_CHANGES",
+      "findingId": "R3-SOURCE-05",
+      "finding": "The same combined mapping/assessment case is appended to both media.sync.sample-accurate-av-map and media.quality.video.video.assess-av-sync. Each case then claims both a mapping candidate and measured assessment evidence, despite the two distinct operation contracts.",
+      "exactWhere": [
+        "cohort-01.r3.source-amendment-candidate.v2.json#/capabilityAcceptanceCaseAdditions/@auditId=AUD-DELIV-015",
+        "cohort-01.r3.source-amendment-candidate.v2.json#/requirementAcceptanceCaseAdditions/@auditId=AUD-DELIV-015",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.sample-accurate-av-map",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.video.video.assess-av-sync"
+      ],
+      "repair": "Split into an alignment-map-only case and an assessment-only case. The latter must bind method, scope, tolerance, exact source versions/timebase, evidence, uncertainty/abstention, and observation time; a map is never verification.",
+      "acceptanceCriterion": "The map leaf makes no measured-quality assertion; the assessment leaf produces only a read-only measurement/abstention under an explicit method and scope."
+    },
+    {
+      "findingId": "R3-POSTIMAGE-01",
+      "scope": "batch-level integrity",
+      "verdict": "REQUEST_CHANGES",
+      "finding": "The record-postimages v2 candidateSha256 is 90eb8f369cb375d3da82fec6bc7dffc6cfd66a8193925ee0210b2e6f7fc8d471, but the current candidate v2 bytes hash to ce28bc10acffd1a067d8fdf638fbfb191c131570b2be4c8859947e63548045af. The postimage record does not pin the candidate it names, so the candidate/postimage pair is not an integrity-consistent batch.",
+      "exactWhere": [
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-record-postimages.v2.json#/candidateSha256",
+        "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.v2.json"
+      ],
+      "repair": "Regenerate the additive record-postimages from the final candidate bytes, then verify its candidate hash and each source pre/postimage hash before any source-owner review or apply.",
+      "acceptanceCriterion": "Record-postimages candidateSha256 equals the exact raw SHA-256 of candidate v2; every declared target preimage equals live source and every postimage hash resolves to the corresponding bytes."
+    }
+  ],
+  "boundedOwnerDecisionOptions": [
+    {
+      "auditId": "AUD-CAP-028",
+      "options": [
+        {
+          "id": "A",
+          "meaning": "Define a product-level readback observation only: identify the exact owner, authoritative effect source, evidence reference, and permitted finality states; missing evidence yields UNKNOWN/UNAVAILABLE and never authorizes replay.",
+          "sourceProof": [
+            "media.stream.session.reconnect outcome covers owner-observed session state only",
+            "source feature acceptance requires authoritative product-effect readback where applicable"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Exclude resume safety/scene ownership/effect finality from this feature and retain only reconnect session state; a separate named owner supplies any later product-effect decision.",
+          "sourceProof": [
+            "Current reconnect inputs include session request and consent/capability context",
+            "No exact owner/effect receipt schema or issuer is cited in current bindings"
+          ]
+        }
+      ],
+      "technicalRecommendation": "A only if the actual effect authority and evidence source can be named in the owner source; otherwise B with the effect claims explicitly unresolved.",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "options": [
+        {
+          "id": "A",
+          "meaning": "Define user-facing custom voice tuning as a separate product intent with source version, rights/purpose, requested tuning dimensions, output/version semantics, retention, and authorized actor.",
+          "sourceProof": [
+            "media.speech.synthesis.speaker.clone-authorized covers authorized clone intent",
+            "Current evidence does not supply tuning-specific input/output or retention contract"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Declare no separate tuning product intent; tuning remains implementation behavior under the already authorized clone contract and does not create an independently selectable result.",
+          "sourceProof": [
+            "No exact audit-bound tuning capability or feature-specific case exists",
+            "Implementation route cannot independently establish P0 product semantics"
+          ]
+        }
+      ],
+      "technicalRecommendation": "B is the bounded default unless the owner source establishes an independently selectable tuning outcome; do not claim training or model adaptation.",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "options": [
+        {
+          "id": "A",
+          "meaning": "Define a source-free synthetic voice persona feature with explicit non-identity claims, identity policy, rights boundary, selection inputs, output, and prohibited impersonation cases.",
+          "sourceProof": [
+            "Authorized-clone capability requires authorized source/consent context",
+            "No exact source-free persona capability or acceptance case is cited"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Declare source-free synthetic voice persona creation out of scope for this feature; preserve only the authorized cloning intent and do not substitute it.",
+          "sourceProof": [
+            "Current clone capability is explicitly source-authorized",
+            "No product authority record establishes source-free persona applicability"
+          ]
+        }
+      ],
+      "technicalRecommendation": "B until an explicit product authority and identity policy establish A; cloning semantics cannot stand in for synthetic persona design.",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "options": [
+        {
+          "id": "A",
+          "meaning": "Define enrollment only with exact subject/avatar identity, consent/rights scope, enrollment purpose, authorized decision authority, revocation and lifecycle semantics.",
+          "sourceProof": [
+            "media.rights.consent.reference resolves a consent reference",
+            "Current source does not establish avatar/persona enrollment schema or likeness authority"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Declare no enrollment outcome; retain only consent-reference resolution and leave any avatar/persona binding to a separately authorized source.",
+          "sourceProof": [
+            "Current consent leaf has no avatar/persona output",
+            "No exact owner or authority record for enrollment is cited"
+          ]
+        }
+      ],
+      "technicalRecommendation": "B unless the rights owner supplies the named authority and enrollment source; never infer enrollment from consent resolution.",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "options": [
+        {
+          "id": "A",
+          "meaning": "Define a compatibility observation against one explicitly named profile/target and disclose supported, unsupported, and unknown dimensions; make no standards-conformance claim.",
+          "sourceProof": [
+            "media.profile.validate and media.color.colorspace-gamut-convert cover bounded profile/conversion semantics",
+            "No certification authority or conformance evidence is cited"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Claim conformance only after naming the governing standard/version, authorized decision body, test method, target, and evidence artifact.",
+          "sourceProof": [
+            "No current binding supplies those standard/authority/evidence fields"
+          ]
+        }
+      ],
+      "technicalRecommendation": "A; B remains unavailable until a real authority and evidence source are bound.",
+      "ownerDecisionNotMade": true
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "options": [
+        {
+          "id": "A",
+          "meaning": "Define only a product readiness observation from explicitly declared legal and hardware criteria and current evidence; unknown criteria/evidence must remain UNKNOWN and never become legal clearance.",
+          "sourceProof": [
+            "Existing encode/compatibility/profile leaves describe technical request and compatibility outcomes",
+            "No authorized legal reviewer, hardware source, or qualification evidence is cited"
+          ]
+        },
+        {
+          "id": "B",
+          "meaning": "Exclude legal/hardware qualification from Media PDP-0; require a separately authorized external decision source before any such result is exposed.",
+          "sourceProof": [
+            "Current capability bindings do not establish legal or hardware authority",
+            "No exact legal/hardware evidence contract exists"
+          ]
+        }
+      ],
+      "technicalRecommendation": "B for legal qualification; A can cover technical availability observation only if criteria/evidence source is explicitly named.",
+      "ownerDecisionNotMade": true
+    }
+  ],
+  "interpretation": [
+    "The 53 prior PASS rows are reused only because their source fingerprints remain byte-identical to the R3 baseline.",
+    "The 18 requested repairs were checked against live capability outcomes, typed source evidence, exact selectors, and parent requirement capability traces.",
+    "The six choices remain owner UNKNOWN; candidate preferences are technical proposals and do not select canonical meaning.",
+    "Five source-resolution rows require selector-specific corrections before technical pass."
+  ],
+  "nonClaims": [
+    "No canonical source was modified or applied.",
+    "No owner choice, acceptance, PDP closure, implementation, qualification, release, identity decision, rights decision, or consent decision is asserted.",
+    "This peer review is not independent owner acceptance or closure."
+  ],
+  "validation": {
+    "status": "PASS_WITH_REQUEST_CHANGES",
+    "checks": {
+      "exact77OrderedRows": true,
+      "R3SourceFingerprintMismatches": 0,
+      "allCandidateSelectorsResolve": true,
+      "capabilityToRequirementTraceChecked": true,
+      "addedCaseIdsDoNotCollideWithExistingTargetCases": true,
+      "canonicalApply": false,
+      "candidateV2ShaMatchesRecordPostimages": false,
+      "allCandidateTargetSelectorsResolve": true,
+      "addedCaseIdsDoNotCollideWithLiveTargetCases": true
+    }
+  },
+  "sourceAmendmentIntegrity": {
+    "candidateV2Sha256": "ce28bc10acffd1a067d8fdf638fbfb191c131570b2be4c8859947e63548045af",
+    "recordPostimagesPinnedCandidateSha256": "90eb8f369cb375d3da82fec6bc7dffc6cfd66a8193925ee0210b2e6f7fc8d471",
+    "matches": false
+  }
+}

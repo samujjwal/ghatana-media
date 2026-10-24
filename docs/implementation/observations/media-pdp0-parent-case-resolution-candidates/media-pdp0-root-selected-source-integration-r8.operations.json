@@ -1,0 +1,1683 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-operation-ledger.v2",
+  "artifactId": "MEDIA-PDP0-COHORT01-COHORT02-R8-ROOT-SELECTED-SOURCE-INTEGRATION-OPERATIONS-2026-10-24",
+  "predecessor": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.operations.json",
+    "sha256": "8a1ffe62d90a0655a036459fb925a68849d8bffd8c20494af106a0ac9222dc52"
+  },
+  "retainedProjection": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "operationIds": [
+      "c1-001",
+      "c1-002",
+      "c1-003",
+      "c1-004",
+      "c1-005",
+      "c1-006",
+      "c1-007",
+      "c1-008",
+      "c1-009",
+      "c1-010",
+      "c1-011",
+      "c1-012",
+      "c1-013",
+      "c1-014",
+      "c1-015",
+      "c1-016",
+      "c1-017",
+      "c1-018",
+      "c1-019",
+      "c1-020",
+      "c1-021",
+      "c1-022",
+      "c1-023",
+      "c1-024",
+      "c1-025",
+      "c1-026",
+      "c1-027",
+      "c1-028",
+      "c1-029",
+      "c1-030",
+      "c1-031",
+      "c1-032",
+      "c1-033",
+      "c1-034",
+      "c1-035",
+      "c1-036",
+      "c1-037",
+      "c1-038",
+      "c1-039",
+      "c1-040",
+      "c1-041",
+      "c1-042",
+      "c1-043",
+      "c1-044",
+      "c1-045",
+      "c1-046",
+      "c1-047",
+      "c1-048",
+      "c1-049",
+      "c1-050",
+      "c1-051",
+      "c1-052",
+      "c1-053",
+      "c1-054",
+      "c1-055",
+      "c1-056",
+      "c1-057",
+      "c1-058",
+      "c1-059",
+      "c1-060",
+      "c1-061",
+      "c1-062",
+      "c1-063",
+      "c1-064",
+      "c1-065",
+      "c1-066",
+      "c1-067",
+      "c1-068",
+      "c1-069",
+      "c1-070",
+      "c1-071",
+      "c1-072",
+      "c1-073",
+      "c1-074",
+      "c1-075",
+      "c1-076",
+      "c1-077",
+      "c1-078",
+      "c1-079",
+      "c1-080",
+      "c1-081",
+      "c1-082",
+      "c1-083",
+      "c1-084",
+      "c1-085",
+      "c1-086",
+      "c1-087",
+      "c1-088",
+      "c1-089",
+      "c1-090",
+      "c2-091",
+      "c2-092",
+      "c2-093",
+      "c2-094",
+      "c2-095",
+      "c2-096",
+      "c2-097",
+      "c2-098",
+      "c2-099",
+      "c2-100",
+      "c2-101",
+      "c2-102",
+      "c2-103",
+      "c2-104",
+      "c2-105",
+      "c2-106",
+      "c2-107",
+      "c2-108",
+      "c2-109",
+      "c2-110",
+      "c2-111",
+      "c2-112",
+      "c2-113",
+      "c2-114",
+      "c2-115",
+      "c2-116",
+      "c2-117",
+      "c2-118",
+      "c2-119",
+      "c2-120",
+      "c2-121",
+      "c2-122",
+      "c2-123",
+      "c2-124",
+      "c2-125",
+      "c2-126",
+      "c2-127",
+      "c2-128",
+      "c2-129",
+      "c2-130",
+      "c2-131",
+      "c2-132",
+      "c2-133",
+      "c2-134",
+      "c2-135",
+      "c2-136",
+      "c2-137",
+      "c2-138",
+      "c2-139",
+      "c2-140",
+      "c2-141",
+      "c2-142",
+      "c2-143",
+      "c2-144",
+      "c2-145",
+      "c2-146",
+      "c2-147",
+      "c2-148",
+      "c2-149",
+      "c2-150",
+      "c2-151",
+      "c2-152",
+      "c2-153",
+      "c2-154",
+      "c2-155",
+      "c2-156",
+      "c2-157",
+      "c2-158",
+      "c2-159",
+      "c2-160",
+      "c2-161",
+      "c2-162",
+      "c2-163",
+      "c2-164",
+      "c2-165",
+      "c2-166",
+      "c2-167",
+      "c2-168",
+      "c2-169",
+      "c2-170",
+      "c2-171",
+      "c2-172",
+      "c2-173",
+      "c2-174",
+      "c2-175",
+      "c2-176",
+      "c2-177",
+      "c2-178",
+      "c2-179",
+      "c2-180",
+      "c2-181",
+      "c2-182",
+      "c2-183",
+      "c2-184",
+      "c2-185",
+      "c2-186",
+      "c2-187",
+      "c2-188",
+      "c2-189",
+      "c2-190",
+      "c2-191",
+      "c2-192",
+      "c2-193",
+      "c2-194",
+      "c2-195",
+      "c2-196",
+      "c2-197",
+      "c2-198",
+      "c2-199",
+      "c2-200",
+      "c2-201",
+      "c2-202",
+      "c2-203",
+      "c2-204",
+      "c2-205",
+      "c2-206",
+      "c2-207",
+      "c2-208",
+      "c2-209",
+      "c2-210",
+      "c3-211",
+      "c3-212",
+      "c3-213",
+      "c3-214",
+      "c3-215",
+      "c3-216",
+      "c3-217",
+      "c3-218",
+      "c3-219",
+      "c3-220",
+      "c3-221",
+      "c3-222",
+      "c3-223",
+      "c3-224",
+      "c3-225",
+      "c3-226",
+      "c3-227",
+      "c3-228",
+      "c3-229",
+      "c3-230",
+      "c3-231",
+      "c3-232",
+      "c3-233",
+      "c3-234",
+      "c3-235",
+      "c3-236",
+      "c3-237",
+      "c3-238",
+      "c3-239",
+      "c3-240",
+      "c3-241",
+      "c3-242",
+      "c3-243",
+      "c3-244",
+      "c3-245",
+      "c3-246",
+      "c3-247",
+      "c3-248"
+    ]
+  },
+  "candidateSourceOperations": {
+    "definitions": [
+      {
+        "operationId": "r7.cohort01.aud-cap-028.definition",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-STREAM"
+        ]
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.definition",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+        ]
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.definition",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+        ]
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.definition",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-RIGHTS"
+        ]
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.definition",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-COLOR"
+        ]
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.definition",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-DELIVER"
+        ]
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.definition",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-COLOR"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-deliv-019.definition",
+        "capabilityId": "media.deliver.live-stream-output",
+        "auditId": "AUD-DELIV-019",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-DELIVER"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-dub-015.definition",
+        "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+        "auditId": "AUD-DUB-015",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-016.definition",
+        "capabilityId": "media.edit.matte-composite",
+        "auditId": "AUD-EDIT-016",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-EDIT"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.definition",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "auditId": "AUD-EDIT-024",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-EDIT",
+          "MEDIA-REQ-CAP-ANIMATION-EDITING"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-010.definition",
+        "capabilityId": "media.generate.video.continue",
+        "auditId": "AUD-GEN-010",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-GENERATE-VIDEO"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-020.definition",
+        "capabilityId": "media.generate.motion.text-and-style-reference",
+        "auditId": "AUD-GEN-020",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-ANIMATION"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-021.definition",
+        "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+        "auditId": "AUD-GEN-021",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-GENERATE-VIDEO"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-023.definition",
+        "capabilityId": "media.generate.video.local-offline-generation",
+        "auditId": "AUD-GEN-023",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-CAPABILITY"
+        ]
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-024.definition",
+        "capabilityId": "media.capability.provider-class-separation",
+        "auditId": "AUD-GEN-024",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-CAPABILITY"
+        ]
+      }
+    ],
+    "capabilityCases": [
+      {
+        "operationId": "r7.cohort01.aud-cap-028.case.r7-aud-cap-028-01",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "caseId": "R7-AUD-CAP-028-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-cap-028.case.r7-aud-cap-028-02",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "caseId": "R7-AUD-CAP-028-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-cap-028.case.r7-aud-cap-028-03",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "caseId": "R7-AUD-CAP-028-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-cap-028.case.r7-aud-cap-028-04",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "caseId": "R7-AUD-CAP-028-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.case.r7-aud-clone-004-01",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "caseId": "R7-AUD-CLONE-004-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.case.r7-aud-clone-004-02",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "caseId": "R7-AUD-CLONE-004-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.case.r7-aud-clone-004-03",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "caseId": "R7-AUD-CLONE-004-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.case.r7-aud-clone-004-04",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "caseId": "R7-AUD-CLONE-004-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.case.r7-aud-clone-006-01",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "caseId": "R7-AUD-CLONE-006-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.case.r7-aud-clone-006-02",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "caseId": "R7-AUD-CLONE-006-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.case.r7-aud-clone-006-03",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "caseId": "R7-AUD-CLONE-006-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.case.r7-aud-clone-006-04",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "caseId": "R7-AUD-CLONE-006-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.case.r7-aud-clone-017-01",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "caseId": "R7-AUD-CLONE-017-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.case.r7-aud-clone-017-02",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "caseId": "R7-AUD-CLONE-017-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.case.r7-aud-clone-017-03",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "caseId": "R7-AUD-CLONE-017-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.case.r7-aud-clone-017-04",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "caseId": "R7-AUD-CLONE-017-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.case.r7-aud-color-007-01",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "caseId": "R7-AUD-COLOR-007-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.case.r7-aud-color-007-02",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "caseId": "R7-AUD-COLOR-007-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.case.r7-aud-color-007-03",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "caseId": "R7-AUD-COLOR-007-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.case.r7-aud-color-007-04",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "caseId": "R7-AUD-COLOR-007-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.case.r7-aud-deliv-007-01",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "caseId": "R7-AUD-DELIV-007-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.case.r7-aud-deliv-007-02",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "caseId": "R7-AUD-DELIV-007-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.case.r7-aud-deliv-007-03",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "caseId": "R7-AUD-DELIV-007-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.case.r7-aud-deliv-007-04",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "caseId": "R7-AUD-DELIV-007-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-01",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-02",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-02",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-03",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-03",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-04",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-04",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-05",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-05",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-06",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-06",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-07",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-07",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-08",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-08",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-09",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-09",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.case.r7-aud-color-001-10",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "R7-AUD-COLOR-001-10",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-deliv-019.case.media-p0-cohort02-aud-deliv-019-leaf-pos",
+        "capabilityId": "media.deliver.live-stream-output",
+        "auditId": "AUD-DELIV-019",
+        "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-deliv-019.case.media-p0-cohort02-aud-deliv-019-leaf-neg",
+        "capabilityId": "media.deliver.live-stream-output",
+        "auditId": "AUD-DELIV-019",
+        "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-dub-015.case.media-p0-cohort02-aud-dub-015-leaf-pos",
+        "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+        "auditId": "AUD-DUB-015",
+        "caseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-dub-015.case.media-p0-cohort02-aud-dub-015-leaf-neg",
+        "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+        "auditId": "AUD-DUB-015",
+        "caseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-016.case.media-p0-cohort02-aud-edit-016-leaf-pos",
+        "capabilityId": "media.edit.matte-composite",
+        "auditId": "AUD-EDIT-016",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-016.case.media-p0-cohort02-aud-edit-016-leaf-neg",
+        "capabilityId": "media.edit.matte-composite",
+        "auditId": "AUD-EDIT-016",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.case.media-p0-cohort02-aud-edit-024-leaf-pos",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "auditId": "AUD-EDIT-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.case.media-p0-cohort02-aud-edit-024-leaf-neg",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "auditId": "AUD-EDIT-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-010.case.media-p0-cohort02-aud-gen-010-leaf-pos",
+        "capabilityId": "media.generate.video.continue",
+        "auditId": "AUD-GEN-010",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-010.case.media-p0-cohort02-aud-gen-010-leaf-neg",
+        "capabilityId": "media.generate.video.continue",
+        "auditId": "AUD-GEN-010",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-020.case.media-p0-cohort02-aud-gen-020-leaf-pos",
+        "capabilityId": "media.generate.motion.text-and-style-reference",
+        "auditId": "AUD-GEN-020",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-020.case.media-p0-cohort02-aud-gen-020-leaf-neg",
+        "capabilityId": "media.generate.motion.text-and-style-reference",
+        "auditId": "AUD-GEN-020",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-021.case.media-p0-cohort02-aud-gen-021-leaf-pos",
+        "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+        "auditId": "AUD-GEN-021",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-021.case.media-p0-cohort02-aud-gen-021-leaf-neg",
+        "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+        "auditId": "AUD-GEN-021",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-023.case.media-p0-cohort02-aud-gen-023-leaf-pos",
+        "capabilityId": "media.generate.video.local-offline-generation",
+        "auditId": "AUD-GEN-023",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-023.case.media-p0-cohort02-aud-gen-023-leaf-neg",
+        "capabilityId": "media.generate.video.local-offline-generation",
+        "auditId": "AUD-GEN-023",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-024.case.media-p0-cohort02-aud-gen-024-leaf-pos",
+        "capabilityId": "media.capability.provider-class-separation",
+        "auditId": "AUD-GEN-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-024-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-024.case.media-p0-cohort02-aud-gen-024-leaf-neg",
+        "capabilityId": "media.capability.provider-class-separation",
+        "auditId": "AUD-GEN-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-024-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      }
+    ],
+    "parentRequirementCases": [
+      {
+        "operationId": "r7.cohort01.aud-cap-028.parent.media-req-p0-r7-aud-cap-028-01",
+        "requirementId": "MEDIA-REQ-CAP-STREAM",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-01",
+        "sourceCapabilityCaseId": "R7-AUD-CAP-028-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-cap-028.parent.media-req-p0-r7-aud-cap-028-02",
+        "requirementId": "MEDIA-REQ-CAP-STREAM",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-02",
+        "sourceCapabilityCaseId": "R7-AUD-CAP-028-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-cap-028.parent.media-req-p0-r7-aud-cap-028-03",
+        "requirementId": "MEDIA-REQ-CAP-STREAM",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-03",
+        "sourceCapabilityCaseId": "R7-AUD-CAP-028-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-cap-028.parent.media-req-p0-r7-aud-cap-028-04",
+        "requirementId": "MEDIA-REQ-CAP-STREAM",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "auditId": "AUD-CAP-028",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CAP-028-04",
+        "sourceCapabilityCaseId": "R7-AUD-CAP-028-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.parent.media-req-p0-r7-aud-clone-004-01",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-01",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-004-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.parent.media-req-p0-r7-aud-clone-004-02",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-02",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-004-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.parent.media-req-p0-r7-aud-clone-004-03",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-03",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-004-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.parent.media-req-p0-r7-aud-clone-004-04",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "auditId": "AUD-CLONE-004",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-004-04",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-004-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.parent.media-req-p0-r7-aud-clone-006-01",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-01",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-006-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.parent.media-req-p0-r7-aud-clone-006-02",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-02",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-006-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.parent.media-req-p0-r7-aud-clone-006-03",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-03",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-006-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.parent.media-req-p0-r7-aud-clone-006-04",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "auditId": "AUD-CLONE-006",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-006-04",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-006-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.parent.media-req-p0-r7-aud-clone-017-01",
+        "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-01",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-017-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.parent.media-req-p0-r7-aud-clone-017-02",
+        "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-02",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-017-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.parent.media-req-p0-r7-aud-clone-017-03",
+        "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-03",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-017-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.parent.media-req-p0-r7-aud-clone-017-04",
+        "requirementId": "MEDIA-REQ-CAP-RIGHTS",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "auditId": "AUD-CLONE-017",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-CLONE-017-04",
+        "sourceCapabilityCaseId": "R7-AUD-CLONE-017-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.parent.media-req-p0-r7-aud-color-007-01",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-01",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-007-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.parent.media-req-p0-r7-aud-color-007-02",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-02",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-007-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.parent.media-req-p0-r7-aud-color-007-03",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-03",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-007-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.parent.media-req-p0-r7-aud-color-007-04",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "auditId": "AUD-COLOR-007",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-007-04",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-007-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.parent.media-req-p0-r7-aud-deliv-007-01",
+        "requirementId": "MEDIA-REQ-CAP-DELIVER",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-01",
+        "sourceCapabilityCaseId": "R7-AUD-DELIV-007-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.parent.media-req-p0-r7-aud-deliv-007-02",
+        "requirementId": "MEDIA-REQ-CAP-DELIVER",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-02",
+        "sourceCapabilityCaseId": "R7-AUD-DELIV-007-02",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.parent.media-req-p0-r7-aud-deliv-007-03",
+        "requirementId": "MEDIA-REQ-CAP-DELIVER",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-03",
+        "sourceCapabilityCaseId": "R7-AUD-DELIV-007-03",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.parent.media-req-p0-r7-aud-deliv-007-04",
+        "requirementId": "MEDIA-REQ-CAP-DELIVER",
+        "capabilityId": "media.deliver.readiness.observe",
+        "auditId": "AUD-DELIV-007",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-DELIV-007-04",
+        "sourceCapabilityCaseId": "R7-AUD-DELIV-007-04",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-01",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-01",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-01",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-02",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-02",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-02",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-03",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-03",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-03",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-04",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-04",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-04",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-05",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-05",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-05",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-06",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-06",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-06",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-07",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-07",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-07",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-08",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-08",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-08",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-09",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-09",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-09",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.parent.media-req-p0-r7-aud-color-001-10",
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "capabilityId": "media.color.saturation",
+        "auditId": "AUD-COLOR-001",
+        "caseId": "MEDIA-REQ-P0-R7-AUD-COLOR-001-10",
+        "sourceCapabilityCaseId": "R7-AUD-COLOR-001-10",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-deliv-019.parent.media-p0-cohort02-aud-deliv-019-media-req-cap-deliver-pos",
+        "requirementId": "MEDIA-REQ-CAP-DELIVER",
+        "capabilityId": "media.deliver.live-stream-output",
+        "auditId": "AUD-DELIV-019",
+        "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-deliv-019.parent.media-p0-cohort02-aud-deliv-019-media-req-cap-deliver-neg",
+        "requirementId": "MEDIA-REQ-CAP-DELIVER",
+        "capabilityId": "media.deliver.live-stream-output",
+        "auditId": "AUD-DELIV-019",
+        "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-dub-015.parent.media-p0-cohort02-aud-dub-015-media-req-cap-speech-synthesis-pos",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+        "auditId": "AUD-DUB-015",
+        "caseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-dub-015.parent.media-p0-cohort02-aud-dub-015-media-req-cap-speech-synthesis-neg",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+        "auditId": "AUD-DUB-015",
+        "caseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-016.parent.media-p0-cohort02-aud-edit-016-media-req-cap-edit-pos",
+        "requirementId": "MEDIA-REQ-CAP-EDIT",
+        "capabilityId": "media.edit.matte-composite",
+        "auditId": "AUD-EDIT-016",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-016.parent.media-p0-cohort02-aud-edit-016-media-req-cap-edit-neg",
+        "requirementId": "MEDIA-REQ-CAP-EDIT",
+        "capabilityId": "media.edit.matte-composite",
+        "auditId": "AUD-EDIT-016",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.parent.media-p0-cohort02-aud-edit-024-media-req-cap-edit-pos",
+        "requirementId": "MEDIA-REQ-CAP-EDIT",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "auditId": "AUD-EDIT-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.parent.media-p0-cohort02-aud-edit-024-media-req-cap-edit-neg",
+        "requirementId": "MEDIA-REQ-CAP-EDIT",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "auditId": "AUD-EDIT-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.parent.media-p0-cohort02-aud-edit-024-media-req-cap-animation-editing-pos",
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "auditId": "AUD-EDIT-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.parent.media-p0-cohort02-aud-edit-024-media-req-cap-animation-editing-neg",
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "auditId": "AUD-EDIT-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-010.parent.media-p0-cohort02-aud-gen-010-media-req-cap-generate-video-pos",
+        "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+        "capabilityId": "media.generate.video.continue",
+        "auditId": "AUD-GEN-010",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-010.parent.media-p0-cohort02-aud-gen-010-media-req-cap-generate-video-neg",
+        "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+        "capabilityId": "media.generate.video.continue",
+        "auditId": "AUD-GEN-010",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-020.parent.media-p0-cohort02-aud-gen-020-media-req-cap-animation-pos",
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION",
+        "capabilityId": "media.generate.motion.text-and-style-reference",
+        "auditId": "AUD-GEN-020",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-020.parent.media-p0-cohort02-aud-gen-020-media-req-cap-animation-neg",
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION",
+        "capabilityId": "media.generate.motion.text-and-style-reference",
+        "auditId": "AUD-GEN-020",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-021.parent.media-p0-cohort02-aud-gen-021-media-req-cap-generate-video-pos",
+        "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+        "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+        "auditId": "AUD-GEN-021",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-021.parent.media-p0-cohort02-aud-gen-021-media-req-cap-generate-video-neg",
+        "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+        "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+        "auditId": "AUD-GEN-021",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-023.parent.media-p0-cohort02-aud-gen-023-media-req-cap-capability-pos",
+        "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+        "capabilityId": "media.generate.video.local-offline-generation",
+        "auditId": "AUD-GEN-023",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-023.parent.media-p0-cohort02-aud-gen-023-media-req-cap-capability-neg",
+        "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+        "capabilityId": "media.generate.video.local-offline-generation",
+        "auditId": "AUD-GEN-023",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-024.parent.media-p0-cohort02-aud-gen-024-media-req-cap-capability-pos",
+        "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+        "capabilityId": "media.capability.provider-class-separation",
+        "auditId": "AUD-GEN-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-POS",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-LEAF-POS",
+        "polarity": "POSITIVE"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-024.parent.media-p0-cohort02-aud-gen-024-media-req-cap-capability-neg",
+        "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+        "capabilityId": "media.capability.provider-class-separation",
+        "auditId": "AUD-GEN-024",
+        "caseId": "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-NEG",
+        "sourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-LEAF-NEG",
+        "polarity": "NEGATIVE"
+      }
+    ],
+    "bindings": [
+      {
+        "operationId": "r7.cohort01.aud-cap-028.binding.media-req-cap-stream",
+        "capabilityId": "media.stream.session.product-effect.readback.observe",
+        "requirementId": "MEDIA-REQ-CAP-STREAM"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-004.binding.media-req-cap-speech-synthesis",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-006.binding.media-req-cap-speech-synthesis",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+      },
+      {
+        "operationId": "r7.cohort01.aud-clone-017.binding.media-req-cap-rights",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "requirementId": "MEDIA-REQ-CAP-RIGHTS"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-007.binding.media-req-cap-color",
+        "capabilityId": "media.color.profile.compatibility.observe",
+        "requirementId": "MEDIA-REQ-CAP-COLOR"
+      },
+      {
+        "operationId": "r7.cohort01.aud-deliv-007.binding.media-req-cap-deliver",
+        "capabilityId": "media.deliver.readiness.observe",
+        "requirementId": "MEDIA-REQ-CAP-DELIVER"
+      },
+      {
+        "operationId": "r7.cohort01.aud-color-001.binding.media-req-cap-color",
+        "capabilityId": "media.color.saturation",
+        "requirementId": "MEDIA-REQ-CAP-COLOR"
+      },
+      {
+        "operationId": "r7.cohort02.aud-deliv-019.binding.media-req-cap-deliver",
+        "capabilityId": "media.deliver.live-stream-output",
+        "requirementId": "MEDIA-REQ-CAP-DELIVER"
+      },
+      {
+        "operationId": "r7.cohort02.aud-dub-015.binding.media-req-cap-speech-synthesis",
+        "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-016.binding.media-req-cap-edit",
+        "capabilityId": "media.edit.matte-composite",
+        "requirementId": "MEDIA-REQ-CAP-EDIT"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.binding.media-req-cap-edit",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "requirementId": "MEDIA-REQ-CAP-EDIT"
+      },
+      {
+        "operationId": "r7.cohort02.aud-edit-024.binding.media-req-cap-animation-editing",
+        "capabilityId": "media.accessibility.control-equivalent-action",
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-010.binding.media-req-cap-generate-video",
+        "capabilityId": "media.generate.video.continue",
+        "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-020.binding.media-req-cap-animation",
+        "capabilityId": "media.generate.motion.text-and-style-reference",
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-021.binding.media-req-cap-generate-video",
+        "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+        "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-023.binding.media-req-cap-capability",
+        "capabilityId": "media.generate.video.local-offline-generation",
+        "requirementId": "MEDIA-REQ-CAP-CAPABILITY"
+      },
+      {
+        "operationId": "r7.cohort02.aud-gen-024.binding.media-req-cap-capability",
+        "capabilityId": "media.capability.provider-class-separation",
+        "requirementId": "MEDIA-REQ-CAP-CAPABILITY"
+      }
+    ],
+    "crosswalk": [
+      {
+        "operationId": "r7.crosswalk.patch.aud-cap-028",
+        "auditId": "AUD-CAP-028",
+        "capabilityId": "media.stream.session.product-effect.readback.observe"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-clone-004",
+        "auditId": "AUD-CLONE-004",
+        "capabilityId": "media.speech.synthesis.speaker.tune-authorized"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-clone-006",
+        "auditId": "AUD-CLONE-006",
+        "capabilityId": "media.speech.synthesis.speaker.design-synthetic-persona"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-clone-017",
+        "auditId": "AUD-CLONE-017",
+        "capabilityId": "media.speech.synthesis.speaker.enroll-persona-authorized"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-color-007",
+        "auditId": "AUD-COLOR-007",
+        "capabilityId": "media.color.profile.compatibility.observe"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-deliv-007",
+        "auditId": "AUD-DELIV-007",
+        "capabilityId": "media.deliver.readiness.observe"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-color-001",
+        "auditId": "AUD-COLOR-001",
+        "capabilityId": "media.color.saturation"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-deliv-019",
+        "auditId": "AUD-DELIV-019",
+        "capabilityId": "media.deliver.live-stream-output"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-dub-015",
+        "auditId": "AUD-DUB-015",
+        "capabilityId": "media.speech.conversation.translated-speech-to-speech"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-edit-016",
+        "auditId": "AUD-EDIT-016",
+        "capabilityId": "media.edit.matte-composite"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-edit-024",
+        "auditId": "AUD-EDIT-024",
+        "capabilityId": "media.accessibility.control-equivalent-action"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-gen-010",
+        "auditId": "AUD-GEN-010",
+        "capabilityId": "media.generate.video.continue"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-gen-020",
+        "auditId": "AUD-GEN-020",
+        "capabilityId": "media.generate.motion.text-and-style-reference"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-gen-021",
+        "auditId": "AUD-GEN-021",
+        "capabilityId": "media.generate.video.text-to-video.render-style-preset"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-gen-023",
+        "auditId": "AUD-GEN-023",
+        "capabilityId": "media.generate.video.local-offline-generation"
+      },
+      {
+        "operationId": "r7.crosswalk.patch.aud-gen-024",
+        "auditId": "AUD-GEN-024",
+        "capabilityId": "media.capability.provider-class-separation"
+      }
+    ]
+  },
+  "selectedPacketOperations": [
+    {
+      "operationId": "r8.packet.split.case.media-p0-aud-direct-010-b-split-direct-pos",
+      "kind": "CANDIDATE_EMBED_CAPABILITY_CASE",
+      "capabilityId": "media.agent.edit.preview-scope-guard",
+      "caseId": "MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-POS"
+    },
+    {
+      "operationId": "r8.packet.split.case.media-p0-aud-direct-010-b-split-direct-neg",
+      "kind": "CANDIDATE_EMBED_CAPABILITY_CASE",
+      "capabilityId": "media.agent.edit.preview-scope-guard",
+      "caseId": "MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-NEG"
+    },
+    {
+      "operationId": "r8.packet.split.definition.media-agent-edit-preview-scope-guard",
+      "kind": "CANDIDATE_ADD_CAPABILITY_DEFINITION",
+      "capabilityId": "media.agent.edit.preview-scope-guard",
+      "auditId": "AUD-DIRECT-010"
+    },
+    {
+      "operationId": "r8.packet.split.binding.media-agent-edit-preview-scope-guard.media-req-cap-project",
+      "kind": "CANDIDATE_BIND_CAPABILITY_TO_REQUIREMENT",
+      "capabilityId": "media.agent.edit.preview-scope-guard",
+      "requirementId": "MEDIA-REQ-CAP-PROJECT"
+    },
+    {
+      "operationId": "r8.packet.split.parent.aud-direct-010-b-split-direct-media-req-cap-project-pos",
+      "kind": "CANDIDATE_APPEND_PARENT_CASE",
+      "requirementId": "MEDIA-REQ-CAP-PROJECT",
+      "capabilityId": "media.agent.edit.preview-scope-guard",
+      "auditId": "AUD-DIRECT-010",
+      "caseId": "AUD-DIRECT-010-B_SPLIT_DIRECT-MEDIA-REQ-CAP-PROJECT-POS"
+    },
+    {
+      "operationId": "r8.packet.split.parent.aud-direct-010-b-split-direct-media-req-cap-project-neg",
+      "kind": "CANDIDATE_APPEND_PARENT_CASE",
+      "requirementId": "MEDIA-REQ-CAP-PROJECT",
+      "capabilityId": "media.agent.edit.preview-scope-guard",
+      "auditId": "AUD-DIRECT-010",
+      "caseId": "AUD-DIRECT-010-B_SPLIT_DIRECT-MEDIA-REQ-CAP-PROJECT-NEG"
+    },
+    {
+      "operationId": "r8.packet.split.case.media-p0-aud-edit-022-b-split-edit-pos",
+      "kind": "CANDIDATE_EMBED_CAPABILITY_CASE",
+      "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+      "caseId": "MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-POS"
+    },
+    {
+      "operationId": "r8.packet.split.case.media-p0-aud-edit-022-b-split-edit-neg",
+      "kind": "CANDIDATE_EMBED_CAPABILITY_CASE",
+      "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+      "caseId": "MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-NEG"
+    },
+    {
+      "operationId": "r8.packet.split.definition.media-agent-edit-approval-apply-compensating-rollback",
+      "kind": "CANDIDATE_ADD_CAPABILITY_DEFINITION",
+      "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+      "auditId": "AUD-EDIT-022"
+    },
+    {
+      "operationId": "r8.packet.split.binding.media-agent-edit-approval-apply-compensating-rollback.media-req-cap-edit",
+      "kind": "CANDIDATE_BIND_CAPABILITY_TO_REQUIREMENT",
+      "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+      "requirementId": "MEDIA-REQ-CAP-EDIT"
+    },
+    {
+      "operationId": "r8.packet.split.parent.aud-edit-022-b-split-edit-media-req-cap-edit-pos",
+      "kind": "CANDIDATE_APPEND_PARENT_CASE",
+      "requirementId": "MEDIA-REQ-CAP-EDIT",
+      "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+      "auditId": "AUD-EDIT-022",
+      "caseId": "AUD-EDIT-022-B_SPLIT_EDIT-MEDIA-REQ-CAP-EDIT-POS"
+    },
+    {
+      "operationId": "r8.packet.split.parent.aud-edit-022-b-split-edit-media-req-cap-edit-neg",
+      "kind": "CANDIDATE_APPEND_PARENT_CASE",
+      "requirementId": "MEDIA-REQ-CAP-EDIT",
+      "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+      "auditId": "AUD-EDIT-022",
+      "caseId": "AUD-EDIT-022-B_SPLIT_EDIT-MEDIA-REQ-CAP-EDIT-NEG"
+    },
+    {
+      "operationId": "r8.packet.split.crosswalk.aud-direct-010",
+      "kind": "CANDIDATE_PATCH_CROSSWALK_TRACE",
+      "auditId": "AUD-DIRECT-010",
+      "mappingDecisionSha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e"
+    },
+    {
+      "operationId": "r8.packet.split.crosswalk.aud-edit-022",
+      "kind": "CANDIDATE_PATCH_CROSSWALK_TRACE",
+      "auditId": "AUD-EDIT-022",
+      "mappingDecisionSha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e"
+    }
+  ],
+  "preservedHistoricalAlternatives": {
+    "shared": {
+      "status": "PRESERVED_UNSELECTED_R7_HISTORY",
+      "optionId": "A_ONE_SHARED_SEMANTIC_CONTRACT",
+      "postimages": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capabilities.postimage.yaml",
+          "postimageSha256": "9e4e61c68aef52bbffd45b270ba27ca15a7712fcfd33d66d7aead59533c6a9ef"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.requirements.postimage.yaml",
+          "postimageSha256": "4290f3f2ecc57835c81204922eea3c94cc9d9f6f0e48933ffca3660e0fbdccec"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capability-leaf-review.postimage.yaml",
+          "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+        },
+        {
+          "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.crosswalk.postimage.json",
+          "postimageSha256": "4a9d054d69d502c7977b0f6114436ea448dae85d4d74a14ea9b43232eee0c0af"
+        }
+      ]
+    },
+    "priorSplit": {
+      "status": "R7_ALTERNATIVE_SUPERSEDED_BY_ROOT_SELECTED_R8_SOURCE_SUCCESSOR",
+      "optionId": "B_SPLIT_BY_OPERATION_SCOPE",
+      "postimages": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capabilities.postimage.yaml",
+          "postimageSha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.requirements.postimage.yaml",
+          "postimageSha256": "ec4df072d4d28aeccb00cfaf557d80c2be1f019abb47a0c64a77ae5090c1e1de"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capability-leaf-review.postimage.yaml",
+          "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+        },
+        {
+          "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.crosswalk.postimage.json",
+          "postimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+        }
+      ]
+    },
+    "priorSplitOperations": [
+      {
+        "operationId": "r7.packet.split.case.media-p0-aud-direct-010-b-split-direct-pos",
+        "kind": "CANDIDATE_EMBED_CAPABILITY_CASE",
+        "capabilityId": "media.agent.edit.preview-scope-guard",
+        "caseId": "MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-POS"
+      },
+      {
+        "operationId": "r7.packet.split.case.media-p0-aud-direct-010-b-split-direct-neg",
+        "kind": "CANDIDATE_EMBED_CAPABILITY_CASE",
+        "capabilityId": "media.agent.edit.preview-scope-guard",
+        "caseId": "MEDIA-P0-AUD-DIRECT-010-B_SPLIT_DIRECT-NEG"
+      },
+      {
+        "operationId": "r7.packet.split.definition.media-agent-edit-preview-scope-guard",
+        "kind": "CANDIDATE_ADD_CAPABILITY_DEFINITION",
+        "capabilityId": "media.agent.edit.preview-scope-guard"
+      },
+      {
+        "operationId": "r7.packet.split.binding.media-agent-edit-preview-scope-guard.media-req-cap-project",
+        "kind": "CANDIDATE_BIND_CAPABILITY_TO_REQUIREMENT",
+        "capabilityId": "media.agent.edit.preview-scope-guard",
+        "requirementId": "MEDIA-REQ-CAP-PROJECT"
+      },
+      {
+        "operationId": "r7.packet.split.parent.aud-direct-010-b-split-direct-media-req-cap-project-pos",
+        "kind": "CANDIDATE_APPEND_PARENT_CASE",
+        "requirementId": "MEDIA-REQ-CAP-PROJECT",
+        "caseId": "AUD-DIRECT-010-B_SPLIT_DIRECT-MEDIA-REQ-CAP-PROJECT-POS",
+        "capabilityId": "media.agent.edit.preview-scope-guard"
+      },
+      {
+        "operationId": "r7.packet.split.parent.aud-direct-010-b-split-direct-media-req-cap-project-neg",
+        "kind": "CANDIDATE_APPEND_PARENT_CASE",
+        "requirementId": "MEDIA-REQ-CAP-PROJECT",
+        "caseId": "AUD-DIRECT-010-B_SPLIT_DIRECT-MEDIA-REQ-CAP-PROJECT-NEG",
+        "capabilityId": "media.agent.edit.preview-scope-guard"
+      },
+      {
+        "operationId": "r7.packet.split.case.media-p0-aud-edit-022-b-split-edit-pos",
+        "kind": "CANDIDATE_EMBED_CAPABILITY_CASE",
+        "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+        "caseId": "MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-POS"
+      },
+      {
+        "operationId": "r7.packet.split.case.media-p0-aud-edit-022-b-split-edit-neg",
+        "kind": "CANDIDATE_EMBED_CAPABILITY_CASE",
+        "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+        "caseId": "MEDIA-P0-AUD-EDIT-022-B_SPLIT_EDIT-NEG"
+      },
+      {
+        "operationId": "r7.packet.split.definition.media-agent-edit-approval-apply-compensating-rollback",
+        "kind": "CANDIDATE_ADD_CAPABILITY_DEFINITION",
+        "capabilityId": "media.agent.edit.approval-apply-compensating-rollback"
+      },
+      {
+        "operationId": "r7.packet.split.binding.media-agent-edit-approval-apply-compensating-rollback.media-req-cap-edit",
+        "kind": "CANDIDATE_BIND_CAPABILITY_TO_REQUIREMENT",
+        "capabilityId": "media.agent.edit.approval-apply-compensating-rollback",
+        "requirementId": "MEDIA-REQ-CAP-EDIT"
+      },
+      {
+        "operationId": "r7.packet.split.parent.aud-edit-022-b-split-edit-media-req-cap-edit-pos",
+        "kind": "CANDIDATE_APPEND_PARENT_CASE",
+        "requirementId": "MEDIA-REQ-CAP-EDIT",
+        "caseId": "AUD-EDIT-022-B_SPLIT_EDIT-MEDIA-REQ-CAP-EDIT-POS",
+        "capabilityId": "media.agent.edit.approval-apply-compensating-rollback"
+      },
+      {
+        "operationId": "r7.packet.split.parent.aud-edit-022-b-split-edit-media-req-cap-edit-neg",
+        "kind": "CANDIDATE_APPEND_PARENT_CASE",
+        "requirementId": "MEDIA-REQ-CAP-EDIT",
+        "caseId": "AUD-EDIT-022-B_SPLIT_EDIT-MEDIA-REQ-CAP-EDIT-NEG",
+        "capabilityId": "media.agent.edit.approval-apply-compensating-rollback"
+      },
+      {
+        "operationId": "r7.packet.split.crosswalk.aud-direct-010",
+        "kind": "CANDIDATE_PATCH_CROSSWALK_TRACE",
+        "auditId": "AUD-DIRECT-010"
+      },
+      {
+        "operationId": "r7.packet.split.crosswalk.aud-edit-022",
+        "kind": "CANDIDATE_PATCH_CROSSWALK_TRACE",
+        "auditId": "AUD-EDIT-022"
+      }
+    ]
+  },
+  "mappingDecision": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
+    "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+    "selectedOptionId": "B_SPLIT_BY_OPERATION_SCOPE",
+    "selectedAuditIds": [
+      "AUD-DIRECT-010",
+      "AUD-EDIT-022"
+    ]
+  },
+  "counts": {
+    "retainedProjectionOperations": 248,
+    "selectedFeatureDefinitions": 16,
+    "selectedFeatureCapabilityCases": 52,
+    "selectedFeatureParentRequirementCases": 54,
+    "selectedFeatureRequirementBindings": 17,
+    "selectedFeatureCrosswalkUpdates": 16,
+    "selectedPacketDefinitions": 2,
+    "selectedPacketCapabilityCases": 4,
+    "selectedPacketParentRequirementCases": 4,
+    "selectedPacketRequirementBindings": 2,
+    "selectedPacketCrosswalkUpdates": 2,
+    "totalSourceDefinitions": 18,
+    "totalCapabilityCases": 56,
+    "totalParentRequirementCases": 58,
+    "totalRequirementBindings": 19,
+    "totalCrosswalkUpdates": 18,
+    "selectedPacketOperations": 14
+  },
+  "ownerAdjudicationRecordsAdded": 0,
+  "trustReconstructionRecordsAdded": 0,
+  "canonicalApply": "NONE"
+}

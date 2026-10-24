@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r8-rebuild-verification.v1",
+  "status": "PREPARATION_PASS_CANDIDATE_ONLY",
+  "bundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.successor-bundle.candidate.v1.json",
+  "bundleSha256": "bf8be9fd5693b76136be553a9cc692727605e31769b35bbf991f01adffb88626",
+  "current7Baseline": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
+    "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+    "allSevenPreimagesCurrent": true,
+    "preimages": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      }
+    ]
+  },
+  "retainedProjection": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "operationCount": 248
+  },
+  "branches": {
+    "core": {
+      "ledgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.core.allowed-operations.candidate.v1.json",
+      "ledgerSha256": "2927240546bc12bc5c5a9b1d80b8e3786566784950ce4d2a4831e5d4911663a3",
+      "operations": 103,
+      "definitions": 16,
+      "embeddedCapabilityCases": 52,
+      "parentCases": 54,
+      "bindings": 17,
+      "crosswalkPatches": 16,
+      "ownerAdjudicationMutations": 0,
+      "trustReconstructionMutations": 0,
+      "rebuildSemanticallyMatchesFrozenPostimages": true,
+      "allParentCaseLineageAndPolarityResolved": true,
+      "ownerRowsPreserved": 462
+    },
+    "shared": {
+      "ledgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.shared.allowed-operations.candidate.v1.json",
+      "ledgerSha256": "da83048a1e23c3d10c643bb743a377b1a2b42248995e8717291cb217a8b093c8",
+      "operations": 112,
+      "definitions": 17,
+      "embeddedCapabilityCases": 54,
+      "parentCases": 58,
+      "bindings": 19,
+      "crosswalkPatches": 18,
+      "ownerAdjudicationMutations": 0,
+      "trustReconstructionMutations": 0,
+      "rebuildSemanticallyMatchesFrozenPostimages": true,
+      "allParentCaseLineageAndPolarityResolved": true,
+      "ownerRowsPreserved": 462
+    },
+    "split": {
+      "ledgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.allowed-operations.candidate.v1.json",
+      "ledgerSha256": "8f5ddbb28836f8999571d9667ce0e06a604335074dcfc39856d228447fc117d8",
+      "operations": 113,
+      "definitions": 18,
+      "embeddedCapabilityCases": 56,
+      "parentCases": 58,
+      "bindings": 19,
+      "crosswalkPatches": 18,
+      "ownerAdjudicationMutations": 0,
+      "trustReconstructionMutations": 0,
+      "rebuildSemanticallyMatchesFrozenPostimages": true,
+      "allParentCaseLineageAndPolarityResolved": true,
+      "ownerRowsPreserved": 462
+    }
+  },
+  "rootDecisionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
+  "rootDecisionSha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+  "sourceOwnerAdoption": "NOT_SET",
+  "schemaRegistration": "NOT_SET",
+  "independentFinalPeerReview": "PENDING",
+  "canonicalApply": "NONE"
+}

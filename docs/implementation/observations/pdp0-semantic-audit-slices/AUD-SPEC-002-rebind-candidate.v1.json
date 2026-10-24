@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-rebind-candidate.v1",
+  "auditId": "AUD-SPEC-002",
+  "status": "CANDIDATE_ONLY_BLOCKED",
+  "sourceBindings": {
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+  },
+  "exactTarget": {
+    "capabilityId": "media.recipe.specification.compile",
+    "requirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+    "acceptanceCaseId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07"
+  },
+  "coverageAssessment": {
+    "status": "PARTIAL_EXISTING_PDP0_MEANING; MIGRATION_MEANING_UNDEFINED",
+    "coveredSubmeaning": "Typed semantic compilation only, as defined by the exact existing compiler and AC-07.",
+    "unresolvedPdp0DefinitionWork": "Define the PDP-0 product intent for production-schema migration within the existing owner-approved capability/requirement identity: the user-visible purpose and outcome, source and target schema/version identity, provenance and compatibility boundary, and behavior for incompatible, unsupported, or unknown migrations. Do not infer automatic migration, data preservation, rollback, or execution semantics from the current compiler case. Reassess whether the existing identity is sufficient after that source-owner definition."
+  },
+  "predecessorRowSha256": "9fd987d46d988b0f6f1b138ea2ee4da296638847e2d21cdbd8302562eb54cea6",
+  "proposedRowSha256": "ed55871f36046db3bebaec4959199018e9adfbbbce3b1e687430e34a81e76a7c",
+  "candidatePostimageSha256": "ae99a8668695006ccfc2e4f37f6a596e3dc2e4ed3937973157da641818c71ba8",
+  "proposedRow": {
+    "auditId": "AUD-SPEC-002",
+    "sourcePartition": "originalAudit",
+    "sourceText": "Production-specific schema validation and migrations",
+    "sourceAcceptanceText": "Compiling the same specification twice produces equivalent normalized semantic graphs and stable fingerprints; invalid or unauthorized inputs create no effects.",
+    "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-002",
+    "disposition": "PDP0_MEANING_CHANGE_REQUIRED",
+    "pdp0EvidenceRefs": [
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile",
+      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07"
+    ],
+    "pdp0ContextRefs": [],
+    "proposedPdp0SourceChange": "Define the PDP-0 product intent for production-schema migration within the existing owner-approved capability/requirement identity: the user-visible purpose and outcome, source and target schema/version identity, provenance and compatibility boundary, and behavior for incompatible, unsupported, or unknown migrations. Do not infer automatic migration, data preservation, rollback, or execution semantics from the current compiler case. Reassess whether the existing identity is sufficient after that source-owner definition.",
+    "externalOwnerDecision": null,
+    "phaseLocalRationale": "The existing recipe specification compiler and AC-07 cover the typed semantic-compilation submeaning: exact versioned YAML/JSON production specification, declared schema and source references produce a typed normalized semantic graph with input/schema/compiler-contract provenance and stable semantic fingerprint, with invalid or unauthorized input causing no project, asset, job or external effect. The source phrase also requires schema migrations. PDP-0 does not define the migration product outcome, version-transition boundary, provenance, or incompatible/unknown behavior, so this row remains incomplete until the source owner defines that meaning. PDP-1 owns migration mechanics after PDP-0 intent is defined.",
+    "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-SPEC-002",
+    "independentQcRef": null,
+    "ownerApproval": "NOT_CLAIMED",
+    "laterPhaseHandoffs": {
+      "ownerPhase": "PDP-1",
+      "gap": "production-schema-migration-semantics-unbound",
+      "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
+    },
+    "ownerSurfaceProposal": "media.surface.recorder-orchestrator",
+    "definitionScopeBinding": {
+      "status": "DEFINITION_SCOPE_ONLY",
+      "surfaceRegistryRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.recorder-orchestrator",
+      "pdp0ScopeRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/logicalConsumerPdp0Scope/records/@surfaceRef=media.surface.recorder-orchestrator",
+      "ownerApproval": "NOT_CLAIMED",
+      "runtimeAdmission": "NOT_CLAIMED"
+    }
+  },
+  "preservedBoundaries": {
+    "ownerApproval": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_CLAIMED",
+    "implementation": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED",
+    "migrationSemantics": "PDP-1_HANDOFF_UNCHANGED"
+  },
+  "authorityEvidence": {
+    "decision": null,
+    "distinctPeerReview": null
+  },
+  "blockers": [
+    "PDP0_MIGRATION_PRODUCT_MEANING_UNRESOLVED",
+    "EXACT_ROOT_TECHNICAL_SOURCE_OWNER_DECISION_REQUIRED",
+    "DISTINCT_TECHNICAL_PEER_REVIEW_OF_EXACT_POSTIMAGE_REQUIRED"
+  ],
+  "canonicalApply": "NOT_PERFORMED"
+}

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {fingerprintPxdDecisionSection} from './lib/pdp0-phase-scoped-source-fingerprints.mjs';
+import {pdp0PhaseScopedSourcePins} from './report-media-pdp-readiness.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const defaultOutput = 'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json';
@@ -39,6 +40,12 @@ export function buildPxd225QualityCurrentness({read = readText} = {}) {
   latest.refreshReason = 'DEPENDENT_CURRENTNESS_REFRESH_AFTER_PXD-225_CROSSWALK_AND_AQ_SOURCE_REFRESH';
   latest.sourceFingerprints[crosswalkPath] = sha256(read(crosswalkPath));
   latest.sourceFingerprints[aqPath] = sha256(read(aqPath));
+  // The PXD-225 refresh depends on current PDP-0 applicability across the
+  // campaign. Bind the exact PDP-0 projection of the manifest, not only the
+  // source file bytes, so new in-scope consumers cannot hide behind a stale
+  // currentness record.
+  latest.sourceFingerprints['.product-experience/source-manifest.yaml#PDP-0-projection'] =
+    pdp0PhaseScopedSourcePins()['.product-experience/source-manifest.yaml#PDP-0-projection'];
   latest.sourceFingerprints[pxd222Path] = sha256(read(pxd222Path));
   latest.sourceFingerprints[pxd225ReconciliationPath] = sha256(read(pxd225ReconciliationPath));
   latest.sourceFingerprints[`${decisionPath}#PXD-225-section`] = fingerprintPxdDecisionSection(decisionLog, 'PXD-225').sha256;

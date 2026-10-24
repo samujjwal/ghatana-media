@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-source-amendment-candidate.v6",
+  "artifactKind": "NON_CANONICAL_EXACT_SOURCE_AMENDMENT_CANDIDATE",
+  "auditId": "AUD-SPEC-002",
+  "predecessorCandidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v5.json",
+  "predecessorCandidateSha256": "c2ef7de190ecc854c1a8ab451d88ede43f9b98d7cdf3a54a6b977d019ac4aa6c",
+  "rootDecisionRef": "ghatana-lifecycle:docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-version-population-root-decision.json",
+  "sourceBindings": {
+    "rootDecisionSha256": "384026c46cd5dbdcc092daa213a68e00e8502a5b38626a65600c26be2b4f05a1",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "campaignExtensionsSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+    "applicationsChannelsSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "decisionLogSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2"
+  },
+  "population": {
+    "historicalBase": 462,
+    "currentExtension": 1,
+    "futureProposals": 6,
+    "currentVersionTotal": 463,
+    "allDefinitions": 469,
+    "surfaceIdentityCount": 54,
+    "phaseCellCount": 216
+  },
+  "exactFileTargets": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "postimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "postimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "preimageSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+      "postimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "preimageSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "preimageSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+      "postimageSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+    },
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "preimageSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+      "postimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+    }
+  ],
+  "postimageSha256": {
+    "capabilitiesYaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+    "requirementsYaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+    "crosswalkJson": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+    "capabilityLeafReviewYaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+    "campaignExtensionsYaml": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+    "decisionLogMarkdown": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+  },
+  "candidatePostimageSha256": "e2be36a48df885444438fa623840e49653b71c8ce3dc8ccb085864a4394c656a",
+  "blockers": [
+    "DISTINCT_TECHNICAL_PEER_REVIEW_OF_THE_EXACT_V5_SIX_SOURCE_POSTIMAGE_REQUIRED",
+    "CURRENT_QUALITY_APPLICABILITY_REVIEW_REQUIRED_BEFORE_CURRENT_QUALITY_CLAIM",
+    "PDP1_OPERATION_CONTRACT_IS_NOT_DEFINED_BY_THIS_PDP0_SOURCE_CYCLE",
+    "CANONICAL_SOURCE_APPLY_REQUIRES_EXACT_ROOT_AUTHORIZATION"
+  ],
+  "canonicalApply": "NOT_PERFORMED",
+  "effects": {
+    "sourceWrite": "NOT_PERFORMED",
+    "phaseStatus": "UNCHANGED",
+    "sourceCurrentness": "NOT_CLAIMED",
+    "qualityApplicability": "UNKNOWN_PENDING_REVIEW",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "release": "NOT_AUTHORIZED"
+  }
+}

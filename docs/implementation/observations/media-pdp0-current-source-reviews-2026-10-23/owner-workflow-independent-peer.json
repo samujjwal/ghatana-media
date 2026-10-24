@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "media.pdp0.current-source-review-owner-workflow-independent-peer.v1",
+  "recordId": "MEDIA-PDP0-CURRENT-SOURCE-REVIEW-OWNER-WORKFLOW-INDEPENDENT-PEER-2026-10-23",
+  "reviewer": {
+    "identity": "agent:thread:01a16a35-bbcf-74d2-ac99-1ed74c29c3c9",
+    "role": "DISTINCT_TECHNICAL_REVIEWER"
+  },
+  "baseline": {
+    "repository": "samujjwal/ghatana-media",
+    "head": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+    "worktree": "DIRTY_PRESERVED",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "campaignDenominator": {
+      "physicalCandidates": 26,
+      "compositionsIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "totalSurfaceIdentities": 54,
+      "requestedCurrentMaterialPaths": 207
+    },
+    "selectedSurfaceSet": "PDP-0 current-source review successor workflow across its 54-subject campaign input; AUD-SPEC-002 is a separate recorder-orchestrator definition row."
+  },
+  "reviewedSources": {
+    "scripts/lib/media-pdp0-source-development-current-cut.mjs": "e64ef3ee1644de47b56e5509c29a0043978699790564a40ed93686534cd28b33",
+    "scripts/lib/media-pdp0-current-source-review-assembler.mjs": "e4beff7c40251b35eb3d022fdaff866fa6945d1908527f1f7639a89d58741f01",
+    "scripts/lib/media-pdp0-review-successor-plan.mjs": "ce684f45a54a4e4d8dd204e7383a88d60051041e130a7da06f45beb00889795f",
+    "scripts/lib/media-pdp0-review-successor-cas.mjs": "329588b5a2ee4ed4bd53f577e01107b6aaed18278cccb6b8e1c10ed89287cb60",
+    "scripts/apply-media-pdp0-current-source-review-successor.mjs": "8ec2ec26a9d84818b1ecfc5f6308288a81f5138cdfe8bd7d574780c940d02fb4",
+    "scripts/assemble-media-pdp0-current-source-reviews.mjs": "154c6388d553d673e13c1a9b87765a1a96a9d1a112801ccc97d4bd37863b9ff2",
+    "scripts/plan-media-pdp0-current-source-review-successor.mjs": "69735a88e1f8c037cf9a4ea0e25f0450fb284a779d78879f866e02f9f172dfb6",
+    "scripts/record-media-discovery-pdp0-currentness.mjs": "69cdac8ed1168bdcb1ae25b2e743edd0ac4b1342741431956d634fff638a49be",
+    "tests/media-pdp0-current-source-review-assembler.test.mjs": "6356e332d8f665e8808b45787f36d136598d3b03414a5d663a752c95407e64ab",
+    "tests/media-pdp0-review-successor-plan.test.mjs": "cdeaf0cb5375b1308a119b0f7ca205ee01fd3eff298229981539ed71de5fa56c",
+    "tests/media-pdp0-review-successor-cas.test.mjs": "4fb374eb1dd00bae2a37cc09b19586380a9ab8cba1900bdadc08d149da73be21",
+    "tests/media-pdp0-source-development-current-cut.test.mjs": "6e352428f6db6b0b9b54db3c51bc6ba6ac8b6b50f4f076473ef63a1b01ad1879",
+    "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-07.json": "f8586eb6ee7866e1ce192972a9e4a6be1afb617cdef14768a7faf8951aae6cf6",
+    "docs/implementation/pdp-0-phase-dev-status.json": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "docs/implementation/media-pdp-38-readiness.json": "5ccc340576a8cbebfa793f9b769532962f7a26cb0102c0e589d07e3bdb301dbe",
+    "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
+  },
+  "checks": {
+    "sourceCutGuard": {
+      "result": "FAIL_CLOSED_CURRENT_CUT_NOT_READY",
+      "sourceCurrent": false,
+      "consistencyStable": true,
+      "currentCells": 0,
+      "unknownCells": 54,
+      "materialPaths": 207,
+      "pdp0Exit": "FAIL_SOURCE_CURRENTNESS",
+      "blockers": [
+        "UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE"
+      ],
+      "mutation": "NONE"
+    },
+    "sourceDevelopmentResolver": {
+      "codeGuard": "EXACT_HISTORIC_50_CELLS_146_PATHS_TO_CURRENT_54_CELLS_207_PATHS",
+      "applyGuard": "fresh resolver requires sourceCurrent=true, consistencyStable=true, 54 current cells, zero unknown cells and 207 paths",
+      "result": "APPLY_GUARD_BLOCKS_ON_CURRENT_LIVE_OBSERVATION"
+    },
+    "rootDecisionAndPxd": {
+      "code": "requires technicalSourceOwner agent:/root, exact candidate/current target hashes, unique existing PXD section digest, matching decision ref; no phase status/acceptance/closure side effect",
+      "sourceOwnerDecisionPresent": false,
+      "applyAuthorizationPresent": false,
+      "canonicalApply": "NOT_PERFORMED"
+    },
+    "peerBinding": {
+      "code": "identity must differ from root and candidate/postimage hashes are compared in authorization/decision; no peer-authored recordRef or peer-record digest is loaded by the final apply validator",
+      "result": "NOT_SUFFICIENTLY_SOURCE_BOUND"
+    },
+    "unresolvedMeaningFindings": {
+      "code": "plan excludes only BLOCKED_EXTERNAL_INDEPENDENT; decision requires unresolved IDs empty and resolved IDs equal current candidate meaning finding IDs",
+      "result": "GENERIC_FINDING_GATE_PRESENT; CASE_DENOMINATOR_COVERAGE_NOT_PROVEN"
+    },
+    "currentP007Input": {
+      "ref": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-07.json",
+      "sha256": "f8586eb6ee7866e1ce192972a9e4a6be1afb617cdef14768a7faf8951aae6cf6",
+      "schemaVersion": "media.pdp0.current-source-review-record.v1",
+      "findingIds": [
+        "P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231"
+      ],
+      "aggregatedRows": 231,
+      "currentV4RecordPresent": false
+    },
+    "canonicalWrites": {
+      "plan": "NONE",
+      "assembler": "NONE_TO_CANONICAL_AUTHORITY",
+      "apply": "NOT_RUN"
+    }
+  },
+  "testEvidence": [
+    {
+      "command": "node --test tests/media-pdp0-current-source-review-assembler.test.mjs tests/media-pdp0-review-successor-plan.test.mjs tests/media-pdp0-review-successor-cas.test.mjs tests/media-pdp0-source-development-current-cut.test.mjs",
+      "result": "PASS",
+      "tests": 16,
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "command": "node scripts/plan-media-pdp0-aud-spec-002-rebind.mjs --check",
+      "result": "PASS",
+      "candidatePostimageSha256": "ae99a8668695006ccfc2e4f37f6a596e3dc2e4ed3937973157da641818c71ba8"
+    },
+    {
+      "command": "node --test tests/media-pdp0-aud-spec-002-rebind-candidate.test.mjs",
+      "result": "PASS",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "command": "isolated CAS race injection before target rename",
+      "result": "FAIL_EXPECTED_CAS_PROPERTY",
+      "observed": "commit returned COMMITTED_EXACT_READBACK and overwrote an intervening owner update with the approved postimage"
+    }
+  ],
+  "findings": [
+    {
+      "id": "MEDIA-PDP0-REVIEW-CAS-TOCTOU-001",
+      "priority": "P1",
+      "owner": "PDP-0 source-review successor CAS writer",
+      "where": "scripts/lib/media-pdp0-review-successor-cas.mjs#commitValidatedPdp0ReviewPostimage (preimage comparison before journal; unconditional target rename after journal)",
+      "issue": "The canonical target hash is checked before snapshot/journal creation, but the approved temp file is later renamed over the target without a protected critical section or revalidation. An intervening owner edit in this window is silently overwritten. A deterministic isolated fsOps injection changed the target immediately before rename; the function still returned COMMITTED_EXACT_READBACK and replaced that edit.",
+      "correction": "Serialize all canonical writers with a shared exclusive lock and recheck the exact preimage under that lock immediately before replacement, or use an equivalent repository-wide atomic CAS mechanism. Preserve a conflict journal and never replace a changed target.",
+      "predecessor": "Apply must bind the exact source-owner decision, candidate, postimage and expected canonical preimage.",
+      "acceptance": "A regression test changes the target after the initial read but before replace and proves the caller refuses to overwrite; standard commit and unknown-interruption recovery continue to pass.",
+      "nextAction": "Keep canonical apply blocked until the no-overwrite race is closed."
+    },
+    {
+      "id": "MEDIA-PDP0-REVIEW-231-CASE-AGGREGATION-001",
+      "priority": "P1",
+      "owner": "P0-07 current-source review input",
+      "where": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-07.json; scripts/lib/media-pdp0-current-source-review-assembler.mjs#buildPdp0CurrentSourceReviewCandidate; scripts/lib/media-pdp0-review-successor-plan.mjs#openMeaningFindingIds",
+      "issue": "The live P0-07 input currently records 231 family-case semantic-fit rows as one aggregate finding ID. The successor planner requires disposition of each candidate finding ID, but it does not prove that the 231 source cases are individually represented. Resolving the single aggregate ID could be mistaken for closing the full 231-case denominator.",
+      "correction": "Require the current P0-07 review input to bind the exact 231 source case IDs and an exhaustive per-case disposition/meaning result (or an exact partition with count and set equality). Feed unresolved case identities into the plan so any unresolved member blocks apply while technical review records remain recordable.",
+      "predecessor": "P0-07 semantic review of the exact current requirement-family cases.",
+      "acceptance": "Tests prove the candidate inventory equals the exact 231-case source set; omission, duplicate, extra, stale or unresolved case rows block postimage generation/apply.",
+      "nextAction": "Keep P0-07 and canonical review successor blocked until row-level denominator coverage is source-bound."
+    },
+    {
+      "id": "MEDIA-PDP0-REVIEW-PEER-PROVENANCE-001",
+      "priority": "P1",
+      "owner": "PDP-0 successor source-owner decision/apply authorization",
+      "where": "scripts/lib/media-pdp0-review-successor-plan.mjs#validatePdp0ReviewSuccessorDecision and #applyPdp0ReviewSuccessorPostimage",
+      "issue": "The final gate checks a distinctTechnicalPeer identity string and matching candidate/postimage hashes, but does not load a peer-authored review artifact or verify a peer record reference/digest. The root decision can therefore self-assert a different peer identity; identity inequality alone is not source-bound evidence that a distinct peer reviewed the exact postimage.",
+      "correction": "Require an actual distinct peer review record reference and exact byte digest in the owner decision/authorization, validate that record and identity, and bind it to both candidate and postimage hashes. Preserve the non-claim that this is not independent regulated acceptance.",
+      "predecessor": "Exact candidate and postimage source-owner technical review before any canonical review-record successor.",
+      "acceptance": "Tests reject missing, stale, malformed, self-authored or wrong-candidate/postimage peer records and accept a distinct exact review record.",
+      "nextAction": "Do not permit apply based only on owner-authored peer identity fields."
+    },
+    {
+      "id": "MEDIA-PDP0-REVIEW-IDEMPOTENCE-JOURNAL-IDENTITY-001",
+      "priority": "P2",
+      "owner": "PDP-0 review CAS journal recovery",
+      "where": "scripts/lib/media-pdp0-review-successor-cas.mjs#existing-apply-journal branch",
+      "issue": "Recovery compares only expectedTargetSha256, postimageSha256, and decisionRef before returning POSTIMAGE_OBSERVED_AFTER_PRIOR_ATTEMPT. It ignores journal schema/state, candidateSha256, decisionSectionSha256, applyAuthorizationSha256, targetRef and preimage snapshot integrity, so a partial or mismatched journal plus identical target bytes can be misreported as this exact attempt having completed.",
+      "correction": "Validate the full journal identity and state against the current attempt and verify the immutable preimage snapshot before returning an idempotent observation; otherwise stop for manual reconciliation.",
+      "predecessor": "Interrupted CAS attempt with uncertain rename outcome.",
+      "acceptance": "Tests cover mismatches in each journal binding field and prove no false prior-attempt success or redispatch.",
+      "nextAction": "Keep recovery observation conservative until full journal binding is checked."
+    }
+  ],
+  "reviewConclusion": "REQUEST_CHANGES",
+  "effectBoundary": {
+    "canonicalWrite": "NOT_PERFORMED",
+    "phaseStatusEffect": "NONE",
+    "P0_010Acceptance": "NOT_PERFORMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "build": "NOT_ENTERED",
+    "delivery": "NOT_AUTHORIZED"
+  },
+  "nextAction": "Resolve the P1 workflow findings and provide all eight current v4 criterion reviews, a source-bound root decision/PXD section, distinct source-bound peer evidence, and 231-case P0-07 coverage before apply. The exact live currentness check currently fails closed at 54 unknown cells."
+}

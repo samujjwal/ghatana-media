@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "media.pdp0.root-source-authoring-direction.v1",
+  "recordId": "MEDIA-PDP0-COHORT01-ROOT-SOURCE-DIRECTION-R1-2026-10-23",
+  "recordedAt": "2026-10-24T00:00:09.528263+00:00",
+  "issuer": {
+    "identity": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
+    "role": "delegated technical product source owner",
+    "humanIdentityClaimed": false
+  },
+  "sourceCandidate": {
+    "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json",
+    "sha256": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361"
+  },
+  "phase": "PDP-0",
+  "macroStage": "DISCOVERY",
+  "decisions": [
+    {
+      "auditId": "AUD-CAP-028",
+      "selectedBoundedChoice": "A",
+      "decisionEffect": "AUTHOR_PDP0_FEATURE_CANDIDATE_WITH_EXACT_CONDITIONS",
+      "selectedMeaning": "Define a product-level readback observation only: identify the exact owner, authoritative effect source, evidence reference, and permitted finality states; missing evidence yields UNKNOWN/UNAVAILABLE and never authorizes replay.",
+      "mandatoryConditions": [
+        "Define authoritative effect-observation input as exact owner-controlled effect source reference, effect identity, observed version/revision, typed evidence ref, observation time and finality value.",
+        "Separate reconnect-session state from product-effect state. Missing/unavailable/unverified owner binding or evidence returns UNKNOWN/UNAVAILABLE; never infer safe resume, scene ownership, completed effects or permission to replay.",
+        "Required genuine owner endpoint binding remains an explicit execution prerequisite; this source direction supplies no endpoint or runtime grant."
+      ],
+      "sourceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-028",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.session.reconnect",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM",
+        ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+        "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+      ],
+      "sourceAdoption": "SEPARATE_EXACT_PEER_AND_OWNER_DECISION_REQUIRED"
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "selectedBoundedChoice": "A",
+      "decisionEffect": "AUTHOR_PDP0_FEATURE_CANDIDATE_WITH_EXACT_CONDITIONS",
+      "selectedMeaning": "Define user-facing custom voice tuning as a separate product intent with source version, rights/purpose, requested tuning dimensions, output/version semantics, retention, and authorized actor.",
+      "mandatoryConditions": [
+        "Define separately selectable authorized custom-voice tuning intent with immutable source voice/version, requested versioned tuning-profile/dimensions, permitted purpose, rights/consent ref, authorized actor, retention/deletion policy ref, and candidate output/version lineage.",
+        "Tuning must not silently enroll, train, adapt or replace a canonical model. Any training/adaptation or activation is a separate explicit governed operation.",
+        "Unsupported tuning profiles/dimensions, missing rights/purpose/retention authority or revoked consent reject; unknown outcome remains unknown and requires reconciliation."
+      ],
+      "sourceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-004",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.clone-authorized",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+        "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+      ],
+      "sourceAdoption": "SEPARATE_EXACT_PEER_AND_OWNER_DECISION_REQUIRED"
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "selectedBoundedChoice": "A",
+      "decisionEffect": "AUTHOR_PDP0_FEATURE_CANDIDATE_WITH_EXACT_CONDITIONS",
+      "selectedMeaning": "Define a source-free synthetic voice persona feature with explicit non-identity claims, identity policy, rights boundary, selection inputs, output, and prohibited impersonation cases.",
+      "mandatoryConditions": [
+        "Define a source-free synthetic voice-persona design intent distinct from authorized cloning. Inputs include non-identity design attributes, admitted voice-design profile, tenant/actor and applicable rights/identity policy refs.",
+        "Output is a clearly synthetic local voice-persona candidate/version with design provenance; no assertion that it represents or is endorsed by a real person.",
+        "A request to imitate, misrepresent or enroll an identifiable person requires separately genuine identity/rights/consent authority and is unavailable under this source-free branch."
+      ],
+      "sourceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-006",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.clone-authorized",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+        "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+      ],
+      "sourceAdoption": "SEPARATE_EXACT_PEER_AND_OWNER_DECISION_REQUIRED"
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "selectedBoundedChoice": "A",
+      "decisionEffect": "AUTHOR_PDP0_FEATURE_CANDIDATE_WITH_EXACT_CONDITIONS",
+      "selectedMeaning": "Define enrollment only with exact subject/avatar identity, consent/rights scope, enrollment purpose, authorized decision authority, revocation and lifecycle semantics.",
+      "mandatoryConditions": [
+        "Define avatar/persona enrollment as its own governed operation with exact subject identity ref, avatar/persona/version, purpose, consent/rights scope and version, actual authorized decision source, revocation/deletion/lifecycle contract and auditable outcome ref.",
+        "Resolving a consent reference is not enrollment. Missing, expired, revoked or mismatched scope rejects; unavailable actual authority or ambiguous external effect remains UNKNOWN and cannot be replayed automatically.",
+        "No actual identity verification, consent, likeness right, credential, enrollment state or specialist approval is supplied by this direction."
+      ],
+      "sourceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-017",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.consent.reference",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+        ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+        "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+      ],
+      "sourceAdoption": "SEPARATE_EXACT_PEER_AND_OWNER_DECISION_REQUIRED"
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "selectedBoundedChoice": "A",
+      "decisionEffect": "AUTHOR_PDP0_FEATURE_CANDIDATE_WITH_EXACT_CONDITIONS",
+      "selectedMeaning": "Define a compatibility observation against one explicitly named profile/target and disclose supported, unsupported, and unknown dimensions; make no standards-conformance claim.",
+      "mandatoryConditions": [
+        "Define exact profile/target compatibility observation with versioned requested and effective profile, declared applicability dimensions, supported/unsupported/unknown results and current evidence provenance.",
+        "Retain standards-conformance as a separate required branch when requested by the original criterion: real standard/version, authorized conformance decision source, test method/target and authentic evidence are mandatory, and missing inputs yield UNKNOWN/UNAVAILABLE.",
+        "A compatibility result alone never satisfies certification or standards-conformance acceptance."
+      ],
+      "sourceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-007",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.colorspace-gamut-convert",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+        ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+        "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+      ],
+      "sourceAdoption": "SEPARATE_EXACT_PEER_AND_OWNER_DECISION_REQUIRED"
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "selectedBoundedChoice": "A",
+      "decisionEffect": "AUTHOR_PDP0_FEATURE_CANDIDATE_WITH_EXACT_CONDITIONS",
+      "selectedMeaning": "Define only a product readiness observation from explicitly declared legal and hardware criteria and current evidence; unknown criteria/evidence must remain UNKNOWN and never become legal clearance.",
+      "mandatoryConditions": [
+        "Define product readiness observation with separately typed technical/hardware and legal/rights criterion results, exact requested target/profile/hardware, criterion owner/source and current evidence refs.",
+        "Actual legal clearance requires genuine authorized legal decision evidence; unknown legal criteria/evidence stays UNKNOWN and prevents a clearance claim. A technical observation cannot substitute for legal approval.",
+        "Hardware capability/admission evidence and legal decision evidence remain distinct. No professional judgment, equipment qualification, deployment or release approval is issued by this direction."
+      ],
+      "sourceRefs": [
+        "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-007",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.encode",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER",
+        ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+        "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07"
+      ],
+      "sourceAdoption": "SEPARATE_EXACT_PEER_AND_OWNER_DECISION_REQUIRED"
+    },
+    {
+      "auditId": "AUD-COLOR-001",
+      "selectedBoundedChoice": "SAT-A",
+      "decisionEffect": "AUTHOR_NEW_PRODUCT_PARAMETER_SEMANTICS_NOT_INFER_EXISTING_IMPLEMENTATION",
+      "parameterContract": {
+        "parameterId": "saturationFactor",
+        "type": "finite-number",
+        "unit": "multiplicative-saturation-factor",
+        "minimum": 0,
+        "maximum": 2,
+        "inclusive": true,
+        "precisionDecimalPlaces": 2,
+        "step": 0.01,
+        "default": 1,
+        "neutralValue": 1,
+        "requestedAndEffectiveValuesRecordedSeparately": true
+      },
+      "mandatoryConditions": [
+        "This is a new delegated product-source choice, not a claim that existing code or standards already specify these numbers.",
+        "Preserve immutable source artifact/version and declared color/profile basis; output is a local adjusted candidate with requested/effective parameter provenance.",
+        "Unsupported profile/space or factor, non-finite/wrong-precision input and missing source version reject without silent clamp/substitution. Neutral value preserves saturation intent; actual algorithm/colorimetric and fidelity contracts are authored at their owning PDP phases.",
+        "Do not claim implementation, gamut/fidelity/quality qualification or canonical project commit. Add exact boundary/default/neutral/negative source acceptance cases."
+      ],
+      "sourceOptions": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.AUD-COLOR-001-saturation-owner-options.r1.json",
+        "sha256": "0c5fc4c05a6c61d6dede87e03b9ecde5adf5c5ed9bdb1df348c3b0abed7c991e"
+      },
+      "sourceAdoption": "SEPARATE_EXACT_PEER_AND_OWNER_DECISION_REQUIRED"
+    }
+  ],
+  "boundary": {
+    "canonicalSourceWritten": false,
+    "canonicalPdpStatusWritten": false,
+    "registeredSubjectDenominator": 54,
+    "phaseCells": 216,
+    "historicalBaseRecordsPreserved": 462,
+    "runtimeAuthorityIssued": false,
+    "formalAcceptance": false,
+    "nativeClosure": false,
+    "release": false
+  },
+  "nextAction": "Author complete exact source candidate and positive/adverse criteria on actual v7 source postimages; preserve original feature obligations and obtain distinct actual peer before separately authorized source application."
+}

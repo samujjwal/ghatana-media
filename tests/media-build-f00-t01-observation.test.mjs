@@ -3,10 +3,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildF00T01Observation, checkF00T01Observation } from '../scripts/lib/media-build-f00-t01-observation.mjs';
+import { buildF00T01Observation, checkF00T01Observation, inspectMaterialSourceReceipt } from '../scripts/lib/media-build-f00-t01-observation.mjs';
 
 const root = process.cwd();
 const fixedTime = new Date('2026-10-23T06:15:00.000Z');
+const livePhaseStatuses = [0, 1, 2, 3].map(index => JSON.parse(fs.readFileSync(path.join(root, `docs/implementation/pdp-${index}-phase-dev-status.json`), 'utf8')));
+const liveMaterialPinCount = livePhaseStatuses.reduce((sum, status) => sum + Object.keys(status.sourceShaSet ?? {}).length, 0);
 const topology = JSON.parse(fs.readFileSync(path.join(root, '.product-experience/surfaces/media-physical-topology.v1.json'), 'utf8'));
 const subjectIds = [
   ...topology.manifestCandidates.map(row => row.surfaceId),
@@ -112,6 +114,16 @@ const assertRejectsG0 = (mutate, expectedMessage) => {
   });
 };
 
+test('derives the receipt denominator from live phase sourceShaSet records and reports exact stale selectors', () => {
+  const workPackages = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json'), 'utf8'));
+  const readback = inspectMaterialSourceReceipt({ root, phaseStatuses: livePhaseStatuses, receipt: workPackages.materialSourceReceipt });
+  assert.equal(readback.expectedCount, liveMaterialPinCount);
+  assert.equal(readback.receiptCount, workPackages.materialSourceReceipt.count);
+  assert.ok(Array.isArray(readback.staleSelectors));
+  assert.ok(readback.staleSelectors.length > 0, 'current worktree should expose its source receipt drift instead of treating the receipt as current');
+  assert.ok(readback.staleSelectors.every(row => row.phase && row.selector && row.expectedSha256));
+});
+
 test('generates an F00.T01 read-only receipt with complete 54 × 4 accounting and source digests', () => {
   const status = readG0();
   withG0(status, temporaryG0Path => {
@@ -127,7 +139,7 @@ test('generates an F00.T01 read-only receipt with complete 54 × 4 accounting an
     assert.equal(artifact.reconciliation.phaseMatrices.length, 4);
     assert.ok(artifact.reconciliation.phaseMatrices.every(row => row.rows === 54 && row.uniqueSurfaceIds === 54 && row.sourceCurrentness === 'CURRENT' && row.remainingPhaseLocalTaskCount === 0));
     assert.equal(artifact.reconciliation.gtoolRowIdentityComparison.g0StatusPhaseCells, 216);
-    assert.equal(artifact.reconciliation.materialSourcePins.count, 859);
+    assert.equal(artifact.reconciliation.materialSourcePins.count, liveMaterialPinCount);
     assert.equal(artifact.reconciliation.materialSourcePins.staleOrUnsupportedCount, 0);
     assert.equal(artifact.sourceBaseline.g0Status.sourceSnapshotFingerprint, `sha256:${'a'.repeat(64)}`);
     assert.equal(artifact.sourceBaseline.g0Status.path, temporaryG0Path);

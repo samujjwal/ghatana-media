@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "media.pdp0.current-source-review-record.v1",
+  "criterionId": "P0-06",
+  "phaseScope": "PDP-0",
+  "reviewer": {
+    "identity": "agent:thread:01a16a3d-608a-7cf0-a1c7-e346d343016d/AItechnicalrole",
+    "reviewRole": "DISTINCT_TECHNICAL_REVIEWER",
+    "reviewRecordRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-06.json"
+  },
+  "scopeRef": "docs/implementation/media-pdp-38-readiness.json#tasks/P0-06",
+  "reviewedSources": [
+    {
+      "sourceRef": ".product-experience/README.md",
+      "sha256": "3760d7b7ed8bd675c248d929f407d96b5c9df1f1f2695971ad0c86113f5dfd5c"
+    },
+    {
+      "sourceRef": ".product-experience/decision-log.md",
+      "sha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "sha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "sha256": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "sha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+    },
+    {
+      "sourceRef": ".product-experience/source-manifest.yaml",
+      "sha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4"
+    },
+    {
+      "sourceRef": ".product-experience/surface-registry.yaml",
+      "sha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+    },
+    {
+      "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2"
+    },
+    {
+      "sourceRef": "docs/implementation/media-pdp-38-readiness.json",
+      "sha256": "5ccc340576a8cbebfa793f9b769532962f7a26cb0102c0e589d07e3bdb301dbe"
+    },
+    {
+      "sourceRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/review-record.example.json",
+      "sha256": "941ef1d223414bbc00ff9eebbe9c70ead7c82e88d63ce9d6efc83ec16b2fa9f6"
+    },
+    {
+      "sourceRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/review-record.schema.json",
+      "sha256": "762f0fcd7265f741774e218b17cfb426ab50c3683788e6d65a2fa59a09b64f3f"
+    },
+    {
+      "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "sha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20"
+    },
+    {
+      "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+      "sha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c"
+    },
+    {
+      "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/P0-06.log",
+      "sha256": "3fdb3114ba8900dab058ea4de7d2e5354a9f21c00d5571a7dbfc6f102faaf3aa"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+      "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json",
+      "sha256": "efbfe052755dfe3af7fcf7ef82736d66d0a03c484feebb48f5880a954566abb8"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
+      "sha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd"
+    },
+    {
+      "sourceRef": "tests/media-measure-applicability-crosswalk.test.mjs",
+      "sha256": "7b335bc7e9f694878f1e4829bf5e0570c6034de9cbf223f0b9510e3bc564546d"
+    },
+    {
+      "sourceRef": "tests/pdp-0-06-measures-provenance.test.mjs",
+      "sha256": "27ed2f3c4e732d78a4deb955059af96291315b99d875dcce1b46817dfd203027"
+    },
+    {
+      "sourceRef": "tests/pdp-truth-domain-quality-applicability.test.mjs",
+      "sha256": "793c6acce25cbd9d821f33d31868230b5076d8ed0f2d7ffbe5926087d071353e"
+    },
+    {
+      "sourceRef": "tests/pdp-truth-domain.test.mjs",
+      "sha256": "d29472b12db8f7e3cfdff21f5f42fa0a3a8ec8c47f39bc2106889ff5bf605f03"
+    },
+    {
+      "sourceRef": "tests/pdp0-current-source-reconciliation-pxd206.test.mjs",
+      "sha256": "679d4ecad15eff9c506a0f18bf6d1eb2fb1b4677a920866d204cdd01b8a1bb93"
+    },
+    {
+      "sourceRef": "tests/pdp0-phase-noise-output-semantics.test.mjs",
+      "sha256": "1cacf247a2bb9526e99e0c4ae75a166d383e6fdfde4619855f48ce7ffed04c97"
+    },
+    {
+      "sourceRef": "tests/pdp0-quality-current-source-review-pxd225.test.mjs",
+      "sha256": "67a106e7685703f620cd2ff455034a3f43a664288f85b78a466c8317c94d9ae5"
+    },
+    {
+      "sourceRef": "tests/pdp0-quality-current-source-review.test.mjs",
+      "sha256": "c131be4245716d97471dda9bb826e7d5e86716c3fe387968b848b608701df142"
+    }
+  ],
+  "criterionVerification": {
+    "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+    "statusRecordSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "testReceiptRef": "docs/implementation/verification/pdp-38/P0-06.log",
+    "testReceiptSha256": "3fdb3114ba8900dab058ea4de7d2e5354a9f21c00d5571a7dbfc6f102faaf3aa",
+    "testStatus": "PASS",
+    "testCount": 14,
+    "passedTestCount": 14,
+    "skippedTestCount": 0,
+    "outputSha256": "3fdb3114ba8900dab058ea4de7d2e5354a9f21c00d5571a7dbfc6f102faaf3aa"
+  },
+  "reviewConclusion": "NO_MATERIAL_PDP0_SEMANTIC_CHANGE_IDENTIFIED",
+  "reviewNotes": "{\"reviewKind\":\"AI_TECHNICAL_CURRENT_SOURCE_REVIEW\",\"criterionIdentity\":{\"criterionId\":\"P0-06\",\"readinessTaskRef\":\"docs/implementation/media-pdp-38-readiness.json#tasks/P0-06\",\"directDefinitionCriterionRecord\":\"APPROVED_DIRECT_DEFINITION_CRITERION\",\"directDefinitionDecisionRef\":\".product-experience/decision-log.md#PXD-099\",\"readinessCriterionState\":\"VERIFIED_IN_CURRENT_SOURCE\",\"originalTaskState\":\"partial\"},\"baseline\":{\"repositoryHead\":\"b7685542a71a62c33f3a0cf074d22de6543e7935\",\"workingTree\":\"DIRTY_PRESERVED\",\"campaign\":\"Media PDP-0 Product Truth, criteria P0-05 through P0-08 only\",\"macroStage\":\"DISCOVERY\",\"exactPhase\":\"PDP-0 Product Truth\",\"registeredIdentityDenominator\":{\"physicalCandidates\":26,\"compositionSurfacesIncludingRoot\":7,\"logicalConsumers\":21,\"registeredIdentities\":54},\"requestedCurrentMaterialPathDenominator\":207,\"sourcePinObservation\":{\"reportedCurrentMaterialPathDenominator\":207,\"phaseStatusSourcePinRefs\":188,\"wholeFilePinsComparedAgainstLiveBytes\":167,\"wholeFilePinMismatches\":0,\"sectionPins\":21,\"sectionPinCurrentness\":\"NOT_EVALUATED_BY_THIS_BOUNDED_REVIEW\",\"wholeCutCurrentnessClaim\":\"NOT_MADE\",\"sectionPinBackerFilesMissing\":[\"truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection\",\"migration-current-owner-target-observations.json#PDP-0-targets\"]},\"sourceCurrentnessClaim\":\"NOT_MADE; this is a bounded technical source review, not a PDP-0 currentness/DEV_COMPLETE receipt\"},\"criterionMeaning\":{\"scope\":\"PDP-0 owner measurement contracts and exact capability intent/artifact-type applicability only; no PDP-1 wire binding, measurement, calibration, qualification, or runtime result.\",\"observations\":[\"Current quality policy defines six quality dimensions, sixteen metric definitions, and 462 owner applicability rows; the current PXD-225 refresh records 2,772 dimension and 7,392 metric dispositions with seven definition extensions excluded.\",\"PXD-225 is a currentness refresh only: PXD-216 semantic review is preserved; measurementState and qualificationState remain NOT_EVALUATED. The refreshed exact type join is reviewed as a source join, not as measured quality.\",\"Negative cases reject operation/wire schemas as substitutes for P0 capability intent, foreign semantic types, missing/unknown applicability, duplicate or substituted rows, and invented measurements.\",\"P0-06 verifier receipt: 14/14, 0 skipped. Existing full task remains partial; target selection, baselines, calibration, specialist review, and qualification are not established by this source review.\"],\"nonClaims\":[\"No measured quality, benchmark, calibration, acceptance threshold, scientific qualification, runtime, closure, or Delivery claim.\"]},\"findings\":[],\"verifierReceipt\":{\"statusRecordRef\":\"docs/implementation/pdp-0-phase-dev-status.json\",\"currentStatusRecordHashedInCriterionVerification\":true,\"testReceiptRef\":\"docs/implementation/verification/pdp-38/P0-06.log\",\"testReceiptSha256\":\"3fdb3114ba8900dab058ea4de7d2e5354a9f21c00d5571a7dbfc6f102faaf3aa\",\"testStatus\":\"PASS\",\"testCount\":14,\"passedTestCount\":14,\"skippedTestCount\":0,\"outputSha256\":\"3fdb3114ba8900dab058ea4de7d2e5354a9f21c00d5571a7dbfc6f102faaf3aa\",\"command\":\"node --test-reporter=tap --test \\\"--test-name-pattern=P0-06 maps all measures to stable capability meaning|P0 quality applicability is complete from capability intent and semantic artifact types alone|P0 quality checks reject foreign semantic types and missing applicability decisions|actual PDP-0 owner applicability source closes all pairs and exact binding projections|P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes|same-count substitution, duplicates and stale binding projections are rejected|unknown applicability, missing evidence and invented measurements remain errors|PXD-225 quality currentness preserves PXD-222 history and binds the live dependent inputs|PXD-225 quality currentness rejects stale dependent pins and changed semantic joins\\\" /Users/samujjwal/Development/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs /Users/samujjwal/Development/ghatana-media/tests/media-measure-applicability-crosswalk.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-truth-domain-quality-applicability.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp-truth-domain.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review-pxd225.test.mjs /Users/samujjwal/Development/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs\",\"distinction\":\"This receipt verifies the listed technical source checks only; it does not establish the original full-task completion or phase acceptance.\"},\"sourceCoverage\":{\"sourceRefsWithCurrentWholeFileHashes\":28,\"sourceRefMap\":\"reviewedSources on the parent record binds the exact bounded technical-review scope by SHA-256\",\"knownUnknowns\":[]},\"nextAction\":\"Preserve the verified source-definition result and keep original task, owner acceptance, independent acceptance, native proof, and delivery gates separate.\",\"reviewerBoundary\":{\"role\":\"AI technical source reviewer only\",\"ownerApproval\":\"NOT_CLAIMED\",\"independentAcceptance\":\"NOT_CLAIMED\",\"pdp010Acceptance\":\"NOT_PERFORMED\",\"phaseStatusEffect\":\"NONE\"}}",
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "pdp010Acceptance": "NOT_PERFORMED",
+    "phaseStatusEffect": "NONE"
+  }
+}

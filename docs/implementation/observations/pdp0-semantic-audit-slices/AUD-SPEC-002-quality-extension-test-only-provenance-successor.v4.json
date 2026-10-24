@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "media.pdp0.quality-extension-test-only-provenance-successor.v4",
+  "artifactKind": "ADDITIVE_TEST_ONLY_IMPLEMENTATION_PROVENANCE_SUCCESSOR",
+  "status": "TEST_ONLY_SUCCESSOR_PENDING_ROOT_INDEPENDENT_REVIEW",
+  "predecessor": {
+    "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-provenance-successor.v3.json",
+    "sha256": "bc4dee91c2517fe19efde31702b931ec870c1af174ce1a465dfcc0ac0dd49bb7",
+    "preservedUnchanged": true,
+    "historicalTestPinCurrentness": "NOT_CLAIMED_FOR_UPDATED_TEST_BYTES"
+  },
+  "candidate": {
+    "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json",
+    "sha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a",
+    "candidatePostimageSha256": "a7a292b33f1571a487bc2fa5b68ffcb636956a5096a3fa24247f21487eac62d4"
+  },
+  "targetPostimages": [
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "preimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+      "postimageSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "preimageSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      "postimageSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+    }
+  ],
+  "testPins": {
+    "adoptionTest": {
+      "ref": "tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs",
+      "sha256": "15b1e3e3b2044414740d633d23adc41916e998654615c6df2e00d53f58caa1fc"
+    },
+    "candidateTest": {
+      "ref": "tests/media-pdp0-quality-extension-source-candidate-v2.test.mjs",
+      "sha256": "c96b03549b1cd85e86c754b1353a5f6379e72472a6d4646bdb81648fc389fa7b"
+    },
+    "provenanceTest": {
+      "ref": "tests/media-pdp0-quality-extension-provenance-plan-v3.test.mjs",
+      "sha256": "bd5e21b36593e7f298f5b877d134b5d001e74b48fbc74d603dc44868b5c59892"
+    },
+    "fixtureRunner": {
+      "ref": "tests/helpers/run-quality-pdp0-focused-installed-fixture.mjs",
+      "sha256": "85af9c15fbc1f781994df37d500cb81113414f6910d46cfd7d4ee7665e00a64e"
+    }
+  },
+  "unchangedImplementationPins": {
+    "adoptionAdapter": {
+      "ref": "scripts/lib/media-pdp0-quality-extension-source-adoption-v2.mjs",
+      "sha256": "a12e56fac4553c5a4d525ec45b0c775b25a7012732feb7fab2f21d1e99cead7e"
+    },
+    "provenanceResolver": {
+      "ref": "scripts/lib/media-pdp0-quality-extension-provenance-plan-v3.mjs",
+      "sha256": "72e4b4290918cfddbe644966e5b6288a9239447146cc86722dc338ee85425b61"
+    },
+    "adoptionCli": {
+      "ref": "scripts/plan-media-pdp0-quality-extension-source-adoption-v2.mjs",
+      "sha256": "9dd36535cce2f015d90fbe4e97b2c7f2007e6eed0f1271e562bbd3453e2abde2"
+    },
+    "provenanceCli": {
+      "ref": "scripts/plan-media-pdp0-quality-extension-provenance-v3.mjs",
+      "sha256": "368cf03b27dee5aafa8c45ca62ca91920a4ebd8a9ac44607e3898a3593144a48"
+    },
+    "sharedCas": {
+      "ref": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+      "sha256": "1eafc742bd4af8f2ddbde0170bc4fd01774754944a9a27fb0911a3e668bd3e44"
+    },
+    "receiptV2": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-hardening-implementation-receipt.v2.json",
+      "sha256": "23012adec76241aa606f9503e2eb27e29a96d132078d3218951c2db41a8a2cd2"
+    },
+    "provenanceV3Schema": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-provenance-successor.v3.schema.json",
+      "sha256": "6bd93b4663c5c866172604e68e29da3848094d95a04bbc7164a0d3449d5ab24b"
+    }
+  },
+  "actualSourceBaseline": {
+    "readbackRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-actual-root-source-readback-2026-10-23.json",
+    "readbackSha256": "7e4cc90c156d8116d755d5d7308d6a78bfa8c753ac8131b58ec1dd4400e9fe62",
+    "journalRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a.json",
+    "journalSha256": "d35b925bc2545ef6012f53b9f214a40eb0579fb56ea7ee2713a978a74bccce03",
+    "journalState": "COMMITTED_EXACT_READBACK",
+    "readbackState": "EXACT_TWO_TARGET_POSTIMAGE_READBACK",
+    "candidateSha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a",
+    "qualityTargets": [
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "preimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+        "postimageSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "actualSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "preimageSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+        "postimageSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "actualSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      }
+    ],
+    "v7ManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json",
+    "v7ManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54",
+    "preservedV7Targets": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "postimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "actualSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "postimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "actualSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "postimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "actualSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "postimageSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "actualSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      }
+    ],
+    "consumedV7DecisionLogPostimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+    "currentQualityDecisionLogSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+    "pXd226ContentPreservedExceptSuccessorSeparator": true,
+    "qualityPopulation": {
+      "historicalRowsPreserved": 462,
+      "currentRows": 463,
+      "futureRows": 6,
+      "measurement": "NOT_EVALUATED",
+      "qualification": "NOT_EVALUATED"
+    },
+    "appliedByIdentity": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
+    "applyAuthorizationSha256": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354"
+  },
+  "verification": {
+    "directFocusedSuite": {
+      "command": "node --test tests/media-pdp0-quality-extension-source-candidate-v2.test.mjs tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs tests/media-pdp0-quality-extension-provenance-plan-v3.test.mjs",
+      "passed": 16,
+      "failed": 0
+    },
+    "installedFixtureSuite": {
+      "command": "node tests/helpers/run-quality-pdp0-focused-installed-fixture.mjs",
+      "passed": 16,
+      "failed": 0
+    },
+    "fixtureModel": "Actual committed quality successor and five unaffected V7 postimages are verified first. Tests then run in a temporary installed copy whose pre-apply candidate state is reconstructed from the actual quality transaction immutable preimage snapshots; source-owner decision and apply authorization are absent only in that isolated copy.",
+    "sourceOrAuthorityWritesByThisTask": "NONE"
+  },
+  "equivalence": {
+    "candidateBytesUnchanged": true,
+    "candidateMeaningChange": "NONE",
+    "targetPostimageBytesUnchanged": true,
+    "sourceCodeBytesUnchanged": true,
+    "v3SuccessorOverwritten": false
+  },
+  "authorityBoundary": {
+    "canonicalApply": "PRIOR_ROOT_COMMITTED_EXACT_READBACK; NONE_BY_THIS_TASK",
+    "sourceCurrentness": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeProof": "NOT_CLAIMED",
+    "releaseOrDelivery": "NOT_AUTHORIZED",
+    "v4Review": "PENDING_ROOT_INDEPENDENT_REVIEW"
+  }
+}

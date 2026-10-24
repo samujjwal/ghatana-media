@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-source-amendment-v3-freeze-manifest.v1",
+  "status": "CANDIDATE_ONLY_PENDING_DISTINCT_REVIEW_AND_SOURCE_OWNER_DECISION",
+  "candidateSha256": "f7ed4fbf6ca136eab71e58abfab8e30413c1ccb44b13c049a26e6674c464e280",
+  "candidateSchemaSha256": "60855b3ffdecea95d1040aa4ce7e85c2418eec8f9628404322c1f110749bee2a",
+  "producerPins": {
+    "scripts/lib/media-pdp0-aud-spec-002-source-amendment-v3.mjs": "a4dc643eabd8fdebb1f2efd4cdaa2211cb7a504e06930edc9f7b3481783ea41e",
+    "scripts/plan-media-pdp0-aud-spec-002-source-amendment-v3.mjs": "555c9fbd3a1e22075741f2fca8455389c441f5983008c6fee40a67886f02bcc1"
+  },
+  "sourcePins": {
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad"
+  },
+  "exactArtifactPins": {
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v3.schema.json": "60855b3ffdecea95d1040aa4ce7e85c2418eec8f9628404322c1f110749bee2a",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v3.json": "f7ed4fbf6ca136eab71e58abfab8e30413c1ccb44b13c049a26e6674c464e280",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v3.json": "cb8487eb4d6440dcbb527cce120c7db118f2ecb34df07684fff842336032320f",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capabilities-file-postimage.v3.yaml": "6a1e3b27742b107584d69e2b68ca23ccdfea5780feeffeb830e7063f4c559917",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-requirements-file-postimage.v3.yaml": "707455c2daf67ce44e56bccae56c597f231cab7c25e05ba338152b147843a4fd",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-crosswalk-postimage.v3.json": "0cff72b3a1315229bd270c61e89729ca1c2910d8245e58a6832875e8dc88005e",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-unapproved-v2-regeneration-snapshot.v1.json": "a934abf162f9f571b796b52680cd7f85e70101579720109a2226d95ce017ed39"
+  },
+  "canonicalApply": "NOT_PERFORMED"
+}

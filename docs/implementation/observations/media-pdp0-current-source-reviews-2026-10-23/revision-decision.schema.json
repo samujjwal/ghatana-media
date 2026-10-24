@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.current-source-review-successor-decision.v1",
+  "title": "Source-owner decision input for a PDP-0 current-source review successor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "decisionKind", "candidateRef", "candidateSha256", "expectedDirectReviewSha256", "decisionRef", "technicalSourceOwner", "distinctTechnicalPeer", "semanticDisposition", "openMeaningFindingDisposition", "authorityBoundary"],
+  "properties": {
+    "schemaVersion": {"const": "media.pdp0.current-source-review-successor-decision.v1"},
+    "decisionKind": {"const": "SOURCE_OWNER_TECHNICAL_REVIEW_SUCCESSOR"},
+    "candidateRef": {"const": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/candidate.json"},
+    "candidateSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "expectedDirectReviewSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "decisionRef": {"type": "string", "pattern": "^\\.product-experience/decision-log\\.md#PXD-[0-9]{3}$"},
+    "technicalSourceOwner": {"type": "object", "additionalProperties": false, "required": ["identity", "role"], "properties": {"identity": {"type": "string", "minLength": 1}, "role": {"const": "PDP0_SOURCE_OWNER"}}},
+    "distinctTechnicalPeer": {"type": "object", "additionalProperties": false, "required": ["identity", "role", "reviewedCandidateSha256"], "properties": {"identity": {"type": "string", "minLength": 1}, "role": {"const": "DISTINCT_TECHNICAL_PEER"}, "reviewedCandidateSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}},
+    "semanticDisposition": {"enum": ["SOURCE_REVIEW_SUCCESSOR_APPROVED", "SOURCE_REVIEW_SUCCESSOR_REJECTED", "SOURCE_REVIEW_SUCCESSOR_DEFERRED"]},
+    "openMeaningFindingDisposition": {"type": "object", "additionalProperties": false, "required": ["resolvedFindingIds", "unresolvedFindingIds", "decisionRef"], "properties": {"resolvedFindingIds": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "unresolvedFindingIds": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "decisionRef": {"type": "string", "minLength": 1}}},
+    "authorityBoundary": {"type": "object", "additionalProperties": false, "required": ["independentAcceptance", "pdp010Acceptance", "phaseStatusEffect", "nativeClosure"], "properties": {"independentAcceptance": {"const": "NOT_CLAIMED"}, "pdp010Acceptance": {"const": "NOT_PERFORMED"}, "phaseStatusEffect": {"const": "NONE"}, "nativeClosure": {"const": "NOT_CLAIMED"}}}
+  }
+}

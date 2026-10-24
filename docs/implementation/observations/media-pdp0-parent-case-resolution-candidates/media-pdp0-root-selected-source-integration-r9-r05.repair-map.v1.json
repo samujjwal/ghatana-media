@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r05.repair-map.v1",
+  "status": "CANDIDATE_REPAIR_MAP_ONLY",
+  "predecessor": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.freeze.v1.json",
+    "freezeSha256": "e40c5799ececef5dbec8f7de7ddce76f3e4a088b66495ed35a0feafc0c162dab",
+    "bundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.successor-bundle.candidate.v1.json",
+    "bundleSha256": "2dc012294183d943a6fe12173929759f75b0dd20f50b7f4c586408b7d935aa06",
+    "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.independent-peer.actual-h-r04-full.json",
+    "actualHReviewSha256": "301b8fdc5066a08d5d79aff133152072196ec243b8180dd506ad15a9c0f2bac3"
+  },
+  "findingId": "F-08",
+  "auditId": "AUD-GEN-024",
+  "change": "successOutputs.observableContract.resultVariants now contains only LICENSE_POLICY_AXIS_RECORDED and PLACEMENT_AXIS_RECORDED; non-success UNAVAILABLE and UNKNOWN_OUTCOME remain separately defined in nonSuccessOutputs; mirrored positive leaf/parent then values are identical.",
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE"
+}

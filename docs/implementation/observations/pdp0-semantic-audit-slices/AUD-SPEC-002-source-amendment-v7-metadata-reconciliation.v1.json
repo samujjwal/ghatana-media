@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-source-amendment-metadata-reconciliation.v1",
+  "artifactKind": "EXACT_BLOCKER_REFERENCE_CORRECTION",
+  "status": "NON_SEMANTIC_METADATA_SUCCESSOR",
+  "predecessorCandidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v6.json",
+  "predecessorCandidateSha256": "c26465cab01b8a6cf3b5e06e4b9714011e9d6cf761162b47aed977e7f581e7f8",
+  "currentCandidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json",
+  "finding": {
+    "field": "blockers[0]",
+    "predecessorValue": "DISTINCT_TECHNICAL_PEER_REVIEW_OF_THE_EXACT_V5_SIX_SOURCE_POSTIMAGE_REQUIRED",
+    "correctedValue": "DISTINCT_TECHNICAL_PEER_REVIEW_OF_THE_EXACT_V7_SIX_SOURCE_POSTIMAGE_REQUIRED",
+    "reason": "Peer review must bind the exact current six-source postimage version."
+  },
+  "sixTargetPostimagesUnchanged": true,
+  "previousFrozenV5TestBytes": "UNAVAILABLE_AS_PREIMAGE; current validation is pinned separately; no test-byte equivalence claimed",
+  "sourceOwnerChoice": "NO_CHANGE",
+  "canonicalApply": "NOT_PERFORMED",
+  "sourceCurrentness": "NOT_CLAIMED",
+  "phaseStatus": "UNCHANGED"
+}

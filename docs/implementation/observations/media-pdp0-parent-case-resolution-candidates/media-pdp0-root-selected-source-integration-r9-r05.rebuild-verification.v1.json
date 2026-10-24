@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r05-rebuild-verification.v1",
+  "status": "R9_R05_CANDIDATE_REPLAY_VERIFIED",
+  "predecessor": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.freeze.v1.json",
+    "freezeSha256": "e40c5799ececef5dbec8f7de7ddce76f3e4a088b66495ed35a0feafc0c162dab",
+    "hReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r04.independent-peer.actual-h-r04-full.json",
+    "hReviewSha256": "301b8fdc5066a08d5d79aff133152072196ec243b8180dd506ad15a9c0f2bac3"
+  },
+  "candidateBundle": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.successor-bundle.candidate.v1.json",
+    "sha256": "aa32fd81b73f9dd1063d3e51c30a93842ae9dc655840a6a1188dcad0e5c9ca4d"
+  },
+  "repairMap": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.repair-map.v1.json",
+    "sha256": "94a435928115c692b2492615efb8b91053e0d3abd1277fe62473db527e465ccd"
+  },
+  "postimages": [
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.split.capabilities.postimage.yaml",
+      "sha256": "aecfc640fb688b01fe6ab04531569bc8d36eee0662b2de62f189dd0179dd61d5"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.split.requirements.postimage.yaml",
+      "sha256": "35997271261b547e39c79002fcd28596a2a670845adeba48085e0d6fa7cc84d9"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.split.capability-leaf-review.postimage.yaml",
+      "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.split.pdp0-501-disposition-crosswalk.postimage.json",
+      "sha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+    }
+  ],
+  "focusedTest": "node --test tests/media-pdp0-root-selected-source-integration-r9-r05.test.mjs",
+  "replayCommand": "node scripts/prepare-media-pdp0-root-selected-source-integration-r9-r05-candidate.mjs --check",
+  "campaignDenominator": {
+    "registeredIdentities": 54,
+    "phaseCells": 216,
+    "historicalOwnerRows": 462,
+    "pdp0AuditRows": 501
+  },
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE"
+}

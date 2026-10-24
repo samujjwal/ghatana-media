@@ -1,0 +1,275 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration.r9-r08.writer-independent-review.v1",
+  "artifactId": "MEDIA-PDP0-R9-R08-WRITER-INDEPENDENT-REVIEW-R06-2026-10-24",
+  "supersedes": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-writer-independent-review-r05.json",
+  "recordKind": "INDEPENDENT_DISCOVERY_TOOLING_REVIEW_AND_ADVERSARIAL_TEST_REPORT",
+  "reviewStatus": "SYNTHETIC_TEMP_AUTHORITY_FIXTURE_ADVERSARIAL_TESTS_PASS; LIVE_AUTHORITY_AND_ACTOR_REGISTRY_ABSENT",
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "denominator": {
+      "identities": 54,
+      "physical": 26,
+      "compositionsIncludingRoot": 7,
+      "logical": 21,
+      "phaseCells": 216
+    },
+    "selectedCut": {
+      "definitions": 18,
+      "leaves": 56,
+      "parentCases": 58
+    },
+    "permittedWork": "Temporary-repository fail-closed testing and read-only writer/CAS review."
+  },
+  "sourceBaseline": [
+    {
+      "ref": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+      "sha256": "9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"
+    },
+    {
+      "ref": ".product-experience/decision-log.md",
+      "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    {
+      "ref": ".product-experience/authority-map.yaml",
+      "sha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff"
+    },
+    {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-writer-independent-review-r04.json",
+      "sha256": "bb1dd101f2aa7c3d82d85f87667dba3f215e450e30837523d4486062e0c57082"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
+      "sha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
+      "sha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json",
+      "sha256": "64083d1e155a0a9903a81d5cd01ac74deb86892a8989e9d230abe9131901a6c7"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.r08-semantic-review.v1.json",
+      "sha256": "200aaaff4577426d4f91f16ecb74a3c64bcc76280ad92ca5fd278d531523fe5a"
+    },
+    {
+      "ref": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+      "sha256": "7cba9db97df7ca778adec43478fee119955fbe1df0ce21b97147afbaf4870db0"
+    },
+    {
+      "ref": "scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v2-guard.mjs",
+      "sha256": "e6f2f06d9507eafdc20b30378b402bf9f22448511c0355f95272ab75d8ec0895"
+    },
+    {
+      "ref": "tests/media-pdp0-r9-r08-under-lease-readset-probe.test.mjs",
+      "sha256": "09c0030e05ba0b9a43787bd6ee995bd822b38cf450e36dec51eff5fde4f74321"
+    },
+    {
+      "ref": "tests/media-pdp0-r9-r08-material-binding-negative-review-r01.test.mjs",
+      "sha256": "cdf2dd2f1c0440849b4bb9a8408c91e19c8d43a2d907e8dd5c0de2ee21823e7c"
+    },
+    {
+      "ref": "tests/media-pdp0-r9-r08-writer-temp-adversarial.test.mjs",
+      "sha256": "67624699277f8dc5763aef3948143398c3484634fbcc9da97512a98e7eed0e95"
+    }
+  ],
+  "exactInputs": {
+    "decisionLogSemanticPin": {
+      "selector": ".product-experience/decision-log.md#PXD-225-section",
+      "sha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
+    },
+    "sevenReadPreimages": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      }
+    ],
+    "authorityRecords": [
+      {
+        "role": "PDP0_SOURCE_OWNER_DECISION",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.source-owner-decision.r2.json",
+        "status": "NOT_RECORDED"
+      },
+      {
+        "role": "ROOT_ADOPTION_DECISION",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.root-adoption-decision.r2.json",
+        "status": "NOT_RECORDED"
+      },
+      {
+        "role": "OPERATION_PROFILE_REGISTRATION",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.operation-profile-registration.r2.json",
+        "status": "NOT_RECORDED"
+      },
+      {
+        "role": "DISTINCT_APPLY_AUTHORIZATION",
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.apply-authorization.r2.json",
+        "status": "NOT_RECORDED"
+      }
+    ],
+    "fixedActorTrustRegistry": "NOT_REGISTERED",
+    "ownerExecutionAuthorization": {
+      "ref": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+      "trustedAdmission": "NOT_ISSUED"
+    },
+    "technicalSourceOwnerInput": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-writer-independent-review-r04.json#technicalSourceOwnerInput",
+      "status": "PROPOSAL_ONLY_NOT_A_DECISION_OR_CREDENTIAL"
+    }
+  },
+  "writerInspection": {
+    "entryPoint": "commitValidatedPdp0RootSelectedSourceIntegrationR9R08V2({})",
+    "callerInputs": [],
+    "preflight": "Loads the fixed four authority record paths, typed material, semantic review, freeze, candidate bundle, seven read members, and four frozen postimages, then validates the full admission before entering the CAS helper.",
+    "underLeaseCallback": "beforePrepare reloads the same fixed records and material, recomputes the PXD-225 semantic pin, reloads the whole decision log and all seven read-set members, reloads candidate/freeze/postimages, compares the resulting fingerprints to preflight, and reruns validateR9R08V2ApplyAdmission before snapshots.",
+    "transactionOrder": [
+      "Acquire .canonical-source-amendment-cas.lock.",
+      "Reject/reconcile an existing journal or verify all four target preimages.",
+      "Invoke beforePrepare full revalidation.",
+      "Create immutable target preimage snapshots.",
+      "Create the PREPARED journal.",
+      "Write target temporaries, publish each allowlisted target, verify exact readback, and update journal state."
+    ],
+    "readOnlyDecisionLog": true,
+    "writeTargets": 4,
+    "readSetMembers": 7,
+    "underLeaseCallbackCodePresent": true,
+    "underLeaseCallbackExercised": true,
+    "reasonNotExercised": "Replaced by a disposable repository copy with TEST_ONLY_SYNTHETIC_TRUST credentials and four TEST_ONLY_SYNTHETIC authority records; the live registry and canonical authority paths remain unchanged and unregistered."
+  },
+  "unknownPartialEffectsInspection": {
+    "classificationWhenJournalExists": "UNKNOWN_PARTIAL_EFFECTS_REQUIRES_EXPLICIT_RECONCILIATION",
+    "reportedState": "The catch path records the journal reference and observed hashes for each of the four targets, or per-target UNREADABLE_REQUIRES_RECONCILIATION markers if readback fails.",
+    "classificationWhenJournalAbsent": "NO_NEW_TARGET_EFFECTS_BY_THIS_ATTEMPT",
+    "redispatch": "The shared CAS returns prior complete postimages as observed without writing; partial or uncertain target sets with an existing journal throw and require explicit reconciliation.",
+    "runtimeFaultInjectionExercised": true,
+    "reasonNotExercised": "The post-rename interruption and retry path was exercised only in the disposable repository copy with TEST_ONLY_SYNTHETIC authority; no live authority or canonical source write was used."
+  },
+  "findings": [
+    {
+      "id": "R9R08-LOCKED-FULL-ADMISSION-CODE",
+      "status": "IMPLEMENTED_NOT_RUNTIME_EXERCISED",
+      "details": "The writer now wires the full admission recheck into beforePrepare under the shared owner lease, after target preimage checks and before snapshot/journal creation. The read-only probe also uses the shared lease. Runtime changed-after-preflight coverage remains blocked by preflight authority requirements."
+    },
+    {
+      "id": "R9R08-ACTOR-RESOLVER-ABSENT",
+      "status": "FAIL_CLOSED_AUTHORITY_BLOCKER",
+      "details": "The writer derives identity/role claims from authority records; the guard requires separately authenticated current role evidence with credential and grant bindings. The fixed registry is NOT_REGISTERED, and no resolver is present in this repository state. These record claims cannot authorize admission. A future registry status change alone would not supply the required evidence shape; a real resolver path must be registered and bound."
+    },
+    {
+      "id": "R9R08-FOUR-AUTHORITY-RECORDS-ABSENT",
+      "status": "NOT_RECORDED",
+      "details": "All four fixed owner, root, profile-registration, and apply-authorization record paths are absent in the live checkout. The application plan remains blocked pending currentness, selectors, the record chain, profile registration, and the final post-authority read set."
+    },
+    {
+      "id": "R9R08-UNKNOWN-EFFECT-CLASSIFICATION",
+      "status": "CODE_INSPECTED_TEST_BLOCKED",
+      "details": "Writer catch logic distinguishes no journal/no new target effects from journal-present unknown partial effects and captures observed target hashes. The failure-injection/retry behavior was not executed because no authentic apply admission can reach the transaction."
+    },
+    {
+      "id": "R9R08-TEMP-SYNTHETIC-ADVERSARIAL-COVERAGE",
+      "status": "PASS_TEMPORARY_FIXTURE_ONLY",
+      "details": "Using the unmodified production writer and guard source copied into a disposable repository (with only the fixed trust resolver backed by explicitly TEST_ONLY_SYNTHETIC evidence), the harness proved exact four-target publication; rejection of stale PXD-225, each of the four authority record byte changes, whole-log drift, and one read-only read-set change after lease acquisition before snapshots; and durable UNKNOWN classification after a post-rename interruption with automatic retry refused. This is transaction-path evidence only, not live authority, source currentness, acceptance, closure, or release evidence."
+    }
+  ],
+  "adversarialCoverage": [
+    {
+      "id": "NO-CALLER-ACTOR-INPUT",
+      "result": "PASS",
+      "method": "Temporary repository copy rejects an actorTrust input key before reading or writing sources."
+    },
+    {
+      "id": "MISSING-OWNER-RECORDS",
+      "result": "PASS",
+      "method": "Temporary repository with all four authority paths absent makes the fixed writer fail before snapshots, journal, target temporaries, or source writes."
+    },
+    {
+      "id": "MISSING-APPLY-AUTHORIZATION",
+      "result": "PASS",
+      "method": "Under-lease read-only probe returns DISTINCT_EXACT_INPUT_APPLY_AUTHORIZATION_NOT_RECORDED and leaves no lock/journal/snapshot."
+    },
+    {
+      "id": "SYNTHETIC-EXACT-FOUR-TARGET-PUBLICATION",
+      "result": "PASS_TEMPORARY_FIXTURE_ONLY",
+      "method": "Disposable copy with test-only authority records completed exact readback for the four fixed targets; other seven-member read set remained unchanged."
+    },
+    {
+      "id": "FULL-GUARD-UNDER-LEASE",
+      "result": "PASS_TEMPORARY_FIXTURE_ONLY",
+      "cases": [
+        "all four ordered authority record byte changes",
+        "stale PXD-225 section bytes",
+        "whole decision-log append outside PXD-225",
+        "read-only seven-member read-set drift"
+      ],
+      "method": "Each valid-JSON or section mutation was injected only after the fixed writer acquired its lease; all were rejected before snapshots or target writes."
+    },
+    {
+      "id": "DURABLE-PARTIAL-EFFECTS-UNKNOWN",
+      "result": "PASS_TEMPORARY_FIXTURE_ONLY",
+      "cases": [
+        "post-rename interruption",
+        "journal remains PREPARED",
+        "observed targets report one postimage and three preimages",
+        "retry refused without a second rename"
+      ],
+      "method": "A disposable-copy rename hook raised after the first exact target rename; writer reported UNKNOWN_PARTIAL_EFFECTS_REQUIRES_EXPLICIT_RECONCILIATION and preserved the journal."
+    }
+  ],
+  "verification": {
+    "command": "node --test tests/media-pdp0-r9-r08-writer-temp-adversarial.test.mjs tests/media-pdp0-r9-r08-under-lease-readset-probe.test.mjs tests/media-pdp0-r9-r08-material-binding-negative-review-r01.test.mjs",
+    "result": {
+      "passed": 40,
+      "failed": 0
+    },
+    "newHarnessTests": 11,
+    "noAuthorityTestEffects": "All synthetic credentials, role grants, authority records, decision sections, mutations, journals, snapshots and source writes existed only in disposable temporary repository copies. The harness hashes confirm the live writer and trust guard sources were not edited by this review."
+  },
+  "effectBoundary": {
+    "canonicalSourceWrites": "NONE",
+    "statusWrites": "NONE",
+    "profileOrAuthorityRecordWrites": "NONE",
+    "actorCredentialsOrRegistry": "NONE_CREATED_OR_MODIFIED_LIVE; TEST_ONLY_SYNTHETIC_FIXTURE_ONLY",
+    "technicalSourceOwnerInput": "PROPOSAL_ONLY_AS_PINNED_IN_R04",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "phaseDisposition": {
+    "discovery": "FAIL_FOR_SELECTED_CUT",
+    "build": "NOT_ADMITTED",
+    "pdpClosure": "NOT_RUN",
+    "delivery": "NOT_ENTERED",
+    "nextAllowedAction": "Remain in PDP-0. Resolve source currentness and task inventory through owner-controlled records, obtain authentic owner-allocated selectors and role authority, and register the fixed actor resolver. The temporary race and partial-effect transaction tests now pass; canonical apply remains blocked until live authority and currentness prerequisites are genuine and current."
+  }
+}

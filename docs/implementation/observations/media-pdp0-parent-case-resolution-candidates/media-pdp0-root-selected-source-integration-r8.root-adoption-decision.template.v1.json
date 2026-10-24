@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-decision-template.v1",
+  "templateType": "ROOT_ADOPTION_DECISION",
+  "candidateBundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.successor-bundle.candidate.v1.json",
+  "candidateBundleSha256": "bf8be9fd5693b76136be553a9cc692727605e31769b35bbf991f01adffb88626",
+  "selectedAllowedOperationsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.allowed-operations.candidate.v1.json",
+  "requiredFields": [
+    "root authority identity",
+    "accept or reject the source-owner decision and exact R8 candidate bundle hash",
+    "actual decision-log evidence reference and section hash",
+    "explicit selected branch split",
+    "explicit canonical apply not authorized by this decision"
+  ],
+  "decisionStatus": "NOT_SET",
+  "decisionLogEvidenceRef": null,
+  "decisionLogEvidenceSha256": null,
+  "deciderIdentity": null,
+  "decidedAt": null,
+  "canonicalApplyAuthorized": false,
+  "phaseStatusChanged": false
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-rebuild-verification.v1",
+  "status": "R9_EXACT_REBUILD_PASS_CANDIDATE_ONLY",
+  "predecessorR8Freeze": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.freeze.v1.json",
+    "sha256": "413ec491503aa77722629e66e3cafc0d43c15024f244c90ac1e1294f6e3aab4e",
+    "hReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.actual-h-r01.json",
+    "hReviewSha256": "bc607c46054f64dde4b0d645cd922dfc95ddf7197aa1e9d52e10330400267454",
+    "hDisposition": "REQUEST_CHANGES"
+  },
+  "bundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.successor-bundle.candidate.v1.json",
+  "bundleSha256": "7e9b4643ea2231eda8fdb3eb91e3c3eede96f0a3d658052b09e5bb75c551a6ec",
+  "ledgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
+  "ledgerSha256": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8",
+  "schemaRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.allowed-operations.schema.candidate.v1.json",
+  "schemaSha256": "619548ce011fee7b1825817170dacb0782f1597278559813fbbc9b82ab59b066",
+  "retainedProjectionOperationCount": 248,
+  "predecessorR8OperationCount": 113,
+  "r9RepairOperationCount": 9,
+  "totalSelectedOperations": 122,
+  "outputPostimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.capabilities.postimage.yaml",
+      "postimageSha256": "59746d493ab1bd0ebee93e3b1b7efd594689cb5cfa42abf222c04a863988a133"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.requirements.postimage.yaml",
+      "postimageSha256": "80c54dd68c30199feeaf84e7e6550ffb52ae5a0f082a5f0c9b65b7d1c7783fe2"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.capability-leaf-review.postimage.yaml",
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.pdp0-501-disposition-crosswalk.postimage.json",
+      "postimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+    }
+  ],
+  "invariantChecks": {
+    "r8OperationsExactPrefix": true,
+    "operationIdsUnique": true,
+    "directDefinitionRepairs": 1,
+    "featureCaseRepairs": 4,
+    "parentCaseRepairs": 4,
+    "allParentCaseLinksAndPolarityPreserved": true,
+    "canonicalCapabilityIdentityOccurrences": 8,
+    "featureDefinitionsPreserved": 16,
+    "editKindsCriterionPreserved": true,
+    "historicalOwnerRowsPreserved": 462,
+    "ownerAdjudicationMutations": 0,
+    "trustReconstructionMutations": 0
+  },
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE"
+}

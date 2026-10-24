@@ -1,0 +1,467 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.quality-extension-test-only-provenance-successor.v4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactKind",
+    "status",
+    "predecessor",
+    "candidate",
+    "targetPostimages",
+    "testPins",
+    "unchangedImplementationPins",
+    "actualSourceBaseline",
+    "verification",
+    "equivalence",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.quality-extension-test-only-provenance-successor.v4"
+    },
+    "artifactKind": {
+      "const": "ADDITIVE_TEST_ONLY_IMPLEMENTATION_PROVENANCE_SUCCESSOR"
+    },
+    "status": {
+      "const": "TEST_ONLY_SUCCESSOR_PENDING_ROOT_INDEPENDENT_REVIEW"
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256",
+        "preservedUnchanged",
+        "historicalTestPinCurrentness"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "preservedUnchanged": {
+          "const": true
+        },
+        "historicalTestPinCurrentness": {
+          "const": "NOT_CLAIMED_FOR_UPDATED_TEST_BYTES"
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256",
+        "candidatePostimageSha256"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "candidatePostimageSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "targetPostimages": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "targetRef",
+          "preimageSha256",
+          "postimageSha256"
+        ],
+        "properties": {
+          "targetRef": {
+            "type": "string"
+          },
+          "preimageSha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "postimageSha256": {
+            "$ref": "#/$defs/sha256"
+          }
+        }
+      }
+    },
+    "testPins": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/pin"
+      },
+      "required": [
+        "adoptionTest",
+        "candidateTest",
+        "provenanceTest",
+        "fixtureRunner"
+      ],
+      "properties": {
+        "adoptionTest": {
+          "$ref": "#/$defs/pin"
+        },
+        "candidateTest": {
+          "$ref": "#/$defs/pin"
+        },
+        "provenanceTest": {
+          "$ref": "#/$defs/pin"
+        },
+        "fixtureRunner": {
+          "$ref": "#/$defs/pin"
+        }
+      }
+    },
+    "unchangedImplementationPins": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/pin"
+      },
+      "required": [
+        "adoptionAdapter",
+        "provenanceResolver",
+        "adoptionCli",
+        "provenanceCli",
+        "sharedCas",
+        "receiptV2",
+        "provenanceV3Schema"
+      ],
+      "properties": {
+        "adoptionAdapter": {
+          "$ref": "#/$defs/pin"
+        },
+        "provenanceResolver": {
+          "$ref": "#/$defs/pin"
+        },
+        "adoptionCli": {
+          "$ref": "#/$defs/pin"
+        },
+        "provenanceCli": {
+          "$ref": "#/$defs/pin"
+        },
+        "sharedCas": {
+          "$ref": "#/$defs/pin"
+        },
+        "receiptV2": {
+          "$ref": "#/$defs/pin"
+        },
+        "provenanceV3Schema": {
+          "$ref": "#/$defs/pin"
+        }
+      }
+    },
+    "actualSourceBaseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "readbackRef",
+        "readbackSha256",
+        "journalRef",
+        "journalSha256",
+        "journalState",
+        "readbackState",
+        "candidateSha256",
+        "qualityTargets",
+        "v7ManifestRef",
+        "v7ManifestSha256",
+        "preservedV7Targets",
+        "consumedV7DecisionLogPostimageSha256",
+        "currentQualityDecisionLogSha256",
+        "pXd226ContentPreservedExceptSuccessorSeparator",
+        "qualityPopulation",
+        "appliedByIdentity",
+        "applyAuthorizationSha256"
+      ],
+      "properties": {
+        "readbackRef": {
+          "type": "string"
+        },
+        "readbackSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "journalRef": {
+          "type": "string"
+        },
+        "journalSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "journalState": {
+          "const": "COMMITTED_EXACT_READBACK"
+        },
+        "readbackState": {
+          "const": "EXACT_TWO_TARGET_POSTIMAGE_READBACK"
+        },
+        "candidateSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "qualityTargets": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/targetReadback"
+          }
+        },
+        "v7ManifestRef": {
+          "type": "string"
+        },
+        "v7ManifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "preservedV7Targets": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "targetRef",
+              "postimageSha256",
+              "actualSha256"
+            ],
+            "properties": {
+              "targetRef": {
+                "type": "string"
+              },
+              "postimageSha256": {
+                "$ref": "#/$defs/sha256"
+              },
+              "actualSha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          }
+        },
+        "consumedV7DecisionLogPostimageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "currentQualityDecisionLogSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "pXd226ContentPreservedExceptSuccessorSeparator": {
+          "const": true
+        },
+        "qualityPopulation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "historicalRowsPreserved",
+            "currentRows",
+            "futureRows",
+            "measurement",
+            "qualification"
+          ],
+          "properties": {
+            "historicalRowsPreserved": {
+              "const": 462
+            },
+            "currentRows": {
+              "const": 463
+            },
+            "futureRows": {
+              "const": 6
+            },
+            "measurement": {
+              "const": "NOT_EVALUATED"
+            },
+            "qualification": {
+              "const": "NOT_EVALUATED"
+            }
+          }
+        },
+        "appliedByIdentity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "applyAuthorizationSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "directFocusedSuite",
+        "installedFixtureSuite",
+        "fixtureModel",
+        "sourceOrAuthorityWritesByThisTask"
+      ],
+      "properties": {
+        "directFocusedSuite": {
+          "$ref": "#/$defs/suite"
+        },
+        "installedFixtureSuite": {
+          "$ref": "#/$defs/harnessSuite"
+        },
+        "fixtureModel": {
+          "type": "string"
+        },
+        "sourceOrAuthorityWritesByThisTask": {
+          "const": "NONE"
+        }
+      }
+    },
+    "equivalence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateBytesUnchanged",
+        "candidateMeaningChange",
+        "targetPostimageBytesUnchanged",
+        "sourceCodeBytesUnchanged",
+        "v3SuccessorOverwritten"
+      ],
+      "properties": {
+        "candidateBytesUnchanged": {
+          "const": true
+        },
+        "candidateMeaningChange": {
+          "const": "NONE"
+        },
+        "targetPostimageBytesUnchanged": {
+          "const": true
+        },
+        "sourceCodeBytesUnchanged": {
+          "const": true
+        },
+        "v3SuccessorOverwritten": {
+          "const": false
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonicalApply",
+        "sourceCurrentness",
+        "phaseStatusEffect",
+        "independentAcceptance",
+        "nativeProof",
+        "releaseOrDelivery",
+        "v4Review"
+      ],
+      "properties": {
+        "canonicalApply": {
+          "const": "PRIOR_ROOT_COMMITTED_EXACT_READBACK; NONE_BY_THIS_TASK"
+        },
+        "sourceCurrentness": {
+          "const": "NOT_CLAIMED"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeProof": {
+          "const": "NOT_CLAIMED"
+        },
+        "releaseOrDelivery": {
+          "const": "NOT_AUTHORIZED"
+        },
+        "v4Review": {
+          "const": "PENDING_ROOT_INDEPENDENT_REVIEW"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "pin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "targetReadback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetRef",
+        "preimageSha256",
+        "postimageSha256",
+        "actualSha256"
+      ],
+      "properties": {
+        "targetRef": {
+          "type": "string"
+        },
+        "preimageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "postimageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "actualSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "passed",
+        "failed"
+      ],
+      "properties": {
+        "command": {
+          "const": "node --test tests/media-pdp0-quality-extension-source-candidate-v2.test.mjs tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs tests/media-pdp0-quality-extension-provenance-plan-v3.test.mjs"
+        },
+        "passed": {
+          "const": 16
+        },
+        "failed": {
+          "const": 0
+        }
+      }
+    },
+    "harnessSuite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "passed",
+        "failed"
+      ],
+      "properties": {
+        "command": {
+          "const": "node tests/helpers/run-quality-pdp0-focused-installed-fixture.mjs"
+        },
+        "passed": {
+          "const": 16
+        },
+        "failed": {
+          "const": 0
+        }
+      }
+    }
+  }
+}

@@ -527,18 +527,29 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
       || extensionPopulation?.currentCapabilityDefinitions !== capabilityRows.length
       || extensionPopulation?.definitionExtensionCapabilityLeaves !== extensionRows.length
       || extensionPopulation?.ownerAdjudications !== leafRows.length
-      || extensionPopulation?.extensionDisposition !== "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED"
+      || extensionPopulation?.extensionDisposition !== "ONE_CURRENT_VERSION_EXTENSION_AND_SIX_FUTURE_VERSION_PROPOSALS; ALL_SEVEN_EXTENSION_IDENTITIES_RETAINED; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED"
       || extensionPopulation?.ownerApproval !== "NOT_CLAIMED"
       || extensionPopulation?.independentAcceptance !== "NOT_CLAIMED") {
-    fail("current definitions must distinguish the 462 owner-adjudicated leaves from seven delegated definition extensions");
+    fail("current definitions must distinguish the 462 historical owner-adjudicated leaves from seven versioned definition extensions");
   }
   const canonicalCapabilityIds = new Set(leafRows.map(({ capabilityRef }) => capabilityRef));
   const extensionCapabilityIds = new Set(extensionRows.map(({ capabilityId }) => capabilityId));
+  const versionDisposition = extensionPopulation?.versionDisposition;
+  const currentVersionExtensionIds = versionDisposition?.currentVersionExtensionCapabilityIds;
+  const futureVersionProposals = versionDisposition?.futureVersionProposals;
   if (canonicalCapabilityIds.size !== 462 || extensionCapabilityIds.size !== 7
       || [...extensionCapabilityIds].some((id) => canonicalCapabilityIds.has(id) || !capabilityRows.some(({ id: candidate }) => candidate === id))
       || capabilityRows.length !== canonicalCapabilityIds.size + extensionCapabilityIds.size
-      || capabilityRows.some(({ id }) => !canonicalCapabilityIds.has(id) && !extensionCapabilityIds.has(id))) {
-    fail("the 462 canonical leaf crosswalk and seven delegated extension identities must exactly partition the definition population");
+      || capabilityRows.some(({ id }) => !canonicalCapabilityIds.has(id) && !extensionCapabilityIds.has(id))
+      || versionDisposition?.historicalCanonicalCapabilityLeaves !== 462
+      || versionDisposition?.currentVersionCapabilityLeaves !== 463
+      || versionDisposition?.futureVersionProposalCapabilityLeaves !== 6
+      || versionDisposition?.totalSourceCapabilityDefinitions !== 469
+      || JSON.stringify(currentVersionExtensionIds) !== JSON.stringify(["media.recipe.specification.compile"])
+      || !Array.isArray(futureVersionProposals) || futureVersionProposals.length !== 6
+      || futureVersionProposals.some(({ capabilityId }) => !extensionCapabilityIds.has(capabilityId) || currentVersionExtensionIds.includes(capabilityId))
+      || currentVersionExtensionIds.some((id) => !extensionCapabilityIds.has(id) || canonicalCapabilityIds.has(id))) {
+    fail("the 462 historical owner-leaf crosswalk and seven source extensions must retain the PXD-226 463-current/6-future version split");
   }
   const canonicalCapabilityRows = capabilityRows.filter(({ id }) => canonicalCapabilityIds.has(id));
   if (!Array.isArray(channels) || channels.length !== 11 || !unique(channels.map(({ id }) => id))) fail("active definition channel union must contain 11 unique IDs");

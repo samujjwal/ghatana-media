@@ -1,0 +1,754 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-source-amendment-postimage.v3",
+  "predecessorFrozenV2": {
+    "candidateSha256": "ab9c5455c50df60c33066b0253f996f67885f78429047a6afa995e845b65d867",
+    "sourceAmendmentPostimageSha256": "7aa677ad4907818d0ca2ea140ab285de39298ba116de9704ce51f91e1781b2f0",
+    "crosswalkPostimageSha256": "cbdf13712ea57f11b1efa98c9932141a89e7f26cdc4a121ec124e464ddd2cc35",
+    "candidatePostimageSha256": "19a51122a52b27f10e0b2f429d73b028ea8cc4e6636745dc4a132a1abf01ed81",
+    "bytesRecovered": false,
+    "reviewRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v2.json"
+  },
+  "supersedesObservedButUnapprovedV2Bytes": {
+    "candidateSha256": "dde3069e4c1f46bcab4ae21c7021c40fc7fc44284f67a92b7a0d81d8aeaad7c0",
+    "sourceAmendmentPostimageSha256": "ed09d128905f76b91daf32b0e12daecf6bc8524aed00be418b1b8416d9e27e1f",
+    "crosswalkPostimageSha256": "cbdf13712ea57f11b1efa98c9932141a89e7f26cdc4a121ec124e464ddd2cc35",
+    "classification": "LOCAL_REGENERATION_OBSERVATION_ONLY_NOT_FROZEN_PREDECESSOR"
+  },
+  "sourceBindings": {
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad"
+  },
+  "capability": {
+    "id": "media.recipe.specification.compile",
+    "scopeStatus": "DEFERRED",
+    "familyId": "media.recipe.template",
+    "operation": "specification.compile",
+    "label": "Compile declarative production specification",
+    "definitionState": "IN_SCOPE_DRAFT",
+    "outcome": "Prepare a normalized semantic graph and reviewable project-plan candidate from the exact versioned declarative specification, schema, compiler-contract version, and optional exact project revision. Bind a stable semantic fingerprint to those exact inputs and preserve each declared deterministic or generative step kind. This is local candidate preparation only; it creates no project revision, job, external effect, or published output. For a schema-migration request, prepare a reviewable, version-bound migration candidate and semantic diff only when the exact source production specification and schema, requested target schema, and explicitly declared supported transformation are supplied. Bind the candidate to every source, target, and transformation identity/version. Preserve the original specification. If the transformation is unsupported, lossy, ambiguous, or unknown, return an explicit UNKNOWN/UNSUPPORTED result and no migration candidate; never infer or silently substitute a transformation. Repeating the same exact inputs and transformation version yields an equivalent candidate and stable semantic fingerprint. Candidate preparation does not apply the migration, mutate a project, submit a job, publish content, or cause an external effect.",
+    "sourceScope": {
+      "masterPlanSection": "§6.6",
+      "sourcePhrase": "Versioned declarative production specifications, typed semantic compilation, deterministic versus generative steps, normalized semantic graph and stable fingerprint; invalid or unauthorized inputs create no effects."
+    },
+    "relatedMasterPlanSections": [
+      "§6.1",
+      "§11.1–11.6",
+      "§18.2–18.3"
+    ],
+    "actorRoles": [
+      "creator",
+      "editor",
+      "reviewer"
+    ],
+    "actorBindingState": "proposed-actor-binding; owner-acceptance-not-claimed",
+    "inputArtifactTypes": [
+      "versioned-production-specification",
+      "versioned-production-specification-schema",
+      "versioned-compiler-contract",
+      "optional-versioned-project-revision",
+      "versioned-target-production-specification-schema",
+      "versioned-schema-migration-transformation"
+    ],
+    "outputArtifactTypes": [
+      "normalized-semantic-graph-and-reviewable-project-plan-candidate",
+      "reviewable-version-bound-schema-migration-candidate-and-semantic-diff"
+    ],
+    "preconditions": [
+      "Verified actor/workspace and required delegated authority.",
+      "Every required specification, schema, project revision, patch, and source reference is exact, readable, validated, and within declared bounds.",
+      "Applicable rights, consent, profile, policy, and resource admission are checked before any effect; unknown required admission facts block the request.",
+      "For schema migration, the exact source specification and source schema, requested target schema, and declared transformation identity/version are all readable and current.",
+      "A migration request supplies both the target schema and transformation together; a partial pair is UNKNOWN and cannot produce a migration candidate.",
+      "The transformation is explicitly supported; unsupported, lossy, ambiguous, or unknown compatibility remains UNKNOWN/UNSUPPORTED."
+    ],
+    "supportedParameters": "No additional parameters are defined; closed typed input slots carry the exact request references. No defaults are inferred.",
+    "constraints": [
+      "The semantic fingerprint is bound to exact specification, schema, and compiler-contract versions; a changed version yields a separately identified result.",
+      "The normalized graph and project-plan candidate retain exact referenced input identities and do not claim execution, output media, or project mutation.",
+      "Declared deterministic and generative step kinds remain distinct; an absent or ambiguous kind is UNKNOWN and cannot be inferred from labels or implementation.",
+      "The fingerprint describes normalized semantic identity only; it does not promise byte-identical artifacts, deterministic model output, or compiler availability.",
+      "A migration candidate binds exact source specification/schema, target schema, transformation identity/version, and compiler-contract version; changed inputs or versions produce a distinct candidate.",
+      "Candidate preparation preserves the original source and returns a semantic diff; it never applies a migration, mutates a project, submits a job, publishes content, or causes an external effect.",
+      "Unsupported, lossy, ambiguous, or unknown transformations produce UNKNOWN/UNSUPPORTED and no migration candidate; no conversion or fallback is inferred.",
+      "The target schema and declared transformation are a required pair for migration intent; either one without the other is unresolved and produces no candidate.",
+      "The same exact migration inputs and transformation/compiler versions produce an equivalent candidate and stable semantic fingerprint; no availability or execution is promised.",
+      "The reviewable-version-bound-schema-migration-candidate-and-semantic-diff result is required only when migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED; it is absent for ordinary compilation without migration inputs and for AC-14 UNKNOWN/UNSUPPORTED outcomes."
+    ],
+    "actionStateReferences": {
+      "action": "operation-and-effect-defined-by-this-record",
+      "stateCoverage": [
+        "not-admitted",
+        "admitted",
+        "running-or-observing",
+        "completed",
+        "failed",
+        "blocked"
+      ],
+      "stateModelBindingState": "proposed-state-model-binding; owner-acceptance-not-claimed",
+      "stateModelRefs": [
+        "media-attempt",
+        "media-project-version"
+      ]
+    },
+    "requiredAuthority": [
+      "identity-and-tenant-context",
+      "operation-specific-policy-and-rights",
+      "artifact-read-or-write-permission-as-applicable"
+    ],
+    "rightsPrivacyImplications": [
+      "Use only exact authorized project/specification inputs and retain source/version provenance for every derived candidate.",
+      "Do not perform or imply project mutation, job submission, external call, egress, or publication through this operation."
+    ],
+    "qualityFidelityContract": "The result is a semantic candidate only. No execution, rendering, merge application, correctness qualification, or runtime availability is implied.",
+    "cancellationRetryReconciliation": "This is a local candidate operation with no consequential dispatch or commit. If candidate finality is unknown, preserve UNKNOWN_OUTCOME and do not infer a project change or retry side effect.",
+    "executionResourceRequirements": "Resolve this leaf under .product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission. Resource applicability and bounds are not evaluated for this proposal; unknown facts block dispatch. This leaf defines no numeric limit or runtime availability.",
+    "accessibilityRepresentation": "The semantic operation can be invoked through an authorized supported channel; exact interface and accessibility interaction are downstream PDP-2/PDP-3 definitions.",
+    "provenance": [
+      "Exact input identity, version, and applicable rights decision are retained only where the referenced input is consumed. Unknown linkage remains UNKNOWN.",
+      "No provider, compiler engine, merge engine, runtime, or third-party dependency is selected or admitted by this P0 proposal."
+    ],
+    "ghatanaReuseDisposition": "No provider, compiler engine, merge engine, runtime, or third-party dependency is selected or admitted by this P0 proposal.",
+    "externalDependencies": [],
+    "requirementIds": [
+      "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
+    ],
+    "acceptanceCases": [
+      {
+        "given": "An authorized creator/editor supplies exact, readable versioned inputs and required declarations for this capability.",
+        "when": "The actor requests specification.compile.",
+        "then": "Return only the typed, source-bound local candidate defined by this leaf; retain exact input identity and make no project, job, external, or publication effect."
+      },
+      {
+        "given": "A required input, authority, source version, profile, or semantic interpretation is invalid, denied, unsupported, or unknown.",
+        "when": "The actor requests specification.compile.",
+        "then": "Reject or return an explicitly unresolved/UNKNOWN result; do not silently substitute inputs, claim success, or perform an effect."
+      },
+      {
+        "given": "An authorized creator supplies exact immutable specification, schema, and compiler-contract versions and, when planning into an existing project, an exact readable project revision.",
+        "when": "Media prepares the specification graph and project-plan candidate.",
+        "then": "Return a normalized semantic graph and reviewable candidate whose stable fingerprint binds all supplied contract/version identities; preserve declared deterministic and generative step kinds. Invalid, ambiguous, or unknown step kinds produce a rejected/unresolved candidate and no project, job, or external effect."
+      }
+    ],
+    "qualificationDimensions": [
+      "operation-and-contract-version",
+      "input-format-and-size",
+      "rights/privacy/security-policy",
+      "resource/hardware/execution-location",
+      "cancellation/recovery/reproducibility",
+      "accessibility/delivery-compatibility"
+    ],
+    "supportedChannels": [
+      "cli"
+    ],
+    "channelDispositionState": "PXD-207-delegated-exact-channel-cli; owner approval and independent acceptance are not claimed",
+    "explicitUnsupportedCases": [
+      "No compiler engine, execution, provider, job, project commit, external effect, or published artifact is admitted by this leaf.",
+      "No byte-identical media output or deterministic generative result is promised.",
+      "Unsupported schema/compiler versions, unknown rights, or ambiguous step classification are rejected or returned unresolved; never silently substituted.",
+      "No migration is applied or source/project state changed by candidate preparation.",
+      "Unsupported, lossy, ambiguous, or unknown schema transformations are UNKNOWN/UNSUPPORTED; no conversion is inferred or substituted."
+    ],
+    "supportDimensions": {
+      "implementationState": "UNKNOWN",
+      "licenseAdmissionState": "UNKNOWN",
+      "qualificationState": "NOT_EVALUATED",
+      "runtimeAvailability": "UNKNOWN",
+      "observationRule": "This proposed P0 leaf does not promote implementation, license admission, qualification, runtime availability, or execution admission."
+    },
+    "actorRefs": [
+      "media.creator",
+      "media.editor",
+      "media.reviewer"
+    ],
+    "responsibilityRoleRefs": [
+      "media.role.creator",
+      "media.role.editor",
+      "media.role.reviewer"
+    ],
+    "unresolvedActorRoleLabels": [],
+    "pendingActorRoleAppointments": [],
+    "intentRefs": [
+      "media.intent.create",
+      "media.intent.edit",
+      "media.intent.review-exact-version"
+    ],
+    "outcomeRefs": [
+      "media.goal.preserve-source",
+      "media.goal.resolve-safely"
+    ],
+    "intentBindingState": "PROPOSED; owner-acceptance-not-claimed",
+    "stateModelRefs": [
+      "media-attempt",
+      "media-project-version"
+    ],
+    "stateModelBindingState": "proposed-state-model-binding; owner-acceptance-not-claimed",
+    "requirementTraceState": "PROPOSED_EXACT_FAMILY_REQUIREMENT_TRACE; owner-acceptance-not-claimed",
+    "semanticReferenceScope": "media.capability-intent.owner-binding.v1",
+    "stateModelBindings": [
+      {
+        "modelId": "media-project",
+        "sourceFile": "state-models.yaml",
+        "modeledStateSets": {
+          "states": [
+            "ACTIVE",
+            "ARCHIVED"
+          ]
+        }
+      },
+      {
+        "modelId": "media-project-membership",
+        "sourceFile": "state-models.yaml",
+        "modeledStateSets": {
+          "states": [
+            "INVITED",
+            "ACTIVE",
+            "SUSPENDED",
+            "REVOKED",
+            "EXPIRED"
+          ]
+        }
+      },
+      {
+        "modelId": "media-project-version",
+        "sourceFile": "state-models.yaml",
+        "modeledStateSets": {
+          "states": [
+            "DRAFT",
+            "COMMITTED",
+            "SUPERSEDED",
+            "CONFLICTED",
+            "ABANDONED"
+          ]
+        }
+      }
+    ],
+    "unresolvedStateModelBindings": [],
+    "journeyRefs": [],
+    "ownerDefinition": {
+      "decisionId": "PROPOSED-media.recipe.specification.compile",
+      "capabilityIntentId": "media.recipe.specification.compile",
+      "ownerDisposition": "MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY",
+      "decisionAuthority": "coordinator-authored-proposal-at-user-direction; owner-approval-not-claimed",
+      "familyProfileRef": "media.capability-profile.media-recipe-template",
+      "boundsRef": "media.capability-bounds.media-recipe-specification-compile",
+      "channelApplicabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile/supportedChannels",
+      "typedInputSlots": [
+        {
+          "slotId": "input1",
+          "sourceType": "versioned-production-specification",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "versioned-production-specification-schema",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input3",
+          "sourceType": "versioned-compiler-contract",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input4",
+          "sourceType": "optional-versioned-project-revision",
+          "cardinality": "ZERO_OR_ONE",
+          "required": false
+        },
+        {
+          "slotId": "input5",
+          "sourceType": "versioned-target-production-specification-schema",
+          "cardinality": "ZERO_OR_ONE",
+          "required": false
+        },
+        {
+          "slotId": "input6",
+          "sourceType": "versioned-schema-migration-transformation",
+          "cardinality": "ZERO_OR_ONE",
+          "required": false
+        }
+      ],
+      "parameterSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {},
+        "emptyDisposition": "NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES"
+      },
+      "successOutputs": [
+        {
+          "artifactType": "normalized-semantic-graph-and-reviewable-project-plan-candidate",
+          "requiredOnSuccess": true
+        },
+        {
+          "artifactType": "reviewable-version-bound-schema-migration-candidate-and-semantic-diff",
+          "requiredOnSuccess": false,
+          "requiredWhenSelector": "migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED",
+          "resultVariants": [
+            {
+              "resultKind": "SUPPORTED_VERSION_BOUND_SCHEMA_MIGRATION_CANDIDATE_AND_SEMANTIC_DIFF",
+              "disposition": "NO_MIGRATION_APPLIED",
+              "selector": "migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED",
+              "meaning": "Selected only for a complete exact versioned source specification/schema, requested target schema, and explicitly declared supported transformation. The candidate and semantic diff bind all exact identities and versions; the original remains unchanged."
+            }
+          ]
+        }
+      ],
+      "nonSuccessOutputs": {
+        "REJECTED": [],
+        "UNKNOWN_OUTCOME": []
+      },
+      "semanticOutcomeContract": {
+        "result": "Prepare a normalized semantic graph and reviewable project-plan candidate from the exact versioned declarative specification, schema, compiler-contract version, and optional exact project revision. Bind a stable semantic fingerprint to those exact inputs and preserve each declared deterministic or generative step kind. This is local candidate preparation only; it creates no project revision, job, external effect, or published output. For a schema-migration request, prepare a reviewable, version-bound migration candidate and semantic diff only when the exact source production specification and schema, requested target schema, and explicitly declared supported transformation are supplied. Bind the candidate to every source, target, and transformation identity/version. Preserve the original specification. If the transformation is unsupported, lossy, ambiguous, or unknown, return an explicit UNKNOWN/UNSUPPORTED result and no migration candidate; never infer or silently substitute a transformation. Repeating the same exact inputs and transformation version yields an equivalent candidate and stable semantic fingerprint. Candidate preparation does not apply the migration, mutate a project, submit a job, publish content, or cause an external effect.",
+        "outputDistinctions": [
+          "The semantic fingerprint is bound to exact specification, schema, and compiler-contract versions; a changed version yields a separately identified result.",
+          "The normalized graph and project-plan candidate retain exact referenced input identities and do not claim execution, output media, or project mutation.",
+          "Declared deterministic and generative step kinds remain distinct; an absent or ambiguous kind is UNKNOWN and cannot be inferred from labels or implementation.",
+          "The fingerprint describes normalized semantic identity only; it does not promise byte-identical artifacts, deterministic model output, or compiler availability.",
+          "Candidate preparation preserves the original source and returns a semantic diff; it never applies a migration, mutates a project, submits a job, publishes content, or causes an external effect.",
+          "Unsupported, lossy, ambiguous, or unknown transformations produce UNKNOWN/UNSUPPORTED and no migration candidate; no conversion or fallback is inferred.",
+          "The target schema and declared transformation are a required pair for migration intent; either one without the other is unresolved and produces no candidate.",
+          "The same exact migration inputs and transformation/compiler versions produce an equivalent candidate and stable semantic fingerprint; no availability or execution is promised.",
+          "The reviewable-version-bound-schema-migration-candidate-and-semantic-diff result is required only when migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED; it is absent for ordinary compilation without migration inputs and for AC-14 UNKNOWN/UNSUPPORTED outcomes."
+        ],
+        "unknownDisposition": "If any required source, version, schema, conflict, authority, or interpretation is unknown, preserve an explicit unresolved/UNKNOWN result. Do not infer success, substitute an input, or apply a project change. For schema migration, unsupported, lossy, ambiguous, or unknown transformations remain explicitly UNKNOWN/UNSUPPORTED with no candidate or effect.",
+        "sourceRefs": [
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile/sourceScope",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile/ownerDefinition/typedInputSlots",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-001",
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-003",
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-009",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-13",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15"
+        ]
+      },
+      "effect": {
+        "semanticOutcome": "Prepare a normalized semantic graph and reviewable project-plan candidate from the exact versioned declarative specification, schema, compiler-contract version, and optional exact project revision. Bind a stable semantic fingerprint to those exact inputs and preserve each declared deterministic or generative step kind. This is local candidate preparation only; it creates no project revision, job, external effect, or published output. For a schema-migration request, prepare a reviewable, version-bound migration candidate and semantic diff only when the exact source production specification and schema, requested target schema, and explicitly declared supported transformation are supplied. Bind the candidate to every source, target, and transformation identity/version. Preserve the original specification. If the transformation is unsupported, lossy, ambiguous, or unknown, return an explicit UNKNOWN/UNSUPPORTED result and no migration candidate; never infer or silently substitute a transformation. Repeating the same exact inputs and transformation version yields an equivalent candidate and stable semantic fingerprint. Candidate preparation does not apply the migration, mutate a project, submit a job, publish content, or cause an external effect.",
+        "sourcePreservationRequired": true,
+        "noSilentFallback": true,
+        "effectIntentScope": "LOCAL_CANDIDATE_OR_DRAFT"
+      },
+      "guards": {
+        "preconditions": [
+          "Verified actor/workspace and required delegated authority.",
+          "Every required specification, schema, project revision, patch, and source reference is exact, readable, validated, and within declared bounds.",
+          "Applicable rights, consent, profile, policy, and resource admission are checked before any effect; unknown required admission facts block the request."
+        ],
+        "authorityRefs": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable"
+        ],
+        "stateModelRefs": [
+          "media-attempt",
+          "media-project-version"
+        ]
+      },
+      "errors": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "idempotency": "Repeated preparation over the same exact inputs and contract versions is intended to return the same semantic fingerprint; it creates no project/job/external effects. Conflicting source revisions remain separately identified.",
+      "recovery": "No commit or dispatch occurs. Re-read exact authoritative inputs before preparing a new candidate after an input revision or unknown outcome.",
+      "availability": {
+        "implementationState": "UNKNOWN",
+        "licenseAdmissionState": "UNKNOWN",
+        "qualificationState": "NOT_EVALUATED",
+        "runtimeAvailability": "UNKNOWN",
+        "executionAdmission": "NOT_ADMITTED"
+      }
+    },
+    "coverageDisposition": "PROPOSED_PENDING_OWNER_REVIEW",
+    "coverageDecisionRef": "NOT_CLAIMED",
+    "coverageRationale": "Coordinator-authored source proposal at user direction; owner approval and independent acceptance are not claimed.",
+    "idempotency": "undefined Schema-migration candidates bind source, target, transformation, and compiler versions; identical exact inputs and versions yield an equivalent candidate and stable semantic fingerprint."
+  },
+  "requirement": {
+    "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+    "scopeStatus": "TARGET",
+    "recorderStudioSpecialization": {
+      "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile",
+      "scope": "Recorder-Studio-source-defined-successor-not-runtime-admission",
+      "acceptanceCaseRefs": [
+        "MEDIA-REC-P0-AC-001",
+        "MEDIA-REC-P0-AC-002",
+        "MEDIA-REC-P0-AC-003",
+        "MEDIA-REC-P0-AC-004",
+        "MEDIA-REC-P0-AC-005"
+      ]
+    },
+    "statement": "Every operation in media.recipe.template retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
+    "rationale": "Master-plan §6 requires finite full-scope capability preservation and explicitly separates definition from implementation and admission; a catalog entry is not evidence of support.",
+    "source": {
+      "masterPlanSection": "§6.6",
+      "sourcePhrase": "Physics/math explainers, infographics, product demonstrations, scientific visualization, interactive lessons, training scenarios, architectural scenes, character/gesture animation and synthetic datasets as versioned MediaRecipe plus content/schema bindings"
+    },
+    "capabilityIds": [
+      "media.recipe.template.physics-math-explainer",
+      "media.recipe.template.infographic",
+      "media.recipe.template.product-demonstration",
+      "media.recipe.template.scientific-visualization",
+      "media.recipe.template.interactive-lesson",
+      "media.recipe.template.training-scenario",
+      "media.recipe.template.architectural-scene",
+      "media.recipe.template.character-gesture-animation",
+      "media.recipe.template.synthetic-dataset",
+      "media.recipe.specification.compile"
+    ],
+    "kind": "functional",
+    "priority": "must",
+    "traceToIntentIds": [
+      "media.intent.create",
+      "media.intent.animate",
+      "media.intent.simulate"
+    ],
+    "intentTraceState": "traced-to-canonical-P0-002-intents",
+    "actorRoles": [
+      "creator",
+      "editor",
+      "domain-reviewer"
+    ],
+    "actorBindingState": "resolved-to-proposed-domain-reviewer-role; owner-appointment-and-evidence-scope-pending",
+    "preconditions": [
+      "The caller identity, tenant/workspace context, and delegated authority are verified by the owning platform contracts.",
+      "Inputs, rights, consent, privacy, egress, retention, budget, and policy are admitted for this specific operation.",
+      "A capability binding and profile are declared; qualification and runtime availability are checked for the requested dimensions."
+    ],
+    "expectedBehavior": "The system performs only the requested Physics/math explainers, infographics, product demonstrations, scientific visualization, interactive lessons, training scenarios, architectural scenes, character/gesture animation and synthetic datasets as versioned MediaRecipe plus content/schema bindings operation using typed inputs and outputs; reports actual effective parameters and provenance; preserves source versions; and does not substitute an unsupported engine, model, format, language, or delivery profile silently.",
+    "importantStates": [
+      "not-admitted",
+      "admitted",
+      "running-or-observing",
+      "completed",
+      "failed",
+      "cancel-requested-or-finality-unknown",
+      "blocked-by-policy-or-capability"
+    ],
+    "stateModelBindingState": "authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance",
+    "consequences": [
+      "Any change to source bytes, version, rights, meaning, fidelity, destination, or externally visible effect is explicit and traceable.",
+      "A completed definition record never implies runtime readiness or qualification."
+    ],
+    "failureDegradationRecovery": [
+      "Return typed validation, authority, rights/license, unsupported-capability, capacity, timeout, cancellation, provider-ambiguity, and internal-failure outcomes as applicable.",
+      "Expose safe remediation, retry/cancel/reconcile eligibility, and finality; do not silently downgrade preservation, quality, spatial/scientific fidelity, or delivery constraints.",
+      "Preserve accepted source and completed outputs; require policy-permitted explicit fallback or stop for review."
+    ],
+    "nonfunctionalRequirements": [
+      "tenant isolation and least privilege",
+      "privacy/data minimization and governed egress",
+      "durable audit/effect intent for consequential effects",
+      "bounded time/memory/storage/compute/cost",
+      "accessible semantic representation and keyboard operation where interactive",
+      "localization and explicit unsupported language/format bounds",
+      "provenance, reproducibility class, and recovery truth"
+    ],
+    "acceptanceCases": [
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-01",
+        "given": "A declared leaf, authorized input, and a binding that satisfies the requested profile and policy.",
+        "when": "The caller requests the operation.",
+        "then": "The typed result, effective parameters, provenance, terminal/finality state, and measured dimensions are returned; only the declared effect occurs."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-02",
+        "given": "The requested language, format, right, profile, license, capability, or qualification is absent or unknown.",
+        "when": "Admission is evaluated.",
+        "then": "The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported as available."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-03",
+        "given": "A creator uses a reusable agent or director package to prepare a production recipe.",
+        "when": "the package is selected for reuse.",
+        "then": "identify the package version and make its declared dependencies reviewable before they guide a production outcome.",
+        "rejection": "reject silently changing package dependencies or treating reuse as approval of those dependencies."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-04",
+        "given": "A creator supplies multiple production references and constraints with an explicit relative priority.",
+        "when": "a recipe is prepared from those inputs.",
+        "then": "use the supplied references and priority to guide the intended outcome while retaining their source identity.",
+        "rejection": "reject silently dropping a reference or inventing a priority when the supplied ordering is absent or ambiguous."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05",
+        "given": "A creator prepares script or narration content using declared source facts.",
+        "when": "the recipe produces factual narration and connective language.",
+        "then": "distinguish source-supported factual claims from authored connective language and retain the source basis for supported claims.",
+        "rejection": "reject fabricated factual claims or presenting unsupported connective language as source fact."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06",
+        "given": "An authorized production supplies facts for audience-specific content personalization.",
+        "when": "the recipe personalizes the content.",
+        "then": "transform only the supplied facts that are authorized for the declared purpose and preserve their source attribution.",
+        "rejection": "reject inventing a person identity, personal attribute, or factual claim not present in the admitted inputs."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07",
+        "given": "An authorized creator supplies one exact versioned YAML or JSON production specification, its declared schema, and exact content/source references.",
+        "when": "Media normalizes the specification under a named compiler-contract version.",
+        "then": "Return a typed semantic graph with exact specification, schema, and compiler-contract provenance; the same admitted inputs and contract version yield an equivalent normalized graph and stable semantic fingerprint.",
+        "rejection": "Reject invalid or unauthorized fields without project, asset, job, or external effects; unknown normalization or compiler support remains UNKNOWN or UNSUPPORTED rather than a claimed compiled result."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-08",
+        "given": "An authorized creator binds a valid typed production specification to an exact existing MediaProject revision and its referenced assets.",
+        "when": "Media prepares the specification's interpretation as a project plan.",
+        "then": "Return a reviewable plan candidate bound to that exact revision, schema, and asset versions without applying it to the project.",
+        "rejection": "Reject missing or ambiguous references, stale project revisions, unsupported nodes, or unknown types as an applied or complete plan; compilation alone does not create a project, job, or external effect."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-09",
+        "given": "An authorized creator supplies a valid specification declaring steps intended to be deterministic or generative.",
+        "when": "Media validates and normalizes the step graph.",
+        "then": "Preserve each declared step kind and its dependency; mark an indistinguishable or unsupported kind UNKNOWN, and keep classification separate from execution.",
+        "rejection": "Reject executing an invalid or unknown step, claiming deterministic output for a generative step, or substituting a step kind implicitly."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10",
+        "given": "An authorized creator supplies an exact versioned data source, schema, selected fields or values, transformation, and intended visual encoding for a chart or animated visualization.",
+        "when": "Media prepares a data-bearing recipe candidate.",
+        "then": "Bind each plotted series and value to its source fields, transformation, and source version, distinguishing data-bearing marks from decorative imagery.",
+        "rejection": "Reject presenting generated or decorative values as sourced data; missing schema, field, transformation support, or validation remains UNKNOWN or UNSUPPORTED."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-11",
+        "given": "An authorized lesson author supplies versioned content and schema for a quiz or reflection interaction.",
+        "when": "Media prepares the learner interaction candidate.",
+        "then": "Keep prompts and responses within the declared lesson and session scope and return a reviewable candidate.",
+        "rejection": "Reject privileged product or learner-record mutation, grading or identity assertions, or state writes without a separately defined authorized owner operation."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-12",
+        "given": "An authorized creator selects a reusable style skill or branded scene recipe and supplies exact versioned brand assets and typed parameters.",
+        "when": "Media prepares a scene candidate from the selected recipe.",
+        "then": "Bind the editable candidate to the recipe version, each declared style parameter, the exact brand asset versions, and unresolved constraints.",
+        "rejection": "Reject inferring brand identity or permissions from appearance, silently substituting assets or parameters, or presenting an unreviewed candidate as a committed project change."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-13",
+        "given": "An authorized creator supplies an exact versioned production specification and source schema, an exact requested target schema, and an explicitly declared supported versioned transformation as a complete migration input set.",
+        "when": "Media prepares a schema-migration candidate under the named compiler-contract and transformation versions.",
+        "then": "Return a reviewable candidate and semantic diff bound to the exact source specification, source schema, target schema, and transformation identities and versions; preserve the original source; repeating the same exact inputs and versions yields an equivalent candidate and stable semantic fingerprint.",
+        "rejection": "Reject or return UNKNOWN/UNSUPPORTED for missing, stale, or ambiguous source/target versions; do not apply a migration or create a project, job, publication, or external effect."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+        "given": "A requested schema transformation is unsupported, lossy, ambiguous, absent from the declared supported transformations, or has unknown compatibility.",
+        "when": "Media is asked to prepare a migration candidate.",
+        "then": "Return an explicit UNKNOWN/UNSUPPORTED outcome with the unresolved transformation or compatibility fact; preserve the source and return no migration candidate.",
+        "rejection": "Reject inferring a conversion, silently substituting a transformation, mutating the source/project, submitting a job, publishing content, or claiming a completed migration."
+      },
+      {
+        "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15",
+        "given": "An authorized creator supplies an exact supported production specification and schema with no schema-migration target or transformation input.",
+        "when": "Media performs ordinary specification compilation under the named compiler-contract version.",
+        "then": "Return the existing normalized semantic graph and reviewable project-plan candidate; do not require or emit a migration candidate or semantic diff.",
+        "rejection": "Do not infer migration intent from absent or partial migration inputs, change ordinary compilation output, apply a migration, or cause a project, job, publication, or external effect."
+      }
+    ],
+    "relatedExternalContract": "Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.",
+    "downstreamMappings": {
+      "journeys": "pending-P0-009",
+      "viewsAndChannels": "exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009",
+      "states": "proposed state-model references authored; owner review and P0-010 pending",
+      "implementation": "not-authorized-by-definition"
+    },
+    "actorRoleBindings": [
+      {
+        "sourceRoleLabel": "creator",
+        "status": "resolved",
+        "actorRef": "media.creator",
+        "responsibilityRoleRef": "media.role.creator",
+        "resolution": "exact",
+        "note": "Canonical actor/role assignment does not grant permission."
+      },
+      {
+        "sourceRoleLabel": "editor",
+        "status": "resolved",
+        "actorRef": "media.editor",
+        "responsibilityRoleRef": "media.role.editor",
+        "resolution": "exact",
+        "note": "Canonical actor/role assignment does not grant permission."
+      },
+      {
+        "sourceRoleLabel": "domain-reviewer",
+        "status": "resolved-as-bounded-proposal; appointment-pending",
+        "actorRef": "media.domain-reviewer",
+        "responsibilityRoleRef": "media.role.domain-reviewer",
+        "resolution": "explicit-source-role-materialized-without-granting-permission",
+        "note": "Relevant domain owner must appoint the reviewer and define the review evidence/scope before affected acceptance."
+      }
+    ],
+    "actorRefs": [
+      "media.creator",
+      "media.editor",
+      "media.domain-reviewer"
+    ],
+    "responsibilityRoleRefs": [
+      "media.role.creator",
+      "media.role.editor",
+      "media.role.domain-reviewer"
+    ],
+    "unresolvedActorRoleMappings": [],
+    "actorBindingSource": "actors-responsibilities.yaml; references remain descriptive and do not grant authorization.",
+    "unresolvedIntentTraceDispositions": [],
+    "relatedOutcomeRefs": [
+      "media.goal.finished-asset",
+      "media.goal.explain-or-demonstrate"
+    ],
+    "intentTraceSource": "goals-jtbd.yaml#intents",
+    "stateModelRefs": [
+      "media-job",
+      "media-attempt"
+    ],
+    "stateModelBindings": [
+      {
+        "modelId": "media-job",
+        "sourceFile": "state-models.yaml",
+        "modeledStateSets": {
+          "states": [
+            "QUEUED",
+            "RUNNING",
+            "RETRY_PENDING",
+            "OUTCOME_UNKNOWN",
+            "RECONCILING",
+            "COMPLETED",
+            "PARTIALLY_SUCCEEDED",
+            "FAILED",
+            "CANCELLED"
+          ]
+        }
+      },
+      {
+        "modelId": "media-attempt",
+        "sourceFile": "state-models.yaml",
+        "modeledStateSets": {
+          "states": [
+            "CLAIMED",
+            "DISPATCH_INTENT_RECORDED",
+            "DISPATCHED",
+            "RUNNING",
+            "CANCEL_REQUESTED",
+            "SUCCEEDED",
+            "FAILED",
+            "CANCEL_CONFIRMED",
+            "OUTCOME_UNKNOWN",
+            "SUPERSEDED"
+          ]
+        }
+      }
+    ],
+    "unresolvedStateModelBindings": [],
+    "stateModelSource": "state-models.yaml",
+    "pendingActorRoleAppointments": [
+      {
+        "responsibilityRoleRef": "media.role.domain-reviewer",
+        "status": "owner-appointment-pending",
+        "scope": "domain-specific validation and fidelity review",
+        "decisionOwner": "relevant-domain-owner"
+      }
+    ]
+  },
+  "proposedCrosswalkRow": {
+    "auditId": "AUD-SPEC-002",
+    "sourcePartition": "originalAudit",
+    "sourceText": "Production-specific schema validation and migrations",
+    "sourceAcceptanceText": "Compiling the same specification twice produces equivalent normalized semantic graphs and stable fingerprints; invalid or unauthorized inputs create no effects.",
+    "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-002",
+    "disposition": "BOUND_EXISTING",
+    "pdp0EvidenceRefs": [
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile",
+      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07",
+      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-13",
+      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15"
+    ],
+    "pdp0ContextRefs": [],
+    "proposedPdp0SourceChange": null,
+    "externalOwnerDecision": null,
+    "phaseLocalRationale": "The existing recipe specification compiler and AC-07 cover typed semantic compilation. The additive AC-13/AC-14 proposal defines only a reviewable, version-bound migration candidate and semantic diff for an explicitly declared transformation between exact source and target schemas. Unsupported, lossy, ambiguous, or otherwise unknown transformations remain UNKNOWN/UNSUPPORTED; the source is preserved and no migration is applied, project/job is created, or content is published. The proposed candidate meaning is not yet canonical or owner-approved; PDP-1 retains migration implementation mechanics. AC-15 preserves ordinary compilation output when no migration is requested; the migration result is conditionally required only for the exact supported selector. Matching trust reconstruction remains unresolved because no exact owner capability adjudication record exists; no owner mapping is invented.",
+    "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-SPEC-002",
+    "independentQcRef": null,
+    "ownerApproval": "NOT_CLAIMED",
+    "laterPhaseHandoffs": {
+      "ownerPhase": "PDP-1",
+      "gap": "production-schema-migration-mechanics-unbound",
+      "status": "PDP1_MECHANICS_HANDOFF_AFTER_PDP0_PRODUCT_INTENT"
+    },
+    "ownerSurfaceProposal": "media.surface.recorder-orchestrator",
+    "definitionScopeBinding": {
+      "status": "DEFINITION_SCOPE_ONLY",
+      "surfaceRegistryRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.recorder-orchestrator",
+      "pdp0ScopeRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/logicalConsumerPdp0Scope/records/@surfaceRef=media.surface.recorder-orchestrator",
+      "ownerApproval": "NOT_CLAIMED",
+      "runtimeAdmission": "NOT_CLAIMED"
+    }
+  },
+  "exactTargets": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "recordId": "media.recipe.specification.compile"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "recordId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "preimageSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+      "recordId": "AUD-SPEC-002"
+    }
+  ],
+  "matchingOwnerTrustBranch": {
+    "status": "UNRESOLVED_OWNER_CAPABILITY_ADJUDICATION_REQUIRED",
+    "outputArtifactType": "reviewable-version-bound-schema-migration-candidate-and-semantic-diff",
+    "selector": "migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED",
+    "capabilityRef": "media.recipe.specification.compile",
+    "exactOwnerCapabilityAdjudicationSelector": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=media.recipe.specification.compile",
+    "observedOwnerCapabilityAdjudicationRecordCount": 0,
+    "currentTrustReconstructionRecordCount": 0,
+    "noRecordInvented": true
+  },
+  "predecessorSemanticFinding": "AUD-SPEC-002-MIGRATION-OUTPUT-CONDITIONALITY-001",
+  "ordinaryCompileContract": {
+    "existingOutputArtifactType": "normalized-semantic-graph-and-reviewable-project-plan-candidate",
+    "migrationCandidateRequired": false,
+    "migrationCandidateEmitted": false
+  },
+  "supportedMigrationContract": {
+    "selector": "migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED",
+    "migrationCandidateRequiredWhenSelected": true,
+    "originalPreserved": true,
+    "application": "NOT_PERFORMED"
+  },
+  "unsupportedOrUnknownContract": {
+    "ac": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+    "outcome": "UNKNOWN_OR_UNSUPPORTED",
+    "migrationCandidate": "NONE",
+    "sourceMutation": "NONE"
+  },
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "canonicalApply": "NOT_PERFORMED"
+  }
+}

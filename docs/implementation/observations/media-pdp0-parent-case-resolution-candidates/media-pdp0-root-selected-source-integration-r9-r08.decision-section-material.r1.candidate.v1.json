@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "media.pdp0.decision-section-material.r9-r08.v1",
+  "materialKind": "DECISION_SECTION",
+  "decisionId": "PXD-225",
+  "documentRef": ".product-experience/decision-log.md",
+  "decisionSectionRef": ".product-experience/decision-log.md#PXD-225-section",
+  "decisionSectionSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
+  "sectionSelector": "ANCHORED_PXD_HEADING_UNTIL_NEXT_PXD_HEADING",
+  "legacyRawPin": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-225",
+    "decisionSectionSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
+    "semantics": "RAW_SHA256_OF_EXACT_ANCHORED_PXD_SECTION"
+  },
+  "wholeDocumentCurrentCas": {
+    "targetRef": ".product-experience/decision-log.md",
+    "expectedWholeFileSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+    "observedWholeFileSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+    "comparison": "EXACT_WHOLE_FILE_SHA256",
+    "status": "CURRENT_EXACT"
+  },
+  "sections": [
+    {
+      "sectionId": "PXD-225/Authority",
+      "ref": ".product-experience/decision-log.md#PXD-225/Authority",
+      "sectionKind": "AUTHORITY_BASIS",
+      "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+      "sha256": "15c4d94034144cc6d77dd2940e92703fb51db1d79378b4bf996fb71303fd7210"
+    },
+    {
+      "sectionId": "PXD-225/Decision",
+      "ref": ".product-experience/decision-log.md#PXD-225/Decision",
+      "sectionKind": "SEMANTIC_DECISION_SECTION",
+      "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+      "sha256": "1df6c0a1fc276c0656c31a76132c53139721b99126914e1184b05ec2054472af"
+    },
+    {
+      "sectionId": "PXD-225/Currentness",
+      "ref": ".product-experience/decision-log.md#PXD-225/Currentness",
+      "sectionKind": "SEMANTIC_DECISION_SECTION",
+      "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+      "sha256": "a27af4f2a9019f579525abf77cc6a228d93e0b3556c553c88b0d0be4ab1882ea"
+    },
+    {
+      "sectionId": "PXD-225/Boundary",
+      "ref": ".product-experience/decision-log.md#PXD-225/Boundary",
+      "sectionKind": "SEMANTIC_DECISION_SECTION",
+      "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+      "sha256": "cadbb5d7e957622fcfff55647cb017c2e5426463e5b411fdb1f7f82806645a24"
+    }
+  ],
+  "authoritySectionRefs": [
+    {
+      "ref": ".product-experience/decision-log.md#PXD-225/Authority",
+      "sourceFileRef": ".product-experience/decision-log.md",
+      "sourceFileSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "sectionKind": "DECISION_AUTHORITY_BASIS",
+      "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+      "sectionSha256": "15c4d94034144cc6d77dd2940e92703fb51db1d79378b4bf996fb71303fd7210"
+    },
+    {
+      "ref": ".product-experience/authority-map.yaml#canonicalPdpPhases[PDP-0]",
+      "sourceFileRef": ".product-experience/authority-map.yaml",
+      "sourceFileSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+      "sectionKind": "PDP_PHASE_SEMANTIC_OWNER_AUTHORITY",
+      "selection": "YAML_RECORD_BY_ARRAY_KEY:id=PDP-0",
+      "sectionSha256": "f34e7cd6cfae7c9a3ee2f85cbc90b495a4104f98155ff978d71cba6705c63992"
+    },
+    {
+      "ref": ".product-experience/authority-map.yaml#phaseAuthorities[PDP-0]",
+      "sourceFileRef": ".product-experience/authority-map.yaml",
+      "sourceFileSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+      "sectionKind": "PDP_PHASE_OWNER_AUTHORITY",
+      "selection": "YAML_RECORD_BY_ARRAY_KEY:phase=PDP-0",
+      "sectionSha256": "a875cc9ac0b6f7ab23774534af48cbe4e17eee32bf2894ceed2a20d3819f4eb9"
+    }
+  ],
+  "authorityMapCurrentCas": {
+    "targetRef": ".product-experience/authority-map.yaml",
+    "expectedWholeFileSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+    "observedWholeFileSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+    "comparison": "EXACT_WHOLE_FILE_SHA256",
+    "status": "CURRENT_EXACT"
+  },
+  "authorityBoundary": {
+    "ownerAuthorityDecision": "NOT_RECORDED",
+    "rootAuthorityDecision": "NOT_RECORDED",
+    "canonicalApply": "NOT_AUTHORIZED",
+    "phaseStatusEffect": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED"
+  }
+}

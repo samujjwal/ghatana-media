@@ -1,0 +1,1547 @@
+schemaVersion: media.pdp0-campaign-extensions.v1
+productId: media
+canonicalDenominator:
+  capabilityLeaves: 462
+  requirementFamilies: 38
+  intents: 19
+  ownerAdjudications: 462
+currentDefinitionPopulation:
+  meaning: The historical owner-adjudicated population remains intact. Six coordinator-authored capability proposals have PXD-207 source-current applicability decisions only; one creative-effect capability has a separate PXD-207-delegated source definition and applicability decision. All seven remain outside the historical 462 adjudications, and independent acceptance is not claimed.
+  historicalCapabilityLeavesPreserved: 462
+  currentCapabilityDefinitions: 469
+  definitionExtensionCapabilityLeaves: 7
+  ownerAdjudications: 462
+  extensionDisposition: SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED
+  versionDisposition:
+    decisionRefs:
+      - .product-experience/decision-log.md#PXD-220
+      - .product-experience/decision-log.md#PXD-221
+    historicalCanonicalCapabilityLeaves: 462
+    currentVersionCapabilityLeaves: 462
+    futureVersionProposalCapabilityLeaves: 7
+    totalSourceCapabilityDefinitions: 469
+    currentVersionExtensionCapabilityIds: []
+    futureVersionProposals:
+      - capabilityId: media.recipe.specification.compile
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.project.scene.patch-merge
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.quality.audio.content-similarity.assess
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.generate.video.preset.manage
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.generate.video.shot-condition
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.job.schedule.manage
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-220
+      - capabilityId: media.master.audio.creative-effect.apply
+        scopeStatus: DEFERRED
+        version: later-governed-version
+        decisionRef: .product-experience/decision-log.md#PXD-221
+  ownerApproval: NOT_CLAIMED
+  independentAcceptance: NOT_CLAIMED
+  records:
+    - capabilityId: media.recipe.specification.compile
+      requirementRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      familyRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families/@id=media.recipe.template
+      channelApplicabilityProposalRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.recipe.specification.compile
+      acceptanceCaseRefs:
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07
+      sourceAuditIds:
+        - AUD-SPEC-001
+        - AUD-SPEC-003
+        - AUD-SPEC-009
+      declaredSupportedChannelRefs: [media.channel.cli]
+      decisionRef: .product-experience/decision-log.md#PXD-207
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+    - capabilityId: media.project.scene.patch-merge
+      requirementRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT
+      familyRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families/@id=media.project
+      channelApplicabilityProposalRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.project.scene.patch-merge
+      acceptanceCaseRefs:
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-07
+      sourceAuditIds:
+        - AUD-SPEC-015
+      declaredSupportedChannelRefs: [media.channel.cli]
+      decisionRef: .product-experience/decision-log.md#PXD-207
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+    - capabilityId: media.quality.audio.content-similarity.assess
+      requirementRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY
+      familyRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families/@id=media.quality
+      channelApplicabilityProposalRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.quality.audio.content-similarity.assess
+      acceptanceCaseRefs:
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AC-14
+      sourceAuditIds:
+        - AUD-MUSIC-014
+      declaredSupportedChannelRefs: [media.channel.web]
+      decisionRef: .product-experience/decision-log.md#PXD-207
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+    - capabilityId: media.generate.video.preset.manage
+      requirementRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO
+      familyRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families/@id=media.generate.video
+      channelApplicabilityProposalRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.generate.video.preset.manage
+      acceptanceCaseRefs:
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-05
+      sourceAuditIds:
+        - AUD-GEN-025
+      declaredSupportedChannelRefs: [media.channel.web]
+      decisionRef: .product-experience/decision-log.md#PXD-207
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+    - capabilityId: media.generate.video.shot-condition
+      requirementRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO
+      familyRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families/@id=media.generate.video
+      channelApplicabilityProposalRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.generate.video.shot-condition
+      acceptanceCaseRefs:
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-06
+      sourceAuditIds:
+        - AUD-GEN-027
+      declaredSupportedChannelRefs: [media.channel.web]
+      decisionRef: .product-experience/decision-log.md#PXD-207
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+    - capabilityId: media.job.schedule.manage
+      requirementRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-JOB
+      familyRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families/@id=media.job
+      channelApplicabilityProposalRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.job.schedule.manage
+      acceptanceCaseRefs:
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases/@id=MEDIA-REQ-CAP-JOB-AC-04
+      sourceAuditIds:
+        - AUD-OPS-013
+      declaredSupportedChannelRefs: [media.channel.cli]
+      decisionRef: .product-experience/decision-log.md#PXD-207
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+    - capabilityId: media.master.audio.creative-effect.apply
+      requirementRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO
+      familyRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families/@id=media.master.audio
+      channelApplicabilityProposalRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.master.audio.creative-effect.apply
+      acceptanceCaseRefs:
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-03
+      sourceAuditIds:
+        - AUD-DSP-007
+      declaredSupportedChannelRefs: [media.channel.web]
+      decisionRef: .product-experience/decision-log.md#PXD-207
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+records:
+  - id: AUD-GEN-014
+    campaignId: media.pdp0.501-campaign
+    sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-014
+    sourceText: Synchronized audio-video joint generation where licensed
+    sourceAcceptanceText: Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).
+    decisionRef: .product-experience/decision-log.md#PXD-211
+    semanticContractKind: FEATURE_SCOPED_COMPOUND_GENERATION_CANDIDATE
+    capabilityRefs:
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.text-to-audio
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate
+    requirementCaseRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-08
+    rightsCaseRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08
+    candidateOutputs:
+      - candidateVideoIdentity: exact-request-bound-video-candidate
+      - candidateAudioIdentity: exact-request-bound-generated-audio-candidate
+    relation:
+      binding: declared-audio-video-relation-and-timebase
+      statusValues: [APPLIED, ESTIMATED, UNSUPPORTED, UNKNOWN]
+      defaultWhenUnobserved: UNKNOWN
+      supportEvidence: exact-output-source-bound-observation-required
+      synchronizationThreshold: NONE_DEFINED
+    boundaries:
+      - Preserve the declared prompt, references, model/checkpoint/profile and source-version provenance independently for each output.
+      - Do not claim that outputs are synchronized, available, qualified, licensed, or executable from their joint candidate relation.
+      - Unknown or unsupported relation does not authorize substituting either modality or silently changing the declared relation.
+    ownerApproval: NOT_CLAIMED
+    independentAcceptance: NOT_CLAIMED
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: AUD-GEN-015
+    campaignId: media.pdp0.501-campaign
+    sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-015
+    sourceText: Native dialogue and sound effects generation aligned to lip motion
+    sourceAcceptanceText: Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).
+    decisionRef: .product-experience/decision-log.md#PXD-211
+    semanticContractKind: FEATURE_SCOPED_COMPOUND_GENERATION_CANDIDATE
+    capabilityRefs:
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.sound-effect
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.drive.speech
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.lip
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate
+    requirementCaseRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-09
+    rightsCaseRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08
+    conditionalPresenterRightsCaseRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04
+    conditionalPresenterRightsScope: Apply only when an identifiable person, voice, or presenter likeness is actually involved; lip-motion relation alone does not establish presenter identity or trigger this scope.
+    candidateOutputs:
+      - candidateVideoIdentity: exact-request-bound-video-candidate
+      - candidateSpeechIdentity: exact-request-bound-generated-speech-audio-candidate
+      - candidateSoundEffectsIdentity: exact-request-bound-generated-sound-effects-candidate
+      - lipMotionRelationIdentity: exact-source-bound-lip-motion-relation-observation
+    relation:
+      binding: declared-dialogue-and-effects-to-visual-lip-motion-timebase-relation
+      statusValues: [APPLIED, ESTIMATED, UNSUPPORTED, UNKNOWN]
+      defaultWhenUnobserved: UNKNOWN
+      supportEvidence: exact-output-source-bound-observation-required
+      synchronizationThreshold: NONE_DEFINED
+    boundaries:
+      - Keep generated speech, generated sound effects, candidate video, and lip-motion observations separately identified and source-bound.
+      - Evaluate each exact generated asset, voice, model, and checkpoint under MEDIA-REQ-CAP-RIGHTS-AC-08; rights are not presumed cleared. Apply MEDIA-REQ-CAP-RIGHTS-AC-04 conditionally only when an identifiable presenter/person/voice is involved.
+      - Do not infer a lip-motion observation, claim lip synchronization, or assert generation/runtime support without exact evidence.
+      - Unknown or unsupported relation does not authorize substituting a voice, source, or output modality.
+    ownerApproval: NOT_CLAIMED
+    independentAcceptance: NOT_CLAIMED
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: AUD-SPEC-020
+    stableFeatureId: media.rules.manage
+    campaignId: media.pdp0.501-campaign
+    sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+    coordinatorScopeDecision:
+      disposition: INCLUDED_IN_PDP0_CAMPAIGN
+      authority: user's direct delegation for PDP-0 definition coordination
+      effect: Source definition proposal only; it does not change the historical canonical denominator or claim
+        owner approval.
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      executionAdmission: NOT_ADMITTED
+    capabilityFamily:
+      familyId: media.rules
+      masterPlanSection: §6.2
+      requirementId: MEDIA-REQ-CAP-RULES
+    capabilityDefinition:
+      id: media.rules.manage
+      scopeStatus: TARGET
+      familyId: media.rules
+      operation: manage
+      label: Manage reusable action and quality rules
+      definitionState: COORDINATOR_AUTHORED_PDP0_PROPOSAL; owner acceptance pending
+      outcome: Author or inspect a scoped action/quality rule-set candidate, assign a stable version identity
+        without replacing its prior version, and return a validation observation or candidate operation plan
+        only when explicitly requested. A candidate or validation result does not approve or execute the
+        rules; every affected media operation requires its own explicit request and separate admission.
+      sourceScope:
+        masterPlanSection: §6.2
+        sourcePhrase: Reusable user-configurable action/quality rules (AUD-SPEC-020)
+      relatedMasterPlanSections:
+        - §6.1
+        - §11.1–11.6
+        - §18.2–18.3
+      actorRoles:
+        - creator
+        - editor
+        - developer-integrator
+        - operator
+      actorBindingState: proposed-canonical-actor-refs; owner acceptance pending
+      inputArtifactTypes:
+        - action-quality-rule-set-draft
+        - declared-media-operation-reference
+        - declared-input-and-constraint-set
+        - optional-prior-rule-set-version-reference
+      outputArtifactTypes:
+        - versioned-action-quality-rule-set-candidate
+        - rule-set-validation-observation
+        - candidate-operation-plan
+      preconditions:
+        - The caller identifies the rule-set scope and has authority to author or inspect it; authorization
+          does not admit affected operations.
+        - Validation and reuse name the exact rule-set version and target media operation.
+        - Any affected operation is separately admitted before its execution.
+      supportedParameters: P0 defines the typed draft, prior-version reference, target operation, inputs, and
+        constraints as operation inputs. No execution parameters or product defaults are implied.
+      constraints:
+        - A new rule-set candidate has a stable version identity and preserves the referenced prior version
+          unchanged.
+        - Validation is observational; reuse returns a candidate plan and does not execute a rule or
+          consequential media operation.
+        - Invalid, unsupported, denied, unavailable, stale, or unknown rule-set evidence is explicit; invalid
+          or unauthorized sets are never partially applied.
+        - Reuse requires an explicit request for the exact version and a separate admission decision for every
+          affected operation.
+        - A candidate, saved rule set, or validation observation is not human approval, runtime availability,
+          or qualification.
+      actionStateReferences:
+        action: author-inspect-validate-or-reuse-exact-rule-set-version
+        stateCoverage:
+          - not-admitted
+          - candidate-returned
+          - validation-returned
+          - blocked
+          - outcome-unknown
+        stateModelBindingState: no-persistent-lifecycle-model-is-asserted-by-this-proposal
+        stateModelRefs: []
+      requiredAuthority:
+        - identity-and-tenant-context
+        - rule-set-scope-read-or-write-permission-as-applicable
+        - operation-specific-policy-and-rights-for-each-affected-operation
+      rightsPrivacyImplications:
+        - Rule-set scope, source references, and tenant ownership must remain explicit; a reusable rule does
+          not transfer rights or consent.
+        - Inputs and rule contents are subject to the declared operation's privacy, egress, retention, and
+          rights policy.
+      qualityFidelityContract: A validation observation describes only the exact rule-set version, declared target
+        operation, inputs, and constraints. A candidate operation plan is not a measured quality result or
+        evidence that a rule was applied.
+      cancellationRetryReconciliation: Rule authoring and validation produce version-bound candidates or
+        observations. Unknown validation remains UNKNOWN; callers must revalidate the exact version and
+        inputs. No rule execution or retry is implied.
+      executionResourceRequirements: This definition selects no numeric resource limit and authorizes no execution.
+        Any affected operation applies its own current bounded invocation and resource-admission contract.
+      accessibilityRepresentation: Interactive authoring and validation results require a semantic,
+        keyboard-operable representation; concrete interface behavior is a later PDP-2/PDP-3 definition.
+      provenance:
+        - Preserve rule-set identity, version, declared scope, target operation, and source references in
+          every candidate and validation observation.
+        - Do not infer truth, rights, runtime support, or applied effects from a rule's contents or validation
+          result.
+      ghatanaReuseDisposition: No external rule engine or execution dependency is selected by this product
+        definition; any later reuse selection requires its own source decision and qualification.
+      externalDependencies: []
+      requirementIds:
+        - MEDIA-REQ-CAP-RULES
+      acceptanceCases:
+        - given: A caller authors a valid scoped action/quality rule-set draft and optionally names an exact prior
+            version.
+          when: The caller requests authoring or versioning.
+          then: Return a versioned candidate with a stable identity and preserve the prior version unchanged; do not
+            approve or execute its rules.
+          id: AUD-SPEC-020-CAP-AC-01
+        - given: A caller explicitly requests validation or reuse of an exact version for a declared media operation.
+          when: The request is evaluated.
+          then: Return a version-bound validation observation or candidate plan with provenance; every affected
+            operation remains separately admitted and unexecuted.
+          id: AUD-SPEC-020-CAP-AC-02
+        - given: The rule set or any required input is invalid, unsupported, denied, unavailable, stale, or unknown.
+          when: Authoring, validation, or reuse is evaluated.
+          then: Return the explicit non-success state, apply no partial rules, preserve the prior version, and do not
+            execute an affected operation.
+          id: AUD-SPEC-020-CAP-AC-03
+      qualificationDimensions:
+        - operation-and-contract-version
+        - rule-set-version-and-scope
+        - rights/privacy/security-policy
+        - invalid/unsupported/unknown-input-handling
+        - accessibility-of-interactive-authoring
+      proposedApplicableChannels:
+        - web
+        - api
+        - embedded
+        - http-api
+        - grpc-api
+        - sdk
+        - cli
+        - product-integration
+      channelDispositionState: eight-channel-PDP0-proposal; owner review pending; no runtime admission
+      explicitUnsupportedCases:
+        - Silent application of a different, stale, invalid, or unauthorized rule-set version.
+        - Partial execution of an invalid or unauthorized rule set.
+        - Treating validation, saving, or a candidate plan as approval, qualification, runtime availability,
+          or execution.
+      supportDimensions:
+        implementationState: UNKNOWN
+        licenseAdmissionState: UNKNOWN
+        qualificationState: NOT_EVALUATED
+        runtimeAvailability: UNKNOWN
+        observationRule: Definition-only proposal; no source observation promotes support.
+      actorRefs:
+        - media.creator
+        - media.editor
+        - media.developer-integrator
+        - media.operator
+      responsibilityRoleRefs:
+        - media.role.creator
+        - media.role.editor
+        - media.role.developer-integrator
+        - media.role.operator
+      unresolvedActorRoleLabels: []
+      pendingActorRoleAppointments: []
+      intentRefs:
+        - media.intent.manage-reusable-rules
+      outcomeRefs:
+        - media.goal.integrate-repeatably
+      coverageDisposition: PROPOSED_CAPABILITY_INTENT; owner acceptance pending
+      coverageDecisionRef: NOT_CLAIMED
+      coverageRationale: This capability is introduced from the feature-specific PDP-0 audit AUD-SPEC-020. The
+        current proposal does not claim owner or independent acceptance or a completed journey binding.
+      intentBindingState: coordinator-authored-PDP0-proposal; owner acceptance pending
+      stateModelRefs: []
+      stateModelBindingState: no-persistent-lifecycle-model-is-asserted-by-this-proposal
+      requirementTraceState: exact-proposal-trace; owner acceptance pending
+      semanticReferenceScope: media.rules.manage.pdp0-proposal.v1
+      stateModelBindings: []
+      unresolvedStateModelBindings: []
+      journeyRefs: []
+      ownerDefinition:
+        decisionId: PXD-185/AUD-SPEC-020
+        capabilityIntentId: media.rules.manage
+        ownerDisposition: COORDINATOR_AUTHORED_DEFINITION_PROPOSAL
+        decisionAuthority: user-delegated-PDP0-definition-coordination; owner acceptance NOT_CLAIMED
+        typedInputSlots:
+          - slotId: rule-set-draft
+            sourceType: action-quality-rule-set-draft
+            cardinality: EXACTLY_ONE
+            required: true
+          - slotId: target-operation
+            sourceType: declared-media-operation-reference
+            cardinality: ZERO_OR_ONE
+            required: false
+          - slotId: declared-inputs-and-constraints
+            sourceType: declared-input-and-constraint-set
+            cardinality: ZERO_OR_ONE
+            required: false
+          - slotId: prior-version
+            sourceType: optional-prior-rule-set-version-reference
+            cardinality: ZERO_OR_ONE
+            required: false
+        parameterSchema:
+          type: object
+          additionalProperties: false
+          required: []
+          properties: {}
+          emptyDisposition: REQUEST_MEANING_IS_CARRIED_BY_TYPED_INPUT_SLOTS
+        successOutputs:
+          - artifactType: versioned-action-quality-rule-set-candidate
+            requiredOnSuccess: true
+          - artifactType: rule-set-validation-observation
+            requiredOnSuccess: false
+          - artifactType: candidate-operation-plan
+            requiredOnSuccess: false
+        nonSuccessOutputs:
+          REJECTED: []
+          UNKNOWN_OUTCOME: []
+        semanticOutcomeContract:
+          result: Return a versioned action/quality rule-set candidate, exact-version validation observation, or
+            candidate operation plan only for the explicitly requested variant. None approves or executes the
+            rules.
+          outputDistinctions:
+            - Candidate version identity is distinct from an approved or applied rule set.
+            - Validation is distinct from runtime admission and rule execution.
+            - A candidate operation plan is distinct from a produced media result.
+          unknownDisposition: If version, scope, target operation, authority, or validation evidence is incomplete,
+            report UNKNOWN or the applicable denied/unavailable state; do not reuse a different version or
+            partially apply rules.
+          sourceRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/intentDefinition
+            - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+        effect:
+          semanticOutcome: Return a candidate or validation observation for the explicit rule management request; no
+            affected media operation is executed.
+          sourcePreservationRequired: true
+          noSilentFallback: true
+          effectIntentScope: RULE_SET_CANDIDATE_OR_READ_ONLY_VALIDATION
+        guards:
+          preconditions:
+            - Caller authority is scoped to the rule set and requested action.
+            - Reuse or validation names the exact rule-set version and target operation.
+            - Affected operations require separate admission before execution.
+          authorityRefs:
+            - identity-and-tenant-context
+            - rule-set-scope-read-or-write-permission-as-applicable
+            - operation-specific-policy-and-rights-for-each-affected-operation
+          stateModelRefs: []
+        errors:
+          - INVALID_REQUEST
+          - ACCESS_DENIED
+          - UNSUPPORTED_RULE
+          - STALE_VERSION
+          - CONFLICT
+          - UNAVAILABLE
+          - UNKNOWN_OUTCOME
+        idempotency: Candidate version creation is bound to its explicit request identity; conflicting edits must
+          remain distinguishable and prior versions remain unchanged.
+        recovery: Revalidate the exact rule-set version and inputs after an unknown result; never infer execution or
+          retry eligibility for an affected operation.
+        availability:
+          implementationState: UNKNOWN
+          licenseAdmissionState: UNKNOWN
+          qualificationState: NOT_EVALUATED
+          runtimeAvailability: UNKNOWN
+          executionAdmission: NOT_ADMITTED
+    requirementDefinition:
+      id: MEDIA-REQ-CAP-RULES
+      scopeStatus: COORDINATOR_AUTHORED_PDP0_PROPOSAL; owner acceptance pending
+      statement: The product definition distinguishes user-authored, scoped action/quality rule-set candidates and
+        their exact versions from validation observations, candidate operation plans, approval, and execution.
+        Every affected media operation remains separately requested and admitted.
+      rationale: AUD-SPEC-020 identifies reusable user-configurable action/quality rules. This requirement gives
+        those rules a distinct semantic owner and does not broaden delivery-profile validation.
+      source:
+        auditFeature: Reusable user-configurable action/quality rules
+        sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+        sourceTextRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+      capabilityIds:
+        - media.rules.manage
+      kind: functional
+      priority: must
+      traceToIntentIds:
+        - media.intent.manage-reusable-rules
+      relatedOutcomeRefs:
+        - media.goal.integrate-repeatably
+      intentTraceState: coordinator-authored-exact-PDP0-proposal; owner acceptance pending
+      actorRoles:
+        - creator
+        - editor
+        - developer-integrator
+        - operator
+      actorBindingState: references-canonical-actor-and-responsibility-role-IDs; owner acceptance pending
+      preconditions:
+        - The caller identifies the rule-set scope and is authorized for the requested authoring or inspection
+          action.
+        - Validation or reuse names the exact rule-set version and target media operation.
+        - Admission of each affected operation is separate from rule-set validation or reuse planning.
+      expectedBehavior: Authoring returns a stable, version-bound rule-set candidate without replacing its prior
+        version. Explicit validation returns a version-bound observation; explicit reuse may return only a
+        provenance-bearing candidate operation plan. Neither validation nor reuse executes the rules, approves
+        them, or establishes runtime qualification.
+      importantStates:
+        - candidate
+        - validated
+        - invalid
+        - denied
+        - unsupported
+        - unavailable
+        - unknown
+      stateModelBindingState: explicit-operation-result-states; no persistent lifecycle model is claimed
+      consequences:
+        - Invalid, unauthorized, stale, or incomplete rule sets are never partially applied.
+        - The prior rule-set version remains unchanged when a new candidate is authored.
+        - A candidate plan cannot silently trigger any affected media operation.
+      failureDegradationRecovery:
+        - Report invalid, denied, unsupported, unavailable, stale, and unknown rule or input states explicitly.
+        - Preserve UNKNOWN when version, target operation, authority, or validation evidence is incomplete.
+        - Require a new explicit request and separate admission for every affected operation.
+      nonfunctionalRequirements:
+        - tenant isolation and least privilege
+        - privacy/data minimization and governed egress
+        - durable audit/effect intent for consequential effects
+        - bounded time/memory/storage/compute/cost
+        - accessible semantic representation and keyboard operation where interactive
+        - provenance, reproducibility class, and recovery truth
+      acceptanceCases:
+        - id: MEDIA-REQ-CAP-RULES-AC-01
+          given: A user authors a scoped action/quality rule set with explicit inputs and constraints, then requests a
+            stable new version, exact-version validation, or reuse against a declared media operation.
+          when: Media evaluates the explicit rule-management request.
+          then: Return a versioned candidate, version-bound validation observation, or provenance-bearing candidate
+            operation plan for the requested variant; preserve the prior version and require separate
+            admission of each affected operation; do not approve or execute the rules.
+          rejection: Reject a changed or stale version, silent fallback, partial application, hidden execution, or a
+            candidate/result represented as human-approved or runtime-qualified.
+        - id: MEDIA-REQ-CAP-RULES-AC-02
+          given: A rule set, required input, target operation, or authority is invalid, unsupported, denied,
+            unavailable, stale, incomplete, or unknown.
+          when: Authoring, validation, or reuse is evaluated.
+          then: Return the applicable explicit failure or UNKNOWN state, apply no partial rules, preserve the prior
+            version, and perform no affected operation.
+          rejection: Reject treating missing or unknown evidence as available, using a different rule-set version, or
+            reporting an affected operation as executed.
+        - id: AUD-SPEC-020-REQ-AC-RIGHTS-LICENSE-01
+          given: The requested rule-set scope or any affected media operation has rights, consent, privacy, egress,
+            security, or applicable license evidence that is denied, unavailable, or unknown.
+          when: The caller requests authoring, validation, or reuse of the rule set.
+          then: Return the applicable DENIED, UNAVAILABLE, or UNKNOWN state; apply no rule, preserve the prior rule-set
+            version, and perform no affected media operation.
+          rejection: Reject treating missing, denied, unavailable, or unknown rights/license evidence as permission or
+            as successful validation.
+      relatedExternalContract: The owning public contract remains a PDP-1 handoff; do not invent an endpoint or operation schema here.
+      downstreamMappings:
+        journeys: pending-PDP-3-experience-definition
+        viewsAndChannels: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability;
+          owner review pending
+        states: explicit-result-states-only; persistent rule-set lifecycle remains a PDP-1 handoff
+        implementation: not-authorized-by-definition
+      ownerAcceptance: NOT_CLAIMED
+    intentDefinition:
+      id: media.intent.manage-reusable-rules
+      outcomeRefs:
+        - media.goal.integrate-repeatably
+      actorRefs:
+        - media.creator
+        - media.editor
+        - media.developer-integrator
+        - media.operator
+      description: Author, inspect, validate, version, or request reuse of a scoped action or quality rule set while
+        keeping candidate plans distinct from approval and execution of every affected media operation.
+    channelApplicability:
+      authority: coordinator-authored-PDP0-proposal; owner review pending
+      status: PROPOSAL_ONLY; cannot satisfy owner acceptance, independent acceptance, closure, admission, or runtime
+        support
+      records:
+        - capabilityRef: media.rules.manage
+          requirementRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition
+          sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+          ownerApproval: NOT_CLAIMED
+          independentAcceptance: NOT_CLAIMED
+          applicabilityState: PROPOSED; owner disposition pending
+          channelApplicability:
+            - channelRef: media.channel.web
+              disposition: PROPOSED_APPLICABLE
+              rationale: AUD-SPEC-020 describes reusable rule authoring and validation as a product capability; an
+                interactive proposal is included for owner review, with no current consumer or runtime claim.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.web, media.surface.production-studio]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-ui]
+                compositeSurfaceRefs: [media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-WEB
+            - channelRef: media.channel.api
+              disposition: PROPOSED_APPLICABLE
+              rationale: A protocol-neutral API proposal defines the shared reusable-rule meaning; it is an umbrella
+                over the exact HTTP and gRPC consumer refs below, not an additional transport or runtime surface.
+              surfaceResolution:
+                kind: UMBRELLA_INHERITS_EXACT_TRANSPORT_SURFACES
+                inheritsChannelRefs: [media.channel.http-api, media.channel.grpc-api]
+                logicalConsumerSurfaceRefs: [media.surface.public-http, media.surface.service-grpc, media.surface.grpc.stt, media.surface.grpc.tts, media.surface.grpc.vision, media.surface.grpc.multimodal]
+                physicalSurfaceRefs: [media.physical.launcher, media.physical.runtime-contracts, media.physical.modules-speech-stt-service, media.physical.modules-speech-tts-service, media.physical.modules-vision-vision-service, media.physical.modules-intelligence-multimodal-service]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.speech-and-caption-workflows, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-API
+            - channelRef: media.channel.embedded
+              disposition: PROPOSED_APPLICABLE
+              rationale: Embedded definition applicability is proposed for review only; no embedded consumer or runtime
+                support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.embedded, media.surface.interactive-demo-player]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-ui]
+                compositeSurfaceRefs: [media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-EMBEDDED
+            - channelRef: media.channel.http-api
+              disposition: PROPOSED_APPLICABLE
+              rationale: HTTP adapter applicability is proposed for review only; no endpoint or HTTP support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.public-http]
+                physicalSurfaceRefs: [media.physical.launcher, media.physical.runtime-contracts]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-HTTP-API
+            - channelRef: media.channel.grpc-api
+              disposition: PROPOSED_APPLICABLE
+              rationale: gRPC adapter applicability is proposed for review only; no service or gRPC support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.service-grpc, media.surface.grpc.stt, media.surface.grpc.tts, media.surface.grpc.vision, media.surface.grpc.multimodal]
+                physicalSurfaceRefs: [media.physical.runtime-contracts, media.physical.modules-speech-stt-service, media.physical.modules-speech-tts-service, media.physical.modules-vision-vision-service, media.physical.modules-intelligence-multimodal-service]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.speech-and-caption-workflows, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-GRPC-API
+            - channelRef: media.channel.sdk
+              disposition: PROPOSED_APPLICABLE
+              rationale: SDK definition applicability is proposed for review only; no published package or SDK support is
+                asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.sdk]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-client, media.physical.libs-audio-video-types]
+                compositeSurfaceRefs: [media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-SDK
+            - channelRef: media.channel.cli
+              disposition: PROPOSED_APPLICABLE
+              rationale: CLI definition applicability is proposed for review only; no command or CLI support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.cli, media.surface.recorder-orchestrator]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-client, media.physical.libs-media-experience-simulation]
+                compositeSurfaceRefs: [media.composition.repository-root, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-CLI
+            - channelRef: media.channel.product-integration
+              disposition: PROPOSED_APPLICABLE
+              rationale: Product-integration definition applicability is proposed for review only; no active integration or
+                invocation support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.integrations]
+                physicalSurfaceRefs: [media.physical.adapters-ledger, media.physical.providers-aws-postgresql, media.physical.modules-infrastructure-persistence, media.physical.modules-infrastructure-security, media.physical.modules-infrastructure-cache, media.physical.modules-infrastructure-messaging]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.creation-composition-and-delivery]
+              id: AUD-SPEC-020-CHANNEL-PRODUCT-INTEGRATION
+            - channelRef: media.channel.legacy-desktop
+              disposition: NOT_APPLICABLE_ARCHIVED
+              rationale: This feature-scoped definition excludes the archived desktop consumer from current scope; the
+                proposal does not assert runtime denial or acceptance by the archive's historical owner.
+              surfaceResolution:
+                kind: COORDINATOR_PROPOSED_SCOPED_NOT_APPLICABLE
+                logicalConsumerSurfaceRefs: [media.surface.desktop-archive]
+                physicalSurfaceRefs: []
+                compositeSurfaceRefs: []
+                ownerApproval: NOT_CLAIMED
+              id: AUD-SPEC-020-CHANNEL-LEGACY-DESKTOP
+            - channelRef: media.channel.agent
+              disposition: NOT_APPLICABLE_NON_INVOCATION
+              rationale: This feature-scoped definition has no agent invocation variant or tool action; no agent support
+                is asserted, and the excluded channel remains a coordinator proposal pending owner review.
+              surfaceResolution:
+                kind: COORDINATOR_PROPOSED_SCOPED_NOT_APPLICABLE
+                logicalConsumerSurfaceRefs: [media.surface.agent-tools]
+                physicalSurfaceRefs: [media.physical.runtime-contracts, media.physical.libs-common]
+                compositeSurfaceRefs: [media.composition.repository-root, media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+                ownerApproval: NOT_CLAIMED
+              id: AUD-SPEC-020-CHANNEL-AGENT
+            - channelRef: media.channel.event
+              disposition: NOT_APPLICABLE_NON_INVOCATION
+              rationale: This feature-scoped definition has no event emission or subscription variant; no event support
+                is asserted, and the excluded channel remains a coordinator proposal pending owner review.
+              surfaceResolution:
+                kind: COORDINATOR_PROPOSED_SCOPED_NOT_APPLICABLE
+                logicalConsumerSurfaceRefs: [media.surface.events]
+                physicalSurfaceRefs: [media.physical.modules-infrastructure-messaging, media.physical.runtime-contracts]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+                ownerApproval: NOT_CLAIMED
+              id: AUD-SPEC-020-CHANNEL-EVENT
+          implementationState: UNKNOWN
+          qualificationState: NOT_EVALUATED
+          runtimeAvailability: UNKNOWN
+          executionAdmission: NOT_ADMITTED
+          id: AUD-SPEC-020-CHANNEL-APPLICABILITY
+    compileAcceptance:
+      id: AUD-SPEC-020-P0-COMPILE-AC-01
+      criterion: Repeated compilation of the same valid, authorized source inputs produces an equivalent normalized
+        semantic graph and the same stable semantic fingerprint. Invalid or unauthorized input produces no
+        effects.
+      outputs:
+        normalizedSemanticGraph: media.rules.normalized-semantic-graph
+        semanticFingerprint: media.rules.semantic-fingerprint
+      invalidOrUnauthorizedInput:
+        disposition: REJECT_WITHOUT_EFFECTS
+        forbiddenEffects:
+          - rule-application
+          - operation-execution
+          - approval
+          - persistent-mutation
+      algorithmAndVersionFormat: PDP-1-owned; not defined by this PDP-0 proposal
+    validationCoverage:
+      sourceValidationRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020/validations_required
+      auditValidationDimensions:
+        positive:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-01
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-01
+          criterion: A valid scoped draft returns a stable versioned candidate and preserves its prior version.
+        negative:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-03
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-02
+          criterion: Invalid or unauthorized rules are rejected without partial application or affected-operation
+            execution.
+        unavailable:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-03
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-02
+          criterion: Unavailable input or evidence returns explicit UNAVAILABLE or UNKNOWN and causes no effects.
+        UNKNOWN_or_explicit_NA:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/ownerDefinition/semanticOutcomeContract/unknownDisposition
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-LEGACY-DESKTOP/rationale
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-AGENT/rationale
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-EVENT/rationale
+          criterion: Incomplete evidence remains UNKNOWN; archived legacy desktop and non-invocation agent/event are
+            explicit N/A with rationale.
+        rights_license:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=AUD-SPEC-020-REQ-AC-RIGHTS-LICENSE-01
+          criterion: Denied, unavailable, or unknown rights/license evidence returns the applicable non-success state
+            without applying rules or performing affected operations.
+        manual_agent_parity_when_applicable:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-AGENT/rationale
+          disposition: JUSTIFIED_NA
+          criterion: The proposal has no agent invocation semantics; agent parity is not applicable and no agent tool
+            support is claimed.
+        source_version_and_provenance:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-01
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-02
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-01
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/provenance
+          criterion: Candidates and observations preserve exact rule-set version, declared scope, target operation, and
+            source references; prior versions remain unchanged.
+      compileEquivalenceAndFingerprint:
+        compileAcceptanceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/compileAcceptance
+        compileAcceptanceId: AUD-SPEC-020-P0-COMPILE-AC-01
+        criterionRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/compileAcceptance/criterion
+        boundToNormalizedSemanticGraph: true
+        boundToStableSemanticFingerprint: true
+  - id: AUD-OPS-021
+    stableFeatureId: media.capability.model-package.manage
+    campaignId: media.pdp0.501-campaign
+    sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-021
+    sourceText: Safe install/upgrade/migration and model removal
+    sourceAcceptanceText: Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.
+    coordinatorScopeDecision:
+      disposition: INCLUDED_IN_PDP0_CAMPAIGN
+      authority: user's direct delegation for PDP-0 definition coordination
+      effect: Coordinator-authored feature-definition proposal only. This record does not add a canonical owner-adjudicated
+        capability leaf, change the historical 462/469/7 population, claim owner scope approval, or assert implementation,
+        qualification, runtime availability, execution admission, release, or closure.
+      proposedScopeSurfaceRefs: [media.surface.recorder-orchestrator]
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      executionAdmission: NOT_ADMITTED
+    capabilityFamily:
+      familyId: media.capability
+      sourceAuditId: AUD-OPS-021
+      requirementId: MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE
+    capabilityDefinition:
+      id: media.capability.model-package.manage
+      scopeStatus: PROPOSAL_ONLY; owner disposition pending
+      familyId: media.capability
+      operation: model-package.manage
+      label: Manage an exact model package
+      definitionState: COORDINATOR_AUTHORED_PDP0_PROPOSAL; owner acceptance pending
+      outcome: >-
+        Define an explicit install, upgrade, migrate, or remove intent for one exact immutable model-package identity,
+        version, digest, and source. This is a product-definition target only: no package acquisition, installation,
+        model execution, provider selection, or production activation is currently admitted. Any later separately
+        admitted operation is limited to that exact package target and declared purpose; unknown required evidence
+        remains a non-success outcome.
+      sourceScope:
+        sourceAuditId: AUD-OPS-021
+        sourcePhrase: Safe install/upgrade/migration and model removal
+        ownerSurfaceProposal: media.surface.recorder-orchestrator
+        ownerScopeApproval: NOT_CLAIMED
+      actorRoles: [operator, administrator]
+      actorBindingState: proposed-canonical-actor-refs; owner acceptance pending
+      inputArtifactTypes:
+        - exact-model-package-identity
+        - exact-package-version-and-digest
+        - exact-package-source-reference
+        - requested-action-install-upgrade-migrate-or-remove
+        - declared-purpose
+        - caller-identity-and-operator-or-administrator-authority
+        - exact-installed-package-reference-when-upgrading-migrating-or-removing
+        - exact-source-and-target-package-references-when-migrating
+      outputArtifactTypes:
+        - exact-model-package-action-outcome
+        - package-action-blocker-or-uncertainty
+      preconditions:
+        - Every request names the exact immutable package identity, version, digest, and source; upgrade, migration, and
+          removal also name the exact installed package version being changed.
+        - The caller has explicit operator or administrator authority for the declared purpose and requested action.
+        - Rights, license, integrity, security, locality, compatibility, and exact machine/checkpoint qualification
+          evidence required for the exact action is current and known before that action is eligible to proceed.
+        - Migration identifies both exact package endpoints; no migration mapping or compatibility is inferred.
+      supportedParameters: P0 defines the action meaning and required exact references only. Package identity, version,
+        digest, source, migration, and result schemas are a PDP-1 data-contract handoff. No package, provider, model,
+        machine/checkpoint qualification, or active profile is selected or admitted by this definition.
+      actionSemantics:
+        install: The definition describes only an explicit request for the named package version and digest from the
+          declared source. Package acquisition remains NOT_ADMITTED until an exact package source, rights/license,
+          security, locality, machine/checkpoint qualification, and owner admission record exists. No automatic
+          download, substitute source, default model, or default provider is implied.
+        upgrade: An explicit upgrade targets the exact installed package and exact replacement version, digest, and
+          source. It does not mutate existing media, projects, or derived artifacts, and it does not silently switch
+          the active profile.
+        migrate: An explicit migration names the exact installed source package/version and exact destination
+          package/version/digest/source. It requires a known compatible migration path, does not mutate existing media,
+          projects, or derived artifacts, and does not silently switch the active profile.
+        remove: An explicit removal targets only the exact named package/version/digest/source and preserves user media,
+          projects, and derived artifacts. Active dependencies block removal; an unresolved removal is reported as
+          BLOCKED, PARTIAL, or UNKNOWN, never as success.
+      constraints:
+        - An omitted, mutable, ambiguous, mismatched, or unknown package identity, version, digest, or source does not
+          authorize substituting another package or provider.
+        - Unknown or denied rights, license, integrity, security, locality, compatibility, or machine/checkpoint
+          qualification evidence blocks the requested action; missing evidence is not permission.
+        - Upgrade and migration do not alter existing media, projects, or derived artifacts and never silently change
+          the active profile.
+        - Removal cannot delete any package other than the exact requested package and cannot delete user media,
+          projects, or derived artifacts.
+        - Active dependencies or unresolved removal cannot be represented as completed or successful.
+        - A missing or failed model is UNAVAILABLE or UNKNOWN; it cannot become synthetic success or an unauthorized
+          cloud/provider fallback.
+        - P0 defines no rollback, recovery guarantee, package availability, or runtime behavior.
+        - This definition does not override reuse-decisions.yaml#notAdmittedByThisRecord; package acquisition and
+          execution remain NOT_ADMITTED until that policy is changed by a separately authorized, source-current decision.
+      actionStateReferences:
+        action: install-upgrade-migrate-remove-exact-model-package
+        stateCoverage: [not-admitted, completed, blocked, partial, outcome-unknown]
+        stateModelBindingState: no-persistent-package-lifecycle-model-is-asserted-by-this-proposal
+        stateModelRefs: []
+      requiredAuthority:
+        - identity-and-tenant-context
+        - explicit-operator-or-administrator-authority-for-declared-purpose
+        - exact-package-scope-and-action-permission
+        - package-source-rights-and-license-evidence
+        - integrity-security-locality-and-compatibility-evidence
+      rightsPrivacyImplications:
+        - The source and license for each exact package are explicit; package presence never establishes license or
+          deployment permission.
+        - Locality, residency, security, and egress policy apply to the exact package source and destination.
+        - An unknown required rights or policy input blocks the action without source or provider substitution.
+      qualityFidelityContract: The definition identifies only the requested package and action. It makes no claim that a
+        model is available, qualified, safe, compatible, installed, or usable in a runtime.
+      cancellationRetryReconciliation: P0 makes no rollback, retry, or finality guarantee. If a later implementation
+        cannot resolve whether the exact action completed, it must preserve UNKNOWN or PARTIAL rather than report
+        success; reconciliation semantics are a PDP-1 and Build handoff.
+      executionResourceRequirements: No execution or resource behavior is defined or admitted by this proposal.
+      provenance:
+        - Bind each request and any later outcome to exact package identity, version, digest, source, action, purpose,
+          and caller authority.
+        - Do not infer package rights, integrity, runtime support, active-profile selection, or action completion from
+          package names, presence, or an unresolved result.
+      ghatanaReuseDisposition: Reuse Ghatana runtime/provider governance where an admitted public contract fits. This
+        definition selects no provider, package registry, model, download mechanism, or runtime dependency; no source
+        package or production execution is admitted.
+      externalDependencies: []
+      requirementIds: [MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE]
+      acceptanceCases:
+        - given: An authorized operator or administrator requests installation of one exact package identity, version,
+            digest, and declared source for an explicit purpose, with all required evidence known.
+          when: The install action is evaluated under a separately admitted implementation.
+          then: Only that exact target may be obtained from that source; no automatic download, default model, default
+            provider, substitution, or silent activation is permitted.
+          id: AUD-OPS-021-CAP-AC-01
+        - given: An authorized operator or administrator requests an upgrade or migration using exact installed and
+            destination package identities, versions, digests, sources, purpose, and known compatibility evidence.
+          when: The requested action is evaluated under a separately admitted implementation.
+          then: The action remains bound to those exact package references, preserves existing media, projects, and
+            derived artifacts, and does not silently switch the active profile.
+          id: AUD-OPS-021-CAP-AC-02
+        - given: An authorized operator or administrator requests removal of an exact package/version/digest/source.
+          when: The package has an active dependency or removal cannot be resolved conclusively.
+          then: Report BLOCKED, PARTIAL, or UNKNOWN, preserve user media, projects, and derived artifacts, and never
+            represent the removal as success.
+          id: AUD-OPS-021-CAP-AC-03
+        - given: Identity, version, digest, source, purpose, authority, rights, license, integrity, security, locality,
+            compatibility, or exact machine/checkpoint qualification evidence is absent, denied, stale, or unknown.
+          when: Any package action is evaluated.
+          then: Block the action or return its explicit non-success state without substitution, partial authorization,
+            or a success claim.
+          id: AUD-OPS-021-CAP-AC-04
+        - given: The named model is missing, failed, unqualified for the exact machine/checkpoint, or has unknown
+            status; no exact fallback target has a separate current authorization.
+          when: Readiness is evaluated for an operation that depends on that model.
+          then: Preserve UNAVAILABLE or UNKNOWN and never report synthetic success or route to an unauthorized
+            cloud/provider model.
+          id: AUD-OPS-021-CAP-AC-05
+      priorityDisposition: PENDING_OWNER_DISPOSITION; source audit does not assign product priority
+      adoptionModeProposal: ADOPT_GHATANA_RUNTIME_PROVIDER_GOVERNANCE
+      adoptionDecision:
+        state: OWNER_DECISION_PENDING
+        currentPolicyBoundaryRef: .product-experience/pdp-0-product-truth/reuse-decisions.yaml#notAdmittedByThisRecord
+        selectedProvider: NONE
+        selectedModelOrPackage: NONE
+        runtimeAdmission: NOT_ADMITTED
+        effect: The imported adoption mode is preserved as a proposal; no provider governance or package operation is newly admitted.
+      qualificationDimensions:
+        - exact-package-identity-version-digest-and-source
+        - action-specific-authority-and-purpose
+        - rights-license-integrity-security-locality-compatibility-and-exact-machine-checkpoint-qualification
+        - missing-or-failed-model-remains-unavailable-or-unknown-without-synthetic-success-or-cloud-fallback
+        - upgrade-migration-profile-and-media-preservation
+        - removal-dependency-and-unknown-outcome-handling
+      proposedApplicableChannels: [cli]
+      channelDispositionState: single-channel-PDP0-scope-proposal; owner review pending; no runtime admission
+      policyBoundary:
+        currentPolicyRef: .product-experience/pdp-0-product-truth/reuse-decisions.yaml#notAdmittedByThisRecord
+        scope: This PDP-0 definition does not override current non-admission. Package acquisition, installation,
+          model execution, provider selection, and production activation remain NOT_ADMITTED until a separate
+          authorized source decision admits exact inputs and controls.
+        effect: definition-only; no change to runtime admission or reuse policy
+      explicitUnsupportedCases:
+        - Automatic package download or source substitution.
+        - Default model, default provider, or silent active-profile change.
+        - Upgrade or migration that mutates existing media, projects, or derived artifacts.
+        - Removal of a non-exact package or successful removal with active dependencies or unresolved finality.
+        - A rollback, recovery, runtime availability, or qualification guarantee.
+        - Any claim that package presence proves machine/checkpoint qualification or model availability.
+      supportDimensions:
+        implementationState: UNKNOWN
+        licenseAdmissionState: UNKNOWN
+        qualificationState: NOT_EVALUATED
+        runtimeAvailability: UNKNOWN
+        observationRule: Definition-only proposal; no source observation promotes support.
+      actorRefs: [media.operator, media.administrator]
+      responsibilityRoleRefs: [media.role.operator, media.role.administrator]
+      unresolvedActorRoleLabels: []
+      pendingActorRoleAppointments: []
+      intentRefs: [media.intent.audit-ops-021-model-package-manage]
+      outcomeRefs: [media.goal.resolve-safely]
+      coverageDisposition: PROPOSED_CAPABILITY_INTENT; owner acceptance pending
+      coverageDecisionRef: NOT_CLAIMED
+      coverageRationale: The feature-specific source audit AUD-OPS-021 is defined here as a coordinator-authored PDP-0
+        target meaning. It preserves current non-admission of package acquisition and execution, includes exact
+        machine/checkpoint/license and no-synthetic-success boundaries, and does not assert owner approval,
+        independent acceptance, runtime support, or a completed channel journey.
+      intentBindingState: coordinator-authored-PDP0-proposal; owner acceptance pending
+      stateModelRefs: []
+      stateModelBindingState: no-persistent-package-lifecycle-model-is-asserted-by-this-proposal
+      requirementTraceState: exact-proposal-trace; owner acceptance pending
+      semanticReferenceScope: media.capability.model-package.manage.pdp0-proposal.v1
+      stateModelBindings: []
+      unresolvedStateModelBindings: []
+      journeyRefs: []
+    requirementDefinition:
+      id: MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE
+      scopeStatus: COORDINATOR_AUTHORED_PDP0_PROPOSAL; owner acceptance pending
+      statement: Model-package install, upgrade, migrate, and remove intents are bound to one exact immutable package
+        identity, version, digest, and source, with an explicit purpose and operator or administrator authority.
+        Before an action can be eligible, required rights, license, integrity, security, locality, compatibility, and
+        exact machine/checkpoint qualification evidence must be current and known. Missing or failed models remain
+        UNAVAILABLE or UNKNOWN without synthetic success or unauthorized cloud/provider fallback. Package operations
+        do not mutate existing media, projects, or derived artifacts, silently switch the active profile, or report
+        unresolved removal as success; acquisition and execution remain NOT_ADMITTED by current policy.
+      rationale: AUD-OPS-021 identifies safe model-package installation, upgrade, migration, and removal. This proposal
+        defines exact product meaning while leaving package data/version contracts, journeys, implementation, and
+        qualification to their owning phases.
+      source:
+        auditFeature: Safe install/upgrade/migration and model removal
+        sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-021
+        sourceTextRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-021
+      capabilityIds: [media.capability.model-package.manage]
+      kind: functional
+      priority: pending-owner-disposition
+      priorityDisposition: The source audit does not establish product priority; owner decision remains pending.
+      traceToIntentIds: [media.intent.audit-ops-021-model-package-manage]
+      relatedOutcomeRefs: [media.goal.resolve-safely]
+      intentTraceState: coordinator-authored-exact-PDP0-proposal; owner acceptance pending
+      actorRoles: [operator, administrator]
+      actorBindingState: references-proposed-canonical-actor-and-responsibility-role-IDs; owner acceptance pending
+      preconditions:
+        - The caller is authorized as an operator or administrator for the declared purpose and exact package action.
+        - Each action names exact immutable package identity, version, digest, source, and target; migration names exact
+          source and destination package references.
+        - All action-required rights, license, integrity, security, locality, compatibility, and exact
+          machine/checkpoint qualification evidence is current and known; otherwise the action is blocked or explicitly
+          unresolved.
+      expectedBehavior: Install, upgrade, migrate, or remove only the package explicitly identified by the caller.
+        Upgrade and migration preserve existing media, projects, and derived artifacts and do not silently switch an
+        active profile. Removal preserves user media, projects, and derived artifacts; active dependencies or
+        unresolved removal return BLOCKED, PARTIAL, or UNKNOWN, not success. P0 provides no rollback or runtime
+        guarantee.
+      importantStates: [not-admitted, completed, blocked, partial, outcome-unknown]
+      stateModelBindingState: explicit-result-states-only; persistent package lifecycle remains a PDP-1 handoff
+      consequences:
+        - No automatic package download, default model/provider, or substitution is implied.
+        - Missing or unknown action evidence does not authorize an effect.
+        - Existing media, projects, and derived artifacts remain outside package mutation scope.
+        - Package-operation completion does not silently activate a profile.
+        - An unresolved or dependency-blocked removal is never reported as successful.
+      failureDegradationRecovery:
+        - Report denied, unavailable, blocked, partial, and unknown evidence or outcomes explicitly.
+        - Preserve UNKNOWN when package identity, source, rights, integrity, locality, compatibility, dependency, or
+          finality evidence is incomplete.
+        - Do not imply rollback, retry, or recovery behavior; those contracts remain downstream work.
+      nonfunctionalRequirements:
+        - least-privilege operator or administrator authority bound to declared purpose
+        - rights, license, security, integrity, locality, and compatibility checks before an effect
+        - preservation of user media, projects, derived artifacts, and active profile selection
+        - explicit blocked, partial, unavailable, and unknown outcomes
+        - auditable exact package identity, version, digest, source, action, and authority
+      acceptanceCases:
+        - id: MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-01
+          given: An authorized operator or administrator requests install, upgrade, or migration for exact package
+            references and a declared purpose with all required evidence known.
+          when: A separately admitted implementation evaluates the request.
+          then: The action is limited to the exact requested package, does not mutate media, projects, or derived
+            artifacts, and does not select a default package/provider or silently switch the active profile.
+          rejection: Reject unspecified or substituted package identity, version, digest, source, purpose, or authority.
+        - id: MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-02
+          given: Removal is requested for an exact package with an active dependency or unresolved outcome.
+          when: The removal is evaluated.
+          then: Return BLOCKED, PARTIAL, or UNKNOWN and preserve user media, projects, and derived artifacts.
+          rejection: Reject reporting unresolved or dependency-blocked removal as success or deleting a different
+            package.
+        - id: MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-03
+          given: Any action-required authority, rights, license, integrity, security, locality, compatibility, or exact
+            machine/checkpoint qualification evidence is missing, denied, unavailable, stale, or unknown.
+          when: The action is evaluated.
+          then: Block or explicitly report the non-success state with no fallback or substitution.
+          rejection: Reject treating absent or unknown evidence as permission or a successful action.
+        - id: MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-04
+          given: A model is missing, failed, unqualified for the exact machine/checkpoint, or has unknown status, and
+            no separately authorized exact fallback is available.
+          when: Readiness is evaluated for an operation that depends on that model.
+          then: Return UNAVAILABLE or UNKNOWN without synthetic success or unauthorized cloud/provider fallback.
+          rejection: Reject converting a missing or failed model into successful output or an implicit provider change.
+      adoptionModeProposal: REUSE_GHATANA_RUNTIME_PROVIDER_GOVERNANCE
+      adoptionDecision:
+        state: OWNER_DECISION_PENDING
+        currentPolicyBoundaryRef: .product-experience/pdp-0-product-truth/reuse-decisions.yaml#notAdmittedByThisRecord
+        selectedProvider: NONE
+        selectedModelOrPackage: NONE
+        runtimeAdmission: NOT_ADMITTED
+        effect: The imported adoption mode remains a proposal; no package acquisition, execution, or provider is admitted.
+      relatedExternalContract: Exact package identity, version, digest, source, migration, dependency, and result data
+        contracts are PDP-1 handoffs and are not defined by this PDP-0 proposal.
+      downstreamMappings:
+        journeys: pending-PDP-3-user-journey-definition-for-the-proposed-CLI-surface
+        viewsAndChannels: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021/channelApplicability;
+          proposal only; owner review pending
+        states: explicit action-result distinctions only; persistent package lifecycle remains a PDP-1 handoff
+        implementation: not-authorized-by-definition; execution and qualification belong to Build/Deliver
+        pdp1DataVersionContract: pending; exact package identity/version/digest/source and migration contracts are not authored here
+        pdp3UserJourney: pending; CLI journeys and interaction details are not authored here
+      ownerAcceptance: NOT_CLAIMED
+    intentDefinition:
+      id: media.intent.audit-ops-021-model-package-manage
+      outcomeRefs: [media.goal.resolve-safely]
+      actorRefs: [media.operator, media.administrator]
+      description: Let an explicitly authorized operator or administrator request a purpose-bound action on one exact
+        model package while preserving media and project data and receiving honest blocked, partial, or unknown states.
+    channelApplicability:
+      authority: user-delegated-PDP0-definition-and-applicability-review; no human owner approval claimed
+      status: SOURCE_DEFINED_DEFINITION_ONLY; cannot satisfy independent acceptance, closure, admission, or runtime support
+      records:
+        - capabilityRef: media.capability.model-package.manage
+          requirementRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021/requirementDefinition
+          sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-021
+          ownerApproval: NOT_CLAIMED
+          independentAcceptance: NOT_CLAIMED
+          applicabilityState: SOURCE_DEFINED_BY_PXD-214; ownerApproval remains NOT_CLAIMED
+          channelApplicability:
+            - channelRef: media.channel.cli
+              disposition: PROPOSED_APPLICABLE
+              rationale: PXD-214 defines this feature only for the source-proposed recorder-orchestrator CLI scope.
+                Applicability is a product-definition boundary, not CLI support, implementation, owner approval, or
+                execution admission.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.recorder-orchestrator]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-client]
+                supportSurfaceRefs: [media.physical.libs-media-experience-simulation]
+                compositeSurfaceRefs:
+                  - media.composition.repository-root
+                  - media.composition.creation-composition-and-delivery
+                  - media.composition.client-and-machine-interfaces
+                applicabilityAuthorityRef: .product-experience/surfaces/media-physical-topology.v1.json
+                applicabilityDecisionRef: .product-experience/decision-log.md#PXD-214
+                physicalAndCompositeApplicability: RESOLVED_BY_EXPLICIT_PDP0_SCOPE_DECISION
+                channelDenominator: 11
+                onlyApplicableChannelRef: media.channel.cli
+                excludedChannelDisposition: OUTSIDE_THIS_FEATURE_SCOPE_BY_EXPLICIT_PDP0_DEFINITION; NOT_A_RUNTIME_NA_OR_SUPPORT_CLAIM
+                excludedSurfaceDisposition: OUTSIDE_THIS_FEATURE_SCOPE_BY_EXPLICIT_PDP0_DEFINITION; NOT_A_RUNTIME_NA_OR_SUPPORT_CLAIM
+                inheritedSupportAndArchivedDisposition: PRESERVE_SOURCE_AUTHORITY
+                ownerApproval: NOT_CLAIMED
+              id: AUD-OPS-021-CHANNEL-CLI
+          implementationState: UNKNOWN
+          qualificationState: NOT_EVALUATED
+          runtimeAvailability: UNKNOWN
+          executionAdmission: NOT_ADMITTED
+          id: AUD-OPS-021-CHANNEL-APPLICABILITY
+    ownerApproval: NOT_CLAIMED
+    independentAcceptance: NOT_CLAIMED
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: AUD-CLONE-006
+    stableFeatureId: media.speech.synthesis.voice-style-profile.design-source-free
+    campaignId: media.pdp0.501-campaign
+    sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-006
+    sourceText: Synthetic voice design without human reference
+    sourceAcceptanceText: A revoked or expired voice grant is denied before inference; no cloning claim appears from Piper/synthetic placeholders and rights remain attached to every output.
+    coordinatorScopeDecision:
+      disposition: INCLUDED_IN_PDP0_CAMPAIGN
+      authority: user's direct delegation for PDP-0 definition coordination
+      effect: Coordinator-authored feature-definition proposal only. This record does not add a canonical owner-adjudicated
+        capability leaf, change the historical 462/469/7 population, claim owner scope approval, or assert implementation,
+        qualification, runtime availability, execution admission, release, or closure.
+      proposedScopeSurfaceRefs: [media.surface.production-studio]
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      executionAdmission: NOT_ADMITTED
+    capabilityFamily:
+      familyId: media.speech.synthesis
+      sourceAuditId: AUD-CLONE-006
+      requirementId: MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN
+    capabilityDefinition:
+      id: media.speech.synthesis.voice-style-profile.design-source-free
+      scopeStatus: PROPOSAL_ONLY; owner disposition pending
+      familyId: media.speech.synthesis
+      operation: voice-style-profile.design-source-free
+      label: Design a source-free synthetic voice style profile
+      definitionState: COORDINATOR_AUTHORED_PDP0_PROPOSAL; owner acceptance pending
+      outcome: Produce a distinct source-free authored synthetic voice-style/profile design result from an explicit
+        style brief without requiring or consuming a human reference. If a separately defined and admitted inference
+        path later realizes a profile or sample, it must pass the applicable rights gate before inference and attach
+        truthful rights/provenance to every output. This definition admits no inference or runtime; it does not create
+        a human speaker identity, clone, identity match, or real-person voice-likeness claim.
+      sourceScope:
+        sourceAuditId: AUD-CLONE-006
+        sourcePhrase: Synthetic voice design without human reference
+        ownerSurfaceProposal: media.surface.production-studio
+        ownerScopeApproval: NOT_CLAIMED
+      actorRoles: [creator, editor]
+      actorBindingState: proposed-canonical-actor-refs; owner acceptance pending
+      inputArtifactTypes:
+        - source-free-voice-style-design-brief
+        - declared-purpose
+        - optional-non-identifying-style-constraints
+        - exact-rights-and-consent-evidence-if-an-identifiable-person-voice-or-likeness-is-requested
+      outputArtifactTypes:
+        - source-free-authored-synthetic-voice-style-profile-design
+        - source-free-design-and-model-rights-provenance
+        - optional-synthetic-voice-output-only-under-a-separately-defined-and-admitted-inference-path
+      preconditions:
+        - The caller supplies a declared creative purpose and a source-free style brief; no human reference or recording
+          is required for this path.
+        - This source-free design path accepts only non-identifying style briefs. A request that targets an identifiable
+          person, voice, or likeness requires exact rights and consent for the subject, requested use, and purpose and
+          remains outside this source-free path even when that evidence is valid.
+        - If exact rights or consent is absent, unknown, expired, or revoked for an identifiable target, block the
+          request; do not return a successful source-free design for that target.
+        - Before any future inference under this feature, evaluate every applicable voice grant, model/checkpoint
+          license, source-use right, purpose, and destination against the exact requested use. A missing, denied,
+          expired, revoked, unavailable, or unknown required grant stops inference before it starts.
+        - If no human voice source is in scope, record that no human reference or voice grant was used; this does not
+          waive model/checkpoint license, provider, privacy, locality, or output-use controls.
+      supportedParameters: P0 defines a source-free style brief, declared purpose, conditional pre-inference rights gate,
+        and output provenance meaning only. Profile identity, version, parameter, rights-evidence, and provenance data
+        contracts are PDP-1 handoffs; no provider/model is selected and no inference or audio generation is admitted.
+      designSemantics:
+        referenceRequirement: No human reference or recording is required or consumed by the source-free path.
+        resultKind: Distinct authored synthetic voice-style/profile design; not generated audio or a speaker identity.
+        outputProvenance: source-free-authored-synthetic-design
+        inferenceRightsGate: Before any separately admitted inference, required voice grants and exact
+          model/checkpoint/source rights must be current, active, and purpose/use/destination-scoped; missing, denied,
+          expired, revoked, unavailable, or unknown evidence blocks before inference.
+        rightsOnEveryOutput: Every profile, sample, or other generated output carries its exact source-free status,
+          model/checkpoint identity, applicable licenses/grants, purpose, and use scope. If the applicable rights or
+          provenance cannot be attached and resolved, do not emit the output.
+        placeholderSemantics: Piper or other synthetic/test placeholders are fixtures only; they do not prove a real
+          inference, successful output, human source, clone, identity match, or rights clearance.
+        adoptionModeProposal: ADOPT_QUALIFIED_MODEL_OR_OWN_RIGHTS
+        adoptionDecisionState: OWNER_DECISION_PENDING; no model, provider, license, or runtime is selected
+        forbiddenClaims:
+          - a real person's identity
+          - a cloned or identity-matched speaker
+          - a real-person voice likeness
+          - rights, consent, or reuse clearance
+        identifiableTargetRequest: Requires exact rights and consent for the identified subject, voice or likeness,
+          requested use, and purpose; absent, unknown, expired, or revoked evidence blocks. Even with valid evidence,
+          the target request remains outside this source-free design and requires its own rights-governed definition.
+        speakerIdentityCreated: false
+      constraints:
+        - A source-free design does not require or consume a human voice recording or reference.
+        - Label provenance as source-free authored synthetic design; do not claim a real person, clone, identity match,
+          voice likeness, or reuse/consent clearance.
+        - The source-free design result never creates or assigns a speaker identity.
+        - If the request identifies or targets a person, voice, or likeness, require exact rights and consent for the
+          subject, purpose, and requested use; absent, unknown, expired, or revoked evidence returns BLOCKED or UNKNOWN.
+        - A valid rights check does not make an identifiable-target request eligible for this source-free design or
+          establish a clone, likeness, or cleared reusable voice; any other path requires its own definition and admission.
+        - Any applicable voice grant must be active and exact before future inference; missing, denied, expired,
+          revoked, unavailable, or unknown grant means no inference and an explicit BLOCKED or UNKNOWN result.
+        - Rights and provenance remain attached to every future profile, sample, or generated output; inability to
+          establish or attach them blocks output creation.
+        - Piper and other synthetic/test placeholders cannot be reported as a cloned speaker, source-backed result,
+          successful inference, or rights-cleared output.
+        - P0 does not select a model/provider or claim speech generation, support, availability, audio quality, or execution.
+      actionStateReferences:
+        action: design-source-free-synthetic-voice-style-profile
+        stateCoverage: [not-admitted, design-defined, rights-review-required, blocked, outcome-unknown]
+        stateModelBindingState: no-persistent-speaker-identity-or-profile-lifecycle-is-asserted-by-this-proposal
+        stateModelRefs: []
+      requiredAuthority:
+        - identity-and-tenant-context
+        - declared-purpose-and-voice-profile-design-permission
+        - exact-model-checkpoint-license-and-source-use-rights-before-any-inference
+        - current-active-purpose-and-use-scoped-voice-grant-before-inference-when-a-human-voice-right-is-applicable
+        - exact-rights-and-consent-for-identifiable-person-voice-or-likeness-use-when-requested
+      rightsPrivacyImplications:
+        - A source-free design does not establish that a real person's identity, voice, or likeness may be used.
+        - Exact rights and consent are required when an identifiable person, voice, or likeness is requested; missing,
+          unknown, expired, or revoked evidence blocks that request.
+        - The profile design does not itself grant recording, training, inference, reuse, publication, or identity rights.
+        - Each future output carries its applicable rights and source/model provenance; no output is eligible when
+          required provenance or rights cannot be attached or resolved.
+      qualityFidelityContract: A profile design records authored style intent only; it is not a measured voice, speaker
+        match, generated-audio result, pronunciation guarantee, or provider-quality claim.
+      cancellationRetryReconciliation: P0 admits no generation, inference, retry, or finality behavior. A future
+        rights-gated inference must preserve BLOCKED or UNKNOWN before starting when required rights are absent or
+        unresolved; an unknown outcome is never represented as successful output.
+      executionResourceRequirements: No inference or other execution is admitted. A later inference definition must
+        identify the exact qualified model/checkpoint, rights, resource and machine constraints before use.
+      provenance:
+        - Every design result identifies its origin as source-free authored synthetic design.
+        - Do not fabricate a human source, source lineage, speaker identity, likeness, or rights/consent clearance.
+        - Every output from any future admitted inference binds the exact model/checkpoint, source-use rights, license,
+          active grant where applicable, declared purpose, and permitted use; provenance absence blocks output.
+        - Piper or synthetic/test placeholders are labeled as fixtures and cannot be used as proof of cloning, voice
+          identity, successful inference, or rights clearance.
+      ghatanaReuseDisposition: The imported adoption proposal is ADOPT_QUALIFIED_MODEL_OR_OWN_RIGHTS. Owner disposition
+        is pending; this proposal selects no voice model/provider or generation dependency and admits no execution.
+      externalDependencies: []
+      requirementIds: [MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN]
+      acceptanceCases:
+        - given: A creator or editor provides a source-free style brief and declared purpose without an identifiable
+            person, voice, likeness, or human recording.
+          when: The design request is evaluated under a separately admitted implementation.
+          then: Define a distinct synthetic voice-style/profile design with source-free-authored-synthetic-design
+            provenance, without creating a speaker identity or claiming generated speech, a clone, likeness, or
+            rights/consent clearance.
+          id: AUD-CLONE-006-CAP-AC-01
+        - given: A request uses a human recording or requires a human reference to match or identify a speaker.
+          when: The source-free design path is selected.
+          then: Do not accept the request as source-free and do not emit a clone, identity-match, or likeness claim.
+          id: AUD-CLONE-006-CAP-AC-02
+        - given: A request targets an identifiable person, voice, or likeness and exact rights or consent for the
+            subject, requested use, and purpose is absent, unknown, expired, or revoked.
+          when: The request is evaluated.
+          then: Return BLOCKED or UNKNOWN and no successful source-free result for that target.
+          id: AUD-CLONE-006-CAP-AC-03
+        - given: Rights evidence is valid for an identifiable target.
+          when: The source-free design request is evaluated.
+          then: Keep the target request outside this source-free capability and require a separate rights-governed
+            definition; do not emit a source-free result or claim cloning, speaker identity, voice likeness, reuse
+            clearance, audio generation, or runtime support.
+          id: AUD-CLONE-006-CAP-AC-04
+        - given: A future inference request has a required voice grant that is missing, denied, unavailable, unknown,
+            expired, or revoked, or whose scope excludes the subject, purpose, use, or destination.
+          when: The inference gate is evaluated.
+          then: Return BLOCKED or UNKNOWN before inference begins; do not call a provider or create an output.
+          id: AUD-CLONE-006-CAP-AC-05
+        - given: A Piper or other synthetic/test placeholder is available without a verified authorized inference result.
+          when: The result is reviewed or attached to a voice-design output.
+          then: Label it only as a fixture; do not claim a clone, human identity, successful inference, source, or rights clearance.
+          id: AUD-CLONE-006-CAP-AC-06
+        - given: A future authorized inference creates a profile, sample, or other output.
+          when: The output is produced or registered.
+          then: Attach exact model/checkpoint, source-free or source-derived status, applicable license/grant, purpose,
+            and use-scope provenance to that output; if binding fails, emit no output and preserve BLOCKED or UNKNOWN.
+          id: AUD-CLONE-006-CAP-AC-07
+      priorityDisposition: PENDING_OWNER_DISPOSITION; source audit does not assign product priority
+      adoptionModeProposal: ADOPT_QUALIFIED_MODEL_OR_OWN_RIGHTS
+      adoptionDecision:
+        state: OWNER_DECISION_PENDING
+        selectedProvider: NONE
+        selectedModelOrCheckpoint: NONE
+        runtimeAdmission: NOT_ADMITTED
+        effect: The source adoption alternatives remain unresolved; no provider, model, license, or inference path is admitted.
+      qualificationDimensions:
+        - source-free-authored-design-provenance
+        - no-human-reference-or-speaker-identity
+        - exact-pre-inference-grant-model-checkpoint-license-and-purpose-validation
+        - denied-expired-revoked-unavailable-and-unknown-grant-blocks-before-inference
+        - rights-and-provenance-attached-to-every-output
+        - Piper-and-synthetic-placeholders-never-prove-cloning-or-success
+        - exact-rights-and-consent-for-identifiable-targets
+        - separation-from-human-reference-cloning-and-identity-matching
+      proposedApplicableChannels: [web]
+      channelDispositionState: single-channel-PDP0-scope-proposal; owner review pending; no runtime admission
+      explicitUnsupportedCases:
+        - Human-reference cloning, identity matching, or voice conversion under the source-free design meaning.
+        - A real-person, clone, voice-likeness, or reuse/consent-clearance claim from a source-free design result.
+        - A successful identifiable-target request without exact current rights and consent.
+        - Any inference without its current applicable grant, model/checkpoint license, source-use rights, purpose, and use scope.
+        - Any output without its complete applicable rights and provenance binding.
+        - Treating Piper or synthetic/test placeholders as a clone or successful inference.
+        - A speaker identity, generated audio, or inference result from profile design without a separately defined and admitted path.
+      supportDimensions:
+        implementationState: UNKNOWN
+        licenseAdmissionState: UNKNOWN
+        qualificationState: NOT_EVALUATED
+        runtimeAvailability: UNKNOWN
+        observationRule: Definition-only proposal; no source observation promotes support.
+      actorRefs: [media.creator, media.editor]
+      responsibilityRoleRefs: [media.role.creator, media.role.editor]
+      unresolvedActorRoleLabels: []
+      pendingActorRoleAppointments: []
+      intentRefs: [media.intent.audit-clone-006-source-free-voice-design]
+      outcomeRefs: [media.goal.finished-asset]
+      coverageDisposition: PROPOSED_CAPABILITY_INTENT; owner acceptance pending
+      coverageDecisionRef: NOT_CLAIMED
+      coverageRationale: The feature-specific source audit AUD-CLONE-006 is defined here only as a coordinator-authored
+        PDP-0 proposal for review; it does not claim owner scope approval, independent acceptance, a human source, or a
+        completed user journey.
+      intentBindingState: coordinator-authored-PDP0-proposal; owner acceptance pending
+      stateModelRefs: []
+      stateModelBindingState: no-persistent-speaker-identity-or-profile-lifecycle-is-asserted-by-this-proposal
+      requirementTraceState: exact-proposal-trace; owner acceptance pending
+      semanticReferenceScope: media.speech.synthesis.voice-style-profile.design-source-free.pdp0-proposal.v1
+      stateModelBindings: []
+      unresolvedStateModelBindings: []
+      journeyRefs: []
+    requirementDefinition:
+      id: MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN
+      scopeStatus: COORDINATOR_AUTHORED_PDP0_PROPOSAL; owner acceptance pending
+      statement: A source-free synthetic voice-design request produces a distinct voice-style/profile design without
+        requiring or consuming a human reference or recording. Before any separately defined inference, every
+        applicable voice grant, exact model/checkpoint license, source-use right, purpose, and destination must be
+        current and authorized; a missing, denied, unavailable, unknown, expired, or revoked required grant blocks
+        before inference. Every resulting profile, sample, or other output carries its exact rights and provenance;
+        incomplete bindings produce no output. Piper and synthetic/test placeholders never prove a clone, identity,
+        successful inference, or rights clearance. This definition admits no model or inference. Identifiable-person,
+        voice, or likeness requests remain outside this source-free proposal and require their own rights-governed definition.
+      rationale: AUD-CLONE-006 identifies synthetic voice design without a human reference. This proposal separates
+        authored style/profile design from human-source cloning, identity matching, likeness, and audio generation.
+      source:
+        auditFeature: Synthetic voice design without human reference
+        sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-006
+        sourceTextRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-006
+      capabilityIds: [media.speech.synthesis.voice-style-profile.design-source-free]
+      kind: functional
+      priority: pending-owner-disposition
+      priorityDisposition: The source audit does not establish product priority; owner decision remains pending.
+      traceToIntentIds: [media.intent.audit-clone-006-source-free-voice-design]
+      relatedOutcomeRefs: [media.goal.finished-asset]
+      intentTraceState: coordinator-authored-exact-PDP0-proposal; owner acceptance pending
+      actorRoles: [creator, editor]
+      actorBindingState: references-proposed-canonical-actor-and-responsibility-role-IDs; owner acceptance pending
+      preconditions:
+        - The caller declares a creative purpose and supplies a source-free style brief; no human reference or recording
+          is needed for this path.
+        - Before any future inference, all applicable rights grants and exact model/checkpoint/source-use license,
+          purpose, and destination evidence must be current and known; missing, denied, unavailable, unknown, expired,
+          or revoked required evidence blocks before inference.
+        - An identifiable-person, voice, or likeness target requires exact rights and consent for the subject, requested
+          use, and purpose; absent, unknown, expired, or revoked evidence blocks the target request, and valid evidence
+          still leaves it outside this source-free proposal.
+      expectedBehavior: Define a distinct source-free synthetic voice-style/profile design. Any future inference is
+        blocked before it starts when an applicable grant or model/checkpoint/source-use right is missing, denied,
+        unavailable, unknown, expired, or revoked. Attach applicable rights and exact provenance to every resulting
+        profile, sample, or other output; if binding fails, emit no output. Piper and synthetic/test placeholders are
+        fixtures only and do not prove a clone or successful inference. Do not create speaker identity or claim a real
+        person, clone, identity match, voice likeness, reuse/consent clearance, or provider support. Identifiable-target
+        requests require exact rights but remain outside this source-free proposal.
+      importantStates: [source-free-design-defined, rights-review-required, blocked, unsupported, outcome-unknown]
+      stateModelBindingState: explicit-result-states-only; profile data and version lifecycle remain a PDP-1 handoff
+      consequences:
+        - No human reference or recording is required or consumed for source-free style/profile design.
+        - Provenance describes a source-free authored synthetic design, not a human-source or cloned voice.
+        - A profile design does not create speaker identity or establish rights or reuse clearance.
+        - Identifiable-person, voice, or likeness targeting is gated by exact rights and consent and remains outside
+          this source-free proposal even when rights evidence is valid.
+      failureDegradationRecovery:
+        - Report missing, denied, expired, revoked, unavailable, or unknown rights evidence explicitly.
+        - Preserve BLOCKED or UNKNOWN for an identifiable target when exact rights or consent cannot be established.
+        - Do not convert an unsupported, identity-targeted, or unresolved request into source-free success.
+      nonfunctionalRequirements:
+        - source-free provenance without fabricated human lineage
+        - pre-inference exact rights, voice grant, model/checkpoint license, purpose, and destination checks
+        - applicable rights/provenance binding on every profile, sample, and other output
+        - no inference before current applicable rights are established
+        - Piper and synthetic/test placeholders cannot evidence a clone, identity, or successful inference
+        - no speaker identity or human-source claim from profile design
+        - explicit blocked, unsupported, unavailable, and unknown outcomes
+        - separation from speech generation, cloning, and provider qualification
+      acceptanceCases:
+        - id: MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-01
+          given: A creator or editor requests a profile design from a non-identifying style brief and declared purpose
+            without a human recording or reference.
+          when: The design is evaluated.
+          then: Return a distinct source-free authored synthetic style/profile design with truthful provenance and no
+            speaker identity, clone, likeness, or reuse-clearance claim.
+          rejection: Reject fabricating a human source, claiming identity or likeness, or representing the design as
+            generated audio.
+        - id: MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-02
+          given: The request targets an identifiable person, voice, or likeness, whether exact rights and consent are
+            missing, unknown, expired, revoked, or valid.
+          when: The request is evaluated.
+          then: Require exact rights and consent for the subject, requested use, and purpose; block or preserve UNKNOWN
+            if evidence is absent, unknown, expired, or revoked, and do not emit a source-free result for the target.
+          rejection: Reject treating any evidence as clearance for this source-free path or producing a target result.
+        - id: MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-03
+          given: A request includes a human reference, recording, identity match, cloning, or voice conversion.
+          when: It is submitted to the source-free design capability.
+          then: Keep that request outside the source-free design meaning and do not claim identity, clone, likeness, or
+            successful source-free output.
+          rejection: Reject a human-reference or identity-targeted request represented as source-free.
+        - id: MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-04
+          given: A future inference requires a voice grant or model/checkpoint/source-use right that is missing, denied,
+            unavailable, unknown, expired, revoked, or out of scope for the requested purpose or destination.
+          when: The pre-inference rights gate is evaluated.
+          then: Block before inference begins and preserve BLOCKED or UNKNOWN; do not call a provider or create output.
+          rejection: Reject inference with absent, stale, revoked, expired, or unresolved required rights.
+        - id: MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-05
+          given: A Piper or other synthetic/test placeholder is presented as voice evidence or output.
+          when: It is reviewed or attached to a voice-design result.
+          then: Treat it only as a labeled fixture and do not infer a human source, clone, identity, successful inference,
+            or rights clearance.
+          rejection: Reject a placeholder as proof of cloning, identity, authorized inference, or success.
+        - id: MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-06
+          given: A future separately admitted inference creates a profile, sample, or other output.
+          when: The output is produced or registered.
+          then: Bind the exact model/checkpoint, source-free/source-derived status, applicable license/grant, purpose,
+            and use scope to that output; if rights or provenance cannot be bound, emit no output and preserve
+            BLOCKED or UNKNOWN.
+          rejection: Reject any output missing exact applicable rights or provenance.
+      relatedExternalContract: Voice profile design identity, version, provenance, and rights evidence contracts are
+        PDP-1 handoffs and are not defined by this PDP-0 proposal.
+      downstreamMappings:
+        journeys: pending-PDP-3-user-journey-definition-for-the-proposed-production-studio-surface
+        viewsAndChannels: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-CLONE-006/channelApplicability;
+          proposal only; owner review pending
+        states: explicit design and rights-result distinctions only; persistent profile lifecycle remains a PDP-1 handoff
+        implementation: not-authorized-by-definition; execution and qualification belong to Build/Deliver
+        pdp1DataVersionContract: pending; profile identity/version/provenance and rights-evidence contracts are not authored here
+        pdp3UserJourney: pending; production-studio journeys and interaction details are not authored here
+      ownerAcceptance: NOT_CLAIMED
+    intentDefinition:
+      id: media.intent.audit-clone-006-source-free-voice-design
+      outcomeRefs: [media.goal.finished-asset]
+      actorRefs: [media.creator, media.editor]
+      description: Let creators and editors define a source-free synthetic voice style/profile without a human
+        reference or recording, while keeping the result distinct from a speaker identity, clone, likeness, or
+        generated speech.
+    channelApplicability:
+      authority: coordinator-authored-PDP0-definition-and-applicability-review; ownerApproval remains NOT_CLAIMED
+      status: SOURCE_DEFINED_DEFINITION_ONLY; cannot satisfy owner approval, independent acceptance, closure, admission, or runtime support
+      records:
+        - capabilityRef: media.speech.synthesis.voice-style-profile.design-source-free
+          requirementRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-CLONE-006/requirementDefinition
+          sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-006
+          ownerApproval: NOT_CLAIMED
+          independentAcceptance: NOT_CLAIMED
+          applicabilityState: SOURCE_DEFINED_BY_PXD-214; ownerApproval remains NOT_CLAIMED
+          channelApplicability:
+            - channelRef: media.channel.web
+              disposition: PROPOSED_APPLICABLE
+              rationale: The source audit proposes media.surface.production-studio. PDP-0 defines only this proposed
+                web consumer scope; source topology binds it to the UI physical leaf and its parent compositions.
+                This is a definition boundary and claims no implementation, support, or owner approval.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.production-studio]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-ui]
+                compositeSurfaceRefs:
+                  - media.composition.repository-root
+                  - media.composition.client-and-machine-interfaces
+                  - media.composition.creation-composition-and-delivery
+                applicabilityAuthorityRef: .product-experience/surfaces/media-physical-topology.v1.json
+                applicabilityDecisionRef: .product-experience/decision-log.md#PXD-214
+                physicalAndCompositeApplicability: RESOLVED_BY_EXPLICIT_PDP0_SCOPE_DEFINITION
+                channelDenominator: 11
+                onlyApplicableChannelRef: media.channel.web
+                excludedChannelDisposition: OUTSIDE_THIS_FEATURE_SCOPE_BY_EXPLICIT_PDP0_DEFINITION; NOT_A_RUNTIME_NA_OR_SUPPORT_CLAIM
+                excludedSurfaceDisposition: OUTSIDE_THIS_FEATURE_SCOPE_BY_EXPLICIT_PDP0_DEFINITION; NOT_A_RUNTIME_NA_OR_SUPPORT_CLAIM
+                inheritedSupportAndArchivedDisposition: PRESERVE_SOURCE_AUTHORITY
+                ownerApproval: NOT_CLAIMED
+              id: AUD-CLONE-006-CHANNEL-WEB
+          implementationState: UNKNOWN
+          qualificationState: NOT_EVALUATED
+          runtimeAvailability: UNKNOWN
+          executionAdmission: NOT_ADMITTED
+          id: AUD-CLONE-006-CHANNEL-APPLICABILITY
+    ownerApproval: NOT_CLAIMED
+    independentAcceptance: NOT_CLAIMED
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED

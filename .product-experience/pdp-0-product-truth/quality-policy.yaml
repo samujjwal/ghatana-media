@@ -1350,3 +1350,205 @@ ownerNormativeRuleRecords:
   - id: media.quality.enhancement-selection.v1
     ruleRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#ownerEnhancementSelectionRule
     sourceRole: owner-defined enhancement selection; measurement and qualification remain unevaluated
+
+ownerQualityApplicabilityCrosswalkExtensions:
+  schemaVersion: media.pdp0.quality-applicability-extension.v1
+  status: SOURCE_OWNER_DEFINED_NOT_YET_CURRENT
+  sourceChoiceRef: ../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-quality-applicability-root-choice-r01.json
+  sourceChoiceSha256: f26831abe430b0f48b5f00e1fcde0ceca4ed70f6dcb109eecf8577d078589228
+  historicalBaseRows: 462
+  currentExtensionRows: 1
+  currentPopulationRows: 463
+  futureExtensionRows: 6
+  totalDefinitionExtensions: 7
+  totalSourceCapabilityDefinitions: 469
+  futureCapabilityRefs:
+    - media.project.scene.patch-merge
+    - media.quality.audio.content-similarity.assess
+    - media.generate.video.preset.manage
+    - media.generate.video.shot-condition
+    - media.job.schedule.manage
+    - media.master.audio.creative-effect.apply
+  dimensionCount: 6
+  metricCount: 16
+  measurementState: NOT_EVALUATED
+  qualificationState: NOT_EVALUATED
+  acceptanceEffect: none
+  records:
+    - id: media.quality-applicability-extension.media-recipe-specification-compile.v1
+      capabilityRef: media.recipe.specification.compile
+      applicableModalities: []
+      dimensionApplicability:
+        QUALITY-DIM-STRUCTURAL-VALIDITY: NOT_APPLICABLE
+        QUALITY-DIM-PERCEPTUAL: NOT_APPLICABLE
+        QUALITY-DIM-INTENT-FIDELITY: NOT_APPLICABLE
+        QUALITY-DIM-DOMAIN-SCIENTIFIC: NOT_APPLICABLE
+        QUALITY-DIM-RIGHTS-SAFETY: APPLICABLE
+        QUALITY-DIM-DELIVERY-COMPATIBILITY: NOT_APPLICABLE
+      metricApplicability:
+        QUALITY-METRIC-IMAGE-DEFECTS:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates:
+            - An exact authorized, aligned image reference value must be present at evaluation; otherwise NOT_EVALUATED.
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes:
+            - optional-authorized-image-or-multiview-references
+            - optional-authorized-reference-artifacts
+        QUALITY-METRIC-IMAGE-IDENTITY:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates:
+            - An exact authorized identity reference and comparison purpose must be present; otherwise NOT_EVALUATED.
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes:
+            - optional-authorized-image-or-multiview-references
+            - optional-authorized-reference-artifacts
+        QUALITY-METRIC-IMAGE-PERCEPTUAL:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-VIDEO-CONTINUITY:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-VIDEO-IDENTITY-OBJECT-GEOMETRY:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates:
+            - Exact frame/geometry reference and an authorized identity comparison are required; otherwise NOT_EVALUATED.
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes:
+            - video-or-frame-reference
+        QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates:
+            - A typed video signal linked to the exact simulation state/model input and corresponding MediaRun observation, a qualified domain method, and in-range validity evidence are required for video physical-plausibility; without a typed video signal this metric is NOT_APPLICABLE, and missing method/evidence remains NOT_EVALUATED.
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-VIDEO-LIP-AV-SYNC:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates:
+            - Exact aligned audio and video subject versions and a declared synchronization reference are required; otherwise NOT_EVALUATED.
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes:
+            - timestamped-audio-video-or-caption-artifacts
+        QUALITY-METRIC-VIDEO-ENCODING:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-AUDIO-DEFECTS:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-AUDIO-SEPARATION-LEAKAGE:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates:
+            - An exact target stem and authorized source/reference version are required; otherwise NOT_EVALUATED.
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes:
+            - authorized-audio-artifactId-and-immutable-version
+            - exact-audio-artifactId-and-versionId
+            - optional-authorized-reference-artifacts
+        QUALITY-METRIC-AUDIO-SPECTRAL-PHASE:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-AUDIO-NATURALNESS:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates: []
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes: []
+        QUALITY-METRIC-AUDIO-SPEAKER-SIMILARITY:
+          status: NOT_APPLICABLE
+          reasonCode: NO_EXACT_MEDIA_SUBJECT_IN_REQUIRED_DIRECTION
+          measurementState: NOT_EVALUATED
+          qualificationState: NOT_EVALUATED
+          conditionalPredicates:
+            - An exact authorized identity reference and comparison purpose are required; otherwise NOT_EVALUATED.
+          subjectInputArtifactTypes: []
+          subjectOutputArtifactTypes: []
+          requiredReferenceArtifactTypes:
+            - authorized-audio-artifactId-and-immutable-version
+            - exact-audio-artifactId-and-versionId
+            - optional-authorized-reference-artifacts
+      measurementState: NOT_EVALUATED
+      qualificationState: NOT_EVALUATED
+      acceptanceEffect: none

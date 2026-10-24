@@ -1,0 +1,276 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r02.root-application-plan.v1",
+  "planKind": "READ_ONLY_EXACT_ROOT_APPLICATION_PACKAGE",
+  "planDisposition": "BLOCKED_AWAITING_EXACT_H_PIN_CURRENTNESS_AND_AUTHORITY_RECORDS",
+  "profileId": "media.pdp0.root-selected-source-integration.r9-r02.source-owner.v1",
+  "candidateBundle": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.successor-bundle.candidate.v1.json",
+    "sha256": "7e9b4643ea2231eda8fdb3eb91e3c3eede96f0a3d658052b09e5bb75c551a6ec"
+  },
+  "freezeManifest": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.freeze.v1.json",
+    "sha256": "a828f8ebe54e9854d9d5dd1d3d22f5b61c636056584713b3977e626db3fbedab"
+  },
+  "verification": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.rebuild-verification.v1.json",
+    "sha256": "41049756e999a9783bf09e6a7000a09dda7550725ddb3b488dd0687049a90f10",
+    "status": "R9_EXACT_REBUILD_PASS_CANDIDATE_ONLY"
+  },
+  "operationLedger": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
+    "sha256": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8",
+    "operationCount": 122,
+    "counts": {
+      "retainedProjectionOperations": 248,
+      "predecessorR8Operations": 113,
+      "r9RepairOperations": 9,
+      "totalSelectedOperations": 122,
+      "r9DefinitionRepairs": 1,
+      "capabilityCaseRepairs": 4,
+      "parentCaseRepairs": 4,
+      "ownerAdjudicationMutations": 0,
+      "trustReconstructionMutations": 0,
+      "historicalOwnerRowsPreserved": 462
+    },
+    "allowedKinds": [
+      "ADD_CAPABILITY_DEFINITION",
+      "APPEND_REQUIREMENT_CASE",
+      "APPEND_REQUIREMENT_CAPABILITY_BINDING",
+      "PATCH_CROSSWALK_TRACE",
+      "REVISE_CAPABILITY_OWNER_DEFINITION",
+      "REVISE_ACCEPTANCE_CASE_TEXT"
+    ]
+  },
+  "operationSchema": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.allowed-operations.schema.candidate.v1.json",
+    "sha256": "619548ce011fee7b1825817170dacb0782f1597278559813fbbc9b82ab59b066"
+  },
+  "repairMap": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.h-r01-repair-map.v1.json",
+    "sha256": "532bdc11938c356bde97b8c08bf7e7236280ee86a190045e9dc900867841607a"
+  },
+  "actualHReview": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.independent-peer.actual-h-r02.json",
+    "sha256": "b9c93569b8711030195f6003de7494ee8a359cdba50f2f88b2f55cfb1eecacc2",
+    "reviewStatus": "PASS_SCOPED_SOURCE_SEMANTIC_REVIEW",
+    "reviewerIdentity": "01a16a6c-d506-7a73-801a-609c602a12e9",
+    "reviewedFreezeSha256": "a828f8ebe54e9854d9d5dd1d3d22f5b61c636056584713b3977e626db3fbedab"
+  },
+  "pdp0Status": {
+    "status": "IN_PROGRESS",
+    "sourceRecordCount": {
+      "capabilityLeafAdjudications": 462,
+      "requirementGroups": 38,
+      "intents": 19,
+      "journeys": 30,
+      "profileBoundCapabilityLeaves": 462,
+      "qualityDimensions": 6,
+      "qualityMetricDefinitions": 16,
+      "qualityApplicabilityLeaves": 462,
+      "channelApplicabilityLeaves": 462,
+      "featureReviewDimensions": 15,
+      "featureReviewCapabilityLeaves": 462,
+      "masterPlanClaims": 129,
+      "constitutionalRequirements": 32
+    },
+    "outstandingMeaningIds": 0
+  },
+  "current7Preimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "expectedSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      "actualSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      "matches": true
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "expectedSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "actualSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "matches": true
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "expectedSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      "actualSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      "matches": true
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "expectedSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "matches": true
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "expectedSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+      "actualSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+      "matches": true
+    },
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "expectedSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "actualSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "matches": true
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "expectedSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+      "actualSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+      "matches": true
+    }
+  ],
+  "writeTargets": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.capabilities.postimage.yaml",
+      "postimageSha256": "59746d493ab1bd0ebee93e3b1b7efd594689cb5cfa42abf222c04a863988a133",
+      "preimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.requirements.postimage.yaml",
+      "postimageSha256": "80c54dd68c30199feeaf84e7e6550ffb52ae5a0f082a5f0c9b65b7d1c7783fe2",
+      "preimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.capability-leaf-review.postimage.yaml",
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "preimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.pdp0-501-disposition-crosswalk.postimage.json",
+      "postimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672",
+      "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+    }
+  ],
+  "readOnlyGuards": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "expectedSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+      "actualSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+      "matches": true
+    },
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "expectedSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "actualSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+      "matches": true
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "expectedSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+      "actualSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+      "matches": true
+    }
+  ],
+  "targets": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.capabilities.postimage.yaml",
+      "postimageSha256": "59746d493ab1bd0ebee93e3b1b7efd594689cb5cfa42abf222c04a863988a133"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.requirements.postimage.yaml",
+      "postimageSha256": "80c54dd68c30199feeaf84e7e6550ffb52ae5a0f082a5f0c9b65b7d1c7783fe2"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "preimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.capability-leaf-review.postimage.yaml",
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.pdp0-501-disposition-crosswalk.postimage.json",
+      "postimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+    }
+  ],
+  "recordSchemas": {
+    "owner": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.source-owner-decision.schema.r1.json",
+      "sha256": "9ffe2fc7eee169a4310bc2722a939b2acd29b2da61d8734cda53c6da0605ffbc"
+    },
+    "root": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.root-adoption-decision.schema.r1.json",
+      "sha256": "6366fae7844c60e6ceec4cd27415829786246f8ca50eb65350f695b8e7f355ff"
+    },
+    "registration": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.operation-profile-registration.schema.v1.json",
+      "sha256": "c29e60125a9518f80a5ba440de9e916e9967e83de92d697b804e495108fbaf78"
+    },
+    "apply": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.apply-authorization.schema.r1.json",
+      "sha256": "ac3354f32622226d54ce15754717eab5ad73c93838ec3e06c40e9f00e5a5e3dc"
+    }
+  },
+  "authorityRegistry": {
+    "ref": ".product-experience/authority-map.yaml",
+    "pdp0SemanticOwnerRole": "media-product",
+    "pdp0PhaseOwner": "ghatana-media-product-owners"
+  },
+  "decisionInputs": {
+    "sourceOwnerDecision": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.source-owner-decision.r1.json",
+      "status": "NOT_SET"
+    },
+    "rootAdoptionDecision": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.root-adoption-decision.r1.json",
+      "status": "NOT_SET"
+    },
+    "profileRegistration": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.operation-profile-registration.r1.json",
+      "status": "NOT_SET"
+    },
+    "applyAuthorization": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.apply-authorization.r1.json",
+      "status": "NOT_SET"
+    }
+  },
+  "blockers": [
+    "PDP0_DISCOVERY_BARRIER_FAIL_CURRENTNESS_RECONCILIATION_REQUIRED",
+    "PDP0_PHASE_STATUS_IN_PROGRESS_NOT_DEV_COMPLETE",
+    "EXACT_SOURCE_OWNER_DECISION_NOT_RECORDED",
+    "EXACT_ROOT_ADOPTION_DECISION_NOT_RECORDED",
+    "EXACT_OPERATION_PROFILE_REGISTRATION_NOT_RECORDED",
+    "DISTINCT_EXACT_INPUT_APPLY_AUTHORIZATION_NOT_RECORDED"
+  ],
+  "transitionOrder": [
+    {
+      "step": 1,
+      "owner": "actual PDP-0 source owner",
+      "action": "Review the exact candidate and independently verified R02 record, then record or decline adoption using the candidate schema."
+    },
+    {
+      "step": 2,
+      "owner": "actual PDP-0 root authority",
+      "action": "Record a separate exact R9-R02 split adoption decision bound to the source-owner record and H review."
+    },
+    {
+      "step": 3,
+      "owner": "PDP-0 source authority registry",
+      "action": "Register this immutable R9-R02 operation profile against the owner and root records; the candidate schemas alone do not register it."
+    },
+    {
+      "step": 4,
+      "owner": "distinct apply authority",
+      "action": "Authorize only the exact four targets and seven preimages after currentness and all authority pins validate."
+    },
+    {
+      "step": 5,
+      "owner": "guarded source writer",
+      "action": "Revalidate under the existing CAS lock, snapshot all four preimages immutably, journal each rename, and verify exact readback."
+    }
+  ],
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE",
+  "independentAcceptance": "NOT_CLAIMED",
+  "nativeClosure": "NOT_CLAIMED",
+  "historicalOwnerRowsPreserved": 462,
+  "retainedProjectionOperationCount": 248
+}

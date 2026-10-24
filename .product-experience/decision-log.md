@@ -2886,3 +2886,31 @@ currentness record is
 independent acceptance, implementation verification, runtime admission,
 qualification, phase closure, or Delivery readiness is claimed. This
 currentness repair does not assert PDP-0 `DEV_COMPLETE` by itself.
+
+### PXD-226 — Select the AUD-SPEC-002 schema-migration extension for the current PDP-0 version
+
+**Authority:** This bounded PDP-0 source-owner decision follows the user-delegated technical source-owner authority recorded in ghatana-lifecycle:docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-version-population-root-decision.json (SHA-256 `384026c46cd5dbdcc092daa213a68e00e8502a5b38626a65600c26be2b4f05a1`). It is a source-definition disposition only; it is not independent acceptance or an external product-owner decision.
+
+**Decision:** Supersede PXD-220 only for `media.recipe.specification.compile`. Retain its existing compilation meaning and add the explicitly bounded schema-migration candidate meaning in this source cycle. The other six PXD-220/PXD-221 extensions remain future-version proposals.
+
+**Current meaning:** Ordinary compilation continues to require its normalized semantic graph and reviewable project-plan candidate; it does not require or emit a migration candidate. For an explicitly selected schema-migration intent with exact versioned source specification/schema, exact requested target schema, exact declared supported transformation, and exact compiler-contract version, produce the reviewable version-bound migration candidate and semantic diff alongside the ordinary compile output. Preserve the original source. Bind source, target, transformation, compiler-contract identities and versions, method, provenance, and limits. This is a reviewable specification candidate, not an applied migration or media artifact.
+
+**Fail-closed cases:** Missing, stale, unsupported, lossy, ambiguous, or unknown inputs produce UNKNOWN/UNSUPPORTED or a typed rejection with no migration candidate. Do not infer or substitute schemas or transformations, apply a migration, mutate a project, submit a job, publish content, or cause an external effect.
+
+**Population and preservation:** Keep the 462 historical owner-adjudication and trust records unchanged and in order. Track the current version as a typed 462 historical base plus this one current extension (463 total); track the remaining six extension identities as future proposals (six); retain all seven extension identities and all 469 source capability definitions. The new extension receives separate owner-adjudication and trust rows; it is not inserted into either historical 462-row array. PXD-207 continues to own the exact channel/surface applicability decision.
+
+**Applicability and downstream limits:** The capability is definition-current for this proposed version only. Quality applicability is UNKNOWN pending a separate source-bound quality review; the historical 462-leaf quality review is not extended by this decision. The historical PDP-1 operation/handoff population remains 462; this decision does not create a PDP-1 operation contract, interface binding, implementation, runtime admission, or proof. No applicability, quality, P1, currentness, phase status, owner acceptance, independent acceptance, native closure, release, or runtime outcome may be inferred beyond the exact source rows proposed here.
+
+**Effect:** Source authoring and deterministic local validation only. Canonical source apply remains pending exact review and authorization. PDP-0 status is unchanged; independent acceptance and native proof are not claimed.
+
+### PXD-227 — Extend compile quality applicability from the exact source rules
+
+**Predecessor:** PXD-226 remains the historical decision for the schema-migration source extension. This section supersedes only PXD-226's statement that quality applicability is unknown for media.recipe.specification.compile; it does not change the rest of PXD-226 or any historical quality row.
+
+**Source basis:** Use the source-derived technical choice ../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-quality-applicability-root-choice-r01.json (SHA-256 f26831abe430b0f48b5f00e1fcde0ceca4ed70f6dcb109eecf8577d078589228). The prior technical review docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-v7-quality-extension-independent-peer.v2.json (SHA-256 fe1f0d98b7835f12a9aa7e31b511854ae0996e3242ed5866874b4d1cc7381db1) evaluated the V7 source candidate and V1 quality extension docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json (SHA-256 98e156dc880564b81b2525b756fc7b45318d5aeeb413fcc2ca43797304f51df3). This source successor updates only the extension record's lifecycle status and adds this decision section; it requires its own distinct technical review before adoption. Its exact quality-policy postimage is docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-policy-extension-postimage.v2.yaml (SHA-256 39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84).
+
+**Applicability:** Add one source-owned current quality-applicability extension row for media.recipe.specification.compile. Preserve all 462 existing owner-quality rows byte-for-byte and in order; the extension yields 463 current rows and retains six future-version proposals. Rights/safety is applicable. The other five quality dimensions and all sixteen metrics are not applicable under the selected exact typed rules.
+
+**Limits:** This applicability decision defines no measurement method, threshold, qualification, acceptance, runtime admission, or phase-status change. Measurement and qualification remain not evaluated; acceptance effect is none. It does not alter PDP-1 or any later phase.
+
+**Effect:** If adopted, this section and the exact quality-policy extension are source-definition changes only. Canonical source apply remains pending a distinct source-owner decision, exact apply authorization, and the repository's guarded two-target CAS. Independent acceptance and native proof are not claimed.

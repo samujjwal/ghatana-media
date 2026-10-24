@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "media.pdp0.aud-spec-002-quality-applicability-options-freeze.v1",
+  "status": "SOURCE_BOUND_OPTIONS_PENDING_ROOT_CHOICE",
+  "recordRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-applicability-options.v1.json",
+  "recordSha256": "8f9ddb76bd05628b81a3400910378fef210c17cf99e414ef38870a5b1e7e476a",
+  "schemaRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-applicability-options.v1.schema.json",
+  "schemaSha256": "c5fe1100255fa9bff28b5ccf1e16f15184b5a8c6d4a63f3c5d5ea0a63c73f749",
+  "sourcePins": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+    "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json": "efbfe052755dfe3af7fcf7ef82736d66d0a03c484feebb48f5880a954566abb8",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v6-freeze-manifest.v1.json": "89982f72fe43c5b4d2dd4ee39e1064c1fcdd3ecf909de5e9c2852946bdc44826",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capabilities-file-postimage.v6.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+  },
+  "criteria": {
+    "dimensions": [
+      "QUALITY-DIM-STRUCTURAL-VALIDITY",
+      "QUALITY-DIM-PERCEPTUAL",
+      "QUALITY-DIM-INTENT-FIDELITY",
+      "QUALITY-DIM-DOMAIN-SCIENTIFIC",
+      "QUALITY-DIM-RIGHTS-SAFETY",
+      "QUALITY-DIM-DELIVERY-COMPATIBILITY"
+    ],
+    "metrics": [
+      "QUALITY-METRIC-IMAGE-DEFECTS",
+      "QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE",
+      "QUALITY-METRIC-IMAGE-IDENTITY",
+      "QUALITY-METRIC-IMAGE-PERCEPTUAL",
+      "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS",
+      "QUALITY-METRIC-VIDEO-CONTINUITY",
+      "QUALITY-METRIC-VIDEO-IDENTITY-OBJECT-GEOMETRY",
+      "QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY",
+      "QUALITY-METRIC-VIDEO-LIP-AV-SYNC",
+      "QUALITY-METRIC-VIDEO-ENCODING",
+      "QUALITY-METRIC-AUDIO-DEFECTS",
+      "QUALITY-METRIC-AUDIO-SEPARATION-LEAKAGE",
+      "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE",
+      "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+      "QUALITY-METRIC-AUDIO-NATURALNESS",
+      "QUALITY-METRIC-AUDIO-SPEAKER-SIMILARITY"
+    ]
+  },
+  "decisionsSelected": 0,
+  "qualityMeaningDecisionRef": null,
+  "canonicalQualitySourceChanged": false,
+  "measurement": "NOT_EVALUATED",
+  "qualification": "NOT_EVALUATED"
+}

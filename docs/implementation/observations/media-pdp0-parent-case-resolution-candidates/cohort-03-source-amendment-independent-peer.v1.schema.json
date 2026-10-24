@@ -1,0 +1,631 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana.media.pdp0.parent-case-resolution-source-amendment-peer.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactId",
+    "reviewStatus",
+    "reviewKind",
+    "reviewer",
+    "campaign",
+    "sourceBaseline",
+    "auditFindings",
+    "rows",
+    "sourceAmendmentBoundary",
+    "excludedFromThisVerdict",
+    "nonClaims"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "ghatana.media.pdp0.parent-case-resolution-source-amendment-peer.v1"
+    },
+    "artifactId": {
+      "const": "MEDIA-PDP0-P0-07-COHORT-03-SOURCE-AMENDMENT-INDEPENDENT-PEER-2026-10-23"
+    },
+    "reviewStatus": {
+      "const": "TECHNICAL_PEER_REVIEW_ONLY_REQUEST_CHANGES"
+    },
+    "reviewKind": {
+      "const": "INDEPENDENT_TECHNICAL_REVIEW_OF_COHORT_03_SOURCE_AMENDMENT_PROPOSALS"
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role",
+        "independentHumanReviewer",
+        "credentialedAttestation"
+      ],
+      "properties": {
+        "identity": {
+          "const": "agent:/root/phase_io"
+        },
+        "role": {
+          "const": "DISTINCT_TECHNICAL_PEER"
+        },
+        "independentHumanReviewer": {
+          "const": false
+        },
+        "credentialedAttestation": {
+          "const": false
+        }
+      }
+    },
+    "campaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "macroStage",
+        "exactPhase",
+        "campaignDenominator",
+        "cohortOrdinal",
+        "cohortDenominator",
+        "selectedProposalRows"
+      ],
+      "properties": {
+        "macroStage": {
+          "const": "DISCOVERY"
+        },
+        "exactPhase": {
+          "const": "PDP-0 Product Truth / P0-07"
+        },
+        "campaignDenominator": {
+          "type": "object",
+          "required": [
+            "physical",
+            "compositionsIncludingRoot",
+            "logical",
+            "total"
+          ],
+          "properties": {
+            "physical": {
+              "const": 26
+            },
+            "compositionsIncludingRoot": {
+              "const": 7
+            },
+            "logical": {
+              "const": 21
+            },
+            "total": {
+              "const": 54
+            }
+          }
+        },
+        "cohortOrdinal": {
+          "const": 3
+        },
+        "cohortDenominator": {
+          "const": 77
+        },
+        "selectedProposalRows": {
+          "const": 20
+        }
+      }
+    },
+    "sourceBaseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposalRef",
+        "proposalSha256",
+        "cohortR2Ref",
+        "cohortR2Sha256",
+        "cohortR2PeerRef",
+        "cohortR2PeerSha256",
+        "sourceFingerprints",
+        "assignmentManifestRef",
+        "assignmentManifestSha256",
+        "actualR2MissingDefinitionIds",
+        "exactProposalMembership",
+        "liveSourceMismatches"
+      ],
+      "properties": {
+        "proposalRef": {
+          "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r1.json"
+        },
+        "proposalSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "cohortR2Ref": {
+          "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.json"
+        },
+        "cohortR2Sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "cohortR2PeerRef": {
+          "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.independent-peer.json"
+        },
+        "cohortR2PeerSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sourceFingerprints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r1.json",
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.json",
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.independent-peer.json",
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
+            "docs/implementation/observations/media-pdp0-p0-07-parent-case-residual-classification-2026-10-23.json",
+            "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            ".product-experience/pdp-0-product-truth/requirements.yaml",
+            ".product-experience/authority-map.yaml",
+            "docs/implementation/pdp-0-phase-dev-status.json"
+          ],
+          "properties": {
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r1.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.r2.independent-peer.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "docs/implementation/observations/media-pdp0-p0-07-parent-case-residual-classification-2026-10-23.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            ".product-experience/pdp-0-product-truth/requirements.yaml": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            ".product-experience/authority-map.yaml": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "docs/implementation/pdp-0-phase-dev-status.json": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        "assignmentManifestRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assignmentManifestSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "actualR2MissingDefinitionIds": {
+          "type": "array",
+          "minItems": 20,
+          "maxItems": 20,
+          "items": {
+            "enum": [
+              "AUD-OPS-001",
+              "AUD-OPS-002",
+              "AUD-OPS-003",
+              "AUD-OPS-006",
+              "AUD-OPS-017",
+              "AUD-OPS-019",
+              "AUD-QA-006",
+              "AUD-QA-011",
+              "AUD-QA-012",
+              "AUD-SOCIAL-011",
+              "AUD-SPEC-005",
+              "AUD-TRUST-005",
+              "AUD-TRUST-006",
+              "AUD-TRUST-010",
+              "AUD-TRUST-014",
+              "AUD-TRUST-015",
+              "AUD-TRUST-018",
+              "AUD-TTS-001",
+              "AUD-TTS-002",
+              "AUD-TTS-010"
+            ]
+          }
+        },
+        "exactProposalMembership": {
+          "type": "array",
+          "minItems": 20,
+          "maxItems": 20,
+          "items": {
+            "enum": [
+              "AUD-OPS-001",
+              "AUD-OPS-002",
+              "AUD-OPS-003",
+              "AUD-OPS-006",
+              "AUD-OPS-017",
+              "AUD-OPS-019",
+              "AUD-QA-006",
+              "AUD-QA-011",
+              "AUD-QA-012",
+              "AUD-SOCIAL-011",
+              "AUD-SPEC-005",
+              "AUD-TRUST-005",
+              "AUD-TRUST-006",
+              "AUD-TRUST-010",
+              "AUD-TRUST-014",
+              "AUD-TRUST-015",
+              "AUD-TRUST-018",
+              "AUD-TTS-001",
+              "AUD-TTS-002",
+              "AUD-TTS-010"
+            ]
+          }
+        },
+        "liveSourceMismatches": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    },
+    "auditFindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowCount",
+        "technicalDispositionCounts"
+      ],
+      "properties": {
+        "rowCount": {
+          "const": 20
+        },
+        "technicalDispositionCounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "TECHNICAL_PASS",
+            "REQUEST_CHANGES",
+            "UNKNOWN"
+          ],
+          "properties": {
+            "TECHNICAL_PASS": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "REQUEST_CHANGES": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "UNKNOWN": {
+              "const": 0
+            }
+          }
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "findingId",
+          "ordinal",
+          "auditId",
+          "criterionId",
+          "technicalDisposition",
+          "canonicalOwnerDisposition",
+          "originalFeature",
+          "proposedMeaning",
+          "proposedAcceptanceCriterion",
+          "exactCurrentCapabilityRefs",
+          "candidateCapabilityRefs",
+          "candidateRequirementRefs",
+          "candidateAcceptanceCaseRefs",
+          "sourceEvidenceRefs",
+          "priorR2PeerDisposition",
+          "priorR2PeerFindingId",
+          "rationale",
+          "ownerReviewConditions",
+          "nonClaims"
+        ],
+        "properties": {
+          "findingId": {
+            "type": "string",
+            "pattern": "^MEDIA-PDP0-P0-07-C03-SOURCE-PEER-[0-9]{2}$"
+          },
+          "ordinal": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "auditId": {
+            "enum": [
+              "AUD-OPS-001",
+              "AUD-OPS-002",
+              "AUD-OPS-003",
+              "AUD-OPS-006",
+              "AUD-OPS-017",
+              "AUD-OPS-019",
+              "AUD-QA-006",
+              "AUD-QA-011",
+              "AUD-QA-012",
+              "AUD-SOCIAL-011",
+              "AUD-SPEC-005",
+              "AUD-TRUST-005",
+              "AUD-TRUST-006",
+              "AUD-TRUST-010",
+              "AUD-TRUST-014",
+              "AUD-TRUST-015",
+              "AUD-TRUST-018",
+              "AUD-TTS-001",
+              "AUD-TTS-002",
+              "AUD-TTS-010"
+            ]
+          },
+          "criterionId": {
+            "const": "P0-07"
+          },
+          "technicalDisposition": {
+            "enum": [
+              "TECHNICAL_PASS",
+              "REQUEST_CHANGES"
+            ]
+          },
+          "canonicalOwnerDisposition": {
+            "const": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION"
+          },
+          "originalFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "text",
+              "acceptanceText",
+              "sourceRef"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "acceptanceText": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sourceRef": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "proposedMeaning": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "input",
+              "trigger",
+              "positiveOutcome",
+              "failureAndNegativeBehavior",
+              "authorityBoundary"
+            ],
+            "properties": {
+              "input": {
+                "type": "string",
+                "minLength": 1
+              },
+              "trigger": {
+                "type": "string",
+                "minLength": 1
+              },
+              "positiveOutcome": {
+                "type": "string",
+                "minLength": 1
+              },
+              "failureAndNegativeBehavior": {
+                "type": "string",
+                "minLength": 1
+              },
+              "authorityBoundary": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "proposedAcceptanceCriterion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "exactCurrentCapabilityRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "candidateCapabilityRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "candidateRequirementRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "candidateAcceptanceCaseRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "sourceEvidenceRefs": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "priorR2PeerDisposition": {
+            "enum": [
+              "PASS",
+              "REQUEST_CHANGES",
+              "UNKNOWN"
+            ]
+          },
+          "priorR2PeerFindingId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerReviewConditions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "nonClaims": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "sourceAmendmentBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acceptedForTechnicalUse",
+        "requiresChanges",
+        "canonicalOwnerDisposition",
+        "phaseStatusEffect",
+        "noSourceApply"
+      ],
+      "properties": {
+        "acceptedForTechnicalUse": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "AUD-OPS-001",
+              "AUD-OPS-002",
+              "AUD-OPS-003",
+              "AUD-OPS-006",
+              "AUD-OPS-017",
+              "AUD-OPS-019",
+              "AUD-QA-006",
+              "AUD-QA-011",
+              "AUD-QA-012",
+              "AUD-SOCIAL-011",
+              "AUD-SPEC-005",
+              "AUD-TRUST-005",
+              "AUD-TRUST-006",
+              "AUD-TRUST-010",
+              "AUD-TRUST-014",
+              "AUD-TRUST-015",
+              "AUD-TRUST-018",
+              "AUD-TTS-001",
+              "AUD-TTS-002",
+              "AUD-TTS-010"
+            ]
+          }
+        },
+        "requiresChanges": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "AUD-OPS-001",
+              "AUD-OPS-002",
+              "AUD-OPS-003",
+              "AUD-OPS-006",
+              "AUD-OPS-017",
+              "AUD-OPS-019",
+              "AUD-QA-006",
+              "AUD-QA-011",
+              "AUD-QA-012",
+              "AUD-SOCIAL-011",
+              "AUD-SPEC-005",
+              "AUD-TRUST-005",
+              "AUD-TRUST-006",
+              "AUD-TRUST-010",
+              "AUD-TRUST-014",
+              "AUD-TRUST-015",
+              "AUD-TRUST-018",
+              "AUD-TTS-001",
+              "AUD-TTS-002",
+              "AUD-TTS-010"
+            ]
+          }
+        },
+        "canonicalOwnerDisposition": {
+          "const": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "noSourceApply": {
+          "const": true
+        }
+      }
+    },
+    "excludedFromThisVerdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "auditIds",
+        "reason",
+        "relatedV4PeerRef"
+      ],
+      "properties": {
+        "auditIds": {
+          "const": [
+            "AUD-SPEC-002"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relatedV4PeerRef": {
+          "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v4.json"
+        }
+      }
+    },
+    "nonClaims": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

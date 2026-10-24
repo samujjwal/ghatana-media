@@ -2,79 +2,79 @@ TAP version 13
 # Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
 ok 1 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
   ---
-  duration_ms: 9257.108291
+  duration_ms: 12330.787708
   type: 'test'
   ...
 # Subtest: same-count substitution, duplicates and stale binding projections are rejected
 ok 2 - same-count substitution, duplicates and stale binding projections are rejected
   ---
-  duration_ms: 1.141125
+  duration_ms: 1.707958
   type: 'test'
   ...
 # Subtest: P0-02 reconciles supportedParameters with each P0 parameter schema and typed inputs
 ok 3 - P0-02 reconciles supportedParameters with each P0 parameter schema and typed inputs
   ---
-  duration_ms: 161.575625
+  duration_ms: 125.6985
   type: 'test'
   ...
 # Subtest: P0 input and output meaning has no dependency on downstream operation or wire-schema bindings
 ok 4 - P0 input and output meaning has no dependency on downstream operation or wire-schema bindings
   ---
-  duration_ms: 10.131542
+  duration_ms: 18.527125
   type: 'test'
   ...
 # Subtest: every declared NFR has one complete owner measurement method without implying observation or acceptance
 ok 5 - every declared NFR has one complete owner measurement method without implying observation or acceptance
   ---
-  duration_ms: 9846.208208
+  duration_ms: 13480.772542
   type: 'test'
   ...
 # Subtest: performance method binds all six proposed budgets while preserving unnamed environments as a gate
 ok 6 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
   ---
-  duration_ms: 0.406583
+  duration_ms: 0.408459
   type: 'test'
   ...
 # Subtest: missing method material and attempted qualification promotion fail validation
 ok 7 - missing method material and attempted qualification promotion fail validation
   ---
-  duration_ms: 1.082916
+  duration_ms: 4.870625
   type: 'test'
   ...
 # Subtest: SLO and human/specialist methods remain gated on their real external evidence
 ok 8 - SLO and human/specialist methods remain gated on their real external evidence
   ---
-  duration_ms: 0.076209
+  duration_ms: 0.133917
   type: 'test'
   ...
 # Subtest: trustworthy-output applicability follows output-producer role and preserves incomplete candidates
 ok 9 - trustworthy-output applicability follows output-producer role and preserves incomplete candidates
   ---
-  duration_ms: 6153.74025
+  duration_ms: 9381.103209
   type: 'test'
   ...
 # Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
 ok 10 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 84.214334
+  duration_ms: 115.581125
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 11 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 365.136042
+  duration_ms: 493.339875
   type: 'test'
   ...
 # Subtest: P0 bounded asset search retains page and continuation limits with the rights filter
 ok 12 - P0 bounded asset search retains page and continuation limits with the rights filter
   ---
-  duration_ms: 2.34125
+  duration_ms: 6.833084
   type: 'test'
   ...
 # Subtest: P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
 ok 13 - P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
   ---
-  duration_ms: 647.128166
+  duration_ms: 847.024
   type: 'test'
   ...
 1..13
@@ -85,4 +85,4 @@ ok 13 - P0 bounded invocation admission distinguishes inapplicable resources fro
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 10025.950916
+# duration_ms 13763.150459

@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.trust014.recast-profile-registry.schema.candidate.v1",
+  "title": "TRUST014 conditional recast profile registry candidate",
+  "description": "Additive proposal for the adopted registry-entry shape of a closed, versioned, leaf-bound recast profile. This schema is a candidate only; source-owner adoption is required. It defines finite typed decision shapes without choosing recast values, numeric limits, units, or runtime support.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "registryVersion",
+    "profileRefAndVersion",
+    "capabilityBinding",
+    "ownerAuthority",
+    "parameterSchema",
+    "conditionalUse",
+    "resolutionRecord"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.trust014.recast-profile-registry.v1"
+    },
+    "registryVersion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Owner-assigned immutable registry version; no version value is selected by this candidate."
+    },
+    "profileRefAndVersion": {
+      "$ref": "#/$defs/versionedProfileReference"
+    },
+    "capabilityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capabilityIntentId", "familyProfileRef", "boundsRef"],
+      "properties": {
+        "capabilityIntentId": {
+          "const": "media.generate.video.video-to-video"
+        },
+        "familyProfileRef": {
+          "enum": [
+            "media.capability-profile.media-generate-video",
+            "media.capability-profile.media-generate-video.appearance-recast"
+          ],
+          "description": "Must be byte-for-byte identical to profileRefAndVersion.profileRef and the exact target leaf ownerDefinition.familyProfileRef; family-name inference is prohibited."
+        },
+        "boundsRef": {
+          "const": "media.capability-bounds.media-generate-video-video-to-video"
+        }
+      }
+    },
+    "ownerAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["semanticOwnerRole", "namedOwnerStatus", "namedOwnerRef"],
+      "properties": {
+        "semanticOwnerRole": {
+          "const": "media-product"
+        },
+        "namedOwnerStatus": {
+          "const": "OWNER_APPOINTMENT_UNKNOWN"
+        },
+        "namedOwnerRef": {
+          "type": "null",
+          "description": "The authority map identifies the semantic role and owner group, not a currently named individual."
+        }
+      }
+    },
+    "parameterSchema": {
+      "$ref": "#/$defs/closedParameterSchema"
+    },
+    "conditionalUse": {
+      "type": "array",
+      "prefixItems": [
+        {"$ref": "#/$defs/sourceDerivativeCondition"},
+        {"$ref": "#/$defs/identifiablePersonCondition"},
+        {"$ref": "#/$defs/policyApplicabilityUnknownCondition"}
+      ],
+      "minItems": 3,
+      "maxItems": 3,
+      "items": false,
+      "description": "These two conditional rights rules and the explicit unknown-applicability disposition are source-backed; they are not owner-selected defaults."
+    },
+    "resolutionRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestedProfileRefAndVersion",
+        "effectiveProfileRefAndVersion",
+        "capabilityBindingState",
+        "policyAndRightsDecisionRefs",
+        "unknownDisposition"
+      ],
+      "properties": {
+        "requestedProfileRefAndVersion": {
+          "$ref": "#/$defs/versionedProfileReference"
+        },
+        "effectiveProfileRefAndVersion": {
+          "$ref": "#/$defs/versionedProfileReference"
+        },
+        "capabilityBindingState": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Must be resolved through the exact leaf familyProfileRef and boundsRef before admission."
+        },
+        "policyAndRightsDecisionRefs": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "unknownDisposition": {
+          "const": "BLOCK_OR_UNKNOWN_BEFORE_CANDIDATE_CREATION"
+        }
+      }
+    },
+    "policyApplicabilityUnknownCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conditionId", "when", "disposition"],
+      "properties": {
+        "conditionId": {"const": "POLICY_APPLICABILITY_UNKNOWN"},
+        "when": {"const": "Source-use or identifiable-person policy applicability cannot be established from declared inputs and authoritative records."},
+        "disposition": {"const": "HOLD_FOR_ACCOUNTABLE_POLICY_OWNER; DO_NOT_INFER_INAPPLICABLE"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"profileRefAndVersion": {"type": "object", "properties": {"profileRef": {"const": "media.capability-profile.media-generate-video"}}}}},
+      "then": {"properties": {"capabilityBinding": {"type": "object", "properties": {"familyProfileRef": {"const": "media.capability-profile.media-generate-video"}}}}}
+    },
+    {
+      "if": {"properties": {"profileRefAndVersion": {"type": "object", "properties": {"profileRef": {"const": "media.capability-profile.media-generate-video.appearance-recast"}}}}},
+      "then": {"properties": {"capabilityBinding": {"type": "object", "properties": {"familyProfileRef": {"const": "media.capability-profile.media-generate-video.appearance-recast"}}}}}
+    }
+  ],
+  "$defs": {
+    "versionedProfileReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileRef", "version"],
+      "properties": {
+        "profileRef": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1}
+      },
+      "description": "Candidate shape for the source type versioned-profile-reference. The source names this type but does not define a wire encoding; this object encoding therefore requires owner adoption."
+    },
+    "closedParameterSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "additionalProperties", "required", "properties", "emptyDisposition"],
+      "properties": {
+        "type": {"const": "object"},
+        "additionalProperties": {"const": false},
+        "required": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/ownerTypedParameter"}
+        },
+        "emptyDisposition": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required by the current leaf schema convention when no properties are declared."
+        }
+      },
+      "description": "The exact leaf-owned closed parameter schema required by profile-semantics.yaml#capabilityBoundsEnvelope."
+    },
+    "ownerTypedParameter": {
+      "oneOf": [
+        {"$ref": "#/$defs/ownerBoundedNumericParameter"},
+        {"$ref": "#/$defs/ownerFiniteEnumParameter"},
+        {"$ref": "#/$defs/ownerVersionedProfileParameter"}
+      ],
+      "description": "Finite parameter-definition forms for owner-authored recast controls. Parameter names, semantics, units, bounds, and values remain owner decisions."
+    },
+    "ownerBoundedNumericParameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "minimum", "maximum", "unitRef", "meaningRef"],
+      "properties": {
+        "type": {"enum": ["integer", "number"]},
+        "minimum": {"type": "number"},
+        "maximum": {"type": "number"},
+        "unitRef": {"type": "string", "minLength": 1},
+        "meaningRef": {"type": "string", "minLength": 1},
+        "step": {"type": "number", "exclusiveMinimum": 0}
+      },
+      "description": "Owner must supply finite minimum and maximum, canonical unit reference, parameter meaning, and an optional step if the selected parameter requires it. This candidate supplies none of those values."
+    },
+    "ownerFiniteEnumParameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "enum", "meaningRef"],
+      "properties": {
+        "type": {"const": "string"},
+        "enum": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "meaningRef": {"type": "string", "minLength": 1}
+      },
+      "description": "Owner must supply the complete finite allowed-value set and its source meaning. No enum values are selected here."
+    },
+    "ownerVersionedProfileParameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {"const": "versioned-profile-reference"}
+      },
+      "description": "Source-backed typed reference form; the reference shape must be adopted and resolved by the owner."
+    },
+    "sourceDerivativeCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conditionId", "when", "requiredDecisionRef", "unknownDisposition"],
+      "properties": {
+        "conditionId": {"const": "SOURCE_DERIVATIVE"},
+        "when": {"const": "The request consumes or derives from the exact source video."},
+        "requiredDecisionRef": {"const": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03"},
+        "unknownDisposition": {"const": "BLOCK_OR_UNKNOWN_BEFORE_CANDIDATE_CREATION"}
+      }
+    },
+    "identifiablePersonCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conditionId", "when", "requiredDecisionRefs", "unknownDisposition"],
+      "properties": {
+        "conditionId": {"const": "IDENTIFIABLE_PERSON_VOICE_OR_MODEL"},
+        "when": {"const": "The requested recast involves an identifiable person, voice, or model."},
+        "requiredDecisionRefs": {
+          "const": [
+            ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+            ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04"
+          ]
+        },
+        "unknownDisposition": {"const": "BLOCK_OR_UNKNOWN_BEFORE_CANDIDATE_CREATION"}
+      }
+    },
+    "policyApplicabilityUnknownCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conditionId", "when", "disposition"],
+      "properties": {
+        "conditionId": {"const": "POLICY_APPLICABILITY_UNKNOWN"},
+        "when": {"const": "Source-use or identifiable-person policy applicability cannot be established from declared inputs and authoritative records."},
+        "disposition": {"const": "HOLD_FOR_ACCOUNTABLE_POLICY_OWNER; DO_NOT_INFER_INAPPLICABLE"}
+      }
+    }
+  }
+}

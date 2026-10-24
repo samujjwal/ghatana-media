@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "media.pdp0.source-amendment-code-independent-review.v1",
+  "artifactId": "AUD-SPEC-002-V7-SOURCE-CAS-CODE-PEER-REVIEW-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "READ_ONLY_CODE_AND_PLAN_REVIEW",
+  "reviewer": {
+    "identity": "agent:/root/phase_io",
+    "role": "DISTINCT_TECHNICAL_CODE_REVIEWER",
+    "identityAuthenticated": false,
+    "humanReviewer": false,
+    "formalAcceptance": "NOT_CLAIMED",
+    "nativeProof": "NOT_CLAIMED"
+  },
+  "scope": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "reviewed": [
+      "V7 six-file read-only source-amendment planner and CLI",
+      "shared six-file and quality two-target CAS storage paths"
+    ],
+    "canonicalWritePerformed": false
+  },
+  "reviewedBaseline": {
+    "candidate": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json",
+      "sha256": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc"
+    },
+    "manifest": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json",
+      "sha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54"
+    },
+    "rootTechnicalChoice": {
+      "ref": "../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-version-population-root-decision.json",
+      "sha256": "384026c46cd5dbdcc092daa213a68e00e8502a5b38626a65600c26be2b4f05a1",
+      "issuerIdentity": "agent:/root",
+      "decision": "SUPERSEDE_PXD220_FOR_THIS_EXACT_EXTENSION_THROUGH_AN_ADDITIVE_SOURCE_CYCLE"
+    },
+    "correctedDistinctPeer": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v7.json",
+      "sha256": "ec642cd46c008f7dd4172b3ef186ce6c7f9f74eecc8bf6e53168f477c2aee025",
+      "reviewerIdentity": "agent:thread:01a16a35-bbcf-74d2-ac99-1ed74c29c3c9",
+      "sourceOwnerIdentity": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
+      "reviewerAndSourceOwnerDiffer": true,
+      "identityBasis": "Source record explicitly disclaims cryptographic identity proof."
+    },
+    "livePlan": {
+      "command": "node scripts/plan-media-pdp0-source-amendment-cas-v7.mjs --compact",
+      "disposition": "BLOCKED_AWAITING_EXACT_V7_OWNER_PEER_AND_CURRENT_ROOT_GRANT",
+      "blockers": [
+        "EXACT_V7_SOURCE_OWNER_DECISION_REQUIRED",
+        "CURRENT_EXACT_V7_ROOT_GRANT_REQUIRED"
+      ],
+      "candidateAndManifestAndPeerResolved": true,
+      "sourceOwnerDecisionAndApplyAuthorizationPresent": false,
+      "targetCount": 6,
+      "targetOrder": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        ".product-experience/decision-log.md"
+      ]
+    }
+  },
+  "codePins": {
+    "planner": {
+      "path": "scripts/lib/media-pdp0-source-amendment-v7-plan.mjs",
+      "sha256": "da7f4114134f89436218e4b2065a4ab8a37fda246b994d276647c742adc13f5b"
+    },
+    "planCli": {
+      "path": "scripts/plan-media-pdp0-source-amendment-cas-v7.mjs",
+      "sha256": "06ba62053e32882d74dfd71565bb54626a7776649e669a9e38e94a9c7e0909a8"
+    },
+    "sharedCas": {
+      "path": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+      "sha256": "9dfae182b22416fa65553aa8067201d197356e5ac15bb243b303aee85bd36e6e"
+    },
+    "plannerTests": {
+      "path": "tests/media-pdp0-source-amendment-v7-plan.test.mjs",
+      "sha256": "f7e16b51462dfcdeb59e038ba27de447182ae2c9ccf81261c5d86b758c930884"
+    },
+    "casSecurityTests": {
+      "path": "tests/media-pdp0-review-successor-cas-security.test.mjs",
+      "sha256": "7a21896c17e1d0868700a314554ded0a4046379f23875e06b41bfd138abdc8fb"
+    },
+    "qualityAdoptionAdapter": {
+      "path": "scripts/lib/media-pdp0-quality-extension-source-adoption-v2.mjs",
+      "sha256": "9fdc9468c4f305c037b667033c5ab5d58bcdb2d5d470702b246e170823e6714f"
+    },
+    "qualityAdoptionTests": {
+      "path": "tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs",
+      "sha256": "28a4647eafdec060cf57b87248b7f1a96599ded602f2141dbf75f1ab2042cedd"
+    }
+  },
+  "findings": [
+    {
+      "findingId": "AUD-SPEC-002-V7-CAS-AUTHORITY-001",
+      "severity": "P1",
+      "title": "Exported six-file CAS accepts caller-asserted authority hashes without revalidating authority records",
+      "exactWhere": [
+        {
+          "file": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+          "lines": [
+            380,
+            384
+          ]
+        },
+        {
+          "file": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+          "lines": [
+            533,
+            539
+          ]
+        },
+        {
+          "file": "scripts/lib/media-pdp0-quality-extension-source-adoption-v2.mjs",
+          "lines": [
+            163,
+            194
+          ]
+        },
+        {
+          "file": "tests/media-pdp0-review-successor-cas-security.test.mjs",
+          "lines": [
+            119,
+            160
+          ]
+        },
+        {
+          "file": "tests/media-pdp0-review-successor-cas-security.test.mjs",
+          "lines": [
+            655,
+            673
+          ]
+        }
+      ],
+      "evidence": "The read-only V7 planner correctly rebuilds the fixed candidate, resolves the current corrected peer by its exact hash and identity lineage, reads the root technical-choice source binding, and reports missing V7 source-owner decision and apply authorization as blockers. The exported commitValidatedPdp0SourceAmendmentSixFile path does not call that planner or read the fixed owner-decision, peer, or authorization records. It accepts a caller-created READY plan when fixed candidate/hash/target constants match and authority fields are merely 64-hex strings; commitValidatedPdp0SourceAmendment dispatches V7 plans directly to it. The existing security fixture provides synthetic source-owner/peer/apply hashes consisting of repeated c/d/f characters and the publish test confirms the CAS writes all six postimages. For the quality two-target adapter, applyQualityExtensionSourceAdoptionV2 rebuilds the plan but passes planned.peerBytes, planned.ownerDecisionBytes, and planned.applyAuthorizationBytes back into the planner instead of rereading those fixed authority paths; the byte values can be caller-supplied to planQualityExtensionSourceAdoptionV2. This leaves authority freshness and origin at the caller boundary for both exports, although the quality path does bind its current V7 predecessor target bytes. Therefore the CAS storage APIs do not themselves enforce the exact source authority gate, and the V7 path has no integrated apply wrapper.",
+      "repair": "Keep the transaction core private or ensure each canonical apply entrypoint reloads the fixed authority records and rebuilds/validates the complete plan immediately before dispatch, then invokes a non-public transaction function with only verified state. The quality adapter must reload its fixed peer, owner-decision, and apply-authorization records at dispatch rather than reuse caller-supplied cached bytes. Do not treat hash-shaped caller fields or synthetic fixture authority as production authorization. Add regressions proving fabricated, missing, stale, or replaced authority records cannot reach canonical target writes through any exported apply surface.",
+      "acceptanceCriterion": "Production apply is unavailable unless fixed candidate/schema/manifest/root-choice/peer/source-owner decision/apply authorization and every declared source preimage/postimage are freshly verified as the exact approved cut. Tampered or caller-injected authority yields zero canonical writes and no success; journal replay remains observation-only and never redispatches a partial transaction."
+    }
+  ],
+  "positiveChecks": [
+    "The live CLI rejected unsupported caller-plan injection and generated only a non-mutating plan.",
+    "The live planner verified the corrected peer record hash and its successor/prior-record hash lineage; the peer and source-owner identities differ.",
+    "The six-file CAS enforces the exact ordered target set and pinned preimage/postimage hashes, writes immutable preimage snapshots, uses an owner lock and durable journal, records each exact readback, and refuses automatic replay after partial publication.",
+    "The quality two-target storage path is restricted to the decision-log and quality-policy targets and shares the same journal transaction core; its separate adoption wrapper rebuilds its plan before dispatch."
+  ],
+  "testEvidence": {
+    "command": "node --test tests/media-pdp0-source-amendment-v7-plan.test.mjs tests/media-pdp0-review-successor-cas-security.test.mjs",
+    "passed": 26,
+    "failed": 0,
+    "scope": "Focused plan and shared-CAS suite only"
+  },
+  "nonClaims": [
+    "This is a technical code review, not formal source acceptance.",
+    "No source-owner decision or apply authorization is present in the reviewed V7 cut.",
+    "No canonical apply, source-currentness result, PDP status, independent acceptance, native proof, release, or authenticated identity is claimed."
+  ]
+}

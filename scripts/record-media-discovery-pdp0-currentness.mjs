@@ -11,6 +11,8 @@ import {
   isRepositorySourceCurrentness,
 } from '@ghatana/verification-planner';
 import { observeMediaDiscoveryCurrentness, resolveMediaPdp0Cells } from './media-discovery-currentness.mjs';
+import { pdp0PhaseScopedSourcePins } from './report-media-pdp-readiness.mjs';
+import { validateMediaPdp0SourceDevelopmentCurrentCut } from './lib/media-pdp0-source-development-current-cut.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json';
@@ -41,6 +43,11 @@ const pdp0R12SuccessorImpactR3Path = 'docs/implementation/observations/media-dis
 const pdp0R12SuccessorImpactR1Sha256 = 'sha256:e5f837db065f2b6c99e721ee9f748b319266e911de3b21a1e30c055437e18ebe';
 const pdp0R12SuccessorImpactR2Sha256 = 'sha256:7b14877d3103ba63933521c95766114d068d3d450f803ae66e2bc9af422b9d22';
 const lifecycleR12Revision = '7cd80b8a03508f5feb116ee8f6f86b28ac4c8f28';
+const lifecycleR12ObservedRevision = 'bb118bf0c67cd114d9f63d5648e97c38a83ade3f';
+const pdp0CurrentnessTestPredecessorSnapshot = 'docs/implementation/observations/media-discovery-currentness-test-predecessor-snapshot-2026-10-23.mjs';
+const pdp0CurrentnessTestPredecessorSha256 = 'sha256:c9a8dbf034fababa21cacf5d38319c03a1cf7ac242f3140b6982899706288143';
+const pdp0CurrentnessRecorderPredecessorSnapshot = 'docs/implementation/observations/record-media-discovery-pdp0-currentness-predecessor-snapshot-2026-10-23.mjs';
+const pdp0CurrentnessRecorderPredecessorSha256 = 'sha256:652e8d774e2f89478f52be114df6ab969ced82c60b70ccfb330891a084ad4780';
 const lifecycleExplorerCampaignCheck = 'node scripts/generate-lifecycle-explorer-pack.mjs && node scripts/checks/check-explorer-campaign-conformance.mjs';
 const pdp0R11SuccessorSupportPaths = [
   'scripts/record-media-discovery-pdp0-currentness.mjs',
@@ -60,10 +67,19 @@ export function mediaPdp0R11SuccessorSupportFileHashes() {
 const pdp0R12SuccessorSupportPaths = [...pdp0R11SuccessorSupportPaths];
 
 export function mediaPdp0R12SuccessorSupportFileHashes() {
-  return Object.fromEntries(pdp0R12SuccessorSupportPaths.map((relativePath) => [
-    relativePath,
-    hashBytes(fs.readFileSync(path.join(root, relativePath))),
-  ]));
+  return Object.fromEntries(pdp0R12SuccessorSupportPaths.map((relativePath) => {
+    const historicalSnapshots = {
+      'tests/media-discovery-currentness.test.mjs': [pdp0CurrentnessTestPredecessorSnapshot, pdp0CurrentnessTestPredecessorSha256],
+      'scripts/record-media-discovery-pdp0-currentness.mjs': [pdp0CurrentnessRecorderPredecessorSnapshot, pdp0CurrentnessRecorderPredecessorSha256],
+    };
+    if (historicalSnapshots[relativePath]) {
+      const [snapshotPath, expectedSha256] = historicalSnapshots[relativePath];
+      const snapshotBytes = fs.readFileSync(path.join(root, snapshotPath));
+      if (hashBytes(snapshotBytes) !== expectedSha256) throw new Error(`Historical PDP-0 support snapshot is corrupt: ${snapshotPath}`);
+      return [relativePath, expectedSha256];
+    }
+    return [relativePath, hashBytes(fs.readFileSync(path.join(root, relativePath)))];
+  }));
 }
 
 export const mediaPdp0R12SuccessorR2SupportFileHashes = mediaPdp0R12SuccessorSupportFileHashes;
@@ -74,6 +90,15 @@ export function resolveMediaPdp0CurrentnessOutputPath(successorImpactMode = fals
   if (successorSuffix === null || successorSuffix === undefined) return successorOutputPath;
   if (!/^[a-z0-9-]+$/u.test(successorSuffix)) throw new TypeError('Successor suffix must contain lowercase letters, digits, or hyphens');
   return `docs/implementation/observations/media-discovery-pdp0-currentness-${successorSuffix}.json`;
+}
+
+export function resolveMediaPdp0SourceDevelopmentCurrentnessSuffix(recordId, requestedSuffix = null) {
+  const canonicalSuffix = recordId === 'MEDIA-DISCOVERY-PDP0-SOURCE-DEVELOPMENT-CURRENT-CUT-2026-10-23-R1'
+    ? '2026-10-14-current-cut-r16' : null;
+  if (canonicalSuffix && requestedSuffix && requestedSuffix !== canonicalSuffix) {
+    throw new Error(`Source-development record ${recordId} requires canonical output suffix ${canonicalSuffix}`);
+  }
+  return canonicalSuffix ?? requestedSuffix ?? null;
 }
 
 export function resolveMediaPdp0SuccessorCurrentnessSuffix(recordId, requestedSuffix = null) {
@@ -867,7 +892,10 @@ export function classifyMediaPdp0R12SuccessorImpactR3(pinComparisons, record, re
   try {
     const lifecycleRoot = path.resolve(root, externalRoots['ghatana-lifecycle']);
     const oldPackageBytes = execFileSync('git', ['show', `${lifecycleR12Revision}:package.json`], { cwd: lifecycleRoot });
-    const currentPackageBytes = fs.readFileSync(path.join(lifecycleRoot, 'package.json'));
+    // The R3 record is historical. Verify its exact observed package bytes at
+    // the recorded source revision instead of comparing against today's
+    // Lifecycle checkout, which is allowed to advance independently.
+    const currentPackageBytes = execFileSync('git', ['show', `${lifecycleR12ObservedRevision}:package.json`], { cwd: lifecycleRoot });
     const oldPackage = JSON.parse(oldPackageBytes.toString('utf8'));
     const currentPackage = JSON.parse(currentPackageBytes.toString('utf8'));
     const expectedPackage = structuredClone(oldPackage);
@@ -1394,13 +1422,14 @@ export function projectMediaPdp0PinDriftClassifications(classifications, pinComp
   });
 }
 
-export function buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, exactImpactDispositionCurrent) {
+export function buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, exactImpactDispositionCurrent, sourceDevelopmentCutCurrent = false) {
   const pdp0Exit = sourceCurrent
-    ? exactImpactDispositionCurrent ? 'PASS_INTERNAL_IMPACT_DISPOSITION_ONLY' : 'BLOCKED_PENDING_OWNER_ACCEPTANCE'
+    ? sourceDevelopmentCutCurrent ? 'PASS_CURRENT_SOURCE_DEVELOPMENT_CUT_ONLY'
+      : exactImpactDispositionCurrent ? 'PASS_INTERNAL_IMPACT_DISPOSITION_ONLY' : 'BLOCKED_PENDING_OWNER_ACCEPTANCE'
     : 'FAIL_SOURCE_CURRENTNESS';
   const discoveryBarrier = !sourceCurrent
     ? 'FAIL_PDP0_SOURCE_CURRENTNESS_AND_PDP1_PDP3_NOT_VALIDATED'
-    : exactImpactDispositionCurrent
+    : exactImpactDispositionCurrent || sourceDevelopmentCutCurrent
       ? 'FAIL_PDP1_PDP3_NOT_VALIDATED'
       : 'FAIL_PDP0_OWNER_ACCEPTANCE_PENDING_AND_PDP1_PDP3_NOT_VALIDATED';
   return {
@@ -1508,7 +1537,7 @@ function compactCellEvidence(cell, sharedPaths) {
   };
 }
 
-export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt = true, additionalImpactPath = null, successorImpactPath = null, observationOutputPath = outputPath } = {}) {
+export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt = true, additionalImpactPath = null, successorImpactPath = null, sourceDevelopmentCutPath = null, observationOutputPath = outputPath } = {}) {
   const topologyPath = '.product-experience/surfaces/media-physical-topology.v1.json';
   const registryPath = '.product-experience/surface-registry.yaml';
   const sourceManifestPath = '.product-experience/source-manifest.yaml';
@@ -1534,7 +1563,15 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
   const fullCurrentFiles = consistencyCaptures.every(isRepositorySourceCurrentness)
     ? consistencyCaptures[1].fileContentDigests
     : {};
-  const historicalPinComparisons = phasePinComparison(fullCurrentFiles);
+  // The Lifecycle capture intentionally emits repository file digests only.
+  // PDP-0 status also pins exact decision-log sections and source projections;
+  // project those selectors through the same owner source projector used by
+  // readiness instead of misclassifying them as missing files.
+  const phaseScopedPins = Object.fromEntries(Object.entries(pdp0PhaseScopedSourcePins()).map(([sourcePath, digest]) => [
+    sourcePath,
+    { digest: `sha256:${digest}` },
+  ]));
+  const historicalPinComparisons = phasePinComparison({ ...fullCurrentFiles, ...phaseScopedPins });
   const p0Comparison = historicalPinComparisons.find((entry) => entry.phase === 'PDP-0');
   const allCellsCurrent = currentness.cells.length === resolved.denominator.totalCells
     && currentness.cells.every((cell) => cell.sourceCurrentness === 'CURRENT');
@@ -1634,6 +1671,46 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
   if (currentCutClassification) historicalDriftClassifications.push(currentCutClassification);
   let successorImpactDispositionCurrent = false;
   let successorImpactDisposition = null;
+  let sourceDevelopmentSuccessorDisposition = null;
+  if (sourceDevelopmentCutPath) {
+    const normalizedCutPath = path.relative(root, path.resolve(root, sourceDevelopmentCutPath)).split(path.sep).join('/');
+    if (path.isAbsolute(sourceDevelopmentCutPath) || normalizedCutPath === '..' || normalizedCutPath.startsWith('../')) {
+      throw new Error('PDP-0 source-development cut path must resolve inside the repository');
+    }
+    const sourceDevelopmentCut = JSON.parse(fs.readFileSync(path.resolve(root, normalizedCutPath), 'utf8'));
+    const sourceDevelopmentCurrentness = {
+      phaseDisposition: { sourceCurrent, currentSourceCurrentness: sourceCurrent ? 'PASS' : 'FAIL' },
+      denominators: resolved.denominator,
+      physicalCompositeConsumerCells: currentCellRecords,
+      sourceContentDigests,
+      materialPathDenominator: {
+        uniquePaths: Object.keys(sourceContentDigests).length,
+        sharedPaths: sharedMaterialPaths.length,
+        cellSpecificPaths: Object.keys(sourceContentDigests).length - sharedMaterialPaths.length,
+      },
+      materialSourceSetFingerprint,
+    };
+    if (!validateMediaPdp0SourceDevelopmentCurrentCut(sourceDevelopmentCut, {
+      repositoryRoot: root,
+      currentness: sourceDevelopmentCurrentness,
+      technicalPeerReview: sourceDevelopmentCut.technicalPeerReview,
+    })) {
+      throw new Error('PDP-0 source-development successor does not bind the exact current 54/207 source cut');
+    }
+    sourceDevelopmentSuccessorDisposition = {
+      recordId: sourceDevelopmentCut.recordId,
+      authorityRef: normalizedCutPath,
+      authoritySha256: hashBytes(fs.readFileSync(path.resolve(root, normalizedCutPath))),
+      classification: sourceDevelopmentCut.sourceDevelopment.classification,
+      sourceSetFingerprint: sourceDevelopmentCut.currentCut.materialSourceSetFingerprint,
+      currentStatusSha256: sourceDevelopmentCut.currentCut.sourceStatusSha256,
+      technicalSourceAuthor: sourceDevelopmentCut.authority.technicalSourceAuthor,
+      technicalPeerReviewer: sourceDevelopmentCut.technicalPeerReview.reviewer,
+      ownerAcceptance: sourceDevelopmentCut.authority.ownerAcceptance,
+      independentAcceptance: sourceDevelopmentCut.authority.independentAcceptance,
+      nativeLifecycleReceipt: sourceDevelopmentCut.authority.nativeLifecycleReceipt,
+    };
+  }
   if (additionalImpactPath) {
     const normalizedImpactPath = path.relative(root, path.resolve(root, additionalImpactPath)).split(path.sep).join('/');
     if (path.isAbsolute(additionalImpactPath) || normalizedImpactPath === '..' || normalizedImpactPath.startsWith('../')) {
@@ -1753,7 +1830,8 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     sourceContentDigests,
     physicalCompositeConsumerCells: currentCellRecords.map((cell) => compactCellEvidence(cell, sharedPathSet)),
     materialSourceSetFingerprint,
-    phaseDisposition: buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, currentCutClassification !== null || successorImpactDispositionCurrent),
+    sourceDevelopmentSuccessorDisposition,
+    phaseDisposition: buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, currentCutClassification !== null || successorImpactDispositionCurrent, sourceDevelopmentSuccessorDisposition !== null),
     limitations: [
       'The historical PDP-0 DEV_COMPLETE record remains anchored at its recorded source cut and is not rewritten.',
       'This observation does not assert independent semantic acceptance, Lifecycle closure, Build entry, or Delivery readiness.',
@@ -1778,27 +1856,35 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
 
 function main() {
   const successorImpactMode = process.argv[2] === '--successor-impact';
-  const impactPath = successorImpactMode ? process.argv[3] ?? null : process.argv[2] ?? null;
-  const requestedSuffix = successorImpactMode ? process.argv[4] ?? null : null;
+  const sourceDevelopmentCutMode = process.argv[2] === '--source-development-cut';
+  const impactPath = successorImpactMode || sourceDevelopmentCutMode ? process.argv[3] ?? null : process.argv[2] ?? null;
+  const requestedSuffix = successorImpactMode || sourceDevelopmentCutMode ? process.argv[4] ?? null : null;
   if (successorImpactMode && (!impactPath || process.argv[5])) {
     throw new Error('Usage: node scripts/record-media-discovery-pdp0-currentness.mjs --successor-impact <impact-json> [output-suffix]');
+  }
+  if (sourceDevelopmentCutMode && (!impactPath || process.argv[5])) {
+    throw new Error('Usage: node scripts/record-media-discovery-pdp0-currentness.mjs --source-development-cut <current-cut-json> [output-suffix]');
   }
   const impactRecord = successorImpactMode ? JSON.parse(fs.readFileSync(path.resolve(root, impactPath), 'utf8')) : null;
   const successorSuffix = successorImpactMode
     ? resolveMediaPdp0SuccessorCurrentnessSuffix(impactRecord?.recordId, requestedSuffix)
-    : requestedSuffix;
-  const destinationPath = resolveMediaPdp0CurrentnessOutputPath(successorImpactMode, successorSuffix);
-  const destination = successorImpactMode
+    : sourceDevelopmentCutMode
+      ? resolveMediaPdp0SourceDevelopmentCurrentnessSuffix(JSON.parse(fs.readFileSync(path.resolve(root, impactPath), 'utf8'))?.recordId, requestedSuffix)
+      : requestedSuffix;
+  const destinationPath = resolveMediaPdp0CurrentnessOutputPath(successorImpactMode || sourceDevelopmentCutMode, successorSuffix);
+  const immutableOutput = successorImpactMode || sourceDevelopmentCutMode;
+  const destination = immutableOutput
     ? assertMediaPdp0CurrentnessOutputAvailable(destinationPath)
     : path.join(root, destinationPath);
   const { observation, summary } = buildMediaPdp0CurrentnessObservation({
-    preserveExistingObservedAt: !successorImpactMode,
-    additionalImpactPath: successorImpactMode ? null : impactPath,
+    preserveExistingObservedAt: !immutableOutput,
+    additionalImpactPath: successorImpactMode || sourceDevelopmentCutMode ? null : impactPath,
     successorImpactPath: successorImpactMode ? impactPath : null,
+    sourceDevelopmentCutPath: sourceDevelopmentCutMode ? impactPath : null,
     observationOutputPath: destinationPath,
   });
   fs.mkdirSync(path.dirname(destination), { recursive: true });
-  fs.writeFileSync(destination, `${JSON.stringify(observation, null, 2)}\n`, { flag: successorImpactMode ? 'wx' : 'w' });
+  fs.writeFileSync(destination, `${JSON.stringify(observation, null, 2)}\n`, { flag: immutableOutput ? 'wx' : 'w' });
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 }
 

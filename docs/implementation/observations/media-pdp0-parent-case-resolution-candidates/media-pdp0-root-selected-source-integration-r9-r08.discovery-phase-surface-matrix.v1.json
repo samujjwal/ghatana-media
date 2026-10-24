@@ -1,0 +1,683 @@
+{
+  "schemaVersion": "media.pdp0.discovery-phase-surface-matrix.review.v1",
+  "recordKind": "READ_ONLY_REVIEW_MATRIX_NOT_CANONICAL_STATUS_OR_CLOSURE",
+  "campaignScope": "Ghatana Media PDP-0 Product Truth; exact registered 54-identity surface campaign.",
+  "macroStage": "DISCOVERY",
+  "phase": "PDP-0 Product Truth",
+  "sourceBaseline": {
+    "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+    "statusRecordSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "status": "IN_PROGRESS",
+    "sourcePinCount": 188,
+    "currentSurfaceInventorySources": [
+      {
+        "ref": ".product-experience/surface-registry.yaml",
+        "sha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+      },
+      {
+        "ref": ".product-experience/surfaces/media-physical-topology.v1.json",
+        "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2"
+      },
+      {
+        "ref": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+        "sha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5"
+      }
+    ],
+    "inventorySourceDisposition": "Identity/type inventory source pins match; PDP-0 applicability/currentness still fail closed because the owning phase status pins are stale."
+  },
+  "denominator": {
+    "physical": 26,
+    "compositionsIncludingRoot": 7,
+    "logicalConsumers": 21,
+    "total": 54
+  },
+  "staleGuardedTargets": [
+    {
+      "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "statusPinRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "expected": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "observed": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "statusPinRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "expected": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "observed": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+    },
+    {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "statusPinRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "expected": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+      "observed": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "statusPinRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "expected": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+      "observed": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "statusPinRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "expected": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+      "observed": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+    },
+    {
+      "ref": ".product-experience/decision-log.md",
+      "statusPinRef": ".product-experience/decision-log.md#PXD-225-section",
+      "expected": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+      "observed": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "statusPinRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "expected": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      "observed": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+    }
+  ],
+  "surfaces": [
+    {
+      "surfaceId": "media.physical.adapters-ledger",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.apps-media-experience-explorer",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.audio-video-observability",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.integration-tests",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.launcher",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-client",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-types",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-ui",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.libs-common",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.libs-java-common",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.libs-media-experience-simulation",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-audio-streaming",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-cache",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-messaging",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-persistence",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-security",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-integration-tests",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-stt-service",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-tts-service",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-video-streaming",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.modules-vision-vision-service",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.providers-aws-postgresql",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.physical.runtime-contracts",
+      "surfaceType": "PHYSICAL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.composition.repository-root",
+      "surfaceType": "REPOSITORY_ROOT",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.composition.governed-job-execution",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.composition.speech-and-caption-workflows",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.composition.vision-and-multimodal-analysis",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.composition.creation-composition-and-delivery",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.composition.client-and-machine-interfaces",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.web",
+      "surfaceType": "GUI_WEB",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.embedded",
+      "surfaceType": "GUI_EMBEDDED",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.public-http",
+      "surfaceType": "PUBLIC_API",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.service-grpc",
+      "surfaceType": "SERVICE_API",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.grpc.stt",
+      "surfaceType": "SERVICE_API",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.grpc.tts",
+      "surfaceType": "SERVICE_API",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.grpc.vision",
+      "surfaceType": "SERVICE_API",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.grpc.multimodal",
+      "surfaceType": "SERVICE_API",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.sdk",
+      "surfaceType": "SDK",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "surfaceType": "CLI",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.agent-tools",
+      "surfaceType": "AGENT_TOOL",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.events",
+      "surfaceType": "EVENT_STREAM",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.integrations",
+      "surfaceType": "SYSTEM_TO_SYSTEM_SERVICE",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.types-library",
+      "surfaceType": "LIBRARY",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.ui-library",
+      "surfaceType": "LIBRARY",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.explorer",
+      "surfaceType": "EXPLORER_TOOLING",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "surfaceType": "OBSOLETE",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "surfaceType": "CLI",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.capture-adapters",
+      "surfaceType": "SYSTEM_TO_SYSTEM_SERVICE",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.production-studio",
+      "surfaceType": "GUI_WEB",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    },
+    {
+      "surfaceId": "media.surface.interactive-demo-player",
+      "surfaceType": "GUI_EMBEDDED",
+      "pdp0Applicability": "UNKNOWN_PENDING_CURRENT_OWNER_STATUS_VALIDATION",
+      "sourceCurrentStatus": "UNKNOWN_FAIL_CLOSED; PDP-0 status record is IN_PROGRESS and stale on the seven guarded source targets",
+      "remainingPhaseLocalTaskIds": "UNKNOWN; do not infer zero from the stale status projection",
+      "blocker": "PDP0_STATUS_SOURCE_PINS_STALE_7_OF_7_GUARDED_TARGETS",
+      "owner": "media-product",
+      "acceptanceCriteria": "Owning PDP-0 validator confirms all applicable source pins current; record validates DEV_COMPLETE; phase-local definition-task inventory is known-zero; declared source-development dependencies pass.",
+      "nextLegalAction": "Remain in DISCOVERY / PDP-0; refresh and validate the owning status record before phase or per-surface eligibility claims."
+    }
+  ],
+  "claimsBoundary": {
+    "applicability": "NOT_REASSERTED_FROM_STALE_STATUS",
+    "phaseCurrentness": "UNKNOWN",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "buildEligibility": "NOT_ESTABLISHED",
+    "delivery": "NOT_ENTERED"
+  }
+}

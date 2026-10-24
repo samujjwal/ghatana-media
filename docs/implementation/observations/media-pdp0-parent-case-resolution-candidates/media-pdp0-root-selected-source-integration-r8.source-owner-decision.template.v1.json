@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-decision-template.v1",
+  "templateType": "SOURCE_OWNER_ADOPTION_DECISION",
+  "candidateBundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.successor-bundle.candidate.v1.json",
+  "candidateBundleSha256": "bf8be9fd5693b76136be553a9cc692727605e31769b35bbf991f01adffb88626",
+  "selectedAllowedOperationsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.allowed-operations.candidate.v1.json",
+  "requiredFields": [
+    "authorized source owner identity",
+    "specific source-owned meaning decision for all four targets",
+    "actual decision-log evidence reference and section hash",
+    "adopt candidate schema and allowed operations or precise refusal/revision",
+    "explicit no-apply statement"
+  ],
+  "decisionStatus": "NOT_SET",
+  "decisionLogEvidenceRef": null,
+  "decisionLogEvidenceSha256": null,
+  "deciderIdentity": null,
+  "decidedAt": null,
+  "canonicalApplyAuthorized": false,
+  "phaseStatusChanged": false
+}

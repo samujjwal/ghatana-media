@@ -23,7 +23,7 @@ export const CAPABILITY_REVIEW_PATHS = [
   'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-309-462.json',
 ];
 export const CAPABILITY_CURRENT_SOURCE_REVIEW_PATHS = [
-  'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-001-154.json',
+  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json',
   'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-155-308.json',
   'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-309-462.json',
 ];
@@ -266,7 +266,24 @@ function currentSourceReviewSummary(document) {
 }
 
 function validateCurrentSourceReview(repositoryRoot, file, expected, recommendationFile) {
-  const document = JSON.parse(fs.readFileSync(path.join(repositoryRoot, file), 'utf8'));
+  const envelope = JSON.parse(fs.readFileSync(path.join(repositoryRoot, file), 'utf8'));
+  const document = envelope.aqSuccessor ?? envelope;
+  if (envelope.aqSuccessor) {
+    const proof = document.sourceDeltaProof;
+    if (document.successorState !== 'APPEND_ONLY_CURRENT_SOURCE_SUCCESSOR; OWNER_ACCEPTANCE_NOT_CLAIMED'
+        || document.predecessorRef !== 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-001-154.json'
+        || !/^[0-9a-f]{64}$/u.test(document.predecessorSha256 ?? '')
+        || proof?.classification !== 'NO_MEANING_CHANGE_IN_AQ_ROWS_1_TO_154'
+        || proof?.capabilityIdsAndOrderMatch !== true
+        || proof?.historicalRows1To462Unchanged !== true
+        || proof?.capabilityRowsChanged?.length !== 0
+        || proof?.changedRequirementIdsUsedBySlice?.length !== 0
+        || proof?.requirementSourceChangedIds?.length !== 1
+        || document.review?.ownerAcceptance !== 'NOT_CLAIMED'
+        || document.review?.independentReview !== 'NOT_CLAIMED') {
+      throw new Error(`${file} does not carry a valid append-only AQ 1-154 no-meaning-change proof`);
+    }
+  }
   const scope = currentSourceReviewScope(document);
   const expectedScope = {start: expected.start, end: expected.end, count: 154};
   if (JSON.stringify(scope) !== JSON.stringify(expectedScope)) throw new Error(`${file} scope must cover exact rows ${expected.start}-${expected.end}`);

@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "media.pdp0.aq-taxonomy-rule-minimal-cas-successor-input.v1",
+  "recordId": "MEDIA-PDP0-AQ-TAXONOMY-RULE-MINIMAL-CAS-SUCCESSOR-INPUT-2026-10-24-V1",
+  "inputKind": "NON_MUTATING_MINIMAL_CREATE_ONLY_CAS_INPUT",
+  "state": "CANDIDATE_ONLY; NO_APPLY_AUTHORIZATION",
+  "target": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/aq-capability-review-001-154.taxonomy-rule-successor.candidate.v1.json",
+    "expectedTargetState": "ABSENT; CREATE_ONLY",
+    "expectedTargetSha256": null,
+    "postimageRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/aq-taxonomy-rule-source-postimage.v1.json",
+    "postimageSha256": "4f35f1527d3aea3b96db7bee2149a75c824179f60c2a81aa9341e577ebf491af"
+  },
+  "predecessor": {
+    "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json",
+    "expectedSha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5"
+  },
+  "exactChangeSet": [
+    {
+      "capabilityId": "media.profile.discover",
+      "operation": "REPLACE_AQ_MAPPING_RECOMMENDATION_FIELDS_ONLY",
+      "fields": [
+        "primaryClusterId",
+        "relatedClusterIds",
+        "semanticRationale",
+        "mappingUncertainty"
+      ]
+    },
+    {
+      "capabilityId": "media.profile.validate",
+      "operation": "REPLACE_AQ_MAPPING_RECOMMENDATION_FIELDS_ONLY",
+      "fields": [
+        "primaryClusterId",
+        "relatedClusterIds",
+        "semanticRationale",
+        "mappingUncertainty"
+      ]
+    },
+    {
+      "capabilityId": "media.capability.discover",
+      "operation": "REPLACE_AQ_MAPPING_RECOMMENDATION_FIELDS_ONLY",
+      "fields": [
+        "primaryClusterId",
+        "relatedClusterIds",
+        "semanticRationale",
+        "mappingUncertainty"
+      ]
+    },
+    {
+      "capabilityId": "media.capability.check-declared-options",
+      "operation": "REPLACE_AQ_MAPPING_RECOMMENDATION_FIELDS_ONLY",
+      "fields": [
+        "primaryClusterId",
+        "relatedClusterIds",
+        "semanticRationale",
+        "mappingUncertainty"
+      ]
+    },
+    {
+      "capabilityId": "media.capability.execution.compatibility",
+      "operation": "REPLACE_AQ_MAPPING_RECOMMENDATION_FIELDS_ONLY",
+      "fields": [
+        "primaryClusterId",
+        "relatedClusterIds",
+        "semanticRationale",
+        "mappingUncertainty"
+      ]
+    },
+    {
+      "capabilityId": "media.health.readiness.inspect",
+      "operation": "REPLACE_AQ_MAPPING_RECOMMENDATION_FIELDS_ONLY",
+      "fields": [
+        "primaryClusterId",
+        "relatedClusterIds",
+        "semanticRationale",
+        "mappingUncertainty"
+      ]
+    }
+  ],
+  "compareAndSwapGuards": {
+    "statusSha256": {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "expected": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    },
+    "crosswalkSha256": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "expected": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
+    },
+    "predecessorRecommendationSha256": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json",
+      "expected": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5"
+    },
+    "aqCurrentnessSuccessorSha256": {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json",
+      "expected": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87"
+    },
+    "pxd216SuccessorSha256": {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json",
+      "expected": "0aafe87534b11e215414f0601825608bd12660a3d640e9bed5fe1b3b5bc903b8"
+    },
+    "candidateTargetAbsent": true,
+    "allInputsRecheckedBeforeCreate": true
+  },
+  "protectedNoWriteTargets": [
+    ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    ".product-experience/pdp-0-product-truth/requirements.yaml",
+    "docs/implementation/pdp-0-phase-dev-status.json",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+  ],
+  "authorityPrerequisites": [
+    "ROOT_TECHNICAL_REVIEW_OF_EXACT_POSTIMAGE",
+    "SEPARATE_SOURCE_OWNER_DECISION_IF_CANONICAL_ADOPTION_IS_REQUESTED",
+    "DISTINCT_APPLY_AUTHORIZATION_FOR_ANY_CANONICAL_WRITE"
+  ],
+  "applyAuthorization": "NOT_PROVIDED",
+  "canonicalApply": "NONE",
+  "effects": {
+    "canonicalWrite": "NOT_PERFORMED",
+    "status": "UNCHANGED",
+    "crosswalk": "UNCHANGED",
+    "acceptance": "NOT_CLAIMED"
+  }
+}

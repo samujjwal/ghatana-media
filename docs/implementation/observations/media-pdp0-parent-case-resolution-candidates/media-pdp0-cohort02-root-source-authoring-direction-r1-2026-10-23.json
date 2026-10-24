@@ -1,0 +1,922 @@
+{
+  "schemaVersion": "media.pdp0.root-source-authoring-direction.v1",
+  "recordId": "MEDIA-PDP0-231-COHORT02-ROOT-SOURCE-DIRECTION-R1-2026-10-23",
+  "recordedAt": "2026-10-23T23:54:27.341820+00:00",
+  "issuer": {
+    "identity": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
+    "role": "delegated technical product source owner",
+    "humanIdentityClaimed": false
+  },
+  "sourcePacket": {
+    "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-root-choice-packets.v1.json",
+    "sha256": "daf549f258a35ec824df97fe84da3ca1df72b368c46e1d3a1d3773c6c6b4acff"
+  },
+  "sourceR6": {
+    "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.json",
+    "sha256": "a4c7e7d2d23a4c0c23684a65d557ec944164ed1fb0abee0b664adededccfa963"
+  },
+  "phase": "PDP-0",
+  "macroStage": "DISCOVERY",
+  "decisions": [
+    {
+      "auditId": "AUD-DELIV-019",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Live streaming output WebRTC/RTMP optional providers",
+        "acceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-019"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-DELIV-019",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.stream",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.stream",
+        "currentOperation": "stream",
+        "mappingChoice": "NEW_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.deliver.live-stream-output",
+        "proposedOperation": "deliver.live-stream-output",
+        "proposedInputSlots": [
+          {
+            "slotId": "source",
+            "sourceType": "accepted-media-artifact-or-composition@version",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "stream-destination",
+            "sourceType": "versioned-live-stream-destination",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "transport",
+            "sourceType": "declared-stream-transport",
+            "cardinality": "EXACTLY_ONE",
+            "required": true,
+            "allowedValues": [
+              "WebRTC",
+              "RTMP"
+            ]
+          },
+          {
+            "slotId": "provider-binding",
+            "sourceType": "explicit-admitted-provider-binding",
+            "cardinality": "ZERO_OR_ONE",
+            "required": false
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "live-stream-delivery-outcome",
+          "resultVariants": [
+            "PREPARED_NOT_STARTED",
+            "STARTED_WITH_BOUND_SESSION",
+            "REJECTED",
+            "UNKNOWN_OUTCOME"
+          ],
+          "mustDistinguishExternalStreamEffect": true
+        },
+        "proposedFailureContract": [
+          "Unsupported or unadmitted transport/provider is unavailable and cannot silently fall back.",
+          "Unknown stream finality remains UNKNOWN_OUTCOME; do not claim a live stream started."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "governed-egress-or-publishing-authority-when-applicable",
+          "operation-specific-policy-and-rights"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+        "sourceGap": "Mapped leaf prepares a stream-delivery package and explicitly separates that package from a stream-delivery outcome; it does not define live WebRTC/RTMP output or optional-provider behavior.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-019",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.stream",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.stream",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Define live stream execution as a distinct feature variant; preparation alone never satisfies stream-start success.",
+      "mandatorySemanticConditions": [
+        "Success requires actual bound session identity, requested/effective transport, destination, profile and authentic stream-start observation; unknown effect remains unknown and must reconcile without redispatch.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-DUB-015",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Simultaneous translated speech-to-speech conversation when admitted",
+        "acceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DUB-015"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-DUB-015",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speech.translate",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speech.translate",
+        "currentOperation": "speech.translate",
+        "mappingChoice": "NEW_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.speech.conversation.translated-speech-to-speech",
+        "proposedOperation": "speech.conversation.translated-speech-to-speech",
+        "proposedInputSlots": [
+          {
+            "slotId": "source-speech",
+            "sourceType": "source-speech-artifact-or-live-speech-stream",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "language-pair",
+            "sourceType": "declared-source-and-target-language-pair",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "conversation-mode",
+            "sourceType": "simultaneous-conversation-mode",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "voice-policy",
+            "sourceType": "authorized-target-voice-and-consent-policy",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "translated-speech-conversation-result",
+          "resultVariants": [
+            "TRANSLATED_SPEECH_SEGMENTS_WITH_LANGUAGE_AND_TIMING",
+            "REJECTED",
+            "UNKNOWN_OUTCOME"
+          ],
+          "mustDistinguishFromTranslatedTextPreparedForLaterSynthesis": true
+        },
+        "proposedFailureContract": [
+          "Unsupported source/target language pair, voice authority, or simultaneous mode is explicit and blocks output.",
+          "Unknown segment or conversation finality remains unknown; no translated speech success is inferred."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "operation-specific-policy-and-rights",
+          "voice-identity-and-consent-authority"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+        "sourceGap": "Mapped leaf produces translated speech content for synthesis; it explicitly distinguishes this from speech-to-speech transformation and does not define simultaneous conversation behavior.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DUB-015",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speech.translate",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speech.translate",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Define simultaneous translated speech-to-speech conversation as a distinct feature variant.",
+      "mandatorySemanticConditions": [
+        "Preserve source speaker, language pair, segment source timing, translated speech timing, voice/rights basis and conversation session. No latency, synchrony or qualified-language claim without declared current criterion and actual evidence.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-EDIT-016",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Masking and matte compositing",
+        "acceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-016"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-EDIT-016",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.matte",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.matte",
+        "currentOperation": "matte",
+        "mappingChoice": "NEW_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.edit.matte-composite",
+        "proposedOperation": "edit.matte-composite",
+        "proposedInputSlots": [
+          {
+            "slotId": "source",
+            "sourceType": "versioned-source-media-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "matte",
+            "sourceType": "versioned-matte-representation",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "composite-intent",
+            "sourceType": "typed-compositing-intent-and-layer-order",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "local-composite-candidate-or-draft",
+          "resultVariants": [
+            "COMPOSITE_CANDIDATE",
+            "REJECTED",
+            "UNKNOWN_OUTCOME"
+          ],
+          "mustRemainNonCanonicalUntilExplicitCommit": true
+        },
+        "proposedFailureContract": [
+          "Incompatible source/matte geometry or unsupported compositing intent blocks the candidate.",
+          "Unknown processing finality does not imply a composite candidate or project change."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "artifact-read-or-write-permission-as-applicable",
+          "project-edit-authority-for-any-later-commit"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceGap": "Mapped leaf produces a matte representation candidate; it does not define compositing the matte into a resulting image/video.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-016",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.matte",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-EDIT"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.matte",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-EDIT",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Define matte compositing as a distinct local candidate feature variant, preserving source matte generation meaning.",
+      "mandatorySemanticConditions": [
+        "Output binds source artifact/version, matte/version, layer order and compositing intent. Explicit project commit is separate; reject incompatible geometry, unknown effective version or unsupported intent.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-EDIT-024",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Keyboard/text equivalents for graphical controls",
+        "acceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-024"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-EDIT-024",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.select",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.select",
+        "currentOperation": "select",
+        "mappingChoice": "NEW_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.accessibility.control-equivalent-action",
+        "proposedOperation": "accessibility.control-equivalent-action",
+        "proposedInputSlots": [
+          {
+            "slotId": "control",
+            "sourceType": "stable-semantic-control-reference",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "action",
+            "sourceType": "keyboard-or-text-equivalent-action",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "context",
+            "sourceType": "active-view-and-focus-context",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "semantic-control-action-outcome",
+          "resultVariants": [
+            "SAME_DECLARED_ACTION_AS_GRAPHICAL_CONTROL",
+            "UNAVAILABLE_EQUIVALENT",
+            "REJECTED",
+            "UNKNOWN_OUTCOME"
+          ],
+          "mustPreserveMeaningAndAuthorization": true
+        },
+        "proposedFailureContract": [
+          "Missing or ambiguous equivalent mapping is reported unavailable; do not substitute a different action.",
+          "Focus, disabled state, or authority failures prevent the action."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "actor-and-workspace-authority",
+          "accessible-control-action-policy"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceGap": "Mapped leaf selects animation elements. Selection does not define keyboard/text equivalents for graphical controls or accessibility parity.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-024",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.select",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.select",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Define keyboard/text control equivalence across applicable graphical edit controls as its own semantic contract.",
+      "mandatorySemanticConditions": [
+        "Do not restrict parity to animation selection. Bind stable control/action/focus, same authorization and resulting edit revision; trace MEDIA-REQ-CAP-EDIT and any truly applicable animation requirement. Missing equivalent remains an explicit defect/unavailable result.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-GEN-010",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Video extension and scene continuation",
+        "acceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-010"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-GEN-010",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video",
+        "currentOperation": "video-to-video",
+        "mappingChoice": "NEW_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.generate.video.continue",
+        "proposedOperation": "generate.video.continue",
+        "proposedInputSlots": [
+          {
+            "slotId": "source-video",
+            "sourceType": "versioned-source-video-artifact",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "continuation-intent",
+            "sourceType": "declared-duration-and-scene-continuation-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "profile",
+            "sourceType": "admitted-video-generation-profile",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "continued-candidate-video-with-lineage",
+          "resultVariants": [
+            "VIDEO_CONTINUATION_CANDIDATE",
+            "REJECTED",
+            "UNKNOWN_OUTCOME"
+          ],
+          "mustKeepSourceAsLineageBasis": true
+        },
+        "proposedFailureContract": [
+          "Unsupported duration/profile or missing source version blocks continuation.",
+          "Do not infer temporal continuity or scene fidelity from source lineage alone."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceGap": "Mapped video-to-video leaf transforms a required source video; it does not define extension/continuation or a continuation boundary. The source row therefore lacks a matching current operation.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-010",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Define video scene continuation as a distinct generation variant.",
+      "mandatorySemanticConditions": [
+        "Bind source version, continuation boundary, requested duration and admitted generation profile; record requested/effective values and source lineage. Missing boundary or unsupported duration/profile rejects. Lineage alone does not establish temporal/scene fidelity.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-GEN-020",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Text-to-motion and reference style recreation",
+        "acceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-020"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-GEN-020",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.motion.retarget",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.motion.retarget",
+        "currentOperation": "motion.retarget",
+        "mappingChoice": "NEW_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.generate.motion.text-and-style-reference",
+        "proposedOperation": "generate.motion.text-and-style-reference",
+        "proposedInputSlots": [
+          {
+            "slotId": "motion-intent",
+            "sourceType": "text-motion-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "style-reference",
+            "sourceType": "authorized-versioned-motion-or-style-reference",
+            "cardinality": "ZERO_OR_ONE",
+            "required": false
+          },
+          {
+            "slotId": "target-rig",
+            "sourceType": "declared-target-rig-profile",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "candidate-motion-sequence-with-source-provenance",
+          "resultVariants": [
+            "MOTION_CANDIDATE",
+            "REJECTED",
+            "UNKNOWN_OUTCOME"
+          ],
+          "mustIdentifyTextAndReferenceContributionSeparately": true
+        },
+        "proposedFailureContract": [
+          "Unsupported text intent, reference rights, or target rig is explicit and blocks that branch.",
+          "Do not claim reference style recreation or rig retarget fidelity without a declared measure."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "operation-specific-policy-and-rights",
+          "reference-artifact-read-permission"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceGap": "Mapped leaf retargets source motion onto a target rig; it does not define source-free text-to-motion or reference-style recreation as a generation operation.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-020",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.motion.retarget",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.motion.retarget",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Define text-to-motion and optional authorized reference-style generation distinctly from retargeting existing motion.",
+      "mandatorySemanticConditions": [
+        "Keep source-free text branch and reference branch explicit, preserve target rig and reference rights. Candidate output records branch provenance; style recreation requires actual declared fidelity evidence.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-GEN-021",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Photorealistic and stylized render presets",
+        "acceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-021"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-GEN-021",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video",
+        "currentOperation": "text-to-video",
+        "mappingChoice": "EXTEND_EXISTING_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.generate.video.text-to-video#render-style-preset",
+        "proposedOperation": "generate.video.text-to-video",
+        "proposedInputSlots": [
+          {
+            "slotId": "prompt",
+            "sourceType": "text-or-video-intent",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "render-style",
+            "sourceType": "declared-render-style-preset",
+            "cardinality": "EXACTLY_ONE",
+            "required": true,
+            "allowedValues": [
+              "photorealistic",
+              "stylized"
+            ]
+          },
+          {
+            "slotId": "profile",
+            "sourceType": "admitted-video-generation-profile",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "candidate-video-artifact-with-execution-provenance",
+          "resultVariants": [
+            "VIDEO_CANDIDATE_WITH_RECORDED_STYLE_PRESET",
+            "REJECTED",
+            "UNKNOWN_OUTCOME"
+          ],
+          "mustRecordRequestedAndEffectiveStyleSeparately": true
+        },
+        "proposedFailureContract": [
+          "Unavailable style preset is explicit; never silently substitute another style.",
+          "Preset selection does not itself establish visual fidelity or model qualification."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceGap": "Mapped leaf produces text/video-intent video output shape; it does not define photorealistic or stylized render presets.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-021",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Extend text-to-video with explicit photorealistic/stylized requested preset semantics.",
+      "mandatorySemanticConditions": [
+        "Requested preset and effective versioned profile/preset are separate fields. Unsupported/unavailable preset rejects without silent fallback; selecting a label does not establish fidelity or qualification.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-GEN-023",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Model-local offline generation and GPU memory warnings",
+        "acceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-023"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-GEN-023",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+        "currentOperation": "execution.compatibility",
+        "mappingChoice": "NEW_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.capability.execution.local-model-readiness",
+        "proposedOperation": "capability.execution.local-model-readiness",
+        "proposedInputSlots": [
+          {
+            "slotId": "operation-profile",
+            "sourceType": "requested-operation-and-profile",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "model-declaration",
+            "sourceType": "versioned-local-model-declaration",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "host-snapshot",
+            "sourceType": "timestamped-local-host-resource-snapshot",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "local-model-compatibility-observation",
+          "resultVariants": [
+            "DECLARED_LOCAL_COMPATIBILITY_WITH_MEMORY_BOUND",
+            "INCOMPATIBLE",
+            "UNKNOWN"
+          ],
+          "mustBeObservationOnly": true
+        },
+        "proposedFailureContract": [
+          "Missing/stale model or host data returns UNKNOWN compatibility.",
+          "Memory estimate is a declared bound/warning, not a guarantee, reservation, or execution result."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "local-host-resource-observation-authority",
+          "operation-specific-policy-and-rights"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceGap": "Mapped leaf returns a declared capability/profile compatibility observation; it does not perform local/offline generation or produce GPU-memory warnings.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-023",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.execution.compatibility",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Define local/offline generation together with model-local readiness and GPU-memory warning semantics.",
+      "mandatorySemanticConditions": [
+        "The readiness-only proposal is insufficient for the original generation feature. Add explicit requested LOCAL_OFFLINE placement/no network egress, actual candidate generation result/provenance, and separately timestamped memory estimate/warning. Missing model/host data yields UNKNOWN readiness; a warning is not reservation, execution success or memory safety guarantee.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-GEN-024",
+      "selectedOption": "A_DEFINE_FEATURE_AS_A_DISTINCT_PDP0_LEAF",
+      "decisionEffect": "AUTHOR_EXACT_FEATURE_SOURCE_CANDIDATE_WITH_MANDATORY_CONDITIONS",
+      "sourceFeature": {
+        "text": "Permissive and hosted provider separation",
+        "acceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-024"
+      },
+      "reviewedProposal": {
+        "auditId": "AUD-GEN-024",
+        "targetCapabilitySelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.check-declared-options",
+        "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.check-declared-options",
+        "currentOperation": "check-declared-options",
+        "mappingChoice": "NEW_CAPABILITY_VARIANT",
+        "proposedFeatureDefinitionId": "media.capability.provider-class-separation",
+        "proposedOperation": "capability.provider-class-separation",
+        "proposedInputSlots": [
+          {
+            "slotId": "operation-profile",
+            "sourceType": "requested-operation-and-profile",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          },
+          {
+            "slotId": "provider-class",
+            "sourceType": "declared-provider-class",
+            "cardinality": "EXACTLY_ONE",
+            "required": true,
+            "allowedValues": [
+              "permissive",
+              "hosted"
+            ]
+          },
+          {
+            "slotId": "policy-evidence",
+            "sourceType": "versioned-provider-rights-and-policy-evidence",
+            "cardinality": "EXACTLY_ONE",
+            "required": true
+          }
+        ],
+        "proposedSuccessAndNonSuccessOutput": {
+          "artifactType": "provider-class-capability-observation",
+          "resultVariants": [
+            "CLASS_SEPARATED_WITH_DECLARED_EVIDENCE",
+            "UNAVAILABLE",
+            "UNKNOWN"
+          ],
+          "mustKeepPermissiveAndHostedClaimsSeparate": true
+        },
+        "proposedFailureContract": [
+          "Missing, stale, or ambiguous provider-class evidence returns UNKNOWN.",
+          "No provider class is inferred from generic capability declarations; no silent cross-class fallback."
+        ],
+        "currentAuthorityBaseline": [
+          "identity-and-tenant-context",
+          "operation-specific-policy-and-rights",
+          "artifact-read-or-write-permission-as-applicable",
+          "governed-egress-or-publishing-authority-when-applicable"
+        ],
+        "additionalAuthorityRequiringOwnerDecision": [
+          "operation-specific-policy-and-rights",
+          "provider-class-governance-authority"
+        ],
+        "accountableSourceOwner": "media-product",
+        "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceGap": "Mapped leaf reports declared processing options; it does not define a separation boundary between permissive and hosted providers or provider admission behavior.",
+        "exactSourceRefs": [
+          "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-024",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.check-declared-options",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY"
+        ],
+        "preimageHashes": [
+          {
+            "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.check-declared-options",
+            "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+          },
+          {
+            "ref": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-CAPABILITY",
+            "sourcePath": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+          }
+        ],
+        "adoptionState": "PROPOSAL_ONLY_PENDING_ROOT_PRODUCT_DECISION_AND_DISTINCT_PEER_REVIEW",
+        "accountableSourceOwnerAuthorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0/semanticOwner",
+        "ownerAdoptionStatus": "UNKNOWN"
+      },
+      "selectedProductIntent": "Define independent license/policy and execution-placement axes for permissive and hosted providers.",
+      "mandatorySemanticConditions": [
+        "Permissive license and hosted placement are not mutually exclusive classes. Require versioned license/rights policy evidence and explicit LOCAL/HOSTED placement/provider binding; missing/stale evidence stays UNKNOWN. No license, provider admission, egress or cross-provider fallback inferred from labels.",
+        "Retain all original source acceptance obligations; no scope exclusion or lower denominator.",
+        "Define typed inputs, actual observable output, failures/unknowns, authority references, feature-specific positive and adverse leaf/parent cases. Missing actual authority/evidence remains explicit and cannot be fabricated."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION",
+      "runtimeAdmission": "NOT_ASSERTED"
+    },
+    {
+      "auditId": "AUD-DIRECT-010",
+      "selectedOption": "SOURCE_PACKET_INCOMPLETE",
+      "decisionEffect": "REPAIR_DIRECTION_TO_PRESERVE_FULL_FEATURE",
+      "selectedProductIntent": "Dry-run, semantic diff, scope guard and undo support",
+      "mandatorySemanticConditions": [
+        "Prepare complete typed preview/dry-run, exact semantic diff, expected revision, actual approval authority, scope constraints and undo/rollback/reconciliation contract.",
+        "Unknown external effect is not safe to replay. Approval is a genuine owner result, not caller-supplied success.",
+        "Do not exclude the original feature or claim current mapping complete."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION"
+    },
+    {
+      "auditId": "AUD-EDIT-022",
+      "selectedOption": "SOURCE_PACKET_INCOMPLETE",
+      "decisionEffect": "REPAIR_DIRECTION_TO_PRESERVE_FULL_FEATURE",
+      "selectedProductIntent": "Diff, dry-run, approval and rollback of agent edits",
+      "mandatorySemanticConditions": [
+        "Prepare complete typed preview/dry-run, exact semantic diff, expected revision, actual approval authority, scope constraints and undo/rollback/reconciliation contract.",
+        "Unknown external effect is not safe to replay. Approval is a genuine owner result, not caller-supplied success.",
+        "Do not exclude the original feature or claim current mapping complete."
+      ],
+      "adoption": "NOT_AUTHORIZED_BY_THIS_DIRECTION"
+    }
+  ],
+  "boundary": {
+    "canonicalSourceWritten": false,
+    "canonicalPdpStatusWritten": false,
+    "capabilityVariantIsRegisteredPhysicalSurface": false,
+    "registeredSubjectDenominator": 54,
+    "phaseCells": 216,
+    "historicalBaseRecordsPreserved": 462,
+    "runtimeGrantIssued": false,
+    "formalAcceptance": false,
+    "nativeClosure": false,
+    "release": false
+  },
+  "nextAction": "Worker produces exact source-bound candidate on approved v7 source postimages, complete cases and existing owner amendment workflow; distinct actual peer then separately root-authored exact adoption decision required."
+}

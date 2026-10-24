@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "media.pdp0.capability-meaning-current-source-review.successor.v1",
+  "semanticReviewRef": "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json",
+  "semanticReviewSha256": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54",
+  "historicalSourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
+  },
+  "predecessorCurrentnessRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
+  "currentSources": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+    ".product-experience/pdp-0-product-truth/quality-policy.yaml": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
+  },
+  "reviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
+  "reviewedCapabilityIds": [
+    "media.project.organize",
+    "media.artifact.import",
+    "media.artifact.search",
+    "media.artifact.list",
+    "media.artifact.derive",
+    "media.multimodal.describe",
+    "media.multimodal.summarize",
+    "media.audio.analysis.detect.beat-onset",
+    "media.speech.synthesis.speaker.condition",
+    "media.generate.spatial.create.spatial-audio",
+    "media.animation.material",
+    "media.edit.inpaint",
+    "media.edit.matte",
+    "media.edit.retime-slow-motion-speed-ramp",
+    "media.compose.multitrack-timeline",
+    "media.compose.safe-area",
+    "media.compose.reusable-composition",
+    "media.master.audio.stereo-width",
+    "media.quality.rank",
+    "media.deliver.subtitles"
+  ],
+  "changedReviewedCapabilityIds": [],
+  "pxd225Selector": {
+    "predecessorRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
+    "predecessorSha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+    "candidateRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r3/pdp0-current-source-reconciliation-pxd225.candidate.json",
+    "candidateSha256": "bb85bea6745147bc72202b3bcc54d4b0f527838ed439773f38791f9484a67f6b",
+    "oldDecisionSectionSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+    "currentDecisionSectionSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
+    "changedFields": [
+      "decisionSectionSha256"
+    ]
+  },
+  "semanticReviewStatus": "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
+  "ownerApproval": "NOT_CLAIMED",
+  "independentAcceptance": "NOT_CLAIMED",
+  "acceptanceEffect": "none"
+}

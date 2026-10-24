@@ -2,151 +2,151 @@ TAP version 13
 # Subtest: all 147 PDP-3 actions retain exact authored actor, guard, effect, finality, and recovery source
 ok 1 - all 147 PDP-3 actions retain exact authored actor, guard, effect, finality, and recovery source
   ---
-  duration_ms: 7.002041
+  duration_ms: 4.915709
   type: 'test'
   ...
 # Subtest: action reconciliation contract is definition-only and covers exact host port identities
 ok 2 - action reconciliation contract is definition-only and covers exact host port identities
   ---
-  duration_ms: 1.187167
+  duration_ms: 1.594458
   type: 'test'
   ...
 # Subtest: local immediate finality allowlist is explicit and consequential/unknown outcomes remain reconciled
 ok 3 - local immediate finality allowlist is explicit and consequential/unknown outcomes remain reconciled
   ---
-  duration_ms: 0.230458
+  duration_ms: 0.267375
   type: 'test'
   ...
 # Subtest: Media identity adapter envelope stays typed and Shared wire names remain pending
 ok 4 - Media identity adapter envelope stays typed and Shared wire names remain pending
   ---
-  duration_ms: 2.508209
+  duration_ms: 0.885334
   type: 'test'
   ...
 # Subtest: anonymous initiation and authenticated workspace selection use distinct trusted host contexts
 ok 5 - anonymous initiation and authenticated workspace selection use distinct trusted host contexts
   ---
-  duration_ms: 2.544541
+  duration_ms: 4.92175
   type: 'test'
   ...
 # Subtest: identity requests reject injected credentials, caller claims, unsafe routes, and malformed host options
 ok 6 - identity requests reject injected credentials, caller claims, unsafe routes, and malformed host options
   ---
-  duration_ms: 0.212041
+  duration_ms: 2.505333
   type: 'test'
   ...
 # Subtest: all result outcomes stay bound to nonce and return route before affecting the view
 ok 7 - all result outcomes stay bound to nonce and return route before affecting the view
   ---
-  duration_ms: 0.239667
+  duration_ms: 1.525667
   type: 'test'
   ...
 # Subtest: exact owner pin, identity, membership, clock and expiry are required for an acceptable fixture
 ok 8 - exact owner pin, identity, membership, clock and expiry are required for an acceptable fixture
   ---
-  duration_ms: 1.36625
+  duration_ms: 0.456125
   type: 'test'
   ...
 # Subtest: each local step has a distinct exact session-local contract, never a canonical product mutation
 ok 9 - each local step has a distinct exact session-local contract, never a canonical product mutation
   ---
-  duration_ms: 122.580291
+  duration_ms: 216.506875
   type: 'test'
   ...
 # Subtest: local effect contracts cannot absorb consequential source actions
 ok 10 - local effect contracts cannot absorb consequential source actions
   ---
-  duration_ms: 29.02925
+  duration_ms: 41.165125
   type: 'test'
   ...
 # Subtest: local effects fail closed for stale, mismatched, malformed, and unknown session/catalog evidence
 ok 11 - local effects fail closed for stale, mismatched, malformed, and unknown session/catalog evidence
   ---
-  duration_ms: 12.460125
+  duration_ms: 22.572917
   type: 'test'
   ...
 # Subtest: selection and draft values cannot escape the closed local-session contract
 ok 12 - selection and draft values cannot escape the closed local-session contract
   ---
-  duration_ms: 0.887583
+  duration_ms: 0.82375
   type: 'test'
   ...
 # Subtest: all 55 P1 transitions and every exact guarded edge are source-linked without runtime promotion
 ok 13 - all 55 P1 transitions and every exact guarded edge are source-linked without runtime promotion
   ---
-  duration_ms: 8.103417
+  duration_ms: 7.870375
   type: 'test'
   ...
 # Subtest: foreign transitions, guards, state edges, operations, and invented journey actions fail closed
 ok 14 - foreign transitions, guards, state edges, operations, and invented journey actions fail closed
   ---
-  duration_ms: 18.069708
+  duration_ms: 20.709375
   type: 'test'
   ...
 # Subtest: all transition trigger definitions resolve exact guard facts, state endpoints, producer, and action crosswalk
 ok 15 - all transition trigger definitions resolve exact guard facts, state endpoints, producer, and action crosswalk
   ---
-  duration_ms: 2868.382542
+  duration_ms: 946.620208
   type: 'test'
   ...
 # Subtest: transition trigger event schemas reject foreign edge/source facts and incomplete evidence
 ok 16 - transition trigger event schemas reject foreign edge/source facts and incomplete evidence
   ---
-  duration_ms: 0.451708
+  duration_ms: 0.314
   type: 'test'
   ...
 # Subtest: nested any-guard clauses preserve OR semantics instead of flattening alternatives
 ok 17 - nested any-guard clauses preserve OR semantics instead of flattening alternatives
   ---
-  duration_ms: 0.420333
+  duration_ms: 0.273584
   type: 'test'
   ...
 # Subtest: legacy event evaluator rejects bare SATISFIED verdicts for non-state guard facts
 ok 18 - legacy event evaluator rejects bare SATISFIED verdicts for non-state guard facts
   ---
-  duration_ms: 0.24875
+  duration_ms: 0.503791
   type: 'test'
   ...
 # Subtest: causal job-start and upload-finalization definitions require exact source evidence and trusted tuple joins
 ok 19 - causal job-start and upload-finalization definitions require exact source evidence and trusted tuple joins
   ---
-  duration_ms: 19.462708
+  duration_ms: 15.032125
   type: 'test'
   ...
 # Subtest: every job/attempt edge has a closed source-specific causal receipt and branch-correct lease applicability
 ok 20 - every job/attempt edge has a closed source-specific causal receipt and branch-correct lease applicability
   ---
-  duration_ms: 377.418458
+  duration_ms: 282.981
   type: 'test'
   ...
 # Subtest: job lease requirements follow causal branch rather than blanket job/attempt membership
 ok 21 - job lease requirements follow causal branch rather than blanket job/attempt membership
   ---
-  duration_ms: 0.7885
+  duration_ms: 0.674459
   type: 'test'
   ...
 # Subtest: artifact lifecycle edges use distinct closed receipt shapes and require exact upload/version subjects
 ok 22 - artifact lifecycle edges use distinct closed receipt shapes and require exact upload/version subjects
   ---
-  duration_ms: 172.564583
+  duration_ms: 82.622833
   type: 'test'
   ...
 # Subtest: the remaining edge population has per-fact closed evidence schemas and derives applied, denied, and unknown
 ok 23 - the remaining edge population has per-fact closed evidence schemas and derives applied, denied, and unknown
   ---
-  duration_ms: 4201.224584
+  duration_ms: 2048.147666
   type: 'test'
   ...
 # Subtest: all 164 typed guard-fact records resolve their exact source and authority selectors
 ok 24 - all 164 typed guard-fact records resolve their exact source and authority selectors
   ---
-  duration_ms: 11078.455208
+  duration_ms: 5414.714708
   type: 'test'
   ...
 # Subtest: inventory, hold, version, and per-effect consent predicates use typed source values
 ok 25 - inventory, hold, version, and per-effect consent predicates use typed source values
   ---
-  duration_ms: 0.687333
+  duration_ms: 0.647583
   type: 'test'
   ...
 1..25
@@ -157,4 +157,4 @@ ok 25 - inventory, hold, version, and per-effect consent predicates use typed so
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 56760.539708
+# duration_ms 40567.133458

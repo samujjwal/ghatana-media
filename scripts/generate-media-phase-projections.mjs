@@ -27,6 +27,7 @@ import { validateProductDefinitionTimestampProvenance } from "./lib/product-defi
 import { buildLocalViewObservationStateProjection } from "./lib/pdp3-view-observation-state-projection.mjs";
 import { buildPdp3ComponentSourceDispositions } from "./lib/pdp3-component-source-dispositions.mjs";
 import { projectPdp3TransitionCandidates } from "./lib/pdp3-transition-projection.mjs";
+import { preserveGeneratedProjectionTimestamps } from "./lib/preserve-generated-projection-timestamps.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const toolsRequire = createRequire(resolve(root, "../ghatana-tools/package.json"));
@@ -2044,27 +2045,13 @@ for (const definition of definitions.filter((entry) => !onlyDefinition || entry.
     acceptance: "NOT_CLAIMED",
     currentness: "NOT_GENERATED; Lifecycle authority required",
   };
-  const bytes = `${JSON.stringify(projection, null, 2)}\n`;
   const outputPath = resolve(root, definition.output);
+  const current = await readFile(outputPath, "utf8").catch(() => null);
+  if (current !== null) preserveGeneratedProjectionTimestamps(current, projection);
+  const bytes = `${JSON.stringify(projection, null, 2)}\n`;
   if (checkOnly) {
     const current = await readFile(outputPath, "utf8").catch(() => null);
-    let comparableCurrent = current;
-    let comparableBytes = bytes;
-    if (current !== null && ["experience-language", "experience-specification"].includes(definition.name)) {
-      const normalizeGeneratedTimestamps = (text) => {
-        try {
-          const parsed = JSON.parse(text);
-          parsed.candidateModel.createdAt = "<PROJECTION_GENERATION_TIMESTAMP>";
-          parsed.candidateModel.updatedAt = "<PROJECTION_GENERATION_TIMESTAMP>";
-          return `${JSON.stringify(parsed, null, 2)}\n`;
-        } catch {
-          return text;
-        }
-      };
-      comparableCurrent = normalizeGeneratedTimestamps(current);
-      comparableBytes = normalizeGeneratedTimestamps(bytes);
-    }
-    if (comparableCurrent !== comparableBytes) throw new Error(`${definition.output} is stale; run node scripts/generate-media-phase-projections.mjs`);
+    if (current !== bytes) throw new Error(`${definition.output} is stale; run node scripts/generate-media-phase-projections.mjs`);
   } else {
     await (await import("node:fs/promises")).mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, bytes);

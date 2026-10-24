@@ -1,0 +1,72 @@
+{
+  "reviewKind": "AI_TECHNICAL_CURRENT_SOURCE_REVIEW",
+  "criterionIdentity": {
+    "criterionId": "P0-01",
+    "readinessTaskRef": "docs/implementation/media-pdp-38-readiness.json#tasks/P0-01",
+    "directDefinitionCriterionRecord": "APPROVED_DIRECT_DEFINITION_CRITERION",
+    "directDefinitionDecisionRef": null,
+    "readinessCriterionState": "VERIFIED_IN_CURRENT_SOURCE",
+    "originalTaskState": "partial"
+  },
+  "baseline": {
+    "repositoryHead": "REPLACE_WITH_CURRENT_SOURCE_HEAD",
+    "workingTree": "DIRTY_PRESERVED",
+    "campaign": "Media PDP-0",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "registeredIdentityDenominator": {
+      "physicalCandidates": 26,
+      "compositionSurfacesIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "registeredIdentities": 54
+    },
+    "requestedCurrentMaterialPathDenominator": 207,
+    "sourcePinObservation": {
+      "reportedCurrentMaterialPathDenominator": 207,
+      "phaseStatusSourcePinRefs": 188,
+      "wholeFilePinsComparedAgainstLiveBytes": 167,
+      "wholeFilePinMismatches": 0,
+      "sectionPins": 21,
+      "sectionPinCurrentness": "NOT_EVALUATED_BY_THIS_BOUNDED_REVIEW",
+      "wholeCutCurrentnessClaim": "NOT_MADE",
+      "sectionPinBackerFilesMissing": []
+    },
+    "sourceCurrentnessClaim": "NOT_MADE; technical source review only"
+  },
+  "criterionMeaning": {
+    "scope": "REPLACE_WITH_EXACT_DIRECT_CRITERION_SCOPE",
+    "observations": [
+      "Record bounded technical observations tied to current source."
+    ],
+    "nonClaims": [
+      "No owner approval, independent acceptance, status transition, or closure."
+    ]
+  },
+  "findings": [],
+  "verifierReceipt": {
+    "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+    "currentStatusRecordHashedInCriterionVerification": true,
+    "testReceiptRef": "docs/implementation/verification/pdp-38/P0-01.log",
+    "testReceiptSha256": "REPLACE_WITH_CURRENT_SHA256",
+    "testStatus": "PASS",
+    "testCount": 31,
+    "passedTestCount": 31,
+    "skippedTestCount": 0,
+    "outputSha256": "REPLACE_WITH_CURRENT_SHA256",
+    "command": "node --test",
+    "distinction": "Source checks only; no phase acceptance."
+  },
+  "sourceCoverage": {
+    "sourceRefsWithCurrentWholeFileHashes": 2,
+    "sourceRefMap": "reviewedSources binds exact current source hashes.",
+    "knownUnknowns": []
+  },
+  "nextAction": "Keep source-owner disposition and independent acceptance separate.",
+  "reviewerBoundary": {
+    "role": "AI technical source reviewer only",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "pdp010Acceptance": "NOT_PERFORMED",
+    "phaseStatusEffect": "NONE"
+  }
+}

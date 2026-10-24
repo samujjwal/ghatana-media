@@ -1,0 +1,336 @@
+{
+  "schemaVersion": "media.pdp0.231-case-quality-successor-content-review.v1",
+  "artifactId": "MEDIA-PDP0-231-CASE-QUALITY-V2-SUCCESSOR-CONTENT-REVIEW-2026-10-23",
+  "reviewScope": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "campaignDenominator": {
+      "physical": 26,
+      "compositeAndRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "selection": "H 231-candidate combined case projection; 248 typed operations; current quality successor impact",
+    "selectedPhysicalIntersectionCount": 14,
+    "notFullCampaignReview": true,
+    "selectedPhysicalSurfaces": [
+      {
+        "surfaceId": "media.physical.launcher",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 10,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-client",
+        "type": "PHYSICAL",
+        "owner": "media-client-owner",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 18,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-types",
+        "type": "PHYSICAL",
+        "owner": "media-types-owner",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 18,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-ui",
+        "type": "PHYSICAL",
+        "owner": "media-ui-owner",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 52,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-infrastructure-persistence",
+        "type": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 14,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-infrastructure-security",
+        "type": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 1,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+        "type": "PHYSICAL",
+        "owner": "media-ui-owner",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 1,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 5,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+        "type": "SUPPORT_ONLY",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 8,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-speech-stt-service",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 4,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-speech-tts-service",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 3,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.modules-vision-vision-service",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 1,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.providers-aws-postgresql",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 10,
+        "localSurfaceReview": "NOT_PERFORMED"
+      },
+      {
+        "surfaceId": "media.physical.runtime-contracts",
+        "type": "PHYSICAL",
+        "owner": "media-runtime",
+        "pdp0Applicability": "APPLICABLE",
+        "sharedCapabilityIntentCount": 14,
+        "localSurfaceReview": "NOT_PERFORMED"
+      }
+    ],
+    "remainingCampaignIdentitiesNotCoveredByThisArtifact": 40,
+    "surfaceMappingRule": "Selected physical identities are those whose source-owned PDP-0 capability intent list intersects a capability target in the projection. This is a case applicability join only; it does not prove product implementation, per-surface completion, or composite/logical review."
+  },
+  "sourceBaseline": {
+    "priorProjectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+    "priorProjectionSha256": "00a1d3e7a3885e9787bd489633d3c626ed787fee5e1380a24f8f9d5bba1cf442",
+    "qualityRootReadbackRef": "/tmp/gtool-critical-20261023/media-quality-v2-root-actual-source-readback.json",
+    "qualityRootReadbackSha256": "7e4cc90c156d8116d755d5d7308d6a78bfa8c753ac8131b58ec1dd4400e9fe62",
+    "qualityAuthorizationRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-authorization.v2.json",
+    "qualityAuthorizationSha256": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354",
+    "qualityJournalRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a.json",
+    "qualityJournalSha256": "d35b925bc2545ef6012f53b9f214a40eb0579fb56ea7ee2713a978a74bccce03",
+    "qualityTargets": [
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "expectedPostimageSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "actualSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "expectedPostimageSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "actualSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      }
+    ],
+    "currentSourceBaseline": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "sourceLineage": "RETAINED_EXACT_V7_SOURCE"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "sourceLineage": "CURRENT_REVIEWED_QUALITY_SUCCESSOR_DECISION_LOG; PXD-227"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "sourceLineage": "CURRENT_REVIEWED_QUALITY_SUCCESSOR_POLICY"
+      }
+    ],
+    "retainedV7Sources": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      }
+    ],
+    "decisionLogPxd226": {
+      "preimageSectionSha256": "a98524f567639635b9dd5f43e53b8a60e40b2ea4f21d57ac19697098e9ef4dc8",
+      "currentSectionSha256": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b",
+      "semanticBodyUnchangedAfterRemovingTrailingSeparatorBlank": true,
+      "addedTrailingBlankSeparatorLines": 1
+    },
+    "decisionLogPxd227": {
+      "ref": ".product-experience/decision-log.md#PXD-227",
+      "sectionSha256": "21fc1803e7a778e3f7e5f65e6df84bac673c2dfa4a12a24040c757710917bca2",
+      "rootReadbackSectionSha256": "21fc1803e7a778e3f7e5f65e6df84bac673c2dfa4a12a24040c757710917bca2",
+      "matches": true
+    },
+    "qualityPolicyImpact": {
+      "preimageSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      "currentSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+      "sourceDelta": "Only the ownerQualityApplicabilityCrosswalkExtensions container was added; all prior quality-policy keys and records compare exactly equal.",
+      "onlyExtensionAdded": true,
+      "historicalBaseRows": 462,
+      "currentPopulationRows": 463,
+      "futureExtensionRows": 6,
+      "addedExtensionRows": [
+        {
+          "id": "media.quality-applicability-extension.media-recipe-specification-compile.v1",
+          "capabilityRef": "media.recipe.specification.compile"
+        }
+      ],
+      "directOperationReferenceToExtensionId": false,
+      "directOperationReferenceToExtensionCapability": false,
+      "qualityTargetOperationCount": 10,
+      "impactDisposition": "No direct target/case overlap with the added media.recipe.specification.compile extension; carry the new quality source and PXD-227 decision as current context, while preserving existing H operation semantics for separate peer/owner review."
+    },
+    "phaseStatus": {
+      "recordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+      "status": "IN_PROGRESS",
+      "qualityTransactionEffect": "NONE",
+      "sourceCurrentness": "NOT_CLAIMED"
+    },
+    "projector": {
+      "moduleRef": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+      "moduleSha256": "d21c846d4b0fcab09d4aa2b0c3640736a123cffe8166f066df7e1af6253bf6c4",
+      "rebuildFromCurrentFourTargets": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "preimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capabilities.postimage.yaml",
+          "postimageSha256": "fdd48e9b2021384cf0a86d8cb2b562ca8121a586c40aba0931f1f47fd16a2b84",
+          "rebuildMatches": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "preimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-requirements.postimage.yaml",
+          "postimageSha256": "8db5ae557abab13c06509c293168a56280c99da22abfda727db09b1061f49be0",
+          "rebuildMatches": true
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "preimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capability-leaf-review.postimage.yaml",
+          "postimageSha256": "90a88f47ddfd205f7105c3934ed18505160aabaca40eca36ad2c4a801aed06d5",
+          "rebuildMatches": true
+        },
+        {
+          "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+          "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-crosswalk.postimage.json",
+          "postimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+          "rebuildMatches": true
+        }
+      ]
+    }
+  },
+  "reviewResult": {
+    "verdict": "CURRENT_QUALITY_SUCCESSOR_BASELINE_RECONCILED; FOUR_TARGET_POSTIMAGES_REPRODUCED; OWNER_DECISIONS_AND_DISTINCT_COMBINED_PEER_REVIEW_PENDING",
+    "operationCount": 248,
+    "counts": {
+      "caseOperations": 248,
+      "cohort01CapabilityCases": 44,
+      "cohort01RequirementCases": 46,
+      "cohort02R6CapabilityCases": 120,
+      "cohort03CapabilityCases": 19,
+      "cohort03RequirementCases": 19,
+      "rootChoicesSelected": 0,
+      "ownerDecisionsCreated": 0
+    },
+    "allProjectionInputsMatch": true,
+    "rootChoicesSelected": 0,
+    "ownerDecisionsCreated": 0,
+    "peerReviewForCombinedProjection": "NOT_CREATED",
+    "canonicalApply": "NOT_PERFORMED",
+    "sharedCas": "NOT_INVOKED",
+    "findings": [
+      {
+        "id": "P0-231-Q2-01",
+        "disposition": "PASS_TECHNICAL",
+        "owner": "current reviewer",
+        "detail": "The exact two-target quality transaction is COMMITTED_EXACT_READBACK and live target hashes match. Five other v7 baseline files are still exact; current decision log and quality-policy hashes are explicitly pinned as the successor baseline.",
+        "acceptanceCriterion": "Every current baseline target hash equals the live source hash and the quality transaction evidence binds the two exact target postimages; satisfied."
+      },
+      {
+        "id": "P0-231-Q2-02",
+        "disposition": "PASS_SCOPED_IMPACT",
+        "owner": "current reviewer",
+        "detail": "The quality-policy successor adds one extension row for media.recipe.specification.compile; all prior quality-policy keys/records are exact. H’s 248 operations do not reference that extension ID or capability. The new source is carried as context, not silently omitted.",
+        "acceptanceCriterion": "Source diff is limited to the declared extension and no candidate operation binds its new capability or extension; satisfied."
+      },
+      {
+        "id": "P0-231-Q2-03",
+        "disposition": "PENDING_OWNER_AND_DISTINCT_REVIEW",
+        "owner": "media-product; named owner unknown; distinct peer not identified",
+        "detail": "Eleven source-bound choices remain unresolved; the prior consolidated projection still declares no combined peer review.",
+        "acceptanceCriterion": "Eleven actual source-bound owner choices and a distinct combined peer artifact must bind the candidate operations and current baseline.",
+        "nextAction": "Keep projection unapplied and continue PDP-0 owner-decision and distinct-peer lanes."
+      }
+    ]
+  },
+  "limits": [
+    "Content review is in-thread technical review, not distinct peer acceptance.",
+    "The v2 projection remains an unapplied candidate.",
+    "This work does not update phase status, establish DEV_COMPLETE, acceptance, native proof, qualification, Build eligibility, closure, or Delivery.",
+    "Root-reported focused 16-test run is not claimed PASS; its stale production-absence expectation remains to be repaired only in an isolated test fixture."
+  ]
+}

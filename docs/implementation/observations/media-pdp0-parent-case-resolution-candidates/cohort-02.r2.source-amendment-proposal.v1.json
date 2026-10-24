@@ -1,0 +1,651 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.source-amendment-proposal.v1",
+  "artifactId": "MEDIA-PDP0-COHORT-02-R2-SOURCE-AMENDMENT-PROPOSAL-V1",
+  "status": "NO_CANONICAL_AMENDMENT_PROPOSED_OWNER_DECISIONS_REQUIRED",
+  "sourceBaseline": {
+    "sourceFingerprints": {
+      "proposal": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json",
+        "sha256": "1175f457679093be726dcf3f3af26c5cb31bbe7a5b209c0bce6534ccc0b178d0"
+      },
+      "priorProposal": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.json",
+        "sha256": "bc1d5db97797447af595748a6d2e9ecf83e5d50de581e1a65646dd0ec6f1344c"
+      },
+      "priorPeer": {
+        "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.independent-peer.json",
+        "sha256": "a33a13eae90571233d7def9ed474cbb154bebbd05753fdbba997f69b2806a73f"
+      },
+      "assignment": {
+        "path": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-pdp0-resolution-cohort-assignments.json",
+        "sha256": "b3157a9eece4016ddbd3e32bb37ff5a1f771c618960815fd60c6c4ce17843fd1"
+      },
+      "originalAudit": {
+        "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
+        "sha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2"
+      },
+      "authorityMap": {
+        "path": ".product-experience/authority-map.yaml",
+        "sha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff"
+      },
+      "capabilities": {
+        "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+      },
+      "requirements": {
+        "path": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+      },
+      "phaseStatus": {
+        "path": "docs/implementation/pdp-0-phase-dev-status.json",
+        "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+      },
+      "productTruth": {
+        "path": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
+        "sha256": "e55a99a27e493fc63f14eb89be196b966c01d9a54f5ec1f0f9f5bf3075bc0648"
+      },
+      "aqTraceability": {
+        "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+        "sha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c"
+      },
+      "crosswalk": {
+        "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20"
+      },
+      "directCriterion": {
+        "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+        "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+      },
+      "p0SevenResidual": {
+        "path": "docs/implementation/observations/media-pdp0-p0-07-parent-case-residual-classification-2026-10-23.json",
+        "sha256": "4e6973ce4abfc1e551151ec36335e0920632a12dfca92276b5b900284006f91c"
+      },
+      "surfaceRegistry": {
+        "path": ".product-experience/surface-registry.yaml",
+        "sha256": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+      }
+    },
+    "allPinnedSourcesCurrent": true,
+    "rowLevelSourcePinMismatches": 0,
+    "proposalSha256": "1175f457679093be726dcf3f3af26c5cb31bbe7a5b209c0bce6534ccc0b178d0",
+    "fullCampaignRegisteredIdentityDenominator": 54,
+    "cohortDenominator": 77,
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07"
+  },
+  "scope": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "cohortOrdinal": 2,
+    "sourceFeatureRows": 15,
+    "cohortRows": 77,
+    "canonicalTargets": [
+      ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+    ],
+    "writeEffect": "NONE",
+    "ownerDecisionState": "UNKNOWN_FOR_ALL_77_ROWS; CURRENT_231_ROW_RESIDUAL_AUTHORITY_CONTROLS"
+  },
+  "method": "This artifact does not assert or propose a canonical source amendment because the live PDP-0 residual classification keeps every row UNKNOWN pending an authorized source-owner decision. It preserves the 15 candidate texts already in R2 solely as conditional owner-decision inputs; if the owner finds a true P0 gap, the owner-controlled workflow can adopt or revise the exact candidate. No candidate is treated as a genuine missing definition here.",
+  "proposals": [],
+  "nonClaims": [
+    "No canonical source write or owner adoption.",
+    "Do not change the 231-row P0-07 unresolved partition from this proposal.",
+    "No acceptance, status, currentness, DEV_COMPLETE, implementation, runtime, qualification, closure, Delivery or release claim.",
+    "No genuinely missing PDP-0 definition is established in this review; the current source authority leaves exact row applicability unresolved.",
+    "The 15 conditional candidates are not source amendments, owner decisions, or adoption proposals until the owner classifies the rows."
+  ],
+  "conditionalOwnerDecisionInputs": [
+    {
+      "auditId": "AUD-DELIV-021",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-DELIV-021",
+      "sourceFeature": {
+        "auditId": "AUD-DELIV-021",
+        "feature": "Content credentials C2PA packaging and preservation",
+        "acceptanceFamily": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-021"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-DELIV-021",
+        "given": "An authorized actor selects an immutable accepted artifact or composition, an explicit C2PA credential target/profile, and applicable rights, provenance, signing authority, and destination constraints.",
+        "when": "The actor requests a C2PA credential package or preservation operation.",
+        "then": "Define whether the intended result is a local candidate or governed effect; bind the credential to the exact source version and declared transformations, and disclose signing/validation state separately from ordinary provenance metadata.",
+        "negativeCases": [
+          "If source identity, rights, signing authority, credential format/profile, or validation state is unknown or denied, block the affected result or preserve UNKNOWN; never claim a signed, valid, or preserved credential.",
+          "Do not imply delivery, recipient acknowledgement, or verification from a local manifest/package."
+        ],
+        "upstreamBoundary": "PDP-0 defines intended credential outcome and applicability only. Credential structure, immutable domain identity and transitions belong to PDP-1; package/interface representation to PDP-2; user flow to PDP-3; cryptographic implementation and qualification to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-DIRECT-010",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-DIRECT-010",
+      "sourceFeature": {
+        "auditId": "AUD-DIRECT-010",
+        "feature": "Dry-run, semantic diff, scope guard and undo support",
+        "acceptanceFamily": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-010"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-DIRECT-010",
+        "given": "An authorized editor/agent targets an exact immutable project revision and supplies a proposed set of typed operations with declared scope and authority.",
+        "when": "The actor requests a dry-run, semantic diff, guarded application, or undo of that proposal.",
+        "then": "Define a reviewable semantic diff/plan bound to the base revision and exact operation set; define effect authorization as a separate explicit step and undo as a new versioned compensating candidate.",
+        "negativeCases": [
+          "Stale/ambiguous base revisions, out-of-scope operations, missing authority, or unresolved effect semantics block execution; no hidden or blind retry.",
+          "A dry-run or approval record does not itself commit edits; undo never rewrites historical revisions."
+        ],
+        "upstreamBoundary": "PDP-0 defines intended outcomes and effect/authority boundaries. Edit operations/state belong to PDP-1; request/diff/result grammar to PDP-2; end-to-end approval journey to PDP-3; execution and undo implementation to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-DSP-020",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-DSP-020",
+      "sourceFeature": {
+        "auditId": "AUD-DSP-020",
+        "feature": "External VST/LV2 plugin host only if permissible and sandboxed",
+        "acceptanceFamily": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DSP-020"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-DSP-020",
+        "given": "An authorized actor selects an identified external VST/LV2 plugin/version, a declared media operation and input, and applicable permission, rights, and sandbox boundary.",
+        "when": "The actor requests processing through that external plugin host.",
+        "then": "Define the intended typed local candidate/result and identify selected plugin and version; keep plugin support, permission, sandbox admission, execution, and qualification as separate states.",
+        "negativeCases": [
+          "If plugin identity/version, permission, required sandbox policy, compatibility, or execution finality is unknown, denied, or unsupported, block or return explicit UNKNOWN/unsupported; do not load or substitute another plugin.",
+          "A compatibility observation alone is not a plugin execution result."
+        ],
+        "upstreamBoundary": "PDP-0 defines product intent, permitted applicability, and expected result boundary. Plugin identity/state contracts belong to PDP-1; interface and invocation semantics to PDP-2; user workflow to PDP-3; host/sandbox implementation and security qualification to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-DUB-010",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-DUB-010",
+      "sourceFeature": {
+        "auditId": "AUD-DUB-010",
+        "feature": "Audio/video translation variant QA by locale",
+        "acceptanceFamily": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DUB-010"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-DUB-010",
+        "given": "An authorized reviewer selects an exact dubbed media variant, locale, source version, and declared translation/speaker/timing evidence and QA dimensions.",
+        "when": "The reviewer requests QA for that locale-specific audio/video translation variant.",
+        "then": "Define a source-bound review/observation that reports each declared QA dimension, including audio/video synchronization where applicable, along with provenance, uncertainty, and abstentions; do not treat one sync metric as overall translation quality.",
+        "negativeCases": [
+          "Unknown locale, source/timing mapping, translation evidence, or method scope remains unknown and cannot be scored as passing.",
+          "Do not claim linguistic correctness, identity authorization, or overall quality from synchronization alone."
+        ],
+        "upstreamBoundary": "PDP-0 defines intended locale-variant QA meaning and claims boundary. Evidence identity/state belongs to PDP-1; metric/interface grammar to PDP-2; reviewer flow to PDP-3; measurement implementation and qualification to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-EDIT-004",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-004",
+      "sourceFeature": {
+        "auditId": "AUD-EDIT-004",
+        "feature": "Nested sequences and linked clips",
+        "acceptanceFamily": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-004"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-004",
+        "given": "An authorized editor selects exact versioned sequences and clips, including the intended nested/linked relationship and source revisions.",
+        "when": "The editor composes a nested sequence or links a clip into the project.",
+        "then": "Define whether the result is a nested sequence reference or copied composition, preserve exact source/revision links and report unresolved dependencies; do not imply source duplication or automatic update semantics.",
+        "negativeCases": [
+          "Missing, stale, or inaccessible referenced clips remain unresolved and block any claim of a complete composition.",
+          "Do not silently flatten a nested sequence, replace a link with a copy, or advance a source reference."
+        ],
+        "upstreamBoundary": "PDP-0 defines nesting/link intent and product boundary. Canonical sequence/link identity and change propagation belong to PDP-1; editing grammar to PDP-2; composition workflow to PDP-3; implementation to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-EDIT-005",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-005",
+      "sourceFeature": {
+        "auditId": "AUD-EDIT-005",
+        "feature": "Snap, markers, track grouping and frame-level navigation",
+        "acceptanceFamily": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-005"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-005",
+        "given": "An authorized editor selects a versioned timeline and explicitly identified tracks, marker action, target timebase/grid, and navigation position.",
+        "when": "The editor requests snapping, marker/grouping changes, or frame-level navigation.",
+        "then": "Define each requested operation separately: snap to the declared grid, preserve stable marker identity/timebase, and describe grouping/navigation result without conflating preview position with authored content.",
+        "negativeCases": [
+          "Unknown timebase, marker target, or track membership blocks or preserves UNKNOWN; no default frame rate or tolerance is inferred.",
+          "Preview/navigation does not silently mutate authored timeline content."
+        ],
+        "upstreamBoundary": "PDP-0 defines user intent and distinction between preview and edit. Timeline and marker state belong to PDP-1; interaction controls to PDP-2; timeline workflow to PDP-3; implementation to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-EDIT-009",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-009",
+      "sourceFeature": {
+        "auditId": "AUD-EDIT-009",
+        "feature": "Precision timecode entry and media source in/out range",
+        "acceptanceFamily": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-009"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-009",
+        "given": "An authorized editor selects an exact source version, source timebase, and explicit in/out timecodes.",
+        "when": "The editor enters or revises the source range for a clip.",
+        "then": "Define a typed range candidate bound to the exact source revision and timebase, preserving both endpoints and disclosing invalid, out-of-bounds, or unresolved ranges.",
+        "negativeCases": [
+          "Do not infer a frame rate/timebase, clamp or reorder invalid endpoints silently, or change the source range when only preview position changes.",
+          "Stale source revisions or unknown timestamp mapping remain unresolved."
+        ],
+        "upstreamBoundary": "PDP-0 defines range intent and exactness. Canonical range/timebase representation belongs to PDP-1; timecode entry grammar to PDP-2; editing journey to PDP-3; implementation to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-EDIT-018",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-018",
+      "sourceFeature": {
+        "auditId": "AUD-EDIT-018",
+        "feature": "Adjustment layers and reusable effect stacks",
+        "acceptanceFamily": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-018"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-018",
+        "given": "An authorized editor selects a versioned composition, target layer/scope, and explicit reusable effect-stack definition.",
+        "when": "The editor adds or updates an adjustment layer or binds a reusable effect stack.",
+        "then": "Define a local editable candidate that identifies the target layer and ordered effect stack with exact references; preserve unsupported effects as unavailable and keep preview/render claims separate.",
+        "negativeCases": [
+          "Unknown target scope, effect identity/order, or source revision blocks or preserves UNKNOWN; do not silently flatten, replace, or apply effects beyond the selected scope.",
+          "A reusable stack reference does not imply supported rendering or parity."
+        ],
+        "upstreamBoundary": "PDP-0 defines adjustment/effect-stack intent. Layer and effect identity/state belong to PDP-1; parameter controls to PDP-2; editing workflow to PDP-3; implementation/render qualification to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-EDIT-022",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-022",
+      "sourceFeature": {
+        "auditId": "AUD-EDIT-022",
+        "feature": "Diff, dry-run, approval and rollback of agent edits",
+        "acceptanceFamily": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-022"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-022",
+        "given": "An authorized editor/agent targets an exact project revision and declares a bounded typed edit proposal, approval scope, and rollback intent.",
+        "when": "The actor requests diff, dry-run, approval, guarded application, or rollback.",
+        "then": "Define a semantic diff/plan bound to the base revision and typed operations; require a separate authority decision before applying effects and represent rollback as a new revision/candidate.",
+        "negativeCases": [
+          "Stale revisions, denied authority, ambiguous operation scope, or unknown effect finality block execution and prevent blind retry.",
+          "Review approval is not execution; rollback does not erase history or imply successful reversal."
+        ],
+        "upstreamBoundary": "PDP-0 defines intended outcome and authority/effect boundaries. Project revision and operation state belong to PDP-1; diff/approval interface to PDP-2; agent-edit journey to PDP-3; implementation and verification to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-EDIT-028",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-028",
+      "sourceFeature": {
+        "auditId": "AUD-EDIT-028",
+        "feature": "Proxy/full-quality preview switch at exact positions",
+        "acceptanceFamily": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-EDIT-028"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-EDIT-028",
+        "given": "An authorized editor selects an exact composition revision, preview position, and explicitly available proxy/full-quality profile.",
+        "when": "The editor switches preview quality at that position.",
+        "then": "Define the preview observation/result bound to the same composition revision and position, recording selected profile and whether it is available; do not alter timeline state.",
+        "negativeCases": [
+          "Unknown position/profile or unavailable proxy/full-quality media remains explicit; never substitute quality silently or claim render parity.",
+          "A preview switch is not a project edit or final render."
+        ],
+        "upstreamBoundary": "PDP-0 defines preview intent and distinctions. Preview/profile and revision state belong to PDP-1; control semantics to PDP-2; preview journey to PDP-3; renderer/runtime support to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-GEN-009",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-GEN-009",
+      "sourceFeature": {
+        "auditId": "AUD-GEN-009",
+        "feature": "First/last-frame video interpolation and editing",
+        "acceptanceFamily": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-009"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-GEN-009",
+        "given": "An authorized creator supplies exact first and last visual references, declared video intent, and output profile.",
+        "when": "The creator requests interpolation/editing between those endpoints.",
+        "then": "Define the intended candidate sequence/video relationship to the exact endpoint references, output shape, and uncertainty; retain both endpoint identities and distinguish authored intermediate keyframes from generated frames.",
+        "negativeCases": [
+          "Missing/unknown endpoint, output shape, rights, or profile blocks the affected branch; do not infer a first/last reference or silently replace an endpoint.",
+          "Do not claim temporal continuity or quality solely from endpoint presence."
+        ],
+        "upstreamBoundary": "PDP-0 defines endpoint-conditioned product intent. Frame/time identities belong to PDP-1; parameter/interface grammar to PDP-2; creation journey to PDP-3; interpolation implementation and qualification to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-GEN-019",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-GEN-019",
+      "sourceFeature": {
+        "auditId": "AUD-GEN-019",
+        "feature": "Seed, sampler, aspect/resolution and model parameters",
+        "acceptanceFamily": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-019"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-GEN-019",
+        "given": "An authorized creator requests a video-generation candidate and declares the applicable model/checkpoint, seed, sampler, and output dimensions/profile when those controls are supported by the selected binding.",
+        "when": "The product prepares the generation request and candidate.",
+        "then": "Define which parameters are user-declared versus binding-selected, preserve exact effective values and provenance when known, and expose unsupported or unknown parameters without silently substituting them.",
+        "negativeCases": [
+          "Unknown model/checkpoint or unsupported seed/sampler remains explicit and blocks any claim that the requested parameter was applied.",
+          "Do not infer parameter support or reproduce a result from an absent seed/model identity."
+        ],
+        "upstreamBoundary": "PDP-0 defines control intent and provenance expectations. Parameter identity/state belongs to PDP-1; request schema to PDP-2; creation flow to PDP-3; model execution/reproducibility qualification to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-GEN-022",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-GEN-022",
+      "sourceFeature": {
+        "auditId": "AUD-GEN-022",
+        "feature": "Cost-aware provider capability routing and fallback",
+        "acceptanceFamily": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-022"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-GEN-022",
+        "given": "An authorized caller declares an operation, input, applicable rights/policy, execution profile, cost constraints, and any permitted fallback boundary.",
+        "when": "The product chooses among declared eligible providers for the requested operation.",
+        "then": "Define a source-owned routing decision/result that records selected declared provider/profile, cost basis and fallback decision; return only an explicitly permitted fallback and preserve unsupported or unknown dimensions.",
+        "negativeCases": [
+          "Unknown, denied, unqualified, or incompatible providers are ineligible; no silent provider substitution or dispatch.",
+          "A compatibility observation is not a routing decision, execution, or completion result; missing cost/policy inputs block selection."
+        ],
+        "upstreamBoundary": "PDP-0 defines routing intent and explicit fallback meaning only. Provider decision/domain state belongs to PDP-1, request/result interface to PDP-2, end-to-end flow to PDP-3; actual routing and qualification belong to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-INTER-007",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-INTER-007",
+      "sourceFeature": {
+        "auditId": "AUD-INTER-007",
+        "feature": "Variable-language captions and audio track selection",
+        "acceptanceFamily": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-007"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-INTER-007",
+        "given": "A viewer has an admitted media version with explicitly identified caption languages and audio tracks, plus current rights and playback constraints.",
+        "when": "The viewer selects a caption language or audio track.",
+        "then": "Define a playback-only selection result scoped to that media version and available track identities; expose unavailable/unknown tracks and preserve the player’s lack of product-mutation authority.",
+        "negativeCases": [
+          "Never infer track availability, language, or rights from a label; unknown/unavailable choices remain unavailable.",
+          "Selection must not modify the source or bypass rights/offline policy."
+        ],
+        "upstreamBoundary": "PDP-0 defines available viewing choice and authority boundary. Track identity/state belongs to PDP-1; player controls/accessibility to PDP-2; viewing flow to PDP-3; runtime playback to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    },
+    {
+      "auditId": "AUD-MOTION-009",
+      "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-MOTION-009",
+      "sourceFeature": {
+        "auditId": "AUD-MOTION-009",
+        "feature": "Node-based compositing and transform graph",
+        "acceptanceFamily": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+        "sourceRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-009"
+      },
+      "conditionalCandidate": {
+        "proposedDefinitionId": "PROPOSED-MEDIA-PDP0-AUD-MOTION-009",
+        "given": "An authorized creator selects exact versioned media inputs and declares transform/compositing nodes and their connections.",
+        "when": "The creator requests a node-based composite/transform graph.",
+        "then": "Define a reviewable local graph candidate whose nodes and edges are typed and traceable to the selected inputs; preserve unresolved connections and distinguish graph intent from rendered output.",
+        "negativeCases": [
+          "Unknown node, edge, input revision, or unsupported transform blocks the affected graph; do not infer implicit connections or silently flatten nodes.",
+          "A graph candidate does not establish preview/render parity or delivery."
+        ],
+        "upstreamBoundary": "PDP-0 defines node graph intent and output boundary. Node/edge domain identity belongs to PDP-1; graph editing interface to PDP-2; composition experience to PDP-3; renderer implementation/qualification to BUILD."
+      },
+      "proposalTextQualityStatus": "PASS",
+      "ownerSemanticDisposition": "UNKNOWN",
+      "whyNotAnAmendmentYet": "The current P0-07 residual authority says parent-case sufficiency versus a feature-specific P0 case is unresolved for this audit ID. This proposal text cannot itself establish a missing canonical definition.",
+      "ownerDecisionNeeded": "An authorized Media PDP-0 source owner must decide, for this exact audit ID and linked canonical sources, whether parent-case scope is sufficient for P0-07 or whether a feature-specific P0 meaning/applicability case is required. If the missing detail is contract, interface, journey, or execution evidence, retain it under the explicitly named existing downstream handoff; do not count that downstream work as a P0-07 defect.",
+      "requiredNextAction": "Route this source-bound row and its exact links to the existing Media PDP-0 owner workflow for a recorded scoped decision. Until that record exists, retain UNKNOWN and do not alter canonical status, criteria, acceptance, or phase ownership."
+    }
+  ],
+  "selectedSurfacePhaseMatrix": [
+    {
+      "surfaceId": "media.surface.interactive-demo-player",
+      "surfaceType": "GUI_EMBEDDED",
+      "parentSurfaceId": "media.surface.embedded",
+      "pdpApplicability": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "phase": "PDP-0 Product Truth / P0-07",
+      "sourcePinState": "Selected cohort source baselines match live whole-file hashes; this is not a whole-cut PDP-0 source-currentness claim.",
+      "sourceCurrentStatus": "UNKNOWN_FOR_ROW_SEMANTICS; owner disposition UNKNOWN in current 231-row P0-07 residual record.",
+      "remainingPhaseLocalDecisionIds": [
+        "AUD-INTER-002",
+        "AUD-INTER-007"
+      ],
+      "blockerOwner": {
+        "ownerRole": "UNKNOWN_FROM_CURRENT_AUTHORITY",
+        "blocker": "Authorized owner decision is required on whether exact parent requirement case scope sufficiently carries each audit feature at P0-07 or requires a feature-specific P0 case."
+      },
+      "acceptanceCriteria": "For each exact audit ID, record authorized determination of parent-case sufficiency versus exact feature-specific PDP-0 meaning; keep positive and negative behavior explicit and preserve downstream handoffs.",
+      "nextLegalAction": "Route exact source-bound rows to the PDP-0 owner workflow; do not adopt source amendment or phase status from this peer."
+    },
+    {
+      "surfaceId": "media.surface.production-studio",
+      "surfaceType": "GUI_WEB",
+      "parentSurfaceId": "media.surface.web",
+      "pdpApplicability": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "phase": "PDP-0 Product Truth / P0-07",
+      "sourcePinState": "Selected cohort source baselines match live whole-file hashes; this is not a whole-cut PDP-0 source-currentness claim.",
+      "sourceCurrentStatus": "UNKNOWN_FOR_ROW_SEMANTICS; owner disposition UNKNOWN in current 231-row P0-07 residual record.",
+      "remainingPhaseLocalDecisionIds": [
+        "AUD-DELIV-016",
+        "AUD-DELIV-017",
+        "AUD-DELIV-018",
+        "AUD-DELIV-019",
+        "AUD-DELIV-020",
+        "AUD-DELIV-021",
+        "AUD-DELIV-023",
+        "AUD-DSP-004",
+        "AUD-DSP-005",
+        "AUD-DSP-006",
+        "AUD-DSP-009",
+        "AUD-DSP-010",
+        "AUD-DSP-011",
+        "AUD-DSP-012",
+        "AUD-DSP-013",
+        "AUD-DSP-015",
+        "AUD-DSP-017",
+        "AUD-DSP-020",
+        "AUD-DUB-001",
+        "AUD-DUB-004",
+        "AUD-DUB-005",
+        "AUD-DUB-006",
+        "AUD-DUB-007",
+        "AUD-DUB-008",
+        "AUD-DUB-009",
+        "AUD-DUB-010",
+        "AUD-DUB-011",
+        "AUD-DUB-013",
+        "AUD-DUB-015",
+        "AUD-DUB-016",
+        "AUD-EDIT-004",
+        "AUD-EDIT-005",
+        "AUD-EDIT-009",
+        "AUD-EDIT-011",
+        "AUD-EDIT-012",
+        "AUD-EDIT-016",
+        "AUD-EDIT-018",
+        "AUD-EDIT-019",
+        "AUD-EDIT-022",
+        "AUD-EDIT-024",
+        "AUD-EDIT-026",
+        "AUD-EDIT-028",
+        "AUD-GEN-001",
+        "AUD-GEN-002",
+        "AUD-GEN-003",
+        "AUD-GEN-004",
+        "AUD-GEN-005",
+        "AUD-GEN-006",
+        "AUD-GEN-007",
+        "AUD-GEN-008",
+        "AUD-GEN-009",
+        "AUD-GEN-010",
+        "AUD-GEN-011",
+        "AUD-GEN-012",
+        "AUD-GEN-016",
+        "AUD-GEN-017",
+        "AUD-GEN-018",
+        "AUD-GEN-019",
+        "AUD-GEN-020",
+        "AUD-GEN-021",
+        "AUD-GEN-022",
+        "AUD-GEN-023",
+        "AUD-GEN-024",
+        "AUD-MOTION-002",
+        "AUD-MOTION-006",
+        "AUD-MOTION-009",
+        "AUD-MOTION-011",
+        "AUD-MOTION-016",
+        "AUD-MUSIC-001",
+        "AUD-MUSIC-004",
+        "AUD-MUSIC-005",
+        "AUD-MUSIC-006",
+        "AUD-MUSIC-007",
+        "AUD-MUSIC-009"
+      ],
+      "blockerOwner": {
+        "ownerRole": "UNKNOWN_FROM_CURRENT_AUTHORITY",
+        "blocker": "Authorized owner decision is required on whether exact parent requirement case scope sufficiently carries each audit feature at P0-07 or requires a feature-specific P0 case."
+      },
+      "acceptanceCriteria": "For each exact audit ID, record authorized determination of parent-case sufficiency versus exact feature-specific PDP-0 meaning; keep positive and negative behavior explicit and preserve downstream handoffs.",
+      "nextLegalAction": "Route exact source-bound rows to the PDP-0 owner workflow; do not adopt source amendment or phase status from this peer."
+    },
+    {
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "surfaceType": "CLI",
+      "parentSurfaceId": "media.surface.cli",
+      "pdpApplicability": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "phase": "PDP-0 Product Truth / P0-07",
+      "sourcePinState": "Selected cohort source baselines match live whole-file hashes; this is not a whole-cut PDP-0 source-currentness claim.",
+      "sourceCurrentStatus": "UNKNOWN_FOR_ROW_SEMANTICS; owner disposition UNKNOWN in current 231-row P0-07 residual record.",
+      "remainingPhaseLocalDecisionIds": [
+        "AUD-DIRECT-010"
+      ],
+      "blockerOwner": {
+        "ownerRole": "UNKNOWN_FROM_CURRENT_AUTHORITY",
+        "blocker": "Authorized owner decision is required on whether exact parent requirement case scope sufficiently carries each audit feature at P0-07 or requires a feature-specific P0 case."
+      },
+      "acceptanceCriteria": "For each exact audit ID, record authorized determination of parent-case sufficiency versus exact feature-specific PDP-0 meaning; keep positive and negative behavior explicit and preserve downstream handoffs.",
+      "nextLegalAction": "Route exact source-bound rows to the PDP-0 owner workflow; do not adopt source amendment or phase status from this peer."
+    }
+  ],
+  "campaignScopeGuard": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "registeredIdentityCampaignDenominator": {
+      "physical": 26,
+      "compositionsIncludingRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "exactCohortRows": 77,
+    "selectedOwnerSurfaceCount": 3,
+    "selectedOwnerSurfacesAreNotTheFullCampaign": true,
+    "fullCampaignDenominatorPreserved": true
+  }
+}

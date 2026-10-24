@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r07.repair-map.v1",
+  "status": "CANDIDATE_REPAIR_MAP_ONLY",
+  "predecessor": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.freeze.v1.json",
+    "freezeSha256": "ec142cda6ba9820a4113df444b1718d292d283e3f822061f77f0ec289857a57f",
+    "bundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.successor-bundle.candidate.v1.json",
+    "bundleSha256": "56bda459ddfa8ccf1c6df7fb2d6ce356c90052df3da38b9a3aa6065ab02d0769",
+    "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.independent-peer.actual-h-r06-full.json",
+    "actualHReviewSha256": "53439e136ac1d8a521c4f4748fe29a606e607f57578e969db6a2cb3edd4edcba"
+  },
+  "findingId": "F-10",
+  "auditId": "AUD-GEN-024",
+  "field": "explicitUnsupportedCases",
+  "changedEntryCount": 2,
+  "replacement": "UNKNOWN -> UNKNOWN_OUTCOME",
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE"
+}

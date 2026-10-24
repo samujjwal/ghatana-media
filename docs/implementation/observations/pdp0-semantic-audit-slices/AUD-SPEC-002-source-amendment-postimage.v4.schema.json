@@ -1,0 +1,455 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.aud-spec-002-source-amendment-postimage.v4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactKind",
+    "predecessorV3",
+    "sourceBindings",
+    "proposedTechnicalAuthor",
+    "exactConditionalOutput",
+    "ordinaryCompile",
+    "supportedMigration",
+    "unsupportedOrUnknownMigration",
+    "sourceOwnerExtension",
+    "exactTargets",
+    "postimageSha256",
+    "historicalBoundary",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.aud-spec-002-source-amendment-postimage.v4"
+    },
+    "artifactKind": {
+      "const": "NON_CANONICAL_FOUR_SOURCE_POSTIMAGE_PROPOSAL"
+    },
+    "predecessorV3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256",
+        "immutable"
+      ],
+      "properties": {
+        "ref": {
+          "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v3.json"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "immutable": {
+          "const": true
+        }
+      }
+    },
+    "sourceBindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "crosswalkSha256",
+        "auditSha256",
+        "capabilitiesSha256",
+        "requirementsSha256",
+        "capabilityLeafReviewSha256",
+        "applicationsChannelsSha256",
+        "decisionLogSha256"
+      ],
+      "properties": {
+        "crosswalkSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "auditSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilitiesSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "requirementsSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilityLeafReviewSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "applicationsChannelsSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "decisionLogSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "proposedTechnicalAuthor": {
+      "const": "agent:/root/phase_io"
+    },
+    "exactConditionalOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "requiredWhenSelector",
+        "resultVariantSelector",
+        "resultKind",
+        "originRelation",
+        "epistemicDisposition",
+        "appliedEffect"
+      ],
+      "properties": {
+        "artifactType": {
+          "const": "reviewable-version-bound-schema-migration-candidate-and-semantic-diff"
+        },
+        "requiredWhenSelector": {
+          "const": "migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED"
+        },
+        "resultVariantSelector": {
+          "const": "resultKind=SUPPORTED_VERSION_BOUND_SCHEMA_MIGRATION_CANDIDATE_AND_SEMANTIC_DIFF;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION;migrationIntent=SCHEMA_MIGRATION;sourceSpecification=EXACT_VERSIONED;sourceSchema=EXACT_VERSIONED;targetSchema=EXACT_VERSIONED;transformation=EXACT_DECLARED;transformationSupport=SUPPORTED"
+        },
+        "resultKind": {
+          "const": "SUPPORTED_VERSION_BOUND_SCHEMA_MIGRATION_CANDIDATE_AND_SEMANTIC_DIFF"
+        },
+        "originRelation": {
+          "const": "SOURCE_DERIVED"
+        },
+        "epistemicDisposition": {
+          "const": "SOURCE_DERIVED_TRANSFORMATION"
+        },
+        "appliedEffect": {
+          "const": "NO_MIGRATION_APPLIED"
+        }
+      }
+    },
+    "ordinaryCompile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "existingOutput",
+        "requiredOnSuccess",
+        "migrationCandidateRequired",
+        "migrationCandidateEmitted",
+        "acceptanceCase"
+      ],
+      "properties": {
+        "existingOutput": {
+          "const": "normalized-semantic-graph-and-reviewable-project-plan-candidate"
+        },
+        "requiredOnSuccess": {
+          "const": true
+        },
+        "migrationCandidateRequired": {
+          "const": false
+        },
+        "migrationCandidateEmitted": {
+          "const": false
+        },
+        "acceptanceCase": {
+          "const": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15"
+        }
+      }
+    },
+    "supportedMigration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "existingGraphOutputRemainsRequired",
+        "additionalMigrationOutputRequiredForExactInputSelector",
+        "acceptanceCase",
+        "originalPreserved",
+        "projectMutation",
+        "jobSubmission",
+        "externalEffect"
+      ],
+      "properties": {
+        "existingGraphOutputRemainsRequired": {
+          "const": true
+        },
+        "additionalMigrationOutputRequiredForExactInputSelector": {
+          "const": true
+        },
+        "acceptanceCase": {
+          "const": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-16"
+        },
+        "originalPreserved": {
+          "const": true
+        },
+        "projectMutation": {
+          "const": false
+        },
+        "jobSubmission": {
+          "const": false
+        },
+        "externalEffect": {
+          "const": false
+        }
+      }
+    },
+    "unsupportedOrUnknownMigration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acceptanceCase",
+        "result",
+        "migrationCandidate",
+        "originalPreserved",
+        "projectMutation",
+        "externalEffect"
+      ],
+      "properties": {
+        "acceptanceCase": {
+          "const": "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-17"
+        },
+        "result": {
+          "const": "UNKNOWN_OR_UNSUPPORTED_OR_REJECTED"
+        },
+        "migrationCandidate": {
+          "const": "NONE"
+        },
+        "originalPreserved": {
+          "const": true
+        },
+        "projectMutation": {
+          "const": false
+        },
+        "externalEffect": {
+          "const": false
+        }
+      }
+    },
+    "sourceOwnerExtension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilityRef",
+        "exactPxd207ScopeRef",
+        "channel",
+        "ownerAdjudicationRecordId",
+        "trustRecordId",
+        "priorOwnerRows",
+        "priorTrustRows",
+        "currentProposedRows",
+        "sourceSelectorRule"
+      ],
+      "properties": {
+        "capabilityRef": {
+          "const": "media.recipe.specification.compile"
+        },
+        "exactPxd207ScopeRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "channel": {
+          "const": "media.channel.cli"
+        },
+        "ownerAdjudicationRecordId": {
+          "const": "media.capability-adjudication.recipe-specification-compile"
+        },
+        "trustRecordId": {
+          "const": "media.capability-trust-reconstruction.media-capability-adjudication-recipe-specification-compile.v1"
+        },
+        "priorOwnerRows": {
+          "const": 462
+        },
+        "priorTrustRows": {
+          "const": 462
+        },
+        "currentProposedRows": {
+          "const": 463
+        },
+        "sourceSelectorRule": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "exactTargets": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/capabilities.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/requirements.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "targetRef",
+            "preimageSha256",
+            "postimageSha256"
+          ],
+          "properties": {
+            "targetRef": {
+              "const": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"
+            },
+            "preimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "postimageSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "postimageSha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilityYaml",
+        "requirementsYaml",
+        "crosswalkJson",
+        "capabilityLeafReviewYaml"
+      ],
+      "properties": {
+        "capabilityYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "requirementsYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "crosswalkJson": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "capabilityLeafReviewYaml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "historicalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "historic462OwnerRows",
+        "historic462TrustRows",
+        "newExtension"
+      ],
+      "properties": {
+        "historic462OwnerRows": {
+          "const": "PRESERVED_BYTE_FOR_BYTE_AND_IN_ORDER"
+        },
+        "historic462TrustRows": {
+          "const": "PRESERVED_BYTE_FOR_BYTE_AND_IN_ORDER"
+        },
+        "newExtension": {
+          "const": "ADDITIVE_ROW_463; not represented as one of the historic 462"
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rootTechnicalSourceOwnerDecision",
+        "distinctTechnicalPeerReview",
+        "independentAcceptance",
+        "nativeProof",
+        "trustedIssuerOrCredentialRegistration",
+        "runtimeAdmission",
+        "canonicalApply"
+      ],
+      "properties": {
+        "rootTechnicalSourceOwnerDecision": {
+          "const": "PENDING"
+        },
+        "distinctTechnicalPeerReview": {
+          "const": "PENDING"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeProof": {
+          "const": "NOT_CLAIMED"
+        },
+        "trustedIssuerOrCredentialRegistration": {
+          "const": "NOT_REQUESTED"
+        },
+        "runtimeAdmission": {
+          "const": "NOT_ADMITTED"
+        },
+        "canonicalApply": {
+          "const": "NOT_PERFORMED"
+        }
+      }
+    }
+  }
+}

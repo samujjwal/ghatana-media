@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration.r9-r08.owner-policy-selector-cas-peer-review.v1",
+  "recordKind": "READ_ONLY_SOURCE_PINNED_TECHNICAL_PEER_REVIEW",
+  "reviewScope": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0",
+    "surface": "R9-R08_SELECTED_SOURCE_INTEGRATION_CUT",
+    "reviewQuestion": "Whether the owner-execution authorization permits prospective source-governance records and selector allocation, and whether the v2 external whole-log CAS is self-referential."
+  },
+  "sourceBaseline": [
+    {"ref":"config/closure/media-product-definition/owner-execution-authorization.v1.json","sha256":"9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"},
+    {"ref":".product-experience/decision-log.md","sha256":"0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298","latestPxdHeading":"PXD-227"},
+    {"ref":"docs/implementation/pdp-0-phase-dev-status.json","sha256":"6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"},
+    {"ref":"scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-approval-input.mjs","sha256":"3c1540dfe3563726522683d3e5f2894c1008baf27a299cf4315ffcc0debec414"},
+    {"ref":"scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-application-plan.mjs","sha256":"053923ef44f0202572923c4c35447c3a464a09fd68b998a70b35b6692a77e62d"},
+    {"ref":"scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v2-guard.mjs","sha256":"17678f971fa67779e46e65baaeeda67ed5fb89bce63a4d0c86fc0f6981a8a5a6"},
+    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json","sha256":"64083d1e155a0a9903a81d5cd01ac74deb86892a8989e9d230abe9131901a6c7"},
+    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.application-plan.v2.r2.candidate.v1.json","sha256":"2a422e243f7f85aed62bdcdbdb5782a7bbad6818675d79ecc48833567504b6ae"},
+    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.r08-semantic-review.v1.json","sha256":"200aaaff4577426d4f91f16ecb74a3c64bcc76280ad92ca5fd278d531523fe5a"},
+    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-material-binding-review-r01.json","sha256":"5c0c90c4ae7a31a1b7bd3b971c8b071daa1289675fa5327dece745f37239026d"}
+  ],
+  "findings": [
+    {
+      "findingId":"R9-R08-POLICY-BOUNDARY-001",
+      "status":"PARTIALLY_PERMITTED_WITH_ROLE_BOUNDARY",
+      "detail":"The owner execution authorization delegates bounded architecture, product, implementation, non-specialist source-decision review, source-supported scope/N-A, migration-planning, and test-selection decisions to the implementation coordinator without another discretionary checkpoint. It explicitly does not grant independent reviewer or cryptographic verifier status, and it requires actual independent authority for trusted registration and native proof/receipt decisions. A technical source-owner recommendation or decision proposal may be authored within that bounded scope; this policy does not itself mint the four distinct authenticated role grants required by the v2 apply validator.",
+      "rolesStillUnproven":["PDP0_SOURCE_OWNER","ROOT_AUTHORITY","PDP0_PROFILE_REGISTRAR","CANONICAL_APPLY_AUTHORITY"]
+    },
+    {
+      "findingId":"R9-R08-SELECTOR-ALLOCATION-001",
+      "status":"BLOCKED_NO_OWNER_ALLOCATOR_SOURCE",
+      "detail":"The live decision log ends at PXD-227. The v2 validator accepts four unique exact .product-experience/decision-log.md#PXD-NNN selectors, while the candidate material leaves all four NOT_ALLOCATED_BY_DECISION_LOG_OWNER. No source-backed selector-allocation producer or authorization was identified. PXD-228 through PXD-231 are merely sequential possibilities and are not allocated by this review.",
+      "requiredAction":"Decision-log owner allocates four unique sections/selectors through an authorized workflow, or adopts an explicit allocator contract."
+    },
+    {
+      "findingId":"R9-R08-WHOLELOG-CAS-001",
+      "status":"NO_INTRINSIC_SELF_REFERENCE_IF_INVARIANT_PRESERVED",
+      "detail":"The v2 guard validates the final whole decision-log digest as an external apply-authorization field equal to the whole-log read-set member, while the referenced apply decision section is independently pinned by its section digest. This is not a cryptographic self-reference provided that the section does not embed the external authorization JSON digest. The decision log remains read-only and final CAS capture remains after the four sections and external records are finalized.",
+      "invariant":"Never require the apply decision section to contain the digest of the external apply-authorization JSON that itself contains the post-section whole-log digest."
+    },
+    {
+      "findingId":"R9-R08-READINESS-001",
+      "status":"BLOCKED_AS_DECLARED",
+      "detail":"The pinned application plan lists PDP0_STATUS_PIN_OR_CURRENTNESS_NOT_COMPLETE, FOUR_OWNER_ALLOCATED_AUTHORITY_SELECTORS_NOT_AVAILABLE, FOUR_AUTHORITY_RECORD_CHAIN_NOT_COMPLETE, V2_OPERATION_PROFILE_NOT_REGISTERED, and FINAL_EXTERNAL_APPLY_READSET_NOT_CAPTURED_AFTER_AUTHORITY_RECORDS. The PXD-225 semantic peer is selected-cut semantic evidence only and does not resolve these conditions."
+    }
+  ],
+  "authorityBoundary": {
+    "selectorsAllocated": false,
+    "authorityRecordsCreated": false,
+    "credentialsOrRoleGrantsCreated": false,
+    "profileRegistered": false,
+    "sourceWrites": "NONE",
+    "statusEffect": "NONE",
+    "apply": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED",
+    "r07Delegation": "UNCONSUMED"
+  },
+  "disposition":"SOURCE_PINNED_READ_ONLY_TECHNICAL_REVIEW_ONLY_NOT_OWNER_APPROVAL_OR_AUTHORITY_REGISTRATION"
+}

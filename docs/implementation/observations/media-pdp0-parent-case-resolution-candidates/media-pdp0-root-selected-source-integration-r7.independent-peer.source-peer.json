@@ -1,0 +1,599 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-independent-peer.v1",
+  "artifactId": "MEDIA-PDP0-COHORT01-COHORT02-R7-INDEPENDENT-PEER-2026-10-23-SOURCE-PEER",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_PDP0_ROOT_SELECTED_SOURCE_POSTIMAGE_CONTENT_AND_TRACE_REVIEW",
+  "reviewer": {
+    "identityKind": "assigned-agent",
+    "identity": "agent:task:/root/source_peer",
+    "role": "distinct independent technical peer assigned for source-candidate review",
+    "humanOwnerAuthority": false,
+    "humanAdoptionOrAcceptanceClaimed": false
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "cohorts": [
+      1,
+      2
+    ],
+    "selectedSet": "seven cohort-01 root-selected feature candidates (34 cases), nine cohort-02 feature candidates (18 capability cases and 20 parent requirement cases), plus separate shared and split DIRECT-010/EDIT-022 alternatives",
+    "denominator": {
+      "physical": 26,
+      "compositeIncludingRoot": 7,
+      "logical": 21,
+      "total": 54,
+      "phaseCells": 216,
+      "historicalBaseRecords": 462
+    },
+    "canonicalApply": "NONE"
+  },
+  "inputs": {
+    "manifestRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.postimages.json",
+    "manifestSha256": "765df0b3371554df2c3312f9b57e2dbcd2f2608a619d8f00b46897568a1a9979",
+    "operationLedgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.operations.json",
+    "operationLedgerSha256": "ddcabb9fc51ce8a49bacbc32e9b9443511dee1249767f73c127242b0a040ab6d",
+    "verificationRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.verification.json",
+    "verificationSha256": "c28888791639d89b360acfecfed17582801c323600b5a022d32095fa0bd31306",
+    "rootDirections": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort01-root-source-authoring-direction-r1-2026-10-23.json",
+        "sha256": "fdbec76f5ff5801c686e1f3a3b2ee0e984691b92ef2b8e042c85cd8829e52c6d",
+        "features": 7,
+        "cases": 34
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
+        "sha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+        "features": 9,
+        "packetRepairs": 2
+      }
+    ],
+    "rootCandidates": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
+        "sha256": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
+        "casesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-cases.r7.json",
+        "casesSha256": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5"
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+        "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239"
+      }
+    ],
+    "retainedProjection": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+      "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+      "operationCount": 248,
+      "operationIdsMatchLedger": true
+    },
+    "sourceBaseline": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "actualLiveSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "actualLiveSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "matchesLive": true
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "actualLiveSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "actualLiveSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "actualLiveSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "actualLiveSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "matchesLive": true
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "actualLiveSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "matchesLive": true
+      }
+    ]
+  },
+  "reviewedOutputs": [
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capabilities.postimage.yaml",
+      "sha256": "da6bed5705d46d81c8addb03f64dffb7c50d0c27ad636adffdbbaafcc2e4b862",
+      "actualSha256": "da6bed5705d46d81c8addb03f64dffb7c50d0c27ad636adffdbbaafcc2e4b862",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.requirements.postimage.yaml",
+      "sha256": "fd7f5ec7ca4df66ae492248c02fa636614b7caa6bd856ec36e564ce69870e982",
+      "actualSha256": "fd7f5ec7ca4df66ae492248c02fa636614b7caa6bd856ec36e564ce69870e982",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capability-leaf-review.postimage.yaml",
+      "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.crosswalk.postimage.json",
+      "sha256": "c04edbdda2f5a8ae9f1b583f1c309001e0072b906d7b25556f612d8e38ab5007",
+      "actualSha256": "c04edbdda2f5a8ae9f1b583f1c309001e0072b906d7b25556f612d8e38ab5007",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capabilities.postimage.yaml",
+      "sha256": "9e4e61c68aef52bbffd45b270ba27ca15a7712fcfd33d66d7aead59533c6a9ef",
+      "actualSha256": "9e4e61c68aef52bbffd45b270ba27ca15a7712fcfd33d66d7aead59533c6a9ef",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.requirements.postimage.yaml",
+      "sha256": "ea1a5b09a4d3c3383a8e89a425fe1f4c5c0662d4c6a0bb000f013ac85901b4bc",
+      "actualSha256": "ea1a5b09a4d3c3383a8e89a425fe1f4c5c0662d4c6a0bb000f013ac85901b4bc",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capability-leaf-review.postimage.yaml",
+      "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.crosswalk.postimage.json",
+      "sha256": "c584ebca764a86a9051bc77e43ea4070cdd5ae2d7c06c847ea8552ebe59c12b7",
+      "actualSha256": "c584ebca764a86a9051bc77e43ea4070cdd5ae2d7c06c847ea8552ebe59c12b7",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capabilities.postimage.yaml",
+      "sha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9",
+      "actualSha256": "013c25634ed0679c5fc98b12b89c068bbc2a46fc6d7ae471b8c72eddb7028dd9",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.requirements.postimage.yaml",
+      "sha256": "01d8feb6b7e8c7a1f4572ad87331cf4ede4e42bc7287eadbf7022cbeeb075463",
+      "actualSha256": "01d8feb6b7e8c7a1f4572ad87331cf4ede4e42bc7287eadbf7022cbeeb075463",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capability-leaf-review.postimage.yaml",
+      "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "actualSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "matches": true
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.crosswalk.postimage.json",
+      "sha256": "1bf4adb0e432f2c333b537ba0aed8c62668e3e3908ee3073274425b9ca5b26f6",
+      "actualSha256": "1bf4adb0e432f2c333b537ba0aed8c62668e3e3908ee3073274425b9ca5b26f6",
+      "matches": true
+    }
+  ],
+  "evidence": {
+    "sourcePostimages": {
+      "coreFiles": 4,
+      "packetAlternativeFiles": 8,
+      "allYamlParseAndAllHashesMatch": true,
+      "coreCapabilityDefinitionsPresent": 16,
+      "coreCapabilityCasesPresent": 52,
+      "coreParentRequirementCasesPresent": 54,
+      "coreRequirementBindings": 17,
+      "crosswalkRowsUpdated": 16
+    },
+    "cohort01": {
+      "featureCount": 7,
+      "caseCount": 34,
+      "featureIds": [
+        "media.stream.session.product-effect.readback.observe",
+        "media.speech.synthesis.speaker.tune-authorized",
+        "media.speech.synthesis.speaker.design-synthetic-persona",
+        "media.speech.synthesis.speaker.enroll-persona-authorized",
+        "media.color.profile.compatibility.observe",
+        "media.deliver.readiness.observe",
+        "media.color.saturation"
+      ],
+      "sourceCaseIds": [
+        "R7-AUD-CAP-028-01",
+        "R7-AUD-CAP-028-02",
+        "R7-AUD-CAP-028-03",
+        "R7-AUD-CAP-028-04",
+        "R7-AUD-CLONE-004-01",
+        "R7-AUD-CLONE-004-02",
+        "R7-AUD-CLONE-004-03",
+        "R7-AUD-CLONE-004-04",
+        "R7-AUD-CLONE-006-01",
+        "R7-AUD-CLONE-006-02",
+        "R7-AUD-CLONE-006-03",
+        "R7-AUD-CLONE-006-04",
+        "R7-AUD-CLONE-017-01",
+        "R7-AUD-CLONE-017-02",
+        "R7-AUD-CLONE-017-03",
+        "R7-AUD-CLONE-017-04",
+        "R7-AUD-COLOR-007-01",
+        "R7-AUD-COLOR-007-02",
+        "R7-AUD-COLOR-007-03",
+        "R7-AUD-COLOR-007-04",
+        "R7-AUD-DELIV-007-01",
+        "R7-AUD-DELIV-007-02",
+        "R7-AUD-DELIV-007-03",
+        "R7-AUD-DELIV-007-04",
+        "R7-AUD-COLOR-001-01",
+        "R7-AUD-COLOR-001-02",
+        "R7-AUD-COLOR-001-03",
+        "R7-AUD-COLOR-001-04",
+        "R7-AUD-COLOR-001-05",
+        "R7-AUD-COLOR-001-06",
+        "R7-AUD-COLOR-001-07",
+        "R7-AUD-COLOR-001-08",
+        "R7-AUD-COLOR-001-09",
+        "R7-AUD-COLOR-001-10"
+      ],
+      "saturationFactorCases": [
+        {
+          "id": "R7-AUD-COLOR-001-01",
+          "polarity": "POSITIVE",
+          "condition": "Immutable source/version and supported profile with factor 0.",
+          "result": "Accept 0; record requested=0 and effective=0."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-02",
+          "polarity": "POSITIVE",
+          "condition": "Immutable source/version and supported profile with factor 2.",
+          "result": "Accept 2; record requested=2 and effective=2."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-03",
+          "polarity": "POSITIVE",
+          "condition": "Valid source/profile; factor omitted.",
+          "result": "Use candidate default 1; record requested/default and effective values."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-04",
+          "polarity": "POSITIVE",
+          "condition": "Valid source/profile with factor 1.",
+          "result": "Record requested=1 and effective=1."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-05",
+          "polarity": "POSITIVE",
+          "condition": "Valid source/profile with factor 1.01.",
+          "result": "Accept hundredth-step value."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-06",
+          "polarity": "NEGATIVE",
+          "condition": "Factor below 0 or above 2.",
+          "result": "Reject BOUNDS_EXCEEDED without clamp/substitution."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-07",
+          "polarity": "NEGATIVE",
+          "condition": "Factor has more than two decimal places.",
+          "result": "Reject INVALID_REQUEST without rounding."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-08",
+          "polarity": "NEGATIVE",
+          "condition": "NaN or positive/negative infinity is supplied.",
+          "result": "Reject INVALID_REQUEST."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-09",
+          "polarity": "NEGATIVE",
+          "condition": "Profile/color space is unsupported or unknown.",
+          "result": "Reject/return UNKNOWN without substitution."
+        },
+        {
+          "id": "R7-AUD-COLOR-001-10",
+          "polarity": "NEGATIVE",
+          "condition": "Source artifact version is absent.",
+          "result": "Return UNKNOWN/UNAVAILABLE; create no candidate."
+        }
+      ],
+      "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml"
+    },
+    "cohort02": {
+      "featureCount": 9,
+      "capabilityCaseCount": 18,
+      "parentRequirementCaseCount": 20,
+      "featureCapabilityIds": [
+        "media.deliver.live-stream-output",
+        "media.speech.conversation.translated-speech-to-speech",
+        "media.edit.matte-composite",
+        "media.accessibility.control-equivalent-action",
+        "media.generate.video.continue",
+        "media.generate.motion.text-and-style-reference",
+        "media.generate.video.text-to-video.render-style-preset",
+        "media.generate.video.local-offline-generation",
+        "media.capability.provider-class-separation"
+      ],
+      "gen023": {
+        "capabilityPresent": true,
+        "localOfflinePlacement": [
+          "LOCAL_OFFLINE"
+        ],
+        "actualCandidateOutput": true,
+        "separateMemoryObservation": true
+      },
+      "gen024": {
+        "capabilityPresent": true,
+        "description": "Define independent license/policy and execution-placement axes for permissive and hosted providers.",
+        "placementValues": [
+          "LOCAL",
+          "HOSTED"
+        ]
+      },
+      "edit024": {
+        "capabilityPresent": true,
+        "parityScope": "all applicable controls across GUI keyboard/text CLI SDK/API"
+      },
+      "parentCaseSourceRefs": {
+        "expectedParentCases": 20,
+        "validSourceCapabilityCaseRefCount": 0,
+        "danglingSourceCapabilityCaseRefs": [
+          {
+            "operationId": "r7.cohort02.aud-deliv-019.parent.media-p0-cohort02-aud-deliv-019-media-req-cap-deliver-pos",
+            "requirementId": "MEDIA-REQ-CAP-DELIVER",
+            "capabilityId": "media.deliver.live-stream-output",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-deliv-019.parent.media-p0-cohort02-aud-deliv-019-media-req-cap-deliver-neg",
+            "requirementId": "MEDIA-REQ-CAP-DELIVER",
+            "capabilityId": "media.deliver.live-stream-output",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DELIV-019-MEDIA-REQ-CAP-DELIVER-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-dub-015.parent.media-p0-cohort02-aud-dub-015-media-req-cap-speech-synthesis-pos",
+            "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+            "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-dub-015.parent.media-p0-cohort02-aud-dub-015-media-req-cap-speech-synthesis-neg",
+            "requirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+            "capabilityId": "media.speech.conversation.translated-speech-to-speech",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-DUB-015-MEDIA-REQ-CAP-SPEECH-SYNTHESIS-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-edit-016.parent.media-p0-cohort02-aud-edit-016-media-req-cap-edit-pos",
+            "requirementId": "MEDIA-REQ-CAP-EDIT",
+            "capabilityId": "media.edit.matte-composite",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-edit-016.parent.media-p0-cohort02-aud-edit-016-media-req-cap-edit-neg",
+            "requirementId": "MEDIA-REQ-CAP-EDIT",
+            "capabilityId": "media.edit.matte-composite",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-016-MEDIA-REQ-CAP-EDIT-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-edit-024.parent.media-p0-cohort02-aud-edit-024-media-req-cap-edit-pos",
+            "requirementId": "MEDIA-REQ-CAP-EDIT",
+            "capabilityId": "media.accessibility.control-equivalent-action",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-edit-024.parent.media-p0-cohort02-aud-edit-024-media-req-cap-edit-neg",
+            "requirementId": "MEDIA-REQ-CAP-EDIT",
+            "capabilityId": "media.accessibility.control-equivalent-action",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-EDIT-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-edit-024.parent.media-p0-cohort02-aud-edit-024-media-req-cap-animation-editing-pos",
+            "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+            "capabilityId": "media.accessibility.control-equivalent-action",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-edit-024.parent.media-p0-cohort02-aud-edit-024-media-req-cap-animation-editing-neg",
+            "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+            "capabilityId": "media.accessibility.control-equivalent-action",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-EDIT-024-MEDIA-REQ-CAP-ANIMATION-EDITING-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-010.parent.media-p0-cohort02-aud-gen-010-media-req-cap-generate-video-pos",
+            "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+            "capabilityId": "media.generate.video.continue",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-010.parent.media-p0-cohort02-aud-gen-010-media-req-cap-generate-video-neg",
+            "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+            "capabilityId": "media.generate.video.continue",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-010-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-020.parent.media-p0-cohort02-aud-gen-020-media-req-cap-animation-pos",
+            "requirementId": "MEDIA-REQ-CAP-ANIMATION",
+            "capabilityId": "media.generate.motion.text-and-style-reference",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-020.parent.media-p0-cohort02-aud-gen-020-media-req-cap-animation-neg",
+            "requirementId": "MEDIA-REQ-CAP-ANIMATION",
+            "capabilityId": "media.generate.motion.text-and-style-reference",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-020-MEDIA-REQ-CAP-ANIMATION-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-021.parent.media-p0-cohort02-aud-gen-021-media-req-cap-generate-video-pos",
+            "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+            "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-021.parent.media-p0-cohort02-aud-gen-021-media-req-cap-generate-video-neg",
+            "requirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+            "capabilityId": "media.generate.video.text-to-video.render-style-preset",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-021-MEDIA-REQ-CAP-GENERATE-VIDEO-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-023.parent.media-p0-cohort02-aud-gen-023-media-req-cap-capability-pos",
+            "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+            "capabilityId": "media.generate.video.local-offline-generation",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-023.parent.media-p0-cohort02-aud-gen-023-media-req-cap-capability-neg",
+            "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+            "capabilityId": "media.generate.video.local-offline-generation",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-023-MEDIA-REQ-CAP-CAPABILITY-NEG",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-024.parent.media-p0-cohort02-aud-gen-024-media-req-cap-capability-pos",
+            "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+            "capabilityId": "media.capability.provider-class-separation",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-POS",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-POS",
+            "existsAsCapabilityCase": false
+          },
+          {
+            "operationId": "r7.cohort02.aud-gen-024.parent.media-p0-cohort02-aud-gen-024-media-req-cap-capability-neg",
+            "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+            "capabilityId": "media.capability.provider-class-separation",
+            "parentCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-NEG",
+            "declaredSourceCapabilityCaseId": "MEDIA-P0-COHORT02-AUD-GEN-024-MEDIA-REQ-CAP-CAPABILITY-NEG",
+            "existsAsCapabilityCase": false
+          }
+        ]
+      }
+    },
+    "packetAlternatives": {
+      "shared": {
+        "definitions": 1,
+        "capabilityIds": [
+          "media.agent.edit.safe-change-transaction"
+        ],
+        "allCasesPresent": true,
+        "ownerMappingUnselected": "ALTERNATIVE_POSTIMAGE_ONLY_OWNER_MAPPING_NOT_SELECTED"
+      },
+      "split": {
+        "definitions": 2,
+        "capabilityIds": [
+          "media.agent.edit.preview-scope-guard",
+          "media.agent.edit.approval-apply-compensating-rollback"
+        ],
+        "allCasesPresent": true,
+        "ownerMappingUnselected": "ALTERNATIVE_POSTIMAGE_ONLY_OWNER_MAPPING_NOT_SELECTED"
+      }
+    },
+    "retainedProjectionOperationIds": {
+      "count": 248,
+      "exactMatch": true
+    },
+    "ownerLeafHistory": {
+      "count": 462,
+      "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "byteIdentityPreserved": true,
+      "semanticMutationCount": 0,
+      "ownerRecordsAdded": 0
+    },
+    "priorCohort01R7Manifest": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-postimages.r7.json",
+      "sha256": "91825cee133fea95b923c97f81cef86956fd2107822b1d5e469ea61a3f45ebf1",
+      "crosswalkSemanticMutationCount": 0,
+      "leafReviewSemanticMutationCount": 0
+    },
+    "canonicalApply": "NONE",
+    "phaseStatusWritten": false,
+    "formalAcceptance": false,
+    "nativeClosure": false,
+    "release": false,
+    "operationIdUniqueness": {
+      "count": 180,
+      "uniqueCount": 180,
+      "allUnique": true
+    },
+    "crosswalkCaseTraceValidated": "Every cohort-01/02 audit row carries its candidate capability ID and capability case IDs; parent requirement case IDs are present under their declared requirement relation; the cohort-02 sourceCapabilityCaseId values are the one exception recorded as the finding."
+  },
+  "findings": [
+    {
+      "findingId": "PDP0-COHORT02-R7-PARENT-SOURCE-CASE-LINK-001",
+      "severity": "P1",
+      "surfaceOwner": "Cohort-02 feature-to-parent requirement source trace; PDP-0 capability/requirement owners",
+      "title": "All 20 cohort-02 parent-case sourceCapabilityCaseId values point to the parent case itself, not to an existing capability case",
+      "exactWhere": [
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.operations.json",
+          "jsonPointer": "/candidateSourceOperations/parentRequirementCases/*/sourceCapabilityCaseId"
+        },
+        {
+          "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.crosswalk.postimage.json",
+          "jsonPointer": "/rows/@auditId={AUD-DELIV-019|AUD-DUB-015|AUD-EDIT-016|AUD-EDIT-024|AUD-GEN-010|AUD-GEN-020|AUD-GEN-021|AUD-GEN-023|AUD-GEN-024}/rootDirectedSourceCandidate/parentRequirementRelations/*/sourceCapabilityCaseId"
+        }
+      ],
+      "evidence": "The operation ledger contains 20 cohort-02 parent requirement cases. Each sourceCapabilityCaseId equals its own parent case ID; none of those IDs exists in the 18 capability acceptance cases. Every cohort-02 feature already has explicit leaf POS/NEG IDs in the canonical capability postimage, and the parent case polarity provides the mapping.",
+      "impact": "The parent case rows and requirement bindings are present, but the asserted source-case lineage is dangling and cannot be accepted as an exact cross-layer case relation.",
+      "repair": "For each cohort-02 parent POS/NEG relation, point sourceCapabilityCaseId to the same feature capability leaf POS/NEG case ID. Keep existing parent requirement case IDs and operation IDs stable; update affected crosswalk trace fields and regenerate affected candidate metadata/checksums.",
+      "predecessor": "Root direction 3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a; candidate baseline 80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239.",
+      "acceptanceCriterion": "All 20 cohort-02 parent relations resolve to an existing capability case with matching polarity; parent requirement case IDs and operation IDs remain unique and present exactly once; updated crosswalk and manifest hashes reproduce from the same source baseline.",
+      "nextAction": "Return the affected PDP-0 candidate metadata/crosswalk relation for repair and request a fresh independent peer review."
+    }
+  ],
+  "gateSummary": {
+    "discoveryBarrier": "FAIL_FOR_COHORT02_SOURCE_CASE_LINEAGE",
+    "buildLane": "NOT_ESTABLISHED_FOR_THESE_PDP0_CANDIDATES",
+    "pdpClosureLane": "NOT_RUN",
+    "deliveryGate": "NOT_MET",
+    "nextAllowedPhase": "PDP-0 candidate relation repair, followed by a fresh independent review; then authentic owner review and separate source adoption decision."
+  },
+  "nonClaims": [
+    "This peer result is not owner adoption, owner approval, formal acceptance, phase completion, implementation verification, native closure, qualification or release.",
+    "Canonical source files and phase status were not modified during review.",
+    "Cohort-01 frozen H reviews and tests were not modified."
+  ]
+}

@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.quality-extension-current-provenance-independent-peer.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "reviewId",
+    "reviewer",
+    "scope",
+    "frozenInputs",
+    "assessment",
+    "verification",
+    "findings",
+    "disposition",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.quality-extension-current-provenance-independent-peer.v1"
+    },
+    "reviewId": {
+      "const": "AUD-SPEC-002"
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role",
+        "candidateAuthorIdentity",
+        "independentHumanReviewer",
+        "credentialedAttestation"
+      ],
+      "properties": {
+        "identity": {
+          "const": "agent:thread:01a16a35-bbcf-74d2-ac99-1ed74c29c3c9"
+        },
+        "role": {
+          "const": "DISTINCT_TECHNICAL_PEER"
+        },
+        "candidateAuthorIdentity": {
+          "const": "agent:/root/phase_io"
+        },
+        "independentHumanReviewer": {
+          "const": false
+        },
+        "credentialedAttestation": {
+          "const": false
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "macroStage",
+        "phase",
+        "reviewType",
+        "surfaceDenominator"
+      ],
+      "properties": {
+        "macroStage": {
+          "const": "DISCOVERY"
+        },
+        "phase": {
+          "const": "PDP-0"
+        },
+        "reviewType": {
+          "const": "FROZEN_QUALITY_CANDIDATE_PROVENANCE_AND_GUARDED_APPLY_CODE_REVIEW"
+        },
+        "surfaceDenominator": {
+          "const": "ONE_AUD-SPEC-002_CANDIDATE_CUT; NOT FULL MEDIA CAMPAIGN"
+        }
+      }
+    },
+    "frozenInputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ref",
+          "sha256"
+        ],
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "minProperties": 10
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateSha256",
+        "candidatePostimageSha256",
+        "targets",
+        "provenancePlanDisposition",
+        "v7PredecessorState",
+        "adoptionPlanDisposition",
+        "adoptionBlockers",
+        "codeAssessment",
+        "v7ReadbackTargets"
+      ],
+      "properties": {
+        "candidateSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "candidatePostimageSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "targets": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "targetRef",
+              "preimageSha256",
+              "postimageSha256"
+            ],
+            "properties": {
+              "targetRef": {
+                "type": "string"
+              },
+              "preimageSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "postimageSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        },
+        "provenancePlanDisposition": {
+          "const": "CURRENT_PROVENANCE_EVIDENCE_VALIDATED"
+        },
+        "v7PredecessorState": {
+          "const": "EXACT_CURRENT_READBACK"
+        },
+        "adoptionPlanDisposition": {
+          "const": "BLOCKED_PENDING_EXACT_PREREQUISITES"
+        },
+        "adoptionBlockers": {
+          "const": [
+            "ROOT_SOURCE_OWNER_DECISION_REQUIRED",
+            "EXACT_TWO_TARGET_APPLY_AUTHORIZATION_REQUIRED"
+          ]
+        },
+        "codeAssessment": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "string"
+          }
+        },
+        "v7ReadbackTargets": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "targetRef",
+              "actualSha256"
+            ],
+            "properties": {
+              "targetRef": {
+                "type": "string"
+              },
+              "actualSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provenanceTests",
+        "adoptionAndCandidateTests",
+        "canonicalWrites",
+        "sourceEdits"
+      ],
+      "properties": {
+        "provenanceTests": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "command",
+            "passed",
+            "failed"
+          ],
+          "properties": {
+            "command": {
+              "const": "node --test tests/media-pdp0-quality-extension-provenance-plan-v3.test.mjs"
+            },
+            "passed": {
+              "const": 5
+            },
+            "failed": {
+              "const": 0
+            }
+          }
+        },
+        "adoptionAndCandidateTests": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "commands",
+            "passed",
+            "failed"
+          ],
+          "properties": {
+            "commands": {
+              "const": [
+                "node --test tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs",
+                "node --test tests/media-pdp0-quality-extension-source-candidate-v2.test.mjs"
+              ]
+            },
+            "passed": {
+              "const": 11
+            },
+            "failed": {
+              "const": 0
+            }
+          }
+        },
+        "canonicalWrites": {
+          "const": "NONE"
+        },
+        "sourceEdits": {
+          "const": "NONE"
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "disposition": {
+      "const": "TECHNICAL_APPROVE_EXACT_CANDIDATE_AND_GUARDED_APPLY_PATH_ONLY"
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceOwnerDecision",
+        "applyAuthorization",
+        "canonicalApply",
+        "sourceCurrentness",
+        "phaseStatusEffect",
+        "independentAcceptance",
+        "nativeProof",
+        "delivery",
+        "rootProvenanceReview"
+      ],
+      "properties": {
+        "sourceOwnerDecision": {
+          "const": "PENDING"
+        },
+        "applyAuthorization": {
+          "const": "PENDING"
+        },
+        "canonicalApply": {
+          "const": "NOT_PERFORMED"
+        },
+        "sourceCurrentness": {
+          "const": "NOT_CLAIMED"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeProof": {
+          "const": "NOT_CLAIMED"
+        },
+        "delivery": {
+          "const": "NOT_AUTHORIZED"
+        },
+        "rootProvenanceReview": {
+          "const": "PENDING"
+        }
+      }
+    }
+  }
+}

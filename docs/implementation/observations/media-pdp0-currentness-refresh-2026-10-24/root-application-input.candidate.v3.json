@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "media.pdp0.currentness-successor-root-application-input.v1",
+  "recordId": "MEDIA-PDP0-AQ-PXD216-CURRENTNESS-ROOT-APPLICATION-INPUT-2026-10-24",
+  "state": "PREPARED_INPUT_ONLY; OWNER_AND_ROOT_DECISION_NOT_RECORDED",
+  "target": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v3.json",
+    "sha256": "34b8031ffdcc4347c61d24601d21e95e53c670c9f4e0381b323f72e38db00983"
+  },
+  "requiredSourceOwnerInput": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.candidate.v3.json",
+    "sha256": "2d0643010a9a07bdde6ed39e52aea8b63aa075271409790ae93ec53fdd569ab3",
+    "state": "DECISION_NOT_RECORDED"
+  },
+  "protectedInputs": {
+    "pdp0Status": {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "status": "IN_PROGRESS"
+    },
+    "crosswalk": {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
+    },
+    "capabilities": {
+      "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+    }
+  },
+  "r9R08Input": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
+    "freezeSha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+    "sourceOwnerDecision": "NOT_SET",
+    "rootInputRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.root-adoption-decision.input.r10.candidate.v1.json",
+    "rootInputSha256": "9fc791a5e29c85a2b6e3b5b9cb8f7c12f293bcf2f62e231dded9c5acb2594d02",
+    "decisionSectionMaterialRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json",
+    "decisionSectionMaterialSha256": "64083d1e155a0a9903a81d5cd01ac74deb86892a8989e9d230abe9131901a6c7",
+    "canonicalApply": "NONE"
+  },
+  "exactCandidateTargets": [
+    "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v3.json",
+    "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v3.json",
+    "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.candidate.v3.json",
+    "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/root-application-input.candidate.v3.json"
+  ],
+  "targetPostimages": [
+    {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v3.json",
+      "sha256": "34b8031ffdcc4347c61d24601d21e95e53c670c9f4e0381b323f72e38db00983"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v3.json",
+      "sha256": "0aafe87534b11e215414f0601825608bd12660a3d640e9bed5fe1b3b5bc903b8"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.candidate.v3.json",
+      "sha256": "2d0643010a9a07bdde6ed39e52aea8b63aa075271409790ae93ec53fdd569ab3"
+    }
+  ],
+  "canonicalApply": "NONE",
+  "requiredChecksBeforeAnyCandidatePromotion": [
+    "recompute all source pins and require one stable source cut",
+    "obtain authentic source-owner decision bound to the exact successor candidate SHA-256",
+    "obtain the separate root disposition required by the R9-R08 source-governance lane",
+    "preserve historical PXD-216 and AQ predecessor records byte-for-byte",
+    "keep PDP-0 status and the frozen crosswalk at their current exact hashes"
+  ]
+}

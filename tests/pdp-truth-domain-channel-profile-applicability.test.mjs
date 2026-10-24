@@ -251,13 +251,15 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   assert.equal(extensionPopulation.currentCapabilityDefinitions, 469);
   assert.equal(extensionPopulation.historicalCapabilityLeavesPreserved, 462);
   assert.equal(extensionPopulation.definitionExtensionCapabilityLeaves, 7);
-  assert.equal(extensionPopulation.versionDisposition.currentVersionCapabilityLeaves, 462);
-  assert.equal(extensionPopulation.versionDisposition.futureVersionProposalCapabilityLeaves, 7);
+  assert.equal(extensionPopulation.versionDisposition.historicalCanonicalCapabilityLeaves, 462);
+  assert.equal(extensionPopulation.versionDisposition.currentVersionCapabilityLeaves, 463);
+  assert.equal(extensionPopulation.versionDisposition.futureVersionProposalCapabilityLeaves, 6);
   assert.equal(extensionPopulation.versionDisposition.totalSourceCapabilityDefinitions, 469);
-  assert.deepEqual(extensionPopulation.versionDisposition.currentVersionExtensionCapabilityIds, []);
-  assert.equal(extensionPopulation.versionDisposition.futureVersionProposals.length, 7);
+  assert.deepEqual(extensionPopulation.versionDisposition.currentVersionExtensionCapabilityIds,
+    ["media.recipe.specification.compile"]);
+  assert.equal(extensionPopulation.versionDisposition.futureVersionProposals.length, 6);
   assert.equal(extensionPopulation.extensionDisposition,
-    "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_AND_ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; ALL_SEVEN_FUTURE_VERSION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED");
+    "ONE_CURRENT_VERSION_EXTENSION_AND_SIX_FUTURE_VERSION_PROPOSALS; ALL_SEVEN_EXTENSION_IDENTITIES_RETAINED; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED");
   assert.equal(extensionPopulation.ownerApproval, "NOT_CLAIMED");
   assert.equal(extensionPopulation.independentAcceptance, "NOT_CLAIMED");
   assert.equal(dimensionRows.length, 15);

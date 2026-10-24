@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.current-source-review-notes.v2",
+  "title": "Structured technical review observations nested in frozen v1 input records",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reviewKind",
+    "criterionIdentity",
+    "baseline",
+    "criterionMeaning",
+    "findings",
+    "verifierReceipt",
+    "sourceCoverage",
+    "nextAction",
+    "reviewerBoundary"
+  ],
+  "properties": {
+    "reviewKind": {
+      "const": "AI_TECHNICAL_CURRENT_SOURCE_REVIEW"
+    },
+    "criterionIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "criterionId",
+        "readinessTaskRef",
+        "directDefinitionCriterionRecord",
+        "directDefinitionDecisionRef",
+        "readinessCriterionState",
+        "originalTaskState"
+      ],
+      "properties": {
+        "criterionId": {
+          "type": "string",
+          "pattern": "^P0-0[1-8]$"
+        },
+        "readinessTaskRef": {
+          "type": "string"
+        },
+        "directDefinitionCriterionRecord": {
+          "type": "string"
+        },
+        "directDefinitionDecisionRef": {
+          "type": "string"
+        },
+        "readinessCriterionState": {
+          "type": "string"
+        },
+        "originalTaskState": {
+          "type": "string"
+        }
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repositoryHead",
+        "workingTree",
+        "campaign",
+        "macroStage",
+        "exactPhase",
+        "registeredIdentityDenominator",
+        "requestedCurrentMaterialPathDenominator",
+        "sourcePinObservation",
+        "sourceCurrentnessClaim"
+      ],
+      "properties": {
+        "repositoryHead": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "workingTree": {
+          "type": "string"
+        },
+        "campaign": {
+          "type": "string"
+        },
+        "macroStage": {
+          "const": "DISCOVERY"
+        },
+        "exactPhase": {
+          "const": "PDP-0 Product Truth"
+        },
+        "registeredIdentityDenominator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "physicalCandidates",
+            "compositionSurfacesIncludingRoot",
+            "logicalConsumers",
+            "registeredIdentities"
+          ],
+          "properties": {
+            "physicalCandidates": {
+              "const": 26
+            },
+            "compositionSurfacesIncludingRoot": {
+              "const": 7
+            },
+            "logicalConsumers": {
+              "const": 21
+            },
+            "registeredIdentities": {
+              "const": 54
+            }
+          }
+        },
+        "requestedCurrentMaterialPathDenominator": {
+          "const": 207
+        },
+        "sourcePinObservation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reportedCurrentMaterialPathDenominator",
+            "phaseStatusSourcePinRefs",
+            "wholeFilePinsComparedAgainstLiveBytes",
+            "wholeFilePinMismatches",
+            "sectionPins",
+            "sectionPinCurrentness",
+            "wholeCutCurrentnessClaim",
+            "sectionPinBackerFilesMissing"
+          ],
+          "properties": {
+            "reportedCurrentMaterialPathDenominator": {
+              "const": 207
+            },
+            "phaseStatusSourcePinRefs": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "wholeFilePinsComparedAgainstLiveBytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "wholeFilePinMismatches": {
+              "const": 0
+            },
+            "sectionPins": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sectionPinCurrentness": {
+              "type": "string"
+            },
+            "wholeCutCurrentnessClaim": {
+              "const": "NOT_MADE"
+            },
+            "sectionPinBackerFilesMissing": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "sourceCurrentnessClaim": {
+          "type": "string"
+        }
+      }
+    },
+    "criterionMeaning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "observations",
+        "nonClaims"
+      ],
+      "properties": {
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nonClaims": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "verifierReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statusRecordRef",
+        "currentStatusRecordHashedInCriterionVerification",
+        "testReceiptRef",
+        "testReceiptSha256",
+        "testStatus",
+        "testCount",
+        "passedTestCount",
+        "skippedTestCount",
+        "outputSha256",
+        "command",
+        "distinction"
+      ],
+      "properties": {
+        "statusRecordRef": {
+          "const": "docs/implementation/pdp-0-phase-dev-status.json"
+        },
+        "currentStatusRecordHashedInCriterionVerification": {
+          "const": true
+        },
+        "testReceiptRef": {
+          "type": "string"
+        },
+        "testReceiptSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "testStatus": {
+          "const": "PASS"
+        },
+        "testCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "passedTestCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "skippedTestCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outputSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "command": {
+          "type": "string"
+        },
+        "distinction": {
+          "type": "string"
+        }
+      }
+    },
+    "sourceCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceRefsWithCurrentWholeFileHashes",
+        "sourceRefMap",
+        "knownUnknowns"
+      ],
+      "properties": {
+        "sourceRefsWithCurrentWholeFileHashes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sourceRefMap": {
+          "type": "string"
+        },
+        "knownUnknowns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "nextAction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reviewerBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "ownerApproval",
+        "independentAcceptance",
+        "pdp010Acceptance",
+        "phaseStatusEffect"
+      ],
+      "properties": {
+        "role": {
+          "const": "AI technical source reviewer only"
+        },
+        "ownerApproval": {
+          "const": "NOT_CLAIMED"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "pdp010Acceptance": {
+          "const": "NOT_PERFORMED"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "classification",
+        "evidenceRef",
+        "finding",
+        "owner",
+        "correction",
+        "nextAction"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9-]+$"
+        },
+        "classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidenceRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "finding": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "correction": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nextAction": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

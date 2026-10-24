@@ -1,0 +1,360 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.root-selected-source-integration-allowed-operations.r9.v1.candidate",
+  "title": "Candidate schema for root-selected PDP-0 R9 source-successor operations",
+  "description": "R9 extends the frozen R8 selected split only with exact-preimage capability-definition and acceptance-case text repairs; it remains candidate-only and unregistered.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactId",
+    "candidateSchemaRef",
+    "candidateSchemaStatus",
+    "predecessor",
+    "rootMappingDecision",
+    "branch",
+    "branchStatus",
+    "sourceBaseline",
+    "retainedProjection",
+    "predecessorOperations",
+    "operations",
+    "counts",
+    "outputPostimages",
+    "decisionLogWrite",
+    "canonicalApply",
+    "phaseStatusEffect",
+    "independentAcceptance",
+    "nativeClosure"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.root-selected-source-integration-allowed-operations.r9.v1"
+    },
+    "artifactId": {
+      "type": "string"
+    },
+    "candidateSchemaRef": {
+      "type": "string"
+    },
+    "candidateSchemaStatus": {
+      "const": "NOT_REGISTERED; ROOT_AND_SOURCE_OWNER_ADOPTION_REQUIRED"
+    },
+    "predecessor": {
+      "type": "object"
+    },
+    "rootMappingDecision": {
+      "type": "object"
+    },
+    "branch": {
+      "enum": [
+        "core",
+        "shared",
+        "split"
+      ]
+    },
+    "branchStatus": {
+      "type": "string"
+    },
+    "sourceBaseline": {
+      "type": "object"
+    },
+    "retainedProjection": {
+      "type": "object"
+    },
+    "predecessorOperations": {
+      "type": "object"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "capabilityId",
+              "record"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "ADD_CAPABILITY_DEFINITION"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "capabilityId": {
+                "type": "string"
+              },
+              "record": {
+                "type": "object"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "requirementId",
+              "sourceCapabilityId",
+              "sourceCapabilityCaseId",
+              "polarity",
+              "record"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "APPEND_REQUIREMENT_CASE"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "requirementId": {
+                "type": "string"
+              },
+              "sourceCapabilityId": {
+                "type": "string"
+              },
+              "sourceCapabilityCaseId": {
+                "type": "string"
+              },
+              "polarity": {
+                "enum": [
+                  "POSITIVE",
+                  "NEGATIVE"
+                ]
+              },
+              "record": {
+                "type": "object"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "capabilityId",
+              "requirementId"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "APPEND_REQUIREMENT_CAPABILITY_BINDING"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "capabilityId": {
+                "type": "string"
+              },
+              "requirementId": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "patch"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "PATCH_CROSSWALK_TRACE"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "patch": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pdp0EvidenceRefs",
+                  "rootDirectedSourceCandidate",
+                  "proposedPdp0SourceChange"
+                ],
+                "properties": {
+                  "pdp0EvidenceRefs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "rootDirectedSourceCandidate": {
+                    "type": "object"
+                  },
+                  "proposedPdp0SourceChange": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "capabilityId",
+              "beforeOwnerDefinitionSha256",
+              "patch"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "REVISE_CAPABILITY_OWNER_DEFINITION"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "capabilityId": {
+                "type": "string"
+              },
+              "beforeOwnerDefinitionSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "patch": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "typedInputSlots",
+                  "successOutputs"
+                ],
+                "properties": {
+                  "typedInputSlots": {
+                    "type": "array"
+                  },
+                  "successOutputs": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operationId",
+              "kind",
+              "auditId",
+              "targetKind",
+              "targetId",
+              "caseId",
+              "sourceCapabilityCaseId",
+              "polarity",
+              "beforeCaseSha256",
+              "patch"
+            ],
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "REVISE_ACCEPTANCE_CASE_TEXT"
+              },
+              "auditId": {
+                "type": "string"
+              },
+              "targetKind": {
+                "enum": [
+                  "CAPABILITY",
+                  "REQUIREMENT"
+                ]
+              },
+              "targetId": {
+                "type": "string"
+              },
+              "caseId": {
+                "type": "string"
+              },
+              "sourceCapabilityCaseId": {
+                "type": "string"
+              },
+              "polarity": {
+                "enum": [
+                  "POSITIVE",
+                  "NEGATIVE"
+                ]
+              },
+              "beforeCaseSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "patch": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "given",
+                  "when",
+                  "then"
+                ],
+                "properties": {
+                  "given": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "when": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "then": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "counts": {
+      "type": "object"
+    },
+    "outputPostimages": {
+      "type": "array"
+    },
+    "decisionLogWrite": {
+      "const": "NONE_IN_CANDIDATE"
+    },
+    "canonicalApply": {
+      "const": "NONE"
+    },
+    "phaseStatusEffect": {
+      "const": "NONE"
+    },
+    "independentAcceptance": {
+      "const": "NOT_CLAIMED"
+    },
+    "nativeClosure": {
+      "const": "NOT_CLAIMED"
+    }
+  }
+}

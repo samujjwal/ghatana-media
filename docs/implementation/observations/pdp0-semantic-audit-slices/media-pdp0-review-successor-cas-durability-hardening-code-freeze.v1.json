@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "media.pdp0.review-successor-cas-durability-hardening-code-freeze.v1",
+  "freezeId": "MEDIA-PDP0-REVIEW-SUCCESSOR-CAS-DURABILITY-2026-10-23",
+  "recordedAt": "2026-10-23",
+  "phaseScope": "DISCOVERY / PDP-0 workflow durability hardening only",
+  "disposition": "IMPLEMENTATION_CODE_FROZEN_AFTER_FOCUSED_TESTS",
+  "predecessorReview": {
+    "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v3.json",
+    "sha256": "48febd2292b38d2012474d75973fa0eb85a0ebbb86e18e056fb47dda3980cf8b",
+    "preservation": "The prior-cut peer review remains unchanged; this record is additive and does not replace or promote its disposition."
+  },
+  "sourceBaseline": {
+    "preHardeningModuleSha256": "fe5018d8e11668350fde4de6a03e5ec4ed5c2c35ea40c95d7826b222c4449a85",
+    "hardenedModule": {
+      "ref": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+      "sha256": "aa531e1f0d832a8c97f8f1b9f46d961900929686e6d0fce67db12f6d858db924"
+    },
+    "securityTests": {
+      "ref": "tests/media-pdp0-review-successor-cas-security.test.mjs",
+      "sha256": "24dd3564785d5485f1141293bd26f2f41fc01a397df8afdc5819d1c28beebdf0"
+    },
+    "compatibilityTests": [
+      {
+        "ref": "tests/media-pdp0-review-successor-cas.test.mjs",
+        "sha256": "4fb374eb1dd00bae2a37cc09b19586380a9ab8cba1900bdadc08d149da73be21"
+      },
+      {
+        "ref": "tests/media-pdp0-source-amendment-apply.test.mjs",
+        "sha256": "28f137ef7d98f0c00dbe1bc7666805c61308cf6932841b569f6d0b244745d799"
+      }
+    ]
+  },
+  "hardeningClaims": [
+    "Containing directories are fsynced after immutable file creation, directory creation, journal or target rename, and owner-lock publication or removal.",
+    "Directory-fsync failure is reported as an unsuccessful or uncertain effect and does not produce a false success result.",
+    "A prepared journal remains available for reconciliation after uncertain target or commit-record durability outcomes.",
+    "The owner lock serializes callers using this workflow only; this implementation does not claim protection against arbitrary noncooperating writers racing after the final preimage check."
+  ],
+  "verification": {
+    "command": "node --test tests/media-pdp0-review-successor-cas.test.mjs tests/media-pdp0-review-successor-cas-security.test.mjs tests/media-pdp0-source-amendment-apply.test.mjs",
+    "result": "PASS",
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "durabilityFailureCases": [
+      "directory fsync failure before target publication leaves no canonical write",
+      "directory fsync failure after target rename returns no success and replay observes without redispatch",
+      "journal directory fsync failure after commit record rename returns no success and replay does not redispatch"
+    ],
+    "additionalChecks": [
+      "node --check scripts/lib/media-pdp0-review-successor-cas.mjs",
+      "node --check tests/media-pdp0-review-successor-cas-security.test.mjs",
+      "git diff --check"
+    ],
+    "additionalChecksResult": "PASS"
+  },
+  "authorityAndEffectBoundary": {
+    "canonicalPdpSourceChanged": false,
+    "canonicalPdpStatusChanged": false,
+    "acceptanceOrClosureAsserted": false,
+    "deliveryOrReleaseAsserted": false,
+    "independentReviewAsserted": false,
+    "ownerLockScope": "Cooperating callers using this CAS path only."
+  },
+  "nextAction": "Independent source-bound review may inspect this additive code cut; no canonical source amendment is authorized by this freeze record."
+}

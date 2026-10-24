@@ -1,0 +1,380 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-independent-peer.v1",
+  "artifactId": "MEDIA-PDP0-ROOT-SELECTED-SOURCE-INTEGRATION-R9-R06-ACTUAL-H-INDEPENDENT-PEER-FULL-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_TECHNICAL_SOURCE_SEMANTIC_REVIEW_OF_FROZEN_FULL_INTEGRATED_CUT",
+  "reviewer": {
+    "identityKind": "codex-thread",
+    "identity": "01a16a6c-d506-7a73-801a-609c602a12e9",
+    "host": "local",
+    "role": "technical source peer reviewer",
+    "humanOwnerAuthority": false,
+    "humanOwnerAdoptionOrAcceptanceClaimed": false
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "surfaceSet": "R9-R06 frozen split integration: full 16 source-audit feature definitions with linked parents and PDP0-501 crosswalk traces; candidate predecessor chain retained and hash-checked.",
+    "denominator": {
+      "physicalCandidates": 26,
+      "compositionsIncludingRoot": 7,
+      "logicalConsumers": 21,
+      "registeredIdentities": 54,
+      "phaseCells": 216,
+      "historicalOwnerRecords": 462,
+      "pdp0AuditRows": 501
+    },
+    "pdp0PhaseStatus": {
+      "status": "IN_PROGRESS",
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "outstandingMeaningIds": 0,
+      "sourcePinCount": 188,
+      "staleLiveSourcePins": 9,
+      "missingLiveSourcePins": 21
+    },
+    "canonicalApply": "NONE"
+  },
+  "sourceBaseline": {
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.freeze.v1.json",
+    "freezeSha256": "ec142cda6ba9820a4113df444b1718d292d283e3f822061f77f0ec289857a57f",
+    "candidateBundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.successor-bundle.candidate.v1.json",
+    "candidateBundleSha256": "56bda459ddfa8ccf1c6df7fb2d6ce356c90052df3da38b9a3aa6065ab02d0769",
+    "predecessorR05HReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.independent-peer.actual-h-r05-full.json",
+    "predecessorR05HReviewSha256": "1f00faf797417d68bc7e192dbc2e3450299a6b3f8262fb93fe62eee36841915d",
+    "operationsRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
+    "operationsSha256": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8",
+    "capabilitiesPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.split.capabilities.postimage.yaml",
+    "capabilitiesPostimageSha256": "38b5fc2610ff0b466e6f5e6984f7c3804534e94d4bd3b8f77c4b3de6d4d8fa7f",
+    "requirementsPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.split.requirements.postimage.yaml",
+    "requirementsPostimageSha256": "a6d892f87847b56bc601efd4cba2e85a763840f082b991d282fbbd408a2e4508",
+    "leafReviewPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.split.capability-leaf-review.postimage.yaml",
+    "leafReviewPostimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+    "crosswalkPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.split.pdp0-501-disposition-crosswalk.postimage.json",
+    "crosswalkPostimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+  },
+  "reviewCoverage": {
+    "featureDefinitions": 16,
+    "capabilityDefinitionsIncludingPacketRepairs": 18,
+    "featureCapabilityCases": 52,
+    "capabilityCasesIncludingPacketRepairs": 56,
+    "featureParentCases": 54,
+    "parentCasesIncludingPacketRepairs": 58,
+    "selectedOperations": 122,
+    "retainedProjectionOperations": 248,
+    "historicalOwnerRows": 462,
+    "crosswalkRows": 501,
+    "crosswalkFeatureRowsUpdatedInIntegratedR7SourcePostimage": 16,
+    "crosswalkFeaturePatchesInR9R02Profile": 18,
+    "reviewedFeatureAuditIds": [
+      "AUD-CAP-028",
+      "AUD-CLONE-004",
+      "AUD-CLONE-006",
+      "AUD-CLONE-017",
+      "AUD-COLOR-007",
+      "AUD-DELIV-007",
+      "AUD-COLOR-001",
+      "AUD-DELIV-019",
+      "AUD-DUB-015",
+      "AUD-EDIT-016",
+      "AUD-EDIT-024",
+      "AUD-GEN-010",
+      "AUD-GEN-020",
+      "AUD-GEN-021",
+      "AUD-GEN-023",
+      "AUD-GEN-024"
+    ],
+    "packetCapabilities": [
+      "media.agent.edit.preview-scope-guard",
+      "media.agent.edit.approval-apply-compensating-rollback"
+    ]
+  },
+  "verifiedFacts": [
+    {
+      "check": "freeze_hashes_and_postimage_pins",
+      "status": "PASS",
+      "detail": "R9-R06 freeze, bundle, repair map, rebuild verification, all seven source preimages and all four selected postimages match their recorded hashes. The R05 actual H review locally hashes to the exact frozen value."
+    },
+    {
+      "check": "full16_identity_and_campaign_conservation",
+      "status": "PASS",
+      "detail": "All 16 requested audit IDs map to their expected capability IDs, owners, linked parents and crosswalk evidence. There are 52 feature leaf cases and 54 feature parent cases. All 501 crosswalk IDs are unique and complete with no missing or unexpected IDs; all 16 reviewed rows remain BOUND_EXISTING. Denominators remain 54 identities, 216 cells and 462 historical owner rows; the retained projection is 248 operations."
+    },
+    {
+      "check": "f01_through_f08_and_f09_closure",
+      "status": "PASS",
+      "detail": "R06 retains the prior feature repairs. All 54 feature parent cases match linked leaf polarity, given, when and then; EDIT-024 retains its two-parent mapping. R06 aligns the GEN-024 success enum to the two success outcomes, places UNKNOWN_OUTCOME and UNAVAILABLE only in structured nonSuccessOutputs, maps missing/stale/ambiguous evidence to UNKNOWN_OUTCOME, and limits REJECTED to explicit invalid/unsupported/denied requests. The explicitUnsupportedCases strings still contain standalone UNKNOWN wording; see F-10."
+    },
+    {
+      "check": "historical_r02_through_r05_immutability",
+      "status": "PASS",
+      "detail": "All 18 references pinned in each R02, R03, R04 and R05 freeze record match local hashes, including freezes, bundles, actual H reviews, source preimages, selected postimages, operation ledger/schema and retained projection. R06 crosswalk postimage is byte-identical to the prior R03/R04/R05 crosswalk. R06 records canonicalApply NONE and phaseStatusEffect NONE."
+    },
+    {
+      "check": "remaining_gen024_semantic_wording",
+      "status": "REQUEST_CHANGES",
+      "detail": "A recursive scan of the complete GEN-024 candidate capability found two standalone UNKNOWN tokens in explicitUnsupportedCases[0] and explicitUnsupportedCases[2]. They describe missing/stale/ambiguous evidence and conflict with the otherwise corrected UNKNOWN_OUTCOME mapping."
+    },
+    {
+      "check": "campaign_currentness_and_authority",
+      "status": "FAIL_FOR_PHASE_ADVANCEMENT_AND_CANONICAL_APPLY",
+      "detail": "Live PDP-0 remains IN_PROGRESS with 9 stale and 21 missing source pins among 188; outstandingMeaningIds=0. Owner decision, root adoption, schema registration and apply authorization remain unset. Currentness was observed only."
+    }
+  ],
+  "findings": [
+    {
+      "findingId": "F-10",
+      "auditIds": [
+        "AUD-GEN-024"
+      ],
+      "ownerSurface": "media.capability.provider-class-separation",
+      "location": "R06 capabilities postimage, capability media.capability.provider-class-separation, explicitUnsupportedCases[0] and explicitUnsupportedCases[2].",
+      "finding": "The structured nonSuccessOutputs and semanticOutcomeContract now route missing, stale or ambiguous evidence to UNKNOWN_OUTCOME only, and the negative acceptance case uses UNKNOWN_OUTCOME. However, the two explicitUnsupportedCases strings still say that the same evidence “returns UNKNOWN” and “stays UNKNOWN.” This leaves an undefined alternate outcome token in the same capability definition.",
+      "repair": "Replace both standalone UNKNOWN tokens in explicitUnsupportedCases with UNKNOWN_OUTCOME. Preserve the exact success/non-success output partition and all linked leaf/parent case fields.",
+      "predecessor": "R9-R06 frozen candidate; R05 F-09 wording has been corrected in semanticOutcomeContract and the negative case, but the same wording was not updated in explicitUnsupportedCases.",
+      "acceptanceCriterion": "Every GEN-024 semantic statement about missing, stale or ambiguous provider/license/rights evidence uses only UNKNOWN_OUTCOME; no standalone UNKNOWN alias remains in explicitUnsupportedCases; nonSuccessOutputs is the structured home for UNKNOWN_OUTCOME and UNAVAILABLE; REJECTED remains explicit invalid/unsupported/denied only; all parent/leaf fields remain exactly equal.",
+      "nextLegalAction": "Repair only the two GEN-024 explicitUnsupportedCases strings in the candidate and return a new frozen cut for independent review. No source apply or phase-status change."
+    }
+  ],
+  "reviewProvenance": [
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.freeze.v1.json",
+      "sha256": "ec142cda6ba9820a4113df444b1718d292d283e3f822061f77f0ec289857a57f",
+      "use": "Frozen R06 review boundary, predecessor chain, source pins and no-effect declarations."
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.successor-bundle.candidate.v1.json",
+      "sha256": "56bda459ddfa8ccf1c6df7fb2d6ce356c90052df3da38b9a3aa6065ab02d0769",
+      "use": "R06 candidate inputs and selected postimages."
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.repair-map.v1.json",
+      "sha256": "da562def601a29e74b48defbae58dc00e3e603cb629177a1b80d044bc4356702",
+      "use": "F-09 repair claims compared to the complete candidate capability definition."
+    },
+    {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "use": "Read-only PDP-0 phase status and currentness barrier."
+    }
+  ],
+  "phaseSurfaceMatrix": [
+    {
+      "surfaceId": "media.stream.session.product-effect.readback.observe",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-CAP-028",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.speech.synthesis.speaker.tune-authorized",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-CLONE-004",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.speech.synthesis.speaker.design-synthetic-persona",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-CLONE-006",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.speech.synthesis.speaker.enroll-persona-authorized",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-CLONE-017",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.color.profile.compatibility.observe",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-COLOR-007",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.deliver.readiness.observe",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-DELIV-007",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.color.saturation",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-COLOR-001",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.deliver.live-stream-output",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-DELIV-019",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.speech.conversation.translated-speech-to-speech",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-DUB-015",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.edit.matte-composite",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-EDIT-016",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.accessibility.control-equivalent-action",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-EDIT-024",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.generate.video.continue",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-GEN-010",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.generate.motion.text-and-style-reference",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-GEN-020",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.generate.video.text-to-video.render-style-preset",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-GEN-021",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.generate.video.local-offline-generation",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-GEN-023",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace.",
+      "nextLegalAction": "Reuse in this review; no local finding for this audit identity. Do not infer phase completion or advance."
+    },
+    {
+      "surfaceId": "media.capability.provider-class-separation",
+      "surfaceType": "PDP-0 physical capability definition with linked requirement parent acceptance cases and PDP0-501 crosswalk trace",
+      "sourceAuditId": "AUD-GEN-024",
+      "pdpApplicability": [
+        "PDP-0"
+      ],
+      "sourceCurrentStatus": "FROZEN_R9_R06_CANDIDATE; NOT_CANONICALLY_APPLIED; LIVE_PDP0_IN_PROGRESS; 9_STALE_AND_21_MISSING_SOURCE_PINS_OF_188",
+      "remainingPhaseLocalTasks": [
+        "F-10"
+      ],
+      "blockerOwner": "PDP-0 source-definition owner for semantic repair; authentic owner mapping/adoption is not established by this technical review",
+      "acceptanceCriteria": "Preserve exact audit/capability and linked parent identities, polarity, literal given/when/then parity, and crosswalk trace. Use only UNKNOWN_OUTCOME for missing/stale/ambiguous evidence throughout the definition; retain the success/non-success output split and REJECTED restriction.",
+      "nextLegalAction": "Resolve F-10 in explicitUnsupportedCases and submit a new frozen candidate."
+    }
+  ],
+  "discoveryBarrierStatus": "FAIL",
+  "buildLane": "No Build work is performed. Per-unit Build eligibility remains governed by current PDP definitions and declared dependencies; this review grants none.",
+  "pdpClosureLane": "NOT_ENTERED; no independent acceptance, receipt or closure is claimed.",
+  "deliveryGate": "CLOSED; current PDP closure, Build completion, owner approval and release prerequisites are not established.",
+  "nextAllowedPhase": "Remain in DISCOVERY / PDP-0 to resolve F-10 and the live source-currentness barrier through the native producer before claiming phase completion or advancing.",
+  "parityNote": "All 16 feature identities and 54 linked parents pass literal case parity. GEN-024 structured output routing and F-09 wording fixes pass; F-10 is limited to two residual explicitUnsupportedCases strings."
+}

@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.quality-extension-provenance-successor-v3-independent-peer.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "reviewId",
+    "candidate",
+    "provenanceSuccessor",
+    "reviewBasis",
+    "reviewer",
+    "scope",
+    "disposition",
+    "findings",
+    "verification",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.quality-extension-provenance-successor-v3-independent-peer.v1"
+    },
+    "reviewId": {
+      "const": "AUD-SPEC-002"
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256",
+        "candidatePostimageSha256",
+        "targetPostimages"
+      ],
+      "properties": {
+        "ref": {
+          "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "candidatePostimageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "targetPostimages": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "targetRef",
+              "preimageSha256",
+              "postimageSha256"
+            ],
+            "properties": {
+              "targetRef": {
+                "type": "string"
+              },
+              "preimageSha256": {
+                "$ref": "#/$defs/sha256"
+              },
+              "postimageSha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provenanceSuccessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256",
+        "status",
+        "predecessorRef",
+        "predecessorSha256"
+      ],
+      "properties": {
+        "ref": {
+          "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-provenance-successor.v3.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "status": {
+          "const": "METADATA_ONLY_SUCCESSOR_PENDING_ROOT_PROVENANCE_REVIEW"
+        },
+        "predecessorRef": {
+          "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-provenance-successor.v2.json"
+        },
+        "predecessorSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role",
+        "candidateAuthor",
+        "independentHumanReviewer",
+        "credentialedAttestation"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "const": "DISTINCT_TECHNICAL_PEER"
+        },
+        "candidateAuthor": {
+          "const": "agent:/root/phase_io"
+        },
+        "independentHumanReviewer": {
+          "const": false
+        },
+        "credentialedAttestation": {
+          "const": false
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "macroStage",
+        "phase",
+        "reviewType",
+        "semanticScope",
+        "denominator"
+      ],
+      "properties": {
+        "macroStage": {
+          "const": "DISCOVERY"
+        },
+        "phase": {
+          "const": "PDP-0"
+        },
+        "reviewType": {
+          "const": "EXACT_CANDIDATE_AND_METADATA_PROVENANCE_PEER_REVIEW"
+        },
+        "semanticScope": {
+          "const": "UNCHANGED_TWO_TARGET_QUALITY_EXTENSION_CANDIDATE"
+        },
+        "denominator": {
+          "const": "ONE_FROZEN_CANDIDATE; NOT A FULL MEDIA SURFACE INVENTORY"
+        }
+      }
+    },
+    "disposition": {
+      "enum": [
+        "TECHNICAL_APPROVE_EXACT_CANDIDATE_ONLY",
+        "REQUEST_CHANGES"
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "severity",
+          "finding",
+          "requiredChange"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "BLOCKING",
+              "NON_BLOCKING"
+            ]
+          },
+          "finding": {
+            "type": "string"
+          },
+          "requiredChange": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hashPinsMatched",
+        "provenancePlannerSuite",
+        "canonicalWrites"
+      ],
+      "properties": {
+        "hashPinsMatched": {
+          "const": true
+        },
+        "provenancePlannerSuite": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "command",
+            "passed",
+            "failed"
+          ],
+          "properties": {
+            "command": {
+              "const": "node --test tests/media-pdp0-quality-extension-provenance-plan-v3.test.mjs"
+            },
+            "passed": {
+              "const": 5
+            },
+            "failed": {
+              "const": 0
+            }
+          }
+        },
+        "canonicalWrites": {
+          "const": "NONE"
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceOwnerAdoption",
+        "rootProvenanceReview",
+        "canonicalApply",
+        "sourceCurrentness",
+        "phaseStatusEffect",
+        "independentAcceptance",
+        "nativeProof"
+      ],
+      "properties": {
+        "sourceOwnerAdoption": {
+          "const": "PENDING"
+        },
+        "rootProvenanceReview": {
+          "const": "PENDING"
+        },
+        "canonicalApply": {
+          "const": "NOT_PERFORMED"
+        },
+        "sourceCurrentness": {
+          "const": "NOT_CLAIMED"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeProof": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    },
+    "reviewBasis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceChoiceRef",
+        "sourceChoiceSha256",
+        "priorV7PeerRef",
+        "priorV7PeerSha256",
+        "semanticAssessment"
+      ],
+      "properties": {
+        "sourceChoiceRef": {
+          "const": "../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-quality-applicability-root-choice-r01.json"
+        },
+        "sourceChoiceSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "priorV7PeerRef": {
+          "const": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-v7-quality-extension-independent-peer.v2.json"
+        },
+        "priorV7PeerSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "semanticAssessment": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

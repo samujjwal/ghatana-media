@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "media.pdp0-parent-case-resolution-validation.v1",
+  "artifactId": "MEDIA-PDP0-PARENT-CASE-RESOLUTION-VALIDATION-COHORT-03-2026-10-23",
+  "validationKind": "STRUCTURAL_AND_SOURCE_REFERENCE_INTEGRITY_ONLY",
+  "result": "PASS",
+  "semanticOwnerReview": "NOT_PERFORMED",
+  "nativePdpAcceptance": "NOT_ASSERTED",
+  "sourceBaseline": {
+    "inputPath": "docs/implementation/observations/media-pdp0-p0-07-parent-case-residual-classification-2026-10-23.json",
+    "inputSha256": "4e6973ce4abfc1e551151ec36335e0920632a12dfca92276b5b900284006f91c",
+    "candidatePath": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.json",
+    "candidateSha256": "0b6173712d93b42286d4f9e2b145fab1419ad425102d5a38df3790ebe70f76c4"
+  },
+  "checks": {
+    "exactSliceRows": 77,
+    "candidateRows": 77,
+    "uniqueAuditIds": 77,
+    "idsAndOrderMatch": true,
+    "originalAuditRefsResolved": true,
+    "capabilityRequirementAndCaseRefsResolved": true,
+    "proposedDefinitionsComplete": true,
+    "sourceFingerprintsMatch": true,
+    "fullCampaignDenominatorPreserved": {
+      "physicalCompositeRootSubjects": 54,
+      "sourceAuditRows": 428,
+      "sourcePaths": 207
+    },
+    "taskDispositionExplicit": true
+  },
+  "decisionCounts": {
+    "MISSING_PDP0_DEFINITION": 44,
+    "SUPPORTED_PDP0_MEANING": 31,
+    "REBIND_EXISTING_CAPABILITY": 2
+  },
+  "errors": []
+}

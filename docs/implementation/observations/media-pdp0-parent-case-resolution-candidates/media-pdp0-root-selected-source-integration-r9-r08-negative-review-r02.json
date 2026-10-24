@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-negative-review.v2",
+  "artifactId": "MEDIA-PDP0-R9-R08-NEGATIVE-REVIEW-R02-2026-10-24",
+  "recordKind": "READ_ONLY_TEST_AND_GAP_REVIEW",
+  "reviewStatus": "ISOLATED_GUARD_AND_SECTION_TESTS_PASS; PRODUCER_REPLAY_AND_LOCKED_WRITER_UNPROVEN",
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "selectedSourceSet": "R9-R08 decision-section producer, v2 authority/read-set validator, and isolated negative tests",
+    "denominator": {
+      "registeredIdentities": 54,
+      "phaseCells": 216,
+      "crosswalkRows": 501,
+      "historicalOwnerRows": 462
+    },
+    "permittedWork": "Versioned PDP-0 producer/validator review and isolated tests only; no canonical source, authority, status, or apply writes."
+  },
+  "sourceBaseline": [
+    {
+      "ref": "scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-approval-input.mjs",
+      "sha256": "c5d1dae174fd6df6dc9098616f508a8cf1b217c80e3b39aab6d8fadb8423526f"
+    },
+    {
+      "ref": "scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v2-guard.mjs",
+      "sha256": "6732fa88e22845fe172544dd7c355975501612b90c9baedfa1c160fe4a1374b9"
+    },
+    {
+      "ref": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+      "sha256": "5e335fd1bd0a1dbfbe78ce7a230b7134d1eaca229a2dbcfaa88cb42902474e04"
+    },
+    {
+      "ref": "tests/media-pdp0-r9-r08-material-binding-negative-review-r01.test.mjs",
+      "sha256": "a78d29366868e0c0a546200972d401c59a73c95f46db5a1dbd37a5786515de78"
+    },
+    {
+      "ref": "tests/media-pdp0-r9-r08-material-binding-negative-review-r02.test.mjs",
+      "sha256": "9ec25c6cb407873ea9d7ff6978b86123c71db2156185264f211b25a411c216be"
+    },
+    {
+      "ref": "tests/media-pdp0-r9-r08-decision-section-approval-input.test.mjs",
+      "sha256": "c46e2e532bc84f107d375b3f46b60674929c13c16d00a35645e99388fb285007"
+    },
+    {
+      "ref": ".product-experience/decision-log.md",
+      "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    {
+      "ref": ".product-experience/authority-map.yaml",
+      "sha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff"
+    },
+    {
+      "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    }
+  ],
+  "findings": [
+    {
+      "findingId": "R9-R08-V2-SECTION-PINS-001",
+      "result": "PASS_TESTED",
+      "evidence": "The new isolated test verifies that changing only the PXD-225 Authority subsection changes the full-section, authority-subsection, and whole-file hashes while preserving Decision/Currentness/Boundary semantic pins. Separate authority-map selectors are independently pinned. Appending PXD-228 does not create an authority binding; the four external authority selectors remain unallocated and the final whole-log apply hash remains null."
+    },
+    {
+      "findingId": "R9-R08-V2-READSET-AND-TARGETS-002",
+      "result": "PASS_VALIDATOR_FIXTURE_ONLY",
+      "evidence": "The v2 guard suite rejects live whole-log drift, authorization/preimage mismatch, missing/reordered/duplicate read-set members, extra/reordered write targets, and the decision log as a write target. The tests exercise the pure validator with in-memory fixtures; they do not exercise a lease, journal, filesystem snapshots, or effects."
+    },
+    {
+      "findingId": "R9-R08-V2-ACTOR-TRUST-003",
+      "result": "PASS_VALIDATOR_FIXTURE_ONLY; AUTHENTICITY_UNPROVEN",
+      "evidence": "The v2 guard rejects an identity string where current role evidence is required and checks four distinct identities plus credential/grant reference digests. These are caller-supplied actorTrust fixture fields; the inspected guard does not resolve those references against a trusted registry or authenticate their current status."
+    },
+    {
+      "findingId": "R9-R08-LOCKED-WRITER-SEAM-004",
+      "result": "OPEN_BLOCKER",
+      "evidence": "The v2 guard documents that the writer should call admission under the shared lock immediately before snapshots, but no R9-R08 commit/writer function is present in the inspected CAS module. Existing R8 writer uses its own profile and requires the old whole decision-log preimage. Therefore under-lease drift rejection before journal/snapshot/target effects is not yet proven for R9-R08."
+    },
+    {
+      "findingId": "R9-R08-PRODUCER-REPLAY-005",
+      "result": "FAIL_CANDIDATE_ARTIFACT_MISMATCH",
+      "evidence": "The approval-input producer --check and its approval producer tests fail because the generated apply-authorization schema artifact differs from deterministic replay. A prior check also reported the expected r10 source-owner schema mismatch. Candidate outputs were not regenerated or overwritten in this review."
+    }
+  ],
+  "verification": [
+    {
+      "command": "node --test tests/media-pdp0-r9-r08-material-binding-negative-review-r01.test.mjs",
+      "result": "PASS",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "command": "node --test tests/media-pdp0-r9-r08-material-binding-negative-review-r02.test.mjs",
+      "result": "PASS",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "command": "node --test tests/media-pdp0-r9-r08-decision-section-approval-input.test.mjs",
+      "result": "FAIL_CANDIDATE_ARTIFACT_MISMATCH",
+      "passed": 1,
+      "failed": 3
+    },
+    {
+      "command": "node scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-approval-input.mjs --check",
+      "result": "FAIL_CANDIDATE_ARTIFACT_MISMATCH"
+    }
+  ],
+  "authorityBoundary": {
+    "canonicalSourceWrites": "NONE",
+    "authorityRecords": "NOT_CREATED",
+    "applyAuthorization": "NOT_CREATED",
+    "credentialOrRoleResolution": "NOT_PERFORMED",
+    "leaseOrWriterEffect": "NOT_EXERCISED",
+    "phaseStatusEffect": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "deliveryOrRelease": "NOT_CLAIMED"
+  },
+  "nextLegalAction": "Reconcile the producer-generated candidate schemas through their versioned owner workflow, then add an R9-R08 writer that resolves actor trust from an authoritative registry and invokes the v2 guard under the shared lease immediately before snapshots. Add isolated filesystem/lock tests before any authority records or apply attempt."
+}

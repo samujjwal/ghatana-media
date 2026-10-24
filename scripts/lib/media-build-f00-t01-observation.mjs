@@ -131,19 +131,38 @@ function validatePhaseMatrix(matrix, phase, expectedIds) {
   ensure(matrix.summary?.remainingPhaseLocalTaskCount === 0, `${phase} matrix summary does not report zero phase-local tasks`);
 }
 
+export function inspectMaterialSourceReceipt({ root, phaseStatuses, receipt, pdp0ProjectionPins = pdp0PhaseScopedSourcePins() }) {
+  const expectedCount = phaseStatuses.reduce((sum, status) => sum + Object.keys(status.sourceShaSet ?? {}).length, 0);
+  const records = receipt?.records;
+  if (!Array.isArray(records)) return { expectedCount, receiptCount: null, staleSelectors: ['MATERIAL_RECEIPT_RECORDS_MISSING'] };
+  const receiptByKey = new Map(records.map(row => [`${row.phase}\u0000${row.selector}`, row]));
+  const staleSelectors = [];
+  for (let index = 0; index < paths.phaseStatus.length; index++) {
+    const phase = paths.phaseStatus[index].phase;
+    for (const [selector, expectedSha256] of Object.entries(phaseStatuses[index].sourceShaSet ?? {})) {
+      const currentSha256 = selector.includes('#')
+        ? (phase === 'PDP-0' ? pdp0ProjectionPins[selector] : undefined)
+        : (fs.existsSync(path.join(root, selector)) ? digestFile(root, selector) : undefined);
+      const current = currentSha256 ?? null;
+      const record = receiptByKey.get(`${phase}\u0000${selector}`);
+      if (!record || record.expectedSha256 !== expectedSha256 || record.currentSha256 !== current
+          || record.status !== (current === expectedSha256 ? 'CURRENT' : 'STALE_OR_UNSUPPORTED')
+          || current !== expectedSha256) {
+        staleSelectors.push({ phase, selector, expectedSha256, currentSha256: current });
+      }
+    }
+  }
+  return { expectedCount, receiptCount: receipt.count ?? null, recordCount: records.length, staleSelectors };
+}
+
 function validateSourceInputs(root, workPackages, expectedIds) {
   ensure(workPackages.schemaVersion === 'media.build-work-packages.v1', 'current generated build work-package projection has an unsupported schema');
-  ensure(workPackages.materialSourceReceipt?.status === 'CURRENT' && workPackages.materialSourceReceipt.count === 859 && workPackages.materialSourceReceipt.staleCount === 0, 'work-package material source receipt is not current at 859 pins');
-  const records = workPackages.materialSourceReceipt.records;
-  ensure(Array.isArray(records) && records.length === 859, 'work-package material source receipt must contain 859 records');
-  ensure(records.every(row => row.status === 'CURRENT' && row.expectedSha256 === row.currentSha256), 'one or more material source pins are stale or unsupported');
-  const pdp0ProjectionPins = pdp0PhaseScopedSourcePins();
-  for (const record of records) {
-    const currentSha256 = record.selector.includes('#')
-      ? (record.phase === 'PDP-0' ? pdp0ProjectionPins[record.selector] : undefined)
-      : (fs.existsSync(path.join(root, record.selector)) ? digestFile(root, record.selector) : undefined);
-    ensure(currentSha256 === record.expectedSha256 && currentSha256 === record.currentSha256, `${record.phase} material source pin is stale or unsupported: ${record.selector}`);
-  }
+  const sourceStatusRecords = paths.phaseStatus.map(({ path: relativePath }) => json(root, relativePath));
+  const receiptReadback = inspectMaterialSourceReceipt({ root, phaseStatuses: sourceStatusRecords, receipt: workPackages.materialSourceReceipt });
+  ensure(receiptReadback.receiptCount === receiptReadback.expectedCount && receiptReadback.recordCount === receiptReadback.expectedCount,
+    `work-package material source receipt count/records ${receiptReadback.receiptCount ?? 'UNKNOWN'}/${receiptReadback.recordCount ?? 'UNKNOWN'} differ from live phase sourceShaSet count ${receiptReadback.expectedCount}`);
+  ensure(receiptReadback.staleSelectors.length === 0,
+    `material receipt is stale or mismatched at ${receiptReadback.staleSelectors.length} selectors: ${receiptReadback.staleSelectors.slice(0, 20).map(row => `${row.phase}:${row.selector}`).join('; ')}`);
   const reduced = records.map(({ phase, selector, expectedSha256, currentSha256, status }) => ({ phase, selector, expectedSha256, currentSha256, status }))
     .sort((a, b) => a.phase.localeCompare(b.phase) || a.selector.localeCompare(b.selector));
   const materialPinCanonicalSha256 = sha256(JSON.stringify(reduced));
@@ -217,7 +236,7 @@ export function buildF00T01Observation({ root = process.cwd(), g0StatusPath, now
     return { phase, path: relativePath, sha256: digestFile(root, relativePath), status: status.status, materialPinCount: Object.keys(status.sourceShaSet).length };
   });
   const materialPinCounts = statusRecords.reduce((counts, row) => ({ ...counts, [row.phase]: row.materialPinCount }), {});
-  ensure(Object.values(materialPinCounts).reduce((a, b) => a + b, 0) === 859, 'phase status sourceShaSet counts do not total 859');
+  ensure(Object.values(materialPinCounts).reduce((a, b) => a + b, 0) === receiptReadback.expectedCount, `phase status sourceShaSet counts do not total ${receiptReadback.expectedCount}`);
 
   const workPackageTask = workPackages.tasks.find(task => task.id === 'M-BLD-F00.T01');
   ensure(workPackageTask?.status === 'PLANNING_RECEIPT_ONLY', 'generated F00.T01 task status is not PLANNING_RECEIPT_ONLY');
@@ -362,7 +381,7 @@ export function buildF00T01Observation({ root = process.cwd(), g0StatusPath, now
     verification: {
       command: `node scripts/generate-media-build-f00-t01-observation.mjs --g0-status ${g0RelativePath}`,
       exitCode: 0,
-      result: 'PASS current G0 source rows, Media phase matrices, 859 material pins, topology set, generated projection source pins, and 54/216 denominators',
+      result: `PASS current G0 source rows, Media phase matrices, ${receiptReadback.expectedCount} material pins, topology set, generated projection source pins, and 54/216 denominators`,
       scope: 'Read-only F00.T01 source material and topology receipt generation; no source, status, task, owner, or authority writes.',
       testsRun: false
     },

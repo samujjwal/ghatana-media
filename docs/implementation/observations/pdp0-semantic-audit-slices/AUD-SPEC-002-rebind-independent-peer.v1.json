@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "media.pdp0.source-correction-peer-review.v1",
+  "auditId": "AUD-SPEC-002",
+  "reviewerIdentity": "agent:thread:01a16a35-bbcf-74d2-ac99-1ed74c29c3c9",
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-rebind-candidate.v1.json",
+  "candidateSha256": "5aaefe010f5095cabbdde58812adeb6e61aafca0cd57312293cdbb61a894a30d",
+  "candidatePostimageSha256": "ae99a8668695006ccfc2e4f37f6a596e3dc2e4ed3937973157da641818c71ba8",
+  "sourceBindings": {
+    "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+    "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+  },
+  "disposition": "TECHNICALLY_REVIEWED_EXACT_POSTIMAGE",
+  "semanticReviewDisposition": "REQUEST_CHANGES",
+  "assessment": {
+    "coveredSubmeaning": {
+      "status": "PASS_WITH_LIMITATION",
+      "meaning": "The exact existing compiler capability and MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07 support typed semantic compilation, schema/source/compiler-contract provenance, deterministic normalized graph/fingerprint, and invalid/unauthorized no-effect behavior."
+    },
+    "completeSourceFeature": {
+      "status": "REQUEST_CHANGES",
+      "reason": "The source feature also names production-schema migrations; current PDP-0 text defines versioned schema bindings and compatibility invalidation but does not define the product outcome for schema migration. The candidate correctly marks this as an unresolved PDP-0 definition item; it must not be considered full AUD-SPEC-002 coverage."
+    },
+    "pxdMechanicsBoundary": "PDP-1 may own migration mechanics after PDP-0 defines intended migration outcomes and compatibility behavior."
+  },
+  "findings": [
+    {
+      "id": "AUD-SPEC-002-CROSSWALK-PROJECTION-DRIFT-001",
+      "priority": "P1",
+      "where": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-rebind-crosswalk-postimage.v1.json",
+      "issue": "The proposed row has disposition PDP0_MEANING_CHANGE_REQUIRED, while the same postimage retains dispositionCounts.PDP0_MEANING_CHANGE_REQUIRED=0, BOUND_EXISTING=499, and unresolvedPdp0Ids without AUD-SPEC-002. The parent decision note still states 499 BOUND_EXISTING and 2 implementation-only rows.",
+      "correction": "Recompute and validate all disposition counters and unresolved-ID projections for the proposed 501-row postimage, while retaining the historical PXD-207 decision as predecessor evidence and adding the new exact owner decision separately.",
+      "acceptance": "The full 501-row inventory is unique and exact; counts equal row dispositions; AUD-SPEC-002 is represented as a PDP-0 meaning gap; deterministic plan --check and a regression test reject projection drift."
+    },
+    {
+      "id": "AUD-SPEC-002-P1-HANDOFF-LABEL-001",
+      "priority": "P2",
+      "where": "scripts/lib/media-pdp0-aud-spec-002-rebind-candidate.mjs#preservedBoundaries.migrationSemantics",
+      "issue": "The candidate correctly says PDP-0 migration product meaning is undefined and PDP-1 owns mechanics, but preservedBoundaries names the PDP-1 handoff migrationSemantics. That label can imply PDP-1 owns missing semantics.",
+      "correction": "Rename the boundary to migrationMechanics or equivalent and keep the PDP-0 meaning gap explicitly unresolved.",
+      "acceptance": "Candidate/schema distinguish the unresolved PDP-0 user outcome from PDP-1 mechanics; no phrase assigns missing product intent to PDP-1."
+    },
+    {
+      "id": "AUD-SPEC-002-OWNER-DECISION-IDENTITY-001",
+      "priority": "P2",
+      "where": "scripts/lib/media-pdp0-aud-spec-002-rebind-candidate.mjs#decisionMatches",
+      "issue": "A supplied source-owner decision is accepted when ownerIdentity is any string and sourceBindings/hashes match; the candidate does not bind that identity to the delegated root technical source owner or an exact PXD decision section. The peer is also only a distinct identity string plus hash fields.",
+      "correction": "Before recording the candidate as source-owner/peer reviewed, require the authorized root identity and a source-bound decision reference/fingerprint, plus a distinct peer review record reference/fingerprint that binds this exact postimage. Do not label an AI peer record as independent human acceptance.",
+      "acceptance": "Tests reject arbitrary owner identities, missing/duplicate/stale PXD section bindings, self-review and peer records that do not hash-bind the exact postimage."
+    }
+  ],
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_CLAIMED",
+    "canonicalApply": "NOT_PERFORMED",
+    "pdp0Completion": "NOT_CLAIMED"
+  }
+}

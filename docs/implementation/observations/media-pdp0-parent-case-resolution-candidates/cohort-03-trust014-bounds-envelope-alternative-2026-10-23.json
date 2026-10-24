@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "media.pdp0.audit.source-backed-alternative.v1",
+  "campaign": "Media PDP-0 P0-07; original audit AUD-TRUST-014; cohort-03 R2 row ordinal 49",
+  "artifactStatus": "ADDITIVE_PROPOSAL_PENDING_SOURCE_OWNER_DECISION",
+  "reviewDisposition": "Addresses the identified invented global strength range with existing profile-semantics authority. It does not establish an owner decision, accepted profile, runtime threshold, implementation, qualification, or candidate availability.",
+  "target": {
+    "auditId": "AUD-TRUST-014",
+    "criterionId": "P0-07",
+    "rowOrdinal": 49,
+    "priorProposalRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r2.json#/rows/@auditId=AUD-TRUST-014",
+    "priorFindingId": "MEDIA-PDP0-P0-07-C03-SOURCE-PEER-15",
+    "originalAuditRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-014"
+  },
+  "sourceBackedAssessment": {
+    "currentCapabilityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video",
+    "currentOwnerProfileRef": "media.capability-profile.media-generate-video",
+    "currentBoundsRef": "media.capability-bounds.media-generate-video-video-to-video",
+    "currentTypedInputs": [
+      {
+        "slotId": "input1",
+        "sourceType": "text-or-video-intent",
+        "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+        "required": true,
+        "alternatives": [
+          "text",
+          "video-intent"
+        ]
+      },
+      {
+        "slotId": "input2",
+        "sourceType": "source-video-artifact",
+        "cardinality": "EXACTLY_ONE",
+        "required": true
+      }
+    ],
+    "currentParameterSchema": {
+      "additionalProperties": false,
+      "required": [],
+      "properties": {},
+      "emptyDisposition": "NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES"
+    },
+    "currentProfileEnvelopeFacts": [
+      "profile-semantics.yaml#profileResolutionRecord requires requestedProfileRefAndVersion, effectiveProfileRefAndVersion, capabilityBindingState, and policyAndRightsDecisionRefs among the resolution record fields.",
+      "profile-semantics.yaml#capabilityBoundsEnvelope binds the exact capability leaf to its ownerDefinition.familyProfileRef and boundsRef; the closed parameterSchema, typedInputSlots, input/output artifact types, and successOutputs are the exact leaf envelope.",
+      "The envelope does not authorize family defaults, inferred parameters, an arbitrary profile, or a caller-selected value outside the exact leaf definition.",
+      "profile-semantics.yaml#boundedInvocationAdmission states that numeric resource limits are not selected there; resource applicability/bounds/evidence remain UNKNOWN or NOT_EVALUATED until scoped records supply them. Those resource dimensions are not appearance-strength thresholds."
+    ],
+    "conditionalOwnerPolicyFacts": [
+      "The video-to-video capability requires operation-specific policy and rights and checks capability/profile/license/policy/resource/deployment admission at the effect boundary.",
+      "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07 applies when an identifiable person is involved in a video-to-video appearance transformation and requires the applicable MEDIA-REQ-CAP-RIGHTS-AC-04 decision before use.",
+      "MEDIA-REQ-CAP-RIGHTS-AC-03 applies when a requested transformation derives content from an identified source recording and blocks derivative use when the applicable permitted-use decision is absent, unknown, denied, restricted, revoked, or expired.",
+      "MEDIA-REQ-CAP-RIGHTS-AC-04 applies when a synthetic or altered presenter involves an identifiable person, voice, or model; disclosure is separate from authorization.",
+      "policy-authority-model.yaml makes consent verified, active, and narrowly scoped for governed processing, and keeps likeness/voice/biometric rights under explicit separate authority."
+    ],
+    "unsupportedPriorProposalElement": {
+      "path": "cohort-03-source-amendment-proposals.r2.json#/rows/@auditId=AUD-TRUST-014/authorityDisposition/candidateFiniteProfile/allowedDimensions/appearance.recast.strength",
+      "value": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "step": 0.01
+      },
+      "reason": "No cited owner source establishes a global 0..1 scale, step, semantics, or applicable profile for appearance-recast strength."
+    }
+  },
+  "proposedAlternative": {
+    "meaning": "For an exact source video and caller-declared purpose/scope, request an appearance-recast candidate only through a typed versioned profile selector that resolves to the exact source-owner-authorized profile and this capability leaf’s bounds envelope. The candidate preserves source and rights lineage and records requested/effective profile references and versions, the owner-defined transformation selection, and altered/synthetic origin.",
+    "typedProfileSelector": {
+      "status": "PROPOSED_FIELD_REQUIRES_SOURCE_OWNER_ADOPTION; NOT PRESENT IN CURRENT VIDEO_TO_VIDEO PARAMETER SCHEMA",
+      "type": "versioned-profile-reference",
+      "shapeAuthorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video/ownerDefinition/parameterSchema/properties/outputProfileRef",
+      "resolutionRecordRefs": [
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml#profileResolutionRecord",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml#profileResolutionRecord"
+      ],
+      "leafBindingRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video/ownerDefinition/familyProfileRef",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video/ownerDefinition/boundsRef",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml#capabilityBoundsEnvelope/boundsRefResolution",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml#capabilityBoundsEnvelope/exactEnvelopeFields"
+      ],
+      "resolutionRule": "The requested versioned profile must be declared by the accountable source owner and resolve for media.generate.video.video-to-video through its exact ownerDefinition.familyProfileRef and boundsRef envelope. The effective profile/version and any policy-authorized change must be separately recorded; no profile is inherited by family name or inferred from a caller label.",
+      "unknownOrUnboundDisposition": "UNKNOWN/NOT_ADMITTED; block before candidate creation. Do not select the family profile as an implicit recast profile, substitute another profile, or treat a present profile name as runtime support."
+    },
+    "transformationSelector": {
+      "status": "OWNER_PROFILE_SCHEMA_REQUIRED; NO NUMERIC RANGE PROPOSED",
+      "rule": "Transformation dimensions, finite enum values, bounds, and combination rules exist only if the accountable source owner declares them in the exact versioned profile and the adopted capability leaf schema. Unknown or unlisted dimensions/values and profile conflicts are rejected or remain UNKNOWN.",
+      "explicitlyRemoved": "No global appearance.recast.strength minimum, maximum, step, 0..1 normalization, default, or inferred value is proposed."
+    },
+    "conditionalPolicy": [
+      {
+        "condition": "The candidate consumes or derives from an identified source recording.",
+        "requiredSourceDecisionRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        "behavior": "Bind the exact source version and permitted-use decision to declared purpose/scope; missing, unknown, denied, restricted, revoked, or expired authority blocks the derivative candidate."
+      },
+      {
+        "condition": "The requested recast involves an identifiable person, voice, or model.",
+        "requiredSourceDecisionRefs": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04"
+        ],
+        "behavior": "Require the current exact-purpose rights/consent/license decision before use. A reference, disclosure, possession, or detection observation is not authorization."
+      },
+      {
+        "condition": "Whether source use or identifiable-person policy applies cannot be determined from declared inputs and authoritative evidence.",
+        "behavior": "Keep the policy applicability UNKNOWN and block/hold for the accountable policy owner; do not infer INAPPLICABLE or apply an unscoped global policy."
+      }
+    ],
+    "observableNegativeBehavior": "Before candidate creation, return BLOCKED or UNKNOWN/UNAVAILABLE when the source/profile/version/bounds resolution is missing, stale, foreign, ambiguous, unbound, or not owner-authorized; when a conditional source-owner policy decision is absent or not current; or when a requested transformation is outside the owner-declared profile schema. Preserve the original source and report no candidate, no inferred identity/consent, no silent substitution, and no render/runtime claim.",
+    "runtimeAndQualificationBoundary": "Runtime thresholds, runtime profile bindings, provider/model support, and qualification are NOT_EVALUATED until separately source-bound evidence exists. The proposal establishes no executable profile, no runtime numeric threshold, and no implementation or availability claim."
+  },
+  "proposedAcceptanceCriterion": "For AUD-TRUST-014, the accountable source owner must adopt a closed typed versioned-profile selector for the exact video-to-video leaf and resolve it through that leaf’s familyProfileRef/boundsRef capability envelope. For each requested recast, the exact requested/effective profile versions and only owner-declared transformation dimensions/values are recorded. Applicable source-use and identifiable-person rights/consent decisions are evaluated conditionally against exact purpose, scope, source version, subject/reference, and current owner authority. Missing, unknown, unbound, stale, denied, restricted, revoked, expired, unlisted, conflicting, or out-of-profile inputs block or remain UNKNOWN before candidate creation. No global 0..1 strength range, implicit default, runtime threshold, identity/consent inference, or qualification claim is accepted.",
+  "ownerDecisionStatus": "UNKNOWN_PENDING_AUTHENTIC_SOURCE_OWNER_DECISION",
+  "nextOwnerInput": "Decide whether to add a typed versioned-profile selector to the exact video-to-video leaf, identify the accountable owner and source of the finite recast profile schema, and define conditional policy applicability for source-derived and identifiable-person requests. Until that decision and profile mapping exist, leave the proposal non-applicable/UNKNOWN and candidate unavailable.",
+  "sourceRefs": [
+    "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-014",
+    "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r2.json#/rows/@auditId=AUD-TRUST-014",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video/ownerDefinition",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video/ownerDefinition/parameterSchema/properties/outputProfileRef",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml#profileResolutionRecord",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml#capabilityBoundsEnvelope",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission",
+    ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+    ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+    ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/@axis=consent",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/@axis=likeness-voice-and-biometric-rights"
+  ],
+  "sourceFingerprints": {
+    "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-proposals.r2.json": "c299e7057fb6c1de07feead506c90d0f127b079599526d2846c18d4342bfd2f5",
+    "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.json": "0b6173712d93b42286d4f9e2b145fab1419ad425102d5a38df3790ebe70f76c4",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8"
+  },
+  "nonClaims": [
+    "No canonical capability, requirement, profile, policy, or status source is edited by this artifact.",
+    "No owner adoption, policy approval, consent finding, identity finding, acceptance, closure, implementation, runtime availability, or qualification is asserted.",
+    "The numeric resource bounds in profile-semantics.yaml do not define appearance transformation thresholds."
+  ]
+}

@@ -155,18 +155,25 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
   if (!Array.isArray(physical) || !Array.isArray(compositions) || !Array.isArray(consumers)) {
     throw new TypeError('Media physical topology is missing candidate, composition, or consumer inventory');
   }
-  if (physical.length !== 26 || compositions.length !== 7 || consumers.length !== 17) {
-    throw new TypeError(`Unexpected Media PDP-0 denominator: physical=${physical.length}, composition+root=${compositions.length}, consumers=${consumers.length}`);
+  if (topology.activeManifestCandidateCount !== physical.length) {
+    throw new TypeError('Media physical topology candidate count does not match its inventory');
   }
 
   const physicalById = uniqueById(physical, 'physical candidate');
   const compositionsById = uniqueById(compositions, 'composition');
   uniqueById(consumers, 'consumer');
-  if ([...compositionsById.values()].filter((entry) => entry.kind === 'SEMANTIC_COMPOSITION').length !== 6
-      || [...compositionsById.values()].filter((entry) => entry.kind === 'REPOSITORY_ROOT').length !== 1) {
-    throw new TypeError('Media PDP-0 requires six semantic compositions and one repository root');
+  const semanticCompositions = [...compositionsById.values()].filter((entry) => entry.kind === 'SEMANTIC_COMPOSITION');
+  const repositoryRoots = [...compositionsById.values()].filter((entry) => entry.kind === 'REPOSITORY_ROOT');
+  if (semanticCompositions.length + repositoryRoots.length !== compositions.length || repositoryRoots.length !== 1) {
+    throw new TypeError('Media PDP-0 composition inventory must classify every record and contain exactly one repository root');
   }
   const consumersById = new Map(consumers.map((entry) => [entry.surfaceId, entry]));
+  const registryIds = [...registry.matchAll(/^  - surfaceId: ([^\s]+)$/gmu)].map((match) => match[1]);
+  if (new Set(registryIds).size !== registryIds.length
+      || registryIds.length !== consumers.length
+      || registryIds.some((surfaceId) => !consumersById.has(surfaceId))) {
+    throw new TypeError('Media consumer inventory does not exactly match the authoritative surface registry');
+  }
   for (const consumer of consumers) {
     for (const physicalId of consumer.physicalRefs ?? []) {
       const candidate = physicalById.get(physicalId);
@@ -187,7 +194,11 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
   }
 
   const sharedPaths = [...new Set([
-    ...Object.keys(status.sourceShaSet),
+    // Selector pins such as decision-log.md#PXD-099-section are not file
+    // paths. Their current values are evaluated by the owner-scoped selector
+    // projector in the phase pin comparison; only the backing file belongs
+    // in per-cell repository file membership.
+    ...Object.keys(status.sourceShaSet).filter((sourcePath) => !sourcePath.includes('#')),
     registryPath,
     topologyPath,
     statusPath,
@@ -333,7 +344,13 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
       physicalTopology: topologyPath,
       ownerDecision: ownerDecisionPath,
     },
-    denominator: { physicalCandidates: physical.length, semanticCompositions: 6, repositoryRoots: 1, consumers: consumers.length, totalCells: cells.length },
+    denominator: {
+      physicalCandidates: physical.length,
+      semanticCompositions: semanticCompositions.length,
+      repositoryRoots: repositoryRoots.length,
+      consumers: consumers.length,
+      totalCells: cells.length,
+    },
     cells,
   };
 }

@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "media.pdp0.current-source-review-record.v4",
+  "criterionId": "P0-04",
+  "phaseScope": "PDP-0",
+  "reviewer": {
+    "identity": "agent:thread:01a16a3d-608a-7cf0-a1c7-e346d343016d/AItechnicalrole",
+    "reviewRole": "DISTINCT_TECHNICAL_REVIEWER",
+    "reviewRecordRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-04.v4.json"
+  },
+  "scopeRef": "docs/implementation/media-pdp-38-readiness.json#tasks/P0-04",
+  "reviewedSources": [
+    {
+      "sourceRef": "docs/implementation/media-pdp-38-readiness.json",
+      "sha256": "5ccc340576a8cbebfa793f9b769532962f7a26cb0102c0e589d07e3bdb301dbe"
+    },
+    {
+      "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+      "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+      "sha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
+    },
+    {
+      "sourceRef": ".product-experience/source-manifest.yaml",
+      "sha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
+      "sha256": "2bbc74c35dfdae2d9e940ff31a5487a5707118fdb76f2ed4a250f51853530898"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+      "sha256": "5ff75c37d816290bad071c4fa887126bbed4e6b7a10bfe8182b394cd5fdce677"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+      "sha256": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "sha256": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+      "sha256": "db98413dfc314d85528d87515e8e7b100afe12276bfc8a73ca5401bbc92355eb"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/constitution.yaml",
+      "sha256": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b"
+    },
+    {
+      "sourceRef": "tests/pdp-0-final.test.mjs",
+      "sha256": "a1149957da1f7a61349205f301bef0a84ff552c9d9964c2f8d8be4a692ad0916"
+    },
+    {
+      "sourceRef": "tests/media-product-definition-resolved-intents.test.mjs",
+      "sha256": "7b5a812e746c4a8e58b5fc84a52f39b7f272fec966c2abb44eac3c8044e8d176"
+    },
+    {
+      "sourceRef": "tests/media-pdp0-acceptance-actor-binding.test.mjs",
+      "sha256": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9"
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/P0-04.log",
+      "sha256": "d2f3e9481f39cd52aef804f3bf6d1a443c2c82d0f11f2b8ccefb8e64e35c14f2"
+    }
+  ],
+  "criterionVerification": {
+    "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+    "statusRecordSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "testReceiptRef": "docs/implementation/verification/pdp-38/P0-04.log",
+    "testReceiptSha256": "d2f3e9481f39cd52aef804f3bf6d1a443c2c82d0f11f2b8ccefb8e64e35c14f2",
+    "testStatus": "PASS",
+    "testCount": 6,
+    "passedTestCount": 6,
+    "skippedTestCount": 0,
+    "outputSha256": "d2f3e9481f39cd52aef804f3bf6d1a443c2c82d0f11f2b8ccefb8e64e35c14f2"
+  },
+  "reviewConclusion": "SOURCE_MEANING_REVIEWED; FINDINGS_ARE_SEPARATELY_TYPED",
+  "reviewNotes": "{\"reviewKind\":\"AI_TECHNICAL_CURRENT_SOURCE_REVIEW\",\"criterionIdentity\":{\"criterionId\":\"P0-04\",\"readinessTaskRef\":\"docs/implementation/media-pdp-38-readiness.json#tasks/P0-04\",\"directDefinitionCriterionRecord\":\"ABSENT\",\"directDefinitionDecisionRef\":null,\"readinessCriterionState\":\"VERIFIED_IN_CURRENT_SOURCE\",\"originalTaskState\":\"partial\"},\"baseline\":{\"repositoryHead\":\"b7685542a71a62c33f3a0cf074d22de6543e7935\",\"workingTree\":\"DIRTY_PRESERVED\",\"campaign\":\"Media PDP-0 Product Truth, criteria P0-01 through P0-04 only\",\"macroStage\":\"DISCOVERY\",\"exactPhase\":\"PDP-0 Product Truth\",\"registeredIdentityDenominator\":{\"physicalCandidates\":26,\"compositionSurfacesIncludingRoot\":7,\"logicalConsumers\":21,\"registeredIdentities\":54},\"requestedCurrentMaterialPathDenominator\":207,\"sourcePinObservation\":{\"reportedCurrentMaterialPathDenominator\":207,\"phaseStatusSourcePinRefs\":188,\"wholeFilePinsComparedAgainstLiveBytes\":167,\"wholeFilePinMismatches\":0,\"sectionPins\":21,\"sectionPinCurrentness\":\"All 21 section/projection refs recomputed through scripts/report-media-pdp-readiness.mjs#pdp0PhaseScopedSourcePins and matched their recorded status pins.\",\"wholeCutCurrentnessClaim\":\"NOT_MADE\",\"sectionPinBackerFilesMissing\":[]},\"sourceCurrentnessClaim\":\"NOT_MADE; this is a bounded criterion-level technical review, not a PDP-0 source-currentness/DEV_COMPLETE receipt.\"},\"criterionMeaning\":{\"scope\":\"P0-04 source mapping of actors, user intent, requirements, and journey actors including exact cross-reference behavior.\",\"observations\":[\"The current sources contain 19 user intents and 19 resolution records, 30 journeys and 30 actor-resolution records, and 11 defined actors. The recorded P0-04 tests assert exact source IDs, resolved initiating actors, full collaborator sets, rationales, and evidence refs.\",\"The 38 requirements contain 70 authored traceToIntentIds; the P0-04 test asserts all 70 targets resolve to the canonical 19 intent records with priority and resolved actor status, across all 38 requirements. Negative behavior preserves unresolved targets rather than inventing an actor or intent.\",\"The persisted P0-04 receipt and output SHA-256 match the current P0-04.log (6/6 PASS). The reviewer read the receipt and matching source hashes; no tests were run by the reviewer.\",\"The source tests keep the owner intent record status P0-010-independent-semantic-review-pending and preserve projection acceptance as NOT_CLAIMED; this review does not claim independent acceptance.\"],\"nonClaims\":[\"No owner approval, independent acceptance, P0-010 acceptance, phase status transition, closure, Build admission, or Delivery is claimed.\"]},\"findings\":[{\"id\":\"P0-04-DEPENDENCY-READINESS-NOT-ESTABLISHED\",\"classification\":\"DEPENDENCY_GUARD_NOT_ESTABLISHED\",\"evidenceRef\":\"docs/implementation/media-pdp-38-readiness.json\",\"finding\":\"The bounded P0-04 source mapping is VERIFIED_IN_CURRENT_SOURCE, but readiness records dependencyReady NOT_ESTABLISHED for dependencies P0-01/P0-03 and keeps overall task partial. This review does not establish dependency closure or permit advancement.\",\"owner\":\"Media PDP-0 task/currentness owner\",\"correction\":\"Preserve P0-04 task-specific source verification while resolving its declared P0-01/P0-03 predecessor conditions through their owner-controlled paths.\",\"nextAction\":\"Do not advance P0-04 until its own declared dependencies are established; keep independent acceptance separate.\"},{\"id\":\"PDP0-MATRIX-STATUS-PIN-MISMATCH\",\"classification\":\"PDP0_STATUS_PROJECTION_STALE\",\"evidenceRef\":\"docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json\",\"finding\":\"The PDP-0 matrix statusRecordSha256 71d801cd97076e708d1ee705e6f2cf5a7ff40edcfdaf06cc6903b5bd0114353d differs from the live phase-status SHA-256 6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c.\",\"owner\":\"Media PDP-0 status/projection owner\",\"correction\":\"Reconcile or regenerate the status projection through its owner-controlled workflow after the applicable source cut is established.\",\"nextAction\":\"Do not infer phase status or whole-cut currentness from the stale matrix.\"},{\"id\":\"PDP0-MATERIAL-CUT-COVERAGE-NOT-ESTABLISHED\",\"classification\":\"WHOLE_CUT_CURRENTNESS_NOT_CLAIMED\",\"evidenceRef\":\"docs/implementation/pdp-0-phase-dev-status.json\",\"finding\":\"The canonical PDP-0 pin helper reproduces all 188 status references (167 whole-file pins and 21 section/projection pins), with no mismatches. The status reports a 207-material-path denominator; this bounded review does not establish complete membership or coverage of that larger cut, so whole-cut currentness remains NOT_MADE.\",\"owner\":\"Media PDP-0 source/currentness owner\",\"correction\":\"Reconcile the reported material-path denominator and its complete source inventory through the authorized PDP-0 currentness workflow before making a whole-cut currentness claim.\",\"nextAction\":\"Retain the 207-path denominator and the bounded 188-reference result separately; do not promote currentness from this review.\"}],\"verifierReceipt\":{\"statusRecordRef\":\"docs/implementation/pdp-0-phase-dev-status.json\",\"currentStatusRecordHashedInCriterionVerification\":true,\"testReceiptRef\":\"docs/implementation/verification/pdp-38/P0-04.log\",\"testReceiptSha256\":\"d2f3e9481f39cd52aef804f3bf6d1a443c2c82d0f11f2b8ccefb8e64e35c14f2\",\"testStatus\":\"PASS\",\"testCount\":6,\"passedTestCount\":6,\"skippedTestCount\":0,\"outputSha256\":\"d2f3e9481f39cd52aef804f3bf6d1a443c2c82d0f11f2b8ccefb8e64e35c14f2\",\"command\":\"node --test-reporter=tap --test \\\"--test-name-pattern=P0-04|PDP-0 preserves exact collaborator|PDP-0 requirement trace targets\\\" /Users/samujjwal/Development/ghatana-media/tests/pdp-0-final.test.mjs /Users/samujjwal/Development/ghatana-media/tests/media-product-definition-resolved-intents.test.mjs /Users/samujjwal/Development/ghatana-media/tests/media-pdp0-acceptance-actor-binding.test.mjs\",\"distinction\":\"Persisted receipt and output digest were read and matched; no tests were run by the reviewer. This is not phase acceptance, currentness, owner approval, task completion, or runtime qualification.\"},\"sourceCoverage\":{\"sourceRefsWithCurrentWholeFileHashes\":16,\"sourceRefMap\":\"reviewedSources binds the exact bounded criterion source, current readiness/status and direct-review sources, matrix projection, source manifest, relevant tests, and persisted receipt by whole-file SHA-256. This is not the full 207-path source-currentness determination.\",\"knownUnknowns\":[\"P0-04 task-specific source criterion is VERIFIED_IN_CURRENT_SOURCE, but dependencyReady remains NOT_ESTABLISHED because the task depends on P0-01/P0-03; original full task remains partial and no direct owner criterion record exists.\",\"The canonical PDP-0 source-pin check revalidates all 188 current phase-status refs (167 whole-file and 21 section/projection refs), but the status reports a 207-material-path denominator. This bounded review does not establish complete membership/coverage of the 207-path cut, so whole-cut currentness is not claimed; the PDP-0 surface matrix also pins a different phase-status digest.\",\"P0-010 independent semantic acceptance remains pending and is outside this review.\"]},\"nextAction\":\"Keep P0-04 at its verified source-criterion state but retain predecessor/dependency, original task, independent acceptance, P0-010, phase status, and later-phase prerequisites as separate axes.\",\"reviewerBoundary\":{\"role\":\"AI technical source reviewer only\",\"ownerApproval\":\"NOT_CLAIMED\",\"independentAcceptance\":\"NOT_CLAIMED\",\"pdp010Acceptance\":\"NOT_PERFORMED\",\"phaseStatusEffect\":\"NONE\"}}",
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "pdp010Acceptance": "NOT_PERFORMED",
+    "phaseStatusEffect": "NONE"
+  },
+  "reviewDisposition": "FRESH_REVIEW"
+}

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "media.pdp0.aq-pxd216.bounded-source-application-proposal.v1",
+  "recordId": "MEDIA-PDP0-AQ-PXD216-BOUNDED-SOURCE-APPLICATION-PROPOSAL-2026-10-24",
+  "state": "PROPOSAL_ONLY; OWNER_DECISION_AND_ROOT_TECHNICAL_REVIEW_PENDING",
+  "ownerDecisionInput": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.aq-pxd216.v1.json",
+    "sha256": "5f5698ff3c11dc13baec7ca115e0a1852875c6de5dc5164abf7f5189af0c9e50"
+  },
+  "candidateInputs": [
+    {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json",
+      "sha256": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87",
+      "purpose": "AQ rows 1–154 append-only current-source successor"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json",
+      "sha256": "0aafe87534b11e215414f0601825608bd12660a3d640e9bed5fe1b3b5bc903b8",
+      "purpose": "PXD-216 exact 20-row source-currentness successor"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/aq-59-64-taxonomy-clarification-candidate.v1.json",
+      "sha256": "d77d361b2ea07a77f474e1c3d9ff96f50794c4338e87de71c75ffaa31dd44453",
+      "purpose": "six-row owner taxonomy clarification candidate"
+    }
+  ],
+  "denominators": {
+    "surfaceIdentities": 54,
+    "phaseCells": 216,
+    "capabilities": 469,
+    "auditRows": 501
+  },
+  "sourceCut": {
+    "pins": {
+      "docs/implementation/pdp-0-phase-dev-status.json": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5",
+      "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87",
+      "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json": "0aafe87534b11e215414f0601825608bd12660a3d640e9bed5fe1b3b5bc903b8",
+      "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/root-application-input.candidate.v5.json": "eb9f6903db387375105f8d1b1653a297bf09e816d138749dc93f3d3c69ad27f5",
+      ".product-experience/decision-log.md": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    "sha256": "cbc4db5bcd7c6f076e033aa6d5b0739f948f1d473dd34f1cdb1d401505fd37b5",
+    "repeatedReadStable": true
+  },
+  "proposedActions": [
+    {
+      "id": "CURRENTNESS-ONLY-01",
+      "condition": "Authentic source owner approves exact AQ v5 candidate SHA-256",
+      "action": "Retain AQ v5 and PXD-216 v5 as append-only source-currentness successors; keep AQ findings and PXD-216 reviewed meanings unchanged.",
+      "targets": [
+        "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json",
+        "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json"
+      ]
+    },
+    {
+      "id": "TAXONOMY-CLARIFICATION-01",
+      "condition": "Authentic source owner records a row-level decision for AQ indexes 59–64",
+      "action": "Only then create a separate append-only AQ recommendation successor with the accepted indexing rule and six row dispositions; regenerate affected downstream recommendation projections from their owning producers.",
+      "targets": [
+        "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/aq-59-64-taxonomy-clarification-candidate.v1.json"
+      ]
+    }
+  ],
+  "writesInThisProposal": [],
+  "forbiddenWrites": [
+    ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    ".product-experience/pdp-0-product-truth/requirements.yaml",
+    "docs/implementation/pdp-0-phase-dev-status.json",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+  ],
+  "authorityBoundary": {
+    "sourceOwnerDecision": "NOT_RECORDED",
+    "rootTechnicalReview": "NOT_RECORDED_BY_THIS_PRODUCER; ROOT_AUTHORITY_MUST_REVIEW_INDEPENDENTLY",
+    "rootDecision": "NOT_AUTHORED",
+    "canonicalApply": "NONE",
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "closure": "NOT_CLAIMED"
+  },
+  "blockers": [
+    "Authentic source-owner currentness disposition bound to exact AQ v5 SHA-256.",
+    "Separate authentic owner decision for each of AQ indexes 59–64; currentness approval alone is insufficient.",
+    "Independent root technical review and any root decision through the existing R9-R08 lane; this proposal does not supply either."
+  ],
+  "acceptanceCriteria": [
+    "All v5 candidate and protected-input hashes still match at decision time.",
+    "54 surface identities, 216 phase cells, 469 capability rows, and 501 crosswalk rows remain unchanged.",
+    "AQ 1–154 retains 148 supported, 6 ambiguous, and 0 mismatched until authentic row-level decisions exist.",
+    "No canonical source, crosswalk, or status write occurs under this proposal."
+  ]
+}

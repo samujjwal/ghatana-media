@@ -1,0 +1,636 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.r6-cut-verification.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-01-R6-CUT-VERIFICATION-2026-10-23",
+  "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json",
+  "candidateSha256": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361",
+  "sourceContentPeerR5Ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-content-peer.r5.v1.json",
+  "sourceContentPeerR5Sha256": "b7871785625e4a3582847097e78603bed8d5b5b0bf820088f6bf74eaefbd9523",
+  "summary": {
+    "distinctCapabilityNegativeCases": 9,
+    "casePairsChecked": 9,
+    "allNineNegativeGwtDistinct": true,
+    "color001": "UNKNOWN_PENDING_OWNER_SCHEMA",
+    "rootChoices": 6,
+    "rootChoicesSelected": 0,
+    "ownerAlternativesIncludingColor001": 7,
+    "canonicalApply": "NONE"
+  },
+  "checks": [
+    {
+      "auditId": "AUD-COLLAB-003",
+      "capabilityId": "media.quality.compare",
+      "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "candidate-artifacts-or-execution-observation",
+          "required": true,
+          "alternatives": [
+            "candidate-artifacts",
+            "execution-observation"
+          ]
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "quality-question-and-bounds",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "quality-observation-or-bounded-repair-plan"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    },
+    {
+      "auditId": "AUD-COLLAB-003",
+      "capabilityId": "media.project.review",
+      "caseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "user-intent",
+          "required": true
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "versioned-project",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "current-assigned-review-authority-for-exact-version-scope-purpose",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "versioned-project-state"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    },
+    {
+      "auditId": "AUD-COLOR-010",
+      "capabilityId": "media.color.skin-tone-preserve",
+      "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "source-media-artifact",
+          "required": true
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "declared-source-and-target-color-context",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "color-managed-media-derivative-and-transform-provenance"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    },
+    {
+      "auditId": "AUD-COLOR-010",
+      "capabilityId": "media.compose.track.video-audio-caption-overlay",
+      "caseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "versioned-project-and-selected-artifacts",
+          "required": true
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "composition-intent",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "versioned-composition-and-render-manifest"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    },
+    {
+      "auditId": "AUD-DELIV-013",
+      "capabilityId": "media.speech.transcription.subtitle.generate",
+      "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "exact-transcript-or-recognition-result-version",
+          "required": true,
+          "alternatives": [
+            "exact-transcript",
+            "recognition-result-version"
+          ]
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "source-audio-or-video-version",
+          "required": true,
+          "alternatives": [
+            "source-audio",
+            "video-version"
+          ]
+        },
+        {
+          "slotId": "input3",
+          "sourceType": "requested-output-language-and-profile",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "subtitle-draft-version",
+        "segment-timing-and-alignment-disposition",
+        "source-and-operation-provenance"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    },
+    {
+      "auditId": "AUD-DELIV-013",
+      "capabilityId": "media.compose.track.video-audio-caption-overlay",
+      "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "versioned-project-and-selected-artifacts",
+          "required": true
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "composition-intent",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "versioned-composition-and-render-manifest"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    },
+    {
+      "auditId": "AUD-DELIV-013",
+      "capabilityId": "media.deliver.subtitles",
+      "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "accepted-media-artifact-or-composition",
+          "required": true,
+          "alternatives": [
+            "accepted-media-artifact",
+            "composition"
+          ]
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "requested-delivery-profile-and-destination",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "delivery-package-or-explicit-delivery-outcome"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    },
+    {
+      "auditId": "AUD-DELIV-015",
+      "capabilityId": "media.sync.sample-accurate-av-map",
+      "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "timestamped-audio-video-or-caption-artifacts",
+          "required": true,
+          "alternatives": [
+            "timestamped-audio-video",
+            "caption-artifacts"
+          ]
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "alignment-intent",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "alignment-map-and-derived-synchronized-artifact"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    },
+    {
+      "auditId": "AUD-DELIV-015",
+      "capabilityId": "media.quality.video.video.assess-av-sync",
+      "caseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-NEG",
+      "typedInputs": [
+        {
+          "slotId": "input1",
+          "sourceType": "video-candidate",
+          "required": true
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "applicable-reference-and-measurement-context",
+          "required": true
+        }
+      ],
+      "allowedErrorVocabulary": [
+        "INVALID_REQUEST",
+        "ACCESS_DENIED",
+        "RIGHTS_OR_CONSENT_DENIED",
+        "UNSUPPORTED_PROFILE",
+        "BOUNDS_EXCEEDED",
+        "CONFLICT",
+        "UNAVAILABLE",
+        "UNKNOWN_OUTCOME"
+      ],
+      "requiredAuthority": [
+        "identity-and-tenant-context",
+        "operation-specific-policy-and-rights",
+        "artifact-read-or-write-permission-as-applicable",
+        "governed-egress-or-publishing-authority-when-applicable"
+      ],
+      "successOutputs": [
+        "video-quality-observations-by-applicable-dimension"
+      ],
+      "negativeOutcome": "NO_SUCCESS_OUTPUT; preserve only source-defined UNKNOWN/REJECTED/UNAVAILABLE/ABSTAINED/BLOCKED disposition"
+    }
+  ],
+  "ownerChoiceRefs": [
+    {
+      "auditId": "AUD-CAP-028",
+      "status": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+      "selected": null,
+      "optionIds": [
+        "A",
+        "B"
+      ],
+      "authority": {
+        "role": "Canonical PDP-0 semantic source owner",
+        "ownerId": "media-product",
+        "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+      },
+      "criterionEffects": {
+        "optionEffects": [
+          {
+            "optionId": "A",
+            "adds": "P0-07 gains a bounded product-effect readback observation only when an exact owner, authority source, evidence reference, and finality states are named.",
+            "excludes": "Does not authorize replay or assert effect finality without source-backed owner/evidence."
+          },
+          {
+            "optionId": "B",
+            "adds": "P0-07 explicitly excludes resume safety, scene ownership, and effect finality from this feature.",
+            "excludes": "No product-effect result is added to reconnect semantics."
+          }
+        ],
+        "selectedEffect": null,
+        "canonicalMutation": "NONE",
+        "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+      }
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "status": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+      "selected": null,
+      "optionIds": [
+        "A",
+        "B"
+      ],
+      "authority": {
+        "role": "Canonical PDP-0 semantic source owner",
+        "ownerId": "media-product",
+        "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+      },
+      "criterionEffects": {
+        "optionEffects": [
+          {
+            "optionId": "A",
+            "adds": "P0-07 gains a separately selectable custom voice tuning intent with source version, rights/purpose, dimensions, output/version, retention, and actor semantics.",
+            "excludes": "Does not claim training or model adaptation absent explicit source semantics."
+          },
+          {
+            "optionId": "B",
+            "adds": "P0-07 keeps tuning within the authorized clone contract.",
+            "excludes": "No independently selectable tuning result is added."
+          }
+        ],
+        "selectedEffect": null,
+        "canonicalMutation": "NONE",
+        "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+      }
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "status": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+      "selected": null,
+      "optionIds": [
+        "A",
+        "B"
+      ],
+      "authority": {
+        "role": "Canonical PDP-0 semantic source owner",
+        "ownerId": "media-product",
+        "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+      },
+      "criterionEffects": {
+        "optionEffects": [
+          {
+            "optionId": "A",
+            "adds": "P0-07 gains a source-free synthetic persona feature with explicit identity, rights, selection, and prohibited-impersonation semantics.",
+            "excludes": "Does not inherit authorized-clone semantics as identity proof."
+          },
+          {
+            "optionId": "B",
+            "adds": "P0-07 explicitly excludes source-free persona creation and retains authorized cloning only.",
+            "excludes": "No source-free persona capability is added."
+          }
+        ],
+        "selectedEffect": null,
+        "canonicalMutation": "NONE",
+        "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+      }
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "status": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+      "selected": null,
+      "optionIds": [
+        "A",
+        "B"
+      ],
+      "authority": {
+        "role": "Canonical PDP-0 semantic source owner",
+        "ownerId": "media-product",
+        "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+      },
+      "criterionEffects": {
+        "optionEffects": [
+          {
+            "optionId": "A",
+            "adds": "P0-07 gains enrollment semantics with subject/avatar identity, consent/rights, purpose, authority, revocation, and lifecycle.",
+            "excludes": "Does not infer enrollment from consent-reference resolution."
+          },
+          {
+            "optionId": "B",
+            "adds": "P0-07 retains consent-reference resolution only and declares no enrollment outcome.",
+            "excludes": "No avatar/persona binding or enrollment state is added."
+          }
+        ],
+        "selectedEffect": null,
+        "canonicalMutation": "NONE",
+        "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+      }
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "status": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+      "selected": null,
+      "optionIds": [
+        "A",
+        "B"
+      ],
+      "authority": {
+        "role": "Canonical PDP-0 semantic source owner",
+        "ownerId": "media-product",
+        "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+      },
+      "criterionEffects": {
+        "optionEffects": [
+          {
+            "optionId": "A",
+            "adds": "P0-07 gains a bounded compatibility observation against one named profile/target with supported, unsupported, and unknown dimensions.",
+            "excludes": "No standards-conformance claim is added."
+          },
+          {
+            "optionId": "B",
+            "adds": "P0-07 may define conformance only after standard/version, authorized decision body, test method, target, and evidence are bound.",
+            "excludes": "No conformance claim is valid while any required authority/evidence field is absent."
+          }
+        ],
+        "selectedEffect": null,
+        "canonicalMutation": "NONE",
+        "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+      }
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "status": "UNKNOWN_PENDING_CANONICAL_OWNER_DECISION",
+      "selected": null,
+      "optionIds": [
+        "A",
+        "B"
+      ],
+      "authority": {
+        "role": "Canonical PDP-0 semantic source owner",
+        "ownerId": "media-product",
+        "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+      },
+      "criterionEffects": {
+        "optionEffects": [
+          {
+            "optionId": "A",
+            "adds": "P0-07 gains a readiness observation only from declared legal/hardware criteria and current evidence.",
+            "excludes": "Unknown criteria/evidence remain UNKNOWN and do not establish readiness."
+          },
+          {
+            "optionId": "B",
+            "adds": "P0-07 keeps readiness UNKNOWN until criteria/evidence and their legitimate authorities are bound.",
+            "excludes": "No readiness result or commercial/specialist approval is inferred."
+          }
+        ],
+        "selectedEffect": null,
+        "canonicalMutation": "NONE",
+        "additionalSpecialistAuthority": "NOT_ESTABLISHED_BY_THIS_CANDIDATE"
+      }
+    }
+  ],
+  "color001": {
+    "auditId": "AUD-COLOR-001",
+    "status": "UNKNOWN_PENDING_OWNER_SCHEMA",
+    "selectedOption": null,
+    "authority": {
+      "role": "Canonical PDP-0 semantic source owner",
+      "ownerId": "media-product",
+      "authorityRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+    },
+    "options": [
+      {
+        "id": "A",
+        "meaning": "Only after media-product supplies a typed saturation-intent schema with finite supported values/range and effective-value semantics, consider a local treatment candidate bound to exact source/color context and qualified SDR/HDR fixtures.",
+        "sourceBasis": [
+          "P0-07 audit acceptance criterion requires qualified SDR/HDR fixtures, input/output pixel-transform comparison, relevant color tags, and explicit unsupported-profile behavior.",
+          "Current capability source provides no saturation typed schema, finite range, or effective-value semantics."
+        ],
+        "sourceRefs": [
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.saturation",
+          ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+        ],
+        "criterionEffect": "Adds a local saturation-treatment candidate only after typed owner semantics and fixture basis exist; preserves no certification claim.",
+        "ownerDecisionMade": false
+      },
+      {
+        "id": "B",
+        "meaning": "Keep saturation excluded/unavailable/UNKNOWN until the owner schema exists; apply no transform.",
+        "sourceBasis": [
+          "Current source has no owner-defined finite typed saturation intent or effective-value contract.",
+          "P0-07 audit acceptance criterion still requires qualified SDR/HDR fixtures and explicit unsupported-profile behavior before a future candidate."
+        ],
+        "sourceRefs": [
+          "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.saturation",
+          ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0"
+        ],
+        "criterionEffect": "Excludes positive saturation output for this cut; preserves UNKNOWN and the existing color acceptance criterion.",
+        "ownerDecisionMade": false
+      }
+    ],
+    "selectedEffect": null,
+    "successOutputs": [],
+    "canonicalMutation": "NONE"
+  },
+  "sourcePins": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+    "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4",
+    "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.independent-peer.json": "570ef85540279e0f61145de505b8cd311bc7b757f6659eed5ca82487ab64a281"
+  },
+  "nonClaims": [
+    "R6 is an additive noncanonical proposal, not owner adoption or source currentness.",
+    "P0-07 remains noncurrent: 29 of 34 nested material pins stale or missing.",
+    "No Discovery completion, Build admission, PDP closure/acceptance, Delivery, or release state is claimed."
+  ],
+  "outputHashes": {
+    "candidateSha256": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361",
+    "capabilitiesPostimageSha256": "0749f4765e219a0cd9d621953a40a319f7d67c752c646bac6a1ddab905b1e69a",
+    "requirementsPostimageSha256": "2cf2a94dadb53187cd66a974026cd900da4f83f520ef99462ad578dc91235dc8",
+    "postimagesSha256": "f1ac61f3953369ed33265bf905572a2b87d3d7c79d5a3a2f13b5ca705bb26493",
+    "recordPostimagesSha256": "8a8960ba0f4fe491f82ca04818dc56a0f90fe543c471dcdfb2f8debfeec8df4c"
+  }
+}

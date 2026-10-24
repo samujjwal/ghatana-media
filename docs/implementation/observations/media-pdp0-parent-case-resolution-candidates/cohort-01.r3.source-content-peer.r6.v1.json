@@ -1,0 +1,654 @@
+{
+  "schemaVersion": "media.pdp0.cohort-source-content-peer.v2",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-01-R6-INDEPENDENT-PEER-REVIEW-2026-10-23",
+  "reviewStatus": "PASS_SCOPED_NEGATIVE_CASE_REVIEW",
+  "reviewKind": "DISTINCT_INDEPENDENT_R6_CAPABILITY_NEGATIVE_CASE_REVIEW",
+  "reviewer": {
+    "identityKind": "codex-thread",
+    "fullThreadId": "01a16a6c-df0b-7601-bddf-9153395d37a4",
+    "hostId": "local",
+    "role": "independent peer reviewer; distinct from proposal author and canonical owner"
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "cohortOrdinal": 1,
+    "cohortRows": 77,
+    "residualDenominator": 231,
+    "campaignSurfaceDenominator": {
+      "physical": 26,
+      "compositeIncludingRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "selectedReviewSet": [
+      "AUD-COLLAB-003",
+      "AUD-COLOR-010",
+      "AUD-DELIV-013",
+      "AUD-DELIV-015"
+    ],
+    "selectedNegativeCaseCount": 9,
+    "canonicalMutation": "NONE"
+  },
+  "inputBaseline": {
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json",
+    "candidateSha256": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361",
+    "requestedCandidateSha256": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361",
+    "candidateStatus": "R6_DISTINCT_CAPABILITY_NEGATIVE_CASES_AND_SOURCE_BACKED_OWNER_ALTERNATIVES_PENDING_OWNER_ADOPTION_INDEPENDENT_REVIEW_AND_P0_07_CRITERION_PIN_RECONCILIATION",
+    "postimagesManifestRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-postimages.r6.json",
+    "postimagesManifestSha256": "f1ac61f3953369ed33265bf905572a2b87d3d7c79d5a3a2f13b5ca705bb26493",
+    "recordPostimagesManifestRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-record-postimages.r6.json",
+    "recordPostimagesManifestSha256": "8a8960ba0f4fe491f82ca04818dc56a0f90fe543c471dcdfb2f8debfeec8df4c",
+    "cutVerificationRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.r6-cut-verification.json",
+    "cutVerificationSha256": "fa2ea353d5ccd996591963a47ab82f2943a313fffe79b585497678841ba510d4",
+    "capabilitiesPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r6.yaml",
+    "capabilitiesPostimageSha256": "0749f4765e219a0cd9d621953a40a319f7d67c752c646bac6a1ddab905b1e69a",
+    "requirementsPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-requirements.postimage.r6.yaml",
+    "requirementsPostimageSha256": "2cf2a94dadb53187cd66a974026cd900da4f83f520ef99462ad578dc91235dc8",
+    "liveSourceFingerprints": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+      "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.independent-peer.json": "570ef85540279e0f61145de505b8cd311bc7b757f6659eed5ca82487ab64a281",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r6.yaml": "0749f4765e219a0cd9d621953a40a319f7d67c752c646bac6a1ddab905b1e69a",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-requirements.postimage.r6.yaml": "2cf2a94dadb53187cd66a974026cd900da4f83f520ef99462ad578dc91235dc8",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-postimages.r6.json": "f1ac61f3953369ed33265bf905572a2b87d3d7c79d5a3a2f13b5ca705bb26493",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-record-postimages.r6.json": "8a8960ba0f4fe491f82ca04818dc56a0f90fe543c471dcdfb2f8debfeec8df4c",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.r6-cut-verification.json": "fa2ea353d5ccd996591963a47ab82f2943a313fffe79b585497678841ba510d4",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.json": "62f517753a8096f7df9310f6cb04cae94360d6e75860ca3e05268b7001ff7ed8",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-content-peer.v1.json": "857889973eed3e561934a5db4680aca231172c34b5d45ccfa5c6db0b94487974",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json": "c9bbc4ccc05d2a84403477f1b88d219c382d6352b83c229116aba56b6d714a07",
+      "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-content-peer.r5.v1.json": "b7871785625e4a3582847097e78603bed8d5b5b0bf820088f6bf74eaefbd9523"
+    },
+    "integrityChecks": {
+      "candidateShaMatchesRequestedAndBothManifests": true,
+      "sourceBaselineFingerprintsMatchLiveBytes": true,
+      "postimageHashesMatchManifest": true,
+      "liveCanonicalPreimagesMatchManifest": true,
+      "allNineCapabilityNegativesPresentExactlyOnceInPostimage": true,
+      "allNineRequirementNegativesPresentExactlyOnceInPostimage": true,
+      "canonicalApply": "NONE",
+      "priorR2R3R5ChainPinsMatchLiveBytes": true
+    }
+  },
+  "reviewSummary": {
+    "scopedCaseDisposition": "PASS",
+    "capabilityNegativeCasesReviewed": 9,
+    "positiveNegativePairsDistinctAcrossGivenWhenThen": 9,
+    "targetCapabilityBindingsVerified": 9,
+    "typedInputContractsMatchedToLiveOwnerDefinitions": 9,
+    "successOutputContractsMatchedToLiveOwnerDefinitions": 9,
+    "requirementNegativeCopiesVerified": 9,
+    "priorFindingsResolved": {
+      "AUD-COLLAB-003": "PASS; comparison and project review are split to separate capabilities and both negative cases differ from their positives.",
+      "AUD-COLOR-010": "PASS; skin-tone treatment and overlay composition are split and each negative case has an operation-specific unsupported condition.",
+      "AUD-DELIV-013": "PASS; subtitle generation, composition, and delivery are split with three distinct negative cases.",
+      "AUD-DELIV-015": "PASS; alignment-map generation and read-only sync assessment are split with distinct timing/evidence negatives."
+    },
+    "remainingScopedFindings": 0,
+    "broaderCandidateAdoption": "HOLD; this scoped content review is not owner adoption, canonical currentness, acceptance, closure, or delivery."
+  },
+  "rows": [
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-01",
+      "ordinal": 1,
+      "auditId": "AUD-COLLAB-003",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.quality.compare",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.compare/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-COLLAB-003-COMPARE-NEG",
+      "negativeCondition": "The required candidate-artifact or execution-observation input is present, but the required quality-question-and-bounds input is absent; the applicable comparison method or authority is therefore not established.",
+      "negativeRequest": "The caller requests candidate quality comparison with that missing required input.",
+      "negativeOutcome": "Preserve UNKNOWN_OUTCOME or the applicable source-defined non-success disposition; emit no quality-observation or bounded-repair-plan output and do not change project state, create annotations, or assert quality signoff.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Return only a source-versioned quality observation or bounded repair plan; do not change project review state, create annotations, or assert quality signoff."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.compare/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.compare/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.compare/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-02",
+      "ordinal": 2,
+      "auditId": "AUD-COLLAB-003",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.project.review",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-COLLAB-003-REVIEW-NEG",
+      "negativeCondition": "A review intent is supplied, but the versioned project input is stale or the current assigned review authority for the exact scope and purpose is absent.",
+      "negativeRequest": "The caller requests recording the declared project review action against that stale or unauthorized version.",
+      "negativeOutcome": "Preserve UNKNOWN or the applicable source-defined non-success disposition; emit no review action, versioned project-state result, annotation, approval, or project mutation.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Record only the actor, declared action, purpose, scope, immutable project version, assigned authority, and linked evidence; leave the reviewed project version unchanged."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.review/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-03",
+      "ordinal": 3,
+      "auditId": "AUD-COLOR-010",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.color.skin-tone-preserve",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.skin-tone-preserve/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-COLOR-010-COLOR-NEG",
+      "negativeCondition": "The source-media-artifact is present, but the declared source/target color context names an unsupported profile or leaves the context unknown; the capability contract does not establish a numerical transform or fidelity threshold.",
+      "negativeRequest": "The caller requests skin-tone-preserving color treatment for that unsupported or unknown context.",
+      "negativeOutcome": "Preserve UNKNOWN_OUTCOME, UNAVAILABLE, or the source-defined rejection disposition; emit no color-managed derivative or transform provenance and make no fidelity, safety, or conformance claim.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Return only a color-managed derivative and transform provenance when supported; make no skin-tone fidelity, safety, or conformance claim without named criteria and evidence."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.skin-tone-preserve/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.skin-tone-preserve/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.color.skin-tone-preserve/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COLOR/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-04",
+      "ordinal": 4,
+      "auditId": "AUD-COLOR-010",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.compose.track.video-audio-caption-overlay",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-COLOR-010-OVERLAY-NEG",
+      "negativeCondition": "A versioned project and selected artifacts are present, but the required composition-intent input does not identify a supported caption-overlay arrangement.",
+      "negativeRequest": "The caller requests video/audio/caption/overlay composition with that unsupported intent.",
+      "negativeOutcome": "Preserve UNKNOWN_OUTCOME, UNAVAILABLE, or the source-defined rejection disposition; emit no versioned composition or render manifest and do not imply color treatment or delivery.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Return only a versioned composition and render manifest for the requested composition; do not assert color treatment, skin-tone preservation, or delivery completion."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-05",
+      "ordinal": 5,
+      "auditId": "AUD-DELIV-013",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.speech.transcription.subtitle.generate",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.subtitle.generate/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-GENERATE-NEG",
+      "negativeCondition": "The source-audio-or-video-version and requested output-language-and-profile are present, but neither an exact transcript nor a recognition-result version is supplied for the required transcript input slot.",
+      "negativeRequest": "The caller requests subtitle generation without that required transcript input.",
+      "negativeOutcome": "Preserve UNKNOWN_OUTCOME, UNAVAILABLE, or the source-defined rejection disposition; emit no subtitle-draft version, segment timing/alignment disposition, or source/operation provenance.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Return a distinct subtitle draft version, segment timing/alignment disposition, and source/operation provenance; do not register the draft as approved or delivered output."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.subtitle.generate/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.subtitle.generate/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.subtitle.generate/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-06",
+      "ordinal": 6,
+      "auditId": "AUD-DELIV-013",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.compose.track.video-audio-caption-overlay",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-COMPOSE-NEG",
+      "negativeCondition": "The versioned project and selected artifacts do not include the requested subtitle draft, so the required composition basis is incomplete even though a caption-overlay intent is supplied.",
+      "negativeRequest": "The caller requests composition of the absent subtitle artifact with video/audio/overlay tracks.",
+      "negativeOutcome": "Preserve UNKNOWN_OUTCOME, UNAVAILABLE, or the source-defined rejection disposition; emit no versioned composition or render manifest and do not substitute subtitle generation or delivery.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Return only a versioned composition and render manifest for the requested composition; do not assert color treatment, skin-tone preservation, or delivery completion."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-07",
+      "ordinal": 7,
+      "auditId": "AUD-DELIV-013",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.deliver.subtitles",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-013-DELIVER-NEG",
+      "negativeCondition": "An accepted media artifact or composition is present, but the requested delivery-profile-and-destination input names an unsupported profile or unresolved destination; finality is not established.",
+      "negativeRequest": "The caller requests subtitle packaging/delivery for that unsupported or unresolved destination/profile.",
+      "negativeOutcome": "Preserve UNKNOWN_OUTCOME or the source-defined rejection disposition; emit no delivery package or inferred delivery success, and do not substitute burned-in composition.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Return only a source-derived delivery package or explicit delivery outcome; do not generate subtitle text, perform burned-in composition, or imply delivery success beyond the returned outcome."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-08",
+      "ordinal": 8,
+      "auditId": "AUD-DELIV-015",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.sync.sample-accurate-av-map",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.sample-accurate-av-map/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SYNC/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-015-MAP-NEG",
+      "negativeCondition": "Timestamped audio/video artifacts are supplied, but their concrete clock mapping or timing tolerance is unspecified and the alignment-intent input does not resolve the ambiguity.",
+      "negativeRequest": "The caller requests a sample-accurate alignment map under that unresolved timing basis.",
+      "negativeOutcome": "Preserve UNKNOWN_OUTCOME or the source-defined rejection disposition; emit no alignment map or derived synchronized artifact and make no measured synchronization claim.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Return only an alignment map and any declared derived synchronized artifact; a mapping candidate is not measured sync verification."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.sample-accurate-av-map/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.sample-accurate-av-map/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.sample-accurate-av-map/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SYNC/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    },
+    {
+      "findingId": "MEDIA-PDP0-P0-07-COHORT01-R6-PEER-09",
+      "ordinal": 9,
+      "auditId": "AUD-DELIV-015",
+      "criterionId": "P0-07",
+      "technicalDisposition": "PASS",
+      "capabilityId": "media.quality.video.video.assess-av-sync",
+      "capabilityTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.video.video.assess-av-sync/acceptanceCases",
+      "candidateNegativeCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-NEG",
+      "candidatePositiveCaseId": "MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-POS",
+      "candidateNegativeCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-NEG",
+      "candidatePositiveCaseRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/capabilityAcceptanceCaseAdditions/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-POS",
+      "requirementNegativeCaseRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-VIDEO/acceptanceCases/@case.id=MEDIA-P0-COHORT01-AUD-DELIV-015-ASSESS-NEG",
+      "negativeCondition": "A video candidate is present, but the applicable-reference-and-measurement-context input lacks a valid clock mapping or unambiguous synchronization reference; method applicability and evidence are therefore unresolved.",
+      "negativeRequest": "The caller requests a read-only audio/video synchronization assessment with that incomplete measurement context.",
+      "negativeOutcome": "Preserve NOT_EVALUATED, ABSTAINED, BLOCKED, UNKNOWN, or the source-defined rejection disposition with its reason; emit no measured synchronization observation and do not infer pass/fail or substitute an alignment map.",
+      "positiveNegativeDistinction": {
+        "distinctFields": [
+          "given",
+          "when",
+          "then"
+        ],
+        "positiveThen": "Return a bounded video-quality observation or explicit abstention with method, scope, measured value or abstention, uncertainty, source/timebase, and observation time; do not create an alignment map or alter media."
+      },
+      "sourceBindingChecks": {
+        "semanticEvidenceCapabilityIdMatchesTarget": true,
+        "typedInputSlotsMatchCurrentOwnerDefinition": true,
+        "successOutputsMatchCurrentOwnerDefinition": true,
+        "negativeEmitsNoSuccessOutput": true,
+        "sourceOwnerBoundaryPreserved": true
+      },
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.video.video.assess-av-sync/ownerDefinition/typedInputSlots",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.video.video.assess-av-sync/ownerDefinition/successOutputs",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.video.video.assess-av-sync/ownerDefinition/errors",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-VIDEO/acceptanceCases"
+      ],
+      "reviewRationale": "The negative condition is operation-specific, its given/when/then differ from the paired positive case, the target is the matching capability leaf, and the copied typed input/output contracts resolve to the current canonical owner definition. The negative outcome emits no success output and does not cross into another operation."
+    }
+  ],
+  "color001": {
+    "auditId": "AUD-COLOR-001",
+    "technicalDisposition": "UNKNOWN_PENDING_OWNER_SCHEMA",
+    "candidateDefinitionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json#/newCapabilityDefinitionCandidates/@auditId=AUD-COLOR-001",
+    "typedSaturationIntentSchemaStatus": "OWNER_SCHEMA_NOT_SUPPLIED",
+    "successOutputs": [],
+    "proposalStatus": "NEW_LEAF_CANDIDATE_WITH_POSITIVE_RESULT_UNKNOWN_PENDING_OWNER_SCHEMA",
+    "reviewRationale": "The R6 proposal has no success output and explicitly defers positive behavior until finite supported saturation values and effective-value semantics are owner-defined. Unsupported/unknown color context leaves the transform unapplied. This is truthful unknown handling, not an accepted capability."
+  },
+  "adoptionGates": {
+    "ownerChoicesRemaining": 6,
+    "allOwnerChoicesUnselected": true,
+    "canonicalOwnerDisposition": "UNKNOWN_PENDING_OWNER_ADOPTION",
+    "p007CriterionPinCaveat": {
+      "criterionRecordRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
+      "criterionRecordStatus": "APPROVED_DIRECT_DEFINITION_CRITERION",
+      "criterionFileRawPinMatchesR2": true,
+      "materialPinCount": 34,
+      "staleOrMissingCount": 29,
+      "staleOrMissing": [
+        {
+          "path": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+          "expected": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+          "current": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "expected": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+          "current": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "expected": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
+          "current": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+          "expected": "a553a79da537517a1380bd686eed2db73ba29ce6ace64f4a2f9f880e296dff80",
+          "current": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+          "expected": "5aaefa570478dbc2250c274e890e29c7e550c45ceda5e29b6c9ebd9be4648424",
+          "current": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+          "expected": "11b9cd4189060ed3c8747ec69be7b3cccba34c2afa0aec494ac796655f3c9cf8",
+          "current": "66104b2c95e75190ea153f6c7bd883783d4eb6c7d24d8a23c43d18e8ea795b03",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+          "expected": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+          "current": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/authority.yaml",
+          "expected": "46a779a44a0d63bde3eea68807d718a59bfa58233a12fe26d0db8184277cf1f6",
+          "current": "433f13db1adde6b7136656491125612a5894cfe8ad6d50e3f4c23d99223102ec",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/decisions.yaml",
+          "expected": "b10580f89fc80936b4ed1b4af115df87c3f6f472bffabdab24fd7abf8bf0d4a2",
+          "current": "21ae2214b7e1db961e826b95022fa5a69a41fef83afd923701d79f9c8aef18b8",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "expected": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af",
+          "current": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/events.yaml",
+          "expected": "0eb92d2e1068c3f11f95baaa8e3d5ae7dc3cb30551649e1a8ff09ef9a28c5d14",
+          "current": "7a3c91161e1d7597f4e378163b0f9a652c3f316d9b11346ea074f64f0954bf3d",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/evidence.yaml",
+          "expected": "2f477abea3a58b86b2f5a79460d34cee173e65649eb1e589496d3edcfdfa10a5",
+          "current": "aa1319db9ec6c5f3f9a68d12911aca3f978a8f9278fbb79559916472e44b2f3b",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/interoperability.yaml",
+          "expected": "cbc3d729ccf6a53ced0ac76cc102c48e40465b22a7ac85f40b59e23287d6621d",
+          "current": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/offline-sync.yaml",
+          "expected": "530ca18cb42107f4feb2f00e71f5fa1085d871cbbde2ce13388810afd34c3ea9",
+          "current": "0d4d5acb1bdff5972a5014f6c053cf9f0f9d21adec0b7753acd08bfa9f913d2a",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "expected": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
+          "current": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/privacy.yaml",
+          "expected": "68cf5efe8c0cbc710aba9cb05aa35f1ac84dfa10503475d57f01af054e625d5b",
+          "current": "c5b4fb181a6353baf0517975235f0f28767b425efc06959f54cbe4f74866aa92",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/relationships.yaml",
+          "expected": "4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df",
+          "current": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/transitions.yaml",
+          "expected": "274905d44050a45052fc7b009b0151a4f1c6b972e0046fb977d3327c9d6815ea",
+          "current": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/value-objects.yaml",
+          "expected": "b21bcab8675dbd21e200aef9ba181fe535fa55c27920b7f27ce79d095c55a916",
+          "current": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/versioning.yaml",
+          "expected": "77dce60266fb72b7ac324e81aa8289ceaa9026a777aeb1b1308dcef3180835ac",
+          "current": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+          "expected": "1cec53c4f6e7f3cb00aab47f14f2c49e6b58653b2a87268e4afcdebb7c3d0f6a",
+          "current": "8fc0705fad95959ab2b078e8bfd35810aebb10f474eb5580b203777fd5a11226",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml",
+          "expected": "e861c34672f8e8508ea12a66bb011d479773bc7e4beb795efcf007c218d9852f",
+          "current": "fdc44eb07cfd2e17300ab6acbf44b67f987361e86cec7266ad4424512d12e7e0",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+          "expected": "2578c50565ec9c8041093b963866cba8dc7816eef5af4c44790e0fe40a89b994",
+          "current": "138f1b3764d41591942cedc7a1ccc68b84df311779468ae4396d76ddf1cb2aad",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
+          "expected": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+          "current": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": "docs/PRODUCT-DEFINITION-COVERAGE.md",
+          "expected": "78032cc1c683496532483a1acc8dccb31a6908db90ad77dfcf09418e1897bc05",
+          "current": "253f8a303ae22e089d56d5d611da650841c3a16a8d94373f6e33bcac276349f2",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": "scripts/generate-media-phase-projections.mjs",
+          "expected": "372e41364078961e67931451c5005b23bfebe0f6dfa3bd4ddc7c06c65c3558cd",
+          "current": "0b02e2b587ed01d41f4f2ec31a80cd01b9d277dd25965b5ee9d046d5c02d915e",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": "scripts/lib/pdp0-feature-review-applicability.mjs",
+          "expected": "cec4e500fde68274e11f61b8ceeafffaf22a19b75d26a59a6c758ab9bab25097",
+          "current": "8819dd1fae0acf5ab6002cff27367b0a62bbce36dc91ea600c5c42e0696eb180",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": "tests/media-p0-07-feature-channel-review.test.mjs",
+          "expected": "0c388c4b408c50859829a070d3b12042b38629b5e3626fc77178c4216e6817be",
+          "current": "d24816e776b10bab7300fb3157be2e6a658be028f40c6f34f30157f8d14d4a0e",
+          "state": "STALE_PIN"
+        },
+        {
+          "path": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+          "expected": "5fe7a43861383fec3ed2cd3e2035f8706b3b281a849168aab6581d2df3d652f0",
+          "current": "63e543ae5691c547cbb23a61fd847d6ccf5e1280e82b57c8fd435da34370cbf0",
+          "state": "STALE_PIN"
+        }
+      ],
+      "disposition": "R6 remains a noncanonical candidate; the P0-07 criterion has 29 stale or missing nested material pins among 34. Do not adopt or claim currentness until reconciled by the owner path."
+    },
+    "nextLegalAction": "Preserve R6 as an additive proposal; reconcile the exact P0-07 criterion nested material pins and obtain authentic owner decisions through the owner path before any canonical adoption. Review H projector implementation only after it is repaired and both malformed-R4 and fabricated-authority regressions pass."
+  },
+  "nonClaims": [
+    "This is an independent scoped peer review of the nine R6 capability negative cases, not review or approval of all 77 cohort rows.",
+    "No owner decision, adoption, independent human acceptance, PDP closure, implementation, qualification, delivery, or release is asserted.",
+    "No canonical capability or requirement source is changed by this report.",
+    "A passing case-content review does not clear the R6 P0-07 criterion pin caveat or authorize application."
+  ]
+}

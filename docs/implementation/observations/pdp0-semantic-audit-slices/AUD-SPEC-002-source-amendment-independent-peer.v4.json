@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "media.pdp0.source-amendment-peer-review.v4",
+  "auditId": "AUD-SPEC-002",
+  "reviewer": {
+    "identity": "agent:/root",
+    "role": "DISTINCT_TECHNICAL_PEER",
+    "independentHumanReviewer": false,
+    "credentialedAttestation": false,
+    "independentOfCandidateAuthor": true
+  },
+  "reviewedAt": "2026-10-23",
+  "phaseScope": "DISCOVERY / PDP-0 source definition only",
+  "campaignBaseline": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0",
+    "fullCampaignDenominator": {
+      "surfaceIdentities": 54,
+      "physical": 26,
+      "compositions": 7,
+      "logicalConsumers": 21
+    },
+    "selectedExtension": "media.recipe.specification.compile",
+    "selectedApplicabilitySource": ".product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.recipe.specification.compile",
+    "selectedScope": {
+      "channel": "media.channel.cli",
+      "logicalConsumer": "media.surface.recorder-orchestrator",
+      "physicalSource": "media.physical.libs-audio-video-client",
+      "recursiveAggregates": [
+        "media.composition.repository-root",
+        "media.composition.creation-composition-and-delivery",
+        "media.composition.client-and-machine-interfaces"
+      ],
+      "applicabilityEffect": "PXD-207 applicability only; no runtime support, admission, owner approval, or independent acceptance is inferred."
+    },
+    "surfacePhaseMatrix": {
+      "ref": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+      "sha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+      "campaignStatus": "DEV_COMPLETE",
+      "sourceCurrentness": "CURRENT",
+      "surfaceIdentityCount": 54,
+      "remainingPdp0TaskCount": 0,
+      "definitionExtensionApplicability": {
+        "extensionCount": 7,
+        "currentVersionExtensionCount": 0,
+        "futureVersionProposalCount": 7,
+        "ownerApproval": "NOT_CLAIMED",
+        "independentAcceptance": "NOT_CLAIMED"
+      },
+      "effect": "This proposal is not canonical and does not change the current matrix or any phase status."
+    },
+    "aggregateDiscoveryStatus": "UNKNOWN_NOT_RECALCULATED"
+  },
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v4.json",
+  "freezeManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v4-freeze-manifest.v1.json",
+  "frozenInputs": {
+    "freezeManifestSha256": "cb5ded03c65a0cfc05f185b267e0a5513b60aad3aa18a677e21d3f40e40cbd0f",
+    "candidateSha256": "7dbeda306d9de0f5b354f455f421770c507f8ff3791442e1d80ff068aa049168",
+    "candidatePostimageSha256": "37e6ffc458743535206d87cf23f83c8aa4fe3b8126b4e0518c764191a24bfca9",
+    "candidateSchemaSha256": "a61a6b56f3e85d55a27161e99037e590cbf40c23106cd6dd829dd9eaf283fe10",
+    "sourceAmendmentSha256": "7ed7e2f49b447f5de64b0165bac8c05d4cc8fabeb3b10409203b9b30a84b925f",
+    "sourceBindings": {
+      "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+      "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+      "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+      "applicationsChannelsSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+      "decisionLogSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2"
+    },
+    "targetPostimages": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "postimageSha256": "01d8cc913f717beb6f72ceea3e31201c8c83781e9d6068080569a153ce9bce5d"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+        "postimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "preimageSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+        "postimageSha256": "29920395a0218d03fed6e707396e44d727dfb44ac129d08b1905c62b885e24c8"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "preimageSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+        "postimageSha256": "92c81607d347b93853279d37329447b333e55c0485ccd2beb73b7660773bb889"
+      }
+    ],
+    "allFourTargetPreimagesMatchAtReview": true
+  },
+  "disposition": "TECHNICALLY_REVIEWED_EXACT_V4_CUT",
+  "semanticReviewDisposition": "REQUEST_CHANGES",
+  "assessment": {
+    "ordinaryCompilation": {
+      "status": "PASS_AT_CANDIDATE_SEMANTIC_LEVEL",
+      "evidence": "The existing normalized graph/project-plan output remains required. The migration output is optional generally and required only by the exact complete supported migration input selector; AC-15 states ordinary compilation emits no migration candidate."
+    },
+    "conditionalMigration": {
+      "status": "PASS_AT_CANDIDATE_SEMANTIC_LEVEL",
+      "evidence": "The exact PXD-128 result selector includes resultKind, source-derived origin, epistemic disposition, migration intent, exact source/target schema identity and declared supported transformation. Unsupported, lossy, ambiguous, stale, or unknown inputs have no migration candidate and no effect."
+    },
+    "extensionAuthorityAndApplicability": {
+      "status": "PARTIAL_WITH_SCOPE_CONFLICT",
+      "evidence": "PXD-207 supports media.channel.cli only for media.surface.recorder-orchestrator, media.physical.libs-audio-video-client, and the three named recursive aggregates. The candidate capability remains scopeStatus DEFERRED and the applicability source does not assert runtime/admission. However, the v4 owner row is inserted into the current owner-adjudication array and the migration cases are added to a current TARGET requirement, contrary to PXD-220's future-version boundary."
+    },
+    "historicalPopulationAndDownstreamInvariants": {
+      "status": "FAIL",
+      "evidence": "The four-file proposal preserves the first 462 records byte-for-byte and in order but raises owner adjudication exactLeafCount/uniqueLeafCount from 462 to 463, channel applicability rows from 5082 to 5093, and trust population capabilityCount/recordCount from 462 to 463. PXD-220 and current downstream checks require these current owner populations to remain exactly 462."
+    },
+    "currentRequirementBoundary": {
+      "status": "FAIL",
+      "evidence": "The requirements postimage adds AC-13 through AC-17 to requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE, whose scopeStatus is TARGET. PXD-220 keeps media.recipe.specification.compile as a future-version proposal and says it must not enter the current-version requirement denominator."
+    },
+    "authorityBoundary": {
+      "status": "PASS",
+      "evidence": "The candidate and root decision template leave canonical apply, owner decision, distinct peer review, independent acceptance, runtime admission, and native proof pending or unclaimed."
+    }
+  },
+  "findings": [
+    {
+      "id": "AUD-SPEC-002-V4-EXTENSION-POPULATION-BOUNDARY-001",
+      "priority": "P1",
+      "owner": "media.composition.repository-root / PDP-0 source authority",
+      "where": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capability-leaf-review-postimage.v4.yaml#/ownerCapabilityLeafAdjudication and #/ownerTrustReconstructionDispositions; scripts/lib/media-pdp0-aud-spec-002-source-amendment-v4.mjs:291-317, 330-340",
+      "issue": "V4 appends the compile extension rows to the existing normative ownerCapabilityLeafAdjudication.records and ownerTrustReconstructionDispositions.records arrays, then changes their denominators to 463. The extension row's recordKind does not create a distinct population: ownerCapabilityLeafAdjudication.recordAuthority defines each records[] row as an independently normative owner-authored disposition. Preserving the first 462 records byte-for-byte is insufficient because it changes the population, per-leaf channel denominator, and trusted-row count. This contradicts PXD-220's retained 462 current owner-adjudication denominator and current source consumers.",
+      "downstreamEvidence": [
+        "scripts/check-product-experience-local.mjs:310-333 requires the owner-adjudication ID set and campaign ownerAdjudications to equal 462.",
+        "tests/pdp0-capability-semantic-current-source-review.test.mjs requires 462 adjudication rows and the exact historical ID set.",
+        "tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs requires capability and trust record counts of 462.",
+        "tests/pdp-truth-domain-channel-profile-applicability.test.mjs requires a 462-leaf applicability join and keeps all seven extensions outside that join.",
+        "scripts/check-media-recorder-studio-definitions.mjs:181-182 requires exactLeafCount and uniqueLeafCount to remain 462."
+      ],
+      "correction": "Keep the proposed extension adjudication and trust branch in a separately typed future-version extension population with its own count and authority; leave the two current owner arrays, their count fields, and 5082-row channel denominator unchanged. Alternatively, before any canonical apply, root must make a new source-bound decision explicitly superseding PXD-220 for this exact extension and reconcile every affected consumer and denominator; the current candidate does not do that.",
+      "predecessor": "PXD-220 and v3 peer finding AUD-SPEC-002-V3-EXTENSION-TRUST-REGISTRATION-002.",
+      "acceptance": "A rebuilt exact v4 candidate retains 462 entries and unchanged count fields in both current owner arrays; the new proposal remains separately typed and does not satisfy current-version joins. Focused full-denominator consumers and applicable source checks pass against the candidate overlay."
+    },
+    {
+      "id": "AUD-SPEC-002-V4-DEFERRED-REQUIREMENT-DENOMINATOR-002",
+      "priority": "P1",
+      "owner": "media.composition.repository-root / PDP-0 source authority",
+      "where": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-requirements-file-postimage.v4.yaml#/requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/AC-13..AC-17; docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capabilities-file-postimage.v4.yaml#/capabilities/@id=media.recipe.specification.compile",
+      "issue": "V4 adds five migration/ordinary-compile boundary cases to a current TARGET requirement while the referenced capability remains scopeStatus DEFERRED. PXD-220 explicitly keeps this extension out of current Media requirements and the current-version denominator. campaign-extensions.yaml and the current P0 matrix still say currentVersionExtensionCount=0 and seven future-version proposals, so the candidate sources disagree about whether these acceptance cases are current requirements or deferred proposal cases.",
+      "correction": "Keep extension-specific cases in a separately identified future-version proposal record and bind the capability/trust proposal to that record, not to the current requirement's acceptanceCases collection. If root intends to bring the extension into the current version, first record a new decision that supersedes the exact PXD-220 boundary, then update current-version applicability and all dependent currentness evidence in order.",
+      "predecessor": "PXD-220; current P0 campaign-extensions versionDisposition; PDP-0 surface matrix v4 source baseline.",
+      "acceptance": "The current MEDIA-REQ-CAP-RECIPE-TEMPLATE case inventory does not acquire deferred-extension cases while PXD-220 remains in force; candidate/crosswalk/trust refs resolve to the separate proposal case inventory, or a source-bound superseding decision and complete denominator reconciliation are recorded."
+    }
+  ],
+  "rootNeededDecision": {
+    "decisionId": "MEDIA-PDP0-AUD-SPEC-002-V4-VERSION-POPULATION-CHOICE",
+    "status": "PENDING_ROOT_DECISION",
+    "choices": [
+      {
+        "id": "KEEP_PXD220_DEFERRED",
+        "effect": "Keep currentVersionExtensionCount=0, current owner/trust populations at 462, and AC-13..AC-17 outside the current requirement case collection; retain the proposal and its PXD-207 CLI applicability in a separate future-version extension record.",
+        "reviewerRecommendation": "RECOMMENDED_TO_HONOR_CURRENT_AUTHORITY"
+      },
+      {
+        "id": "SUPERSEDE_PXD220_FOR_THIS_EXACT_EXTENSION",
+        "effect": "Record a new explicit source-owner decision for whether the extension and its migration cases enter the current PDP-0 version, then reconcile all owner, trust, requirement, applicability, denominator, and downstream currentness consumers before rebuilding the candidate.",
+        "reviewerRecommendation": "REQUIRES_NEW_EXPLICIT_DECISION_AND_FULL_IMPACT_RECONCILIATION"
+      }
+    ],
+    "selectedChoice": null
+  },
+  "verification": {
+    "command": "node --test tests/media-pdp0-aud-spec-002-source-amendment-v4.test.mjs",
+    "result": "PASS",
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "interpretation": "The six v4 proposal tests parse/hash the frozen payloads and check their local selectors, but the population test explicitly expects 463 owner/trust rows and checks only prefix preservation. It therefore does not establish PXD-220 separation or compatibility with current 462-row consumers."
+  },
+  "authorityBoundary": {
+    "candidateCanonicalApply": "NOT_PERFORMED",
+    "canonicalSourceChangedByThisReview": false,
+    "canonicalPdpStatusChangedByThisReview": false,
+    "ownerDecisionRecorded": false,
+    "independentAcceptanceClaimed": false,
+    "nativeProofClaimed": false,
+    "runtimeAdmissionClaimed": false,
+    "deliveryOrReleaseClaimed": false
+  },
+  "nextLegalAction": "Rework the v4 proposal according to the root's explicit version/population choice; then freeze a new additive candidate and request a fresh exact-cut peer review. Do not apply this REQUEST_CHANGES candidate."
+}

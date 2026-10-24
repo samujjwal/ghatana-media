@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "media.pdp0.quality-extension-source-candidate-v2-freeze-manifest.v1",
+  "status": "CANDIDATE_ONLY_PENDING_DISTINCT_SOURCE_ADOPTION_REVIEW_AND_ROOT_DECISION",
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json",
+  "candidateSha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a",
+  "schemaRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.schema.json",
+  "schemaSha256": "f193325e138dc4977a941d24934b0d55562a260995baaca7094f81a2da2e0181",
+  "targets": [
+    {
+      "targetRef": ".product-experience/decision-log.md",
+      "preimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-decision-log-postimage.v6.md",
+      "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-decision-log-postimage.v2.md",
+      "preimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+      "postimageSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "preimageRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-policy-extension-postimage.v2.yaml",
+      "preimageSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      "postimageSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+    }
+  ],
+  "producerPins": {
+    "scripts/lib/media-pdp0-quality-extension-source-candidate-v2.mjs": "ed6cc85b0f246f3c5463bb193e8023c1805547b8cf4a6b617971caade3fa10cb",
+    "scripts/lib/media-pdp0-quality-extension-source-adoption-v2.mjs": "9fdc9468c4f305c037b667033c5ab5d58bcdb2d5d470702b246e170823e6714f",
+    "scripts/plan-media-pdp0-quality-extension-source-adoption-v2.mjs": "880fe100b5cadb064c252e37452ce7ea17dd3c3e78f608b0737b96784130018e",
+    "scripts/plan-media-pdp0-quality-extension-source-candidate-v2.mjs": "c9ff2f9b4ce690965ae7a3f7780d14634be035ad2134ffeb795e4bc60e6989a3",
+    "tests/media-pdp0-quality-extension-source-candidate-v2.test.mjs": "990d620f500772245896f5a5f9f0e0a391b8effdd46fac925076096f577b6b40",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-independent-peer.v2.schema.json": "b1047bd910f484240c929fa1099873b3c2f93a70ac1226ba68c0afce5bf062e5",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-owner-decision.v2.schema.json": "45c43458fbd26f7425da52c73518527e85a65cf666076ae18588b94a3f0afae8",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-authorization.v2.schema.json": "f0789fbd492b015acaaf95822291aae6216b54c80056bb5249a70d07b0c9f678",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-adoption-cas-plan.v2.schema.json": "49fbe6d1748177a282909188a5d250e606f7fe84b0d44aee7f41b020fa5d083f",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-owner-decision-proposal.v2.json": "81260e71b5be7d57dca6b862917f61773777a437a1ea7845e220c2ee6f6a9a69",
+    "tests/media-pdp0-quality-extension-source-adoption-v2.test.mjs": "28a4647eafdec060cf57b87248b7f1a96599ded602f2141dbf75f1ab2042cedd"
+  },
+  "canonicalApply": "NOT_PERFORMED",
+  "independentAcceptance": "NOT_CLAIMED",
+  "nativeProof": "NOT_CLAIMED"
+}

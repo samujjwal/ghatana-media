@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.current-source-review-apply-authorization.v3",
+  "title": "Explicit authorization to apply one reviewed PDP-0 direct-review postimage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "effect",
+    "canonicalTarget",
+    "expectedTargetSha256",
+    "candidateSha256",
+    "postimageSha256",
+    "sourceOwnerDecisionRef",
+    "sourceOwnerDecisionSha256",
+    "decisionRef",
+    "decisionSectionSha256",
+    "technicalSourceOwner",
+    "distinctTechnicalPeer",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.current-source-review-apply-authorization.v3"
+    },
+    "effect": {
+      "const": "APPLY_EXACT_SOURCE_REVIEW_SUCCESSOR_POSTIMAGE"
+    },
+    "canonicalTarget": {
+      "const": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json"
+    },
+    "expectedTargetSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "candidateSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "postimageSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sourceOwnerDecisionRef": {
+      "const": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/source-owner-decision.v3.json"
+    },
+    "sourceOwnerDecisionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "decisionRef": {
+      "type": "string",
+      "pattern": "^\\.product-experience/decision-log\\.md#PXD-[0-9]{3}$"
+    },
+    "decisionSectionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "technicalSourceOwner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role"
+      ],
+      "properties": {
+        "identity": {
+          "const": "agent:/root"
+        },
+        "role": {
+          "const": "PDP0_SOURCE_OWNER"
+        }
+      }
+    },
+    "distinctTechnicalPeer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role",
+        "reviewedCandidateSha256",
+        "reviewedPostimageSha256"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "const": "DISTINCT_TECHNICAL_PEER"
+        },
+        "reviewedCandidateSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reviewedPostimageSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "independentAcceptance",
+        "pdp010Acceptance",
+        "phaseStatusEffect",
+        "nativeClosure"
+      ],
+      "properties": {
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "pdp010Acceptance": {
+          "const": "NOT_PERFORMED"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "nativeClosure": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    }
+  }
+}

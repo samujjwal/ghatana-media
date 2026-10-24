@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.cohort02.source-amendment-candidate.v1",
+  "artifactId": "media-pdp0-cohort02-source-amendment-candidate",
+  "status": "SOURCE_GROUNDED_CANDIDATE_PENDING_ROOT_DECISION_AND_DISTINCT_PEER_REVIEW",
+  "scope": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "cohortOrdinal": 2,
+    "exactAssignmentCount": 77,
+    "exactOrderedAssignedAuditIds": [
+      "AUD-DELIV-016",
+      "AUD-DELIV-017",
+      "AUD-DELIV-018",
+      "AUD-DELIV-019",
+      "AUD-DELIV-020",
+      "AUD-DELIV-021",
+      "AUD-DELIV-023",
+      "AUD-DIRECT-010",
+      "AUD-DSP-004",
+      "AUD-DSP-005",
+      "AUD-DSP-006",
+      "AUD-DSP-009",
+      "AUD-DSP-010",
+      "AUD-DSP-011",
+      "AUD-DSP-012",
+      "AUD-DSP-013",
+      "AUD-DSP-015",
+      "AUD-DSP-017",
+      "AUD-DSP-020",
+      "AUD-DUB-001",
+      "AUD-DUB-004",
+      "AUD-DUB-005",
+      "AUD-DUB-006",
+      "AUD-DUB-007",
+      "AUD-DUB-008",
+      "AUD-DUB-009",
+      "AUD-DUB-010",
+      "AUD-DUB-011",
+      "AUD-DUB-013",
+      "AUD-DUB-015",
+      "AUD-DUB-016",
+      "AUD-EDIT-004",
+      "AUD-EDIT-005",
+      "AUD-EDIT-009",
+      "AUD-EDIT-011",
+      "AUD-EDIT-012",
+      "AUD-EDIT-016",
+      "AUD-EDIT-018",
+      "AUD-EDIT-019",
+      "AUD-EDIT-022",
+      "AUD-EDIT-024",
+      "AUD-EDIT-026",
+      "AUD-EDIT-028",
+      "AUD-GEN-001",
+      "AUD-GEN-002",
+      "AUD-GEN-003",
+      "AUD-GEN-004",
+      "AUD-GEN-005",
+      "AUD-GEN-006",
+      "AUD-GEN-007",
+      "AUD-GEN-008",
+      "AUD-GEN-009",
+      "AUD-GEN-010",
+      "AUD-GEN-011",
+      "AUD-GEN-012",
+      "AUD-GEN-016",
+      "AUD-GEN-017",
+      "AUD-GEN-018",
+      "AUD-GEN-019",
+      "AUD-GEN-020",
+      "AUD-GEN-021",
+      "AUD-GEN-022",
+      "AUD-GEN-023",
+      "AUD-GEN-024",
+      "AUD-INTER-002",
+      "AUD-INTER-007",
+      "AUD-MOTION-002",
+      "AUD-MOTION-006",
+      "AUD-MOTION-009",
+      "AUD-MOTION-011",
+      "AUD-MOTION-016",
+      "AUD-MUSIC-001",
+      "AUD-MUSIC-004",
+      "AUD-MUSIC-005",
+      "AUD-MUSIC-006",
+      "AUD-MUSIC-007",
+      "AUD-MUSIC-009"
+    ],
+    "supportedFeatureCaseAdditions": 44,
+    "requirementCaseAdditions": 53,
+    "missingMeaningProposals": 9,
+    "preservedRows": 24,
+    "fullCampaignAuditIdDenominator": 231,
+    "campaignIdentityDenominator": 54,
+    "campaignPathDenominator": 207
+  },
+  "sourcePins": {
+    "r3Sha256": "b83dc9a68f901926a1e2e358ff8891a08da202003663abffea768080196cbb27",
+    "r2Sha256": "1175f457679093be726dcf3f3af26c5cb31bbe7a5b209c0bce6534ccc0b178d0",
+    "selfCheckSha256": "d6996eddf5206f5c02d08df8314277fa4e39c2000b6097318229ef8a749e2c50",
+    "assignmentSha256": "b3157a9eece4016ddbd3e32bb37ff5a1f771c618960815fd60c6c4ce17843fd1",
+    "capabilitiesPreimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsPreimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "authorityMapSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+    "phaseStatusSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "originalAuditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2"
+  },
+  "exactTargetPostimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "postimageSha256": "93d1c478bcc1ade7d04e02f22aefe28e66c4229f1a9693f317207214391840ff",
+      "semanticMutationCount": 44,
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-capabilities.postimage.yaml"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "postimageSha256": "f6c78919891861cdc3c78c8e9b0be611d73481cd74aa822a5c74cf6628629f40",
+      "semanticMutationCount": 53,
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-requirements.postimage.yaml"
+    }
+  ],
+  "candidatePostimageSha256": "deb4ad4fb1dd8b5bdeadc07d495eca3a15e16e16f02cab4978470a608dfb657f",
+  "candidatePostimageHashAlgorithm": "SHA256(UTF8(JSON.stringify({targetPostimages:[{targetRef,preimageSha256,postimageSha256} in order],recordPostimageSha256})))",
+  "sourceBindings": {
+    "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "authorityMapSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+    "phaseStatusSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "originalAuditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    "assignmentSha256": "b3157a9eece4016ddbd3e32bb37ff5a1f771c618960815fd60c6c4ce17843fd1"
+  },
+  "exactRecordPostimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-record-postimages.json",
+  "exactRecordPostimageSha256": "cdd04526529101a53cac51f4671350823545f553b6e7577e7d67a89572eb1a10",
+  "sourceOwnerDecisionRequirement": {
+    "schemaVersion": "media.pdp0.source-amendment-owner-decision.v1",
+    "decisionKind": "EXACT_PDP0_SOURCE_AMENDMENT",
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+    "requiredBindings": [
+      "candidateSha256",
+      "candidatePostimageSha256",
+      "sourceBindings",
+      "targetPostimages"
+    ],
+    "requiredSourceOwner": {
+      "identity": "ROOT_TO_RESOLVE_FROM_AUTHORITY_MAP",
+      "role": "PDP0_SOURCE_OWNER"
+    },
+    "requiredDisposition": "APPROVE_EXACT_CANDIDATE_FOR_SOURCE_APPLY",
+    "authorityBoundary": {
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "phaseStatusEffect": "NONE",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  },
+  "distinctTechnicalPeerRequirement": {
+    "schemaVersion": "media.pdp0.source-amendment-peer-review.v1",
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+    "requiredBindings": [
+      "candidateSha256",
+      "candidatePostimageSha256",
+      "targetPostimages",
+      "reviewedSourceBindings"
+    ],
+    "reviewer": {
+      "identity": "DISTINCT_FROM_SOURCE_OWNER",
+      "role": "DISTINCT_TECHNICAL_PEER"
+    },
+    "requiredDisposition": "TECHNICALLY_REVIEWED_EXACT_POSTIMAGE",
+    "authorityBoundary": {
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "phaseStatusEffect": "NONE",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  },
+  "historicalLeafAdjudications": {
+    "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    "preimageSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "historicalRecordCount": 462,
+    "mutation": "NONE; preserve the historical 462 rows as a separate population."
+  },
+  "blockers": [
+    "Root must decide the nine exact new-meaning capability or capability-variant definitions and resolve their accountable semantic owner.",
+    "A distinct technical peer must bind review to the exact candidate and both target postimage byte hashes.",
+    "Historical 462 leaf adjudications remain unchanged and must not be merged into this cohort batch."
+  ],
+  "canonicalApply": "NOT_PERFORMED",
+  "nonClaims": [
+    "No source owner approval or authority identity is invented.",
+    "No peer acceptance, canonical write, implementation, independent acceptance, qualification, closure, or release is claimed."
+  ]
+}

@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.root-selected-source-integration-r9-r08.root-adoption-decision.r7.candidate.v1",
+  "title": "R9-R08 root adoption decision schema with typed PXD-225 evidence",
+  "description": "Candidate-only schema for a distinct root authority decision after exact source-owner adoption and a full R9-R08 semantic peer review. This decision cannot authorize canonical apply.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "decisionStatus",
+    "candidateRef",
+    "candidateSha256",
+    "freezeManifestRef",
+    "freezeManifestSha256",
+    "sourceOwnerDecisionRef",
+    "sourceOwnerDecisionSha256",
+    "fullSemanticReview",
+    "decisionRef",
+    "decisionSectionSha256",
+    "decisionSectionMaterialRef",
+    "decisionSectionMaterialSha256",
+    "decisionEvidence",
+    "rootAuthority",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.root-selected-source-integration-r9-r08.root-adoption-decision.r7.v1"
+    },
+    "decisionStatus": {
+      "enum": [
+        "ADOPT_EXACT_R9_R08_SPLIT_SOURCE_SUCCESSOR",
+        "DECLINE_EXACT_R9_R08_SPLIT_SOURCE_SUCCESSOR",
+        "REQUEST_R9_R08_CANDIDATE_REVISION"
+      ]
+    },
+    "candidateRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json"
+    },
+    "candidateSha256": {
+      "const": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+    },
+    "freezeManifestRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json"
+    },
+    "freezeManifestSha256": {
+      "const": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d"
+    },
+    "sourceOwnerDecisionRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.source-owner-decision.r2.json"
+    },
+    "sourceOwnerDecisionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "fullSemanticReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256",
+        "reviewStatus",
+        "reviewScope",
+        "semanticDisposition",
+        "reviewedCandidateSha256",
+        "reviewedFreezeSha256",
+        "reviewerIdentity",
+        "semanticFindingIds"
+      ],
+      "properties": {
+        "ref": {
+          "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.r08-semantic-review.v1.json"
+        },
+        "sha256": {
+          "const": "200aaaff4577426d4f91f16ecb74a3c64bcc76280ad92ca5fd278d531523fe5a"
+        },
+        "reviewStatus": {
+          "const": "PASS_FOR_SELECTED_CANDIDATE_SEMANTICS_ONLY_BLOCKED_FOR_CURRENTNESS_AND_AUTHORITY_CHAIN"
+        },
+        "reviewScope": {
+          "const": "INDEPENDENT_READ_ONLY_FULL_R9_R08_SELECTED_CUT_PDP0_SEMANTIC_REVIEW"
+        },
+        "semanticDisposition": {
+          "const": "PASS_FOR_FROZEN_R9_R08_SELECTED_CUT_ONLY"
+        },
+        "reviewedCandidateSha256": {
+          "const": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+        },
+        "reviewedFreezeSha256": {
+          "const": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d"
+        },
+        "reviewerIdentity": {
+          "const": "/root/r08_semantic_peer"
+        },
+        "semanticFindingIds": {
+          "const": []
+        }
+      }
+    },
+    "decisionRef": {
+      "const": ".product-experience/decision-log.md#PXD-225"
+    },
+    "decisionSectionSha256": {
+      "const": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
+    },
+    "decisionSectionMaterialRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json"
+    },
+    "decisionSectionMaterialSha256": {
+      "const": "64083d1e155a0a9903a81d5cd01ac74deb86892a8989e9d230abe9131901a6c7"
+    },
+    "decisionEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "materialKind",
+        "decisionId",
+        "documentRef",
+        "decisionSectionRef",
+        "decisionSectionSha256",
+        "sectionSelector",
+        "decisionSectionRawPin",
+        "historicalSourceStatusPin",
+        "decisionLogCaptureProvenance",
+        "sections",
+        "pdpAuthoritySectionRefs",
+        "authoritySectionBindings",
+        "authorityMapSourcePin",
+        "applyReadSetV2",
+        "authorityBoundary"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "media.pdp0.root-selected-source-integration.r9-r08.material-binding.v2"
+        },
+        "materialKind": {
+          "const": "DECISION_SECTION"
+        },
+        "decisionId": {
+          "const": "PXD-225"
+        },
+        "documentRef": {
+          "const": ".product-experience/decision-log.md"
+        },
+        "decisionSectionRef": {
+          "const": ".product-experience/decision-log.md#PXD-225-section"
+        },
+        "decisionSectionSha256": {
+          "const": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
+        },
+        "sectionSelector": {
+          "const": "ANCHORED_PXD_HEADING_UNTIL_NEXT_PXD_HEADING"
+        },
+        "decisionSectionRawPin": {
+          "const": {
+            "decisionRef": ".product-experience/decision-log.md#PXD-225",
+            "decisionSectionSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
+            "semantics": "RAW_SHA256_OF_EXACT_ANCHORED_PXD_SECTION"
+          }
+        },
+        "historicalSourceStatusPin": {
+          "const": {
+            "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "statusRecordWholeFileSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+            "selector": ".product-experience/decision-log.md#PXD-225-section",
+            "historicalSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+            "semantics": "HISTORICAL_RAW_EXACT_SECTION_SHA; NOT_CURRENT_AUTHORITY",
+            "matchesCurrentRawSection": false
+          }
+        },
+        "decisionLogCaptureProvenance": {
+          "const": {
+            "targetRef": ".product-experience/decision-log.md",
+            "wholeFileSha256AtR9R08V1Capture": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+            "wholeFileSha256AtMaterialPreparation": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+            "captureShaMatches": true,
+            "disposition": "HISTORICAL_CAPTURE_PROVENANCE_ONLY; NOT_THE_POST_AUTHORITY_APPLY_READ_PREIMAGE"
+          }
+        },
+        "sections": {
+          "const": [
+            {
+              "sectionId": "PXD-225/Decision",
+              "ref": ".product-experience/decision-log.md#PXD-225/Decision",
+              "sectionKind": "SEMANTIC_DECISION_SECTION",
+              "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+              "sha256": "1df6c0a1fc276c0656c31a76132c53139721b99126914e1184b05ec2054472af"
+            },
+            {
+              "sectionId": "PXD-225/Currentness",
+              "ref": ".product-experience/decision-log.md#PXD-225/Currentness",
+              "sectionKind": "SEMANTIC_DECISION_SECTION",
+              "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+              "sha256": "a27af4f2a9019f579525abf77cc6a228d93e0b3556c553c88b0d0be4ab1882ea"
+            },
+            {
+              "sectionId": "PXD-225/Boundary",
+              "ref": ".product-experience/decision-log.md#PXD-225/Boundary",
+              "sectionKind": "SEMANTIC_DECISION_SECTION",
+              "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+              "sha256": "cadbb5d7e957622fcfff55647cb017c2e5426463e5b411fdb1f7f82806645a24"
+            }
+          ]
+        },
+        "pdpAuthoritySectionRefs": {
+          "const": [
+            {
+              "ref": ".product-experience/decision-log.md#PXD-225/Authority",
+              "sourceFileRef": ".product-experience/decision-log.md",
+              "sourceFileSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+              "sectionKind": "DECISION_AUTHORITY_BASIS",
+              "selection": "BOLD_LABEL_BODY_UNTIL_NEXT_PXD225_LABEL",
+              "sectionSha256": "15c4d94034144cc6d77dd2940e92703fb51db1d79378b4bf996fb71303fd7210"
+            },
+            {
+              "ref": ".product-experience/authority-map.yaml#canonicalPdpPhases[PDP-0]",
+              "sourceFileRef": ".product-experience/authority-map.yaml",
+              "sourceFileSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+              "sectionKind": "PDP_PHASE_SEMANTIC_OWNER_AUTHORITY",
+              "selection": "YAML_RECORD_BY_ARRAY_KEY:id=PDP-0",
+              "sectionSha256": "f34e7cd6cfae7c9a3ee2f85cbc90b495a4104f98155ff978d71cba6705c63992"
+            },
+            {
+              "ref": ".product-experience/authority-map.yaml#phaseAuthorities[PDP-0]",
+              "sourceFileRef": ".product-experience/authority-map.yaml",
+              "sourceFileSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+              "sectionKind": "PDP_PHASE_OWNER_AUTHORITY",
+              "selection": "YAML_RECORD_BY_ARRAY_KEY:phase=PDP-0",
+              "sectionSha256": "a875cc9ac0b6f7ab23774534af48cbe4e17eee32bf2894ceed2a20d3819f4eb9"
+            }
+          ]
+        },
+        "authoritySectionBindings": {
+          "const": [
+            {
+              "sequence": 1,
+              "recordKind": "PDP0_SOURCE_OWNER_DECISION",
+              "recordRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.source-owner-decision.r2.json",
+              "decisionSelector": {
+                "status": "NOT_ALLOCATED_BY_DECISION_LOG_OWNER",
+                "ref": null,
+                "sha256": null
+              },
+              "predecessorRecordRefs": [],
+              "recordDigestBinding": "EXACT_EXTERNAL_SOURCE_OWNER_DECISION_JSON_SHA256"
+            },
+            {
+              "sequence": 2,
+              "recordKind": "ROOT_ADOPTION_DECISION",
+              "recordRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.root-adoption-decision.r2.json",
+              "decisionSelector": {
+                "status": "NOT_ALLOCATED_BY_DECISION_LOG_OWNER",
+                "ref": null,
+                "sha256": null
+              },
+              "predecessorRecordRefs": [
+                "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.source-owner-decision.r2.json"
+              ],
+              "recordDigestBinding": "EXACT_EXTERNAL_ROOT_DECISION_JSON_SHA256_AND_SOURCE_OWNER_PREDECESSOR_SHA256"
+            },
+            {
+              "sequence": 3,
+              "recordKind": "OPERATION_PROFILE_REGISTRATION",
+              "recordRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.operation-profile-registration.r2.json",
+              "decisionSelector": {
+                "status": "NOT_ALLOCATED_BY_DECISION_LOG_OWNER",
+                "ref": null,
+                "sha256": null
+              },
+              "predecessorRecordRefs": [
+                "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.source-owner-decision.r2.json",
+                "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.root-adoption-decision.r2.json"
+              ],
+              "recordDigestBinding": "EXACT_EXTERNAL_REGISTRATION_JSON_SHA256_AND_OWNER_ROOT_PREDECESSOR_SHA256"
+            },
+            {
+              "sequence": 4,
+              "recordKind": "DISTINCT_APPLY_AUTHORIZATION",
+              "recordRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.apply-authorization.r2.json",
+              "decisionSelector": {
+                "status": "NOT_ALLOCATED_BY_DECISION_LOG_OWNER",
+                "ref": null,
+                "sha256": null
+              },
+              "predecessorRecordRefs": [
+                "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.source-owner-decision.r2.json",
+                "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.root-adoption-decision.r2.json",
+                "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.operation-profile-registration.r2.json"
+              ],
+              "recordDigestBinding": "EXACT_EXTERNAL_APPLY_AUTHORIZATION_JSON_SHA256_AND_ALL_PREDECESSOR_RECORD_SHA256"
+            }
+          ]
+        },
+        "authorityMapSourcePin": {
+          "const": {
+            "targetRef": ".product-experience/authority-map.yaml",
+            "wholeFileSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+            "comparison": "EXACT_WHOLE_FILE_SHA256"
+          }
+        },
+        "applyReadSetV2": {
+          "const": {
+            "version": "media.pdp0.root-selected-source-integration.r9-r08.apply-read-set.v2",
+            "members": [
+              ".product-experience/pdp-0-product-truth/capabilities.yaml",
+              ".product-experience/pdp-0-product-truth/requirements.yaml",
+              "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+              ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+              ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+              ".product-experience/decision-log.md",
+              ".product-experience/pdp-0-product-truth/quality-policy.yaml"
+            ],
+            "capturePoint": "AFTER_FOUR_UNIQUE_AUTHORITY_SECTIONS_AND_EXTERNAL_RECORDS_ARE_FINALIZED",
+            "wholeDecisionLogSha256": null,
+            "status": "NOT_CAPTURED_PENDING_AUTHORITY_SECTION_ALLOCATION_AND_RECORD_CHAIN",
+            "bindingLocation": "EXTERNAL_APPLY_AUTHORIZATION_JSON_NOT_A_PXD_SECTION"
+          }
+        },
+        "authorityBoundary": {
+          "const": {
+            "ownerAuthorityDecision": "NOT_RECORDED",
+            "rootAuthorityDecision": "NOT_RECORDED",
+            "operationProfileRegistration": "NOT_RECORDED",
+            "distinctApplyAuthorization": "NOT_RECORDED",
+            "canonicalApply": "NOT_AUTHORIZED",
+            "phaseStatusEffect": "NONE",
+            "independentAcceptance": "NOT_CLAIMED",
+            "nativeClosure": "NOT_CLAIMED"
+          }
+        }
+      }
+    },
+    "rootAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "const": "ROOT_AUTHORITY"
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rootAdoption",
+        "canonicalApply",
+        "phaseStatusEffect",
+        "independentAcceptance",
+        "nativeClosure"
+      ],
+      "properties": {
+        "rootAdoption": {
+          "enum": [
+            "ADOPTED_EXACT_CANDIDATE",
+            "NOT_ADOPTED"
+          ]
+        },
+        "canonicalApply": {
+          "const": "NOT_AUTHORIZED_BY_ROOT_ADOPTION_DECISION"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeClosure": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    }
+  }
+}

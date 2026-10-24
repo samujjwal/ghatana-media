@@ -1,0 +1,216 @@
+{
+  "schemaVersion": "media.pdp0.source-amendment-peer-review.v3",
+  "auditId": "AUD-SPEC-002",
+  "reviewer": {
+    "identity": "agent:thread:01a16a35-bbcf-74d2-ac99-1ed74c29c3c9",
+    "role": "DISTINCT_TECHNICAL_PEER",
+    "independentHumanReviewer": false,
+    "credentialedAttestation": false
+  },
+  "reviewedAt": "2026-10-23",
+  "phaseScope": "DISCOVERY / PDP-0 source definition only",
+  "campaignBaseline": {
+    "repository": "ghatana-media",
+    "fullCampaignDenominator": {
+      "surfaceIdentities": 54,
+      "physical": 26,
+      "compositions": 7,
+      "logicalConsumers": 21
+    },
+    "selectedCapabilityApplicabilityDenominator": 5,
+    "selectedScopeSource": ".product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.recipe.specification.compile",
+    "selectedSurfacePhaseMatrixSource": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+    "selectedSurfacePhaseMatrixSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+    "selectedSurfaces": [
+      {
+        "surfaceIdAndType": "media.surface.recorder-orchestrator / LOGICAL CLI",
+        "pdp0Applicability": "APPLICABLE_DEFINITION_SCOPE",
+        "sourceCurrentStatus": "CURRENT; DEV_COMPLETE",
+        "remainingPdp0TaskIds": [],
+        "blockerOwner": "none recorded in the current PDP-0 matrix",
+        "acceptanceCriteria": "Current matrix row is source-current with zero PDP-0 tasks; any applied source amendment requires affected PDP-0 source-currentness revalidation.",
+        "nextLegalAction": "No phase advancement is granted by this proposal review; revalidate after any authorized source write."
+      },
+      {
+        "surfaceIdAndType": "media.physical.libs-audio-video-client / PHYSICAL",
+        "pdp0Applicability": "APPLICABLE",
+        "sourceCurrentStatus": "CURRENT; DEV_COMPLETE",
+        "remainingPdp0TaskIds": [],
+        "blockerOwner": "none recorded in the current PDP-0 matrix",
+        "acceptanceCriteria": "Current matrix row is source-current with zero PDP-0 tasks; any applied source amendment requires affected PDP-0 source-currentness revalidation.",
+        "nextLegalAction": "No phase advancement is granted by this proposal review; revalidate after any authorized source write."
+      },
+      {
+        "surfaceIdAndType": "media.composition.repository-root / COMPOSITION ROOT",
+        "pdp0Applicability": "ROOT_AUTHORITY_REFERENCE",
+        "sourceCurrentStatus": "CURRENT; DEV_COMPLETE",
+        "remainingPdp0TaskIds": [],
+        "blockerOwner": "none recorded in the current PDP-0 matrix",
+        "acceptanceCriteria": "Current matrix row is source-current with zero PDP-0 tasks; any applied source amendment requires affected root source-currentness revalidation.",
+        "nextLegalAction": "No phase advancement is granted by this proposal review; revalidate after any authorized source write."
+      },
+      {
+        "surfaceIdAndType": "media.composition.creation-composition-and-delivery / COMPOSITION",
+        "pdp0Applicability": "DIRECT_CROSS_CHILD_MEANING",
+        "sourceCurrentStatus": "CURRENT; DEV_COMPLETE",
+        "remainingPdp0TaskIds": [],
+        "blockerOwner": "none recorded in the current PDP-0 matrix",
+        "acceptanceCriteria": "Current matrix row is source-current with zero PDP-0 tasks; any applied source amendment requires affected composition source-currentness revalidation.",
+        "nextLegalAction": "No phase advancement is granted by this proposal review; revalidate after any authorized source write."
+      },
+      {
+        "surfaceIdAndType": "media.composition.client-and-machine-interfaces / COMPOSITION",
+        "pdp0Applicability": "DIRECT_CROSS_CHILD_MEANING",
+        "sourceCurrentStatus": "CURRENT; DEV_COMPLETE",
+        "remainingPdp0TaskIds": [],
+        "blockerOwner": "none recorded in the current PDP-0 matrix",
+        "acceptanceCriteria": "Current matrix row is source-current with zero PDP-0 tasks; any applied composition source amendment requires affected composition source-currentness revalidation.",
+        "nextLegalAction": "No phase advancement is granted by this proposal review; revalidate after any authorized source write."
+      }
+    ],
+    "aggregateDiscoveryStatus": "UNKNOWN for the full 54-surface campaign; this narrow PDP-0 proposal review does not recalculate aggregate Discovery or native closure.",
+    "candidateApplicationState": "NOT_APPLIED; current matrix values describe the existing canonical source cut only."
+  },
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v3.json",
+  "freezeManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v3-freeze-manifest.v1.json",
+  "frozenInputs": {
+    "freezeManifestSha256": "1321ca815a72f21a4b08cc47da3cc54e87a20e6d22ec4fa5605cce9aca225526",
+    "candidateSha256": "f7ed4fbf6ca136eab71e58abfab8e30413c1ccb44b13c049a26e6674c464e280",
+    "candidateSchemaSha256": "60855b3ffdecea95d1040aa4ce7e85c2418eec8f9628404322c1f110749bee2a",
+    "candidatePostimageSha256": "0bc4cb63dfc40dbdcce21ae0bc3d4d99dfc8ff53f88261da908e0af3adb8f99a",
+    "sourceAmendmentPostimageSha256": "cb8487eb4d6440dcbb527cce120c7db118f2ecb34df07684fff842336032320f",
+    "capabilitiesPostimageSha256": "6a1e3b27742b107584d69e2b68ca23ccdfea5780feeffeb830e7063f4c559917",
+    "requirementsPostimageSha256": "707455c2daf67ce44e56bccae56c597f231cab7c25e05ba338152b147843a4fd",
+    "crosswalkPostimageSha256": "0cff72b3a1315229bd270c61e89729ca1c2910d8245e58a6832875e8dc88005e",
+    "sourceBindings": {
+      "crosswalkSha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20",
+      "auditSha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+      "capabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "requirementsSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "capabilityLeafReviewSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad"
+    },
+    "producerPins": {
+      "scripts/lib/media-pdp0-aud-spec-002-source-amendment-v3.mjs": "a4dc643eabd8fdebb1f2efd4cdaa2211cb7a504e06930edc9f7b3481783ea41e",
+      "scripts/plan-media-pdp0-aud-spec-002-source-amendment-v3.mjs": "555c9fbd3a1e22075741f2fca8455389c441f5983008c6fee40a67886f02bcc1"
+    },
+    "workflowPins": {
+      "scripts/lib/media-pdp0-source-amendment-apply.mjs": "fa2884b3313b63ccd88007075e9e67959b1f039353257ea20466cbe29ca954d3",
+      "scripts/lib/media-pdp0-source-amendment-plan.mjs": "e159ffacff4ab5a48b5ad41b90e3406f280b57fde19766e1207867d71de7b447",
+      "scripts/plan-media-pdp0-source-amendment-cas.mjs": "2ad991dd7c1c6658a922f09a8eadc573738970fcecda4adaa3b15ad594241e6f",
+      "scripts/lib/media-pdp0-review-successor-cas.mjs": "a149c7cd74e291879ce67437ba54a36402a5ff57eb30a42b578ff42fa65cbeff",
+      "scripts/lib/media-pdp0-review-successor-plan.mjs": "ce684f45a54a4e4d8dd204e7383a88d60051041e130a7da06f45beb00889795f",
+      "scripts/lib/media-pdp0-current-source-review-assembler.mjs": "e4beff7c40251b35eb3d022fdaff866fa6945d1908527f1f7639a89d58741f01",
+      "scripts/assemble-media-pdp0-current-source-reviews.mjs": "154c6388d553d673e13c1a9b87765a1a96a9d1a112801ccc97d4bd37863b9ff2",
+      "scripts/plan-media-pdp0-current-source-review-successor.mjs": "69735a88e1f8c037cf9a4ea0e25f0450fb284a779d78879f866e02f9f172dfb6",
+      "scripts/apply-media-pdp0-current-source-review-successor.mjs": "8ec2ec26a9d84818b1ecfc5f6308288a81f5138cdfe8bd7d574780c940d02fb4"
+    }
+  },
+  "disposition": "TECHNICALLY_REVIEWED_EXACT_V3_CUT",
+  "semanticReviewDisposition": "REQUEST_CHANGES",
+  "assessment": {
+    "ordinaryCompilation": {
+      "status": "PRESERVED_IN_V3_POSTIMAGE",
+      "evidence": "The existing normalized-semantic-graph-and-reviewable-project-plan-candidate remains required for ordinary compilation. V3 sets the migration candidate requiredOnSuccess=false, adds a complete-supported-migration selector, and AC-15 preserves the ordinary compile output without migration inputs."
+    },
+    "conditionalMigration": {
+      "status": "SUCCESS_AND_FAILURE_BOUNDARIES_PRESENT_BUT_VARIANT_SELECTOR_INCOMPLETE",
+      "evidence": "V3 requires exact source specification/schema, target schema, declared transformation, and SUPPORTED compatibility for the migration candidate. Partial inputs do not select the candidate; AC-14 and the unsupported cases require explicit UNKNOWN/UNSUPPORTED and no migration candidate for unsupported, lossy, ambiguous, or unknown transformations. The exact result variant still lacks PXD-128's required resultKind and applicable provenance/epistemic selectors."
+    },
+    "extensionAuthority": {
+      "status": "DEFERRED_FUTURE_VERSION_PROPOSAL; DISTINCT_TRUST_REGISTRATION_NOT_IN_V3_POSTIMAGE",
+      "evidence": "PXD-220 keeps media.recipe.specification.compile outside current-version requirements. capability-leaf-review.yaml ownerCapabilityLeafAdjudication and ownerTrustReconstructionDispositions each retain 462 rows; the capability has zero matching owner adjudication and zero trust-reconstruction rows. V3 acknowledges this unresolved branch and does not invent a record, but its frozen target set omits capability-leaf-review.yaml, so no exact fourth-file extension trust definition is proposed."
+    },
+    "historicalPopulation": {
+      "status": "PRESERVED_BY_V3_SCOPE_AND_SOURCE_BINDINGS",
+      "evidence": "PXD-220 explicitly defers the six proposals and preserves the historic 462-leaf denominator. V3 does not target capability-leaf-review.yaml or claim a new owner adjudication. Any successor must use a separate extension registration and leave the 462 historical records and counts unchanged."
+    },
+    "authorityBoundary": "V3 is candidate-only and canonicalApply is NOT_PERFORMED. This review is technical source review only; it is not a source-owner decision, independent acceptance, qualified attestation, owner adjudication, trust credential, runtime admission, PDP completion, native closure, or Delivery evidence."
+  },
+  "findings": [
+    {
+      "id": "AUD-SPEC-002-V3-PXD128-RESULT-SELECTOR-001",
+      "priority": "P1",
+      "where": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-postimage.v3.json#/capability/ownerDefinition/successOutputs/*/requiredWhenSelector and resultVariants",
+      "issue": "The migration result is conditional, but its selector is an ad hoc requiredWhenSelector string and does not include PXD-128's exact resultKind or applicable provenance and epistemic fields. PXD-128 requires nested result variants to be selected by exact resultKind plus those applicable fields. The existing owner trust projection therefore cannot select this migration branch unambiguously under the approved result-variant convention.",
+      "correction": "In an additive successor, express the migration output using the established resultVariants structure with an exact migration resultKind and the applicable origin/provenance and epistemic disposition fields. Bind the same exact branch in the separate extension trust registration. Keep the branch candidate-only and preserve the no-apply/no-project-mutation meaning.",
+      "acceptance": "An independent source check resolves one exact branch for a supported complete migration request using resultKind plus all applicable provenance/epistemic selectors; ordinary compilation still selects only its existing required output; AC-14 partial, unsupported, lossy, ambiguous, or unknown cases yield UNKNOWN/UNSUPPORTED and no migration candidate."
+    },
+    {
+      "id": "AUD-SPEC-002-V3-EXTENSION-TRUST-REGISTRATION-002",
+      "priority": "P1",
+      "where": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v3-freeze-manifest.v1.json#/exactArtifactPins and sourcePins/capabilityLeafReviewSha256",
+      "issue": "V3 binds capability-leaf-review.yaml as an input but omits it from exact target postimages. Consequently the proposal registers no source-defined trust result branch for media.recipe.specification.compile; the observed matching owner adjudication and trust record counts remain zero. This is correctly unresolved in v3, but it prevents a source-complete extension result/trust definition and cannot be cured by adding a synthetic row to either 462-row historical population.",
+      "correction": "An additive successor must include a fourth exact capability-leaf-review.yaml postimage with a technical source definition for the deferred extension's exact result branch and its source/policy joins. Place it in a clearly separate deferred-extension registration with distinct counts and authority; do not add to, rewrite, or imply acceptance by the 462 historic owner-adjudication or trust records. Keep the extension outside the current requirement denominator per PXD-220.",
+      "acceptance": "The frozen four-file successor has exact preimage/postimage hashes and a source-bound technical owner decision; its registration identifies the exact capability/output/result selector, provenance and epistemic meaning, source authority and deferred-version scope; independent validation proves both historical 462-record populations and counts are unchanged and no current-version requirement is added."
+    },
+    {
+      "id": "AUD-SPEC-002-CAS-V3-TARGETSET-MISMATCH-003",
+      "priority": "P1",
+      "where": "scripts/lib/media-pdp0-source-amendment-plan.mjs:34-57,94-101; scripts/lib/media-pdp0-source-amendment-apply.mjs; scripts/lib/media-pdp0-review-successor-cas.mjs:75-100",
+      "issue": "The checked-in source-amendment planner and applier are v2-only: they require candidate.v2, bind v2 owner/peer record paths, and accept exactly three canonical targets. They cannot apply or authorize the frozen v3 candidate, and cannot atomically include the required capability-leaf-review.yaml fourth target. Reusing them after v3/v4 review would either reject the candidate or leave the trust-definition file outside the approved CAS.",
+      "correction": "Keep the v2 apply route disabled for this successor. Before any apply, create a separately versioned source-amendment plan/apply contract whose schema pins the exact successor candidate, exact owner/peer records, four target preimages/postimages, source decision section, and authority boundaries; journal/read back all four targets and reject partial redispatch.",
+      "acceptance": "A dry-run plan rebuilt from exact current source bytes names exactly the four reviewed target files and all exact hashes; validation rejects v2 candidate/decision/peer substitution; no apply can occur until a distinct exact successor peer review, source-owner decision, and explicit apply authorization are present."
+    },
+    {
+      "id": "MEDIA-PDP0-CAS-PHYSICAL-CONTAINMENT-004",
+      "priority": "P2",
+      "where": "scripts/lib/media-pdp0-review-successor-cas.mjs:19-28,75-103,121; scripts/lib/media-pdp0-review-successor-plan.mjs:176-180,213; scripts/lib/media-pdp0-source-amendment-apply.mjs",
+      "issue": "Repository containment checks compare path.resolve strings with a lexical root prefix. They do not resolve or reject symlinked target-parent, snapshot, or journal components. A symlink under an allowed repository directory can redirect writes, snapshots, or journals outside the checkout despite the prefix check. The inspected current target-parent directories are not symlinks, so this is a latent guard gap, not an observed path escape.",
+      "correction": "Resolve the physical repository root and each existing parent directory, reject any symlink component for canonical targets and workflow records, and revalidate physical containment after creating directories and immediately before each rename. Use directory-relative no-follow operations where available.",
+      "acceptance": "A regression fixture with a symlinked target parent, snapshot directory, or journal directory is refused before any external path is created or written; normal in-root paths continue to work."
+    },
+    {
+      "id": "MEDIA-PDP0-CAS-TARGET-MODE-PRESERVATION-005",
+      "priority": "P2",
+      "where": "scripts/lib/media-pdp0-review-successor-cas.mjs:58-61; scripts/lib/media-pdp0-review-successor-cas.mjs:144-159",
+      "issue": "Canonical target temporaries are opened with mode 0600 and renamed over existing PDP source/status files. The current direct-review target and all three source-amendment targets are mode 0644. A successful CAS would therefore change canonical file permissions to owner-only, creating an unintended material repository change beyond the exact approved bytes.",
+      "correction": "Capture the existing target mode and apply it to the temporary file before rename, or require and validate an explicitly reviewed target mode in the exact authorization. Keep restrictive modes for private journals and snapshots only.",
+      "acceptance": "A CAS fixture starting from mode 0644 has byte-exact postimage readback and retains mode 0644; tests also cover a different explicitly allowed source mode."
+    },
+    {
+      "id": "MEDIA-PDP0-REVIEW-SUCCESSOR-PREIMAGE-RACE-006",
+      "priority": "P1",
+      "where": "scripts/lib/media-pdp0-review-successor-cas.mjs:29-30,51-61",
+      "issue": "The single-file review-successor CAS hashes the canonical target once, then creates the snapshot and journal before renaming the postimage. Unlike the multi-file source amendment path, it does not re-read and verify the expected preimage immediately before rename. A concurrent owner update between the initial hash and rename can therefore be overwritten by the stale approved postimage.",
+      "correction": "Re-read and hash the canonical target immediately before rename, after journal/snapshot creation. If it differs from expectedTargetSha256, leave the journal for explicit reconciliation and do not rename.",
+      "acceptance": "An injected concurrent target update after the initial preimage read but before rename causes refusal, preserves the intervening bytes, and leaves a reconcilable journal; the ordinary exact-preimage path still records exact readback."
+    },
+    {
+      "id": "MEDIA-PDP0-REVIEW-ARTIFACT-OVERWRITE-007",
+      "priority": "P2",
+      "where": "scripts/plan-media-pdp0-source-amendment-cas.mjs:55-63; scripts/assemble-media-pdp0-current-source-reviews.mjs:11,22-28; scripts/plan-media-pdp0-current-source-review-successor.mjs:33-39",
+      "issue": "Default planner/assembler runs write fixed versioned candidate, plan, and postimage paths with writeFileSync and no create-only or expected-preimage check. In particular, the legacy source-amendment planner overwrites AUD-SPEC-002-source-amendment-cas-plan.v1.json on an ordinary invocation, and the current-source successor planner overwrites candidate.v4.json/plan.v2.json outputs. Re-running after freeze can replace reviewable bytes without an immutable predecessor record.",
+      "correction": "Make default invocations read-only checks. For generation, use a new immutable revision-specific output path and exclusive create; if a fixed path already exists, refuse and require an explicitly reviewed successor operation that archives and pins its predecessor.",
+      "acceptance": "A repeated default invocation never changes an existing frozen artifact; create-only generation refuses an existing path, and a successor records the predecessor path and SHA-256 before creating new bytes."
+    }
+  ],
+  "workflowAssessment": {
+    "sourceAmendmentCas": "The v2 path validates exact candidate/owner/peer/auth hashes, three source preimages, journals exact readbacks, and refuses uncertain redispatch. It is not compatible with v3/v4 and has the physical-containment, target-mode, and fixed-plan-overwrite gaps identified above.",
+    "currentSourceReviewAssembler": "The assembler validates exact source pins, review records, current verifier receipts, distinct reviewer identities, and authority boundaries; output path writes are not create-only.",
+    "currentSourceReviewSuccessor": "The successor plan is explicitly gated by --plan and the apply entrypoint requires --apply, with typed decision and authorization checks. Its fixed generated artifacts can be overwritten; its single-file CAS does not recheck the target immediately before rename and uses lexical-only path containment.",
+    "observedFilesystem": "The inspected current directories in the source amendment and current-source-review paths are not symlinks. Existing canonical target files are mode 0644. No path escape or permission mutation was performed or observed."
+  },
+  "authorityBoundary": {
+    "sourceOwnerDecision": "NOT_RECORDED_BY_THIS_PEER",
+    "ownerCapabilityAdjudication": "NOT_CREATED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "canonicalApply": "NOT_PERFORMED",
+    "pdp0CompletionPromotion": "NOT_PERFORMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "verification": {
+    "performed": [
+      "Matched the v3 freeze manifest, candidate, schema, source-amendment, capabilities, requirements, and crosswalk hashes to exact current bytes.",
+      "Matched v3 source and producer bindings to current source bytes.",
+      "Inspected PXD-128, PXD-207, PXD-220, the deferred capability leaf, the 462-row owner adjudication/trust populations, and the unresolved extension trust record.",
+      "Inspected the existing source amendment plan/apply and current-source-review assembler/successor/CAS code and relevant tests without executing them.",
+      "Verified current reviewed-path parent directories are not symlinks and canonical target modes are 0644."
+    ],
+    "testsRun": false,
+    "canonicalFilesChanged": false,
+    "reviewArtifactOnly": true,
+    "v4FinalAssessment": "PENDING_EXACT_FROZEN_V4_MANIFEST_AND_POSTIMAGES"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-negative-review.v3",
+  "artifactId": "MEDIA-PDP0-R9-R08-NEGATIVE-REVIEW-R03-2026-10-24",
+  "supersedes": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-negative-review-r02.json",
+  "recordKind": "INDEPENDENT_DISCOVERY_TOOLING_REVIEW_RECEIPT",
+  "reviewStatus": "RECORD_BYTE_BINDING_REPAIRED; UNREGISTERED_ACTOR_TRUST_FAILS_CLOSED; LOCKED_APPLY_WRITER_NOT_IMPLEMENTED",
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "selectedSourceSet": "R9-R08 material producer, v2 guard, read-only locked read-set probe, and isolated tests",
+    "denominator": {
+      "registeredSourceIdentities": 54,
+      "phaseCells": 216,
+      "crosswalkRows": 501,
+      "historicalOwnerRows": 462
+    },
+    "prerequisiteState": "PDP-0 status is not DEV_COMPLETE for this cut; current application plan remains blocked pending currentness and authentic owner-allocated authority inputs.",
+    "permittedWork": "Versioned source-governance tooling review and isolated tests. No canonical source, authority, phase-status, apply, acceptance, or closure mutation."
+  },
+  "sourceBaseline": [
+    { "ref": "scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v2-guard.mjs", "sha256": "5d95eb58a8fb11b5b1a3fa8b69c4c675a7f3eb1f2a06c62aa79e28dfd369c8f7" },
+    { "ref": "scripts/lib/media-pdp0-review-successor-cas.mjs", "sha256": "726c6e6b45b763e798809d385813f29baa4f7a428db80339b1474367ef98e2d9" },
+    { "ref": "scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-approval-input.mjs", "sha256": "3c1540dfe3563726522683d3e5f2894c1008baf27a299cf4315ffcc0debec414" },
+    { "ref": "scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-application-plan.mjs", "sha256": "053923ef44f0202572923c4c35447c3a464a09fd68b998a70b35b6692a77e62d" },
+    { "ref": "tests/media-pdp0-r9-r08-material-binding-negative-review-r01.test.mjs", "sha256": "160c053ae07e619454358bc6cf4f5eaf6731a8ecabfc40b1c524770683aff1ac" },
+    { "ref": "tests/media-pdp0-r9-r08-material-binding-negative-review-r02.test.mjs", "sha256": "9ec25c6cb407873ea9d7ff6978b86123c71db2156185264f211b25a411c216be" },
+    { "ref": "tests/media-pdp0-r9-r08-v2-independent-integrity-audit.test.mjs", "sha256": "06e3e4cc925ef3d3ebf4ac4323da87cac1802c8db2f930f7f2c636c1ce752047" },
+    { "ref": "tests/media-pdp0-r9-r08-decision-section-approval-input.test.mjs", "sha256": "609691330b210b4ba25116e5e112c81a265365764834d0038512ea68b8702cda" },
+    { "ref": "config/closure/media-product-definition/owner-execution-authorization.v1.json", "sha256": "9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319" },
+    { "ref": ".product-experience/decision-log.md", "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298" },
+    { "ref": ".product-experience/authority-map.yaml", "sha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff" },
+    { "ref": "docs/implementation/pdp-0-phase-dev-status.json", "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c" }
+  ],
+  "independentFindings": [
+    {
+      "findingId": "R9-R08-V2-RAW-RECORD-BINDING-001",
+      "severity": "REPAIRED",
+      "rootCause": "The guard previously hashed entry.bytes while validating a separately supplied entry.value, allowing unrelated bytes to accompany a syntactically valid record object.",
+      "repair": "The guard now requires exact record keys, parses the hashed JSON bytes, and compares canonical parsed content with the validated record value before accepting its digest-chain link.",
+      "independentNegativeTest": "A valid but unrelated JSON object with its own matching digest is rejected because parsed bytes differ from the decision value."
+    },
+    {
+      "findingId": "R9-R08-V2-ACTOR-TRUST-002",
+      "severity": "FAIL_CLOSED_PENDING_AUTHORITY_REGISTRATION",
+      "rootCause": "Caller-provided identity, credential-reference, grant-reference, status, and digest fields were treated as proof of trusted role admission without resolving them from an authenticated registry.",
+      "repair": "The guard now rejects all actorTrust inputs while the fixed authenticated actor registry is NOT_REGISTERED. This prevents fabricated tokens from producing an admission result.",
+      "independentNegativeTest": "Four fabricated identities and arbitrary credential/grant digests are rejected. The current Media owner execution authorization states trustedAdmission is NOT_ISSUED.",
+      "remainingOwnerAction": "Register an authentic fixed actor registry and verifier/root binding through its owner-controlled authority path before enabling positive actor admission. No such Media registry or trust root was present in this source cut."
+    },
+    {
+      "findingId": "R9-R08-V2-LOCKED-APPLY-SEAM-003",
+      "severity": "OPEN_SOFTWARE_GAP",
+      "rootCause": "The current R9-R08 entrypoint is a read-only whole-file read-set probe. It invokes only validateR9R08V2ExternalApplyReadSet under the shared lock; its source comment says a future writer must call it. There is no R9-R08 commit writer that reruns semantic pin, profile, parsed-record, and authentic actor checks under the lease before snapshots.",
+      "evidence": "The probe returns before lock acquisition when the fixed apply-authorization file is absent. The 31-test suite exercises pure fixture validation and that missing-authorization fail-closed branch; it does not prove an authorized under-lease drift rejection before journal, snapshot, or target effects.",
+      "requiredFix": "Implement a fixed-path R9-R08 writer whose beforePrepare callback reloads and validates the complete profile, exact parsed external records, fixed authenticated actor registry, PXD-225 semantic pin, seven live read preimages, and four target postimages while the shared owner lock is held. Keep decision-log.md read-only."
+    },
+    {
+      "findingId": "R9-R08-V2-SECTION-AND-TARGET-PINS-004",
+      "severity": "PASS_TESTED_AT_VALIDATOR_LEVEL",
+      "evidence": "PXD-225 Decision/Currentness/Boundary pins remain separate from its Authority subsection. The whole decision-log digest remains a separate final read-set member. The guard fixes seven ordered read paths and four ordered write paths and rejects drift, reordering, substitution, and a decision-log write target."
+    },
+    {
+      "findingId": "R9-R08-V2-PRODUCER-REPLAY-005",
+      "severity": "PASS",
+      "evidence": "The current approval-input producer replay now matches generated material/schema artifacts. The application plan replays as BLOCKED_PENDING_AUTHORITY_AND_CURRENTNESS with five explicit blockers; no artifacts were regenerated by this review."
+    }
+  ],
+  "verification": [
+    {
+      "command": "node --test tests/media-pdp0-r9-r08-material-binding-negative-review-r01.test.mjs tests/media-pdp0-r9-r08-material-binding-negative-review-r02.test.mjs tests/media-pdp0-r9-r08-v2-independent-integrity-audit.test.mjs tests/media-pdp0-r9-r08-decision-section-approval-input.test.mjs",
+      "result": "PASS",
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "command": "node scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-approval-input.mjs --check",
+      "result": "PASS"
+    },
+    {
+      "command": "node scripts/prepare-media-pdp0-root-selected-source-integration-r9-r08-application-plan.mjs --check",
+      "result": "PASS_BLOCKED",
+      "planDisposition": "BLOCKED_PENDING_AUTHORITY_AND_CURRENTNESS",
+      "blockers": [
+        "PDP0_STATUS_PIN_OR_CURRENTNESS_NOT_COMPLETE",
+        "FOUR_OWNER_ALLOCATED_AUTHORITY_SELECTORS_NOT_AVAILABLE",
+        "FOUR_AUTHORITY_RECORD_CHAIN_NOT_COMPLETE",
+        "V2_OPERATION_PROFILE_NOT_REGISTERED",
+        "FINAL_EXTERNAL_APPLY_READSET_NOT_CAPTURED_AFTER_AUTHORITY_RECORDS"
+      ]
+    }
+  ],
+  "phaseMatrix": [
+    {
+      "surfaceId": "R9-R08 source-integration tooling",
+      "surfaceType": "PDP-0 source-governance tooling",
+      "phaseApplicability": "PDP-0",
+      "sourceCurrentStatus": "Candidate semantic pins replay; PDP-0 status and selected source pins are not complete/current for apply.",
+      "remainingTasks": [
+        "REGISTER_FIXED_AUTHENTICATED_ACTOR_REGISTRY",
+        "IMPLEMENT_FULL_R9_R08_LOCKED_WRITER_AND_UNDER_LEASE_NEGATIVE_TESTS",
+        "ALLOCATE_FOUR_AUTHORITY_SELECTORS_AND_RECORDS_THROUGH_OWNER_PATH",
+        "CAPTURE_FINAL_POST_AUTHORITY_READSET"
+      ],
+      "blockerOwner": "Media source-authority/registry owner; R9-R08 guarded-writer owner",
+      "acceptanceCriteria": "Trust resolves only from a fixed authenticated registry, and the writer repeats complete input validation under the shared lease before any snapshot or effect.",
+      "nextLegalAction": "Continue PDP-0 tooling work. Do not create authority records or apply the candidate until authentic registry, selectors, decisions, and current inputs exist."
+    }
+  ],
+  "stageDisposition": {
+    "aggregateDiscovery": "FAIL_FOR_SELECTED_R9_R08_SLICE",
+    "buildLane": "NO_PRODUCTION_IMPLEMENTATION_OR_BUILD_CLAIM",
+    "pdpClosureLane": "NOT_ESTABLISHED",
+    "deliveryGate": "NOT_ELIGIBLE_FROM_THIS_REVIEW",
+    "nextAllowedPhase": "PDP-0 reconciliation"
+  },
+  "authorityBoundary": {
+    "canonicalSourceWrites": "NONE",
+    "authorityRecordsCreated": "NONE",
+    "canonicalApply": "NONE",
+    "phaseStatusEffect": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_CLAIMED",
+    "deliveryOrRelease": "NOT_CLAIMED"
+  }
+}

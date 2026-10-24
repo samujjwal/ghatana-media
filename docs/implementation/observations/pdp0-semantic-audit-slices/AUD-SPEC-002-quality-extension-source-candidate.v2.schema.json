@@ -1,0 +1,318 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.quality-extension-source-candidate.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactKind",
+    "status",
+    "candidateAuthor",
+    "predecessor",
+    "sourceChoice",
+    "priorQualityCandidate",
+    "proposedDecisionSection",
+    "targetOrder",
+    "targets",
+    "candidatePostimageSha256",
+    "population",
+    "sourceMeaning",
+    "authority",
+    "effects"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.pdp0.quality-extension-source-candidate.v2"
+    },
+    "artifactKind": {
+      "const": "TWO_TARGET_PDP0_SOURCE_QUALITY_EXTENSION_CANDIDATE"
+    },
+    "status": {
+      "const": "CANDIDATE_ONLY_PENDING_DISTINCT_SOURCE_ADOPTION_REVIEW_AND_ROOT_DECISION"
+    },
+    "candidateAuthor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role"
+      ],
+      "properties": {
+        "identity": {
+          "const": "agent:/root/phase_io"
+        },
+        "role": {
+          "const": "DELEGATED_TECHNICAL_SOURCE_AUTHOR_NOT_EXTERNAL_QUALITY_SPECIALIST"
+        }
+      }
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "v7CandidateRef",
+        "v7CandidateSha256",
+        "v7ManifestRef",
+        "v7ManifestSha256",
+        "correctedPeerRef",
+        "correctedPeerSha256",
+        "predecessorQualityUnknownPreservedInV7"
+      ],
+      "properties": {
+        "v7CandidateRef": {
+          "type": "string"
+        },
+        "v7CandidateSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "v7ManifestRef": {
+          "type": "string"
+        },
+        "v7ManifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "correctedPeerRef": {
+          "type": "string"
+        },
+        "correctedPeerSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "predecessorQualityUnknownPreservedInV7": {
+          "const": true
+        }
+      }
+    },
+    "sourceChoice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "priorQualityCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "sha256"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "proposedDecisionSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decisionId",
+        "ref",
+        "sha256"
+      ],
+      "properties": {
+        "decisionId": {
+          "const": "PXD-227"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "targetOrder": {
+      "const": [
+        ".product-experience/decision-log.md",
+        ".product-experience/pdp-0-product-truth/quality-policy.yaml"
+      ]
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "targetRef",
+          "preimageRef",
+          "postimageRef",
+          "preimageSha256",
+          "postimageSha256"
+        ],
+        "properties": {
+          "targetRef": {
+            "enum": [
+              ".product-experience/decision-log.md",
+              ".product-experience/pdp-0-product-truth/quality-policy.yaml"
+            ]
+          },
+          "preimageRef": {
+            "type": "string"
+          },
+          "postimageRef": {
+            "type": "string"
+          },
+          "preimageSha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "postimageSha256": {
+            "$ref": "#/$defs/sha256"
+          }
+        }
+      }
+    },
+    "candidatePostimageSha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "population": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "historicalRowsPreserved",
+        "currentExtensionRows",
+        "currentRows",
+        "futureExtensionRows"
+      ],
+      "properties": {
+        "historicalRowsPreserved": {
+          "const": 462
+        },
+        "currentExtensionRows": {
+          "const": 1
+        },
+        "currentRows": {
+          "const": 463
+        },
+        "futureExtensionRows": {
+          "const": 6
+        }
+      }
+    },
+    "sourceMeaning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rightsSafety",
+        "otherFiveDimensions",
+        "metrics",
+        "measurement",
+        "qualification",
+        "thresholds",
+        "acceptanceEffect"
+      ],
+      "properties": {
+        "rightsSafety": {
+          "const": "APPLICABLE"
+        },
+        "otherFiveDimensions": {
+          "const": "NOT_APPLICABLE"
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "count",
+            "status"
+          ],
+          "properties": {
+            "count": {
+              "const": 16
+            },
+            "status": {
+              "const": "NOT_APPLICABLE"
+            }
+          }
+        },
+        "measurement": {
+          "const": "NOT_EVALUATED"
+        },
+        "qualification": {
+          "const": "NOT_EVALUATED"
+        },
+        "thresholds": {
+          "const": "NONE_DEFINED_OR_ADDED"
+        },
+        "acceptanceEffect": {
+          "const": "none"
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceOwnerDecision",
+        "technicalPeerReview",
+        "independentAcceptance",
+        "nativeProof"
+      ],
+      "properties": {
+        "sourceOwnerDecision": {
+          "const": "PENDING"
+        },
+        "technicalPeerReview": {
+          "const": "PENDING_FOR_THIS_EXACT_TWO_TARGET_SUCCESSOR"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeProof": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonicalApply",
+        "sourceCurrentness",
+        "phaseStatus",
+        "runtimeAdmission",
+        "measurement",
+        "qualification"
+      ],
+      "properties": {
+        "canonicalApply": {
+          "const": "NOT_PERFORMED"
+        },
+        "sourceCurrentness": {
+          "const": "NOT_CLAIMED"
+        },
+        "phaseStatus": {
+          "const": "UNCHANGED"
+        },
+        "runtimeAdmission": {
+          "const": "NOT_ADMITTED"
+        },
+        "measurement": {
+          "const": "NOT_EVALUATED"
+        },
+        "qualification": {
+          "const": "NOT_EVALUATED"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

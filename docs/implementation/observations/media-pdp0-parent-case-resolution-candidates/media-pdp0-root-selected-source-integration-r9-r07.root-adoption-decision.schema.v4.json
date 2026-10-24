@@ -1,0 +1,120 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "decisionStatus",
+    "candidateRef",
+    "candidateSha256",
+    "freezeRef",
+    "freezeSha256",
+    "sourceOwnerDecisionRef",
+    "sourceOwnerDecisionSha256",
+    "hReviewRef",
+    "hReviewSha256",
+    "selectedBranch",
+    "rootAuthority",
+    "decisionRef",
+    "decisionSectionSha256",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "candidateRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.successor-bundle.candidate.v1.json"
+    },
+    "candidateSha256": {
+      "const": "a4ed01253c422b3044ec415d9e065ddf9de6a373307c0b4e1f5284fef99669cb"
+    },
+    "freezeRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.freeze.v1.json"
+    },
+    "freezeSha256": {
+      "const": "3d85b88e11d0c037f806696d888c4d5e76cf97fd6dd989e3603ad5a9bca4cc4a"
+    },
+    "hReviewRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.independent-peer.actual-h-r07-full.json"
+    },
+    "hReviewSha256": {
+      "const": "e7abc9e67237494a974997dca8a5fe0b664b5eb9e3fd78057d14f95a0eb08d3c"
+    },
+    "schemaVersion": {
+      "const": "media.pdp0.root-selected-source-integration-r9-r07.root-adoption-decision.v3"
+    },
+    "decisionStatus": {
+      "enum": [
+        "ADOPT_EXACT_R9_R07_SPLIT_SOURCE_SUCCESSOR",
+        "DECLINE_EXACT_R9_R07_SPLIT_SOURCE_SUCCESSOR",
+        "REQUEST_R9_R07_CANDIDATE_REVISION"
+      ]
+    },
+    "sourceOwnerDecisionRef": {
+      "const": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.source-owner-decision.v1.json"
+    },
+    "sourceOwnerDecisionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "selectedBranch": {
+      "const": "split"
+    },
+    "rootAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "role"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "const": "ROOT_AUTHORITY"
+        }
+      }
+    },
+    "decisionRef": {
+      "type": "string",
+      "pattern": "^\\.product-experience/decision-log\\.md#PXD-[0-9]{3}$"
+    },
+    "decisionSectionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rootAdoption",
+        "canonicalApply",
+        "phaseStatusEffect",
+        "independentAcceptance",
+        "nativeClosure"
+      ],
+      "properties": {
+        "rootAdoption": {
+          "enum": [
+            "ADOPTED_EXACT_CANDIDATE",
+            "NOT_ADOPTED"
+          ]
+        },
+        "canonicalApply": {
+          "const": "NOT_AUTHORIZED_BY_ROOT_ADOPTION_DECISION"
+        },
+        "phaseStatusEffect": {
+          "const": "NONE"
+        },
+        "independentAcceptance": {
+          "const": "NOT_CLAIMED"
+        },
+        "nativeClosure": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.root-selected-source-integration-r9-r07.root.v3",
+  "title": "Candidate R9-R07 root authority record schema"
+}

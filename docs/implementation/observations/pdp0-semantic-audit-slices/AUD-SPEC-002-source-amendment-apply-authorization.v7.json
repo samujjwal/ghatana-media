@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "media.pdp0.source-amendment-apply-authorization.v7",
+  "effect": "APPLY_EXACT_AUD_SPEC_002_SOURCE_AMENDMENT_V7",
+  "authorizationId": "MEDIA-AUD-SPEC-002-V7-APPLY-c7f510c6cf3f",
+  "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json",
+  "candidateSha256": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc",
+  "candidatePostimageSha256": "d1e0b9b8cea7e7f23aa339fd4a12cde29fc9d14b52e821e8a00f8f113fb8d187",
+  "sourceOwnerDecisionSha256": "35775046645ea1b023d0f9a45a3fa40bb68808bf1339684d492ffec6b7f3f884",
+  "technicalPeerReviewSha256": "ec642cd46c008f7dd4172b3ef186ce6c7f9f74eecc8bf6e53168f477c2aee025",
+  "decisionRef": ".product-experience/decision-log.md#PXD-226",
+  "decisionSectionSha256": "a98524f567639635b9dd5f43e53b8a60e40b2ea4f21d57ac19697098e9ef4dc8",
+  "targetPostimages": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+    ".product-experience/decision-log.md": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+  },
+  "sourceOwnerDecisionRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-owner-decision.v7.json",
+  "technicalPeerReviewRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-independent-peer.v7.json",
+  "currentRootGrant": {
+    "grantId": "MEDIA-AUD-SPEC002-V7-TECHNICAL-SOURCE-APPLY-R1-20261023",
+    "status": "CURRENT",
+    "issuerIdentity": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
+    "candidateSha256": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc",
+    "candidatePostimageSha256": "d1e0b9b8cea7e7f23aa339fd4a12cde29fc9d14b52e821e8a00f8f113fb8d187",
+    "sourceOwnerDecisionSha256": "35775046645ea1b023d0f9a45a3fa40bb68808bf1339684d492ffec6b7f3f884",
+    "technicalPeerReviewSha256": "ec642cd46c008f7dd4172b3ef186ce6c7f9f74eecc8bf6e53168f477c2aee025",
+    "decisionRef": ".product-experience/decision-log.md#PXD-226",
+    "decisionSectionSha256": "a98524f567639635b9dd5f43e53b8a60e40b2ea4f21d57ac19697098e9ef4dc8",
+    "targetPostimages": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+      ".product-experience/decision-log.md": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+    }
+  },
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "nativeClosure": "NOT_CLAIMED"
+  }
+}

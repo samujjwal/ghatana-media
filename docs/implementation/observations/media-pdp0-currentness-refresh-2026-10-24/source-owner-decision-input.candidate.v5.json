@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "media.pdp0.source-owner-currentness-decision-input.v1",
+  "recordId": "MEDIA-PDP0-AQ-PXD216-SOURCE-OWNER-DECISION-INPUT-2026-10-24",
+  "state": "DECISION_NOT_RECORDED; CANDIDATE_FOR_AUTHENTIC_SOURCE_OWNER",
+  "candidate": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json",
+    "sha256": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87"
+  },
+  "requiredRole": "AUTHENTIC_MEDIA_PDP0_SOURCE_OWNER",
+  "choices": [
+    "APPROVE_CURRENTNESS_ONLY_NO_REVIEWED_SLICE_MEANING_CHANGE",
+    "REJECT_AND_REQUEST_SEMANTIC_REVIEW"
+  ],
+  "decisionMustBindCandidateSha256": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87",
+  "evidenceRefs": [
+    {
+      "label": "R9-R08 freeze",
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
+      "sha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+      "decisionState": "NOT_SET"
+    },
+    {
+      "label": "R9-R08 root application input",
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.root-adoption-decision.input.r10.candidate.v1.json",
+      "sha256": "9fc791a5e29c85a2b6e3b5b9cb8f7c12f293bcf2f62e231dded9c5acb2594d02",
+      "decisionState": "NOT_RECORDED"
+    },
+    {
+      "label": "R9-R08 decision-section material",
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json",
+      "sha256": "64083d1e155a0a9903a81d5cd01ac74deb86892a8989e9d230abe9131901a6c7"
+    },
+    {
+      "label": "PXD-225 currentness candidate",
+      "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r3/pdp0-current-source-reconciliation-pxd225.candidate.json",
+      "sha256": "bb85bea6745147bc72202b3bcc54d4b0f527838ed439773f38791f9484a67f6b"
+    }
+  ],
+  "semanticBoundary": "This input requests only source-currentness disposition for AQ rows 1-154 and the preserved PXD-216 20-row review. It cannot adopt R9-R08, change product meaning, claim independent acceptance, or authorize canonical source/status/crosswalk writes."
+}

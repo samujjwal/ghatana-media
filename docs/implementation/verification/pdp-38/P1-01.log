@@ -2,139 +2,139 @@ TAP version 13
 # Subtest: PDP-1 canonical references resolve only to catalogued domain objects
 ok 1 - PDP-1 canonical references resolve only to catalogued domain objects
   ---
-  duration_ms: 83.935458
+  duration_ms: 789.936666
   type: 'test'
   ...
 # Subtest: PDP-1 project and revision identity reconciliation matches owner definitions without claiming persistence
 ok 2 - PDP-1 project and revision identity reconciliation matches owner definitions without claiming persistence
   ---
-  duration_ms: 59.74825
+  duration_ms: 114.978125
   type: 'test'
   ...
 # Subtest: PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization
 ok 3 - PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization
   ---
-  duration_ms: 67.090166
+  duration_ms: 110.010625
   type: 'test'
   ...
 # Subtest: PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records
 ok 4 - PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records
   ---
-  duration_ms: 31.822416
+  duration_ms: 67.075417
   type: 'test'
   ...
 # Subtest: caption version has bounded immutable domain semantics while the simulation shape remains synthetic
 ok 5 - caption version has bounded immutable domain semantics while the simulation shape remains synthetic
   ---
-  duration_ms: 0.614292
+  duration_ms: 3.177792
   type: 'test'
   ...
 # Subtest: artifact, job, and lease identities preserve the source-specific keys without promoting them
 ok 6 - artifact, job, and lease identities preserve the source-specific keys without promoting them
   ---
-  duration_ms: 0.451334
+  duration_ms: 2.703542
   type: 'test'
   ...
 # Subtest: PDP-1 observes the current Media runtime job enum without accepting a canonical mapping
 ok 7 - PDP-1 observes the current Media runtime job enum without accepting a canonical mapping
   ---
-  duration_ms: 9.988375
+  duration_ms: 48.993084
   type: 'test'
   ...
 # Subtest: all 38 current object identities have explicit typed owner or source-observation dispositions
 ok 8 - all 38 current object identities have explicit typed owner or source-observation dispositions
   ---
-  duration_ms: 0.986833
+  duration_ms: 1.459208
   type: 'test'
   ...
 # Subtest: named cross-entity relationships bind exact same-tenant typed references
 ok 9 - named cross-entity relationships bind exact same-tenant typed references
   ---
-  duration_ms: 0.743417
+  duration_ms: 1.155916
   type: 'test'
   ...
 # Subtest: relationship production join rejects valid-but-foreign source substitutions and incomplete coverage
 ok 10 - relationship production join rejects valid-but-foreign source substitutions and incomplete coverage
   ---
-  duration_ms: 1.1705
+  duration_ms: 1.718958
   type: 'test'
   ...
 # Subtest: identity oracle rejects missing or caller-overridden tenant, malformed IDs, and same-tenant collisions
 ok 11 - identity oracle rejects missing or caller-overridden tenant, malformed IDs, and same-tenant collisions
   ---
-  duration_ms: 0.620125
+  duration_ms: 0.855542
   type: 'test'
   ...
 # Subtest: shared subtype identity namespaces collide on the canonical ProcessingJob tuple
 ok 12 - shared subtype identity namespaces collide on the canonical ProcessingJob tuple
   ---
-  duration_ms: 0.204167
+  duration_ms: 0.275125
   type: 'test'
   ...
 # Subtest: every canonical identity tuple has an executable typed positive and missing/malformed negative
 ok 13 - every canonical identity tuple has an executable typed positive and missing/malformed negative
   ---
-  duration_ms: 1.592958
+  duration_ms: 2.436458
   type: 'test'
   ...
 # Subtest: version identity is independent from digest and lineage rejects cross-tenant, kind-mismatch, and cycles
 ok 14 - version identity is independent from digest and lineage rejects cross-tenant, kind-mismatch, and cycles
   ---
-  duration_ms: 0.370833
+  duration_ms: 0.643084
   type: 'test'
   ...
 # Subtest: Lane A current-source review binds exact reviewed inputs and preserves historical pins
 ok 15 - Lane A current-source review binds exact reviewed inputs and preserves historical pins
   ---
-  duration_ms: 3.11475
+  duration_ms: 4.691834
   type: 'test'
   ...
 # Subtest: Lane A reconciles the current PDP-0 product clocks without promoting decode timestamps
 ok 16 - Lane A reconciles the current PDP-0 product clocks without promoting decode timestamps
   ---
-  duration_ms: 0.72525
+  duration_ms: 2.040875
   type: 'test'
   ...
 # Subtest: Lane A populations remain distinct and current relationship endpoints resolve to exact tenant-scoped identities
 ok 17 - Lane A populations remain distinct and current relationship endpoints resolve to exact tenant-scoped identities
   ---
-  duration_ms: 0.429583
+  duration_ms: 1.0295
   type: 'test'
   ...
 # Subtest: open canonical questions are classified into Media definition and genuinely external or implementation residuals
 ok 18 - open canonical questions are classified into Media definition and genuinely external or implementation residuals
   ---
-  duration_ms: 0.316541
+  duration_ms: 1.730375
   type: 'test'
   ...
 # Subtest: all interoperability residuals have an explicit ownership/deferment classification
 ok 19 - all interoperability residuals have an explicit ownership/deferment classification
   ---
-  duration_ms: 0.137792
+  duration_ms: 0.359459
   type: 'test'
   ...
 # Subtest: all 13 value meanings have explicit conservative dispositions and temporal/spatial conversions fail closed
 ok 20 - all 13 value meanings have explicit conservative dispositions and temporal/spatial conversions fail closed
   ---
-  duration_ms: 0.125334
+  duration_ms: 0.23
   type: 'test'
   ...
 # Subtest: versioning rule inventory resolves Media semantics while identifying implementation and external evidence separately
 ok 21 - versioning rule inventory resolves Media semantics while identifying implementation and external evidence separately
   ---
-  duration_ms: 0.079333
+  duration_ms: 0.198416
   type: 'test'
   ...
 # Subtest: the 21 proposal-scope object records have bounded source-backed logical definitions without scope-status promotion
 ok 22 - the 21 proposal-scope object records have bounded source-backed logical definitions without scope-status promotion
   ---
-  duration_ms: 4.278625
+  duration_ms: 6.335084
   type: 'test'
   ...
 # Subtest: PDP-1 versioning statuses classify definition meaning separately from deferred runtime and owner evidence
 ok 23 - PDP-1 versioning statuses classify definition meaning separately from deferred runtime and owner evidence
   ---
-  duration_ms: 1.306875
+  duration_ms: 3.202416
   type: 'test'
   ...
 1..23
@@ -145,4 +145,4 @@ ok 23 - PDP-1 versioning statuses classify definition meaning separately from de
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 3873.998334
+# duration_ms 6765.096584

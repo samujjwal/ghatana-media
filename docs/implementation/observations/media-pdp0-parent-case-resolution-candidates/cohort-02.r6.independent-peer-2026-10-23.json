@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "media.pdp0.parent-case-r6-independent-peer.v1",
+  "artifactId": "MEDIA-PDP0-P0-07-COHORT-02-R6-INDEPENDENT-PEER-2026-10-23",
+  "reviewStatus": "REQUEST_CHANGES",
+  "reviewKind": "INDEPENDENT_READ_ONLY_SOURCE_CONTENT_AND_VALIDATOR_REVIEW",
+  "reviewer": {
+    "role": "DISTINCT_SOURCE_CONTENT_PEER",
+    "identityKind": "codex-thread",
+    "fullThreadId": "01a16a6c-df0b-7601-bddf-9153395d37a4",
+    "hostId": "local",
+    "identityBasis": "Actual full thread identity for this review; no alias or shortened identifier used."
+  },
+  "campaign": {
+    "repository": "ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "surfaceSet": [
+      "cohort-02 R6 semantic-case source amendment proposal",
+      "media-pdp0-semantic-case-batch-projector source and peer workflow validation"
+    ],
+    "campaignDenominator": {
+      "identityCount": 54,
+      "physicalLeafCount": 26,
+      "compositeCount": 7,
+      "logicalSurfaceCount": 21,
+      "cohort02ResidualRows": 77,
+      "cohort02ResidualDenominator": 231
+    },
+    "phaseStatus": "IN_PROGRESS",
+    "canonicalApply": "NOT_PERFORMED"
+  },
+  "sourceBaseline": {
+    "cohort02R6Proposal": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.json",
+      "sha256": "a4c7e7d2d23a4c0c23684a65d557ec944164ed1fb0abee0b664adededccfa963"
+    },
+    "candidate": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.r6.json",
+      "sha256": "20e35fed855f6b5e8a56fb25539804b43e92a07097f5500d043bd33bab815812"
+    },
+    "postimagesManifest": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.r6.json",
+      "sha256": "57e0f04d7a2ac281c5baeb6c08826ee878db2199e91de2df5e0c77f24bb92db2"
+    },
+    "capabilitiesPostimage": {
+      "path": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capabilities-file-postimage.v6.yaml",
+      "sha256": "7be8b38c925cb25a1287e0eccd378fb3ee98d0b04de610feaf2e0d7e80dffc57"
+    },
+    "requirementsPreimageAndPostimage": {
+      "path": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+    },
+    "capabilitiesPreimage": {
+      "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac"
+    },
+    "phaseStatus": {
+      "path": "docs/implementation/pdp-0-phase-dev-status.json",
+      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+    },
+    "projector": {
+      "path": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+      "sha256": "d773deee853a269399724fe2c08e3941833d5b5fd4e6adc745d6784c6246d626"
+    },
+    "projectorTests": {
+      "path": "tests/media-pdp0-semantic-case-batch-projector.test.mjs",
+      "sha256": "c28bcc61a6102f7929f8ae673854c89f2fb65d406fa91119b67283839e751276"
+    },
+    "sourcePeerRegressionTests": {
+      "path": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+      "sha256": "bc0f5b3d05c3ef31c0845710e73b2d6f2d1cbb2d8db8a486df4cc951ff9523f3"
+    },
+    "r6AmendmentTests": {
+      "path": "tests/media-pdp0-cohort02-r6-amendment.test.mjs",
+      "sha256": "8bf20162e9f4c7a49ab4a40933467ad108b82e1c539f8e3258b2b56fa5405f7a"
+    },
+    "predecessorR5Peer": {
+      "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r5.independent-typed-source-peer.v1.json",
+      "sha256": "9d5aff6e2c49f047103ea26251342bd5b896857540472e997b74ff925d266ac1"
+    }
+  },
+  "r6ContentReview": {
+    "result": "SOURCE_CONTENT_FINDINGS_ADDRESSED; ROOT_CHOICES_REMAIN_PENDING",
+    "predecessorR5Findings": {
+      "total": 25,
+      "addressed": 25,
+      "byFinding": {
+        "POSTIMAGE_CASE_REFERENCE_INDEX_MISMATCH": 8,
+        "PARENT_REQUIREMENT_NOT_DIRECTLY_BOUND_TO_TARGET_CAPABILITY": 7,
+        "SOURCE_CRITERION_MISMATCH_FOR_IMPORT_OPERATION": 1,
+        "SOURCE_OWNER_FIELD_MISMATCH": 9
+      },
+      "evidence": "The R6 candidate carries the corrected 8 case indexes, 7 direct requirement bindings, the import-specific criterion disposition, and 9 source-owner role fields. Independent comparison of 60 positive/negative feature pairs against live capability source and the v6 capability postimage found exact target operation, typed inputs, success outputs, non-success outputs, errors, required authority, explicit unsupported cases, and direct requirement-to-capability bindings. All 120 case selectors resolve to the intended postimage cases."
+    },
+    "counts": {
+      "cohortRows": 77,
+      "r5PeerRequestChangesRows": 21,
+      "featureRows": 44,
+      "distinctRebindRows": 9,
+      "rebindTargetOperations": 16,
+      "featureCasePairs": 60,
+      "capabilityCaseRecordAdditions": 120,
+      "rootChoicesPending": 11,
+      "historicalLeafAdjudicationsPreserved": 462
+    },
+    "rootAuthorityRecords": "Nine missing-meaning options are role-bound to the PDP-0 semanticOwner entry and anchored PXD decision workflow, but adoption remains UNKNOWN and no option is selected. Two overlap cases remain explicit unresolved root choices. No root definition was applied.",
+    "sourceWriteBoundary": "Candidate declares canonicalApply NOT_PERFORMED. Live canonical capability and requirement source bytes remain the pinned preimages."
+  },
+  "findings": [
+    {
+      "findingId": "PDP0-BATCH-PEER-IDENTITY-001",
+      "severity": "P1",
+      "title": "Peer reviewer identity is self-asserted rather than resolved to a trusted distinct principal",
+      "exactWhere": [
+        {
+          "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+          "lines": [431, 432]
+        },
+        {
+          "file": "tests/media-pdp0-semantic-case-batch-projector.test.mjs",
+          "lines": [141, 145]
+        }
+      ],
+      "evidence": "The validator requires only a role string, a nonempty reviewer.identity string, and inequality with the source-owner role. It does not resolve that identity against a trusted reviewer registry, assigned review workflow, or other authentic source-bound peer record. The passing three-batch test supplies the unregistered literal peer-workflow-test-2, which satisfies the gate. The error says registered review principal, but no registration check is present.",
+      "impact": "Caller-authored peer JSON can claim PASS under a fabricated identity. The source semantics and row bindings may be correct, but the projector cannot establish that a distinct reviewer actually performed the review. This prevents treating a generated PASS record as genuine independent peer acceptance.",
+      "repair": "Resolve reviewer identity and review assignment from an authoritative peer workflow or registry; bind that trusted principal and its review record to the exact candidate bytes, source pins, and postimage hashes. Reject unregistered identities and candidate-author self-review.",
+      "acceptanceCriterion": "An arbitrary nonempty identity such as peer-workflow-test-2 is rejected unless a distinct, trusted workflow record resolves it and binds the exact candidate; a genuine registered reviewer remains accepted.",
+      "predecessor": "PDP0-BATCH-PEER-AUTHORITY-001 from the 2026-10-23 independent projector review remains unresolved for the distinct-peer half.",
+      "nextAction": "Repair peer identity resolution before relying on this projector to produce or consume a genuine peer PASS."
+    },
+    {
+      "findingId": "PDP0-BATCH-SOURCE-PEER-REGRESSION-002",
+      "severity": "P2",
+      "title": "Source-peer regression cases do not isolate their stated acceptance behavior",
+      "exactWhere": [
+        {
+          "file": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+          "lines": [112, 119]
+        },
+        {
+          "file": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
+          "lines": [141, 178]
+        }
+      ],
+      "evidence": "The positive fixture is rejected before review validation because its case lacks the exact semanticBinding required by the hardened projector. The malformed-R4 batch is rejected by the hardened exact live-contract guard, but the test expects an obsolete error string. The forged-authority case also fails at that earlier semanticBinding guard, so it does not demonstrate rejection at the owner/peer workflow boundary.",
+      "impact": "The suite does not provide a passing source-backed positive control or an isolated forged-authority regression. The R4 malformed input is rejected in execution, but its assertion is stale. These failures reduce confidence in the claimed test coverage without negating the observed R6 source-content repairs.",
+      "repair": "Update the positive fixture to include exact live semantic bindings; assert malformed R4 rejection by behavior or the current guard message; make the forged-authority fixture otherwise semantically valid so the test reaches and exercises the authority gate.",
+      "acceptanceCriterion": "All three tests pass and prove, respectively, a valid live projection, rejection of malformed R4 cases, and rejection specifically at the owner/peer workflow validation stage."
+    }
+  ],
+  "testEvidence": {
+    "command": "node --test tests/media-pdp0-semantic-case-batch-projector.test.mjs tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs tests/media-pdp0-cohort02-r6-amendment.test.mjs",
+    "passed": 5,
+    "failed": 3,
+    "details": [
+      "R6 amendment test passes: all 25 R5 findings are addressed without owner adoption or source writes.",
+      "Three-batch source-pinned projection and existing negative semantic/workflow checks pass.",
+      "Source-peer positive fixture fails before authority review because it lacks exact live semanticBinding.",
+      "Malformed R4 input is rejected by the exact live-contract guard; only the expected error regex is stale.",
+      "Forged-authority fixture fails before authority review due to the same invalid semanticBinding, so it does not independently prove authority rejection."
+    ]
+  },
+  "stageClaims": {
+    "workPerformed": "Read-only R6 source-content review and focused validator/test review.",
+    "authoringComplete": false,
+    "nativeClosure": false,
+    "independentAcceptance": false,
+    "releaseQualification": false,
+    "canonicalSourceWrites": false
+  },
+  "surfacePhaseMatrix": [
+    {
+      "surfaceId": "cohort-02 semantic case resolution proposal",
+      "type": "PDP-0 logical/source-definition cohort",
+      "pdpPhaseApplicability": "PDP-0 applicable; later PDP phases not reviewed in this turn",
+      "sourceCurrentStatus": "R6 input pins verified; phase status remains IN_PROGRESS; canonical application not performed",
+      "remainingPhaseLocalTasks": ["11 root choices pending", "P1 peer identity trust-boundary finding", "P2 source-peer regression fixture repair"] ,
+      "blockerOwner": "PDP-0 semantic owner for root choices; projector owner for peer identity and regression repairs",
+      "acceptanceCriteria": "Resolve 11 root choices through actual owner-controlled records; resolve peer identities to trusted distinct review records; pass focused tests with isolated valid controls.",
+      "nextLegalAction": "Continue PDP-0 definition and review work; no Build or source apply implied."
+    }
+  ],
+  "gateSummary": {
+    "discoveryBarrier": "UNKNOWN",
+    "buildLane": "NOT_REVIEWED; no Build eligibility inferred",
+    "pdpClosureLane": "NOT_ENTERED; no closure or owner acceptance asserted",
+    "deliveryGate": "NOT_ENTERED",
+    "nextAllowedPhase": "PDP-0 Product Truth, earliest unfinished applicable Discovery phase"
+  },
+  "nonClaims": [
+    "No canonical source apply was performed.",
+    "The actual thread identifier records reviewer context but does not itself cryptographically authenticate a human or substitute for trusted peer workflow resolution.",
+    "This report is not owner adoption, independent acceptance, native PDP closure, Build completion, or release qualification."
+  ]
+}

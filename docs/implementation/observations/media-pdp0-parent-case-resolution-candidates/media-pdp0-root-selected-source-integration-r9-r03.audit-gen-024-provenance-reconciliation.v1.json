@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "media.pdp0.r9-r03.audit-gen-024-provenance-reconciliation.v1",
+  "artifactId": "MEDIA-PDP0-R9-R03-AUD-GEN-024-REVIEW-PROVENANCE-RECONCILIATION-2026-10-23",
+  "status": "CANDIDATE_REVIEW_PROVENANCE_ONLY",
+  "scope": "AUD-GEN-024 only",
+  "priorR7PeerReview": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.independent-peer.source-peer-r2.json",
+    "sha256": "050ea65fd71736ef782f598992d7a0f47721b95d54131c1bd09c8486ae3417fa",
+    "diagnostic": "licenseAndPlacementSeparate=false",
+    "disposition": "findings=[] and PASS/no-findings diagnostics present in the referenced review"
+  },
+  "currentHReview": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.independent-peer.actual-h-r02-full.json",
+    "sha256": "c215cd3937c401fa5c4252ce86af3bbb25f644aebaa9b584d5c9f45660c19a7c",
+    "findingId": "F-05",
+    "disposition": "REQUEST_CHANGES",
+    "finding": "success outputs lack observable evidence/policy, provider binding and placement values; positive case lacks a concrete mixed-axis combination"
+  },
+  "reconciliation": "The earlier R7 diagnostic is retained as historical evidence. Its PASS/no-findings disposition is inconsistent with its own licenseAndPlacementSeparate=false diagnostic and with current H finding F-05. R9-R03 supersedes only the prior AUD-GEN-024 disposition for this narrow semantic question; it does not alter the R7 review, broaden its scope, claim a source-owner decision, or establish adoption or acceptance.",
+  "repairEvidence": {
+    "candidateBundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r03.successor-bundle.candidate.v1.json",
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r03.freeze.v1.json",
+    "findingId": "F-05",
+    "canonicalApply": "NONE",
+    "phaseStatusEffect": "NONE"
+  }
+}

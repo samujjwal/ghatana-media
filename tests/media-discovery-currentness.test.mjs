@@ -556,16 +556,16 @@ test('stable changed cell paths stay unknown despite caller-supplied authorizati
   assert.deepEqual(stable.cells[0].changedPaths, []);
 });
 
-test('PDP-0 resolver binds the authoritative 26/6+1/17 inventory without losing applicability details', () => {
+test('PDP-0 resolver binds the current topology and registry inventory without losing applicability details', () => {
   const resolved = resolveMediaPdp0Cells(process.cwd(), dimensions);
   assert.deepEqual(resolved.denominator, {
     physicalCandidates: 26,
     semanticCompositions: 6,
     repositoryRoots: 1,
-    consumers: 17,
-    totalCells: 50,
+    consumers: 21,
+    totalCells: 54,
   });
-  assert.equal(new Set(resolved.cells.map((cell) => cell.cellId)).size, 50);
+  assert.equal(new Set(resolved.cells.map((cell) => cell.cellId)).size, 54);
   assert.equal(resolved.cells.every((cell) => cell.phase === 'PDP-0' && cell.paths.includes(resolved.basis.ownerDecision)), true);
 
   const byId = new Map(resolved.cells.map((cell) => [cell.surfaceId, cell]));

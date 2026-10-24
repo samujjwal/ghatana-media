@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.root-selected-source-integration.r9-r08.technical-source-role-revocations.v1",
+  "title": "R9-R08 technical source role delegation revocations",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "recordKind", "revision", "revokedDelegationIds", "updatedAt"],
+  "properties": {
+    "schemaVersion": {"const": "media.pdp0.root-selected-source-integration.r9-r08.technical-source-role-revocations.v1"},
+    "recordKind": {"const": "OWNER_MAINTAINED_TECHNICAL_SOURCE_ROLE_REVOCATION_REGISTER"},
+    "revision": {"type": "integer", "minimum": 0},
+    "revokedDelegationIds": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "updatedAt": {"type": "string", "format": "date-time"}
+  }
+}

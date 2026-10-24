@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "media.pdp0.root-selected-source-integration-r9-r07.root-application-plan.v1",
+  "planKind": "READ_ONLY_EXACT_R9_R07_OWNER_APPLICATION_PACKAGE",
+  "disposition": "READY_FOR_OWNER_DECISIONS_AND_APPLY_AUTHORIZATION",
+  "profile": {
+    "id": "media.pdp0.root-selected-source-integration.r9-r07.source-owner.v1",
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.successor-bundle.candidate.v1.json",
+    "candidateSha256": "a4ed01253c422b3044ec415d9e065ddf9de6a373307c0b4e1f5284fef99669cb",
+    "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.freeze.v1.json",
+    "freezeSha256": "3d85b88e11d0c037f806696d888c4d5e76cf97fd6dd989e3603ad5a9bca4cc4a",
+    "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.independent-peer.actual-h-r07-full.json",
+    "actualHReviewSha256": "e7abc9e67237494a974997dca8a5fe0b664b5eb9e3fd78057d14f95a0eb08d3c",
+    "operationLedgerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
+    "operationLedgerSha256": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8",
+    "operationSchemaRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.allowed-operations.schema.candidate.v1.json",
+    "operationSchemaSha256": "619548ce011fee7b1825817170dacb0782f1597278559813fbbc9b82ab59b066"
+  },
+  "directPrerequisiteChecks": {
+    "candidateFreezeBinding": true,
+    "exactFullReview": true,
+    "hReviewIdentityIsIndependentTechnicalPeer": true,
+    "sevenLivePreimages": true,
+    "fourPostimages": true,
+    "operationPins": true,
+    "fixedTargetSet": true,
+    "candidateNotApplied": true
+  },
+  "directCheckFailures": [],
+  "sourceReadSet": {
+    "count": 7,
+    "preimages": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "observedLiveSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "observedLiveSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "observedLiveSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "observedLiveSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "observedLiveSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "observedLiveSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "observedLiveSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+      }
+    ],
+    "allMatch": true
+  },
+  "selectedTargets": {
+    "count": 4,
+    "rows": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.split.capabilities.postimage.yaml",
+        "preimageSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "postimageSha256": "3fa48a2a84d96acfef798193646007365eedbdee2a7482fa8e8912da23cfa18e",
+        "observedPostimageSha256": "3fa48a2a84d96acfef798193646007365eedbdee2a7482fa8e8912da23cfa18e"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.split.requirements.postimage.yaml",
+        "preimageSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "postimageSha256": "a6d892f87847b56bc601efd4cba2e85a763840f082b991d282fbbd408a2e4508",
+        "observedPostimageSha256": "a6d892f87847b56bc601efd4cba2e85a763840f082b991d282fbbd408a2e4508"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.split.capability-leaf-review.postimage.yaml",
+        "preimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "postimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "observedPostimageSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.split.pdp0-501-disposition-crosswalk.postimage.json",
+        "preimageSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "postimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672",
+        "observedPostimageSha256": "b2a266e6cc75c594de11de4262ede50dc51d7c59bc3224c63c78922266ec5672"
+      }
+    ],
+    "readOnlyGuardCount": 3
+  },
+  "requiredAuthorityRecordShapes": {
+    "owner": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.source-owner-decision.schema.v1.json",
+      "schemaId": "media.pdp0.root-selected-source-integration-r9-r07.owner.v1",
+      "status": "SCHEMA_CANDIDATE_NOT_REGISTERED"
+    },
+    "root": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.root-adoption-decision.schema.v1.json",
+      "schemaId": "media.pdp0.root-selected-source-integration-r9-r07.root.v1",
+      "status": "SCHEMA_CANDIDATE_NOT_REGISTERED"
+    },
+    "registration": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.operation-profile-registration.schema.v1.json",
+      "schemaId": "media.pdp0.root-selected-source-integration-r9-r07.registration.v1",
+      "status": "SCHEMA_CANDIDATE_NOT_REGISTERED"
+    },
+    "apply": {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.apply-authorization.schema.v1.json",
+      "schemaId": "media.pdp0.root-selected-source-integration-r9-r07.apply.v1",
+      "status": "SCHEMA_CANDIDATE_NOT_REGISTERED"
+    }
+  },
+  "authorityInputs": [
+    {
+      "kind": "sourceOwnerDecision",
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.source-owner-decision.v1.json",
+      "status": "NOT_RECORDED"
+    },
+    {
+      "kind": "rootAdoptionDecision",
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.root-adoption-decision.v1.json",
+      "status": "NOT_RECORDED"
+    },
+    {
+      "kind": "profileRegistration",
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.operation-profile-registration.v1.json",
+      "status": "NOT_RECORDED"
+    },
+    {
+      "kind": "applyAuthorization",
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.apply-authorization.v1.json",
+      "status": "NOT_RECORDED"
+    }
+  ],
+  "authorityPrerequisitesPass": false,
+  "phaseDiagnostic": {
+    "status": "IN_PROGRESS",
+    "statusRef": "docs/implementation/pdp-0-phase-dev-status.json",
+    "statusSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "staleLiveSourcePins": 9,
+    "missingLiveSourcePins": 21,
+    "campaignDenominator": {
+      "registeredIdentities": 54,
+      "phaseCells": 216
+    },
+    "discoveryBarrier": "FAIL",
+    "role": "AGGREGATE_CAMPAIGN_DIAGNOSTIC_ONLY",
+    "blocksScopedPDP0SourceAuthoring": false,
+    "blocksExactApplication": false
+  },
+  "applicationPrerequisites": {
+    "scopedSourceCurrentness": "EXACT_SEVEN_PREIMAGE_AND_FOUR_POSTIMAGE_GUARDS",
+    "independentReview": true,
+    "ownerRootProfileAndApplyRecords": false,
+    "aggregatePdp0DiscoveryCurrentness": "NOT_A_SCOPED_SOURCE_APPLICATION_PREREQUISITE"
+  },
+  "canonicalApply": "NONE",
+  "phaseStatusEffect": "NONE",
+  "transition": {
+    "next": "Obtain authentic source-owner adoption/decline decision, separate root adoption, profile registration, and distinct apply authorization; then implement/use the fixed R9-R07 CAS writer only after its full live validator passes."
+  },
+  "authorityIdentities": "UNRESOLVED_AND_MUST_BE_SUPPLIED_BY_AUTHENTIC_AUTHORITIES"
+}

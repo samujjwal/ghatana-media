@@ -1,0 +1,3041 @@
+{
+  "schemaVersion": "media.pdp0.case-batch-integration-fixture-proposal.v1",
+  "artifactId": "MEDIA-PDP0-231-CASE-BATCH-FIXTURE-PROPOSAL-2026-10-23",
+  "status": "PROPOSAL_ONLY_NO_APPLY",
+  "campaignDenominator": 231,
+  "membershipAuthority": {
+    "path": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-pdp0-resolution-cohort-assignments.json",
+    "sha256": "b3157a9eece4016ddbd3e32bb37ff5a1f771c618960815fd60c6c4ce17843fd1",
+    "recordKind": "COORDINATION_VIEW_NOT_PRODUCT_AUTHORITY"
+  },
+  "sourceRoot": {
+    "freezeManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json",
+    "freezeManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54",
+    "candidateOnlyStatus": "CANDIDATE_ONLY_PENDING_DISTINCT_TECHNICAL_PEER_AND_ROOT_SOURCE_OWNER_REVIEW",
+    "canonicalApply": "NOT_PERFORMED",
+    "exactSixPostimages": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capabilities-file-postimage.v6.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-requirements-file-postimage.v6.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-crosswalk-postimage.v6.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-capability-leaf-review-postimage.v6.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-campaign-extensions-postimage.v6.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-decision-log-postimage.v6.md",
+        "sha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d"
+      }
+    ]
+  },
+  "cohorts": [
+    {
+      "cohort": 1,
+      "peerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r5.independent-typed-source-peer.json",
+      "peerSha256": "6a0cb74a45e0079a5e167fb12ae7df034bc930a19a3af88bb2e6cf246dee6f3b",
+      "peerPassAuditIds": [
+        "AUD-ASR-001",
+        "AUD-ASR-002",
+        "AUD-ASR-003",
+        "AUD-ASR-004",
+        "AUD-ASR-005",
+        "AUD-ASR-006",
+        "AUD-ASR-007",
+        "AUD-ASR-008",
+        "AUD-ASR-013",
+        "AUD-ASR-014",
+        "AUD-ASR-016",
+        "AUD-ASR-018",
+        "AUD-ASR-019",
+        "AUD-ASR-020",
+        "AUD-ASSET-001",
+        "AUD-ASSET-002",
+        "AUD-ASSET-007",
+        "AUD-ASSET-008",
+        "AUD-ASSET-011",
+        "AUD-ASSET-014",
+        "AUD-ASSET-015",
+        "AUD-ASSET-016",
+        "AUD-CAP-011",
+        "AUD-CAP-013",
+        "AUD-CAP-016",
+        "AUD-CAP-018",
+        "AUD-CAP-019",
+        "AUD-CAP-027",
+        "AUD-CLONE-003",
+        "AUD-CLONE-005",
+        "AUD-CLONE-007",
+        "AUD-COLLAB-001",
+        "AUD-COLLAB-002",
+        "AUD-COLLAB-003",
+        "AUD-COLLAB-005",
+        "AUD-COLLAB-006",
+        "AUD-COLLAB-007",
+        "AUD-COLLAB-008",
+        "AUD-COLLAB-010",
+        "AUD-COLLAB-011",
+        "AUD-COLLAB-012",
+        "AUD-COLLAB-013",
+        "AUD-COLOR-001",
+        "AUD-COLOR-002",
+        "AUD-COLOR-003",
+        "AUD-COLOR-004",
+        "AUD-COLOR-005",
+        "AUD-COLOR-006",
+        "AUD-COLOR-008",
+        "AUD-COLOR-009",
+        "AUD-COLOR-010",
+        "AUD-COLOR-011",
+        "AUD-COLOR-012",
+        "AUD-COLOR-013",
+        "AUD-COLOR-014",
+        "AUD-COLOR-015",
+        "AUD-COLOR-016",
+        "AUD-COLOR-017",
+        "AUD-DELIV-001",
+        "AUD-DELIV-002",
+        "AUD-DELIV-003",
+        "AUD-DELIV-004",
+        "AUD-DELIV-005",
+        "AUD-DELIV-006",
+        "AUD-DELIV-009",
+        "AUD-DELIV-010",
+        "AUD-DELIV-011",
+        "AUD-DELIV-012",
+        "AUD-DELIV-013",
+        "AUD-DELIV-014",
+        "AUD-DELIV-015"
+      ],
+      "peerUnknownAuditIds": [
+        "AUD-CAP-028",
+        "AUD-CLONE-004",
+        "AUD-CLONE-006",
+        "AUD-CLONE-017",
+        "AUD-COLOR-007",
+        "AUD-DELIV-007"
+      ],
+      "pendingCaseRows": [],
+      "expectedAuditIds": [
+        "AUD-ASR-001",
+        "AUD-ASR-002",
+        "AUD-ASR-003",
+        "AUD-ASR-004",
+        "AUD-ASR-005",
+        "AUD-ASR-006",
+        "AUD-ASR-007",
+        "AUD-ASR-008",
+        "AUD-ASR-013",
+        "AUD-ASR-014",
+        "AUD-ASR-016",
+        "AUD-ASR-018",
+        "AUD-ASR-019",
+        "AUD-ASR-020",
+        "AUD-ASSET-001",
+        "AUD-ASSET-002",
+        "AUD-ASSET-007",
+        "AUD-ASSET-008",
+        "AUD-ASSET-011",
+        "AUD-ASSET-014",
+        "AUD-ASSET-015",
+        "AUD-ASSET-016",
+        "AUD-CAP-011",
+        "AUD-CAP-013",
+        "AUD-CAP-016",
+        "AUD-CAP-018",
+        "AUD-CAP-019",
+        "AUD-CAP-027",
+        "AUD-CAP-028",
+        "AUD-CLONE-003",
+        "AUD-CLONE-004",
+        "AUD-CLONE-005",
+        "AUD-CLONE-006",
+        "AUD-CLONE-007",
+        "AUD-CLONE-017",
+        "AUD-COLLAB-001",
+        "AUD-COLLAB-002",
+        "AUD-COLLAB-003",
+        "AUD-COLLAB-005",
+        "AUD-COLLAB-006",
+        "AUD-COLLAB-007",
+        "AUD-COLLAB-008",
+        "AUD-COLLAB-010",
+        "AUD-COLLAB-011",
+        "AUD-COLLAB-012",
+        "AUD-COLLAB-013",
+        "AUD-COLOR-001",
+        "AUD-COLOR-002",
+        "AUD-COLOR-003",
+        "AUD-COLOR-004",
+        "AUD-COLOR-005",
+        "AUD-COLOR-006",
+        "AUD-COLOR-007",
+        "AUD-COLOR-008",
+        "AUD-COLOR-009",
+        "AUD-COLOR-010",
+        "AUD-COLOR-011",
+        "AUD-COLOR-012",
+        "AUD-COLOR-013",
+        "AUD-COLOR-014",
+        "AUD-COLOR-015",
+        "AUD-COLOR-016",
+        "AUD-COLOR-017",
+        "AUD-DELIV-001",
+        "AUD-DELIV-002",
+        "AUD-DELIV-003",
+        "AUD-DELIV-004",
+        "AUD-DELIV-005",
+        "AUD-DELIV-006",
+        "AUD-DELIV-007",
+        "AUD-DELIV-009",
+        "AUD-DELIV-010",
+        "AUD-DELIV-011",
+        "AUD-DELIV-012",
+        "AUD-DELIV-013",
+        "AUD-DELIV-014",
+        "AUD-DELIV-015"
+      ],
+      "mergeReadyCaseRecords": [
+        {
+          "auditId": "AUD-ASR-003",
+          "operationIds": [
+            "c1-001",
+            "c1-002",
+            "c1-045",
+            "c1-046"
+          ]
+        },
+        {
+          "auditId": "AUD-ASR-020",
+          "operationIds": [
+            "c1-003",
+            "c1-004",
+            "c1-047",
+            "c1-048"
+          ]
+        },
+        {
+          "auditId": "AUD-ASSET-015",
+          "operationIds": [
+            "c1-005",
+            "c1-006",
+            "c1-049",
+            "c1-050"
+          ]
+        },
+        {
+          "auditId": "AUD-ASSET-016",
+          "operationIds": [
+            "c1-007",
+            "c1-008",
+            "c1-051",
+            "c1-052"
+          ]
+        },
+        {
+          "auditId": "AUD-CLONE-005",
+          "operationIds": [
+            "c1-009",
+            "c1-010",
+            "c1-053",
+            "c1-054"
+          ]
+        },
+        {
+          "auditId": "AUD-CLONE-007",
+          "operationIds": [
+            "c1-011",
+            "c1-012",
+            "c1-055",
+            "c1-056"
+          ]
+        },
+        {
+          "auditId": "AUD-COLLAB-002",
+          "operationIds": [
+            "c1-013",
+            "c1-014",
+            "c1-057",
+            "c1-058"
+          ]
+        },
+        {
+          "auditId": "AUD-COLLAB-003",
+          "operationIds": [
+            "c1-027",
+            "c1-028",
+            "c1-029",
+            "c1-030",
+            "c1-073",
+            "c1-074",
+            "c1-075",
+            "c1-076"
+          ]
+        },
+        {
+          "auditId": "AUD-COLLAB-007",
+          "operationIds": [
+            "c1-015",
+            "c1-016",
+            "c1-059",
+            "c1-060"
+          ]
+        },
+        {
+          "auditId": "AUD-COLLAB-008",
+          "operationIds": [
+            "c1-017",
+            "c1-018",
+            "c1-061",
+            "c1-062"
+          ]
+        },
+        {
+          "auditId": "AUD-COLLAB-011",
+          "operationIds": [
+            "c1-019",
+            "c1-020",
+            "c1-063",
+            "c1-064"
+          ]
+        },
+        {
+          "auditId": "AUD-COLOR-001",
+          "operationIds": [
+            "c1-071",
+            "c1-072"
+          ]
+        },
+        {
+          "auditId": "AUD-COLOR-002",
+          "operationIds": [
+            "c1-021",
+            "c1-022",
+            "c1-065",
+            "c1-066"
+          ]
+        },
+        {
+          "auditId": "AUD-COLOR-010",
+          "operationIds": [
+            "c1-031",
+            "c1-032",
+            "c1-033",
+            "c1-034",
+            "c1-077",
+            "c1-078",
+            "c1-079",
+            "c1-080"
+          ]
+        },
+        {
+          "auditId": "AUD-DELIV-001",
+          "operationIds": [
+            "c1-023",
+            "c1-024",
+            "c1-067",
+            "c1-068"
+          ]
+        },
+        {
+          "auditId": "AUD-DELIV-002",
+          "operationIds": [
+            "c1-025",
+            "c1-026",
+            "c1-069",
+            "c1-070"
+          ]
+        },
+        {
+          "auditId": "AUD-DELIV-013",
+          "operationIds": [
+            "c1-035",
+            "c1-036",
+            "c1-037",
+            "c1-038",
+            "c1-039",
+            "c1-040",
+            "c1-081",
+            "c1-082",
+            "c1-083",
+            "c1-084",
+            "c1-085",
+            "c1-086"
+          ]
+        },
+        {
+          "auditId": "AUD-DELIV-015",
+          "operationIds": [
+            "c1-041",
+            "c1-042",
+            "c1-043",
+            "c1-044",
+            "c1-087",
+            "c1-088",
+            "c1-089",
+            "c1-090"
+          ]
+        }
+      ],
+      "caseIntegrationStatus": "PURE_PROJECTED_WITH_EXACT_V7_SOURCE_BINDING; OWNER_DECISION_PENDING",
+      "projectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+      "projectedOperationCount": 90,
+      "peerApprovedCaseRecordsAwaitingProjectorSemanticBinding": []
+    },
+    {
+      "cohort": 2,
+      "peerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.independent-peer-2026-10-23.json",
+      "peerSha256": "7551b0367917e71ef1874a93bdc9b8b10450c83a97cc4b939a453c7f7234680c",
+      "r6Ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.json",
+      "r6Sha256": "a4c7e7d2d23a4c0c23684a65d557ec944164ed1fb0abee0b664adededccfa963",
+      "r6IndependentPeerStatus": "REQUEST_CHANGES_PROJECTOR_FINDING_ONLY",
+      "mergeReadyCaseRecords": [
+        {
+          "auditId": "AUD-DELIV-016",
+          "operationIds": [
+            "c2-091",
+            "c2-092",
+            "c2-093",
+            "c2-094"
+          ]
+        },
+        {
+          "auditId": "AUD-DELIV-017",
+          "operationIds": [
+            "c2-095",
+            "c2-096"
+          ]
+        },
+        {
+          "auditId": "AUD-DELIV-018",
+          "operationIds": [
+            "c2-097",
+            "c2-098"
+          ]
+        },
+        {
+          "auditId": "AUD-DELIV-020",
+          "operationIds": [
+            "c2-099",
+            "c2-100",
+            "c2-101",
+            "c2-102"
+          ]
+        },
+        {
+          "auditId": "AUD-DELIV-023",
+          "operationIds": [
+            "c2-103",
+            "c2-104"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-004",
+          "operationIds": [
+            "c2-105",
+            "c2-106"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-005",
+          "operationIds": [
+            "c2-107",
+            "c2-108"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-006",
+          "operationIds": [
+            "c2-109",
+            "c2-110"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-009",
+          "operationIds": [
+            "c2-111",
+            "c2-112"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-010",
+          "operationIds": [
+            "c2-113",
+            "c2-114"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-011",
+          "operationIds": [
+            "c2-115",
+            "c2-116"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-012",
+          "operationIds": [
+            "c2-117",
+            "c2-118"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-013",
+          "operationIds": [
+            "c2-119",
+            "c2-120",
+            "c2-121",
+            "c2-122"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-015",
+          "operationIds": [
+            "c2-123",
+            "c2-124"
+          ]
+        },
+        {
+          "auditId": "AUD-DSP-017",
+          "operationIds": [
+            "c2-125",
+            "c2-126"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-001",
+          "operationIds": [
+            "c2-127",
+            "c2-128"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-004",
+          "operationIds": [
+            "c2-129",
+            "c2-130"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-005",
+          "operationIds": [
+            "c2-131",
+            "c2-132"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-006",
+          "operationIds": [
+            "c2-133",
+            "c2-134"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-007",
+          "operationIds": [
+            "c2-135",
+            "c2-136"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-008",
+          "operationIds": [
+            "c2-137",
+            "c2-138"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-009",
+          "operationIds": [
+            "c2-139",
+            "c2-140"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-011",
+          "operationIds": [
+            "c2-141",
+            "c2-142"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-013",
+          "operationIds": [
+            "c2-143",
+            "c2-144"
+          ]
+        },
+        {
+          "auditId": "AUD-DUB-016",
+          "operationIds": [
+            "c2-145",
+            "c2-146"
+          ]
+        },
+        {
+          "auditId": "AUD-EDIT-011",
+          "operationIds": [
+            "c2-147",
+            "c2-148"
+          ]
+        },
+        {
+          "auditId": "AUD-EDIT-012",
+          "operationIds": [
+            "c2-149",
+            "c2-150"
+          ]
+        },
+        {
+          "auditId": "AUD-EDIT-019",
+          "operationIds": [
+            "c2-151",
+            "c2-152",
+            "c2-153",
+            "c2-154"
+          ]
+        },
+        {
+          "auditId": "AUD-EDIT-026",
+          "operationIds": [
+            "c2-155",
+            "c2-156"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-001",
+          "operationIds": [
+            "c2-157",
+            "c2-158"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-002",
+          "operationIds": [
+            "c2-159",
+            "c2-160",
+            "c2-161",
+            "c2-162"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-003",
+          "operationIds": [
+            "c2-163",
+            "c2-164",
+            "c2-165",
+            "c2-166"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-004",
+          "operationIds": [
+            "c2-167",
+            "c2-168"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-005",
+          "operationIds": [
+            "c2-169",
+            "c2-170"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-006",
+          "operationIds": [
+            "c2-171",
+            "c2-172"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-007",
+          "operationIds": [
+            "c2-173",
+            "c2-174"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-008",
+          "operationIds": [
+            "c2-175",
+            "c2-176"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-011",
+          "operationIds": [
+            "c2-177",
+            "c2-178"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-012",
+          "operationIds": [
+            "c2-179",
+            "c2-180"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-016",
+          "operationIds": [
+            "c2-181",
+            "c2-182"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-017",
+          "operationIds": [
+            "c2-183",
+            "c2-184"
+          ]
+        },
+        {
+          "auditId": "AUD-GEN-018",
+          "operationIds": [
+            "c2-185",
+            "c2-186"
+          ]
+        },
+        {
+          "auditId": "AUD-INTER-002",
+          "operationIds": [
+            "c2-187",
+            "c2-188",
+            "c2-189",
+            "c2-190"
+          ]
+        },
+        {
+          "auditId": "AUD-MOTION-002",
+          "operationIds": [
+            "c2-191",
+            "c2-192"
+          ]
+        },
+        {
+          "auditId": "AUD-MOTION-006",
+          "operationIds": [
+            "c2-193",
+            "c2-194"
+          ]
+        },
+        {
+          "auditId": "AUD-MOTION-011",
+          "operationIds": [
+            "c2-195",
+            "c2-196"
+          ]
+        },
+        {
+          "auditId": "AUD-MOTION-016",
+          "operationIds": [
+            "c2-197",
+            "c2-198"
+          ]
+        },
+        {
+          "auditId": "AUD-MUSIC-001",
+          "operationIds": [
+            "c2-199",
+            "c2-200"
+          ]
+        },
+        {
+          "auditId": "AUD-MUSIC-004",
+          "operationIds": [
+            "c2-201",
+            "c2-202"
+          ]
+        },
+        {
+          "auditId": "AUD-MUSIC-005",
+          "operationIds": [
+            "c2-203",
+            "c2-204"
+          ]
+        },
+        {
+          "auditId": "AUD-MUSIC-006",
+          "operationIds": [
+            "c2-205",
+            "c2-206"
+          ]
+        },
+        {
+          "auditId": "AUD-MUSIC-007",
+          "operationIds": [
+            "c2-207",
+            "c2-208"
+          ]
+        },
+        {
+          "auditId": "AUD-MUSIC-009",
+          "operationIds": [
+            "c2-209",
+            "c2-210"
+          ]
+        }
+      ],
+      "pendingCaseRows": [],
+      "note": "R5 case dispositions are not approval of the R6 repairs; all cohort-02 case merges await independent review of exact R6 bytes.",
+      "expectedAuditIds": [
+        "AUD-DELIV-016",
+        "AUD-DELIV-017",
+        "AUD-DELIV-018",
+        "AUD-DELIV-019",
+        "AUD-DELIV-020",
+        "AUD-DELIV-021",
+        "AUD-DELIV-023",
+        "AUD-DIRECT-010",
+        "AUD-DSP-004",
+        "AUD-DSP-005",
+        "AUD-DSP-006",
+        "AUD-DSP-009",
+        "AUD-DSP-010",
+        "AUD-DSP-011",
+        "AUD-DSP-012",
+        "AUD-DSP-013",
+        "AUD-DSP-015",
+        "AUD-DSP-017",
+        "AUD-DSP-020",
+        "AUD-DUB-001",
+        "AUD-DUB-004",
+        "AUD-DUB-005",
+        "AUD-DUB-006",
+        "AUD-DUB-007",
+        "AUD-DUB-008",
+        "AUD-DUB-009",
+        "AUD-DUB-010",
+        "AUD-DUB-011",
+        "AUD-DUB-013",
+        "AUD-DUB-015",
+        "AUD-DUB-016",
+        "AUD-EDIT-004",
+        "AUD-EDIT-005",
+        "AUD-EDIT-009",
+        "AUD-EDIT-011",
+        "AUD-EDIT-012",
+        "AUD-EDIT-016",
+        "AUD-EDIT-018",
+        "AUD-EDIT-019",
+        "AUD-EDIT-022",
+        "AUD-EDIT-024",
+        "AUD-EDIT-026",
+        "AUD-EDIT-028",
+        "AUD-GEN-001",
+        "AUD-GEN-002",
+        "AUD-GEN-003",
+        "AUD-GEN-004",
+        "AUD-GEN-005",
+        "AUD-GEN-006",
+        "AUD-GEN-007",
+        "AUD-GEN-008",
+        "AUD-GEN-009",
+        "AUD-GEN-010",
+        "AUD-GEN-011",
+        "AUD-GEN-012",
+        "AUD-GEN-016",
+        "AUD-GEN-017",
+        "AUD-GEN-018",
+        "AUD-GEN-019",
+        "AUD-GEN-020",
+        "AUD-GEN-021",
+        "AUD-GEN-022",
+        "AUD-GEN-023",
+        "AUD-GEN-024",
+        "AUD-INTER-002",
+        "AUD-INTER-007",
+        "AUD-MOTION-002",
+        "AUD-MOTION-006",
+        "AUD-MOTION-009",
+        "AUD-MOTION-011",
+        "AUD-MOTION-016",
+        "AUD-MUSIC-001",
+        "AUD-MUSIC-004",
+        "AUD-MUSIC-005",
+        "AUD-MUSIC-006",
+        "AUD-MUSIC-007",
+        "AUD-MUSIC-009"
+      ],
+      "r6ContentReviewStatus": "SOURCE_CONTENT_FINDINGS_ADDRESSED; ROOT_CHOICES_REMAIN_PENDING",
+      "r6ContentPeerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.independent-peer-2026-10-23.json",
+      "r6ContentPeerSha256": "7551b0367917e71ef1874a93bdc9b8b10450c83a97cc4b939a453c7f7234680c",
+      "r6ProjectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+      "rootChoiceAuditIdsUnknown": [
+        "AUD-DELIV-019",
+        "AUD-DUB-015",
+        "AUD-EDIT-016",
+        "AUD-EDIT-024",
+        "AUD-GEN-010",
+        "AUD-GEN-020",
+        "AUD-GEN-021",
+        "AUD-GEN-023",
+        "AUD-GEN-024",
+        "AUD-DIRECT-010",
+        "AUD-EDIT-022"
+      ],
+      "caseIntegrationStatus": "PURE_PROJECTED_WITH_EXACT_V7_SOURCE_BINDING; OWNER_DECISION_PENDING",
+      "projectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+      "projectedOperationCount": 120,
+      "peerApprovedCaseRecordsAwaitingProjectorSemanticBinding": []
+    },
+    {
+      "cohort": 3,
+      "peerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03-source-amendment-independent-peer.v1.json",
+      "peerSha256": "7c3b92597c72070c73da5b56e919af74abf69d83885667156b30fa7a1f155503",
+      "peerPassAuditIds": [
+        "AUD-OPS-001",
+        "AUD-OPS-002",
+        "AUD-OPS-003",
+        "AUD-OPS-006",
+        "AUD-OPS-017",
+        "AUD-OPS-019",
+        "AUD-QA-006",
+        "AUD-QA-011",
+        "AUD-QA-012",
+        "AUD-SOCIAL-011",
+        "AUD-SPEC-005",
+        "AUD-TRUST-005",
+        "AUD-TRUST-006",
+        "AUD-TRUST-010",
+        "AUD-TRUST-015",
+        "AUD-TRUST-018",
+        "AUD-TTS-001",
+        "AUD-TTS-002",
+        "AUD-TTS-010"
+      ],
+      "peerNonPassAuditIds": [
+        "AUD-TRUST-014"
+      ],
+      "expectedAuditIds": [
+        "AUD-MUSIC-010",
+        "AUD-MUSIC-013",
+        "AUD-MUSIC-015",
+        "AUD-OPS-001",
+        "AUD-OPS-002",
+        "AUD-OPS-003",
+        "AUD-OPS-004",
+        "AUD-OPS-005",
+        "AUD-OPS-006",
+        "AUD-OPS-007",
+        "AUD-OPS-008",
+        "AUD-OPS-009",
+        "AUD-OPS-011",
+        "AUD-OPS-012",
+        "AUD-OPS-014",
+        "AUD-OPS-017",
+        "AUD-OPS-019",
+        "AUD-OPS-022",
+        "AUD-QA-003",
+        "AUD-QA-004",
+        "AUD-QA-006",
+        "AUD-QA-007",
+        "AUD-QA-008",
+        "AUD-QA-009",
+        "AUD-QA-010",
+        "AUD-QA-011",
+        "AUD-QA-012",
+        "AUD-QA-013",
+        "AUD-QA-015",
+        "AUD-QA-016",
+        "AUD-QA-017",
+        "AUD-SOCIAL-003",
+        "AUD-SOCIAL-004",
+        "AUD-SOCIAL-005",
+        "AUD-SOCIAL-007",
+        "AUD-SOCIAL-008",
+        "AUD-SOCIAL-010",
+        "AUD-SOCIAL-011",
+        "AUD-SPEC-002",
+        "AUD-SPEC-004",
+        "AUD-SPEC-005",
+        "AUD-SPEC-006",
+        "AUD-SPEC-007",
+        "AUD-SPEC-016",
+        "AUD-TRUST-002",
+        "AUD-TRUST-005",
+        "AUD-TRUST-006",
+        "AUD-TRUST-010",
+        "AUD-TRUST-014",
+        "AUD-TRUST-015",
+        "AUD-TRUST-018",
+        "AUD-TTS-001",
+        "AUD-TTS-002",
+        "AUD-TTS-003",
+        "AUD-TTS-004",
+        "AUD-TTS-005",
+        "AUD-TTS-006",
+        "AUD-TTS-007",
+        "AUD-TTS-008",
+        "AUD-TTS-009",
+        "AUD-TTS-010",
+        "AUD-TTS-015",
+        "AUD-TTS-016",
+        "AUD-TTS-019",
+        "AUD-TTS-024",
+        "AUD-VISION-001",
+        "AUD-VISION-002",
+        "AUD-VISION-003",
+        "AUD-VISION-004",
+        "AUD-VISION-005",
+        "AUD-VISION-008",
+        "AUD-VISION-009",
+        "AUD-VISION-010",
+        "AUD-VISION-011",
+        "AUD-VISION-012",
+        "AUD-VISION-014",
+        "AUD-VISION-015"
+      ],
+      "mergeReadyCaseRecords": [
+        {
+          "auditId": "AUD-OPS-001",
+          "operationIds": [
+            "c3-211",
+            "c3-212"
+          ]
+        },
+        {
+          "auditId": "AUD-OPS-002",
+          "operationIds": [
+            "c3-213",
+            "c3-214"
+          ]
+        },
+        {
+          "auditId": "AUD-OPS-003",
+          "operationIds": [
+            "c3-215",
+            "c3-216"
+          ]
+        },
+        {
+          "auditId": "AUD-OPS-006",
+          "operationIds": [
+            "c3-217",
+            "c3-218"
+          ]
+        },
+        {
+          "auditId": "AUD-OPS-017",
+          "operationIds": [
+            "c3-219",
+            "c3-220"
+          ]
+        },
+        {
+          "auditId": "AUD-OPS-019",
+          "operationIds": [
+            "c3-221",
+            "c3-222"
+          ]
+        },
+        {
+          "auditId": "AUD-QA-006",
+          "operationIds": [
+            "c3-223",
+            "c3-224"
+          ]
+        },
+        {
+          "auditId": "AUD-QA-011",
+          "operationIds": [
+            "c3-225",
+            "c3-226"
+          ]
+        },
+        {
+          "auditId": "AUD-QA-012",
+          "operationIds": [
+            "c3-227",
+            "c3-228"
+          ]
+        },
+        {
+          "auditId": "AUD-SOCIAL-011",
+          "operationIds": [
+            "c3-229",
+            "c3-230"
+          ]
+        },
+        {
+          "auditId": "AUD-SPEC-005",
+          "operationIds": [
+            "c3-231",
+            "c3-232"
+          ]
+        },
+        {
+          "auditId": "AUD-TRUST-005",
+          "operationIds": [
+            "c3-233",
+            "c3-234"
+          ]
+        },
+        {
+          "auditId": "AUD-TRUST-006",
+          "operationIds": [
+            "c3-235",
+            "c3-236"
+          ]
+        },
+        {
+          "auditId": "AUD-TRUST-010",
+          "operationIds": [
+            "c3-237",
+            "c3-238"
+          ]
+        },
+        {
+          "auditId": "AUD-TRUST-015",
+          "operationIds": [
+            "c3-239",
+            "c3-240"
+          ]
+        },
+        {
+          "auditId": "AUD-TRUST-018",
+          "operationIds": [
+            "c3-241",
+            "c3-242"
+          ]
+        },
+        {
+          "auditId": "AUD-TTS-001",
+          "operationIds": [
+            "c3-243",
+            "c3-244"
+          ]
+        },
+        {
+          "auditId": "AUD-TTS-002",
+          "operationIds": [
+            "c3-245",
+            "c3-246"
+          ]
+        },
+        {
+          "auditId": "AUD-TTS-010",
+          "operationIds": [
+            "c3-247",
+            "c3-248"
+          ]
+        }
+      ],
+      "caseIntegrationStatus": "PURE_PROJECTED_WITH_EXACT_V7_SOURCE_BINDING; OWNER_DECISION_PENDING",
+      "projectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+      "projectedOperationCount": 38,
+      "peerApprovedCaseRecordsAwaitingProjectorSemanticBinding": []
+    }
+  ],
+  "totals": {
+    "uniqueAuditIds": 231,
+    "cohortRows": 231,
+    "projectedCaseOperations": 248,
+    "projectedAuditRows": 90,
+    "cohort01CapabilityCases": 44,
+    "cohort01RequirementCases": 46,
+    "cohort02R6Cases": 120,
+    "cohort03CasePairs": 19,
+    "cohort03CaseOperations": 38,
+    "peerApprovedButNotProjectedRecords": 0,
+    "cohort02RootChoices": 11,
+    "ownerDecisionsCreated": 0,
+    "rootChoicesSelected": 11,
+    "canonicalApply": "NOT_PERFORMED",
+    "rootAuthoringDirectionSelections": 11,
+    "rootFeatureCandidatesAuthored": 9,
+    "rootPacketRepairsAuthored": 2,
+    "rootSourceFeaturesExcluded": 0,
+    "ownerAdoptionDecisions": 0
+  },
+  "projectorBoundary": {
+    "existingProjector": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
+    "permittedFunction": "buildSemanticBatchPostimages, executed with exact operation/input/output/failure bindings for all 248 peer-approved case operations on the four corresponding v7 postimages",
+    "authorization": "No approval/owner workflow record is present in this fixture; authorization projector path and CAS/apply are not invoked.",
+    "sharedCAS": "Existing shared CAS port remains the only eventual write path; not invoked here.",
+    "executor": "No new executor.",
+    "v7RetainedFiles": "The two v7 extension/decision-log postimages are preserved byte-exact in the projection proposal and are not projector targets.",
+    "reviewEvidence": "Cohort-01 and cohort-03 narrative cases preserve reviewed bytes and carry exact current-source semantic contracts plus fixed source peer-review refs and hashes; combined projection still requires actual source-bound owner decision before any apply.",
+    "batchManifestStatus": "CANDIDATE_POSTIMAGES_ONLY; A DISTINCT COMBINED PROJECTION PEER REVIEW AND SOURCE-BOUND OWNER DECISION ARE STILL REQUIRED BEFORE CAS",
+    "rootChoices": "11 complete packets remain separate; zero root-choice operations are included in the 248 case batch."
+  },
+  "nonClaims": [
+    "Peer technical PASS is not canonical owner adoption.",
+    "No owner adoption decision was created; the 11 root authoring directions are selected and applied to candidate authoring only.",
+    "No canonical source write, CAS, native closure, acceptance, or release qualification occurred.",
+    "The overall R6 independent review remains REQUEST_CHANGES because of projector findings, while its exact 120-case source-content review is recorded PASS.",
+    "Owner adoption remains UNKNOWN for all affected rows; 11 root directions are selected for authoring, and DIRECT-010/EDIT-022 mapping alternatives remain unselected.",
+    "The overall R6 review remains REQUEST_CHANGES for projector findings; the reviewed R6 source-content repairs and exact case selectors are PASS, and the 120 R6 operations are source-bound pure projections."
+  ],
+  "rowStatusLedger": [
+    {
+      "auditId": "AUD-ASR-001",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-002",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-003",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-004",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-005",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-006",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-007",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-008",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-013",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-014",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-016",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-018",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-019",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASR-020",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASSET-001",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASSET-002",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASSET-007",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASSET-008",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASSET-011",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASSET-014",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASSET-015",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-ASSET-016",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CAP-011",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CAP-013",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CAP-016",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CAP-018",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CAP-019",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CAP-027",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CAP-028",
+      "cohort": 1,
+      "technicalReviewStatus": "UNKNOWN",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CLONE-003",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "cohort": 1,
+      "technicalReviewStatus": "UNKNOWN",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CLONE-005",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "cohort": 1,
+      "technicalReviewStatus": "UNKNOWN",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CLONE-007",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "cohort": 1,
+      "technicalReviewStatus": "UNKNOWN",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-001",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-002",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-003",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-005",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-006",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-007",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-008",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-010",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-011",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-012",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLLAB-013",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-001",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-002",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-003",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-004",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-005",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-006",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "cohort": 1,
+      "technicalReviewStatus": "UNKNOWN",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-008",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-009",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-010",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-011",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-012",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-013",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-014",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-015",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-016",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-COLOR-017",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-001",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-002",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-003",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-004",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-005",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-006",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "cohort": 1,
+      "technicalReviewStatus": "UNKNOWN",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-009",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-010",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-011",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-012",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-013",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-014",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-015",
+      "cohort": 1,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION"
+    },
+    {
+      "auditId": "AUD-DELIV-016",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DELIV-017",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DELIV-018",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DELIV-019",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-DELIV-020",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DELIV-021",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DELIV-023",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DIRECT-010",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-DSP-004",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-005",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-006",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-009",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-010",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-011",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-012",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-013",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-015",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-017",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DSP-020",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-001",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-004",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-005",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-006",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-007",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-008",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-009",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-010",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-011",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-013",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-DUB-015",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-DUB-016",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-004",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-005",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-009",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-011",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-012",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-016",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-EDIT-018",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-019",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-022",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-EDIT-024",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-EDIT-026",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-EDIT-028",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-001",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-002",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-003",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-004",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-005",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-006",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-007",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-008",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-009",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-010",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-GEN-011",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-012",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-016",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-017",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-018",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-019",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-020",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-GEN-021",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-GEN-022",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-GEN-023",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-GEN-024",
+      "cohort": 2,
+      "technicalReviewStatus": "UNKNOWN_ROOT_CHOICE",
+      "caseIntegrationStatus": "UNKNOWN",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ROOT_CHOICE"
+    },
+    {
+      "auditId": "AUD-INTER-002",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-INTER-007",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MOTION-002",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MOTION-006",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MOTION-009",
+      "cohort": 2,
+      "technicalReviewStatus": "SUPPORTED",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MOTION-011",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MOTION-016",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MUSIC-001",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MUSIC-004",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MUSIC-005",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MUSIC-006",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MUSIC-007",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MUSIC-009",
+      "cohort": 2,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN"
+    },
+    {
+      "auditId": "AUD-MUSIC-010",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-MUSIC-013",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-MUSIC-015",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-001",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-OPS-002",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-OPS-003",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-OPS-004",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-005",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-006",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-OPS-007",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-008",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-009",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-011",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-012",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-014",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-OPS-017",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-OPS-019",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-OPS-022",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-003",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-004",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-006",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-QA-007",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-008",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-009",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-010",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-011",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-QA-012",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-QA-013",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-015",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-016",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-QA-017",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SOCIAL-003",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SOCIAL-004",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SOCIAL-005",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SOCIAL-007",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SOCIAL-008",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SOCIAL-010",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SOCIAL-011",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-SPEC-002",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SPEC-004",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SPEC-005",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-SPEC-006",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SPEC-007",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-SPEC-016",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TRUST-002",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TRUST-005",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-TRUST-006",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-TRUST-010",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-TRUST-014",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "REQUEST_CHANGES",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "REQUEST_CHANGES"
+    },
+    {
+      "auditId": "AUD-TRUST-015",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-TRUST-018",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-TTS-001",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-TTS-002",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-TTS-003",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-004",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-005",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-006",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-007",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-008",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-009",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-010",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "PROJECTED_PENDING_OWNER_DECISION",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "TECHNICAL_PASS"
+    },
+    {
+      "auditId": "AUD-TTS-015",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-016",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-019",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-TTS-024",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-001",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-002",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-003",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-004",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-005",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-008",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-009",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-010",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-011",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-012",
+      "cohort": 3,
+      "technicalReviewStatus": "REQUEST_CHANGES",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_SOURCE_AMENDMENT",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-014",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    },
+    {
+      "auditId": "AUD-VISION-015",
+      "cohort": 3,
+      "technicalReviewStatus": "PASS",
+      "caseIntegrationStatus": "NO_CASE_ADDITION_IN_APPROVED_SOURCE_CANDIDATE",
+      "ownerDecisionStatus": "UNKNOWN_PENDING_OWNER_ADOPTION",
+      "sourceAmendmentPeerDisposition": "NOT_REVIEWED_IN_SOURCE_AMENDMENT_PEER"
+    }
+  ],
+  "v7CaseBatchProjectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+  "rowStatusCounts": {
+    "cohort1:PASS": 71,
+    "cohort1:UNKNOWN": 6,
+    "cohort2:PASS": 53,
+    "cohort2:SUPPORTED": 13,
+    "cohort2:UNKNOWN_ROOT_CHOICE": 11,
+    "cohort3:PASS": 58,
+    "cohort3:REQUEST_CHANGES": 19
+  },
+  "rowStatusLedgerAuthority": {
+    "cohort01": "cohort-01.r5.independent-typed-source-peer.json",
+    "cohort02": "cohort-02.r6.independent-peer-2026-10-23.json R6 source content disposition; overall REQUEST_CHANGES tracks projector findings",
+    "cohort03": "cohort-03.r2.independent-peer.json broad 77-row disposition, with source amendment peer disposition recorded separately"
+  },
+  "sourceCurrentness": {
+    "status": "QUALITY_TWO_TARGET_SUCCESSOR_COMMITTED_EXACT_READBACK_CONFIRMED",
+    "currentSourceBaselineRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
+    "currentSourceBaselineSha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+    "qualitySuccessorReadbackRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-actual-root-source-readback-2026-10-23.json",
+    "qualitySuccessorReadbackSha256": "7e4cc90c156d8116d755d5d7308d6a78bfa8c753ac8131b58ec1dd4400e9fe62",
+    "authorizationRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-authorization.v2.json",
+    "authorizationSha256": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354",
+    "currentTargets": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "state": "COMMITTED_EXACT_READBACK_OR_PRESERVED_EXACT_V7"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "state": "COMMITTED_EXACT_READBACK_OR_PRESERVED_EXACT_V7"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "state": "COMMITTED_EXACT_READBACK_OR_PRESERVED_EXACT_V7"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "state": "COMMITTED_EXACT_READBACK_OR_PRESERVED_EXACT_V7"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "state": "COMMITTED_EXACT_READBACK_OR_PRESERVED_EXACT_V7"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
+        "state": "COMMITTED_EXACT_READBACK_OR_PRESERVED_EXACT_V7"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+        "state": "COMMITTED_EXACT_READBACK_OR_PRESERVED_EXACT_V7"
+      }
+    ],
+    "declaredSourceImpact": {
+      "decisionId": "PXD-227",
+      "candidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json",
+      "candidateSha256": "f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a",
+      "peerReviewRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-independent-peer.v2.json",
+      "peerReviewSha256": "b7a9cbcee391d9a892cf0b023b302c8e5e08bc4eadd8c54dc56b20a1815c783d",
+      "sourceOwnerDecisionRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-owner-decision.v2.json",
+      "sourceOwnerDecisionSha256": "5691a35413dac65942738cf1e4cbe1ca648320e2bfa2228f2431ac5aa8b7fb8c",
+      "applyAuthorizationRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-authorization.v2.json",
+      "applyAuthorizationSha256": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354",
+      "population": {
+        "historicalRowsPreserved": 462,
+        "currentExtensionRows": 1,
+        "currentRows": 463,
+        "futureExtensionRows": 6
+      },
+      "meaning": {
+        "rightsSafety": "APPLICABLE",
+        "otherFiveDimensions": "NOT_APPLICABLE",
+        "metricDefinitions": 16,
+        "metrics": "NOT_APPLICABLE"
+      },
+      "effects": {
+        "measurement": "NOT_EVALUATED",
+        "qualification": "NOT_EVALUATED",
+        "phaseStatus": "UNCHANGED",
+        "acceptanceEffect": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED"
+      }
+    },
+    "phaseStatusWritten": false,
+    "formalAcceptance": false,
+    "nativeClosure": false,
+    "release": false
+  },
+  "v7PredecessorSourceCurrentness": {
+    "status": "V7_COMMITTED_EXACT_READBACK_CONFIRMED",
+    "readbackRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-v7-actual-root-source-readback-2026-10-23.json",
+    "readbackSha256": "813b23c2ca4ceaaa59086b8fb093582e2f2240fb0e494f494a65980f5587467f",
+    "applyState": "COMMITTED_EXACT_READBACK",
+    "journalRef": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc.json",
+    "authorizationRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-apply-authorization.v7.json",
+    "authorizationSha256": "7ca0e76d4d99a870a69c047ab616f8a448adc62b9d95e387fd3decf69a774114",
+    "canonicalWrite": "PERFORMED",
+    "phaseStatusWritten": false,
+    "formalAcceptance": false,
+    "nativeClosure": false,
+    "release": false,
+    "liveSixTargets": [
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "state": "COMMITTED_EXACT_READBACK"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "state": "COMMITTED_EXACT_READBACK"
+      },
+      {
+        "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "state": "COMMITTED_EXACT_READBACK"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+        "state": "COMMITTED_EXACT_READBACK"
+      },
+      {
+        "targetRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+        "state": "COMMITTED_EXACT_READBACK"
+      },
+      {
+        "targetRef": ".product-experience/decision-log.md",
+        "sha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
+        "state": "COMMITTED_EXACT_READBACK"
+      }
+    ],
+    "PXD226DecisionSectionSha256": "a98524f567639635b9dd5f43e53b8a60e40b2ea4f21d57ac19697098e9ef4dc8",
+    "PXD226Disposition": "PRESERVED_CURRENT; no quality follow-on source delta included"
+  },
+  "v7PredecessorDisposition": "CONSUMED_PREDECESSOR_AFTER_QUALITY_TWO_TARGET_SUCCESSOR",
+  "rootAuthoringDirection": {
+    "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
+    "selectedDirections": 11,
+    "featureCandidatesAuthored": 9,
+    "sourcePacketRepairsAuthored": 2,
+    "sourceFeaturesExcluded": 0,
+    "ownerAdoptionDecisionsCreated": 0,
+    "canonicalApply": "NOT_PERFORMED",
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
+    "candidateSha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
+    "projectionRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
+    "projectionSha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "distinctPeerReview": "PENDING"
+  }
+}

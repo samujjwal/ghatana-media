@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.source-amendment-postimages.v3",
+  "artifactId": "media-pdp0-parent-case-resolution-cohort-01-r3-source-amendment-r6-postimages",
+  "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r6.json",
+  "candidateSha256": "29836d0a51fdbdc3b23ce52af5524e65a8f11e7c8f41b4e26a763d97f2c59361",
+  "supersedesCandidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r5.json",
+  "supersedesCandidateSha256": "c9bbc4ccc05d2a84403477f1b88d219c382d6352b83c229116aba56b6d714a07",
+  "independentPeerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-content-peer.r5.v1.json",
+  "independentPeerSha256": "b7871785625e4a3582847097e78603bed8d5b5b0bf820088f6bf74eaefbd9523",
+  "sourceAmendmentBoundary": "ADDITIVE_OBSERVATION_ONLY; canonicalApply NONE",
+  "preimageSha256": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765"
+  },
+  "fullDocumentPostimages": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "preimageSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r6.yaml",
+      "postimageSha256": "0749f4765e219a0cd9d621953a40a319f7d67c752c646bac6a1ddab905b1e69a",
+      "semanticMutationCount": 44
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "preimageSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-requirements.postimage.r6.yaml",
+      "postimageSha256": "2cf2a94dadb53187cd66a974026cd900da4f83f520ef99462ad578dc91235dc8",
+      "semanticMutationCount": 46
+    }
+  ],
+  "canonicalApply": "NONE"
+}

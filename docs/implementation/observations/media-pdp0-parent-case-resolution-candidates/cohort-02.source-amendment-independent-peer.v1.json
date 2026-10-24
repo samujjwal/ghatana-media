@@ -1,0 +1,2169 @@
+{
+  "schemaVersion": "ghatana.media.pdp0.source-amendment-independent-peer.v1",
+  "artifactId": "media-pdp0-cohort-02-actual-source-amendment-independent-peer",
+  "reviewStatus": "INDEPENDENT_TECHNICAL_REVIEW_COMPLETE; SOURCE_OWNER_ADOPTION_NOT_CLAIMED",
+  "sourceBaseline": {
+    "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+    "candidateSha256": "7191755be5d6176cc7d062f4abbf6d6ae4fddda202152c7f78b288413be65765",
+    "postimagesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json",
+    "postimagesSha256": "a3a71bc94417939387ffeb78827bc75ad87afbc5feca53700bb47e3cdfd5010b",
+    "recordPostimagesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-record-postimages.json",
+    "recordPostimagesSha256": "cdd04526529101a53cac51f4671350823545f553b6e7577e7d67a89572eb1a10",
+    "priorIndependentPeerRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r3.independent-peer.v1.json",
+    "priorIndependentPeerSha256": "da5adbe084452216e53031d2f37d780830436da5921d4ecf384d86887ce4ff8e",
+    "capabilitiesPostimageSha256": "93d1c478bcc1ade7d04e02f22aefe28e66c4229f1a9693f317207214391840ff",
+    "requirementsPostimageSha256": "f6c78919891861cdc3c78c8e9b0be611d73481cd74aa822a5c74cf6628629f40",
+    "authorityMapSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+    "pdp0SemanticOwner": "media-product"
+  },
+  "scope": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "criterionId": "P0-07",
+    "fullCampaignIdentityDenominator": {
+      "physical": 26,
+      "compositionsIncludingRoot": 7,
+      "logical": 21,
+      "total": 54
+    },
+    "residualAuditDenominator": 231,
+    "exactCohortCount": 77,
+    "exactOrderedAssignedAuditIds": [
+      "AUD-DELIV-016",
+      "AUD-DELIV-017",
+      "AUD-DELIV-018",
+      "AUD-DELIV-019",
+      "AUD-DELIV-020",
+      "AUD-DELIV-021",
+      "AUD-DELIV-023",
+      "AUD-DIRECT-010",
+      "AUD-DSP-004",
+      "AUD-DSP-005",
+      "AUD-DSP-006",
+      "AUD-DSP-009",
+      "AUD-DSP-010",
+      "AUD-DSP-011",
+      "AUD-DSP-012",
+      "AUD-DSP-013",
+      "AUD-DSP-015",
+      "AUD-DSP-017",
+      "AUD-DSP-020",
+      "AUD-DUB-001",
+      "AUD-DUB-004",
+      "AUD-DUB-005",
+      "AUD-DUB-006",
+      "AUD-DUB-007",
+      "AUD-DUB-008",
+      "AUD-DUB-009",
+      "AUD-DUB-010",
+      "AUD-DUB-011",
+      "AUD-DUB-013",
+      "AUD-DUB-015",
+      "AUD-DUB-016",
+      "AUD-EDIT-004",
+      "AUD-EDIT-005",
+      "AUD-EDIT-009",
+      "AUD-EDIT-011",
+      "AUD-EDIT-012",
+      "AUD-EDIT-016",
+      "AUD-EDIT-018",
+      "AUD-EDIT-019",
+      "AUD-EDIT-022",
+      "AUD-EDIT-024",
+      "AUD-EDIT-026",
+      "AUD-EDIT-028",
+      "AUD-GEN-001",
+      "AUD-GEN-002",
+      "AUD-GEN-003",
+      "AUD-GEN-004",
+      "AUD-GEN-005",
+      "AUD-GEN-006",
+      "AUD-GEN-007",
+      "AUD-GEN-008",
+      "AUD-GEN-009",
+      "AUD-GEN-010",
+      "AUD-GEN-011",
+      "AUD-GEN-012",
+      "AUD-GEN-016",
+      "AUD-GEN-017",
+      "AUD-GEN-018",
+      "AUD-GEN-019",
+      "AUD-GEN-020",
+      "AUD-GEN-021",
+      "AUD-GEN-022",
+      "AUD-GEN-023",
+      "AUD-GEN-024",
+      "AUD-INTER-002",
+      "AUD-INTER-007",
+      "AUD-MOTION-002",
+      "AUD-MOTION-006",
+      "AUD-MOTION-009",
+      "AUD-MOTION-011",
+      "AUD-MOTION-016",
+      "AUD-MUSIC-001",
+      "AUD-MUSIC-004",
+      "AUD-MUSIC-005",
+      "AUD-MUSIC-006",
+      "AUD-MUSIC-007",
+      "AUD-MUSIC-009"
+    ],
+    "selectedSurfaces": [
+      {
+        "surfaceId": "media.surface.interactive-demo-player",
+        "surfaceType": "GUI_EMBEDDED",
+        "pdpApplicability": [
+          "PDP-0",
+          "PDP-1",
+          "PDP-2",
+          "PDP-3"
+        ],
+        "phase": "PDP-0 / P0-07",
+        "rowCount": 2,
+        "sourcePinStatus": "cohort sources current; whole PDP-0 currentness not claimed",
+        "technicalVerdicts": {
+          "REQUEST_CHANGES": 1,
+          "SUPPORTED": 1
+        },
+        "canonicalOwnerDisposition": "UNKNOWN",
+        "remainingDecisionIds": [
+          "AUD-INTER-002",
+          "AUD-INTER-007"
+        ],
+        "blocker": "Root/source owner decision on feature-specific semantics where proposal requests a product choice; technical review supplies exact options below.",
+        "acceptanceCriteria": "Resolve exact named feature result, typed source inputs, success output and relevant negative/security/authority outcomes at PDP-0; do not defer core meaning."
+      },
+      {
+        "surfaceId": "media.surface.production-studio",
+        "surfaceType": "GUI_WEB",
+        "pdpApplicability": [
+          "PDP-0",
+          "PDP-1",
+          "PDP-2",
+          "PDP-3"
+        ],
+        "phase": "PDP-0 / P0-07",
+        "rowCount": 74,
+        "sourcePinStatus": "cohort sources current; whole PDP-0 currentness not claimed",
+        "technicalVerdicts": {
+          "REQUEST_CHANGES": 62,
+          "SUPPORTED": 12
+        },
+        "canonicalOwnerDisposition": "UNKNOWN",
+        "remainingDecisionIds": [
+          "AUD-DELIV-016",
+          "AUD-DELIV-017",
+          "AUD-DELIV-018",
+          "AUD-DELIV-019",
+          "AUD-DELIV-020",
+          "AUD-DELIV-021",
+          "AUD-DELIV-023",
+          "AUD-DSP-004",
+          "AUD-DSP-005",
+          "AUD-DSP-006",
+          "AUD-DSP-009",
+          "AUD-DSP-010",
+          "AUD-DSP-011",
+          "AUD-DSP-012",
+          "AUD-DSP-013",
+          "AUD-DSP-015",
+          "AUD-DSP-017",
+          "AUD-DSP-020",
+          "AUD-DUB-001",
+          "AUD-DUB-004",
+          "AUD-DUB-005",
+          "AUD-DUB-006",
+          "AUD-DUB-007",
+          "AUD-DUB-008",
+          "AUD-DUB-009",
+          "AUD-DUB-010",
+          "AUD-DUB-011",
+          "AUD-DUB-013",
+          "AUD-DUB-015",
+          "AUD-DUB-016",
+          "AUD-EDIT-004",
+          "AUD-EDIT-005",
+          "AUD-EDIT-009",
+          "AUD-EDIT-011",
+          "AUD-EDIT-012",
+          "AUD-EDIT-016",
+          "AUD-EDIT-018",
+          "AUD-EDIT-019",
+          "AUD-EDIT-022",
+          "AUD-EDIT-024",
+          "AUD-EDIT-026",
+          "AUD-EDIT-028",
+          "AUD-GEN-001",
+          "AUD-GEN-002",
+          "AUD-GEN-003",
+          "AUD-GEN-004",
+          "AUD-GEN-005",
+          "AUD-GEN-006",
+          "AUD-GEN-007",
+          "AUD-GEN-008",
+          "AUD-GEN-009",
+          "AUD-GEN-010",
+          "AUD-GEN-011",
+          "AUD-GEN-012",
+          "AUD-GEN-016",
+          "AUD-GEN-017",
+          "AUD-GEN-018",
+          "AUD-GEN-019",
+          "AUD-GEN-020",
+          "AUD-GEN-021",
+          "AUD-GEN-022",
+          "AUD-GEN-023",
+          "AUD-GEN-024",
+          "AUD-MOTION-002",
+          "AUD-MOTION-006",
+          "AUD-MOTION-009",
+          "AUD-MOTION-011",
+          "AUD-MOTION-016",
+          "AUD-MUSIC-001",
+          "AUD-MUSIC-004",
+          "AUD-MUSIC-005",
+          "AUD-MUSIC-006",
+          "AUD-MUSIC-007",
+          "AUD-MUSIC-009"
+        ],
+        "blocker": "Root/source owner decision on feature-specific semantics where proposal requests a product choice; technical review supplies exact options below.",
+        "acceptanceCriteria": "Resolve exact named feature result, typed source inputs, success output and relevant negative/security/authority outcomes at PDP-0; do not defer core meaning."
+      },
+      {
+        "surfaceId": "media.surface.recorder-orchestrator",
+        "surfaceType": "CLI",
+        "pdpApplicability": [
+          "PDP-0",
+          "PDP-1",
+          "PDP-2",
+          "PDP-3"
+        ],
+        "phase": "PDP-0 / P0-07",
+        "rowCount": 1,
+        "sourcePinStatus": "cohort sources current; whole PDP-0 currentness not claimed",
+        "technicalVerdicts": {
+          "REQUEST_CHANGES": 1
+        },
+        "canonicalOwnerDisposition": "UNKNOWN",
+        "remainingDecisionIds": [
+          "AUD-DIRECT-010"
+        ],
+        "blocker": "Root/source owner decision on feature-specific semantics where proposal requests a product choice; technical review supplies exact options below.",
+        "acceptanceCriteria": "Resolve exact named feature result, typed source inputs, success output and relevant negative/security/authority outcomes at PDP-0; do not defer core meaning."
+      }
+    ]
+  },
+  "method": {
+    "reviewedActualSourceAmendmentBatch": true,
+    "matchedEveryRowAgainstBatchAndPeer": true,
+    "validatedCurrentPostimageTargetHashes": true,
+    "validatedCaseIdAndFeatureGapText": true,
+    "checkedMissingMeaningInputOutputFailureAuthorityFields": true,
+    "ownerAuthorityResolvedFromLiveMap": true
+  },
+  "decisionCounts": {
+    "SUPPORTED": 19,
+    "REQUEST_CHANGES": 58
+  },
+  "amendmentTreatmentCounts": {
+    "PRESERVE_R2_ROW": 24,
+    "FEATURE_SPECIFIC_CASE_ADDED": 44,
+    "NEW_MEANING_DEFINITION_PROPOSAL": 9
+  },
+  "preservedRowReconciliation": {
+    "total": 24,
+    "priorSupported": 13,
+    "priorRequestChanges": 11,
+    "unsupportedPreservedIds": [
+      "AUD-DELIV-016",
+      "AUD-DELIV-017",
+      "AUD-DELIV-020",
+      "AUD-DELIV-023",
+      "AUD-DIRECT-010",
+      "AUD-DSP-013",
+      "AUD-EDIT-019",
+      "AUD-EDIT-022",
+      "AUD-GEN-002",
+      "AUD-GEN-003",
+      "AUD-INTER-002"
+    ]
+  },
+  "missingMeaningAssessment": [
+    {
+      "auditId": "AUD-DELIV-019",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.deliver.live-stream-output",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending."
+    },
+    {
+      "auditId": "AUD-DUB-015",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.speech.conversation.translated-speech-to-speech",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending."
+    },
+    {
+      "auditId": "AUD-EDIT-016",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "proposedCapabilityId": "media.edit.matte-composite",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "The feature includes masking plus matte compositing, but the proposed leaf only composites an already versioned matte; it omits mask authoring/adjustment or a precise exclusion. Split the feature or explicitly bound its source intent before adoption."
+    },
+    {
+      "auditId": "AUD-EDIT-024",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.accessibility.control-equivalent-action",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending."
+    },
+    {
+      "auditId": "AUD-GEN-010",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.generate.video.continue",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending."
+    },
+    {
+      "auditId": "AUD-GEN-020",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.generate.motion.text-and-style-reference",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending."
+    },
+    {
+      "auditId": "AUD-GEN-021",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "proposedCapabilityId": "media.generate.video.text-to-video#render-style-preset",
+      "mappingChoice": "EXTEND_EXISTING_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "This is an extension of the existing text-to-video leaf, yet no capability postimage mutation is included for the proposed render-style input/result. The proposed definition id uses a fragment suffix and must be represented as a real capability variant/field, not left as an ID-like string."
+    },
+    {
+      "auditId": "AUD-GEN-023",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "proposedCapabilityId": "media.capability.execution.local-model-readiness",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "The proposal defines only local-model readiness observation. The source feature also asks for local/offline generation and GPU-memory warnings; define those results separately or explicitly scope them out with exact source-backed criteria."
+    },
+    {
+      "auditId": "AUD-GEN-024",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.capability.provider-class-separation",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "sourceOwnerCorrection": "media-product",
+      "reason": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending."
+    }
+  ],
+  "ownerCorrection": {
+    "candidateClaim": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+    "liveAuthorityMap": {
+      "sourceRef": ".product-experience/authority-map.yaml#/canonicalPdpPhases/@id=PDP-0",
+      "semanticOwner": "media-product"
+    },
+    "requiredCorrection": "Bind accountableSourceOwner to media-product for PDP-0 meaning proposals; retain canonical owner disposition as UNKNOWN until a real owner decision/adoption record.",
+    "authorityBoundary": "The user-authorized technical proposal does not create canonical adoption, status, acceptance, qualification, closure or runtime admission."
+  },
+  "overlapPairs": [
+    {
+      "auditIds": [
+        "AUD-DIRECT-010",
+        "AUD-EDIT-022"
+      ],
+      "issue": "Both preserved as unmodified despite the exact peer finding that dry-run/semantic diff/guarded edits/undo overlap and source scopes are not disjoint.",
+      "requiredChoice": "One shared contract with explicit relation, or disjoint row scopes with exact capability selectors; batch currently contains neither."
+    }
+  ],
+  "rows": [
+    {
+      "ordinal": 1,
+      "auditId": "AUD-DELIV-016",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "OpenTimelineIO import/export for project interchange",
+      "sourceAcceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. The feature is bidirectional project interchange. The current animation exchange-package leaf covers an output candidate and profile-specific compatibility, but its typed inputs require a versioned animation scene and it defines no import observation. Existing artifact.import defines an admitted source reference or staged upload, rights/retention refs, source resolution, and no registration until owner confirmation. Preserve both halves as separate capabilities; neither establishes OpenTimelineIO runtime support.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 2,
+      "auditId": "AUD-DELIV-017",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "FCPXML/EDL/AAF via separately admitted adapters",
+      "sourceAcceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. FCPXML/EDL/AAF are named project-interchange formats through separately admitted adapters. The mapped media.deliver.export capability produces a delivery package/outcome and does not define an editable project exchange representation. The animation exchange-package leaf explicitly identifies requested package contents, interchange profile, dependency/provenance manifest, and profile-specific compatibility; use that meaning, while exact adapters remain unadmitted.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 3,
+      "auditId": "AUD-DELIV-018",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "HLS/DASH adaptive packaging when admitted",
+      "sourceAcceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DELIV-018",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.renditions.adaptive-bitrate/acceptanceCases",
+      "unresolvedGap": "HLS/DASH profile negotiation, actual encoder/container/OS compatibility, decoded-output checks, and codec-specific failure are absent from the result and leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DELIV-018"
+    },
+    {
+      "ordinal": 4,
+      "auditId": "AUD-DELIV-019",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Live streaming output WebRTC/RTMP optional providers",
+      "sourceAcceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.deliver.live-stream-output",
+      "proposedOperation": "deliver.live-stream-output",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "source",
+          "sourceType": "accepted-media-artifact-or-composition@version",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "stream-destination",
+          "sourceType": "versioned-live-stream-destination",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "transport",
+          "sourceType": "declared-stream-transport",
+          "cardinality": "EXACTLY_ONE",
+          "required": true,
+          "allowedValues": [
+            "WebRTC",
+            "RTMP"
+          ]
+        },
+        {
+          "slotId": "provider-binding",
+          "sourceType": "explicit-admitted-provider-binding",
+          "cardinality": "ZERO_OR_ONE",
+          "required": false
+        }
+      ],
+      "output": {
+        "artifactType": "live-stream-delivery-outcome",
+        "resultVariants": [
+          "PREPARED_NOT_STARTED",
+          "STARTED_WITH_BOUND_SESSION",
+          "REJECTED",
+          "UNKNOWN_OUTCOME"
+        ],
+        "mustDistinguishExternalStreamEffect": true
+      },
+      "failureContract": [
+        "Unsupported or unadmitted transport/provider is unavailable and cannot silently fall back.",
+        "Unknown stream finality remains UNKNOWN_OUTCOME; do not claim a live stream started."
+      ],
+      "sourceGap": "Mapped leaf prepares a stream-delivery package and explicitly separates that package from a stream-delivery outcome; it does not define live WebRTC/RTMP output or optional-provider behavior.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 5,
+      "auditId": "AUD-DELIV-020",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Resumable export with accurate job attempt receipts",
+      "sourceAcceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. The mapped job.check-outcome leaf resolves certainty for an existing job from stable owner evidence and blocks blind retry, but does not define export creation. Pair it with media.deliver.export for the requested source/profile/destination result; retain check-outcome for attempt receipts, resume/reconciliation and UNKNOWN finality. Neither capability asserts resumability implementation or runtime availability.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 6,
+      "auditId": "AUD-DELIV-021",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Content credentials C2PA packaging and preservation",
+      "sourceAcceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 7,
+      "auditId": "AUD-DELIV-023",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Portable project manifest and editable layered export",
+      "sourceAcceptanceCriterion": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. A portable project manifest and editable layered export describe an editable interchange package. media.deliver.export returns a delivery package or export outcome for an accepted artifact/profile/destination; the animation exchange-package leaf directly describes package contents, interchange profile, and dependency/provenance manifest. Rebind to the latter; actual target-format support remains separately unknown.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 8,
+      "auditId": "AUD-DIRECT-010",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "sourceFeature": "Dry-run, semantic diff, scope guard and undo support",
+      "sourceAcceptanceCriterion": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "The two rows overlap on dry-run/semantic diff/guarded edits/undo and the batch preserves both without disjoint scope or a shared contract relation. Root must choose one shared semantic contract or split their scopes before reuse.",
+      "priorPeerVerdict": "REQUEST_CHANGES",
+      "rootOverlapPair": "AUD-EDIT-022"
+    },
+    {
+      "ordinal": 9,
+      "auditId": "AUD-DSP-004",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Parametric EQ and high/low pass filtering",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-004",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.equalize/acceptanceCases",
+      "unresolvedGap": "Equalization is the core intent, but parametric bands/high-low-pass filter behavior, parameter versioning, and clip/channel failure checks are not asserted by the leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-004"
+    },
+    {
+      "ordinal": 10,
+      "auditId": "AUD-DSP-005",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Dynamic compression, expansion and limiting",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-005",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.dynamic-compression/acceptanceCases",
+      "unresolvedGap": "Dynamic compression is covered, but expansion and limiting are not separate declared results; leaf cases do not require parameter versioning or limiter failure/measurement behavior.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-005"
+    },
+    {
+      "ordinal": 11,
+      "auditId": "AUD-DSP-006",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "De-esser and dialogue frequency cleanup",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-006",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.audio.deessing/acceptanceCases",
+      "unresolvedGap": "De-essing is the core intent; dialogue-frequency cleanup, versioned effect parameters, and measured export constraints are not in the feature-specific cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-006"
+    },
+    {
+      "ordinal": 12,
+      "auditId": "AUD-DSP-009",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "De-reverberation and hum removal",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-009",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.audio.dereverberation/acceptanceCases",
+      "unresolvedGap": "Reverberation reduction is covered; hum removal is not a declared result, and no hum-specific negative/failure case is present.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-009"
+    },
+    {
+      "ordinal": 13,
+      "auditId": "AUD-DSP-010",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Acoustic echo cancellation for microphone recording",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-010",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.audio.acoustic-echo-cancellation/acceptanceCases",
+      "unresolvedGap": "Acoustic echo cancellation is the intent, but microphone/reference-signal conditions and the no-reference/no-cancellation-evidence failure behavior are not in the feature-specific case.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-010"
+    },
+    {
+      "ordinal": 14,
+      "auditId": "AUD-DSP-011",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Vocal/music/stem separation and re-mix",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-011",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.audio.source-separation/acceptanceCases",
+      "unresolvedGap": "Source separation is covered as a candidate; vocal/music/stem outputs and remix behavior are not defined or required by the leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-011"
+    },
+    {
+      "ordinal": 15,
+      "auditId": "AUD-DSP-012",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Per-track auto-ducking of music under speech",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-012",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.duck-sidechain/acceptanceCases",
+      "unresolvedGap": "Sidechain ducking is covered, but per-track scope, speech-trigger semantics, trigger timing, and intelligibility outcome/failure are explicitly not implied.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-012"
+    },
+    {
+      "ordinal": 16,
+      "auditId": "AUD-DSP-013",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Resample, stretch, pitch shift with artifact checks",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. The mapped sample-rate-conversion leaf defines only rate conversion. It does not define time stretch or pitch shift. Existing audio-to-audio transformation defines a source-audio transformation from text/audio intent, so retain it alongside sample-rate-conversion for the broader requested operations; artifact checks/measurement remain explicit and no fidelity guarantee is implied.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 17,
+      "auditId": "AUD-DSP-015",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "EBU R128 / LUFS integrated loudness and true peak",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-015",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.true-peak-loudness-control/acceptanceCases",
+      "unresolvedGap": "True-peak/loudness control and measurements are covered, but EBU R128/LUFS target selection and achieved-target acceptance remain distinct and are not tested by the generic cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-015"
+    },
+    {
+      "ordinal": 18,
+      "auditId": "AUD-DSP-017",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Immersive/ambisonic audio when admitted",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DSP-017",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.create.spatial-audio/acceptanceCases",
+      "unresolvedGap": "Spatial-audio candidate and target layout are covered; ambisonic encoding, immersive accuracy, and profile-dependent measured export behavior are not established.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DSP-017"
+    },
+    {
+      "ordinal": 19,
+      "auditId": "AUD-DSP-020",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "External VST/LV2 plugin host only if permissible and sandboxed",
+      "sourceAcceptanceCriterion": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 20,
+      "auditId": "AUD-DUB-001",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Multilingual transcript translation with reviewed terminology",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-001",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.translate/acceptanceCases",
+      "unresolvedGap": "Speech translation is covered as transcript/analysis; multilingual pair selection, reviewed terminology, translation accuracy, and failure/abstention are absent.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-001"
+    },
+    {
+      "ordinal": 21,
+      "auditId": "AUD-DUB-004",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Timed speech synthesis and segment gap handling",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-004",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.dub/acceptanceCases",
+      "unresolvedGap": "Dubbed-media candidate with speech-sync provenance is covered; timed segment synthesis, gap handling, and measurable synchronization failure are not in the leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-004"
+    },
+    {
+      "ordinal": 22,
+      "auditId": "AUD-DUB-005",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Forced alignment and time-stretch with constraint reporting",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-005",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.dub-subtitle-voiceover-time/acceptanceCases",
+      "unresolvedGap": "Timeline alignment is covered; forced alignment, time-stretch, constraint reporting, and corresponding limit/failure outputs are not defined by the cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-005"
+    },
+    {
+      "ordinal": 23,
+      "auditId": "AUD-DUB-006",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Speech-to-speech voice style transfer where licensed",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-006",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speech-to-speech/acceptanceCases",
+      "unresolvedGap": "Speech-to-speech transformation is covered; style-transfer dimensions, identity preservation controls, and licensed-use denial are not feature-specific cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-006"
+    },
+    {
+      "ordinal": 24,
+      "auditId": "AUD-DUB-007",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Room tone/music/noise preservation and speech isolation",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-007",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.audio.source-separation/acceptanceCases",
+      "unresolvedGap": "Audio source separation is covered; room-tone/music/noise component preservation and speech-isolation evidence are not guaranteed by the current outcome/cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-007"
+    },
+    {
+      "ordinal": 25,
+      "auditId": "AUD-DUB-008",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Lip synchronization of permitted existing video",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-008",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.lip-synchronize/acceptanceCases",
+      "unresolvedGap": "Lip alignment is covered as a local candidate; permitted-video/identity authority, timing tolerance, and synchronization failure thresholds are not specified in the case.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-008"
+    },
+    {
+      "ordinal": 26,
+      "auditId": "AUD-DUB-009",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Portrait-to-speaking-video from authorized source",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-009",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.drive.speech/acceptanceCases",
+      "unresolvedGap": "Speech-driven video intent is covered; portrait input constraints, authorized-source checks, and the distinction from validated lip-sync are not feature-specific cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-009"
+    },
+    {
+      "ordinal": 27,
+      "auditId": "AUD-DUB-010",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Audio/video translation variant QA by locale",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 28,
+      "auditId": "AUD-DUB-011",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Subtitle/closed caption multilingual rendering",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-011",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles/acceptanceCases",
+      "unresolvedGap": "Subtitle delivery can carry an authorized subtitle track; multilingual rendering correctness, caption-language selection, and language-specific rejection are not defined by the generic leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-011"
+    },
+    {
+      "ordinal": 29,
+      "auditId": "AUD-DUB-013",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Voice consistency despite localized text-length changes",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-013",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.dub-subtitle-voiceover-time/acceptanceCases",
+      "unresolvedGap": "Timeline alignment is covered; voice consistency under localized text-length changes is not in the outcome or cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-013"
+    },
+    {
+      "ordinal": 30,
+      "auditId": "AUD-DUB-015",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Simultaneous translated speech-to-speech conversation when admitted",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.speech.conversation.translated-speech-to-speech",
+      "proposedOperation": "speech.conversation.translated-speech-to-speech",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "source-speech",
+          "sourceType": "source-speech-artifact-or-live-speech-stream",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "language-pair",
+          "sourceType": "declared-source-and-target-language-pair",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "conversation-mode",
+          "sourceType": "simultaneous-conversation-mode",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "voice-policy",
+          "sourceType": "authorized-target-voice-and-consent-policy",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ],
+      "output": {
+        "artifactType": "translated-speech-conversation-result",
+        "resultVariants": [
+          "TRANSLATED_SPEECH_SEGMENTS_WITH_LANGUAGE_AND_TIMING",
+          "REJECTED",
+          "UNKNOWN_OUTCOME"
+        ],
+        "mustDistinguishFromTranslatedTextPreparedForLaterSynthesis": true
+      },
+      "failureContract": [
+        "Unsupported source/target language pair, voice authority, or simultaneous mode is explicit and blocks output.",
+        "Unknown segment or conversation finality remains unknown; no translated speech success is inferred."
+      ],
+      "sourceGap": "Mapped leaf produces translated speech content for synthesis; it explicitly distinguishes this from speech-to-speech transformation and does not define simultaneous conversation behavior.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 31,
+      "auditId": "AUD-DUB-016",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Burned and sidecar language variant outputs",
+      "sourceAcceptanceCriterion": "Each dubbed segment retains speaker/locale/source-timing/translation provenance; exported audio-video synchronizes to decoded media and identity controls.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-DUB-016",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles/acceptanceCases",
+      "unresolvedGap": "Subtitle package output may be sidecar or embedded; burned-in rendering, language-variant selection, and each form’s failure behavior are not separately established.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-DUB-016"
+    },
+    {
+      "ordinal": 32,
+      "auditId": "AUD-EDIT-004",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Nested sequences and linked clips",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 33,
+      "auditId": "AUD-EDIT-005",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Snap, markers, track grouping and frame-level navigation",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 34,
+      "auditId": "AUD-EDIT-009",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Precision timecode entry and media source in/out range",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 35,
+      "auditId": "AUD-EDIT-011",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Live playback JKL transport, shuttle and shortcuts",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-011",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.playback-scrub/acceptanceCases",
+      "unresolvedGap": "Preview position/state matches playback/scrub core intent; JKL transport, shuttle speeds, shortcut behavior, and unsupported-control failure are absent.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-EDIT-011"
+    },
+    {
+      "ordinal": 36,
+      "auditId": "AUD-EDIT-012",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Track height/visibility/workspace layout personalization",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-012",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.settings.update/acceptanceCases",
+      "unresolvedGap": "Project settings update is the core intent; track-height/visibility/layout setting names, scope, inheritance, policy restriction, and rejected-setting behavior remain unspecified.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-EDIT-012"
+    },
+    {
+      "ordinal": 37,
+      "auditId": "AUD-EDIT-016",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Masking and matte compositing",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "proposedCapabilityId": "media.edit.matte-composite",
+      "proposedOperation": "edit.matte-composite",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "source",
+          "sourceType": "versioned-source-media-artifact",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "matte",
+          "sourceType": "versioned-matte-representation",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "composite-intent",
+          "sourceType": "typed-compositing-intent-and-layer-order",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ],
+      "output": {
+        "artifactType": "local-composite-candidate-or-draft",
+        "resultVariants": [
+          "COMPOSITE_CANDIDATE",
+          "REJECTED",
+          "UNKNOWN_OUTCOME"
+        ],
+        "mustRemainNonCanonicalUntilExplicitCommit": true
+      },
+      "failureContract": [
+        "Incompatible source/matte geometry or unsupported compositing intent blocks the candidate.",
+        "Unknown processing finality does not imply a composite candidate or project change."
+      ],
+      "sourceGap": "Mapped leaf produces a matte representation candidate; it does not define compositing the matte into a resulting image/video.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "The feature includes masking plus matte compositing, but the proposed leaf only composites an already versioned matte; it omits mask authoring/adjustment or a precise exclusion. Split the feature or explicitly bound its source intent before adoption.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 38,
+      "auditId": "AUD-EDIT-018",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Adjustment layers and reusable effect stacks",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 39,
+      "auditId": "AUD-EDIT-019",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Editable titles, captions and motion templates",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. The original feature includes editable title/caption composition and motion-template reuse. media.compose.titles-credits-lower-thirds defines title/credit/lower-third composition candidates but not reusable template bindings; media.compose.reusable-composition explicitly defines editable branded motion-template bindings tied to selected sources. Bind both meanings; caption rendering and renderer support remain separately unclaimed.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 40,
+      "auditId": "AUD-EDIT-022",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Diff, dry-run, approval and rollback of agent edits",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "The two rows overlap on dry-run/semantic diff/guarded edits/undo and the batch preserves both without disjoint scope or a shared contract relation. Root must choose one shared semantic contract or split their scopes before reuse.",
+      "priorPeerVerdict": "REQUEST_CHANGES",
+      "rootOverlapPair": "AUD-DIRECT-010"
+    },
+    {
+      "ordinal": 41,
+      "auditId": "AUD-EDIT-024",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Keyboard/text equivalents for graphical controls",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.accessibility.control-equivalent-action",
+      "proposedOperation": "accessibility.control-equivalent-action",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "control",
+          "sourceType": "stable-semantic-control-reference",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "action",
+          "sourceType": "keyboard-or-text-equivalent-action",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "context",
+          "sourceType": "active-view-and-focus-context",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ],
+      "output": {
+        "artifactType": "semantic-control-action-outcome",
+        "resultVariants": [
+          "SAME_DECLARED_ACTION_AS_GRAPHICAL_CONTROL",
+          "UNAVAILABLE_EQUIVALENT",
+          "REJECTED",
+          "UNKNOWN_OUTCOME"
+        ],
+        "mustPreserveMeaningAndAuthorization": true
+      },
+      "failureContract": [
+        "Missing or ambiguous equivalent mapping is reported unavailable; do not substitute a different action.",
+        "Focus, disabled state, or authority failures prevent the action."
+      ],
+      "sourceGap": "Mapped leaf selects animation elements. Selection does not define keyboard/text equivalents for graphical controls or accessibility parity.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 42,
+      "auditId": "AUD-EDIT-026",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Reusable project sequence templates and styles",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-EDIT-026",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition/acceptanceCases",
+      "unresolvedGap": "Reusable composition candidate is covered; versioned sequence-template schema/style semantics and preview/reopen/export parity are not asserted by the mapped outcome or cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-EDIT-026"
+    },
+    {
+      "ordinal": 43,
+      "auditId": "AUD-EDIT-028",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Proxy/full-quality preview switch at exact positions",
+      "sourceAcceptanceCriterion": "Every applicable existing 52 typed edit kinds produces a revision-consistent result via GUI, keyboard/text, CLI, and SDK/API; machine and human edits round-trip.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 44,
+      "auditId": "AUD-GEN-001",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Text-to-image and image-to-image generation",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-001",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.image.text-to-image/acceptanceCases",
+      "unresolvedGap": "Text/visual-intent image generation is a narrow core match; the image-to-image transformation, consumed-reference behavior, checkpoint/seed/cost/safety record and denied-rights failure are not required by the leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-001"
+    },
+    {
+      "ordinal": 45,
+      "auditId": "AUD-GEN-002",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Image edit, inpaint, outpaint and generative fill",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. The mapped inpaint leaf covers filling selected source regions only. Existing outpaint separately defines extension beyond source frame boundaries; the combined original feature names inpaint, outpaint, and generative fill, so bind both existing candidate operations. Preserve source and distinguish selected-region filling from frame extension; no runtime support is implied.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 46,
+      "auditId": "AUD-GEN-003",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Background removal, replacement and subject isolate",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. background-remove defines subject/background separation; it does not define replacement. Existing background-replace defines substitution behind the subject. Rebind both operations to cover removal, replacement, and subject isolation; preserve distinct candidate results and rights/provenance boundaries.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 47,
+      "auditId": "AUD-GEN-004",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Image super-resolution and restoration",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-004",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.super-resolution/acceptanceCases",
+      "unresolvedGap": "Higher-resolution image candidate is covered; restoration beyond upscaling, recovered detail claims, and restoration-specific evidence/failure are not established.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-004"
+    },
+    {
+      "ordinal": 48,
+      "auditId": "AUD-GEN-005",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Text-to-video generation from approved model",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-005",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video/acceptanceCases",
+      "unresolvedGap": "Text-to-video candidate is a core match; approved-model admission, checkpoint/seed/cost/safety provenance, and model-denial behavior are not in the leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-005"
+    },
+    {
+      "ordinal": 49,
+      "auditId": "AUD-GEN-006",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Image-to-video animation from frame reference",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-006",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.image-to-video/acceptanceCases",
+      "unresolvedGap": "Image-conditioned video is a core match; frame-reference conditioning, motion fidelity, exact provenance, and reference-rights denial need feature-specific cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-006"
+    },
+    {
+      "ordinal": 50,
+      "auditId": "AUD-GEN-007",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Video-to-video stylization and transformation",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-007",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video/acceptanceCases",
+      "unresolvedGap": "Source-video transformation is a core match; stylization dimensions, temporal fidelity constraints, and unsupported-style failure are not required by the leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-007"
+    },
+    {
+      "ordinal": 51,
+      "auditId": "AUD-GEN-008",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Multi-image reference conditioning with order/weight",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-008",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.image.multi-reference/acceptanceCases",
+      "unresolvedGap": "Multiple authorized image references are covered; order/weight semantics and behavior when influence cannot be established are expressly unspecified.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-008"
+    },
+    {
+      "ordinal": 52,
+      "auditId": "AUD-GEN-009",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "First/last-frame video interpolation and editing",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 53,
+      "auditId": "AUD-GEN-010",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Video extension and scene continuation",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.generate.video.continue",
+      "proposedOperation": "generate.video.continue",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "source-video",
+          "sourceType": "versioned-source-video-artifact",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "continuation-intent",
+          "sourceType": "declared-duration-and-scene-continuation-intent",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "profile",
+          "sourceType": "admitted-video-generation-profile",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ],
+      "output": {
+        "artifactType": "continued-candidate-video-with-lineage",
+        "resultVariants": [
+          "VIDEO_CONTINUATION_CANDIDATE",
+          "REJECTED",
+          "UNKNOWN_OUTCOME"
+        ],
+        "mustKeepSourceAsLineageBasis": true
+      },
+      "failureContract": [
+        "Unsupported duration/profile or missing source version blocks continuation.",
+        "Do not infer temporal continuity or scene fidelity from source lineage alone."
+      ],
+      "sourceGap": "Mapped video-to-video leaf transforms a required source video; it does not define extension/continuation or a continuation boundary. The source row therefore lacks a matching current operation.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 54,
+      "auditId": "AUD-GEN-011",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Video masked-object replacement and targeted retake",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-011",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.object-replace/acceptanceCases",
+      "unresolvedGap": "Object replacement is the core match; masked region bounds and targeted-retake behavior remain untested as separate feature guarantees.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-011"
+    },
+    {
+      "ordinal": 55,
+      "auditId": "AUD-GEN-012",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Temporal/character/brand consistency constraints",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-012",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.video.video.assess-identity-consistency/acceptanceCases",
+      "unresolvedGap": "Identity consistency observation is a core match; temporal, character, and especially brand constraints require distinct scope/evidence and failure cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-012"
+    },
+    {
+      "ordinal": 56,
+      "auditId": "AUD-GEN-016",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Audio-driven video/character animation",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-016",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.drive.audio/acceptanceCases",
+      "unresolvedGap": "Audio-driven video intent is covered; measured synchronization, character-specific correspondence, and sync-failure reporting are explicitly not established.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-016"
+    },
+    {
+      "ordinal": 57,
+      "auditId": "AUD-GEN-017",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Performance/motion reference conditioning",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-017",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.drive.pose/acceptanceCases",
+      "unresolvedGap": "Pose-driven animation is the core; reference conditioning/style recreation and estimated-motion uncertainty are not fully asserted by the capability cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-017"
+    },
+    {
+      "ordinal": 58,
+      "auditId": "AUD-GEN-018",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Multiple candidate generations and ranking",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-GEN-018",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.rank/acceptanceCases",
+      "unresolvedGap": "Candidate ranking is covered only with a declared objective and comparable evidence; the row’s generation candidate provenance and missing-basis abstention are not tested in leaf cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-GEN-018"
+    },
+    {
+      "ordinal": 59,
+      "auditId": "AUD-GEN-019",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Seed, sampler, aspect/resolution and model parameters",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 60,
+      "auditId": "AUD-GEN-020",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Text-to-motion and reference style recreation",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.generate.motion.text-and-style-reference",
+      "proposedOperation": "generate.motion.text-and-style-reference",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "motion-intent",
+          "sourceType": "text-motion-intent",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "style-reference",
+          "sourceType": "authorized-versioned-motion-or-style-reference",
+          "cardinality": "ZERO_OR_ONE",
+          "required": false
+        },
+        {
+          "slotId": "target-rig",
+          "sourceType": "declared-target-rig-profile",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ],
+      "output": {
+        "artifactType": "candidate-motion-sequence-with-source-provenance",
+        "resultVariants": [
+          "MOTION_CANDIDATE",
+          "REJECTED",
+          "UNKNOWN_OUTCOME"
+        ],
+        "mustIdentifyTextAndReferenceContributionSeparately": true
+      },
+      "failureContract": [
+        "Unsupported text intent, reference rights, or target rig is explicit and blocks that branch.",
+        "Do not claim reference style recreation or rig retarget fidelity without a declared measure."
+      ],
+      "sourceGap": "Mapped leaf retargets source motion onto a target rig; it does not define source-free text-to-motion or reference-style recreation as a generation operation.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 61,
+      "auditId": "AUD-GEN-021",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Photorealistic and stylized render presets",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "proposedCapabilityId": "media.generate.video.text-to-video#render-style-preset",
+      "proposedOperation": "generate.video.text-to-video",
+      "mappingChoice": "EXTEND_EXISTING_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "prompt",
+          "sourceType": "text-or-video-intent",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "render-style",
+          "sourceType": "declared-render-style-preset",
+          "cardinality": "EXACTLY_ONE",
+          "required": true,
+          "allowedValues": [
+            "photorealistic",
+            "stylized"
+          ]
+        },
+        {
+          "slotId": "profile",
+          "sourceType": "admitted-video-generation-profile",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ],
+      "output": {
+        "artifactType": "candidate-video-artifact-with-execution-provenance",
+        "resultVariants": [
+          "VIDEO_CANDIDATE_WITH_RECORDED_STYLE_PRESET",
+          "REJECTED",
+          "UNKNOWN_OUTCOME"
+        ],
+        "mustRecordRequestedAndEffectiveStyleSeparately": true
+      },
+      "failureContract": [
+        "Unavailable style preset is explicit; never silently substitute another style.",
+        "Preset selection does not itself establish visual fidelity or model qualification."
+      ],
+      "sourceGap": "Mapped leaf produces text/video-intent video output shape; it does not define photorealistic or stylized render presets.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "This is an extension of the existing text-to-video leaf, yet no capability postimage mutation is included for the proposed render-style input/result. The proposed definition id uses a fragment suffix and must be represented as a real capability variant/field, not left as an ID-like string.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 62,
+      "auditId": "AUD-GEN-022",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Cost-aware provider capability routing and fallback",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 63,
+      "auditId": "AUD-GEN-023",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Model-local offline generation and GPU memory warnings",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "proposedCapabilityId": "media.capability.execution.local-model-readiness",
+      "proposedOperation": "capability.execution.local-model-readiness",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "operation-profile",
+          "sourceType": "requested-operation-and-profile",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "model-declaration",
+          "sourceType": "versioned-local-model-declaration",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "host-snapshot",
+          "sourceType": "timestamped-local-host-resource-snapshot",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ],
+      "output": {
+        "artifactType": "local-model-compatibility-observation",
+        "resultVariants": [
+          "DECLARED_LOCAL_COMPATIBILITY_WITH_MEMORY_BOUND",
+          "INCOMPATIBLE",
+          "UNKNOWN"
+        ],
+        "mustBeObservationOnly": true
+      },
+      "failureContract": [
+        "Missing/stale model or host data returns UNKNOWN compatibility.",
+        "Memory estimate is a declared bound/warning, not a guarantee, reservation, or execution result."
+      ],
+      "sourceGap": "Mapped leaf returns a declared capability/profile compatibility observation; it does not perform local/offline generation or produce GPU-memory warnings.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "The proposal defines only local-model readiness observation. The source feature also asks for local/offline generation and GPU-memory warnings; define those results separately or explicitly scope them out with exact source-backed criteria.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 64,
+      "auditId": "AUD-GEN-024",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Permissive and hosted provider separation",
+      "sourceAcceptanceCriterion": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "NEW_MEANING_DEFINITION_PROPOSAL",
+      "technicalVerdict": "SUPPORTED",
+      "proposedCapabilityId": "media.capability.provider-class-separation",
+      "proposedOperation": "capability.provider-class-separation",
+      "mappingChoice": "NEW_CAPABILITY_VARIANT",
+      "typedInputs": [
+        {
+          "slotId": "operation-profile",
+          "sourceType": "requested-operation-and-profile",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "provider-class",
+          "sourceType": "declared-provider-class",
+          "cardinality": "EXACTLY_ONE",
+          "required": true,
+          "allowedValues": [
+            "permissive",
+            "hosted"
+          ]
+        },
+        {
+          "slotId": "policy-evidence",
+          "sourceType": "versioned-provider-rights-and-policy-evidence",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ],
+      "output": {
+        "artifactType": "provider-class-capability-observation",
+        "resultVariants": [
+          "CLASS_SEPARATED_WITH_DECLARED_EVIDENCE",
+          "UNAVAILABLE",
+          "UNKNOWN"
+        ],
+        "mustKeepPermissiveAndHostedClaimsSeparate": true
+      },
+      "failureContract": [
+        "Missing, stale, or ambiguous provider-class evidence returns UNKNOWN.",
+        "No provider class is inferred from generic capability declarations; no silent cross-class fallback."
+      ],
+      "sourceGap": "Mapped leaf reports declared processing options; it does not define a separation boundary between permissive and hosted providers or provider admission behavior.",
+      "sourceOwnerMapping": {
+        "candidateValue": "UNRESOLVED_IN_CURRENT_AUTHORITY_MAP; root must identify the authorized semantic owner before canonical adoption",
+        "authorityMapValue": "media-product",
+        "verdict": "REQUEST_CHANGES",
+        "reason": "PDP-0 semantic owner is explicitly media-product in the live authority map; “UNRESOLVED_IN_CURRENT_AUTHORITY_MAP” is inaccurate. Keep approval/adoption disposition UNKNOWN until an authorized source-owner record exists."
+      },
+      "finding": "The proposal gives a bounded feature-level operation with typed inputs, distinct result, failure behavior and authority requirements. It is technically coherent as a proposal; owner mapping must be corrected to media-product, and source adoption remains pending.",
+      "candidateMutationPresent": true
+    },
+    {
+      "ordinal": 65,
+      "auditId": "AUD-INTER-002",
+      "surfaceId": "media.surface.interactive-demo-player",
+      "sourceFeature": "Chapter/scene overview and transcript search",
+      "sourceAcceptanceCriterion": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "finding": "R3 preserves the R2 rebind without adding feature-specific behavior cases. The current mapped cases do not exercise the full feature trigger/result and relevant negative behavior. The proposed target capability outcome is semantically closer to the source feature, but its linked leaf acceptance cases are generic typed/traceable/bounded invocation and generic unknown/unsupported/denied blocking. They do not exercise the named feature trigger/result or a feature-specific negative outcome. media.artifact.search explicitly supports authorized transcript search within exact source versions/time scope, while media.multimodal.summarize supports source-grounded chapter candidates. media.deliver.transcripts describes exporting transcript tracks and is not needed for this feature. Rebind to search plus summarize; no complete indexing or ranking is implied.",
+      "priorPeerVerdict": "REQUEST_CHANGES"
+    },
+    {
+      "ordinal": 66,
+      "auditId": "AUD-INTER-007",
+      "surfaceId": "media.surface.interactive-demo-player",
+      "sourceFeature": "Variable-language captions and audio track selection",
+      "sourceAcceptanceCriterion": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 67,
+      "auditId": "AUD-MOTION-002",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Animated titles, lower thirds and end credits",
+      "sourceAcceptanceCriterion": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MOTION-002",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.titles-credits-lower-thirds/acceptanceCases",
+      "unresolvedGap": "Composition placement of titles/credits is covered; animation/editable typed parameters, preview parity after reopening, and admitted-renderer failure are not in the case.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MOTION-002"
+    },
+    {
+      "ordinal": 68,
+      "auditId": "AUD-MOTION-006",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "2D/3D transition library and user presets",
+      "sourceAcceptanceCriterion": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MOTION-006",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.transition/acceptanceCases",
+      "unresolvedGap": "Transition placement is covered; 2D/3D library membership, user presets, editability, and unsupported-preset behavior are not specified.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MOTION-006"
+    },
+    {
+      "ordinal": 69,
+      "auditId": "AUD-MOTION-009",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Node-based compositing and transform graph",
+      "sourceAcceptanceCriterion": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "PRESERVE_R2_ROW",
+      "technicalVerdict": "SUPPORTED",
+      "finding": "Unchanged row is one of the 13 prior technical passes; reuse is valid only for that frozen source case.",
+      "priorPeerVerdict": "SUPPORTED"
+    },
+    {
+      "ordinal": 70,
+      "auditId": "AUD-MOTION-011",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Frame-to-frame generative transition inserts",
+      "sourceAcceptanceCriterion": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MOTION-011",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.keyframe.intermediate/acceptanceCases",
+      "unresolvedGap": "Intermediate keyframe sequence is covered; frame-to-frame conditioning as a transition insert and continuity/failure behavior are not in the case.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MOTION-011"
+    },
+    {
+      "ordinal": 71,
+      "auditId": "AUD-MOTION-016",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "AR/360/stereoscopic views when hardware/profile admitted",
+      "sourceAcceptanceCriterion": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MOTION-016",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.create.360-media/acceptanceCases",
+      "unresolvedGap": "360-media candidate is covered; AR/stereoscopic output and hardware/profile admission behavior are not established by this leaf.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MOTION-016"
+    },
+    {
+      "ordinal": 72,
+      "auditId": "AUD-MUSIC-001",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Licensed music catalog import with attribution",
+      "sourceAcceptanceCriterion": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MUSIC-001",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/acceptanceCases",
+      "unresolvedGap": "Governed import observation is covered; licensed music catalog discovery/import attribution and generated-track checkpoint rights are not asserted by the mapped capability.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MUSIC-001"
+    },
+    {
+      "ordinal": 73,
+      "auditId": "AUD-MUSIC-004",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Sync cut points and transitions to music",
+      "sourceAcceptanceCriterion": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MUSIC-004",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.sync.scene-beat-music-align/acceptanceCases",
+      "unresolvedGap": "Scene-edit/music-beat alignment candidate is covered; cut-point detection, transition edits, timing tolerance, and beat-evidence failure are not specified.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MUSIC-004"
+    },
+    {
+      "ordinal": 74,
+      "auditId": "AUD-MUSIC-005",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "AI text-to-music creation where weights permit",
+      "sourceAcceptanceCriterion": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MUSIC-005",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.music/acceptanceCases",
+      "unresolvedGap": "Text-to-music candidate is a narrow core match; checkpoint/weight license restrictions and commercial-admission denial are not acceptance cases for this row.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MUSIC-005"
+    },
+    {
+      "ordinal": 75,
+      "auditId": "AUD-MUSIC-006",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Text-to-sound-effect and Foley generation where permitted",
+      "sourceAcceptanceCriterion": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MUSIC-006",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.sound-effect/acceptanceCases",
+      "unresolvedGap": "Text-to-sound-effect candidate is a narrow core match; Foley-specific recorded-event distinction and rights/permission failure need feature-specific cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MUSIC-006"
+    },
+    {
+      "ordinal": 76,
+      "auditId": "AUD-MUSIC-007",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Music remix and style variants",
+      "sourceAcceptanceCriterion": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MUSIC-007",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.music.vary/acceptanceCases",
+      "unresolvedGap": "Source-music variation is covered; style-variant semantics and unsupported-style behavior are not in the output/cases.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MUSIC-007"
+    },
+    {
+      "ordinal": 77,
+      "auditId": "AUD-MUSIC-009",
+      "surfaceId": "media.surface.production-studio",
+      "sourceFeature": "Loopable soundtracks with intro/outro edits",
+      "sourceAcceptanceCriterion": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceRefs": {
+        "candidateRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.json",
+        "postimageRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-postimages.json"
+      },
+      "canonicalOwnerDisposition": "UNKNOWN_PENDING_SOURCE_OWNER_ADOPTION",
+      "amendmentTreatment": "FEATURE_SPECIFIC_CASE_ADDED",
+      "technicalVerdict": "REQUEST_CHANGES",
+      "caseId": "MEDIA-P0-COHORT02-AUD-MUSIC-009",
+      "targetSelector": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.music.continue/acceptanceCases",
+      "unresolvedGap": "Continuation is covered, but loopability plus intro/outro edit operations are not represented; the output explicitly does not claim continuity quality.",
+      "finding": "The added case improves specificity with the exact feature trigger, current typed inputs, mapped operation and owner-defined output. Its own then-clause expressly leaves the named gap unresolved, so this is a partial scope record, not a complete feature-specific acceptance case; add the missing outcome and feature-specific negative/unknown behavior or explicitly narrow the feature.",
+      "requirementCaseId": "MEDIA-REQ-P0-COHORT02-AUD-MUSIC-009"
+    }
+  ],
+  "nonClaims": [
+    "No canonical capabilities.yaml or requirements.yaml file was modified.",
+    "Postimages remain candidate artifacts pending exact source-owner adoption and a distinct follow-up peer review.",
+    "PDP-0 phase currentness, DEV_COMPLETE, independent acceptance, native closure, runtime admission and Delivery are not claimed."
+  ]
+}

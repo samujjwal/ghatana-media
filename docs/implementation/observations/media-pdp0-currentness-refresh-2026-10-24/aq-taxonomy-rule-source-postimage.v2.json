@@ -1,0 +1,261 @@
+{
+  "schemaVersion": "media.pdp0.aq-taxonomy-rule-source-postimage.v2",
+  "recordId": "MEDIA-PDP0-AQ-TAXONOMY-RULE-SOURCE-POSTIMAGE-2026-10-24-V2",
+  "artifactKind": "NON_CANONICAL_VERSIONED_TAXONOMY_RULE_AND_ROW_DISPOSITION_POSTIMAGE",
+  "state": "PROSPECTIVE_ROOT_TECHNICAL_RECOMMENDATION; NOT_CANONICALLY_APPLIED",
+  "campaign": {
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0",
+    "identityDenominator": 54,
+    "phaseCellDenominator": 216,
+    "capabilityDenominator": 469,
+    "auditRowDenominator": 501
+  },
+  "predecessor": {
+    "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json",
+    "sha256": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5"
+  },
+  "sourceCut": {
+    "sourcePins": {
+      "docs/implementation/pdp-0-phase-dev-status.json": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json": "1d40e81cca1440d1df3b014345d36a236922f8ddd4cfb911907e6b01794899e5",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947",
+      "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87",
+      "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json": "0aafe87534b11e215414f0601825608bd12660a3d640e9bed5fe1b3b5bc903b8"
+    },
+    "currentnessSuccessors": [
+      {
+        "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json",
+        "sha256": "05b92b9ac920e64a8a8f584101689076e1e0c2fdad5b2673aecedd40e8e58b87"
+      },
+      {
+        "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json",
+        "sha256": "0aafe87534b11e215414f0601825608bd12660a3d640e9bed5fe1b3b5bc903b8"
+      }
+    ],
+    "readSetSha256": "943bdc6bbc99c2fc413b60aff1d1efdd34a76251181ad82891cd71680ce099cd"
+  },
+  "ruleId": "AQ-INDEX-Q-OBSERVATIONAL-CAPABILITIES-V1",
+  "taxonomyRule": "For the six named AQ rows 59–64 only, select Q as primary when the defined capability outcome is an observation of declared profiles, declared capabilities or options, compatibility, or capability-scoped readiness. Add P only when the exact outcome includes rendering, publishing, or distribution; add O only when it includes an explicit review, quality, or compliance decision. References to a profile, evidence, or readiness input alone do not create a P/O outcome. Do not automatically reclassify any of the other 148 AQ rows under this rule.",
+  "ruleApplicability": {
+    "sourceOrderIndexes": [
+      59,
+      60,
+      61,
+      62,
+      63,
+      64
+    ],
+    "capabilityIds": [
+      "media.profile.discover",
+      "media.profile.validate",
+      "media.capability.discover",
+      "media.capability.check-declared-options",
+      "media.capability.execution.compatibility",
+      "media.health.readiness.inspect"
+    ],
+    "automaticPropagationOutsideListedRows": false
+  },
+  "sourceRuleRefs": [
+    "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#§2",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities",
+    ".product-experience/pdp-0-product-truth/requirements.yaml#requirements"
+  ],
+  "affectedRows": [
+    {
+      "sourceOrderIndex": 59,
+      "capabilityId": "media.profile.discover",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROFILE",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.profile.discover",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE"
+      ],
+      "priorRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "P",
+          "O"
+        ],
+        "semanticRationale": "The taxonomy has no dedicated processing-profile discovery cluster; Q is the closest operational fit because this is an eligibility/selection operation, not proof that a profile is admitted.",
+        "mappingUncertainty": true
+      },
+      "preferredTechnicalRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [],
+        "semanticRationale": "The outcome is a bounded catalog observation of declared profiles; it neither renders/publishes nor issues review or admission decisions.",
+        "mappingUncertainty": false,
+        "classificationBasis": "EXACT_CAPABILITY_OUTCOME_AND_EXISTING_CLUSTER_DEFINITIONS"
+      },
+      "capabilityOutcome": "Discover declared profile definitions and return the exact profile/catalog observation supported by the source; discovery reports declarations and does not admit execution.",
+      "parentRequirementSummary": null,
+      "decisionStatus": "ROOT_PROSPECTIVE_TECHNICAL_RECOMMENDATION; NOT_CANONICALLY_APPLIED",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 60,
+      "capabilityId": "media.profile.validate",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROFILE",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.profile.validate",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE"
+      ],
+      "priorRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "P"
+        ],
+        "semanticRationale": "The taxonomy has no dedicated profile-validation cluster; Q is the closest operational fit because compatibility is checked as an execution option, not a publishing guarantee.",
+        "mappingUncertainty": true
+      },
+      "preferredTechnicalRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [],
+        "semanticRationale": "The outcome reports per-dimension profile compatibility and blockers without executing delivery; validation is an operational/API observation.",
+        "mappingUncertainty": false,
+        "classificationBasis": "EXACT_CAPABILITY_OUTCOME_AND_EXISTING_CLUSTER_DEFINITIONS"
+      },
+      "capabilityOutcome": "Evaluate one named output profile against an explicit outcome and input constraints, returning per-dimension compatibility and blockers without executing delivery.",
+      "parentRequirementSummary": null,
+      "decisionStatus": "ROOT_PROSPECTIVE_TECHNICAL_RECOMMENDATION; NOT_CANONICALLY_APPLIED",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 61,
+      "capabilityId": "media.capability.discover",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.discover",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY"
+      ],
+      "priorRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "O"
+        ],
+        "semanticRationale": "The taxonomy has no standalone capability-registry cluster; Q is the closest fit for capability discovery as an operational/API concern.",
+        "mappingUncertainty": true
+      },
+      "preferredTechnicalRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [],
+        "semanticRationale": "The outcome returns source-declared capability metadata for the requested catalog scope; catalog lookup is an operational/API observation.",
+        "mappingUncertainty": false,
+        "classificationBasis": "EXACT_CAPABILITY_OUTCOME_AND_EXISTING_CLUSTER_DEFINITIONS"
+      },
+      "capabilityOutcome": "Discover declared capability leaves and their source-declared metadata, returning an observation of the requested catalog scope.",
+      "parentRequirementSummary": null,
+      "decisionStatus": "ROOT_PROSPECTIVE_TECHNICAL_RECOMMENDATION; NOT_CANONICALLY_APPLIED",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 62,
+      "capabilityId": "media.capability.check-declared-options",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.check-declared-options",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY"
+      ],
+      "priorRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "O"
+        ],
+        "semanticRationale": "The taxonomy has no standalone option-registry cluster; Q is the closest fit for checking declared operational options.",
+        "mappingUncertainty": true
+      },
+      "preferredTechnicalRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [],
+        "semanticRationale": "The outcome reports declared options and evidence while runtime readiness remains separate; it does not decide quality or compliance.",
+        "mappingUncertainty": false,
+        "classificationBasis": "EXACT_CAPABILITY_OUTCOME_AND_EXISTING_CLUSTER_DEFINITIONS"
+      },
+      "capabilityOutcome": "A caller can check declared processing options and their capability evidence; current runtime readiness remains a separate check.",
+      "parentRequirementSummary": null,
+      "decisionStatus": "ROOT_PROSPECTIVE_TECHNICAL_RECOMMENDATION; NOT_CANONICALLY_APPLIED",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 63,
+      "capabilityId": "media.capability.execution.compatibility",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.execution.compatibility",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY"
+      ],
+      "priorRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "O"
+        ],
+        "semanticRationale": "The taxonomy has no standalone execution-compatibility cluster; Q is the closest fit for a bounded orchestration preflight.",
+        "mappingUncertainty": true
+      },
+      "preferredTechnicalRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [],
+        "semanticRationale": "The outcome compares declared capability, requested operation, and profile as an observation; it does not admit execution.",
+        "mappingUncertainty": false,
+        "classificationBasis": "EXACT_CAPABILITY_OUTCOME_AND_EXISTING_CLUSTER_DEFINITIONS"
+      },
+      "capabilityOutcome": "Compare a declared capability query with the requested operation and profile, returning a declared-capability-and-compatibility result as an observation only.",
+      "parentRequirementSummary": null,
+      "decisionStatus": "ROOT_PROSPECTIVE_TECHNICAL_RECOMMENDATION; NOT_CANONICALLY_APPLIED",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 64,
+      "capabilityId": "media.health.readiness.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-HEALTH",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.health.readiness.inspect",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH"
+      ],
+      "priorRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [
+          "O"
+        ],
+        "semanticRationale": "Readiness is not a promised capability in any single A–Q feature cluster; Q is the closest operational fit for reporting capability-scoped readiness.",
+        "mappingUncertainty": true
+      },
+      "preferredTechnicalRecommendation": {
+        "primaryClusterId": "Q",
+        "relatedClusterIds": [],
+        "semanticRationale": "The outcome reports capability-scoped readiness observations and preserves check boundaries; it does not decide admission or quality/compliance.",
+        "mappingUncertainty": false,
+        "classificationBasis": "EXACT_CAPABILITY_OUTCOME_AND_EXISTING_CLUSTER_DEFINITIONS"
+      },
+      "capabilityOutcome": "Inspect readiness for the requested capability scope and return a capability-scoped readiness observation, preserving the boundary and source of each observed check.",
+      "parentRequirementSummary": null,
+      "decisionStatus": "ROOT_PROSPECTIVE_TECHNICAL_RECOMMENDATION; NOT_CANONICALLY_APPLIED",
+      "ownerAcceptance": "NOT_CLAIMED"
+    }
+  ],
+  "preservedDenominators": {
+    "aqRows": 154,
+    "capabilityRecords": 469,
+    "pxd216ReviewedRows": 20,
+    "phaseCells": 216,
+    "surfaceIdentities": 54,
+    "auditRows": 501
+  },
+  "invariantChecks": {
+    "capabilityDefinitionsChanged": 0,
+    "requirementDefinitionsChanged": 0,
+    "acceptanceCasesAddedOrChanged": 0,
+    "crosswalkRowsChanged": 0,
+    "phaseStatusChanged": false,
+    "pxd216ReviewedRowsChanged": 0,
+    "otherAQRecommendationRowsChanged": 0
+  },
+  "authorityBoundary": {
+    "sourceOwnerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "rootDecision": "PROSPECTIVE_CANDIDATE_ONLY",
+    "canonicalApply": "NONE"
+  }
+}
