@@ -101,3 +101,29 @@ test('Media backend implementation has exactly one source-code destination and a
   const migration = [...plan.matchAll(/^\| \*\*M0[1-8]\*\* \|/gmu)];
   assert.equal(migration.length, 8);
 });
+
+test('PDP-0 capability intentions match registered physical surfaces for five backend units', async () => {
+  const topology = JSON.parse(await readFile(ROOT + '/.product-experience/surfaces/media-physical-topology.v1.json', 'utf8'));
+  const plan = await readFile(ROOT + '/docs/implementation/MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md', 'utf8');
+  assert.ok(plan.includes('## 15. PDP-0 capability intent crosswalk'));
+  const expected = new Map([
+    ['runtime-contracts',['media.artifact.inspect','media.artifact.upload','media.job.view-status','media.rights.consent.reference','media.provenance.source-lineage.inspect']],
+    ['modules/infrastructure/security',['media.rights.consent.reference','media.rights.permitted-use.evaluate','media.rights.attestation.record']],
+    ['providers/aws-postgresql',['media.artifact.ingest','media.artifact.upload','media.artifact.upload.resume','media.artifact.inspect','media.artifact.derive','media.artifact.delete','media.artifact.retain','media.artifact.provenance.export']],
+    ['launcher',['media.job.submit','media.job.view-status','media.job.list','media.job.watch','media.job.cancel','media.job.retry','media.job.check-outcome','media.job.outputs.inspect','media.job.history.inspect']],
+  ]);
+  for (const [path,intents] of expected) {
+    const surface = topology.manifestCandidates.find(x => x.sourcePath === path);
+    assert.ok(surface, 'missing physical surface ' + path);
+    const recorded = surface.phaseApplicability['PDP-0'];
+    assert.equal(recorded.disposition, 'APPLICABLE', path);
+    for (const intent of intents) {
+      assert.ok(recorded.capabilityIntentIds.includes(intent), path + ' missing intent ' + intent);
+      assert.ok(plan.includes('`' + intent + '`'), 'missing exact intent in plan: ' + intent);
+    }
+  }
+  const messaging = topology.manifestCandidates.find(x => x.sourcePath === 'modules/infrastructure/messaging');
+  assert.equal(messaging.phaseApplicability['PDP-0'].disposition, 'NOT_APPLICABLE_SUPPORT');
+  assert.match(plan, /No direct PDP-0 intent assigned/u);
+  assert.match(plan, /private-to-public import safeguard/u);
+});
