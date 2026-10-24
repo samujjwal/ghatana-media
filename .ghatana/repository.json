@@ -4,7 +4,7 @@
   "repositoryId": "ghatana:ghatana-media",
   "namespace": "ghatana",
   "name": "ghatana-media",
-  "description": "Standalone Ghatana Media product repository. During behavior-preserving migration, ghatana/services/media remains canonical; generic document intelligence stays with Ghatana's platform services.",
+  "description": "Standalone Ghatana Media product repository and exclusive new Media implementation-code owner. The prior ghatana/services/media deployment is a read-only historical runtime source until verified source/data and single-writer cutover; generic Document Intelligence remains with Ghatana platform services.",
   "extensions": {
     "kind": "standalone-product",
     "sourceRepository": "ghatana",

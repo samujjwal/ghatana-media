@@ -43,7 +43,7 @@
 ```mermaid
 flowchart LR
   PDP["Frozen PDP0–3\nintent / state / interface / experience"] --> TRACE["F00 trace & admissions"]
-  WRITER["ghatana/services/media\ncanonical executable writer"] --> CUT["F01 owner-approved cutover plan"]
+  WRITER["ghatana-media\nsole new Media code writer"] --> CUT["F01 old deployment retirement / data cutover"]
   TRACE --> F["F02–F13 shared foundations"]
   CUT --> F
   F --> V["J01/J02/J20/J03\nfirst full business outcome"]
@@ -66,8 +66,8 @@ flowchart LR
 
 | Area | Observed source | Classification / action |
 | --- | --- | --- |
-| Runtime HTTP and domain SPIs | `ghatana/services/media/launcher/` and `runtime-contracts/`; mirrored `launcher/`, `runtime-contracts/` | Existing internal-preview artifact/job/stream runtime, **reuse after exact two-repo parity**; full PDP realization unverified |
-| Persistence and schema | Canonical `ghatana/services/media/providers/aws-postgresql/` V001–V016 vs. prepared `providers/aws-postgresql/` V001–V009 (**V007–V009 divergent**), `modules/infrastructure/persistence/` | Two source histories are **not equivalent**; F01/F05 own ordered schema/data reconciliation; never start two writers |
+| Runtime HTTP and domain SPIs | `ghatana-media/launcher/`, `runtime-contracts/`; old `ghatana/services/media/` read-only comparison | Existing artifact/job/stream sources require **import/merge and isolated Media-root build proof**; full PDP realization unverified |
+| Persistence and schema | Destination Media `providers/aws-postgresql/` V001–V009 versus historical Ghatana Media V001–V016 (**V007–V009 divergent**); `modules/infrastructure/persistence/` | Two source histories are **not equivalent**; F01/F05 own ordered schema/data reconciliation; never start two writers |
 | JVM modalities | `modules/speech/{stt-service,tts-service}`, `modules/vision/vision-service`, `modules/intelligence/multimodal-service` | Source/proto/test present; provider capability and exact PDP endpoint admission unverified |
 | Native and streams | `modules/intelligence/speech/libs/speech-audio-rust/`, `modules/{audio-streaming,video-streaming}/` | Utility/candidate; codec/stream/solver completeness unverified |
 | Public channels | `contracts/openapi/media.yaml`, `config/route-manifest.json`, proto, `libs/audio-video-{types,client}/` | Contracts/candidates present; exact operation parity and publish admission pending |
@@ -91,7 +91,7 @@ flowchart LR
 | Product definition, interfaces and handoff | Tools `libs/product-development/{product-definition,experience-language,experience-specification,experience-package,implementation-handoff}/`; public `validateImplementationHandoff` | Media-only source-derived package/identity mapping and experience fixtures. Trace 3,186 identity rows and 61 channel edges; no alternative schema, Explorer authority or implementation scheduler. | F00 F02 F09 X01 |
 | Lifecycle and PhaseProgram | Kernel `docs/spec-driven-development/kernel-development-lifecycle.yaml` and Lifecycle `docs/architecture/PHASE_PROGRAM.md` | Record exact Build implementation evidence; native PDP closure separate; do not equate `PHASE-*`, `PDP-*` or release. | F00 X03 |
 | Reusable browser/embedded UI and a11y | Shared TS `design-system,ds-headless,ds-registry,ds-schema,tokens,theme,product-shell,accessibility,i18n` | Media waveform, timeline, captions, Studio, simulation instruments, accessible finality/unknown states in a real product host. Test packed consumer, keyboard, reflow, reduced motion, localization and denials. | F10, GUI verticals, L02 L03 |
-| Existing Media runtime and local provider SPIs | **Canonical:** `ghatana/services/media/{launcher,runtime-contracts,providers,modules}/`, `MediaLauncher`/`MediaRuntime` | Extend **only the authorized writer** for Media semantics; preserve REST/proto/DB compatibility. A present local provider or passing module test is not admitted end-to-end production functionality. | F01–F09; V01–V30 |
+| Existing Media runtime and local provider SPIs | **Source code destination:** `ghatana-media/{launcher,runtime-contracts,providers,modules}/`, `MediaLauncher`/`MediaRuntime`; legacy equivalent is read-only | Extend **only the Media repository** for Media semantics; preserve REST/proto/DB compatibility. A present local provider or passing module test is not admitted end-to-end production functionality. | F01–F09; V01–V30 |
 | Data Cloud and governed projections | Ghatana `services/data-cloud/` public metadata/read-model contract | Project approved Media asset/provenance/quality metadata by exact subject/version; projection may never declare job completion. | F07 F09; V06 V21 |
 | AI/model inference and provider policy | Ghatana `services/ai-inference/` public model/provider boundary | Media modality/profile/rights/time/region/cost guards and typed result mapping. Missing profile/license/credentials/region = `NOT_ADMITTED`; timeout UNKNOWN prevents unsafe replay. | F08; V03–V19 V30 |
 | Document extraction/OCR | Ghatana `services/document-intelligence/` public API; MDI-001 | Only scene/frame/track/time-bound text observations; old Media OCR compatibility removed **after** published client and consumer parity. Do not fork OCR or claim accuracy without measured evidence. | F08; V05 V06 |
@@ -191,9 +191,9 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 **Owner / exclusive write boundary:** Media runtime owner + Ghatana source owner. **Dependencies:** M-BLD-F00. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
-**Outcome & scope:** Compare `ghatana/services/media` writer against `ghatana-media` prepared mirror at exact commits and directory/build coordinates. Enumerate runtime sources, registry ownership, migrations, deployment manifests, routes, consumer imports and overlapping writers. Prepare reviewed migration/cutover sequence with one write freeze, data/lease/outbox reconciliation and rollback; the sole source-code implementation destination is `ghatana-media` now, while the old active runtime stays untouched until a safe operational cutover.
+**Outcome & scope:** Compare the historical `ghatana/services/media` runtime READ-ONLY against the now-designated `ghatana-media` implementation repository at exact commits and directory/build coordinates. Enumerate runtime sources, registry ownership, migrations, deployment manifests, routes, consumer imports and overlapping writers. Prepare reviewed migration/cutover sequence with one write freeze, data/lease/outbox reconciliation and rollback; the sole source-code implementation destination is `ghatana-media` now, while the old active runtime stays untouched until a safe operational cutover.
 
-**Canonical source/target paths:** `ghatana/services/media/{launcher,runtime-contracts,modules,providers}`, Media `{launcher,runtime-contracts,modules,providers}`, `migration/transfer-receipt.yaml`, `docs/migration/`, `config/repo-boundary.json`, `BOUNDARY.md`. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
+**Source/target paths:** Implement exclusively in Media `{launcher,runtime-contracts,modules,providers}` plus `migration/`, `.ghatana/repository.json`, `BOUNDARY.md`, and owner/consumer source adapters; legacy `ghatana/services/media/` is read-only comparison evidence. All new Media source implementation and tests belong in `ghatana-media`; former `ghatana/services/media` is read-only compatibility input while actual live deployment cutover is still pending.
 
 **Test layers / commands:**
 pnpm report:media-source-target-tree
