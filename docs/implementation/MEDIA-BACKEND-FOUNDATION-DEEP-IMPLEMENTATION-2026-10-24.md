@@ -300,3 +300,53 @@ Counts are **this focused execution checklist only**, not official gtool Build t
 
 **Recommended first implementer action:** Run B01–B04, then C02/C05, S02/S05 denial tests, A03 corrupt/restart test and J03 durable-worker crash reproduction **as code/test patches**. This produces a real failing or passing backend behavior in the first pulse and avoids another planning cycle.
 
+
+
+## 12. Media-only source consolidation: eight prerequisite tasks, not a sixth backend package
+
+**Source owner resolution:** New Media-specific Java, SQL, JS/TS/Rust, test, fixture, build, config, wire and provider changes land in `ghatana-media` ONLY. The old `ghatana/services/media` is read-only historical runtime evidence; a still-running legacy deployment remains untouched until cutover. Other Ghatana **platform** modules, Shared and Kernel remain external owners accessed through admitted public/source-composite APIs.
+
+**Observed tree differences** (tracked blobs, not feature counts):
+
+| Path | Media | Legacy | Legacy-only | Divergent shared files |
+| --- | ---: | ---: | ---: | ---: |
+| `runtime-contracts/` | 19 | 25 | 11 | 4 |
+| `launcher/` | 27 | 31 | 4 | 14 |
+| `providers/` | 38 | 55 | 23 | 8 |
+| `modules/` | 250 | 264 | 17 | 37 |
+| `adapters/` | 5 | 5 | 0 | 2 |
+| `integration-tests/` | 16 | 16 | 0 | 1 |
+| `contracts/` | 1 | 1 | 0 | 1 |
+
+There are Media-only additions as well; never blindly replace them with historical files. This table is a pinned comparison observation and does NOT mean migration is finished. **M01–M07 are implemented in the destination repository**; M08 is a future deployment/data cutover.
+
+| Task | Predecessors | Exact edit/procedure in Media | Acceptance check |
+| --- | --- | --- | --- |
+| **M01** | B01 | migration/, tree comparison against legacy source; exact path/mode/blob KEEP/IMPORT/MERGE/EXCLUDE classification for all runtime contracts, launcher, providers, modules, adapters, routes and tests | All Media-specific missing/divergent files inventoried with disposition. Run pnpm report:media-source-target-tree and pnpm test:source-target-tree-crosswalk. |
+| **M02** | M01,C01 | runtime-contracts/; import/merge 11 legacy-only and 4 divergent Java/test files while preserving destination-only types, finality, temporal identities and old wire compatibility | Media runtime-contracts compile/test and cross-version wire fixtures pass; no duplicated schema owner. |
+| **M03** | M01,M02 | launcher/, modules/, adapters/, integration-tests/, contracts/openapi/media.yaml; reconcile 4 legacy-only/14 divergent launcher files, 17 legacy-only/37 divergent module files, 2 divergent adapter files, plus tests/routes | Media-only Gradle/TS compile and route/protobuf tests green; former Media subtree not used on runtime classpath. |
+| **M04** | M01,A01 | providers/aws-postgresql/src/main/resources/db/media-runtime/; reconcile target V007 unknown_outcome/V008 request_fingerprint/V009 upload_idempotency vs legacy V007 unknown_provider_outcome/V008 artifact_content_version/V009 attempts_and_outbox using observed flyway_schema_history and forward-only safe adoption | Both fresh and legacy-initialized DBs migrate with checked names/versions/checksums and preserved rows; unknown lineage fails closed; no Flyway repair or overwrite. |
+| **M05** | M02,M04 | providers/aws-postgresql/; import/merge 23 legacy-only/8 divergent provider files (format verifier, transcript, outbox publishers, receipt and V010–V016 semantics), keeping collision-free effective migration scripts | Media provider compile, isolated PostgreSQL/S3 tests, deterministic outbox and schema-history compatibility checks pass. |
+| **M06** | M02,M03,M05 | settings.gradle.kts, build.gradle.kts, launcher ServiceLoader wiring, module import paths, configs; build from Media root and consume platform libraries through public/source-composite contracts only | No old services/media code on runtime classpath; selected modules and Media launcher run with isolated DB/queues. |
+| **M07** | M05,M06,C,S,A,J,E | Media integration-tests/, modules/integration-tests/; run V01–V10 on Media-built launcher/worker with real isolated Postgres/S3 and admitted test provider/transport, verify cross-language clients and old-record migration | All relevant real E2E, fault, restart, rights, idempotency, source compatibility and resource measurements pass with full command/log summary. |
+| **M08** | M07 and actual delivery admission | deployment manifests and consumer bindings, then ghatana legacy retirement; freeze/drain old runtime/queue/outbox, reconcile applied DB data/leases, activate single Media writer, rollback and revoke old writers | One active DB migration runner, worker and publisher at any time; real authoritative operational go/no-go and rollback proof. Not required before source coding. |
+
+Start C/S unit work immediately in Media while M01–M04 run; never start two active DB writers/publishers or put new code into the old subtree. M04 must pass before a historical DB migration; it does not gate unrelated code edits.
+
+## 13. PDP coverage exceptions and exact corrective work
+
+The foundation tasks are grounded in product-intent PDP sources, but **not all task-to-PDP-1/2/3 semantic bindings are formally complete or admitted**. Product source status is not inferred from this plan. Internal code can be implemented with a safe NOT_ADMITTED/UNKNOWN public result.
+
+| Gap | Actual source state | Corrective task and executable outcome |
+| --- | --- | --- |
+| **G01** | PDP-1 states.yaml defines 9 logical job + 10 attempt states; runtime enums are narrower | C05/J01/J07/J11 implement lossless persisted-state/legacy-wire mapping and exhaustive legal/illegal transition tests. |
+| **G02** | PDP-3 api/api-registry.yaml has 27 HTTP operations but only 5 bounded PDP-1 logical bindings; other 22 unresolved | C08/J11/S03 harden existing routes only; author PDP-1/2/3 and OpenAPI/route/SDK bindings before new public watch, check-outcome or erase endpoints. |
+| **G03** | PDP-1 privacy.yaml demands complete copy inventory and hold/backup/provider deletion receipts | S08/A08 keep unknown, pending, partial or blocked-by-hold unless every applicable copy owner proves erasure. |
+| **G04** | PDP-1 events.yaml artifact family includes erasure but exact canonical erasure event type unestablished | E02/E03 publish existing catalog types only; source-author semantic event type and consumer binding before new public event. |
+| **G05** | Event Plane exact append/lookup receipt NOT_ADMITTED; PDP-3 events registry covers primarily local listeners | E04-E11 real public Event Plane adapter/ACK/readback/consumer verification needed; local mocks cannot claim integrated delivery. |
+| **G06** | NFR-PERF-001 targets proposed but reference hardware/fixture not set; NFR-COST-001 requires bounded resources | C10/A10/J05/J12 pin machine, baseline, workload and measure proposed 300ms/50rps metadata, 500ms submit, 1s cancel-ack separately from provider effect. |
+| **G07** | Two source histories, Flyway version collisions, and missing runtime files | M01-M08 resolve old code into Media; these are engineering tasks, not gtool/PDP proof. |
+| **G08** | Selected physical leaves have additional stream/provider/modality capabilities outside five-unit scope | Do not claim full leaf/root completion on five unit results; preserve full PDP/surface denominator. |
+
+Existing source definitions remain in `.product-experience/`; do not generate a competing contract registry or gtool status. The 56-task exact PDP trace follows in `14. A binding gap prevents claims about that unadmitted **public** behavior, not independent coding/testing.
+
