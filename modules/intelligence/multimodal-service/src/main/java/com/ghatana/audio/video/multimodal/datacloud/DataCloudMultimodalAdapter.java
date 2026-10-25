@@ -74,8 +74,13 @@ public class DataCloudMultimodalAdapter implements MediaProcessorPort {
         // PersistentMultimodalService.index currently fails closed until a trusted Data Cloud
         // artifact/version reader and rights/consent admission path are wired.
         return multimodalService.index(artifactId, tenantId, indexType, parameters)
-                .whenException(ex -> LOG.warn("Multimodal indexing failed failureType={}",
-                        ex.getClass().getSimpleName()));
+                .mapException(ex -> {
+                    // Provider and source exceptions can contain artifact text, tenant identifiers,
+                    // or other scoped values. Keep this boundary's failure explicit but opaque.
+                    LOG.warn("Multimodal indexing unavailable failureType={}",
+                            ex.getClass().getSimpleName());
+                    return new IllegalStateException("Data Cloud multimodal integration is unavailable");
+                });
     }
 
     @Override
