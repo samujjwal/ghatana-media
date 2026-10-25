@@ -138,6 +138,11 @@ public final class VideoAnalysisService {
     ) {
         public FrameDetections {
             Objects.requireNonNull(sourceTimestamp, "sourceTimestamp");
+            if (frameNumber < 0) {
+                throw new IllegalArgumentException("Frame number must be a non-negative emitted-frame ordinal");
+            }
+            detections = List.copyOf(Objects.requireNonNull(detections, "detections"));
+            trackIds = List.copyOf(Objects.requireNonNull(trackIds, "trackIds"));
             if ((sourceTimestamp.isKnown() && !Objects.equals(timestampMs, sourceTimestamp.timestampMs()))
                     || (!sourceTimestamp.isKnown() && timestampMs != null)) {
                 throw new IllegalArgumentException("Frame timestamp must match the source PTS status");
@@ -165,6 +170,10 @@ public final class VideoAnalysisService {
             Duration processingTime,
             String trackingStatus
     ) {
+        public VideoAnalysisResult {
+            frameDetections = List.copyOf(Objects.requireNonNull(frameDetections, "frameDetections"));
+        }
+
         /** Returns a summary of object classes detected across all frames. */
         public Map<String, Long> classCounts() {
             return frameDetections.stream()

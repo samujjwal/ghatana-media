@@ -28,6 +28,15 @@ public class BoundingBox {
     private final double height;
 
     private BoundingBox(Builder builder) {
+        if (!Double.isFinite(builder.x) || !Double.isFinite(builder.y)
+                || !Double.isFinite(builder.width) || !Double.isFinite(builder.height)
+                || builder.width < 0 || builder.height < 0
+                || !Double.isFinite(builder.x + builder.width)
+                || !Double.isFinite(builder.y + builder.height)
+                || !Double.isFinite(builder.width * builder.height)) {
+            throw new IllegalArgumentException(
+                    "Bounding box coordinates and extents must be finite with non-negative, finite area");
+        }
         this.x = builder.x;
         this.y = builder.y;
         this.width = builder.width;

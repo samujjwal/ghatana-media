@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -29,6 +30,31 @@ class BoundingBoxTest extends EventloopTestBase {
 
         assertEquals(1.0d / 7.0d, iou, 0.0001d); 
         assertTrue(left.intersects(right)); 
+    }
+
+    @Test
+    @DisplayName("Should reject non-finite or invalid pixel geometry")
+    void rejectsInvalidGeometry() {
+        assertThrows(IllegalArgumentException.class,
+                () -> BoundingBox.builder().x(Double.NaN).y(0).width(1).height(1).build());
+        assertThrows(IllegalArgumentException.class,
+                () -> BoundingBox.builder().x(0).y(Double.POSITIVE_INFINITY).width(1).height(1).build());
+        assertThrows(IllegalArgumentException.class,
+                () -> BoundingBox.builder().x(0).y(0).width(-1).height(1).build());
+        assertThrows(IllegalArgumentException.class,
+                () -> BoundingBox.builder().x(0).y(0).width(1).height(Double.NEGATIVE_INFINITY).build());
+        assertThrows(IllegalArgumentException.class,
+                () -> BoundingBox.builder().x(Double.MAX_VALUE).y(0).width(Double.MAX_VALUE).height(1).build());
+        assertThrows(IllegalArgumentException.class,
+                () -> BoundingBox.builder().x(0).y(0).width(Double.MAX_VALUE).height(2).build());
+    }
+
+    @Test
+    @DisplayName("Should preserve finite off-raster coordinates for later clipping")
+    void allowsFiniteCoordinatesOutsideRaster() {
+        BoundingBox box = BoundingBox.builder().x(-2).y(3).width(5).height(4).build();
+        assertEquals(-2, box.getX());
+        assertEquals(20, box.getArea());
     }
 
     @Test

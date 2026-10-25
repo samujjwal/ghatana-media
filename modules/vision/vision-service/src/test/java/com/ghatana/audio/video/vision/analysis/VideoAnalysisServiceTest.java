@@ -184,6 +184,37 @@ class VideoAnalysisServiceTest {
     }
 
     @Test
+    void frameObservationsRequireNonNegativeOrdinalAndSnapshotTheirCollections() {
+        var timestamp = SourceMediaTimestamp.fromPts("90000", "1/90000");
+        List<DetectedObject> detections = new java.util.ArrayList<>(List.of(
+                buildDetection("person", 0.9, 1, 2, 3, 4)));
+        List<Integer> trackIds = new java.util.ArrayList<>();
+        var observation = new VideoAnalysisService.FrameDetections(
+                2, timestamp.timestampMs(), timestamp, detections, trackIds);
+
+        detections.clear();
+        trackIds.add(7);
+        assertThat(observation.detections()).hasSize(1);
+        assertThat(observation.trackIds()).isEmpty();
+        assertThatThrownBy(() -> new VideoAnalysisService.FrameDetections(
+                -1, timestamp.timestampMs(), timestamp, List.of(), List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("non-negative emitted-frame ordinal");
+    }
+
+    @Test
+    void analysisResultSnapshotsFrameTimeline() {
+        List<VideoAnalysisService.FrameDetections> timeline = new java.util.ArrayList<>();
+        var result = new VideoAnalysisResult("clip.mp4", java.time.Instant.EPOCH, 0, 0,
+                timeline, java.time.Duration.ZERO, "NOT_ADMITTED");
+
+        timeline.add(new VideoAnalysisService.FrameDetections(0,
+                SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING").timestampMs(),
+                SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING"), List.of(), List.of()));
+        assertThat(result.frameDetections()).isEmpty();
+    }
+
+    @Test
     void refusesFramesBeyondExtractionBudgetBeforeDetection() throws IOException {
         Path first = tempDir.resolve("over-budget-1.jpg");
         Path second = tempDir.resolve("over-budget-2.jpg");
