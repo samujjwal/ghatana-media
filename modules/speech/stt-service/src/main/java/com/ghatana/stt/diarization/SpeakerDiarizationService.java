@@ -78,9 +78,7 @@ public final class SpeakerDiarizationService {
      */
     public List<SpeakerTurn> diarize(List<AudioSegment> segments) {
         Objects.requireNonNull(segments, "segments must not be null");
-        if (!admission.isAdmitted()) {
-            throw new DiarizationException("STT_DIARIZATION_NOT_ADMITTED: trusted rights and purpose admission is unavailable");
-        }
+        requireAdmission();
         if (extractor == null) {
             throw new DiarizationException("STT_DIARIZATION_NOT_ADMITTED: qualified speaker embedding provider is unavailable");
         }
@@ -106,6 +104,10 @@ public final class SpeakerDiarizationService {
         List<float[]> centroids = new ArrayList<>(); // per-speaker centroid embeddings
 
         for (AudioSegment segment : segments) {
+            // Admission can change while a batch is being processed. Re-check immediately
+            // before every sensitive embedding dispatch so revocation cannot authorize
+            // the remainder of the batch under a stale decision.
+            requireAdmission();
             float[] embedding = extractor.extract(segment.audioBytes());
             validateEmbedding(embedding);
             String speakerId = assignSpeaker(embedding, centroids);
@@ -116,6 +118,13 @@ public final class SpeakerDiarizationService {
         LOG.info("Diarization complete: {} segments → {} speaker(s)",
                 segments.size(), centroids.size());
         return Collections.unmodifiableList(result);
+    }
+
+    private void requireAdmission() {
+        if (!admission.isAdmitted()) {
+            throw new DiarizationException(
+                    "STT_DIARIZATION_NOT_ADMITTED: trusted rights and purpose admission is unavailable");
+        }
     }
 
     // ─── internal ─────────────────────────────────────────────────────────────

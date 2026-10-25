@@ -88,6 +88,25 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("rechecks trusted admission before every embedding dispatch")
+        void diarize_rechecksAdmissionForEachSegment() {
+            var admissionChecks = new java.util.concurrent.atomic.AtomicInteger();
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            SpeakerDiarizationService service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> { providerCalls.incrementAndGet(); return new float[]{1}; })
+                    .admission(() -> admissionChecks.incrementAndGet() <= 2)
+                    .build();
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(List.of(
+                            new SpeakerDiarizationService.AudioSegment(new byte[]{1}, 0, 10, "x"),
+                            new SpeakerDiarizationService.AudioSegment(new byte[]{2}, 10, 20, "y"))))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessage("STT_DIARIZATION_NOT_ADMITTED: trusted rights and purpose admission is unavailable");
+            assertThat(admissionChecks).hasValue(3);
+            assertThat(providerCalls).hasValue(1);
+        }
+
+        @Test
         @DisplayName("single segment returns one turn labeled SPEAKER_0")
         void diarize_singleSegment_labeledSpeaker0() { 
             SpeakerDiarizationService service = buildService(); 
