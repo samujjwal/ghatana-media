@@ -27,6 +27,9 @@ final class YoloDetectionPostProcessor {
         if (classes.stream().anyMatch(label -> label == null || label.isBlank())) {
             throw new IllegalArgumentException("Model class mapping labels must not be blank");
         }
+        if (classes.stream().distinct().count() != classes.size()) {
+            throw new IllegalArgumentException("Model class mapping labels must be unique");
+        }
         if (transform == null) {
             throw new IllegalArgumentException("Validated letterbox transform is required");
         }

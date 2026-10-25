@@ -83,6 +83,16 @@ class YoloDetectionPostProcessorTest {
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("SHA-256");
     }
 
+    @Test void rejectsDuplicateLabelsThatWouldCollapseDistinctClassesDuringNms() {
+        var overlappingClasses = List.of(
+                new YoloOutputParser.Detection(0, 0.9, 10, 10, 20, 20),
+                new YoloOutputParser.Detection(1, 0.8, 10, 10, 20, 20));
+
+        assertThatThrownBy(() -> YoloDetectionPostProcessor.process(overlappingClasses,
+                List.of("animal", "animal"), LetterboxTransform.fit(100, 100, 100), 0.5, 1, MODEL))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("unique");
+    }
+
     @Test void rejectsNonFiniteAndOutOfRangeDirectDetectionValues() {
         var transform = LetterboxTransform.fit(100, 100, 100);
         for (double invalidConfidence : new double[] {Double.NaN, Double.POSITIVE_INFINITY, -0.01, 1.01}) {
