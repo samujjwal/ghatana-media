@@ -25,6 +25,16 @@ class SttAudioInputDecoderTest {
     }
 
     @Test
+    void derivesDurationFromWholeFramesUsingTheContainerSampleClock() {
+        // 3 frames at 44.1 kHz is not an integral millisecond; duration is derived
+        // from frame count/sample rate rather than the WAV byte-rate field or a rounded ms value.
+        var decoded = SttAudioInputDecoder.decode(
+                pcmWav(44_100, 1, 16, new byte[6]), AudioFormat.WAV, 44_100);
+
+        assertThat(decoded.duration().toNanos()).isEqualTo(68_027L);
+    }
+
+    @Test
     void rejectsBadWavHeaderWithStableInvalidArgumentKind() {
         byte[] malformed = pcmWav(16_000, 1, 16, new byte[] {1, 2});
         malformed[0] = 'X';
@@ -133,6 +143,18 @@ class SttAudioInputDecoderTest {
                         assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.NOT_ADMITTED));
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
                 pcmWav(16_000, 1, 16, new byte[] {1, 2, 3}), AudioFormat.WAV, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_WAV");
+                });
+    }
+
+    @Test
+    void rejectsWavWhoseDeclaredByteClockDisagreesWithItsSampleClock() {
+        byte[] badClock = pcmWav(16_000, 1, 16, new byte[] {1, 2});
+        ByteBuffer.wrap(badClock).order(ByteOrder.LITTLE_ENDIAN).putInt(28, 1);
+
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(badClock, AudioFormat.WAV, 16_000))
                 .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
                     assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
                     assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_WAV");
