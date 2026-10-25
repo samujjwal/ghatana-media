@@ -9,12 +9,26 @@ import java.util.Map;
 
 /** Pure-Java mapping, clipping, provenance labeling, and class-wise NMS for parsed YOLO outputs. */
 final class YoloDetectionPostProcessor {
+    private static final double MAX_ABS_MODEL_COORDINATE = 640.0 * 16.0;
+
     private YoloDetectionPostProcessor() { }
 
     static List<DetectedObject> process(List<YoloOutputParser.Detection> raw, List<String> classes,
             LetterboxTransform transform, double nmsThreshold, int orientation, Provenance provenance) {
+        if (raw == null) {
+            throw new IllegalArgumentException("YOLO detections are required");
+        }
+        if (raw.size() > YoloOutputParser.MAX_BOXES) {
+            throw new IllegalArgumentException("YOLO detection count exceeds the supported bound");
+        }
         if (classes == null || classes.isEmpty() || classes.size() > 1000) {
             throw new IllegalArgumentException("A bounded model class mapping is required");
+        }
+        if (classes.stream().anyMatch(label -> label == null || label.isBlank())) {
+            throw new IllegalArgumentException("Model class mapping labels must not be blank");
+        }
+        if (transform == null) {
+            throw new IllegalArgumentException("Validated letterbox transform is required");
         }
         if (!Double.isFinite(nmsThreshold) || nmsThreshold < 0 || nmsThreshold > 1) {
             throw new IllegalArgumentException("NMS threshold must be in [0,1]");
@@ -24,6 +38,7 @@ final class YoloDetectionPostProcessor {
         }
         List<DetectedObject> candidates = new ArrayList<>();
         for (YoloOutputParser.Detection detection : raw) {
+            validateDetection(detection);
             if (detection.classId() < 0 || detection.classId() >= classes.size()) {
                 throw new IllegalArgumentException("YOLO output class id is not present in the admitted class mapping");
             }
@@ -54,6 +69,30 @@ final class YoloDetectionPostProcessor {
                     .build());
         }
         return suppress(candidates, nmsThreshold);
+    }
+
+    private static void validateDetection(YoloOutputParser.Detection detection) {
+        if (detection == null) {
+            throw new IllegalArgumentException("YOLO detection must not be null");
+        }
+        if (!Double.isFinite(detection.confidence())
+                || detection.confidence() < 0.0 || detection.confidence() > 1.0) {
+            throw new IllegalArgumentException("YOLO detection confidence must be finite and in [0,1]");
+        }
+        validateCoordinate(detection.x(), "x");
+        validateCoordinate(detection.y(), "y");
+        validateCoordinate(detection.width(), "width");
+        validateCoordinate(detection.height(), "height");
+        if (detection.width() <= 0.0 || detection.height() <= 0.0) {
+            throw new IllegalArgumentException("YOLO detection dimensions must be positive");
+        }
+    }
+
+    private static void validateCoordinate(double value, String name) {
+        if (!Double.isFinite(value) || Math.abs(value) > MAX_ABS_MODEL_COORDINATE) {
+            throw new IllegalArgumentException(
+                    "YOLO detection " + name + " must be finite and within supported model coordinates");
+        }
     }
 
     private static List<DetectedObject> suppress(List<DetectedObject> detections, double threshold) {

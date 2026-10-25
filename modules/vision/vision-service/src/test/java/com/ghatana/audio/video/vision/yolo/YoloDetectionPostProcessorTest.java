@@ -49,6 +49,54 @@ class YoloDetectionPostProcessorTest {
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("SHA-256");
     }
 
+    @Test void rejectsNonFiniteAndOutOfRangeDirectDetectionValues() {
+        var transform = LetterboxTransform.fit(100, 100, 100);
+        for (double invalidConfidence : new double[] {Double.NaN, Double.POSITIVE_INFINITY, -0.01, 1.01}) {
+            var detection = new YoloOutputParser.Detection(0, invalidConfidence, 10, 10, 20, 20);
+            assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                    List.of(detection), CLASSES, transform, 0.5, 1, MODEL))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("confidence");
+        }
+
+        for (double invalidCoordinate : new double[] {
+                Double.NaN, Double.NEGATIVE_INFINITY, 640.0 * 16.0 + 1.0, -640.0 * 16.0 - 1.0}) {
+            var detection = new YoloOutputParser.Detection(0, 0.9, invalidCoordinate, 10, 20, 20);
+            assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                    List.of(detection), CLASSES, transform, 0.5, 1, MODEL))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("x");
+        }
+
+        for (double invalidDimension : new double[] {Double.NaN, Double.POSITIVE_INFINITY, 0.0, -1.0}) {
+            var detection = new YoloOutputParser.Detection(0, 0.9, 10, 10, invalidDimension, 20);
+            assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                    List.of(detection), CLASSES, transform, 0.5, 1, MODEL))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Test void rejectsNullDetectionEntriesAndBlankClassLabels() {
+        var transform = LetterboxTransform.fit(100, 100, 100);
+        assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                java.util.Arrays.asList((YoloOutputParser.Detection) null), CLASSES, transform, 0.5, 1, MODEL))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("must not be null");
+        assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                List.of(), List.of("cat", " "), transform, 0.5, 1, MODEL))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("labels");
+    }
+
+    @Test void rejectsOversizedDirectDetectionListsBeforeQuadraticSuppression() {
+        var transform = LetterboxTransform.fit(100, 100, 100);
+        var one = new YoloOutputParser.Detection(0, 0.9, 10, 10, 20, 20);
+        List<YoloOutputParser.Detection> oversized =
+                java.util.Collections.nCopies(YoloOutputParser.MAX_BOXES + 1, one);
+
+        assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                oversized, CLASSES, transform, 0.5, 1, MODEL))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("count");
+    }
+
     @Test void outputProvenanceChangesWhenTheAdmittedModelVersionChanges() {
         var raw = List.of(new YoloOutputParser.Detection(0, 0.9, 10, 10, 20, 20));
         var transform = LetterboxTransform.fit(100, 100, 100);
