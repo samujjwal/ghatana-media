@@ -346,6 +346,29 @@ class LanguageDetectionServiceTest {
         }
 
         @Test
+        @DisplayName("accepts tied confidences and confidence boundary values in ranked order")
+        void rankedCandidates_allowTiesAndConfidenceBoundaries() {
+            var result = new LanguageDetectionService.DetectionResult(List.of(
+                    LanguageDetectionService.LanguageCandidate.of("en", 1.0),
+                    LanguageDetectionService.LanguageCandidate.of("fr", 0.5),
+                    LanguageDetectionService.LanguageCandidate.of("de", 0.5),
+                    LanguageDetectionService.LanguageCandidate.of("ja", 0.0)), 0.5);
+
+            assertThat(result.topCandidate()).contains(result.candidates().get(0));
+            assertThat(result.topLanguageTag()).contains("en");
+        }
+
+        @Test
+        @DisplayName("rejects provider candidates whose confidence increases")
+        void rankedCandidates_rejectsUnsortedConfidence() {
+            assertThatThrownBy(() -> new LanguageDetectionService.DetectionResult(List.of(
+                    LanguageDetectionService.LanguageCandidate.of("en", 0.6),
+                    LanguageDetectionService.LanguageCandidate.of("fr", 0.9)), 0.5))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_CANDIDATE_ORDER_INVALID");
+        }
+
+        @Test
         @DisplayName("null and excessive provider candidates are rejected")
         void invalidCandidateListsAreRejected() {
             assertThatThrownBy(() -> new LanguageDetectionService.DetectionResult(

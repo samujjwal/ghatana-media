@@ -136,6 +136,13 @@ public final class LanguageDetectionService {
             if (candidates.stream().anyMatch(Objects::isNull)) {
                 throw new IllegalArgumentException("STT_LANGUAGE_CANDIDATE_INVALID: candidates cannot contain null");
             }
+            for (int index = 1; index < candidates.size(); index++) {
+                if (candidates.get(index - 1).confidence() < candidates.get(index).confidence()) {
+                    throw new IllegalArgumentException(
+                            "STT_LANGUAGE_CANDIDATE_ORDER_INVALID: candidates must be ordered by "
+                                    + "confidence descending");
+                }
+            }
             // Provider-owned lists may be mutable. Copy them so a result remains stable after
             // this boundary and callers cannot mutate its candidate ordering or contents.
             candidates = List.copyOf(candidates);
