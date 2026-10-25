@@ -8,6 +8,7 @@ import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.audio.video.vision.model.ObjectAttributes;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
 import io.grpc.Status;
@@ -49,6 +50,23 @@ class VisionGrpcServiceTest {
         fakeDetector = new FakeVisionDetector(); 
         frameExtractor = mock(VideoFrameExtractor.class); 
         service = new VisionGrpcService(fakeDetector, frameExtractor); 
+    }
+
+    @Test
+    void sourceFrameTimestampWireMappingPreservesKnownPtsAndMarksUnknownWithoutFabricatedMillis() {
+        var known = VisionGrpcService.mapSourceTimestamp(new VideoFrameExtractor.ExtractedFrame(
+                java.nio.file.Path.of("frame.jpg"), SourceMediaTimestamp.fromPts("90000", "1/90000"), 3)).build();
+        assertThat(known.getTimestampStatus()).isEqualTo(SourceTimestampStatus.SOURCE_TIMESTAMP_KNOWN);
+        assertThat(known.getTimestampMs()).isEqualTo(1000L);
+        assertThat(known.getSourcePts()).isEqualTo(90000L);
+        assertThat(known.getSourceTimeBaseDenominator()).isEqualTo(90000L);
+
+        var unknown = VisionGrpcService.mapSourceTimestamp(new VideoFrameExtractor.ExtractedFrame(
+                java.nio.file.Path.of("frame.jpg"), SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING"), 4)).build();
+        assertThat(unknown.getTimestampStatus()).isEqualTo(SourceTimestampStatus.SOURCE_TIMESTAMP_UNKNOWN);
+        assertThat(unknown.getTimestampUnknownReason()).isEqualTo("SOURCE_PTS_MISSING");
+        assertThat(unknown.getTimestampMs()).isZero(); // Protobuf default, explicitly marked unknown above.
+        assertThat(unknown.getSourcePts()).isZero(); // No source PTS was serialized.
     }
 
     // -------------------------------------------------------------------------

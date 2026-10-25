@@ -4,6 +4,7 @@ import com.ghatana.audio.video.vision.detection.VisionDetector;
 import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,21 +14,19 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Video analysis service with temporal object tracking (AV-009.4).
+ * Video analysis service with source-timestamped per-frame detections.
  *
  * <p>Orchestrates frame extraction ({@link VideoFrameExtractor}) and
  * per-frame object detection ({@link VisionDetector}) to produce a temporal
  * object-tracking timeline from a video file.
  *
- * <p>Objects detected across consecutive frames are associated into tracks using
- * a simple IoU-based (Intersection-over-Union) greedy matching strategy.
+ * <p>Temporal tracking remains NOT_ADMITTED until a qualified tracking provider is wired.
  *
  * @doc.type    class
  * @doc.purpose Video frame analysis with temporal object tracking
@@ -76,40 +75,25 @@ public final class VideoAnalysisService {
             LOG.info("Analysing {} frames from video: {}", frames.size(), videoPath.getFileName());
 
             List<FrameDetections> frameDetections = new ArrayList<>();
-            int trackIdCounter = 0;
-            Map<Integer, DetectedObject> previousTracks = new LinkedHashMap<>();
-
             for (VideoFrameExtractor.ExtractedFrame frame : frames) {
                 byte[] imageBytes = Files.readAllBytes(frame.getPath());
                 List<DetectedObject> detections = detector.detectObjects(imageBytes, options);
-
-                // Associate detections to existing tracks via greedy IoU matching
-                Map<Integer, DetectedObject> currentTracks = associateTracks(
-                        previousTracks, detections, iouThreshold, trackIdCounter);
-                trackIdCounter = currentTracks.keySet().stream()
-                        .mapToInt(Integer::intValue).max().orElse(trackIdCounter) + 1;
-
                 frameDetections.add(new FrameDetections(
-                        frame.getFrameNumber(), frame.getTimestampMs(),
-                        new ArrayList<>(currentTracks.values()),
-                        new ArrayList<>(currentTracks.keySet())
+                        frame.getFrameNumber(), frame.getTimestampMs(), frame.getSourceTimestamp(),
+                        new ArrayList<>(detections), List.of()
                 ));
-
-                previousTracks = currentTracks;
             }
 
             Duration elapsed = Duration.between(startTime, Instant.now());
-            int uniqueTracks = frameDetections.stream()
-                    .flatMapToInt(fd -> fd.trackIds().stream().mapToInt(Integer::intValue))
-                    .distinct().max().orElse(-1) + 1;
+            int uniqueTracks = 0;
 
-            LOG.info("Video analysis complete: frames={}, tracks={}, elapsed={}ms",
-                    frames.size(), uniqueTracks, elapsed.toMillis());
+            LOG.info("Video analysis complete: frames={}, temporalTracking=NOT_ADMITTED, elapsed={}ms",
+                    frames.size(), elapsed.toMillis());
 
             return new VideoAnalysisResult(
                     videoPath.getFileName().toString(),
                     Instant.now(), frames.size(), uniqueTracks,
-                    frameDetections, elapsed
+                    frameDetections, elapsed, "NOT_ADMITTED"
             );
 
         } catch (IOException e) {
@@ -117,71 +101,6 @@ public final class VideoAnalysisService {
         } finally {
             cleanupTempDir(tempDir);
         }
-    }
-
-    // ── Tracking ─────────────────────────────────────────────────────────────
-
-    private Map<Integer, DetectedObject> associateTracks(
-            Map<Integer, DetectedObject> previousTracks,
-            List<DetectedObject> newDetections,
-            double iouThreshold,
-            int nextTrackId) {
-
-        Map<Integer, DetectedObject> result = new LinkedHashMap<>();
-        boolean[] matched = new boolean[newDetections.size()];
-
-        // Try to match each previous track to the best new detection
-        for (Map.Entry<Integer, DetectedObject> prev : previousTracks.entrySet()) {
-            int bestIdx = -1;
-            double bestIou = iouThreshold;
-
-            for (int i = 0; i < newDetections.size(); i++) {
-                if (matched[i]) continue;
-                double iou = computeIou(prev.getValue(), newDetections.get(i));
-                if (iou > bestIou) {
-                    bestIou = iou;
-                    bestIdx = i;
-                }
-            }
-
-            if (bestIdx >= 0) {
-                result.put(prev.getKey(), newDetections.get(bestIdx));
-                matched[bestIdx] = true;
-            }
-            // else: track lost — not carried forward
-        }
-
-        // Assign new IDs to unmatched detections
-        for (int i = 0; i < newDetections.size(); i++) {
-            if (!matched[i]) {
-                result.put(nextTrackId++, newDetections.get(i));
-            }
-        }
-
-        return result;
-    }
-
-    private double computeIou(DetectedObject a, DetectedObject b) {
-        if (a.getBoundingBox() == null || b.getBoundingBox() == null) return 0.0;
-
-        double ax1 = a.getBoundingBox().getX(), ay1 = a.getBoundingBox().getY();
-        double ax2 = ax1 + a.getBoundingBox().getWidth();
-        double ay2 = ay1 + a.getBoundingBox().getHeight();
-
-        double bx1 = b.getBoundingBox().getX(), by1 = b.getBoundingBox().getY();
-        double bx2 = bx1 + b.getBoundingBox().getWidth();
-        double by2 = by1 + b.getBoundingBox().getHeight();
-
-        double interX1 = Math.max(ax1, bx1), interY1 = Math.max(ay1, by1);
-        double interX2 = Math.min(ax2, bx2), interY2 = Math.min(ay2, by2);
-
-        if (interX2 <= interX1 || interY2 <= interY1) return 0.0;
-
-        double inter  = (interX2 - interX1) * (interY2 - interY1);
-        double aArea  = (ax2 - ax1) * (ay2 - ay1);
-        double bArea  = (bx2 - bx1) * (by2 - by1);
-        double union  = aArea + bArea - inter;
-        return union == 0 ? 0.0 : inter / union;
     }
 
     private void cleanupTempDir(Path dir) {
@@ -202,16 +121,26 @@ public final class VideoAnalysisService {
      * Detections for a single video frame.
      *
      * @param frameNumber  0-based frame index
-     * @param timestampMs  frame timestamp in milliseconds
+     * @param timestampMs  source timestamp in milliseconds, null when PTS/timebase are unknown
+     * @param sourceTimestamp exact source PTS/timebase state
      * @param detections   detected objects in this frame
      * @param trackIds     track IDs corresponding to each detection (parallel list)
      */
     public record FrameDetections(
             int frameNumber,
-            long timestampMs,
+            Long timestampMs,
+            SourceMediaTimestamp sourceTimestamp,
             List<DetectedObject> detections,
             List<Integer> trackIds
-    ) {}
+    ) {
+        public FrameDetections {
+            Objects.requireNonNull(sourceTimestamp, "sourceTimestamp");
+            if ((sourceTimestamp.isKnown() && !Objects.equals(timestampMs, sourceTimestamp.timestampMs()))
+                    || (!sourceTimestamp.isKnown() && timestampMs != null)) {
+                throw new IllegalArgumentException("Frame timestamp must match the source PTS status");
+            }
+        }
+    }
 
     /**
      * Complete video analysis result.
@@ -219,9 +148,10 @@ public final class VideoAnalysisService {
      * @param videoName     file name of the analysed video
      * @param analysedAt    when the analysis was performed
      * @param framesAnalysed total number of frames processed
-     * @param uniqueTracks   total distinct object tracks found
+     * @param uniqueTracks   zero until an admitted tracker is available
      * @param frameDetections per-frame detection timeline
      * @param processingTime total analysis duration
+     * @param trackingStatus NOT_ADMITTED until a qualified temporal tracker is wired
      */
     public record VideoAnalysisResult(
             String videoName,
@@ -229,7 +159,8 @@ public final class VideoAnalysisService {
             int framesAnalysed,
             int uniqueTracks,
             List<FrameDetections> frameDetections,
-            Duration processingTime
+            Duration processingTime,
+            String trackingStatus
     ) {
         /** Returns a summary of object classes detected across all frames. */
         public Map<String, Long> classCounts() {

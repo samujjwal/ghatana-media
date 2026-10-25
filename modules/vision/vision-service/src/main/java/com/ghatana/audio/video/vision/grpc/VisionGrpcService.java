@@ -454,9 +454,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 byte[] frameBytes = Files.readAllBytes(frame.getPath());
                 List<DetectedObject> detections = detector.detectObjects(frameBytes, detectionOptions);
 
-                VideoFrameDetections.Builder frameResult = VideoFrameDetections.newBuilder()
-                    .setTimestampMs(frame.getTimestampMs())
-                    .setFrameNumber(frame.getFrameNumber());
+                VideoFrameDetections.Builder frameResult = mapSourceTimestamp(frame);
 
                 for (DetectedObject obj : detections) {
                     frameResult.addDetections(Detection.newBuilder()
@@ -483,6 +481,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .setProcessingTimeMs(processingTime)
                 .setVideoDurationMs((long) (metadata.getDurationSeconds() * 1000))
                 .putAllObjectCounts(aggregatedCounts)
+                .setTrackingStatus("NOT_ADMITTED")
                 .setSummary(generateVideoSummary(aggregatedCounts, frames.size(),
                     metadata.getDurationSeconds()));
 
@@ -504,6 +503,21 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 cleanupTempDirectory(tempDir);
             }
         }
+    }
+
+    static VideoFrameDetections.Builder mapSourceTimestamp(VideoFrameExtractor.ExtractedFrame frame) {
+        var timestamp = frame.getSourceTimestamp();
+        VideoFrameDetections.Builder result = VideoFrameDetections.newBuilder()
+                .setFrameNumber(frame.getFrameNumber());
+        if (timestamp.isKnown()) {
+            return result.setTimestampMs(timestamp.timestampMs())
+                    .setSourcePts(timestamp.pts())
+                    .setSourceTimeBaseNumerator(timestamp.timeBaseNumerator())
+                    .setSourceTimeBaseDenominator(timestamp.timeBaseDenominator())
+                    .setTimestampStatus(SourceTimestampStatus.SOURCE_TIMESTAMP_KNOWN);
+        }
+        return result.setTimestampStatus(SourceTimestampStatus.SOURCE_TIMESTAMP_UNKNOWN)
+                .setTimestampUnknownReason(timestamp.reason());
     }
 
     @Override

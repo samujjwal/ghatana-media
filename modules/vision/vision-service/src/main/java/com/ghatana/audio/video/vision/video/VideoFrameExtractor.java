@@ -14,6 +14,8 @@ import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +48,11 @@ public class VideoFrameExtractor {
     private static final String FFMPEG_COMMAND = "ffmpeg";
     private static final int DEFAULT_TIMEOUT_SECONDS = 300;
     private static final int MAX_DIAGNOSTIC_BYTES = 16_384;
+    private static final int MAX_FRAME_TIMESTAMP_DIAGNOSTIC_BYTES = 5 * 1024 * 1024;
+    private static final Pattern SHOWINFO_PTS = Pattern.compile(
+            "showinfo.*?\\bn:\\s*(\\d+)\\s+pts:\\s*(-?\\d+|NOPTS)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SHOWINFO_TIMEBASE = Pattern.compile(
+            "showinfo.*?config in time_base:\\s*(\\d+)/(\\d+)", Pattern.CASE_INSENSITIVE);
     private static final long MAX_INPUT_BYTES = 500L * 1024 * 1024;
     private static final long MAX_EXTRACTED_BYTES = 512L * 1024 * 1024;
     private static final long MAX_FRAME_BYTES = 32L * 1024 * 1024;
@@ -152,17 +159,23 @@ public class VideoFrameExtractor {
      */
     public static class ExtractedFrame {
         private final Path path;
-        private final long timestampMs;
+        private final SourceMediaTimestamp sourceTimestamp;
         private final int frameNumber;
 
         public ExtractedFrame(Path path, long timestampMs, int frameNumber) {
+            this(path, SourceMediaTimestamp.fromPts(Long.toString(timestampMs), "1/1000"), frameNumber);
+        }
+
+        public ExtractedFrame(Path path, SourceMediaTimestamp sourceTimestamp, int frameNumber) {
             this.path = path;
-            this.timestampMs = timestampMs;
+            this.sourceTimestamp = java.util.Objects.requireNonNull(sourceTimestamp, "sourceTimestamp");
             this.frameNumber = frameNumber;
         }
 
         public Path getPath() { return path; }
-        public long getTimestampMs() { return timestampMs; }
+        /** Null when source PTS/timebase are absent or invalid; callers must check status first. */
+        public Long getTimestampMs() { return sourceTimestamp.timestampMs(); }
+        public SourceMediaTimestamp getSourceTimestamp() { return sourceTimestamp; }
         public int getFrameNumber() { return frameNumber; }
     }
 
@@ -180,6 +193,7 @@ public class VideoFrameExtractor {
 
         Path canonicalVideo = validateInput(videoPath);
         Path canonicalOutput = prepareOutputDirectory(outputDir);
+        VideoMetadata metadata = getVideoMetadata(canonicalVideo);
 
         List<String> command = buildFFmpegCommand(canonicalVideo, canonicalOutput, config);
 
@@ -189,8 +203,10 @@ public class VideoFrameExtractor {
             canonicalVideo.getFileName(), config.getFps(), config.getMaxFrames());
 
         ProcessResult result;
+        int timestampDiagnosticBudget = (int) Math.min(MAX_FRAME_TIMESTAMP_DIAGNOSTIC_BYTES,
+                MAX_DIAGNOSTIC_BYTES + (long) config.getMaxFrames() * 512L);
         try {
-            result = runProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), MAX_DIAGNOSTIC_BYTES,
+            result = runProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), timestampDiagnosticBudget,
                     canonicalOutput, MAX_EXTRACTED_BYTES);
         } catch (IOException | RuntimeException failure) {
             cleanupFrames(canonicalOutput, config.getFormat());
@@ -220,7 +236,7 @@ public class VideoFrameExtractor {
 
         LOG.info("Frame extraction completed successfully");
 
-        return collectExtractedFrames(canonicalOutput, config);
+        return collectExtractedFrames(canonicalOutput, config, metadata.getTimeBase(), result.output());
     }
 
     /**
@@ -291,7 +307,8 @@ public class VideoFrameExtractor {
         command.add(FFMPEG_COMMAND);
         command.add("-nostdin");
         command.add("-v");
-        command.add("error");
+        command.add("info");
+        command.add("-copyts");
         command.add("-protocol_whitelist");
         command.add("file");
         command.add("-max_alloc");
@@ -303,10 +320,12 @@ public class VideoFrameExtractor {
         command.add("-i");
         command.add(videoPath.toString());
 
-        // Frame rate filter
+        // Select by source media time while retaining exact input PTS. An fps filter would
+        // manufacture CFR timestamps for variable-rate input.
         command.add("-vf");
         StringBuilder filter = new StringBuilder();
-        filter.append("fps=").append(config.getFps());
+        filter.append("select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/")
+                .append(config.getFps()).append(")',showinfo");
 
         // Resolution scaling if specified
         if (config.getWidth() > 0 && config.getHeight() > 0) {
@@ -316,6 +335,10 @@ public class VideoFrameExtractor {
         }
 
         command.add(filter.toString());
+        command.add("-fps_mode");
+        command.add("passthrough");
+        command.add("-enc_time_base");
+        command.add("demux");
 
         // Limit number of frames
         command.add("-frames:v");
@@ -337,6 +360,11 @@ public class VideoFrameExtractor {
 
     private List<ExtractedFrame> collectExtractedFrames(Path outputDir, ExtractionConfig config)
             throws IOException {
+        return collectExtractedFrames(outputDir, config, null, "");
+    }
+
+    private List<ExtractedFrame> collectExtractedFrames(Path outputDir, ExtractionConfig config,
+            String timeBase, String diagnosticOutput) throws IOException {
 
         List<ExtractedFrame> frames = new ArrayList<>();
 
@@ -348,8 +376,9 @@ public class VideoFrameExtractor {
             return frames;
         }
 
-        // Sort files by name to ensure correct order
-        java.util.Arrays.sort(files);
+        // Sort by FFmpeg's numeric sequence so frames 9999 and 10000 remain in emission order.
+        java.util.Arrays.sort(files, java.util.Comparator.comparingInt(file ->
+                frameSequenceNumber(file.getName())));
 
         long totalBytes = 0;
         if (files.length > config.getMaxFrames()) {
@@ -369,12 +398,59 @@ public class VideoFrameExtractor {
                 cleanupFrames(outputDir, config.getFormat());
                 throw new IOException("Extracted frame output exceeded configured byte bounds");
             }
-            long timestampMs = (i * 1000L) / config.getFps();
-            frames.add(new ExtractedFrame(framePath, timestampMs, i));
+            int sourceSequence = frameSequenceNumber(framePath.getFileName().toString()) - 1;
+            SourceMediaTimestamp timestamp = timestampForOutputFrame(diagnosticOutput, sourceSequence, timeBase);
+            frames.add(new ExtractedFrame(framePath, timestamp, i));
         }
 
         LOG.info("Collected {} extracted frames", frames.size());
         return frames;
+    }
+
+    static int frameSequenceNumber(String filename) {
+        Matcher matcher = Pattern.compile("frame_(\\d+)\\.[A-Za-z0-9]+")
+                .matcher(filename == null ? "" : filename);
+        if (!matcher.matches()) throw new IllegalArgumentException("Unexpected extracted frame filename");
+        try {
+            return Integer.parseInt(matcher.group(1));
+        } catch (NumberFormatException invalid) {
+            throw new IllegalArgumentException("Extracted frame sequence is outside integer bounds", invalid);
+        }
+    }
+
+    static SourceMediaTimestamp timestampForOutputFrame(String diagnostics, int frameNumber, String timeBase) {
+        String source = diagnostics == null ? "" : diagnostics;
+        String ffmpegTimeBase = null;
+        Matcher timeBaseMatcher = SHOWINFO_TIMEBASE.matcher(source);
+        if (timeBaseMatcher.find()) {
+            ffmpegTimeBase = timeBaseMatcher.group(1) + "/" + timeBaseMatcher.group(2);
+            if (timeBase != null) {
+                try {
+                    if (!SourceMediaTimestamp.parseTimeBase(timeBase)
+                            .equals(SourceMediaTimestamp.parseTimeBase(ffmpegTimeBase))) {
+                        return SourceMediaTimestamp.unknown("FFPROBE_FFMPEG_TIMEBASE_MISMATCH");
+                    }
+                } catch (IllegalArgumentException invalidTimeBase) {
+                    return SourceMediaTimestamp.unknown("INVALID_SOURCE_TIMEBASE");
+                }
+            }
+        }
+        String effectiveTimeBase = ffmpegTimeBase == null ? timeBase : ffmpegTimeBase;
+        Matcher matcher = SHOWINFO_PTS.matcher(source);
+        while (matcher.find()) {
+            try {
+                int reportedFrame = Integer.parseInt(matcher.group(1));
+                if (reportedFrame == frameNumber) {
+                    String rawPts = matcher.group(2);
+                    return "NOPTS".equalsIgnoreCase(rawPts)
+                            ? SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING")
+                            : SourceMediaTimestamp.fromPts(rawPts, effectiveTimeBase);
+                }
+            } catch (NumberFormatException invalidFrameNumber) {
+                return SourceMediaTimestamp.unknown("FRAME_SEQUENCE_INVALID");
+            }
+        }
+        return SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING");
     }
 
     /**
@@ -407,7 +483,7 @@ public class VideoFrameExtractor {
             "-f", inputFormat(canonicalVideo),
             "-max_alloc", "268435456",
             "-select_streams", "v:0",
-            "-show_entries", "stream=width,height,duration,nb_frames,r_frame_rate",
+            "-show_entries", "stream=width,height,duration,nb_frames,r_frame_rate,time_base",
             "-of", "default=noprint_wrappers=1",
             canonicalVideo.toString()
         );
@@ -627,9 +703,10 @@ public class VideoFrameExtractor {
         }
     }
 
-    private VideoMetadata parseVideoMetadata(String output) {
+    static VideoMetadata parseVideoMetadata(String output) {
         int width = 0, height = 0, totalFrames = 0;
         double duration = 0.0, fps = 0.0;
+        String timeBase = null;
 
         for (String line : output.split("\n")) {
             String[] parts = line.split("=");
@@ -649,10 +726,11 @@ public class VideoFrameExtractor {
                         fps = Double.parseDouble(fpsparts[0]) / Double.parseDouble(fpsparts[1]);
                     }
                 }
+                case "time_base" -> timeBase = value;
             }
         }
 
-        return new VideoMetadata(width, height, duration, fps, totalFrames);
+        return new VideoMetadata(width, height, duration, fps, totalFrames, timeBase);
     }
 
     /**
@@ -664,13 +742,20 @@ public class VideoFrameExtractor {
         private final double durationSeconds;
         private final double fps;
         private final int totalFrames;
+        private final String timeBase;
 
         public VideoMetadata(int width, int height, double durationSeconds, double fps, int totalFrames) {
+            this(width, height, durationSeconds, fps, totalFrames, null);
+        }
+
+        public VideoMetadata(int width, int height, double durationSeconds, double fps, int totalFrames,
+                String timeBase) {
             this.width = width;
             this.height = height;
             this.durationSeconds = durationSeconds;
             this.fps = fps;
             this.totalFrames = totalFrames;
+            this.timeBase = timeBase;
         }
 
         public int getWidth() { return width; }
@@ -678,6 +763,7 @@ public class VideoFrameExtractor {
         public double getDurationSeconds() { return durationSeconds; }
         public double getFps() { return fps; }
         public int getTotalFrames() { return totalFrames; }
+        public String getTimeBase() { return timeBase; }
 
         @Override
         public String toString() {

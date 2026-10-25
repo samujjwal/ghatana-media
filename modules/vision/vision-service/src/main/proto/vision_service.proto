@@ -194,9 +194,20 @@ message VideoFileRequest {
 }
 
 message VideoFrameDetections {
-  int64 timestamp_ms = 1;
+  int64 timestamp_ms = 1; // Valid only when timestamp_status is SOURCE_TIMESTAMP_KNOWN.
   int32 frame_number = 2;
   repeated Detection detections = 3;
+  SourceTimestampStatus timestamp_status = 4;
+  int64 source_pts = 5;
+  int64 source_time_base_numerator = 6;
+  int64 source_time_base_denominator = 7;
+  string timestamp_unknown_reason = 8;
+}
+
+enum SourceTimestampStatus {
+  SOURCE_TIMESTAMP_STATUS_UNSPECIFIED = 0;
+  SOURCE_TIMESTAMP_KNOWN = 1;
+  SOURCE_TIMESTAMP_UNKNOWN = 2;
 }
 
 message VideoFileResponse {
@@ -206,4 +217,5 @@ message VideoFileResponse {
   int64 video_duration_ms = 4;
   map<string, int64> object_counts = 5;  // Aggregated counts across all frames
   string summary = 6;
+  string tracking_status = 7; // NOT_ADMITTED unless a qualified temporal tracker is active
 }

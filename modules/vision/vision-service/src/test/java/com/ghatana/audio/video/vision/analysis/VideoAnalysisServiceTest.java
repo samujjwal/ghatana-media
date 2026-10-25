@@ -6,6 +6,7 @@ import com.ghatana.audio.video.vision.model.BoundingBox;
 import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -92,6 +93,10 @@ class VideoAnalysisServiceTest {
         // Assert
         assertThat(result.framesAnalysed()).isEqualTo(3); 
         assertThat(result.frameDetections()).hasSize(3); 
+        assertThat(result.frameDetections().get(1).timestampMs()).isEqualTo(1000L);
+        assertThat(result.frameDetections().get(1).sourceTimestamp().pts()).isEqualTo(1000L);
+        assertThat(result.frameDetections().get(1).trackIds()).isEmpty();
+        assertThat(result.trackingStatus()).isEqualTo("NOT_ADMITTED");
         assertThat(result.processingTime()).isNotNull(); 
     }
 
@@ -136,6 +141,28 @@ class VideoAnalysisServiceTest {
         VideoAnalysisResult result = service.analyze(fakeVideo, config, defaultOptions); 
 
         assertThat(result.uniqueTracks()).isEqualTo(0); 
+    }
+
+    @Test
+    void unknownSourcePtsPropagatesAsNullMillisAndTrackingRemainsNotAdmitted() throws IOException {
+        Path frame = tempDir.resolve("frame_unknown.jpg");
+        Files.write(frame, new byte[] {1});
+        Path fakeVideo = tempDir.resolve("unknown.mp4");
+        Files.write(fakeVideo, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(frame,
+                        SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING"), 0)));
+        when(detector.detectObjects(any(), any())).thenReturn(List.of(
+                buildDetection("person", 0.9, 0, 0, 50, 100)));
+
+        var result = service.analyze(fakeVideo,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        assertThat(result.frameDetections().getFirst().timestampMs()).isNull();
+        assertThat(result.frameDetections().getFirst().sourceTimestamp().reason()).isEqualTo("SOURCE_PTS_MISSING");
+        assertThat(result.frameDetections().getFirst().trackIds()).isEmpty();
+        assertThat(result.uniqueTracks()).isZero();
+        assertThat(result.trackingStatus()).isEqualTo("NOT_ADMITTED");
     }
 
     @Test
