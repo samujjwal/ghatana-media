@@ -8,6 +8,9 @@ import io.opentelemetry.api.trace.TraceFlags;
 import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +34,86 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 @DisplayName("MultimodalAnalysisEngine Tests")
 class MultimodalAnalysisEngineTest extends EventloopTestBase {
+
+    @Test
+    @DisplayName("Provider boundary records only valid results as success and exceptions as unknown")
+    void providerMetricsReflectActualGatewayResultWithoutPrivateTags() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "multimodal");
+        MultimodalMediaGateway gateway = new FakeMediaGateway(
+                AudioResult.builder().transcription("transcript").build(),
+                VisualResult.error("unavailable"), VisualResult.error("unavailable")) {
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults(), TimeUnit.SECONDS.toNanos(60), metrics)) {
+            engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1}).build());
+        }
+        Timer success = registry.find("media.modality.boundary.duration")
+                .tag("modality", "stt").tag("service", "multimodal")
+                .tag("boundary", "provider").tag("execution_class", "model")
+                .tag("outcome", "success").timer();
+        assertTrue(success != null && success.count() == 1);
+        assertFalse(success.getId().getTags().stream().anyMatch(tag ->
+                List.of("tenant", "text", "content", "provider_id", "request_id").contains(tag.getKey())));
+        registry.close();
+    }
+
+    @Test
+    @DisplayName("Image and video provider calls use the vision boundary label")
+    void imageAndVideoCallsUseVisionMetricLabel() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "multimodal");
+        VisualResult visual = VisualResult.builder().sceneDescription("scene").build();
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(AudioResult.error("unused"), visual, visual),
+                AudioVideoRuntimeSettings.defaults(), TimeUnit.SECONDS.toNanos(60), metrics)) {
+            engine.analyse(MultimodalRequest.builder().imageData(new byte[] {1})
+                    .videoData(new byte[] {2}).build());
+        }
+        Timer vision = registry.find("media.modality.boundary.duration")
+                .tag("modality", "vision").tag("service", "multimodal")
+                .tag("boundary", "provider").tag("outcome", "success").timer();
+        assertTrue(vision != null && vision.count() == 2);
+        assertTrue(registry.find("media.modality.boundary.duration")
+                .tag("modality", "stt").tag("boundary", "provider").timers().isEmpty());
+        registry.close();
+    }
+
+    @Test
+    @DisplayName("Unavailable and ambiguous provider outcomes never record success")
+    void providerMetricsDoNotMarkUnavailableOrThrownProviderAsSuccess() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "multimodal");
+        MultimodalMediaGateway gateway = new FakeMediaGateway(
+                AudioResult.error("not available"), VisualResult.error("unused"), VisualResult.error("unused")) {
+            private int calls;
+
+            @Override
+            public AudioResult transcribe(byte[] audioData) {
+                if (calls++ == 0) throw new IllegalStateException("ambiguous provider outcome");
+                return AudioResult.error("provider unavailable");
+            }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults(), TimeUnit.SECONDS.toNanos(60), metrics)) {
+            MultimodalResult result = engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1}).build());
+            assertTrue(result.getAudioResult().isError());
+            result = engine.analyse(MultimodalRequest.builder().audioData(new byte[] {2}).build());
+            assertTrue(result.getAudioResult().isError());
+        }
+        assertTrue(registry.find("media.modality.boundary.duration")
+                .tag("modality", "stt").tag("boundary", "provider")
+                .tag("outcome", "success").timers().isEmpty());
+        Timer unknown = registry.find("media.modality.boundary.duration")
+                .tag("modality", "stt").tag("boundary", "provider")
+                .tag("outcome", "unknown").timer();
+        assertTrue(unknown != null && unknown.count() == 1);
+        Timer failure = registry.find("media.modality.boundary.duration")
+                .tag("modality", "stt").tag("boundary", "provider")
+                .tag("outcome", "failure").timer();
+        assertTrue(failure != null && failure.count() == 1);
+        registry.close();
+    }
 
     @Test
     @DisplayName("Unconfigured result does not imply successful modality execution")
@@ -388,7 +471,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
 
     private static MediaClockTimestamp sourcePts(long ticks, long numerator, long denominator) {
         return new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN, ticks, numerator, denominator,
-                MediaClockTimestamp.ClockDomain.SOURCE, "source-pts", null);
+                MediaClockTimestamp.ClockDomain.SOURCE, "test-video-clock", null);
     }
 
     @Test

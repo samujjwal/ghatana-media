@@ -176,6 +176,36 @@ class MultimodalGrpcProductionWrapperMatrixTest {
         assertCode(() -> authenticated.getInsights(InsightsRequest.getDefaultInstance()),
                 Status.Code.INVALID_ARGUMENT);
 
+        ByteString oversizedModality = ByteString.copyFrom(new byte[32 * 1024 * 1024 + 1]);
+        assertCode(() -> authenticated.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(oversizedModality).build()), Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
+                .setVideoData(oversizedModality).setAnalyzeFrames(true).build()), Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.generateDescription(DescriptionRequest.newBuilder()
+                .setImageData(oversizedModality).build()), Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.analyzeCrossModal(CrossModalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1})).setVideoData(oversizedModality).build()),
+                Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.getInsights(InsightsRequest.newBuilder()
+                .setAudioData(oversizedModality).build()), Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[] {1})).setAnalyzeFrames(true)
+                .setFrameSampleRate(61).build()), Status.Code.INVALID_ARGUMENT);
+        String oversizedText = "x".repeat(64 * 1024 + 1);
+        assertCode(() -> authenticated.processMultimodal(MultimodalRequest.newBuilder()
+                .setText(oversizedText).build()), Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.generateDescription(DescriptionRequest.newBuilder()
+                .setContext(oversizedText).build()), Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.getInsights(InsightsRequest.newBuilder()
+                .setText(oversizedText).build()), Status.Code.INVALID_ARGUMENT);
+        ByteString oversizedAggregate = ByteString.copyFrom(new byte[22 * 1024 * 1024 + 1]);
+        assertCode(() -> authenticated.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(oversizedAggregate).setImageData(oversizedAggregate)
+                .setVideoData(oversizedAggregate).build()), Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.getInsights(InsightsRequest.newBuilder()
+                .setAudioData(oversizedAggregate).setImageData(oversizedAggregate)
+                .setVideoData(oversizedAggregate).build()), Status.Code.INVALID_ARGUMENT);
+
         assertUnavailable(() -> authenticated.loadModel(LoadModelRequest.newBuilder()
                 .setModelId("unknown-model").build()));
         assertUnavailable(() -> authenticated.unloadModel(UnloadModelRequest.newBuilder()

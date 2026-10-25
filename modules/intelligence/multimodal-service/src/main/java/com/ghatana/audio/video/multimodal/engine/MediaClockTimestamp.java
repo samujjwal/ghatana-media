@@ -14,6 +14,8 @@ public record MediaClockTimestamp(
         String clockId,
         String unknownReason) {
 
+    private static final String UNSCOPED_SOURCE_CLOCK = "source-pts:unscoped";
+
     public MediaClockTimestamp {
         Objects.requireNonNull(status, "status");
         if (status == Status.KNOWN) {
@@ -38,14 +40,28 @@ public record MediaClockTimestamp(
                 ClockDomain.MEDIA, "media-ms", null);
     }
 
+    /** Preserve source PTS without claiming a source identity unavailable from the timestamp alone. */
     public static MediaClockTimestamp fromSource(SourceMediaTimestamp source) {
+        return fromSource(source, UNSCOPED_SOURCE_CLOCK);
+    }
+
+    /** Preserve source PTS with the stable identity of the source clock that owns it. */
+    public static MediaClockTimestamp fromSource(SourceMediaTimestamp source, String sourceClockId) {
         Objects.requireNonNull(source, "source");
         if (!source.isKnown()) return unknown(source.reason());
+        if (sourceClockId == null || sourceClockId.isBlank()) {
+            throw new IllegalArgumentException("Source clock identity must not be blank");
+        }
         return new MediaClockTimestamp(Status.KNOWN, source.pts(), source.timeBaseNumerator(),
-                source.timeBaseDenominator(), ClockDomain.SOURCE, "source-pts", null);
+                source.timeBaseDenominator(), ClockDomain.SOURCE, sourceClockId, null);
     }
 
     public boolean isKnown() { return status == Status.KNOWN; }
+
+    /** Whether this timestamp has enough clock identity to compare with another timestamp. */
+    public boolean hasClockIdentity() {
+        return isKnown() && !(domain == ClockDomain.SOURCE && UNSCOPED_SOURCE_CLOCK.equals(clockId));
+    }
 
     public Long toMilliseconds() {
         if (!isKnown()) return null;
@@ -61,7 +77,7 @@ public record MediaClockTimestamp(
     }
 
     public boolean sharesClock(MediaClockTimestamp other) {
-        return isKnown() && other != null && other.isKnown()
+        return hasClockIdentity() && other != null && other.hasClockIdentity()
                 && domain == other.domain && clockId.equals(other.clockId);
     }
 

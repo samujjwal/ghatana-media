@@ -45,37 +45,44 @@ public class DataCloudMultimodalAdapter implements MediaProcessorPort {
     @Override
     public Promise<String> transcribeAudio(String artifactId, String tenantId, String languageCode, Map<String, String> parameters) {
         // WS3: Multimodal adapter does not support standalone transcription
-        LOG.warn("[WS3] Standalone transcription not supported by multimodal adapter artifactId={} tenantId={}", artifactId, tenantId);
-        return Promise.of(null);
+        LOG.warn("Standalone transcription is unavailable through the multimodal adapter");
+        return Promise.ofException(new UnsupportedOperationException(
+                "Standalone transcription is unavailable through the multimodal adapter"));
     }
 
     @Override
     public Promise<String> analyzeVision(String artifactId, String tenantId, String analysisType, Map<String, String> parameters) {
         // WS3: Multimodal adapter does not support standalone vision analysis
-        LOG.warn("[WS3] Standalone vision analysis not supported by multimodal adapter artifactId={} tenantId={}", artifactId, tenantId);
-        return Promise.of(null);
+        LOG.warn("Standalone vision analysis is unavailable through the multimodal adapter");
+        return Promise.ofException(new UnsupportedOperationException(
+                "Standalone vision analysis is unavailable through the multimodal adapter"));
     }
 
     @Override
-    public Promise<String> indexMultimodal(String artifactId, String tenantId, String indexType, Map<String, String> parameters) {
-        LOG.info("[WS3] Indexing multimodal artifactId={} tenantId={} indexType={}", artifactId, tenantId, indexType);
-        
-        // WS3: Delegate to multimodal service for indexing
-        // The multimodal service should return a multimodal index ID that can be stored in Data Cloud
+    public Promise<String> indexMultimodal(String artifactId, String tenantId, String indexType,
+                                           Map<String, String> parameters) {
+        if (artifactId == null || artifactId.isBlank() || tenantId == null || tenantId.isBlank()
+                || indexType == null || indexType.isBlank()) {
+            return Promise.ofException(new IllegalArgumentException(
+                    "Artifact, tenant, and index type are required for multimodal indexing"));
+        }
+        if (multimodalService == null) {
+            return Promise.ofException(new IllegalStateException(
+                    "Data Cloud multimodal integration is unavailable"));
+        }
+
+        // PersistentMultimodalService.index currently fails closed until a trusted Data Cloud
+        // artifact/version reader and rights/consent admission path are wired.
         return multimodalService.index(artifactId, tenantId, indexType, parameters)
-            .map(indexId -> {
-                LOG.info("[WS3] Multimodal indexing completed artifactId={} indexId={}", artifactId, indexId);
-                return indexId;
-            })
-            .whenException(ex -> {
-                LOG.error("[WS3] Multimodal indexing failed artifactId={} tenantId={}", artifactId, tenantId, ex);
-            });
+                .whenException(ex -> LOG.warn("Multimodal indexing failed failureType={}",
+                        ex.getClass().getSimpleName()));
     }
 
     @Override
     public boolean isAvailable(String operationType) {
-        // WS3: Multimodal adapter only supports multimodal indexing
-        return "MULTIMODAL".equalsIgnoreCase(operationType) && multimodalService != null;
+        // PersistentMultimodalService.index has no trusted artifact/version reader yet, so the
+        // integration must remain unavailable even when the service object is constructed.
+        return false;
     }
 
     @Override
@@ -92,12 +99,7 @@ public class DataCloudMultimodalAdapter implements MediaProcessorPort {
 
     @Override
     public String[] getSupportedIndexTypes() {
-        // WS3: Return supported index types from multimodal service
-        return new String[]{
-            "AUDIO_VISUAL",
-            "SCENE_UNDERSTANDING",
-            "EMOTION_RECOGNITION",
-            "ACTIVITY_DETECTION"
-        };
+        // No indexing type is available before the governed artifact/version boundary is wired.
+        return new String[0];
     }
 }

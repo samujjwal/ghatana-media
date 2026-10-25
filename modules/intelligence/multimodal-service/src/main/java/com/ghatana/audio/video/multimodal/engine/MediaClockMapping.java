@@ -22,9 +22,17 @@ public record MediaClockMapping(long scaleNumerator, long scaleDenominator, long
         if (source == null || !source.isKnown() || source.domain() != MediaClockTimestamp.ClockDomain.SOURCE) {
             return MediaClockTimestamp.unknown("SOURCE_TIMESTAMP_UNAVAILABLE");
         }
+        if (!source.hasClockIdentity()) {
+            return MediaClockTimestamp.unknown("SOURCE_CLOCK_ID_UNAVAILABLE");
+        }
+        if (previousSource != null && previousSource.isKnown()) {
+            if (previousSource.domain() != source.domain()
+                    || !previousSource.hasClockIdentity()
+                    || !previousSource.clockId().equals(source.clockId())) {
+                return MediaClockTimestamp.unknown("SOURCE_CLOCK_MISMATCH");
+            }
+        }
         if (previousSource != null && previousSource.isKnown()
-                && previousSource.domain() == source.domain()
-                && previousSource.clockId().equals(source.clockId())
                 && compareTicks(source, previousSource) < 0) {
             return MediaClockTimestamp.unknown("SOURCE_CLOCK_DISCONTINUITY");
         }

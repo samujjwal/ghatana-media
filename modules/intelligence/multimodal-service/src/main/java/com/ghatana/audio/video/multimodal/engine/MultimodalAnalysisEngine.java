@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.multimodal.engine;
 
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import io.opentelemetry.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,18 +43,37 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
     private final ExecutorService executor;
     private final Semaphore admissions;
     private final long analysisTimeoutNanos;
+    private final MediaWorkflowMetrics metrics;
 
     public MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway) {
-        this(mediaGateway, AudioVideoRuntimeSettings.load());
+        this(mediaGateway, AudioVideoRuntimeSettings.load(),
+                new MediaWorkflowMetrics(io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal"));
+    }
+
+    public MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway, MediaWorkflowMetrics metrics) {
+        this(mediaGateway, AudioVideoRuntimeSettings.load(), metrics);
+    }
+
+    private MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway, AudioVideoRuntimeSettings settings,
+                                     MediaWorkflowMetrics metrics) {
+        this(mediaGateway, settings, TimeUnit.SECONDS.toNanos(ANALYSIS_TIMEOUT_SECONDS), metrics);
     }
 
     MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway, AudioVideoRuntimeSettings settings) {
-        this(mediaGateway, settings, TimeUnit.SECONDS.toNanos(ANALYSIS_TIMEOUT_SECONDS));
+        this(mediaGateway, settings, TimeUnit.SECONDS.toNanos(ANALYSIS_TIMEOUT_SECONDS),
+                new MediaWorkflowMetrics(io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal"));
     }
 
     MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway, AudioVideoRuntimeSettings settings,
                              long analysisTimeoutNanos) {
-        this.mediaGateway = mediaGateway;
+        this(mediaGateway, settings, analysisTimeoutNanos,
+                new MediaWorkflowMetrics(io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal"));
+    }
+
+    MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway, AudioVideoRuntimeSettings settings,
+                             long analysisTimeoutNanos, MediaWorkflowMetrics metrics) {
+        this.mediaGateway = java.util.Objects.requireNonNull(mediaGateway, "mediaGateway");
+        this.metrics = java.util.Objects.requireNonNull(metrics, "metrics");
         java.util.Objects.requireNonNull(settings, "settings");
         if (analysisTimeoutNanos <= 0) throw new IllegalArgumentException("analysis timeout must be positive");
         this.analysisTimeoutNanos = analysisTimeoutNanos;
@@ -205,13 +225,43 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
     // Private helpers
     // -------------------------------------------------------------------------
 
+    private ProviderMeasurement providerMeasurement(MediaWorkflowMetrics.Modality modality) {
+        return new ProviderMeasurement(metrics.startModalityTimer(modality,
+                MediaWorkflowMetrics.Boundary.PROVIDER));
+    }
+
+    /** Single-use provider scope; an exception or cancellation that escapes stays UNKNOWN. */
+    private final class ProviderMeasurement implements AutoCloseable {
+        private final MediaWorkflowMetrics.ModalityTimingSample sample;
+        private MediaWorkflowMetrics.Outcome outcome;
+
+        private ProviderMeasurement(MediaWorkflowMetrics.ModalityTimingSample sample) {
+            this.sample = sample;
+        }
+
+        private void complete(MediaWorkflowMetrics.Outcome observedOutcome) {
+            outcome = observedOutcome;
+        }
+
+        @Override
+        public void close() {
+            metrics.stopModalityTimer(sample, outcome == null ? MediaWorkflowMetrics.Outcome.UNKNOWN : outcome);
+        }
+    }
+
     private AudioResult transcribeAudio(byte[] audioData) {
         try {
             validatePayload(audioData);
             LOG.debug("Transcribing {} bytes of audio", audioData.length);
-            AudioResult result = mediaGateway.transcribe(audioData);
-            return result == null || result.isError()
-                    ? AudioResult.error("Audio transcription unavailable") : result;
+            try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.STT)) {
+                AudioResult result = mediaGateway.transcribe(audioData);
+                if (result == null || result.isError()) {
+                    boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                    return AudioResult.error("Audio transcription unavailable");
+                }
+                boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                return result;
+            }
         } catch (Exception e) {
             restoreInterruptIfPresent(e);
             LOG.warn("STT transcription failed failureType={}", e.getClass().getSimpleName());
@@ -223,9 +273,15 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         try {
             validatePayload(imageData);
             LOG.debug("Analysing image ({} bytes)", imageData.length);
-            VisualResult result = mediaGateway.analyseImage(imageData);
-            return result == null || result.isError()
-                    ? VisualResult.error("Image analysis unavailable") : result;
+            try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.VISION)) {
+                VisualResult result = mediaGateway.analyseImage(imageData);
+                if (result == null || result.isError()) {
+                    boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                    return VisualResult.error("Image analysis unavailable");
+                }
+                boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                return result;
+            }
         } catch (Exception e) {
             restoreInterruptIfPresent(e);
             LOG.warn("Image analysis failed failureType={}", e.getClass().getSimpleName());
@@ -241,9 +297,15 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
             }
             LOG.debug("Analysing video ({} bytes, {}fps, max {} frames)",
                     videoData.length, sampleFps, maxFrames);
-            VisualResult result = mediaGateway.analyseVideo(videoData, sampleFps, maxFrames);
-            return result == null || result.isError()
-                    ? VisualResult.error("Video analysis unavailable") : result;
+            try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.VISION)) {
+                VisualResult result = mediaGateway.analyseVideo(videoData, sampleFps, maxFrames);
+                if (result == null || result.isError()) {
+                    boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                    return VisualResult.error("Video analysis unavailable");
+                }
+                boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                return result;
+            }
         } catch (Exception e) {
             restoreInterruptIfPresent(e);
             LOG.warn("Video analysis failed failureType={}", e.getClass().getSimpleName());

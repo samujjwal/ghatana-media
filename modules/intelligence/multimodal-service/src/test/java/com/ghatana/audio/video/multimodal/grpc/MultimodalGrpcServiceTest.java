@@ -4,6 +4,7 @@ import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
+import com.ghatana.audio.video.multimodal.engine.MultimodalMediaGateway;
 import com.ghatana.audio.video.multimodal.engine.MultimodalResult;
 import com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapter;
 import com.ghatana.audio.video.multimodal.engine.VideoAudioResult;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -180,6 +182,8 @@ class MultimodalGrpcServiceTest {
                 SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.IMAGE,
                 SourceAuthorization.Modality.TEXT));
         assertThat(captured.get().artifactId()).isEqualTo("caller-source-ref");
+        assertThat(captured.get().artifactVersion()).isNull();
+        assertThat(captured.get().consentReference()).isNull();
         assertThat(captured.get().purpose()).isEqualTo("multimodal.analyse");
         assertThat(captured.get().contentBytes()).isEqualTo(2 + 1 + 2);
     }
@@ -201,6 +205,63 @@ class MultimodalGrpcServiceTest {
                     .isEqualTo(Status.UNAVAILABLE.getCode());
         }
         verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: denied mixed rights do not egress to either child gateway")
+    void processMultimodal_deniedMixedRightsPreventSttAndVisionGatewayCalls() {
+        AtomicInteger sttCalls = new AtomicInteger();
+        AtomicInteger imageCalls = new AtomicInteger();
+        AtomicInteger videoCalls = new AtomicInteger();
+        AtomicReference<SourceAuthorization.AuthorizationRequest> captured = new AtomicReference<>();
+        MultimodalMediaGateway gateway = new MultimodalMediaGateway() {
+            @Override public AudioResult transcribe(byte[] audioData) {
+                sttCalls.incrementAndGet();
+                return AudioResult.builder().transcription("fixture").build();
+            }
+            @Override public VisualResult analyseImage(byte[] imageData) {
+                imageCalls.incrementAndGet();
+                return VisualResult.builder().sceneDescription("fixture").build();
+            }
+            @Override public VisualResult analyseVideo(byte[] videoData, int sampleFps, int maxFrames) {
+                videoCalls.incrementAndGet();
+                return VisualResult.builder().sceneDescription("fixture").build();
+            }
+            @Override public String backendName() { return "test-fixture"; }
+            @Override public boolean metricsEnabled() { return false; }
+            @Override public void close() { }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(gateway)) {
+            MultimodalGrpcService denied = new MultimodalGrpcService(engine, mockAdapter,
+                    MediaProcessingMetrics.noop(), request -> {
+                        captured.set(request);
+                        return SourceAuthorization.Decision.NOT_ADMITTED;
+                    });
+            CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+            MultimodalRequest request = MultimodalRequest.newBuilder()
+                    .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                    .setVideoData(ByteString.copyFrom(new byte[] {2}))
+                    .setTenantId("caller-controlled-tenant")
+                    .setArtifactId("caller-source-ref")
+                    .setConsentStatus("GRANTED")
+                    .build();
+
+            withContext(TENANT_ID, () -> denied.processMultimodal(request, observer));
+
+            assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                    .isEqualTo(Status.UNAVAILABLE.getCode());
+            assertThat(captured.get().tenantId()).isEqualTo(TENANT_ID);
+            assertThat(captured.get().principalId()).isEqualTo(java.util.UUID.fromString(SUBJECT_ID));
+            assertThat(captured.get().modalities()).isEqualTo(Set.of(
+                    SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.VIDEO));
+            assertThat(captured.get().purpose()).isEqualTo("multimodal.analyse");
+            assertThat(captured.get().artifactId()).isEqualTo("caller-source-ref");
+            assertThat(captured.get().artifactVersion()).isNull();
+            assertThat(captured.get().consentReference()).isNull();
+            assertThat(sttCalls).hasValue(0);
+            assertThat(imageCalls).hasValue(0);
+            assertThat(videoCalls).hasValue(0);
+        }
     }
 
     @Test

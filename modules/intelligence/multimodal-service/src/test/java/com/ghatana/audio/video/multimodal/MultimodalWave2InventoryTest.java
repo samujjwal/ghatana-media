@@ -2,11 +2,17 @@ package com.ghatana.audio.video.multimodal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceProto;
+import com.google.protobuf.Descriptors;
+import java.util.Map;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +45,62 @@ class MultimodalWave2InventoryTest {
         assertTrue(proto.contains("optional double alignment_score = 1;"));
         assertTrue(proto.contains("SynchronizationStatus synchronization_status = 5;"));
         assertTrue(proto.contains("map<string, double> confidence_scores = 5;"));
+    }
+
+    @Test
+    void generatedServiceDescriptorPreservesExactRpcAndWireFieldIdentities() {
+        Descriptors.ServiceDescriptor service =
+                MultimodalServiceProto.getDescriptor().findServiceByName("MultimodalService");
+        Map<String, List<String>> expectedMethods = Map.ofEntries(
+                Map.entry("ProcessMultimodal", List.of("MultimodalRequest", "MultimodalResponse")),
+                Map.entry("AnalyzeVideoWithAudio", List.of("VideoAudioRequest", "VideoAudioResponse")),
+                Map.entry("GenerateDescription", List.of("DescriptionRequest", "DescriptionResponse")),
+                Map.entry("AnalyzeCrossModal", List.of("CrossModalRequest", "CrossModalResponse")),
+                Map.entry("GetInsights", List.of("InsightsRequest", "InsightsResponse")),
+                Map.entry("LoadModel", List.of("LoadModelRequest", "LoadModelResponse")),
+                Map.entry("UnloadModel", List.of("UnloadModelRequest", "UnloadModelResponse")),
+                Map.entry("ListModels", List.of("ListModelsRequest", "ListModelsResponse")),
+                Map.entry("GetStatus", List.of("StatusRequest", "StatusResponse")),
+                Map.entry("HealthCheck", List.of("HealthCheckRequest", "HealthCheckResponse")));
+        Map<String, List<String>> actualMethods = service.getMethods().stream().collect(
+                java.util.stream.Collectors.toMap(Descriptors.MethodDescriptor::getName,
+                        method -> List.of(method.getInputType().getName(), method.getOutputType().getName())));
+        assertEquals(expectedMethods, actualMethods);
+
+        Descriptors.Descriptor frame = MultimodalServiceProto.getDescriptor()
+                .findMessageTypeByName("FrameAnalysis");
+        assertField(frame, "timestamp_ms", 1, Descriptors.FieldDescriptor.Type.INT64, true);
+        assertField(frame, "timestamp_status", 4, Descriptors.FieldDescriptor.Type.ENUM, false);
+        assertField(frame, "source_pts", 5, Descriptors.FieldDescriptor.Type.SINT64, true);
+        assertField(frame, "time_base_numerator", 6, Descriptors.FieldDescriptor.Type.INT64, true);
+        assertField(frame, "time_base_denominator", 7, Descriptors.FieldDescriptor.Type.INT64, true);
+        assertField(frame, "clock_domain", 8, Descriptors.FieldDescriptor.Type.ENUM, false);
+        assertField(frame, "timestamp_unknown_reason", 9, Descriptors.FieldDescriptor.Type.STRING, false);
+
+        Descriptors.Descriptor videoResponse = MultimodalServiceProto.getDescriptor()
+                .findMessageTypeByName("VideoAudioResponse");
+        assertField(videoResponse, "synchronization_status", 5, Descriptors.FieldDescriptor.Type.ENUM, false);
+        Descriptors.Descriptor crossModalResponse = MultimodalServiceProto.getDescriptor()
+                .findMessageTypeByName("CrossModalResponse");
+        assertField(crossModalResponse, "synchronization_status", 5,
+                Descriptors.FieldDescriptor.Type.ENUM, false);
+
+        Descriptors.Descriptor modelInfo = MultimodalServiceProto.getDescriptor()
+                .findMessageTypeByName("MultimodalModelInfo");
+        assertField(modelInfo, "version", 3, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertFalse(MultimodalServiceProto.getDescriptor().getMessageTypes().stream()
+                .flatMap(message -> message.getFields().stream())
+                .anyMatch(field -> field.getName().equals("contract_version")),
+                "The source proto has no top-level contract-version field");
+    }
+
+    private static void assertField(Descriptors.Descriptor message, String name, int number,
+                                    Descriptors.FieldDescriptor.Type type, boolean presence) {
+        Descriptors.FieldDescriptor field = message.findFieldByName(name);
+        assertTrue(field != null, message.getName() + "." + name + " exists");
+        assertEquals(number, field.getNumber(), message.getName() + "." + name + " field number");
+        assertEquals(type, field.getType(), message.getName() + "." + name + " field type");
+        assertEquals(presence, field.hasPresence(), message.getName() + "." + name + " presence");
     }
 
     @Test
