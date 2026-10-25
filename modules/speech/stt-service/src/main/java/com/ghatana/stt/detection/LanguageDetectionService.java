@@ -3,6 +3,7 @@ package com.ghatana.stt.detection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -180,11 +181,26 @@ public final class LanguageDetectionService {
         public LanguageCandidate {
             Objects.requireNonNull(languageTag, "languageTag must not be null");
             requireConfidence(confidence, "confidence");
+            Objects.requireNonNull(locale, "locale must not be null");
+            Locale parsedLocale = parseLanguageTag(languageTag);
+            if (!parsedLocale.equals(locale)) {
+                throw new IllegalArgumentException(
+                        "STT_LANGUAGE_LOCALE_MISMATCH: locale must match languageTag");
+            }
         }
 
         /** Factory: creates a candidate from a language tag and confidence. */
         public static LanguageCandidate of(String tag, double confidence) {
             return new LanguageCandidate(tag, confidence, Locale.forLanguageTag(tag));
+        }
+
+        private static Locale parseLanguageTag(String languageTag) {
+            try {
+                return new Locale.Builder().setLanguageTag(languageTag).build();
+            } catch (IllformedLocaleException exception) {
+                throw new IllegalArgumentException(
+                        "STT_LANGUAGE_TAG_INVALID: languageTag must be a valid IETF language tag", exception);
+            }
         }
     }
 

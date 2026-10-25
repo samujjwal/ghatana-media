@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -291,6 +292,29 @@ class LanguageDetectionServiceTest {
             var candidate = LanguageDetectionService.LanguageCandidate.of("fr-CA", 0.90);
             assertThat(candidate.locale().getLanguage()).isEqualTo("fr");
             assertThat(candidate.locale().getCountry()).isEqualTo("CA");
+            assertThat(LanguageDetectionService.LanguageCandidate.of("ne-NP", 0.8).languageTag())
+                    .isEqualTo("ne-NP");
+        }
+
+        @Test
+        @DisplayName("blank and malformed language tags are rejected")
+        void candidate_invalidLanguageTags_throwStableValidationError() {
+            for (String tag : new String[] {"", " ", "en_US", "en--US"}) {
+                assertThatThrownBy(() -> LanguageDetectionService.LanguageCandidate.of(tag, 0.9))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("STT_LANGUAGE_TAG_INVALID");
+            }
+        }
+
+        @Test
+        @DisplayName("direct construction requires a matching non-null locale")
+        void candidate_localeMustMatchTag() {
+            assertThatNullPointerException()
+                    .isThrownBy(() -> new LanguageDetectionService.LanguageCandidate("en", 0.9, null));
+            assertThatThrownBy(() -> new LanguageDetectionService.LanguageCandidate(
+                    "en", 0.9, Locale.forLanguageTag("fr")))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_LOCALE_MISMATCH");
         }
 
         @Test
@@ -378,7 +402,8 @@ class LanguageDetectionServiceTest {
 
             List<LanguageDetectionService.LanguageCandidate> excessive =
                     java.util.stream.IntStream.range(0, LanguageDetectionService.MAX_CANDIDATES + 1)
-                            .mapToObj(index -> LanguageDetectionService.LanguageCandidate.of("en-" + index, 0.5))
+                            .mapToObj(index -> LanguageDetectionService.LanguageCandidate.of(
+                                    "en-x-c" + Integer.toString(index, 36), 0.5))
                             .toList();
             assertThatThrownBy(() -> new LanguageDetectionService.DetectionResult(excessive, 0.7))
                     .isInstanceOf(IllegalArgumentException.class)
