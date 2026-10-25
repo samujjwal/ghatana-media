@@ -394,3 +394,63 @@ These are deliberately NOT added to STT/TTS/VIS/MM/OBS task counts. The author-p
 
 The implementer should execute **OBS-01 → STT-01/STT-02 → TTS-01/TTS-02 → VIS-01/VIS-02** (parallel with one editor per file) and **MM-03/MM-04 deterministic sync repro** immediately. Do not create another top-level plan. First commits should make fake TTS and fake sync impossible as success; next commits wire real provider and data contracts. Every patch records the corresponding source intent/RPC and actual negative/real effect test in Media, then proceeds in dependency order. The shared Rust speech-audio library, streaming modules, production editor, recorder, animation and simulation remain source-intact **future independent surfaces**, not hidden additional Wave 2 denominator.
 
+## 2026-10-25 implementation execution record
+
+This append-only record updates execution evidence for the existing 58-task wave. It does not change the plan denominator, source bindings, or the historical initial status above. Implementation is on local main through code cut cd9e758; these commits have not been pushed. No Track B transition, source acceptance, deployment, or release is claimed.
+
+### Focused verification
+
+The five selected Gradle test tasks were run with --no-build-cache --no-daemon --rerun-tasks --console=plain:
+
+    ./gradlew :services:media:modules:speech:stt-service:test :services:media:modules:speech:tts-service:test :services:media:modules:vision:vision-service:test :services:media:modules:intelligence:multimodal-service:test :services:media:audio-video-observability:test --no-build-cache --no-daemon --rerun-tasks --console=plain
+
+Result: BUILD SUCCESSFUL in 2m54s; all 127 actionable Gradle tasks executed. The five module XML report sets contain 1,165 test cases total, with 0 failures, 0 errors and 0 skipped: STT 241, TTS 258, Vision 323, Multimodal 234 and Observability 109. These are module test reports, not provider-quality or live-service evidence.
+
+pnpm test:backend-modality-wave2-plan passed all 6 structural checks for task IDs/dependencies, 99 capability memberships, 43 RPC mappings and residual separation. It checks plan structure, not runtime scenarios. git diff --check passed.
+
+### Exclusive task dispositions
+
+LOCALLY_VERIFIED means the task's bounded local behavior or inventory acceptance is covered by implementation and passing tests. It does not mean the physical surface is complete. PARTIAL means implementation/evidence exists but one or more row acceptance conditions remain. EXTERNAL/OWNER means a required admitted provider, rights source, licensed corpus, hardware, service, or operational input is still missing. SOURCE_CONFLICT records a conflict with canonical product meaning.
+
+| Surface | LOCALLY_VERIFIED | PARTIAL | EXTERNAL/OWNER | SOURCE_CONFLICT |
+| --- | --- | --- | --- | --- |
+| STT | STT-11 | STT-01, STT-03, STT-04, STT-05, STT-06, STT-08, STT-09 | STT-02, STT-07, STT-10, STT-12 | — |
+| TTS | TTS-01, TTS-02, TTS-04, TTS-11 | TTS-08, TTS-09 | TTS-03, TTS-05, TTS-06, TTS-07, TTS-10, TTS-12 | — |
+| Vision | VIS-01, VIS-03, VIS-04, VIS-11 | VIS-07 | VIS-02, VIS-05, VIS-06, VIS-08, VIS-09, VIS-10, VIS-12 | — |
+| Multimodal | MM-01, MM-04, MM-11 | MM-02, MM-03, MM-06, MM-07, MM-09, MM-10 | MM-05, MM-12 | MM-08 |
+| Observability | OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-09, OBS-10 | OBS-06, OBS-07 | OBS-08 | — |
+| **Total** | **19** | **18** | **20** | **1** |
+
+Key local changes at this cut:
+
+- STT rejects absent or malformed authenticated principal/tenant context before provider or persistence interaction; caller-supplied tenant fields do not create identity. Persistent ownership and complete transcript version authority remain partial.
+- TTS no longer returns repeating synthetic bytes as generated audio. Secure bounded XML SSML parsing and the 11-RPC wire/auth/tenant boundary have negative tests. Real synthesis, voice rights and artifact persistence remain unqualified.
+- Vision rejects invalid geometry and bounds FFprobe diagnostics, instruments provider outcomes and preserves FFmpeg process limits. Native leak-rate measurement and real-model quality remain external.
+- Multimodal no longer treats dummy audio/video frames as a synchronization measurement. It returns unknown where source clock identity/signals are insufficient; mixed-modality authorization is checked before child calls; RPC descriptors are locked. Data Cloud projection remains unavailable without trusted artifact/version and rights/redaction authorities.
+- Observability has bounded public Health Check/Watch responses and timeout tests, modality-scoped readiness alert rules, and a redacted operator runbook. No deployed alert evaluation/delivery or admitted quality metric is asserted.
+
+### Integrated effect and failure scenarios
+
+No W2-E scenario is complete. The local work validates slices and boundaries; it does not substitute for the integrated result, persistence, provider, quality, resource, or operational acceptance in each row.
+
+| Scenario | Current disposition | Remaining evidence |
+| --- | --- | --- |
+| W2-E01 File STT / versioned caption | PARTIAL / EXTERNAL/OWNER | Admitted STT provider, immutable source version, persisted timestamped transcript/caption and readback. |
+| W2-E02 STT stream loss | PARTIAL | Full stream reconnect/revocation/cancellation and durable finality/retry behavior across a real service boundary. |
+| W2-E03 Real TTS playback | PARTIAL / EXTERNAL/OWNER | Real authorized synthesis, decodable audio, correct format/duration and persisted output version. |
+| W2-E04 Sensitive voice refusal | PARTIAL | Denial paths exist; trusted owner-consent, biometric-purpose and revocation authority remain unavailable. |
+| W2-E05 Vision video geometry | PARTIAL / EXTERNAL/OWNER | Admitted model and licensed reference corpus plus qualified FFmpeg/model resource evidence. |
+| W2-E06 Vision scene text / biometrics | PARTIAL / EXTERNAL/OWNER | Document Intelligence adapter admission and authoritative biometric rights/consent source. |
+| W2-E07 Real multimodal grounded result | PARTIAL / EXTERNAL/OWNER | Real STT+Vision providers, immutable source evidence and ground-truth offset/quality measurements. |
+| W2-E08 Partial and ambiguous fanout | PARTIAL / SOURCE_CONFLICT | Exact attempt/provider effect and cancellation/retry proof; aggregate cross-modal PARTIAL conflicts with PDP-1 per-capability partiality. |
+| W2-E09 Full 43-RPC method matrix | PARTIAL | Existing service-local matrices do not yet make one source-bound 43-row request/response/version/error evidence matrix. |
+| W2-E10 Health and telemetry | PARTIAL | Four-server startup/failure/slow-provider and alert evaluation against actual service state remain unverified. |
+| W2-E11 Resource and adversarial inputs | PARTIAL / EXTERNAL/OWNER | Reproducible 1/16/64-client model/native resource baselines and qualified hardware limits. |
+| W2-E12 Restart and dependency qualification | PARTIAL / EXTERNAL/OWNER | Real provider/store restart and replay evidence; image-dependent compose qualification remains blocked by GH-90000. |
+
+### Semantics and residual handoffs
+
+MM-08 requires aggregate multimodal PARTIAL, while canonical .product-experience/pdp-1-domain-data/operations.yaml media.operation.multimodal-analysis says this legacy family has no aggregate result contract and partiality is represented per selected capability result. Keep the implementation fail-closed and record this as SOURCE_CONFLICT until the product semantics owner resolves it; do not change PDP source to match this plan.
+
+The five independent residuals remain as R-01 through R-05 above: GH-90000 image-dependent compose tests, the warn-level Checkstyle baseline, Track B native lifecycle/acceptance, legacy runtime/data cutover, and the Shared VerifyIntentionalPublicApiTask NO-SOURCE owner handoff. The nine image-dependent compose tests remain NOT RUN; no release, deployment, live writer cutover or native closure is inferred. None of these residuals blocks the independent local coding and focused tests already performed.
+
