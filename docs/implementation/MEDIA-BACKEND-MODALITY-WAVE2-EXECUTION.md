@@ -617,3 +617,23 @@ Focused verification commands and results:
 Current exclusive dispositions remain **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. TTS-08 remains partial despite the tested local stream path because production provider framing is not verifiable. W2-E09 remains complete only for the local 43-RPC contract matrix; W2-E01..08 and W2-E10..12 remain incomplete. No real model/provider quality, native leak baseline, GH-90000 compose run, formal PDP acceptance, lifecycle receipt, deployment, operational cutover or release was produced.
 
 Structural verification: `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 tests. `git diff --check` — PASS. The combined `./gradlew :services:media:modules:speech:tts-service:test :services:media:modules:vision:vision-service:test :services:media:modules:intelligence:multimodal-service:test --no-build-cache --no-daemon --console=plain --parallel` invocation passed the Vision (343) and Multimodal (263) test tasks and initially failed the stale TTS source assertion described above. After updating that assertion and adding sequence-gap/partial-error cases, the full TTS task passed 273 tests with 0 failures/errors/skips.
+
+### Incremental execution record — 2026-10-25 (seventh round)
+
+Three focused commits were added after the sixth-round cut: `9693336`, `172bdc1`, and `b72eb47`. They are local on `main` and remain unpushed. The 58-task denominator, source bindings, PDP meanings, and formal lifecycle boundary are unchanged. This round strengthens TTS stream format truth and local observability alert evidence; it does not qualify a real TTS provider, close a physical surface, or establish deployed alert delivery.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| TTS-08 | Added backward-compatible `TtsStreamSink.onAudioFormat(CanonicalAudioFormat)` metadata. `GovernedTtsEngine` reports the produced format before chunks; `TtsGrpcService` rejects missing/duplicate declarations, non-PCM output, non-mono/non-S16 output, sample-rate mismatches, and frame-misaligned chunks before returning audio. Full common and TTS test result XML contains 211 and 276 tests respectively, with 0 failures/errors/skips. | PARTIAL: production streaming remains gated off; exact source sample-clock/timestamp mapping, encoder priming/padding and provider-specific qualification remain unavailable. |
+| OBS-06 / OBS-07 | Corrected `MediaPublicationAmbiguityIncreasing` and `MediaPolicyDenialRateHigh` to retain `service` through `sum by (service)`; added a regression for the service label referenced by annotations. Added a checked-in Prometheus rule fixture covering 24 scenario groups and 46 alert assertions. Official Prometheus `promtool` v3.15.1 rule validation passed for 6 general and 30 audio-video rules; the fixture passed. The full observability module suite passed 114 tests with 0 failures/errors/skips. | PARTIAL: local rule evaluation and fixture coverage pass; Postgres seed + process-restart alert evaluation and deployed Alertmanager delivery remain unverified. No provider-quality regression alert is asserted without an admitted quality metric. |
+
+Focused verification on this round's source cut:
+
+- `./gradlew :services:media:libs:java:common:test :services:media:modules:speech:tts-service:test --no-build-cache --no-daemon --console=plain --parallel` — BUILD SUCCESSFUL; saved XML totals are common 211 and TTS 276, each with 0 failures/errors/skips.
+- `./gradlew :services:media:modules:audio-video-observability:test --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 114 tests, 0 failures/errors/skips.
+- `promtool check rules monitoring/prometheus/rules/media.yml infra/monitoring/alerts/audio-video.yml` — PASS; 6 and 30 rules validated.
+- `promtool test rules infra/monitoring/tests/audio-video.rules.test.yml` — PASS; fixture contains 24 scenario groups and 46 alert assertions.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS for the committed source changes.
+
+Task dispositions remain **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. The 12 integrated W2-E scenarios retain their prior dispositions; no 43-RPC, provider-quality, restart, compose-image, formal PDP/gtool, deployment, cutover or release completion is inferred from this round. `GH-90000`, Checkstyle, Track B, legacy data/worker cutover and the Shared build-logic input-validation handoff remain independently owned residuals.
