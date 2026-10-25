@@ -1,5 +1,7 @@
 package com.ghatana.stt.grpc;
 
+import com.ghatana.media.common.AudioData;
+import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.stt.api.Alternative;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.api.WordTiming;
@@ -71,6 +73,26 @@ class SttTranscriptionResponseMapperTest {
         assertThat(response.getWordTimings(0).getEndMs()).isEqualTo(1L);
         assertThat(response.getWordTimings(1).getStartMs()).isEqualTo(1L);
         assertThat(response.getWordTimings(1).getEndMs()).isEqualTo(2L);
+        assertThat(response.getWordTimingTimebase())
+                .isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
+    }
+
+    @Test
+    void acceptsLastSourceFrameDespiteNanosecondDurationTruncation() {
+        int sampleRate = 44_100;
+        int sampleCount = 1_000;
+        byte[] impulsePcm = new byte[sampleCount * 2];
+        impulsePcm[impulsePcm.length - 2] = (byte) 0xff;
+        impulsePcm[impulsePcm.length - 1] = 0x7f;
+        AudioData audio = new AudioData(impulsePcm, sampleRate, 1, 16,
+                Duration.ofNanos(22_675_736L), AudioFormat.PCM);
+        TranscriptionResult result = result(0.5,
+                List.of(new WordTiming("impulse-tail", 0.0, (double) sampleCount / sampleRate, 0.5)), List.of());
+
+        var response = SttTranscriptionResponseMapper.toProto(result, audio).build();
+
+        assertThat(response.getWordTimings(0).getEndMs()).isEqualTo(23L);
+        // The sample count proves the boundary, but does not prove provider timestamp origin.
         assertThat(response.getWordTimingTimebase())
                 .isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
     }

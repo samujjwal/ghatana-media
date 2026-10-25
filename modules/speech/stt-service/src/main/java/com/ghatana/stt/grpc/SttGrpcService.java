@@ -161,7 +161,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                     return;
                 }
 
-                TranscribeResponse.Builder mapped = SttTranscriptionResponseMapper.toProto(result, audio.duration());
+                TranscribeResponse.Builder mapped = SttTranscriptionResponseMapper.toProto(result, audio);
                 tracedObserver.onNext(mapped.build());
                 tracedObserver.onCompleted();
             } catch (SttTranscriptionResponseMapper.InvalidResultException e) {

@@ -1,5 +1,6 @@
 package com.ghatana.stt.grpc;
 
+import com.ghatana.media.common.AudioData;
 import com.ghatana.media.stt.api.Alternative;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.api.WordTiming;
@@ -25,6 +26,24 @@ final class SttTranscriptionResponseMapper {
     }
 
     private SttTranscriptionResponseMapper() { }
+
+    /** Validate against the decoded source sample count, rounding its rational duration up by <1 ns. */
+    static TranscribeResponse.Builder toProto(TranscriptionResult result, AudioData sourceAudio) {
+        if (sourceAudio == null) throw invalid("decoded source audio is unavailable");
+        if (sourceAudio.sampleRate() <= 0 || sourceAudio.getSampleCount() <= 0) {
+            throw invalid("decoded source sample clock is unavailable");
+        }
+        BigDecimal sourceDurationNanos = BigDecimal.valueOf(sourceAudio.getSampleCount())
+                .multiply(BigDecimal.valueOf(1_000_000_000L))
+                .divide(BigDecimal.valueOf(sourceAudio.sampleRate()), 0, RoundingMode.CEILING);
+        Duration sourceDuration;
+        try {
+            sourceDuration = Duration.ofNanos(sourceDurationNanos.longValueExact());
+        } catch (ArithmeticException overflow) {
+            throw invalid("decoded source sample clock exceeds representable duration");
+        }
+        return toProto(result, sourceDuration);
+    }
 
     static TranscribeResponse.Builder toProto(TranscriptionResult result, Duration audioDuration) {
         if (result == null) throw invalid("provider returned no transcription result");
