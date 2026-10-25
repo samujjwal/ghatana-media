@@ -357,6 +357,32 @@ class TtsGrpcServiceTest {
         verify(engine, never()).synthesize(anyString(), any());
     }
 
+    @Test
+    void supportedSsmlSyntaxIsStillNotAdmittedWithoutAProviderMapping() {
+        // Parsing proves syntax and units only. No currently configured provider contract
+        // declares an observable mapping for these SSML segment kinds.
+        for (String markup : List.of(
+                "<speak><prosody rate=\"150%\">hello</prosody></speak>",
+                "<speak><prosody pitch=\"+3st\" volume=\"-3dB\">hello</prosody></speak>",
+                "<speak><break time=\"250ms\"/>hello</speak>",
+                "<speak><phoneme alphabet=\"ipa\" ph=\"həˈloʊ\">hello</phoneme></speak>",
+                "<speak><sub alias=\"World Wide Web\">WWW</sub></speak>",
+                "<speak><emphasis level=\"strong\">hello</emphasis></speak>")) {
+            CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+            service.synthesize(SynthesizeRequest.newBuilder().setText(markup).build(), observer);
+            assertStatus(observer, Status.Code.UNIMPLEMENTED);
+            assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+        }
+
+        CapturingObserver<SynthesizeResponse> invalidUnits = new CapturingObserver<>();
+        service.synthesize(SynthesizeRequest.newBuilder()
+                .setText("<speak><prosody pitch=\"3hz\">hello</prosody></speak>").build(), invalidUnits);
+        assertStatus(invalidUnits, Status.Code.INVALID_ARGUMENT);
+        verify(engine, never()).synthesize(anyString(), any());
+        verify(library, never()).getTtsEngine();
+    }
+
     @Nested
     class MetricsConfiguration {
         @Test
