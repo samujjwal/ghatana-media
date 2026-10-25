@@ -51,16 +51,49 @@ groups:
           summary: "Multimodal gRPC service is down"
           description: "{{ $labels.instance }} has been unreachable for more than 1 minute."
 
-      - alert: AudioVideoProviderNotReady
-        expr: sum(av_service_readiness{service=~"stt|tts|vision|multimodal"} == 0) > 0
+      - alert: SttProviderNotReady
+        expr: av_service_readiness{service="stt"} == 0
         for: 1m
         labels:
           severity: critical
           product: audio-video
-          component: grpc
+          component: stt
         annotations:
-          summary: "An Audio-Video gRPC service is not ready"
-          description: "At least one observed service readiness check is zero. Check the service readiness endpoint and provider configuration; missing or unknown series do not trigger this alert."
+          summary: "STT service provider readiness is down"
+          description: "The observed STT readiness gauge is zero. Check coarse STT readiness and the STT service's provider configuration; missing or unknown series do not trigger this alert."
+
+      - alert: TtsProviderNotReady
+        expr: av_service_readiness{service="tts"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: tts
+        annotations:
+          summary: "TTS service provider readiness is down"
+          description: "The observed TTS readiness gauge is zero. Check coarse TTS readiness and the TTS service's provider configuration; missing or unknown series do not trigger this alert."
+
+      - alert: VisionProviderNotReady
+        expr: av_service_readiness{service="vision"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: vision
+        annotations:
+          summary: "Vision service provider readiness is down"
+          description: "The observed Vision readiness gauge is zero. Check coarse Vision readiness and the Vision service's provider configuration; missing or unknown series do not trigger this alert."
+
+      - alert: MultimodalProviderNotReady
+        expr: av_service_readiness{service="multimodal"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: multimodal
+        annotations:
+          summary: "Multimodal service provider readiness is down"
+          description: "The observed Multimodal readiness gauge is zero. Check coarse Multimodal readiness and the Multimodal service's provider configuration; missing or unknown series do not trigger this alert."
 
   # -------------------------------------------------------------------------
   # 2. STT (Speech-to-Text) Performance

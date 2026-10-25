@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,33 +98,42 @@ class MediaWorkflowAlertRulesTest {
     }
 
     @Test
-    void providerReadinessAlertUsesOnlyObservedZeroAndQualityHasNoAlertRule() throws IOException {
+    void providerReadinessAlertsAreModalitySpecificAndQualityHasNoAlertRule() throws IOException {
         Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
         Path operationsPath = Path.of("..", "docs", "OPERATIONS.md");
         String rules = Files.readString(rulesPath);
         String operations = Files.readString(operationsPath);
 
         assertThat(rules)
-                .contains("alert: AudioVideoProviderNotReady",
-                        "sum(av_service_readiness{service=~\"stt|tts|vision|multimodal\"} == 0) > 0",
-                        "component: grpc")
+                .contains("alert: SttProviderNotReady", "av_service_readiness{service=\"stt\"} == 0",
+                        "component: stt", "alert: TtsProviderNotReady",
+                        "av_service_readiness{service=\"tts\"} == 0", "component: tts",
+                        "alert: VisionProviderNotReady", "av_service_readiness{service=\"vision\"} == 0",
+                        "component: vision", "alert: MultimodalProviderNotReady",
+                        "av_service_readiness{service=\"multimodal\"} == 0", "component: multimodal")
                 .doesNotContain("alert: MediaQualityRegression", "media_provider_health", "media_model_quality");
         assertThat(operations).contains(
                 "`av_service_readiness{service=\"stt|tts|vision|multimodal\"}`",
-                "fires only when an observed readiness value",
+                "Modality-specific readiness alerts fire only when an observed readiness",
+                "`SttProviderNotReady`", "`TtsProviderNotReady`", "`VisionProviderNotReady`",
+                "`MultimodalProviderNotReady`",
                 "do not alert on an absent or NaN series",
                 "`NOT_ADMITTED` / `NO_DATA`",
                 "must not turn that into a zero");
     }
 
     @Test
-    void providerNotReadyAlertHasFixedLabelsAndDoesNotFireForMissingOrNanSeries() throws IOException {
+    void modalityProviderAlertsHaveFixedLabelsAndDoNotFireForMissingOrNanSeries() throws IOException {
         Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
         String rules = Files.readString(rulesPath);
-        String expression = "sum(av_service_readiness{service=~\"stt|tts|vision|multimodal\"} == 0) > 0";
+        Map<String, String> modalities = Map.of("stt", "SttProviderNotReady", "tts", "TtsProviderNotReady",
+                "vision", "VisionProviderNotReady", "multimodal", "MultimodalProviderNotReady");
 
-        assertThat(rules).contains(expression,
-                "severity: critical\n          product: audio-video\n          component: grpc");
-        assertThat(expression).doesNotContain("or", "absent", "NaN", "vector(0)");
+        modalities.forEach((service, alert) -> {
+            String expression = "av_service_readiness{service=\"" + service + "\"} == 0";
+            assertThat(rules).contains("alert: " + alert, expression,
+                    "severity: critical\n          product: audio-video\n          component: " + service);
+            assertThat(expression).doesNotContain("or", "absent", "NaN", "vector(0)");
+        });
     }
 }

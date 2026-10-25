@@ -301,7 +301,7 @@ class AudioVideoHealthServiceTest {
         assertThat(healthService.markReady()).isTrue();
 
         CapturingObserver observer = new CapturingObserver();
-        healthService.check(HealthCheckRequest.getDefaultInstance(), observer);
+        healthService.check(HealthCheckRequest.newBuilder().setService(marker).build(), observer);
 
         assertThat(observer.responses.get(0).getStatus())
                 .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);

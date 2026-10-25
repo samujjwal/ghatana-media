@@ -153,9 +153,12 @@ provider readiness, and drain state. The shared gRPC server lifecycle exports
 the low-cardinality Prometheus gauge
 `av_service_readiness{service="stt|tts|vision|multimodal"}`: `1` means the
 server is serving and required provider checks are healthy; `0` means it is not
-ready. `AudioVideoProviderNotReady` fires only when an observed readiness value
-is `0`; do not alert on an absent or NaN series. Public health bodies remain
-coarse process/readiness signals. `GET /api/v1/providers` requires tenant and
+ready. Modality-specific readiness alerts fire only when an observed readiness
+value is `0`; do not alert on an absent or NaN series. `SttProviderNotReady`,
+`TtsProviderNotReady`, `VisionProviderNotReady`, and
+`MultimodalProviderNotReady` use the bounded modality value as their fixed
+`component` label and do not identify a configured provider. Public health
+bodies remain coarse process/readiness signals. `GET /api/v1/providers` requires tenant and
 principal headers and returns provider IDs and capability profiles, without
 exposing private health details. The shared gRPC interceptor chain emits bounded
 per-method call counts, final gRPC status, and duration to the sidecar
@@ -166,6 +169,13 @@ provider-cost series exists, so no provider-quality regression or cost alert is
 defined. An unadmitted provider or a missing quality series is
 `NOT_ADMITTED` / `NO_DATA`; operators must not turn that into a zero, a passing
 readiness claim, or permission to dispatch.
+
+The public gRPC Health `Check` and `Watch` responses contain only the coarse
+`SERVING`/`NOT_SERVING` status; the requested service name does not return
+dependency names, exception messages, model paths, tenants, or credentials.
+Readiness checks default to a 250 ms total deadline and can be configured up to
+5 seconds. A slow, failed, or saturated check fails closed as `NOT_SERVING`;
+do not increase the deadline as a substitute for restoring a slow dependency.
 
 The gRPC service targets in `prometheus.audio-video.yml` scrape each
 `HealthMetricsServer` sidecar at its configured `AV_HEALTH_PORT`; deployment
@@ -186,6 +196,16 @@ provider identifiers in alert labels or copy media content into alert
 annotations. If provider or quality detail is needed, keep dispatch closed and
 handoff the missing telemetry source to the service owner; the current routes
 do not expose a private provider-health dashboard.
+
+For a modality readiness alert, follow its fixed `component`: check that
+service's public readiness and lifecycle state, then review only that service's
+existing provider configuration and redacted service diagnostics. Do not print
+credential values, endpoint query strings, model paths, request content, or
+tenant identifiers while triaging. Restore the configured dependency or keep
+the service out of traffic until readiness recovers. The current readiness
+metric does not identify which provider check failed. No admitted provider
+quality or regression metric exists, so these alerts describe readiness only;
+they do not establish output quality or alert delivery.
 
 ## Degradation, recovery, and actionable runbook
 
