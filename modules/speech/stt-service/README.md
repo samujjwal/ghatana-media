@@ -98,3 +98,24 @@ value, so purpose-bound admission remains an explicit unresolved boundary.
 These tests prove local configuration and negative-path behavior, not model
 license, real-model quality, external provider execution, or production
 qualification.
+
+## STT-12 fixture transport load
+
+`SttRuntimeLoadRestartTest` exercises authenticated gRPC in-process transport
+with the real `JwtServerInterceptor`, a bounded synthetic PCM request, and a
+deterministic test-only engine double. It starts a fresh ephemeral server for
+each 16- and 64-request concurrent batch and records client-observed fixture
+RPC p50/p95/p99 and throughput. The returned text/model identifiers are
+explicit fixture markers, not ASR output; these measurements are not a service
+SLO or provider performance evidence. The ephemeral server restart does not
+prove production process restart or recovery.
+
+The following remain `NOT_AVAILABLE`: provider real-time factor, model memory,
+model quality (WER/CER/DER), production restart behavior, persisted
+cross-tenant isolation, and real SLO values. No admitted model or licensed
+speech corpus is configured. Run the fixture transport check with:
+
+```bash
+./gradlew :services:media:modules:speech:stt-service:test \
+  --tests 'com.ghatana.stt.grpc.SttRuntimeLoadRestartTest' --no-build-cache
+```
