@@ -72,6 +72,22 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("explicitly denied purpose or voice-biometric rights fails before provider dispatch")
+        void diarize_deniedRightsOrPurposeFailsBeforeProvider() {
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            SpeakerDiarizationService service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> { providerCalls.incrementAndGet(); return new float[]{1}; })
+                    .admission(() -> false)
+                    .build();
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(List.of(
+                            new SpeakerDiarizationService.AudioSegment(new byte[]{1}, 0, 10, "x"))))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessage("STT_DIARIZATION_NOT_ADMITTED: trusted rights and purpose admission is unavailable");
+            assertThat(providerCalls).hasValue(0);
+        }
+
+        @Test
         @DisplayName("single segment returns one turn labeled SPEAKER_0")
         void diarize_singleSegment_labeledSpeaker0() { 
             SpeakerDiarizationService service = buildService(); 
@@ -113,7 +129,7 @@ class SpeakerDiarizationServiceTest {
 
             assertThat(turns).extracting(SpeakerDiarizationService.SpeakerTurn::speakerId)
                     .containsExactly("SPEAKER_0", "SPEAKER_1", "SPEAKER_0")
-                    .allMatch(id -> id.startsWith("SPEAKER_"));
+                    .allMatch(id -> id.matches("SPEAKER_[0-9]+"));
         }
 
         @Test

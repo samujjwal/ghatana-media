@@ -20,7 +20,7 @@ import java.util.Objects;
  *
  * <h3>Quality objective (not verified by this implementation)</h3>
  * <ul>
- *   <li>Multiple speaker identification and separation.</li>
+ *   <li>Anonymous within-recording speaker turn separation.</li>
  *   <li>Speaker accuracy &gt;90% for 2–3 speakers (requires an admitted model and corpus).</li>
  * </ul>
  *
@@ -233,7 +233,11 @@ public final class SpeakerDiarizationService {
 
     @FunctionalInterface
     public interface DiarizationAdmission {
-        /** Returns true only when trusted rights and purpose admission succeeded. */
+        /**
+         * Returns true only when the trusted runtime admitted this diarization purpose,
+         * including applicable voice-biometric rights and consent. A caller-supplied
+         * boolean is not itself an authority decision.
+         */
         boolean isAdmitted();
     }
 
@@ -262,7 +266,7 @@ public final class SpeakerDiarizationService {
     /**
      * A labeled speaker turn produced by the diarizer.
      *
-     * @param speakerId the assigned speaker identifier (e.g. {@code "SPEAKER_0"})
+     * @param speakerId anonymous within-recording cluster label (e.g. {@code "SPEAKER_0"}); never a person ID
      * @param startMs   start time in the original stream (milliseconds)
      * @param endMs     end time in the original stream (milliseconds)
      * @param text      the transcribed text for this turn
