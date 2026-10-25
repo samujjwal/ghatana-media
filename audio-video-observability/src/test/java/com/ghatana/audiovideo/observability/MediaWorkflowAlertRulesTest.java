@@ -173,6 +173,27 @@ class MediaWorkflowAlertRulesTest {
         assertThat(rules).doesNotContain("customer-private-media-marker", "tenant-987", "request-654");
     }
 
+    @Test
+    void checkedInPrometheusFixtureCoversReadinessFiringAndFalseAlarmCases() throws IOException {
+        Path fixturePath = Path.of("..", "infra", "monitoring", "tests", "audio-video.rules.test.yml");
+        String fixture = Files.readString(fixturePath);
+
+        assertThat(fixture).contains(
+                "name: observed-zero-readiness-fires-after-one-minute",
+                "name: readiness-one-does-not-fire",
+                "name: missing-readiness-is-no-data-not-zero",
+                "name: nan-readiness-is-no-data-not-zero",
+                "alertname: SttProviderNotReady",
+                "alertname: TtsProviderNotReady",
+                "alertname: VisionProviderNotReady",
+                "alertname: MultimodalProviderNotReady",
+                "values: '0x3'",
+                "values: 1x3",
+                "values: NaN NaN NaN",
+                "exp_alerts: []");
+        assertThat(fixture).doesNotContain("tenant-987", "request-654", "private-media-marker");
+    }
+
     private static boolean firesObservedZeroRule(OptionalDouble value) {
         return value.isPresent() && Double.isFinite(value.getAsDouble()) && value.getAsDouble() == 0.0;
     }
