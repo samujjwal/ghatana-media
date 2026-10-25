@@ -2,6 +2,7 @@ package com.ghatana.audio.video.multimodal.grpc;
 
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
 import com.ghatana.audio.video.multimodal.engine.AudioVideoProcessingError;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
 import com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapter;
@@ -9,13 +10,19 @@ import com.ghatana.audio.video.multimodal.engine.MultimodalResult;
 import com.ghatana.audio.video.multimodal.engine.VideoAudioResult;
 import com.ghatana.audio.video.multimodal.grpc.proto.*;
 import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.UUID;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -43,6 +50,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final AtomicLong totalProcessingTime = new AtomicLong(0);
     private final MediaProcessingMetrics mediaMetrics;
     private final SourceAuthorization sourceAuthorization;
+    private final AudioVideoTracingService tracingService;
     private volatile BooleanSupplier readinessProbe = () -> false;
 
     public MultimodalGrpcService() {
@@ -54,10 +62,16 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization) {
+        this(metrics, sourceAuthorization, defaultTracingService());
+    }
+
+    MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                          AudioVideoTracingService tracingService) {
         this.platformAdapter = new PlatformMultimodalAdapter();
         this.engine = new MultimodalAnalysisEngine(platformAdapter);
         this.mediaMetrics = metrics;
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
+        this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
         LOG.info("Multimodal service initialized with backend={}", platformAdapter.backendName());
     }
 
@@ -72,10 +86,21 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
     MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
                           MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization) {
+        this(engine, platformAdapter, metrics, sourceAuthorization, defaultTracingService());
+    }
+
+    MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
+                          MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                          AudioVideoTracingService tracingService) {
         this.engine = engine;
         this.platformAdapter = platformAdapter;
         this.mediaMetrics = metrics;
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
+        this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
+    }
+
+    private static AudioVideoTracingService defaultTracingService() {
+        return new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-multimodal"));
     }
 
     @Override
@@ -119,6 +144,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
+        TracedObserver<MultimodalResponse> trace = traceAnalysis("multimodal.analyse", identity.tenantId(), responseObserver);
+        responseObserver = trace.observer();
         try {
             LOG.debug("Processing multimodal request with {} analysis types",
                     request.getAnalysisTypesList().size());
@@ -135,7 +162,14 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                             .text(request.getText())
                             .build();
 
-            MultimodalResult result = engine.analyse(engineRequest);
+            MultimodalResult result;
+            try (Scope ignored = trace.makeCurrent()) {
+                result = engine.analyse(engineRequest);
+            }
+            if (trace.isCancelledOrTerminal()) {
+                trace.finishUnknown();
+                return;
+            }
 
             if ((!request.getAudioData().isEmpty() && (result.getAudioResult() == null
                     || result.getAudioResult().isError()))
@@ -181,12 +215,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .putMetadata("processing_backend", platformAdapter.backendName())
                     .putMetadata("platform_metrics_enabled", String.valueOf(platformAdapter.metricsEnabled()));
 
-            totalProcessingTime.addAndGet(result.getProcessingTimeMs());
-            mediaMetrics.recordSucceeded("multimodal.analyse", System.currentTimeMillis() - startTime);
-            responseObserver.onNext(responseBuilder.build());
-            responseObserver.onCompleted();
-
-            LOG.info("Multimodal processing completed in {}ms", result.getProcessingTimeMs());
+            if (trace.completeResponse(responseBuilder.build(), () -> {
+                totalProcessingTime.addAndGet(result.getProcessingTimeMs());
+                mediaMetrics.recordSucceeded("multimodal.analyse", System.currentTimeMillis() - startTime);
+            })) {
+                LOG.info("Multimodal processing completed in {}ms", result.getProcessingTimeMs());
+            }
 
         } catch (Exception e) {
             LOG.warn("Multimodal processing failed ({})", e.getClass().getSimpleName());
@@ -230,14 +264,24 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             responseObserver.onError(authorityUnavailable());
             return;
         }
+        TracedObserver<VideoAudioResponse> trace = traceAnalysis(
+                "multimodal.video-audio-analysis", identity.tenantId(), responseObserver);
+        responseObserver = trace.observer();
         try {
             LOG.debug("Analyzing video with audio extraction: {}", request.getExtractAudio());
 
-            VideoAudioResult result = engine.analyseVideoWithAudio(
-                    request.getVideoData().toByteArray(),
-                    request.getExtractAudio(),
-                    request.getAnalyzeFrames(),
-                    request.getFrameSampleRate() > 0 ? request.getFrameSampleRate() : 1);
+            VideoAudioResult result;
+            try (Scope ignored = trace.makeCurrent()) {
+                result = engine.analyseVideoWithAudio(
+                        request.getVideoData().toByteArray(),
+                        request.getExtractAudio(),
+                        request.getAnalyzeFrames(),
+                        request.getFrameSampleRate() > 0 ? request.getFrameSampleRate() : 1);
+            }
+            if (trace.isCancelledOrTerminal()) {
+                trace.finishUnknown();
+                return;
+            }
 
             if ((request.getExtractAudio() && (result.getAudioResult() == null
                     || result.getAudioResult().isError()))
@@ -300,8 +344,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 }
             }
 
-            responseObserver.onNext(responseBuilder.build());
-            responseObserver.onCompleted();
+            trace.completeResponse(responseBuilder.build(), () -> { });
             LOG.info("Video with audio analysis completed");
 
         } catch (Exception e) {
@@ -344,6 +387,9 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .asRuntimeException());
             return;
         }
+        TracedObserver<DescriptionResponse> trace = traceAnalysis(
+                "multimodal.description", identity.tenantId(), responseObserver);
+        responseObserver = trace.observer();
         try {
             LOG.debug("Generating description with style: {}", request.getStyle());
 
@@ -354,7 +400,14 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                             .text(request.getContext())
                             .build();
 
-            MultimodalResult analysis = engine.analyse(engineRequest);
+            MultimodalResult analysis;
+            try (Scope ignored = trace.makeCurrent()) {
+                analysis = engine.analyse(engineRequest);
+            }
+            if (trace.isCancelledOrTerminal()) {
+                trace.finishUnknown();
+                return;
+            }
 
             if ((!request.getAudioData().isEmpty() && (analysis.getAudioResult() == null
                     || analysis.getAudioResult().isError()))
@@ -373,12 +426,11 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             if (analysis.getVisualResult() != null && !analysis.getVisualResult().isError()) {
                 keyElements.add("visual");
             }
-            responseObserver.onNext(DescriptionResponse.newBuilder()
+            trace.completeResponse(DescriptionResponse.newBuilder()
                     .setDescription(analysis.getCombinedAnalysis())
                     .setConfidence(0.0)
                     .addAllKeyElements(keyElements)
-                    .build());
-            responseObserver.onCompleted();
+                    .build(), () -> { });
             LOG.info("Description generation completed");
 
         } catch (Exception e) {
@@ -421,6 +473,9 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             return;
         }
         long startTime = System.currentTimeMillis();
+        TracedObserver<CrossModalResponse> trace = traceAnalysis(
+                "multimodal.cross-modal-analysis", identity.tenantId(), responseObserver);
+        responseObserver = trace.observer();
         try {
             LOG.debug("Analyzing cross-modal alignment: audio={}, video={}",
                 !request.getAudioData().isEmpty(), !request.getVideoData().isEmpty());
@@ -432,7 +487,14 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .videoData(request.getVideoData().isEmpty() ? null : request.getVideoData().toByteArray())
                     .build();
 
-            MultimodalResult result = engine.analyse(engineRequest);
+            MultimodalResult result;
+            try (Scope ignored = trace.makeCurrent()) {
+                result = engine.analyse(engineRequest);
+            }
+            if (trace.isCancelledOrTerminal()) {
+                trace.finishUnknown();
+                return;
+            }
 
             boolean hasAudio = result.getAudioResult() != null && !result.getAudioResult().isError();
             boolean hasVisual = result.getVisualResult() != null && !result.getVisualResult().isError();
@@ -455,13 +517,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 hasVisual ? "present" : "absent");
 
             LOG.info("Cross-modal synchronization remains undetermined: events={}", events.size());
-            responseObserver.onNext(CrossModalResponse.newBuilder()
+            trace.completeResponse(CrossModalResponse.newBuilder()
                 .addAllEvents(events)
                 .setSummary(summary)
                 .setProcessingTimeMs(processingTime)
                 .setSynchronizationStatus(CrossModalResponse.SynchronizationStatus.SYNC_UNDETERMINED)
-                .build());
-            responseObserver.onCompleted();
+                .build(), () -> { });
 
         } catch (Exception e) {
             LOG.warn("Cross-modal analysis failed ({})", e.getClass().getSimpleName());
@@ -664,6 +725,191 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
     private static int utf8Length(String value) {
         return value.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+    }
+
+    private <T> TracedObserver<T> traceAnalysis(String operation, String tenantId,
+                                                StreamObserver<T> observer) {
+        return new TracedObserver<>(observer,
+                tracingService.startMultimodalAnalysisSpan(operation, tenantId));
+    }
+
+    /** One bounded application span for an actual engine dispatch and its terminal RPC callback. */
+    private final class TracedObserver<T> implements StreamObserver<T> {
+        private final StreamObserver<T> delegate;
+        private final Span span;
+        private final Context context;
+        private final long startedNanos = System.nanoTime();
+        private final Object callbackLock = new Object();
+        private boolean terminal;
+
+        private TracedObserver(StreamObserver<T> delegate, Span span) {
+            this.delegate = java.util.Objects.requireNonNull(delegate, "delegate");
+            this.span = java.util.Objects.requireNonNull(span, "span");
+            this.context = Context.current().with(span);
+            if (delegate instanceof ServerCallStreamObserver<?> serverObserver) {
+                serverObserver.setOnCancelHandler(this::finishUnknown);
+            }
+        }
+
+        private StreamObserver<T> observer() {
+            return this;
+        }
+
+        private Scope makeCurrent() {
+            return context.makeCurrent();
+        }
+
+        @Override
+        public void onNext(T value) {
+            synchronized (callbackLock) {
+                if (terminal) {
+                    return;
+                }
+                try (Scope ignored = context.makeCurrent()) {
+                    try {
+                        delegate.onNext(value);
+                    } catch (RuntimeException | Error observerFailure) {
+                        terminal = true;
+                        finishUnknownWhileCurrent();
+                        throw observerFailure;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onError(Throwable error) {
+            synchronized (callbackLock) {
+                if (terminal) {
+                    return;
+                }
+                terminal = true;
+                try (Scope ignored = context.makeCurrent()) {
+                    try {
+                        delegate.onError(error);
+                    } finally {
+                        tracingService.recordError(span, asException(error), elapsedMillis());
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onCompleted() {
+            synchronized (callbackLock) {
+                if (terminal) {
+                    return;
+                }
+                terminal = true;
+                try (Scope ignored = context.makeCurrent()) {
+                    try {
+                        delegate.onCompleted();
+                    } catch (RuntimeException | Error callbackFailure) {
+                        finishUnknownWhileCurrent();
+                        throw callbackFailure;
+                    }
+                    tracingService.recordSuccess(span, elapsedMillis());
+                }
+            }
+        }
+
+        private void finishUnknown() {
+            synchronized (callbackLock) {
+                if (terminal) {
+                    return;
+                }
+                terminal = true;
+                try (Scope ignored = context.makeCurrent()) {
+                    finishUnknownWhileCurrent();
+                }
+            }
+        }
+
+        private boolean isCancelledOrTerminal() {
+            synchronized (callbackLock) {
+                if (terminal) {
+                    return true;
+                }
+            }
+            return delegate instanceof ServerCallStreamObserver<?> serverObserver
+                    && serverObserver.isCancelled();
+        }
+
+        /** Serialize final delivery, success span closure, and success metrics with cancellation. */
+        private boolean completeResponse(T value, Runnable recordSuccess) {
+            synchronized (callbackLock) {
+                if (terminal) {
+                    return false;
+                }
+                if (transportCancelled()) {
+                    terminal = true;
+                    try (Scope ignored = context.makeCurrent()) {
+                        finishUnknownWhileCurrent();
+                    }
+                    return false;
+                }
+                try (Scope ignored = context.makeCurrent()) {
+                    try {
+                        delegate.onNext(value);
+                    } catch (RuntimeException | Error observerFailure) {
+                        terminal = true;
+                        finishUnknownWhileCurrent();
+                        throw observerFailure;
+                    }
+                    if (terminal || transportCancelled()) {
+                        if (!terminal) {
+                            terminal = true;
+                            finishUnknownWhileCurrent();
+                        }
+                        return false;
+                    }
+                    try {
+                        delegate.onCompleted();
+                    } catch (RuntimeException | Error observerFailure) {
+                        terminal = true;
+                        finishUnknownWhileCurrent();
+                        throw observerFailure;
+                    }
+                    if (terminal || transportCancelled()) {
+                        if (!terminal) {
+                            terminal = true;
+                            finishUnknownWhileCurrent();
+                        }
+                        return false;
+                    }
+                    terminal = true;
+                    tracingService.recordSuccess(span, elapsedMillis());
+                    recordSuccess.run();
+                    return true;
+                }
+            }
+        }
+
+        private boolean transportCancelled() {
+            return delegate instanceof ServerCallStreamObserver<?> serverObserver
+                    && serverObserver.isCancelled();
+        }
+
+        private void finishUnknownWhileCurrent() {
+            terminal = true;
+            try {
+                span.setAttribute("media.outcome", "unknown");
+                span.setAttribute("duration.ms", elapsedMillis());
+            } finally {
+                span.end();
+            }
+        }
+
+        private long elapsedMillis() {
+            return java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
+        }
+
+        private Exception asException(Throwable error) {
+            if (error instanceof Exception exception) {
+                return exception;
+            }
+            return new RuntimeException("Multimodal analysis failed", error);
+        }
     }
 
     private static Set<SourceAuthorization.Modality> modalities(boolean audio, boolean image,
