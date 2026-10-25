@@ -68,6 +68,10 @@ class SttGrpcServiceInProcessIntegrationTest {
 
     private Server server;
     private ManagedChannel channel;
+    private String previousJwtSecret;
+    private Metadata authenticatedHeaders;
+    private AudioVideoLibrary library;
+    private SttEngine engine;
 
     @AfterEach
     void tearDown() {
@@ -77,12 +81,17 @@ class SttGrpcServiceInProcessIntegrationTest {
         if (server != null) {
             server.shutdownNow();
         }
+        if (previousJwtSecret == null) System.clearProperty("AV_JWT_SECRET");
+        else System.setProperty("AV_JWT_SECRET", previousJwtSecret);
     }
 
     @BeforeEach
     void setUp() throws Exception {
-        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
-        SttEngine engine = mock(SttEngine.class);
+        previousJwtSecret = System.getProperty("AV_JWT_SECRET");
+        String secret = "stt-inprocess-service-test-secret";
+        System.setProperty("AV_JWT_SECRET", secret);
+        library = mock(AudioVideoLibrary.class);
+        engine = mock(SttEngine.class);
 
         when(library.getSttEngine()).thenReturn(engine);
         when(engine.transcribe(any(AudioData.class), any())).thenReturn(
@@ -100,8 +109,10 @@ class SttGrpcServiceInProcessIntegrationTest {
         SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry());
 
         server = ServerBuilder.forPort(0)
+            .maxInboundMessageSize(SttGrpcServer.MAX_INBOUND_MESSAGE_SIZE)
             .directExecutor()
             .addService(service)
+            .intercept(new JwtServerInterceptor())
             .build()
             .start();
 
@@ -109,12 +120,15 @@ class SttGrpcServiceInProcessIntegrationTest {
             .usePlaintext()
             .directExecutor()
             .build();
+        authenticatedHeaders = new Metadata();
+        authenticatedHeaders.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer " + testJwt(secret));
     }
 
     @Test
     @DisplayName("transcribe returns expected response over gRPC transport")
     void transcribeOverGrpc() {
-        STTServiceGrpc.STTServiceBlockingStub stub = STTServiceGrpc.newBlockingStub(channel);
+        STTServiceGrpc.STTServiceBlockingStub stub = authenticatedBlockingStub();
 
         TranscribeResponse response = stub.transcribe(
             TranscribeRequest.newBuilder()
@@ -129,9 +143,27 @@ class SttGrpcServiceInProcessIntegrationTest {
     }
 
     @Test
+    @DisplayName("authenticated oversized transcribe request is rejected before engine access")
+    void oversizedTranscribeIsRejectedBeforeEngineAccess() {
+        STTServiceGrpc.STTServiceBlockingStub stub = authenticatedBlockingStub();
+        byte[] oversizedAudio = new byte[SttGrpcServer.MAX_INBOUND_MESSAGE_SIZE + 1];
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(oversizedAudio))
+                .setSampleRate(16000)
+                .build();
+
+        assertThatThrownBy(() -> stub.transcribe(request))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(failure -> assertThat(((StatusRuntimeException) failure).getStatus().getCode())
+                        .isEqualTo(Status.Code.RESOURCE_EXHAUSTED));
+
+        verify(library, never()).getSttEngine();
+    }
+
+    @Test
     @DisplayName("transcribe validates empty audio and returns INVALID_ARGUMENT")
     void transcribeEmptyAudioReturnsInvalidArgument() {
-        STTServiceGrpc.STTServiceBlockingStub stub = STTServiceGrpc.newBlockingStub(channel);
+        STTServiceGrpc.STTServiceBlockingStub stub = authenticatedBlockingStub();
 
         assertThatThrownBy(() -> stub.transcribe(
             TranscribeRequest.newBuilder().setAudioData(ByteString.EMPTY).build()
@@ -152,6 +184,7 @@ class SttGrpcServiceInProcessIntegrationTest {
         Server replacement = ServerBuilder.forPort(0)
             .directExecutor()
             .addService(new SttGrpcService(library, new SimpleMeterRegistry()))
+            .intercept(new JwtServerInterceptor())
             .build()
             .start();
         ManagedChannel replacementChannel = ManagedChannelBuilder.forAddress("localhost", replacement.getPort())
@@ -159,7 +192,11 @@ class SttGrpcServiceInProcessIntegrationTest {
             .directExecutor()
             .build();
         try {
-            STTServiceGrpc.newBlockingStub(replacementChannel).unloadModel(
+            Metadata headers = new Metadata();
+            headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                    "Bearer " + testJwt(System.getProperty("AV_JWT_SECRET")));
+            STTServiceGrpc.newBlockingStub(replacementChannel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers)).unloadModel(
                 UnloadModelRequest.newBuilder().setModelId("whisper-base").build());
         } catch (StatusRuntimeException failure) {
             assertThat(failure.getStatus().getCode()).isEqualTo(Status.UNIMPLEMENTED.getCode());
@@ -174,7 +211,7 @@ class SttGrpcServiceInProcessIntegrationTest {
     @Test
     @DisplayName("healthCheck stays unhealthy over gRPC until composition supplies readiness checks")
     void healthCheckDoesNotReportStubEngineReadyOverGrpc() {
-        var response = STTServiceGrpc.newBlockingStub(channel)
+        var response = authenticatedBlockingStub()
             .healthCheck(HealthCheckRequest.getDefaultInstance());
 
         assertThat(response.getStatus()).isEqualTo(HealthStatus.HEALTH_STATUS_UNHEALTHY);
@@ -344,6 +381,11 @@ class SttGrpcServiceInProcessIntegrationTest {
         assertThat(failure.get()).isInstanceOf(StatusRuntimeException.class);
         assertThat(Status.fromThrowable(failure.get()).getCode()).isEqualTo(expectedCode);
         assertThat(Status.fromThrowable(failure.get()).getDescription()).contains(description);
+    }
+
+    private STTServiceGrpc.STTServiceBlockingStub authenticatedBlockingStub() {
+        return STTServiceGrpc.newBlockingStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(authenticatedHeaders));
     }
 
     private static void assertRpcError(

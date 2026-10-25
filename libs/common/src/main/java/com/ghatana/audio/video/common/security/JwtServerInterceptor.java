@@ -54,6 +54,15 @@ public class JwtServerInterceptor implements ServerInterceptor {
     public static final Context.Key<String> CTX_SUBJECT = Context.key("av.jwt.subject");
     /** gRPC {@link Context} key carrying the validated tenant ID. */
     public static final Context.Key<String> CTX_TENANT = Context.key("av.jwt.tenant");
+    private static final Context.Key<VerifiedIdentity> VERIFIED_IDENTITY = Context.key("av.jwt.verifiedIdentity");
+
+    /** Immutable identity established by this interceptor after token validation. */
+    public record VerifiedIdentity(String subject, String tenantId) { }
+
+    /** Returns the identity validated by this interceptor, or {@code null} when none was established. */
+    public static VerifiedIdentity verifiedIdentity() {
+        return VERIFIED_IDENTITY.get();
+    }
 
     private static final Metadata.Key<String> AUTHORIZATION_KEY =
             Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER);
@@ -110,9 +119,10 @@ public class JwtServerInterceptor implements ServerInterceptor {
 
         String fullMethod = call.getMethodDescriptor().getFullMethodName();
         String fullMethodPath = fullMethod.startsWith("/") ? fullMethod : "/" + fullMethod;
+        Context requestContext = Context.current().withValue(VERIFIED_IDENTITY, null);
 
         if (EXEMPT_METHODS.contains(fullMethodPath)) {
-            return next.startCall(call, headers);
+            return Contexts.interceptCall(requestContext, call, headers, next);
         }
 
         String authHeader = headers.get(AUTHORIZATION_KEY);
@@ -144,9 +154,11 @@ public class JwtServerInterceptor implements ServerInterceptor {
                 call.close(Status.UNAUTHENTICATED.withDescription("Missing tenant claim"), new Metadata());
                 return new ServerCall.Listener<>() {};
             }
-            Context ctx = Context.current()
-                    .withValue(CTX_SUBJECT, subject != null ? subject : "unknown")
-                    .withValue(CTX_TENANT, tenantId);
+            String authenticatedSubject = subject != null ? subject : "unknown";
+            Context ctx = requestContext
+                    .withValue(CTX_SUBJECT, authenticatedSubject)
+                    .withValue(CTX_TENANT, tenantId)
+                    .withValue(VERIFIED_IDENTITY, new VerifiedIdentity(authenticatedSubject, tenantId));
             LOG.debug("Authenticated request on {}", fullMethod);
             return Contexts.interceptCall(ctx, call, headers, next);
 
@@ -174,9 +186,10 @@ public class JwtServerInterceptor implements ServerInterceptor {
                     }
                     String subject = gwResult.userId() != null ? gwResult.userId() : "platform";
                     LOG.debug("Platform auth-gateway accepted request on {}", fullMethod);
-                    Context ctx = Context.current()
+                    Context ctx = requestContext
                             .withValue(CTX_SUBJECT, subject)
-                            .withValue(CTX_TENANT, tenantId);
+                            .withValue(CTX_TENANT, tenantId)
+                            .withValue(VERIFIED_IDENTITY, new VerifiedIdentity(subject, tenantId));
                     return Contexts.interceptCall(ctx, call, headers, next);
                 }
             }

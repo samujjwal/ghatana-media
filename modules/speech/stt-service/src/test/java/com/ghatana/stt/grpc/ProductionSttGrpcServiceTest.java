@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.SttServiceProto;
 import java.nio.file.Files;
@@ -32,6 +33,14 @@ import com.ghatana.stt.core.grpc.proto.ProfileResponse;
 import com.ghatana.stt.core.grpc.proto.UnloadModelRequest;
 import com.ghatana.stt.core.grpc.proto.UnloadModelResponse;
 import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
+import com.ghatana.stt.core.grpc.proto.StatusRequest;
+import com.ghatana.stt.core.grpc.proto.StatusResponse;
+import com.ghatana.stt.core.grpc.proto.HealthCheckRequest;
+import com.ghatana.stt.core.grpc.proto.HealthCheckResponse;
+import com.ghatana.stt.core.grpc.proto.LoadModelRequest;
+import com.ghatana.stt.core.grpc.proto.LoadModelResponse;
+import com.ghatana.stt.core.grpc.proto.ListModelsRequest;
+import com.ghatana.stt.core.grpc.proto.ListModelsResponse;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -107,7 +116,8 @@ class ProductionSttGrpcServiceTest {
                 mock(AudioVideoLibrary.class), new SimpleMeterRegistry());
 
         ProductionSttGrpcServiceTest.<UnloadModelResponse>assertUnimplemented(
-                observer -> service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer));
+                observer -> runWithTenantPrincipal(
+                        () -> service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer)));
         ProductionSttGrpcServiceTest.<AdaptResponse>assertFailedPrecondition(
                 observer -> runWithTenantPrincipal(() -> service.adaptModel(AdaptRequest.getDefaultInstance(), observer)),
                 "STT_ADAPTATION_NOT_ADMITTED:");
@@ -127,9 +137,9 @@ class ProductionSttGrpcServiceTest {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry());
 
-        assertSensitiveRpcIdentityFailure(callSensitiveRpcs(service));
+        io.grpc.Context.ROOT.run(() -> assertSensitiveRpcIdentityFailure(callSensitiveRpcs(service)));
 
-        io.grpc.Context.current()
+        io.grpc.Context.ROOT
                 .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
                 .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT, "bad-subject")
                 .run(() -> assertSensitiveRpcIdentityFailure(callSensitiveRpcs(service)));
@@ -150,8 +160,8 @@ class ProductionSttGrpcServiceTest {
                 .isEqualTo(io.grpc.health.v1.HealthCheckResponse.ServingStatus.NOT_SERVING);
 
         var application = new CapturingObserver<com.ghatana.stt.core.grpc.proto.HealthCheckResponse>();
-        service.healthCheck(
-                com.ghatana.stt.core.grpc.proto.HealthCheckRequest.getDefaultInstance(), application);
+        runWithTenantPrincipal(() -> service.healthCheck(
+                com.ghatana.stt.core.grpc.proto.HealthCheckRequest.getDefaultInstance(), application));
         assertThat(application.value.getStatus())
                 .isEqualTo(com.ghatana.stt.core.grpc.proto.HealthStatus.HEALTH_STATUS_UNHEALTHY);
         assertThat(application.value.getMessage()).isEqualTo("STT_NOT_SERVING: provider readiness unavailable");
@@ -161,17 +171,27 @@ class ProductionSttGrpcServiceTest {
     }
 
     private static List<CapturingObserver<?>> callSensitiveRpcs(ProductionSttGrpcService service) {
+        var status = new CapturingObserver<StatusResponse>();
+        var health = new CapturingObserver<HealthCheckResponse>();
+        var load = new CapturingObserver<LoadModelResponse>();
+        var unload = new CapturingObserver<UnloadModelResponse>();
+        var models = new CapturingObserver<ListModelsResponse>();
         var adapt = new CapturingObserver<AdaptResponse>();
         var create = new CapturingObserver<ProfileResponse>();
         var get = new CapturingObserver<ProfileResponse>();
         var update = new CapturingObserver<ProfileResponse>();
         var correction = new CapturingObserver<CorrectionResponse>();
+        service.getStatus(StatusRequest.getDefaultInstance(), status);
+        service.healthCheck(HealthCheckRequest.getDefaultInstance(), health);
+        service.loadModel(LoadModelRequest.newBuilder().setModelId("model").build(), load);
+        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("model").build(), unload);
+        service.listModels(ListModelsRequest.getDefaultInstance(), models);
         service.adaptModel(AdaptRequest.getDefaultInstance(), adapt);
         service.createProfile(CreateProfileRequest.getDefaultInstance(), create);
         service.getProfile(GetProfileRequest.getDefaultInstance(), get);
         service.updateProfile(UpdateProfileRequest.getDefaultInstance(), update);
         service.submitCorrection(CorrectionRequest.getDefaultInstance(), correction);
-        return List.of(adapt, create, get, update, correction);
+        return List.of(status, health, load, unload, models, adapt, create, get, update, correction);
     }
 
     private static void assertSensitiveRpcIdentityFailure(List<CapturingObserver<?>> observers) {
@@ -179,11 +199,7 @@ class ProductionSttGrpcServiceTest {
     }
 
     private static void runWithTenantPrincipal(Runnable action) {
-        io.grpc.Context.current()
-                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
-                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT,
-                        "00000000-0000-0000-0000-000000000001")
-                .run(action);
+        VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001").run(action);
     }
 
     private static void assertUnauthenticated(CapturingObserver<?> observer) {

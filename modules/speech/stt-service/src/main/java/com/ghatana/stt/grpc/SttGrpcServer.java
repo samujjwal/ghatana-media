@@ -28,6 +28,10 @@ public final class SttGrpcServer extends AudioVideoGrpcServerBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(SttGrpcServer.class);
     private static final int DEFAULT_PORT = 50051;
+    // Keep the explicit transport bound at gRPC-Java's existing 4 MiB default. The decoder's
+    // 100 MiB limit applies after a request is materialized and does not expand the gRPC contract;
+    // method-specific limits are required before raising the shared cap for unary file uploads.
+    static final int MAX_INBOUND_MESSAGE_SIZE = 4 * 1024 * 1024;
 
     public SttGrpcServer(int port) {
         this(port, TransportSecurity.plaintext());
@@ -44,7 +48,8 @@ public final class SttGrpcServer extends AudioVideoGrpcServerBase {
                 service,
                 com.ghatana.audio.video.common.GrpcInterceptorChain.build(),
                 transportSecurity,
-                readinessService(service));
+                readinessService(service),
+                MAX_INBOUND_MESSAGE_SIZE);
     }
 
     static AudioVideoHealthService readinessService(ProductionSttGrpcService service) {

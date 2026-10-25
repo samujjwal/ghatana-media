@@ -6,6 +6,7 @@ import com.ghatana.audio.video.infrastructure.persistence.service.TranscriptionS
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.stt.testutil.LogCapture;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 
@@ -33,9 +34,10 @@ class PersistentSttServiceLogPrivacyTest {
         try (LogCapture logs = LogCapture.capture(PersistentSttService.class)) {
             java.util.concurrent.atomic.AtomicReference<Throwable> failure =
                     new java.util.concurrent.atomic.AtomicReference<>();
-            service.transcribeAndPersist(
-                    tenantId, userId, pcmWav(), "private-upload.wav", AudioFormat.WAV, "en", 16_000)
-                    .whenException(failure::set);
+            VerifiedJwtContext.create(tenantId, userId.toString())
+                    .run(() -> service.transcribeAndPersist(
+                            tenantId, userId, pcmWav(), "private-upload.wav", AudioFormat.WAV, "en", 16_000)
+                            .whenException(failure::set));
 
             String output = logs.output();
             assertThat(failure.get())

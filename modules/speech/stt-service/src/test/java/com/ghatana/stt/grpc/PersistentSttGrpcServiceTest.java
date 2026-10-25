@@ -58,6 +58,18 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("direct-service identity rejection maps to UNAUTHENTICATED")
+    void identityRejectionMapsToUnauthenticated() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        service.reportFailure(new SecurityException("STT_IDENTITY_REQUIRED"), observer);
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Authenticated identity required");
+    }
+
+    @Test
     @DisplayName("transcribe rejects requests without tenant context - UNAUTHENTICATED")
     void transcribeRejectsRequestsWithoutTenantContext() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();

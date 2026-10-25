@@ -12,6 +12,7 @@ import com.ghatana.stt.core.grpc.proto.*;
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.audiovideo.observability.instrumentation.AudioVideoGrpcInstrumentation;
 import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
@@ -114,6 +115,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         Span span = tracingService.startTranscriptionSpan(null, null, request.getLanguage());
         TracingObserver<TranscribeResponse> tracedObserver = new TracingObserver<>(
                 responseObserver, tracingService, span);
@@ -248,22 +250,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public StreamObserver<AudioChunk> streamTranscribe(StreamObserver<Transcription> responseObserver) {
-        String tenantId = com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT.get();
-        String principalId = com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT.get();
-        if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                    .withDescription("STT_STREAM_IDENTITY_REQUIRED: authenticated tenant and subject are required")
-                    .asRuntimeException());
-            return noOpAudioObserver();
-        }
-        try {
-            UUID.fromString(principalId);
-        } catch (IllegalArgumentException invalidPrincipal) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                    .withDescription("STT_STREAM_IDENTITY_INVALID: authenticated subject is not a supported principal identifier")
-                    .asRuntimeException());
-            return noOpAudioObserver();
-        }
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return noOpAudioObserver();
+        String tenantId = JwtServerInterceptor.verifiedIdentity().tenantId();
 
         Span span = tracingService.startGrpcStreamingSpan("StreamTranscribe", tenantId);
         long startedNanos = System.nanoTime();
@@ -312,6 +300,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void getStatus(StatusRequest request, StreamObserver<StatusResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         try (SttEngine stt = library.getSttEngine()) {
             com.ghatana.media.common.EngineStatus status = stt.getStatus();
             responseObserver.onNext(StatusResponse.newBuilder()
@@ -325,6 +314,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void healthCheck(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         boolean ready = Boolean.TRUE.equals(readinessProbe.getAsBoolean());
         responseObserver.onNext(HealthCheckResponse.newBuilder()
             .setStatus(ready ? HealthStatus.HEALTH_STATUS_HEALTHY : HealthStatus.HEALTH_STATUS_UNHEALTHY)
@@ -346,6 +336,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void loadModel(LoadModelRequest request, StreamObserver<LoadModelResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
@@ -386,6 +377,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void unloadModel(UnloadModelRequest request, StreamObserver<UnloadModelResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
@@ -420,6 +412,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         try (SttEngine stt = library.getSttEngine()) {
             List<com.ghatana.media.stt.api.ModelInfo> models = stt.getAvailableModels();
             com.ghatana.media.stt.api.ModelInfo activeModel = stt.getActiveModel();
@@ -523,8 +516,9 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     }
 
     protected static boolean requireAuthenticatedTenantPrincipal(StreamObserver<?> observer) {
-        String tenantId = com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT.get();
-        String principalId = com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT.get();
+        JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
+        String tenantId = identity == null ? null : identity.tenantId();
+        String principalId = identity == null ? null : identity.subject();
         if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
             observer.onError(io.grpc.Status.UNAUTHENTICATED
                     .withDescription("STT_IDENTITY_REQUIRED: authenticated tenant and subject are required")

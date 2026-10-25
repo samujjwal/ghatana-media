@@ -11,6 +11,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SttGrpcServerTransportSecurityTest {
 
     @Test
+    void inboundLimitPreservesGrpcDefaultWhileStreamingRemainsNotAdmitted() {
+        assertThat(SttGrpcServer.MAX_INBOUND_MESSAGE_SIZE).isEqualTo(4 * 1024 * 1024);
+    }
+
+    @Test
     void localProfileMayUseExplicitPlaintextDefault() {
         var security = SttGrpcServer.transportSecurity(Map.of("STT_ENVIRONMENT", "local"));
         assertThat(security.tlsEnabled()).isFalse();

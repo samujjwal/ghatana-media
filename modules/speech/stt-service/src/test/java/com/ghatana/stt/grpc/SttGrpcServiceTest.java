@@ -14,7 +14,9 @@ import com.ghatana.media.stt.api.Alternative;
 import com.ghatana.media.stt.api.WordTiming;
 import com.ghatana.media.stt.api.UserProfile;
 import com.ghatana.stt.core.grpc.proto.*;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
 import com.google.protobuf.ByteString;
+import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.ServerCallStreamObserver;
@@ -23,6 +25,7 @@ import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,6 +68,7 @@ class SttGrpcServiceTest {
 
     private SttGrpcService service;
     private SimpleMeterRegistry meterRegistry;
+    private Context previousContext;
 
     @BeforeEach
     void setUp() { 
@@ -72,6 +76,13 @@ class SttGrpcServiceTest {
         service = new SttGrpcService(mockLibrary, meterRegistry); 
         // Lenient: getSttEngine is not needed in every test
         lenient().when(mockLibrary.getSttEngine()).thenReturn(mockEngine); 
+        previousContext = VerifiedJwtContext.create(
+                "tenant-test", "00000000-0000-0000-0000-000000000001").attach();
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (previousContext != null) Context.current().detach(previousContext);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -102,6 +113,42 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getProcessingTimeMs()).isEqualTo(120L); 
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
         assertProviderBoundary("success");
+    }
+
+    @Test
+    @DisplayName("transcribe: direct service call rejects missing verified identity before provider access")
+    void transcribe_rejectsMissingVerifiedIdentityBeforeProviderAccess() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))
+                .setSampleRate(16_000)
+                .build();
+
+        Context.ROOT.run(() -> service.transcribe(request, observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(mockLibrary);
+    }
+
+    @Test
+    @DisplayName("transcribe: public context strings cannot forge verified identity")
+    void transcribe_rejectsForgedPublicIdentityBeforeProviderAccess() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))
+                .setSampleRate(16_000)
+                .build();
+
+        Context.ROOT
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT,
+                        "00000000-0000-0000-0000-000000000001")
+                .run(() -> service.transcribe(request, observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(mockLibrary);
     }
 
     @Test
@@ -700,6 +747,43 @@ class SttGrpcServiceTest {
         verify(mockLibrary, never()).getSttEngine();
     }
 
+    @Test
+    @DisplayName("provider status and model RPCs require verified identity before engine access")
+    void providerAndModelRpcsRejectMissingAndForgedIdentity() {
+        java.util.concurrent.atomic.AtomicBoolean readinessCalled = new java.util.concurrent.atomic.AtomicBoolean();
+        service.setReadinessProbe(() -> {
+            readinessCalled.set(true);
+            return true;
+        });
+
+        Context.ROOT.run(() -> assertProviderStatusRpcsUnauthenticated());
+        Context.ROOT
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT,
+                        "00000000-0000-0000-0000-000000000001")
+                .run(() -> assertProviderStatusRpcsUnauthenticated());
+
+        assertThat(readinessCalled).isFalse();
+        verifyNoInteractions(mockLibrary);
+    }
+
+    private void assertProviderStatusRpcsUnauthenticated() {
+        var status = new CapturingObserver<StatusResponse>();
+        var health = new CapturingObserver<HealthCheckResponse>();
+        var load = new CapturingObserver<LoadModelResponse>();
+        var unload = new CapturingObserver<UnloadModelResponse>();
+        var models = new CapturingObserver<ListModelsResponse>();
+
+        service.getStatus(StatusRequest.getDefaultInstance(), status);
+        service.healthCheck(HealthCheckRequest.getDefaultInstance(), health);
+        service.loadModel(LoadModelRequest.newBuilder().setModelId("model").build(), load);
+        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("model").build(), unload);
+        service.listModels(ListModelsRequest.getDefaultInstance(), models);
+
+        assertSensitiveWriteRpcStatus(Status.UNAUTHENTICATED,
+                () -> List.of(status, health, load, unload, models));
+    }
+
     // ─────────────────────────────────────────────────────────────
     // submitCorrection
     // ─────────────────────────────────────────────────────────────
@@ -744,14 +828,15 @@ class SttGrpcServiceTest {
     @Test
     @DisplayName("sensitive write RPCs return UNAUTHENTICATED before admission checks when identity is missing")
     void sensitiveWritesRequireIdentityBeforeCapabilityAdmission() {
-        assertSensitiveWriteRpcStatus(Status.UNAUTHENTICATED, this::invokeSensitiveWriteRpcs);
+        Context.ROOT.run(() ->
+                assertSensitiveWriteRpcStatus(Status.UNAUTHENTICATED, this::invokeSensitiveWriteRpcs));
         verify(mockLibrary, never()).getSttEngine();
     }
 
     @Test
     @DisplayName("sensitive write RPCs reject malformed principals before provider access")
     void sensitiveWritesRejectInvalidPrincipalBeforeProviderAccess() {
-        io.grpc.Context.current()
+        io.grpc.Context.ROOT
                 .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
                 .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT, "not-a-uuid")
                 .run(() -> assertSensitiveWriteRpcStatus(Status.UNAUTHENTICATED, this::invokeSensitiveWriteRpcs));
@@ -787,7 +872,7 @@ class SttGrpcServiceTest {
     void streamTranscribe_rejectsUnauthenticatedCaller() {
         CapturingObserver<Transcription> observer = new CapturingObserver<>();
 
-        service.streamTranscribe(observer);
+        Context.ROOT.run(() -> service.streamTranscribe(observer));
 
         assertThat(observer.hasError()).isTrue();
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
@@ -828,7 +913,7 @@ class SttGrpcServiceTest {
         SttGrpcService tracedService = new SttGrpcService(mockLibrary, meterRegistry, tracer);
         CapturingObserver<Transcription> observer = new CapturingObserver<>();
 
-        io.grpc.Context.current()
+        io.grpc.Context.ROOT
                 .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
                 .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT, "not-a-uuid")
                 .run(() -> tracedService.streamTranscribe(observer));
@@ -908,10 +993,6 @@ class SttGrpcServiceTest {
         Throwable getError() { return error; } 
     }
     private static void runWithTenantContext(Runnable action) {
-        io.grpc.Context.current()
-                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
-                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT,
-                        "00000000-0000-0000-0000-000000000001")
-                .run(action);
+        VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001").run(action);
     }
 }

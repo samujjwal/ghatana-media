@@ -303,6 +303,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void unloadModel(
             UnloadModelRequest request,
             StreamObserver<UnloadModelResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         unimplemented(responseObserver, "Model unload is not supported by the single-model STT provider");
     }
 

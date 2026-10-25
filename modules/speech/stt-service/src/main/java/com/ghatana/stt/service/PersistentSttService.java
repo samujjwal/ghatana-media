@@ -12,6 +12,7 @@ import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.audit.AuditEvent;
 import com.ghatana.audit.AuditService;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import io.activej.promise.Promise;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -112,6 +113,7 @@ public class PersistentSttService {
             AudioFormat format,
             String language,
             int sampleRate) {
+        requireAuthenticatedIdentity(tenantId, userId);
         Objects.requireNonNull(tenantId, "tenantId cannot be null");
         if (tenantId.isBlank()) {
             throw new IllegalArgumentException("tenantId cannot be blank");
@@ -138,6 +140,31 @@ public class PersistentSttService {
         // direct upload path from creating mutable AudioFile/Transcription rows that could be
         // mistaken for versioned, source-grounded output.
         return Promise.ofException(new TranscriptVersionNotAdmittedException());
+    }
+
+    /**
+     * Binds direct service arguments to the identity established by the gRPC JWT interceptor.
+     * Caller-supplied tenant/principal values are claims only and must never authorize work.
+     */
+    private static void requireAuthenticatedIdentity(String tenantId, UUID userId) {
+        JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
+        if (identity == null || identity.tenantId() == null || identity.tenantId().isBlank()
+                || identity.subject() == null || identity.subject().isBlank()) {
+            throw new SecurityException("STT_IDENTITY_REQUIRED: authenticated tenant and subject are required");
+        }
+
+        UUID authenticatedPrincipal;
+        try {
+            authenticatedPrincipal = UUID.fromString(identity.subject());
+        } catch (IllegalArgumentException invalidSubject) {
+            throw new SecurityException(
+                    "STT_IDENTITY_INVALID: authenticated subject is not a supported principal identifier");
+        }
+
+        if (tenantId == null || !identity.tenantId().equals(tenantId)
+                || userId == null || !authenticatedPrincipal.equals(userId)) {
+            throw new SecurityException("STT_IDENTITY_MISMATCH: request identity does not match authenticated identity");
+        }
     }
 
     /** Typed failure for transcription requests without governed source/version persistence. */

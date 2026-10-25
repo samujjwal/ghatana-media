@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity;
@@ -15,10 +17,15 @@ import com.ghatana.audio.video.infrastructure.persistence.service.TranscriptionS
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.stt.api.TranscriptionResult;
+import com.ghatana.audit.AuditEvent;
 import com.ghatana.audit.AuditService;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
 import io.activej.promise.Promise;
+import io.grpc.Context;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +59,7 @@ class PersistentSttServiceValidationTest {
     private AuditService auditService;
 
     private PersistentSttService service;
+    private Context previousContext;
 
     private static final String TENANT = "tenant-unit";
     private static final UUID USER   = UUID.randomUUID();
@@ -85,6 +93,7 @@ class PersistentSttServiceValidationTest {
 
     @BeforeEach
     void setUp() {
+        previousContext = VerifiedJwtContext.create(TENANT, USER.toString()).attach();
         service = new PersistentSttService(library, audioFileService, transcriptionService,
             new SimpleMeterRegistry());
 
@@ -96,18 +105,29 @@ class PersistentSttServiceValidationTest {
             .thenReturn(Promise.of(false));
     }
 
+    @AfterEach
+    void restoreContext() {
+        Context.current().detach(previousContext);
+    }
+
     // -----------------------------------------------------------------------
     // Structural guard — empty audio
     // -----------------------------------------------------------------------
 
     @Test
-    @DisplayName("blank tenant is rejected before persistence or inference")
+    @DisplayName("blank public tenant override is rejected before persistence, inference, or audit")
     void blankTenantIsRejectedBeforeWork() {
-        assertThatThrownBy(() -> service.transcribeAndPersist(
-                "  ", USER, new byte[] {1}, "sample.wav", AudioFormat.WAV, "en", VALID_RATE))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("tenantId cannot be blank");
-        verifyNoInteractions(audioFileService, transcriptionService, library);
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        assertThatThrownBy(() -> Context.current()
+                .withValue(JwtServerInterceptor.CTX_TENANT, "  ")
+                .withValue(JwtServerInterceptor.CTX_SUBJECT, USER.toString())
+                .call(() -> auditedService.transcribeAndPersist(
+                        "  ", USER, new byte[] {1}, "sample.wav", AudioFormat.WAV, "en", VALID_RATE)))
+            .isInstanceOf(SecurityException.class)
+            .hasMessageContaining("STT_IDENTITY_MISMATCH");
+        verifyNoInteractions(audioFileService, transcriptionService, library, auditService);
     }
 
     @Test
@@ -118,8 +138,81 @@ class PersistentSttServiceValidationTest {
 
         assertThatThrownBy(() -> auditedService.transcribeAndPersist(
                 TENANT, null, pcmWav(VALID_RATE, 4), "sample.wav", AudioFormat.WAV, "en", VALID_RATE))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("userId cannot be null");
+            .isInstanceOf(SecurityException.class)
+            .hasMessageContaining("STT_IDENTITY_MISMATCH");
+
+        verifyNoInteractions(audioFileService, transcriptionService, library, auditService);
+    }
+
+    @Test
+    @DisplayName("direct service rejects caller claims when authenticated context is absent")
+    void missingAuthenticatedContextRejectsCallerClaimsBeforeWork() {
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        assertThatThrownBy(() -> Context.ROOT.call(() -> auditedService.transcribeAndPersist(
+                TENANT, USER, pcmWav(VALID_RATE, 4), "sample.wav", AudioFormat.WAV, "en", VALID_RATE)))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("STT_IDENTITY_REQUIRED");
+        verifyNoInteractions(audioFileService, transcriptionService, library, auditService);
+    }
+
+    @Test
+    @DisplayName("public raw JWT context strings cannot forge a verified identity")
+    void rawContextStringsDoNotAuthorizeDirectService() {
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        assertThatThrownBy(() -> Context.ROOT
+                .withValue(JwtServerInterceptor.CTX_TENANT, TENANT)
+                .withValue(JwtServerInterceptor.CTX_SUBJECT, USER.toString())
+                .call(() -> auditedService.transcribeAndPersist(
+                        TENANT, USER, pcmWav(VALID_RATE, 4), "sample.wav", AudioFormat.WAV, "en", VALID_RATE)))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("STT_IDENTITY_REQUIRED");
+        verifyNoInteractions(audioFileService, transcriptionService, library, auditService);
+    }
+
+    @Test
+    @DisplayName("direct service rejects mismatched tenant and principal claims before work")
+    void mismatchedIdentityClaimsRejectBeforeWork() {
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        assertThatThrownBy(() -> auditedService.transcribeAndPersist(
+                "other-tenant", USER, pcmWav(VALID_RATE, 4), "sample.wav", AudioFormat.WAV, "en", VALID_RATE))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("STT_IDENTITY_MISMATCH");
+        assertThatThrownBy(() -> auditedService.transcribeAndPersist(
+                TENANT, UUID.randomUUID(), pcmWav(VALID_RATE, 4), "sample.wav", AudioFormat.WAV, "en", VALID_RATE))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("STT_IDENTITY_MISMATCH");
+        verifyNoInteractions(audioFileService, transcriptionService, library, auditService);
+    }
+
+    @Test
+    @DisplayName("authenticated validation audit uses context-bound tenant and principal")
+    void validationAuditUsesAuthenticatedIdentity() {
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        assertThatThrownBy(() -> auditedService.transcribeAndPersist(
+                TENANT, USER, pcmWav(VALID_RATE, 4), "sample.wav", AudioFormat.WAV, "unsupported", VALID_RATE))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verify(auditService).record(argThat((AuditEvent event) ->
+                TENANT.equals(event.getTenantId()) && USER.toString().equals(event.getPrincipal())));
+        verifyNoInteractions(audioFileService, transcriptionService, library);
+    }
+
+    @Test
+    @DisplayName("caller-provided tenant and principal do not authorize persistence without governed version authority")
+    void callerProvidedIdentityWithNoGovernedVersionStaysNotAdmittedBeforeWork() {
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        assertVersionNotAdmitted(auditedService.transcribeAndPersist(
+                TENANT, USER, pcmWav(VALID_RATE, 4), "sample.wav", AudioFormat.WAV, "en", VALID_RATE));
 
         verifyNoInteractions(audioFileService, transcriptionService, library, auditService);
     }

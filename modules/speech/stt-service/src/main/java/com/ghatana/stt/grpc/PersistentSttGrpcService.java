@@ -183,6 +183,9 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             LOG.warn("STT transcribe validation failed failureType={}", failureType(e));
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                 .withDescription("Invalid transcription request").asRuntimeException());
+        } catch (SecurityException e) {
+            LOG.warn("STT authenticated identity rejected failureType={}", failureType(e));
+            reportFailure(e, responseObserver);
         } catch (Exception e) {
             LOG.error("STT transcribe failed failureType={}", failureType(e));
             responseObserver.onError(io.grpc.Status.INTERNAL
@@ -207,7 +210,15 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
     /**
      * AV-P1-004: Map exception types to canonical gRPC status codes.
      */
-    private io.grpc.Status toGrpcStatus(Throwable e) {
+    void reportFailure(Throwable e, StreamObserver<?> responseObserver) {
+        responseObserver.onError(toGrpcStatus(e).asRuntimeException());
+    }
+
+    io.grpc.Status toGrpcStatus(Throwable e) {
+        if (e instanceof SecurityException) {
+            LOG.warn("STT authenticated identity rejected failureType={}", failureType(e));
+            return io.grpc.Status.UNAUTHENTICATED.withDescription("Authenticated identity required");
+        }
         if (e instanceof IllegalArgumentException) {
             LOG.warn("STT transcribe validation failed failureType={}", failureType(e));
             return io.grpc.Status.INVALID_ARGUMENT.withDescription("Invalid transcription request");

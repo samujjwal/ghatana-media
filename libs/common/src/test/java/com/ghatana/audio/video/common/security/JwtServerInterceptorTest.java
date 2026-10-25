@@ -9,6 +9,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import io.grpc.Metadata;
+import io.grpc.Context;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -167,10 +168,12 @@ class JwtServerInterceptorTest {
             ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class); 
             AtomicReference<String> subjectRef = new AtomicReference<>(); 
             AtomicReference<String> tenantRef = new AtomicReference<>(); 
+            AtomicReference<JwtServerInterceptor.VerifiedIdentity> identityRef = new AtomicReference<>();
 
             when(handler.startCall(any(), any())).thenAnswer(invocation -> { 
                 subjectRef.set(JwtServerInterceptor.CTX_SUBJECT.get()); 
                 tenantRef.set(JwtServerInterceptor.CTX_TENANT.get()); 
+                identityRef.set(JwtServerInterceptor.verifiedIdentity());
                 return mock(ServerCall.Listener.class); 
             });
 
@@ -178,7 +181,31 @@ class JwtServerInterceptorTest {
 
             assertThat(subjectRef.get()).isEqualTo("user-1");
             assertThat(tenantRef.get()).isEqualTo("tenant-42");
+            assertThat(identityRef.get()).isEqualTo(
+                    new JwtServerInterceptor.VerifiedIdentity("user-1", "tenant-42"));
             verify(call, never()).close(any(), any()); 
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("health exemption does not expose a verified identity from public context strings")
+        void healthExemptionDoesNotSetVerifiedIdentity() {
+            ConfigurableJWTProcessor<SecurityContext> processor = mock(ConfigurableJWTProcessor.class);
+            JwtServerInterceptor interceptor = new JwtServerInterceptor(processor, disabledTokenValidator());
+            ServerCall<Object, Object> call = mockCall(HEALTH_METHOD);
+            ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+            AtomicReference<JwtServerInterceptor.VerifiedIdentity> identityRef = new AtomicReference<>();
+            when(handler.startCall(any(), any())).thenAnswer(invocation -> {
+                identityRef.set(JwtServerInterceptor.verifiedIdentity());
+                return mock(ServerCall.Listener.class);
+            });
+
+            Context.ROOT
+                    .withValue(JwtServerInterceptor.CTX_SUBJECT, "forged-subject")
+                    .withValue(JwtServerInterceptor.CTX_TENANT, "forged-tenant")
+                    .run(() -> interceptor.interceptCall(call, new Metadata(), handler));
+
+            assertThat(identityRef.get()).isNull();
         }
 
         @SuppressWarnings("unchecked")
