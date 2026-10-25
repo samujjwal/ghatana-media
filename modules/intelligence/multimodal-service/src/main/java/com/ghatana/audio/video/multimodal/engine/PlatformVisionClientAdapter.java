@@ -120,7 +120,10 @@ final class PlatformVisionClientAdapter implements VisionClientAdapter {
     }
 
     private static DetectionResult toDetection(DetectedObject object) {
+        Objects.requireNonNull(object, "Vision SPI returned a null detection");
         BoundingBox box = object.bbox();
+        if (box == null) throw new IllegalArgumentException("Vision SPI returned a detection without a bounding box");
+        // Validate at the SPI boundary, before the value can reach a gRPC response.
         return new DetectionResult(object.className(), object.confidence(), box.x(), box.y(), box.width(), box.height());
     }
 

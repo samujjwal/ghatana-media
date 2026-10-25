@@ -20,6 +20,60 @@ import static org.mockito.Mockito.when;
 
 class PlatformVisionClientAdapterTest {
     @Test
+    void resultValueObjectsRejectMalformedNumericValues() {
+        for (double confidence : new double[] {Double.NaN, Double.POSITIVE_INFINITY, -0.01, 1.01}) {
+            assertThatThrownBy(() -> VisualResult.builder().confidence(confidence).build())
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("confidence");
+            assertThatThrownBy(() -> new com.ghatana.audio.video.multimodal.engine.DetectionResult(
+                    "person", confidence, 0, 0, 1, 1))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("confidence");
+        }
+        for (double coordinate : new double[] {Double.NaN, Double.NEGATIVE_INFINITY}) {
+            assertThatThrownBy(() -> new com.ghatana.audio.video.multimodal.engine.DetectionResult(
+                    "person", 0.5, coordinate, 0, 1, 1))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("box");
+        }
+        for (double extent : new double[] {Double.NaN, Double.POSITIVE_INFINITY, -1.0}) {
+            assertThatThrownBy(() -> new com.ghatana.audio.video.multimodal.engine.DetectionResult(
+                    "person", 0.5, 0, 0, extent, 1))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("box");
+        }
+    }
+
+    @Test
+    void detectionResultAllowsFiniteNegativePixelOrigins() {
+        var detection = new com.ghatana.audio.video.multimodal.engine.DetectionResult(
+                "person", 0.5, -2.0, -3.0, 4.0, 5.0);
+        assertThat(detection.getX()).isEqualTo(-2.0);
+        assertThat(detection.getY()).isEqualTo(-3.0);
+        assertThat(detection.getWidth()).isEqualTo(4.0);
+        assertThat(detection.getHeight()).isEqualTo(5.0);
+    }
+
+    @Test
+    void detectionResultRejectsOverflowingDerivedBoundsAndArea() {
+        assertThatThrownBy(() -> new com.ghatana.audio.video.multimodal.engine.DetectionResult(
+                "person", 0.5, Double.MAX_VALUE, 0, Double.MAX_VALUE, 1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("bounds");
+        assertThatThrownBy(() -> new com.ghatana.audio.video.multimodal.engine.DetectionResult(
+                "person", 0.5, 0, Double.MAX_VALUE, 1, Double.MAX_VALUE))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("bounds");
+        assertThatThrownBy(() -> new com.ghatana.audio.video.multimodal.engine.DetectionResult(
+                "person", 0.5, 0, 0, 1.0e200, 1.0e200))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("area");
+    }
+
+    @Test
+    void rejectsMalformedProviderDetectionBeforeReturningVisualResult() throws Exception {
+        VisionEngine engine = mock(VisionEngine.class);
+        when(engine.detect(any(), any())).thenReturn(new DetectionResult(
+                java.util.List.of(new DetectedObject("person", Double.NaN,
+                        new BoundingBox(0, 0, 1, 1, 0.5))), 8, 8, 1, "test"));
+        assertThatThrownBy(() -> adapter(engine).detectObjects(png()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("confidence");
+    }
+
+    @Test
     void routesImageThroughPublishedVisionSpi() throws Exception {
         VisionEngine engine = mock(VisionEngine.class);
         when(engine.detect(any(), any())).thenReturn(new DetectionResult(

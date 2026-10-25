@@ -72,8 +72,37 @@ public class CrossModalFusionEngine {
             boolean hadMissingModality
     ) {
         public FusionResult {
-            fusedEmbeddings = fusedEmbeddings.clone();
+            Objects.requireNonNull(fusedEmbeddings, "fusedEmbeddings must not be null");
+            Objects.requireNonNull(modalityWeights, "modalityWeights must not be null");
+            Objects.requireNonNull(processingTime, "processingTime must not be null");
+            if (!Double.isFinite(fusionConfidence) || fusionConfidence < 0.0 || fusionConfidence > 1.0) {
+                throw new IllegalArgumentException("Fusion confidence must be finite and in [0, 1]");
+            }
+            for (double component : fusedEmbeddings) {
+                if (!Double.isFinite(component)) {
+                    throw new IllegalArgumentException("Fused embeddings must contain only finite values");
+                }
+            }
+            if (processingTime.isNegative()) {
+                throw new IllegalArgumentException("Processing time must not be negative");
+            }
             modalityWeights = Map.copyOf(modalityWeights);
+            if (modalityWeights.isEmpty()) {
+                throw new IllegalArgumentException("At least one modality weight is required");
+            }
+            double weightSum = 0.0;
+            for (Map.Entry<String, Double> entry : modalityWeights.entrySet()) {
+                Double weight = entry.getValue();
+                if (entry.getKey() == null || entry.getKey().isBlank() || weight == null
+                        || !Double.isFinite(weight) || weight < 0.0 || weight > 1.0) {
+                    throw new IllegalArgumentException("Modality weights must be finite and in [0, 1]");
+                }
+                weightSum += weight;
+            }
+            if (!Double.isFinite(weightSum) || Math.abs(weightSum - 1.0) > 1.0e-9) {
+                throw new IllegalArgumentException("Modality weights must sum to 1");
+            }
+            fusedEmbeddings = fusedEmbeddings.clone();
         }
 
         @Override

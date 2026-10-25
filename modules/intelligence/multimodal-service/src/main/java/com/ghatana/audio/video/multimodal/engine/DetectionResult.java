@@ -21,6 +21,19 @@ public final class DetectionResult {
      */
     public DetectionResult(String className, double confidence,
                            double x, double y, double width, double height) {
+        if (!Double.isFinite(confidence) || confidence < 0.0 || confidence > 1.0) {
+            throw new IllegalArgumentException("Detection confidence must be finite and in [0, 1]");
+        }
+        // Match the platform pixel-space box contract: origins may be outside the image;
+        // extents are nonnegative and derived bounds/area must remain finite.
+        if (!Double.isFinite(x) || !Double.isFinite(y)
+                || !Double.isFinite(width) || !Double.isFinite(height)
+                || width < 0.0 || height < 0.0
+                || !Double.isFinite(x + width) || !Double.isFinite(y + height)
+                || !Double.isFinite(width * height)) {
+            throw new IllegalArgumentException(
+                    "Detection box must have finite coordinates and nonnegative finite extents, bounds, and area");
+        }
         this.className = className;
         this.confidence = confidence;
         this.x = x;

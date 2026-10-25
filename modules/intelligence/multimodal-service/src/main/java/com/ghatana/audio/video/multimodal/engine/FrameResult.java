@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.multimodal.engine;
 
 import java.util.List;
+import java.util.OptionalLong;
 
 /**
  * Detection results for a single video frame.
@@ -26,8 +27,20 @@ public class FrameResult {
     }
 
     public int getFrameNumber() { return frameNumber; }
-    /** Legacy wire projection; callers must check {@link #hasTimestamp()} first. */
+    /**
+     * Legacy projection; unknown timestamps use {@code 0L} as a sentinel. Prefer
+     * {@link #getRepresentableTimestampMs()} when presence and representability matter.
+     */
     public long getTimestampMs() { return timestamp.toMilliseconds() == null ? 0L : timestamp.toMilliseconds(); }
+    /** Returns milliseconds only when the timestamp is known and representable as a signed long. */
+    public OptionalLong getRepresentableTimestampMs() {
+        if (!timestamp.isKnown()) return OptionalLong.empty();
+        try {
+            return OptionalLong.of(timestamp.toMilliseconds());
+        } catch (ArithmeticException overflow) {
+            return OptionalLong.empty();
+        }
+    }
     public boolean hasTimestamp() { return timestamp.isKnown(); }
     public MediaClockTimestamp getTimestamp() { return timestamp; }
     public List<DetectionResult> getDetections() { return detections; }

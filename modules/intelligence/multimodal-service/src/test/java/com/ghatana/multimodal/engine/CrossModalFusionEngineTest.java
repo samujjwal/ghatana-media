@@ -81,6 +81,26 @@ class CrossModalFusionEngineTest {
     }
 
     @Test
+    @DisplayName("direct FusionResult construction rejects malformed numeric values")
+    void fusionResultConstructorValidatesNumericBoundary() {
+        assertThatThrownBy(() -> new FusionResult(new double[] {Double.NaN}, 0.5,
+                java.util.Map.of("audio", 1.0), java.time.Duration.ZERO, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("finite");
+        assertThatThrownBy(() -> new FusionResult(new double[] {0.0}, Double.POSITIVE_INFINITY,
+                java.util.Map.of("audio", 1.0), java.time.Duration.ZERO, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("confidence");
+        assertThatThrownBy(() -> new FusionResult(new double[] {0.0}, 0.5,
+                java.util.Map.of("audio", Double.NaN), java.time.Duration.ZERO, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("weights");
+        assertThatThrownBy(() -> new FusionResult(new double[] {0.0}, 0.5,
+                java.util.Map.of("audio", 1.1), java.time.Duration.ZERO, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("weights");
+        assertThatThrownBy(() -> new FusionResult(new double[] {0.0}, 0.5,
+                java.util.Map.of("audio", 0.4), java.time.Duration.ZERO, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("sum to 1");
+    }
+
+    @Test
     @DisplayName("fuseAudioVisual returns non-null result for valid inputs")
     void audioVisualFusionReturnsResult() { 
         AudioFeatures audio = makeAudio(DIM, 0.8); 

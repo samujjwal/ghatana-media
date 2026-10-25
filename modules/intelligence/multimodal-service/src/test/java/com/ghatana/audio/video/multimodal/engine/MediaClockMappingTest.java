@@ -1,12 +1,43 @@
 package com.ghatana.audio.video.multimodal.engine;
 
 import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
+import java.util.List;
+import java.util.OptionalLong;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MediaClockMappingTest {
+    @Test
+    void representableTimestampAccessorsDistinguishUnknownZeroAndOverflow() {
+        MediaClockTimestamp unknown = MediaClockTimestamp.unknown("NO_SOURCE_PTS");
+        MediaClockTimestamp zero = MediaClockTimestamp.mediaMilliseconds(0);
+        MediaClockTimestamp overflow = new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN,
+                Long.MAX_VALUE, Long.MAX_VALUE, 1L, MediaClockTimestamp.ClockDomain.MEDIA,
+                "media-ms", null);
+
+        assertTimestampAccessors(unknown, OptionalLong.empty());
+        assertTimestampAccessors(zero, OptionalLong.of(0L));
+        assertTimestampAccessors(overflow, OptionalLong.empty());
+    }
+
+    private static void assertTimestampAccessors(MediaClockTimestamp timestamp, OptionalLong expected) {
+        FrameResult frame = new FrameResult(1, timestamp, List.of());
+        TemporalAlignment alignment = new TemporalAlignment(timestamp, 1, "", List.of(),
+                0L, 0.0, TemporalAlignment.SyncStatus.SYNC_UNDETERMINED);
+
+        assertThat(frame.getRepresentableTimestampMs()).isEqualTo(expected);
+        assertThat(alignment.getRepresentableTimestampMs()).isEqualTo(expected);
+        if (!timestamp.isKnown()) {
+            assertThat(frame.getTimestampMs()).isEqualTo(0L);
+            assertThat(alignment.getTimestampMs()).isEqualTo(0L);
+        } else if (expected.isPresent()) {
+            assertThat(frame.getTimestampMs()).isEqualTo(expected.getAsLong());
+            assertThat(alignment.getTimestampMs()).isEqualTo(expected.getAsLong());
+        }
+    }
+
     @Test
     void mapsIrregularRationalPtsWithoutAssumingConstantFps() {
         MediaClockMapping mapping = new MediaClockMapping(1, 1, 0, 0);

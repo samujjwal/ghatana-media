@@ -2,6 +2,7 @@ package com.ghatana.audio.video.multimodal.engine;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.OptionalLong;
 
 /**
  * Aligns a speech segment with the visual detections at the same video timestamp.
@@ -86,7 +87,20 @@ public class TemporalAlignment {
                 SyncStatus.MEASURED);
     }
 
+    /**
+     * Legacy projection; unknown timestamps use {@code 0L} as a sentinel. Prefer
+     * {@link #getRepresentableTimestampMs()} when presence and representability matter.
+     */
     public long   getTimestampMs()    { return timestamp.toMilliseconds() == null ? 0L : timestamp.toMilliseconds(); }
+    /** Returns milliseconds only when the timestamp is known and representable as a signed long. */
+    public OptionalLong getRepresentableTimestampMs() {
+        if (!timestamp.isKnown()) return OptionalLong.empty();
+        try {
+            return OptionalLong.of(timestamp.toMilliseconds());
+        } catch (ArithmeticException overflow) {
+            return OptionalLong.empty();
+        }
+    }
     public boolean hasTimestamp() { return timestamp.isKnown(); }
     public MediaClockTimestamp getTimestamp() { return timestamp; }
     public int    getFrameNumber()    { return frameNumber; }

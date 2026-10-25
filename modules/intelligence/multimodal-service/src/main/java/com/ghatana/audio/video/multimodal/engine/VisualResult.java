@@ -19,6 +19,10 @@ public final class VisualResult {
     private final String error;
 
     private VisualResult(Builder builder) {
+        if (builder.confidence != null
+                && (!Double.isFinite(builder.confidence) || builder.confidence < 0.0 || builder.confidence > 1.0)) {
+            throw new IllegalArgumentException("Visual confidence must be finite and in [0, 1]");
+        }
         this.sceneDescription = builder.sceneDescription;
         this.detections = builder.detections;
         this.frameResults = builder.frameResults;
