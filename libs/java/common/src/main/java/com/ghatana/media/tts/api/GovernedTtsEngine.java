@@ -15,9 +15,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -40,7 +37,6 @@ public final class GovernedTtsEngine implements TtsEngine {
     private final TtsEngine delegate;
     private final TtsConfig config;
     private final Optional<FileTtsProfileStore> profiles;
-    private final ExecutorService streamingExecutor = Executors.newVirtualThreadPerTaskExecutor();
     private final AtomicBoolean closed = new AtomicBoolean();
 
     public GovernedTtsEngine(TtsEngine delegate, TtsConfig config) {
@@ -102,32 +98,101 @@ public final class GovernedTtsEngine implements TtsEngine {
         if (!config.enableStreaming()) {
             throw new UnsupportedOperationException("Streaming synthesis is disabled");
         }
+        validateVoice(options);
         AtomicBoolean cancelled = new AtomicBoolean();
         CompletableFuture<Void> completion = new CompletableFuture<>();
-        AtomicReference<Future<?>> task = new AtomicReference<>();
-        task.set(streamingExecutor.submit(() -> {
+        AtomicReference<TtsStreamingSession> providerSession = new AtomicReference<>();
+        AtomicReference<Thread> startupThread = new AtomicReference<>();
+        java.util.concurrent.atomic.AtomicLong outputBytes = new java.util.concurrent.atomic.AtomicLong();
+        TtsStreamSink governedSink = new TtsStreamSink() {
+            @Override public boolean isReady() {
+                return cancelled.get() || sink.isReady();
+            }
+
+            @Override public boolean isCancelled() {
+                return cancelled.get() || sink.isCancelled();
+            }
+
+            @Override public void awaitReady() throws InterruptedException {
+                sink.awaitReady();
+            }
+
+            @Override public void onAudioFormat(com.ghatana.media.common.CanonicalAudioFormat format) {
+                if (isCancelled()) return;
+                sink.onAudioFormat(format);
+            }
+
+            @Override public void onChunk(AudioChunk chunk) {
+                Objects.requireNonNull(chunk, "provider chunk");
+                if (isCancelled()) return;
+                try {
+                    while (!sink.isReady() && !isCancelled()) sink.awaitReady();
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new CancellationException("TTS stream interrupted while waiting for downstream readiness");
+                }
+                if (isCancelled()) throw new CancellationException("TTS stream cancelled before chunk delivery");
+                byte[] data = Objects.requireNonNull(chunk.data(), "provider chunk data");
+                long total;
+                try {
+                    total = outputBytes.updateAndGet(current -> Math.addExact(current, data.length));
+                } catch (ArithmeticException overflow) {
+                    throw new IllegalStateException("TTS stream output size overflow", overflow);
+                }
+                if (total > config.maxMemoryBytes()) {
+                    throw new IllegalStateException("TTS stream output exceeds configured maxMemoryBytes");
+                }
+                sink.onChunk(chunk);
+            }
+        };
+        Runnable startProvider = () -> {
+            if (cancelled.get() || sink.isCancelled()) {
+                completion.cancel(false);
+                return;
+            }
             try {
-                AudioData audio = synthesize(text, options);
-                emit(audio, options, sink::onChunk, sink, cancelled);
+                TtsStreamingSession provider = Objects.requireNonNull(
+                        delegate.startStreaming(text, options, governedSink),
+                        "TTS provider returned a null streaming session");
+                providerSession.set(provider);
+                if (cancelled.get() || sink.isCancelled()) {
+                    provider.cancel();
+                    completion.cancel(false);
+                    return;
+                }
+                provider.completion().whenComplete((ignored, failure) -> {
+                    if (failure == null) {
+                        if (cancelled.get() || sink.isCancelled()) completion.cancel(false);
+                        else completion.complete(null);
+                    } else if (failure instanceof CancellationException || provider.completion().isCancelled()) {
+                        cancelled.set(true);
+                        completion.cancel(false);
+                    } else {
+                        completion.completeExceptionally(failure);
+                    }
+                });
+            } catch (Throwable failure) {
                 if (cancelled.get() || sink.isCancelled()) {
                     completion.cancel(false);
                 } else {
-                    completion.complete(null);
+                    completion.completeExceptionally(failure);
                 }
-            } catch (CancellationException cancellation) {
-                cancelled.set(true);
-                completion.cancel(false);
-            } catch (Throwable failure) {
-                completion.completeExceptionally(failure);
             }
-        }));
-        return TtsStreamingSession.create(
+        };
+        TtsStreamingSession wrapped = TtsStreamingSession.create(
                 cancelled,
                 completion,
                 () -> {
-                    Future<?> running = task.get();
-                    if (running != null) running.cancel(true);
+                    Thread starting = startupThread.get();
+                    if (starting != null) starting.interrupt();
+                    TtsStreamingSession running = providerSession.get();
+                    if (running != null) running.cancel();
                 });
+        Thread starting = Thread.ofVirtual().unstarted(startProvider);
+        startupThread.set(starting);
+        if (sink.isCancelled()) wrapped.cancel();
+        else starting.start();
+        return wrapped;
     }
 
     @Override
@@ -224,7 +289,6 @@ public final class GovernedTtsEngine implements TtsEngine {
     @Override
     public void close() {
         if (!closed.compareAndSet(false, true)) return;
-        streamingExecutor.shutdownNow();
         delegate.close();
     }
 
