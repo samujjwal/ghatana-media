@@ -339,6 +339,11 @@ public class PersistentMultimodalService {
             LOG.warn("STT transcription returned no result");
             return Promise.of(ModalityExecution.unavailable(Optional.empty()));
         }
+        if (result.hasConfidence() && (!Double.isFinite(result.confidence())
+                || result.confidence() < 0.0 || result.confidence() > 1.0)) {
+            return Promise.ofException(new IllegalArgumentException(
+                    "STT_RESULT_INVALID: confidence must be finite and in [0, 1]"));
+        }
 
         TranscriptionEntity entity = new TranscriptionEntity(
             UUID.randomUUID(),
@@ -348,7 +353,10 @@ public class PersistentMultimodalService {
             result.text(),
             result.language() != null ? result.language() : "en"
         );
-        entity.setConfidence((float) result.confidence());
+        entity.setConfidence(result.hasConfidence() ? (float) result.confidence() : null);
+        TranscriptionEntity.TranscriptionMetadata metadata = new TranscriptionEntity.TranscriptionMetadata();
+        metadata.setConfidenceStatus(result.confidenceAvailability().name());
+        entity.setMetadata(metadata);
         entity.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED);
         entity.setCreatedAt(Instant.now());
         entity.setUpdatedAt(Instant.now());

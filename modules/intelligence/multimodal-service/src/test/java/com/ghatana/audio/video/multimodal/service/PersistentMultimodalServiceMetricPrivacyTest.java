@@ -34,6 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -99,6 +100,73 @@ class PersistentMultimodalServiceMetricPrivacyTest extends EventloopTestBase {
         assertThat(result.transcription()).isEqualTo("grounded transcript");
         assertThat(result.visualAnalysis().hasDetections()).isFalse();
         assertThat(result.visualAnalysis().detectedObjects()).isEmpty();
+    }
+
+    @Test
+    void processAudioPersistsAvailableConfidenceAndAvailability() {
+        AudioFileService audioFileService = mock(AudioFileService.class);
+        TranscriptionService transcriptionService = mock(TranscriptionService.class);
+        SttEngine sttEngine = mock(SttEngine.class);
+        when(audioFileService.save(anyString(), any(AudioFileEntity.class)))
+                .thenAnswer(invocation -> Promise.of(invocation.getArgument(1)));
+        when(transcriptionService.save(anyString(), any(TranscriptionEntity.class)))
+                .thenAnswer(invocation -> Promise.of(invocation.getArgument(1)));
+        when(sttEngine.transcribe(any(AudioData.class))).thenReturn(new TranscriptionResult(
+                "available score", 0.73, List.of(), List.of(), Duration.ofMillis(10), "en", "fixture-model"));
+        PersistentMultimodalService service = new PersistentMultimodalService(
+                audioFileService, transcriptionService, sttEngine, null, new SimpleMeterRegistry());
+
+        runPromise(() -> service.processAndPersist(
+                "tenant", UUID.randomUUID(), new byte[] {1}, null, "available.wav"));
+
+        ArgumentCaptor<TranscriptionEntity> persisted = ArgumentCaptor.forClass(TranscriptionEntity.class);
+        verify(transcriptionService).save(anyString(), persisted.capture());
+        assertThat(persisted.getValue().getConfidence()).isEqualTo(0.73f);
+        assertThat(persisted.getValue().getMetadata().getConfidenceStatus()).isEqualTo("AVAILABLE");
+    }
+
+    @Test
+    void processAudioPersistsUnavailableConfidenceAsNullWithAvailability() {
+        AudioFileService audioFileService = mock(AudioFileService.class);
+        TranscriptionService transcriptionService = mock(TranscriptionService.class);
+        SttEngine sttEngine = mock(SttEngine.class);
+        when(audioFileService.save(anyString(), any(AudioFileEntity.class)))
+                .thenAnswer(invocation -> Promise.of(invocation.getArgument(1)));
+        when(transcriptionService.save(anyString(), any(TranscriptionEntity.class)))
+                .thenAnswer(invocation -> Promise.of(invocation.getArgument(1)));
+        when(sttEngine.transcribe(any(AudioData.class))).thenReturn(TranscriptionResult.withoutConfidence(
+                "unavailable score", List.of(), List.of(), Duration.ofMillis(10), "en", "fixture-model"));
+        PersistentMultimodalService service = new PersistentMultimodalService(
+                audioFileService, transcriptionService, sttEngine, null, new SimpleMeterRegistry());
+
+        runPromise(() -> service.processAndPersist(
+                "tenant", UUID.randomUUID(), new byte[] {1}, null, "unavailable.wav"));
+
+        ArgumentCaptor<TranscriptionEntity> persisted = ArgumentCaptor.forClass(TranscriptionEntity.class);
+        verify(transcriptionService).save(anyString(), persisted.capture());
+        assertThat(persisted.getValue().getConfidence()).isNull();
+        assertThat(persisted.getValue().getMetadata().getConfidenceStatus()).isEqualTo("UNAVAILABLE");
+    }
+
+    @Test
+    void processAudioRejectsInvalidAvailableConfidenceBeforePersistence() {
+        for (double invalidConfidence : List.of(Double.NaN, -0.01, 1.01)) {
+            AudioFileService audioFileService = mock(AudioFileService.class);
+            TranscriptionService transcriptionService = mock(TranscriptionService.class);
+            SttEngine sttEngine = mock(SttEngine.class);
+            when(audioFileService.save(anyString(), any(AudioFileEntity.class)))
+                    .thenAnswer(invocation -> Promise.of(invocation.getArgument(1)));
+            when(sttEngine.transcribe(any(AudioData.class))).thenReturn(new TranscriptionResult(
+                    "invalid confidence", invalidConfidence, List.of(), List.of(),
+                    Duration.ofMillis(10), "en", "fixture-model"));
+            PersistentMultimodalService service = new PersistentMultimodalService(
+                    audioFileService, transcriptionService, sttEngine, null, new SimpleMeterRegistry());
+
+            assertThatThrownBy(() -> runPromise(() -> service.processAndPersist(
+                    "tenant", UUID.randomUUID(), new byte[] {1}, null, "invalid.wav")))
+                    .hasMessage("Multimodal processing failed");
+            verify(transcriptionService, never()).save(anyString(), any(TranscriptionEntity.class));
+        }
     }
 
     @Test
