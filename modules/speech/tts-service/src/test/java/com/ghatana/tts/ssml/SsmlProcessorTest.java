@@ -244,6 +244,16 @@ class SsmlProcessorTest {
     }
 
     @Test
+    @DisplayName("rejects XInclude elements without expanding local resources")
+    void rejectsXIncludeExpansion() {
+        String xinclude = "<speak xmlns:xi=\"http://www.w3.org/2001/XInclude\">before"
+                + "<xi:include href=\"file:///etc/passwd\" parse=\"text\"/>after</speak>";
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> processor.parse(xinclude));
+    }
+
+    @Test
     @DisplayName("rejects malformed XML, oversized input, excessive pause, and unknown tags")
     void rejectsMalformedAndUnboundedSsml() {
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><emphasis>broken</speak>"));

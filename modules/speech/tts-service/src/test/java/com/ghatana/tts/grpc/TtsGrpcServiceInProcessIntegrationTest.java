@@ -199,6 +199,49 @@ class TtsGrpcServiceInProcessIntegrationTest {
     }
 
     @Test
+    @DisplayName("authenticated credential tenant remains authoritative over conflicting request tenant metadata")
+    void credentialTenantMismatchCannotReachProviderOrPersistence() throws Exception {
+        String secret = "tts-inprocess-tenant-mismatch-secret";
+        String previousSecret = System.getProperty("AV_JWT_SECRET");
+        System.setProperty("AV_JWT_SECRET", secret);
+        AudioVideoLibrary guardedLibrary = mock(AudioVideoLibrary.class);
+        AudioFileService guardedAudioFiles = mock(AudioFileService.class);
+        Server guardedServer = null;
+        ManagedChannel guardedChannel = null;
+        try {
+            String serverName = InProcessServerBuilder.generateName();
+            PersistentTtsGrpcService persistentService = new PersistentTtsGrpcService(
+                    guardedLibrary, guardedAudioFiles, new SimpleMeterRegistry());
+            guardedServer = InProcessServerBuilder.forName(serverName)
+                    .directExecutor()
+                    .addService(persistentService)
+                    .intercept(new JwtServerInterceptor())
+                    .build()
+                    .start();
+            guardedChannel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+
+            Metadata headers = new Metadata();
+            headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                    "Bearer " + testJwt(secret, "tenant-from-credential"));
+            TTSServiceGrpc.TTSServiceBlockingStub stub = TTSServiceGrpc.newBlockingStub(guardedChannel)
+                    .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+
+            assertRpcError(() -> stub.synthesize(SynthesizeRequest.newBuilder()
+                            .setText("hello")
+                            .setTenantId("tenant-claimed-by-request")
+                            .build()),
+                    Status.Code.UNAVAILABLE, "TTS_NOT_ADMITTED");
+
+            verifyNoInteractions(guardedLibrary, guardedAudioFiles);
+        } finally {
+            if (guardedChannel != null) guardedChannel.shutdownNow();
+            if (guardedServer != null) guardedServer.shutdownNow();
+            if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
+            else System.setProperty("AV_JWT_SECRET", previousSecret);
+        }
+    }
+
+    @Test
     @DisplayName("authenticated transport covers all eleven RPC dispositions without unsupported effects")
     void authenticatedTransportCoversAllRpcDispositions() throws Exception {
         String secret = "tts-inprocess-rpc-matrix-test-secret";
@@ -350,10 +393,14 @@ class TtsGrpcServiceInProcessIntegrationTest {
     }
 
     private static String testJwt(String secret) throws Exception {
+        return testJwt(secret, "tenant-test");
+    }
+
+    private static String testJwt(String secret, String tenantId) throws Exception {
         String header = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
                 "{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         String payload = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
-                ("{\"sub\":\"00000000-0000-0000-0000-000000000001\",\"tenantId\":\"tenant-test\",\"exp\":"
+                ("{\"sub\":\"00000000-0000-0000-0000-000000000001\",\"tenantId\":\"" + tenantId + "\",\"exp\":"
                         + (System.currentTimeMillis() / 1000 + 3600) + "}")
                         .getBytes(java.nio.charset.StandardCharsets.UTF_8));
         String unsigned = header + "." + payload;

@@ -8,6 +8,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import com.ghatana.tts.core.grpc.proto.SynthesisOptions;
+import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
+import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
+import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
 import org.junit.jupiter.api.Test;
 
 /** Locks the TTS-01 source inventory without treating fixtures or configured model metadata as qualification. */
@@ -79,6 +83,43 @@ class TtsWave2InventoryTest {
         Map<String, String> matrix = matrixEntries(MATRIX_RPC);
         assertThat(matrix.keySet()).containsExactlyInAnyOrderElementsOf(EXPECTED_RPCS);
         RPCS.forEach((name, entry) -> assertThat(matrix.get(name)).as(name).isEqualTo(entry.disposition()));
+    }
+
+    @Test
+    void generatedDescriptorsPreserveRpcAndCriticalFieldNumbersWithoutProtocolVersionNegotiation() {
+        List<String> descriptorMethods = TTSServiceGrpc.getServiceDescriptor().getMethods().stream()
+                .map(io.grpc.MethodDescriptor::getBareMethodName)
+                .toList();
+        assertThat(descriptorMethods).containsExactlyElementsOf(EXPECTED_RPCS);
+        assertThat(descriptorMethods).doesNotContain("GetVersion", "NegotiateVersion");
+
+        var synthesizeRequest = SynthesizeRequest.getDescriptor();
+        assertFieldNumber(synthesizeRequest, "text", 1);
+        assertFieldNumber(synthesizeRequest, "voice_id", 2);
+        assertFieldNumber(synthesizeRequest, "profile_id", 3);
+        assertFieldNumber(synthesizeRequest, "options", 4);
+        assertFieldNumber(synthesizeRequest, "tenant_id", 5);
+        assertFieldNumber(synthesizeRequest, "artifact_id", 6);
+        assertFieldNumber(synthesizeRequest, "job_id", 7);
+        assertFieldNumber(synthesizeRequest, "correlation_id", 8);
+        assertFieldNumber(synthesizeRequest, "consent_status", 9);
+        assertFieldNumber(synthesizeRequest, "retention_policy", 10);
+        assertThat(synthesizeRequest.findFieldByName("protocol_version")).isNull();
+
+        assertFieldNumber(SynthesisOptions.getDescriptor(), "output_format", 6);
+        assertFieldNumber(SynthesizeResponse.getDescriptor(), "audio_data", 1);
+        assertFieldNumber(SynthesizeResponse.getDescriptor(), "sample_rate", 2);
+        assertFieldNumber(SynthesizeResponse.getDescriptor(), "duration_ms", 3);
+        assertFieldNumber(SynthesizeResponse.getDescriptor(), "processing_time_ms", 4);
+        assertFieldNumber(SynthesizeResponse.getDescriptor(), "voice_used", 5);
+    }
+
+    private static void assertFieldNumber(
+            com.google.protobuf.Descriptors.Descriptor message, String field, int expectedNumber) {
+        var descriptor = message.findFieldByName(field);
+        assertThat(descriptor).as("%s.%s", message.getName(), field).isNotNull();
+        assertThat(descriptor.getNumber()).as("%s.%s field number", message.getName(), field)
+                .isEqualTo(expectedNumber);
     }
 
     @Test
