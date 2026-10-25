@@ -41,6 +41,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -365,27 +366,10 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
     }
 
     @Test
-    @DisplayName("AV-P1-015: getInsights extracts topics and entities")
-    void getInsightsExtractsTopicsAndEntities() throws Exception {
+    @DisplayName("AV-P1-015: getInsights is unavailable without a qualified semantic provider")
+    void getInsightsIsUnavailableWithoutQualifiedSemanticProvider() throws Exception {
         MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
         PlatformMultimodalAdapter adapter = mock(PlatformMultimodalAdapter.class);
-
-        MultimodalResult result = MultimodalResult.builder()
-            .audioResult(AudioResult.builder()
-                .transcription("John went to New York")
-                .confidence(0.9)
-                .build())
-            .visualResult(com.ghatana.audio.video.multimodal.engine.VisualResult.builder()
-                .sceneDescription("A person walking")
-                .confidence(0.85)
-                .build())
-            .combinedAnalysis("Insights extraction complete")
-            .processingTimeMs(30L)
-            .build();
-
-        when(engine.analyse(any())).thenReturn(result);
-        lenient().when(adapter.backendName()).thenReturn("test-backend");
-        lenient().when(adapter.metricsEnabled()).thenReturn(false);
 
         if (channel != null) {
             channel.shutdownNow();
@@ -408,19 +392,19 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
 
         MultimodalServiceGrpc.MultimodalServiceBlockingStub stub = MultimodalServiceGrpc.newBlockingStub(channel);
 
-        com.ghatana.audio.video.multimodal.grpc.proto.InsightsResponse response =
-            stub.getInsights(
+        assertThatThrownBy(() -> stub.getInsights(
                 com.ghatana.audio.video.multimodal.grpc.proto.InsightsRequest.newBuilder()
-                    .setAudioData(ByteString.copyFrom(new byte[]{0x01}))
-                    .setText("Context text")
-                    .build()
-            );
-
-        assertThat(response.getTopicsList()).contains("speech");
-        assertThat(response.getTopicsList()).contains("visual");
-        assertThat(response.getEntitiesList()).isNotEmpty();
-        assertThat(response.getOverallSentiment()).isNotBlank();
-        assertThat(response.getProcessingTimeMs()).isGreaterThan(0);
+                        .setAudioData(ByteString.copyFrom(new byte[]{0x01}))
+                        .setText("Context text")
+                        .build()))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(error -> {
+                    StatusRuntimeException status = (StatusRuntimeException) error;
+                    assertThat(status.getStatus().getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                    assertThat(status.getStatus().getDescription())
+                            .contains("No qualified source-grounded semantic provider");
+                });
+        verifyNoInteractions(engine, adapter);
     }
 
     // ── TenantInjector: injects tenant into gRPC context server-side ──────────
