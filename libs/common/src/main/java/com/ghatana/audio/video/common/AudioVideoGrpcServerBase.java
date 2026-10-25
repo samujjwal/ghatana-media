@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.common;
 
 import com.ghatana.audio.video.common.health.HealthMetricsServer;
+import com.ghatana.audio.video.common.health.ServerReadinessLifecycle;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -36,10 +37,12 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
     private final int port;
     private final Server server;
     private final HealthMetricsServer healthServer;
+    private final ServerReadinessLifecycle readinessLifecycle;
     private final AutoCloseable serviceResource;
     private final TransportSecurity transportSecurity;
     private final AtomicBoolean closed = new AtomicBoolean();
     private final AtomicBoolean serviceResourceClosed = new AtomicBoolean();
+    private final AtomicBoolean readinessResourceClosed = new AtomicBoolean();
 
     protected AudioVideoGrpcServerBase(
             String serviceName,
@@ -62,6 +65,17 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
             BindableService serviceImpl,
             List<io.grpc.ServerInterceptor> interceptors,
             TransportSecurity transportSecurity) {
+        this(serviceName, port, serviceImpl, interceptors, transportSecurity, null);
+    }
+
+    /** Construct a Media gRPC server with an explicit provider and modality readiness service. */
+    protected AudioVideoGrpcServerBase(
+            String serviceName,
+            int port,
+            BindableService serviceImpl,
+            List<io.grpc.ServerInterceptor> interceptors,
+            TransportSecurity transportSecurity,
+            ServerReadinessLifecycle readinessLifecycle) {
         this.serviceName = requireText(serviceName, "serviceName");
         if (port < 0 || port > 65_535) {
             throw new IllegalArgumentException("port must be between 0 and 65535");
@@ -77,6 +91,7 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
                 transportSecurity, "transportSecurity must not be null");
         this.transportSecurity.verify();
         this.serviceResource = serviceImpl instanceof AutoCloseable closeable ? closeable : null;
+        this.readinessLifecycle = readinessLifecycle;
 
         ServerBuilder<?> builder = ServerBuilder.forPort(port);
         interceptors.forEach(builder::intercept);
@@ -85,24 +100,36 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
                     transportSecurity.certificateChain().toFile(),
                     transportSecurity.privateKey().toFile());
         }
-        this.server = builder.addService(serviceImpl).build();
-        this.healthServer = new HealthMetricsServer(this.serviceName, () -> !server.isShutdown());
+        builder.addService(serviceImpl);
+        if (readinessLifecycle != null && readinessLifecycle != serviceImpl) {
+            builder.addService(readinessLifecycle);
+        }
+        this.server = builder.build();
+        this.healthServer = new HealthMetricsServer(this.serviceName, this::isReady);
     }
 
     public final void start() throws IOException {
         if (closed.get()) {
             throw new IllegalStateException(serviceName + " server is closed");
         }
-        server.start();
         try {
+            server.start();
             healthServer.start();
+            if (readinessLifecycle != null) {
+                readinessLifecycle.markReady();
+            }
         } catch (IOException | RuntimeException exception) {
+            setNotServing();
             closed.set(true);
             server.shutdownNow();
             try {
                 healthServer.close();
             } finally {
-                closeServiceResource();
+                try {
+                    closeReadinessResource();
+                } finally {
+                    closeServiceResource();
+                }
             }
             throw exception;
         }
@@ -131,6 +158,8 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
             return;
         }
 
+        setNotServing();
+
         if (!server.isShutdown()) {
             server.shutdown();
             try {
@@ -150,7 +179,11 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         try {
             healthServer.close();
         } finally {
-            closeServiceResource();
+            try {
+                closeReadinessResource();
+            } finally {
+                closeServiceResource();
+            }
         }
         LOG.info("{} stopped", serviceName);
     }
@@ -166,12 +199,39 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         }
     }
 
+    private void setNotServing() {
+        if (readinessLifecycle != null) {
+            try {
+                readinessLifecycle.setNotServing();
+            } catch (RuntimeException exception) {
+                LOG.error("Unable to mark {} NOT_SERVING before shutdown", serviceName, exception);
+            }
+        }
+    }
+
+    private void closeReadinessResource() {
+        if (readinessLifecycle == null || readinessLifecycle == serviceResource
+                || !readinessResourceClosed.compareAndSet(false, true)) {
+            return;
+        }
+        try {
+            readinessLifecycle.close();
+        } catch (Exception exception) {
+            LOG.error("Error closing {} readiness resources", serviceName, exception);
+        }
+    }
+
     public final int getPort() {
         return port;
     }
 
     public final boolean isShutdown() {
         return server.isShutdown();
+    }
+
+    /** Current readiness; servers without an explicit readiness lifecycle are never ready. */
+    public final boolean isReady() {
+        return readinessLifecycle != null && !server.isShutdown() && readinessLifecycle.isServing();
     }
 
     public final String getServiceName() {

@@ -1,5 +1,6 @@
 package com.ghatana.audiovideo.observability;
 
+import com.ghatana.audio.video.common.health.ServerReadinessLifecycle;
 import com.ghatana.observability.MetricsCollector;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
@@ -45,7 +46,7 @@ import java.util.function.Supplier;
  * @doc.layer product
  * @doc.pattern Service
  */
-public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implements AutoCloseable {
+public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implements ServerReadinessLifecycle {
 
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoHealthService.class);
     private static final Duration DEFAULT_CHECK_TIMEOUT = Duration.ofMillis(250);
@@ -136,6 +137,20 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         LOG.info("Service marked NOT_SERVING: {}", serviceName);
     }
 
+    /**
+     * Returns the same bounded, fail-closed readiness decision exposed by the gRPC Check RPC.
+     *
+     * <p>This is used by the HTTP readiness sidecar and server lifecycle owner. It is false until
+     * startup is explicitly marked ready, when required checks are absent, when any check fails,
+     * or after draining begins.
+     */
+    @Override
+    public boolean isServing() {
+        return lifecycle.get() == LifecycleState.READY
+                && !checks.isEmpty() && checks.keySet().containsAll(requiredChecks)
+                && evaluateWithinDeadline(this::allChecksHealthy, false);
+    }
+
     // ── gRPC Health Check Protocol ─────────────────────────────────────────
 
     @Override
@@ -143,9 +158,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
             HealthCheckRequest request,
             StreamObserver<HealthCheckResponse> responseObserver) {
 
-        boolean allHealthy = lifecycle.get() == LifecycleState.READY
-                && !checks.isEmpty() && checks.keySet().containsAll(requiredChecks)
-                && evaluateWithinDeadline(this::allChecksHealthy, false);
+        boolean allHealthy = isServing();
 
         HealthCheckResponse.ServingStatus status = allHealthy
                 ? HealthCheckResponse.ServingStatus.SERVING

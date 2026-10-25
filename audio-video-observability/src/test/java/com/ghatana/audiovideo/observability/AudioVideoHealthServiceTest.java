@@ -165,12 +165,15 @@ class AudioVideoHealthServiceTest {
     void startupRequiresExplicitReadyTransition() {
         healthService.registerCheck("provider", () -> true);
 
+        assertThat(healthService.isServing()).isFalse();
+
         CapturingObserver beforeReady = new CapturingObserver();
         healthService.check(HealthCheckRequest.getDefaultInstance(), beforeReady);
         assertThat(beforeReady.responses.get(0).getStatus())
                 .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
 
         assertThat(healthService.markReady()).isTrue();
+        assertThat(healthService.isServing()).isTrue();
         CapturingObserver afterReady = new CapturingObserver();
         healthService.check(HealthCheckRequest.getDefaultInstance(), afterReady);
         assertThat(afterReady.responses.get(0).getStatus())
@@ -185,6 +188,7 @@ class AudioVideoHealthServiceTest {
         requiredHealth.registerCheck("provider", () -> true);
 
         assertThat(requiredHealth.markReady()).isFalse();
+        assertThat(requiredHealth.isServing()).isFalse();
         CapturingObserver observer = new CapturingObserver();
         requiredHealth.check(HealthCheckRequest.getDefaultInstance(), observer);
         assertThat(observer.responses.get(0).getStatus())
@@ -192,7 +196,28 @@ class AudioVideoHealthServiceTest {
 
         requiredHealth.registerCheck("model", () -> true);
         assertThat(requiredHealth.markReady()).isTrue();
+        assertThat(requiredHealth.isServing()).isTrue();
         requiredHealth.close();
+    }
+
+    @Test
+    @DisplayName("Provider failure and drain immediately make readiness false")
+    void providerFailureAndDrainMakeReadinessFalse() {
+        java.util.concurrent.atomic.AtomicBoolean providerReady = new java.util.concurrent.atomic.AtomicBoolean(true);
+        AudioVideoHealthService readiness = new AudioVideoHealthService(
+                "stt-service", metricsCollector, java.util.Set.of("provider"));
+        readiness.registerCheck("provider", providerReady::get);
+
+        assertThat(readiness.markReady()).isTrue();
+        assertThat(readiness.isServing()).isTrue();
+        providerReady.set(false);
+        assertThat(readiness.isServing()).isFalse();
+
+        providerReady.set(true);
+        readiness.setNotServing();
+        assertThat(readiness.isServing()).isFalse();
+        assertThat(readiness.markReady()).isFalse();
+        readiness.close();
     }
 
     @Test

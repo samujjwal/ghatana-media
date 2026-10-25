@@ -11,6 +11,7 @@ plugins {
 description = "Audio-Video Observability — health, tracing, and instrumentation"
 
 dependencies {
+    api(project(":services:media:libs:common"))
     implementation("com.ghatana.platform:observability:${providers.gradleProperty("ghatana.shared.version").get()}")
 
     // gRPC health protocol
