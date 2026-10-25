@@ -116,8 +116,7 @@ public class PersistentMultimodalService {
             (audioData != null ? audioData.length : 0) +
             (visualData != null ? visualData.length : 0))
             .then(mediaFile -> {
-                LOG.info("[tenant={}] Media file persisted: id={}, file={}",
-                    tenantId, mediaFile.getId(), fileName);
+                LOG.info("Media file persisted");
 
                 // Step 2: Process audio (transcription)
                 Promise<Optional<TranscriptionEntity>> audioPromise =
@@ -133,15 +132,13 @@ public class PersistentMultimodalService {
                         long elapsedMs = System.currentTimeMillis() - startTime;
                         fuseTimer.record(Duration.ofMillis(elapsedMs));
 
-                        LOG.info("[tenant={}] Multimodal fusion completed: mediaId={}, " +
+                        LOG.info("Multimodal fusion completed: " +
                             "hasAudio={}, hasVisual={}, elapsedMs={}",
-                            tenantId, mediaFile.getId(),
                             transcription.isPresent(), visualAnalysis.hasDetections(), elapsedMs);
 
                         // OBS-P1-002: Emit audit event for successful multimodal processing
                         emitMultimodalAudit(tenantId, userId.toString(), "multimodal.fuse", "SUCCESS",
-                            Map.of("mediaFileId", mediaFile.getId().toString(),
-                                   "hasAudio", String.valueOf(transcription.isPresent()),
+                            Map.of("hasAudio", String.valueOf(transcription.isPresent()),
                                    "hasVisual", String.valueOf(visualAnalysis.hasDetections()),
                                    "processingTimeMs", String.valueOf(elapsedMs)));
 
@@ -155,19 +152,20 @@ public class PersistentMultimodalService {
                     });
             })
             .whenException(e -> {
-                LOG.error("[tenant={}] Multimodal processing failed: {}", tenantId, e.getMessage(), e);
+                LOG.warn("Multimodal processing failed failureType={}", failureType(e));
 
                 // OBS-P1-002: Emit audit event for multimodal processing failure
                 emitMultimodalAudit(tenantId, userId.toString(), "multimodal.fuse", "FAILED",
-                    Map.of("error", e.getMessage()));
-            });
+                    Map.of("error", "PROCESSING_FAILED"));
+            })
+            .mapException(e -> new IllegalStateException("Multimodal processing failed"));
     }
 
     /**
      * K5: Accept Data Cloud media processing jobs.
      *
-     * Processes media artifacts from Data Cloud with trace/request IDs in logs and metrics.
-     * Emits processing result references, not raw sensitive media content.
+     * Processes media artifacts from Data Cloud. Trace/request IDs are returned as references
+     * and are not included in ordinary logs or metric labels.
      *
      * @param tenantId       the tenant ID from Data Cloud
      * @param artifactId     the artifact ID from Data Cloud
@@ -196,15 +194,12 @@ public class PersistentMultimodalService {
 
         long startTime = System.currentTimeMillis();
 
-        LOG.info("[tenant={}] Processing Data Cloud job: artifactId={}, correlationId={}, requestId={}, consent={}, retention={}",
-            tenantId, artifactId, correlationId, requestId, consentStatus, retentionPolicy);
+        LOG.info("Processing Data Cloud multimodal job");
 
         // K5: Validate consent before processing
         if (!"GRANTED".equals(consentStatus) && !"AUTO_APPROVED".equals(consentStatus)) {
-            LOG.warn("[tenant={}] Data Cloud job rejected due to consent status: artifactId={}, consent={}",
-                tenantId, artifactId, consentStatus);
-            return Promise.ofException(new IllegalArgumentException(
-                "Consent status not granted: " + consentStatus));
+            LOG.warn("Data Cloud multimodal job rejected by consent policy");
+            return Promise.ofException(new IllegalArgumentException("Consent status not granted"));
         }
 
         // K5: Process and emit result references only (not raw media content)
@@ -226,8 +221,7 @@ public class PersistentMultimodalService {
                     retentionPolicy
                 );
 
-                LOG.info("[tenant={}] Data Cloud job completed: artifactId={}, mediaFileId={}, hasTranscription={}, hasVisual={}, elapsedMs={}",
-                    tenantId, artifactId, dcResult.mediaFileId(),
+                LOG.info("Data Cloud multimodal job completed: hasTranscription={}, hasVisual={}, elapsedMs={}",
                     dcResult.transcriptionText() != null,
                     dcResult.hasVisualDetections(),
                     elapsedMs);
@@ -238,15 +232,13 @@ public class PersistentMultimodalService {
                 return dcResult;
             })
             .whenException(e -> {
-                LOG.error("[tenant={}] Data Cloud job failed: artifactId={}, correlationId={}, requestId={}, error={}",
-                    tenantId, artifactId, correlationId, requestId, e.getMessage(), e);
+                LOG.warn("Data Cloud multimodal job failed failureType={}", failureType(e));
 
                 // K5: Emit audit event for Data Cloud job failure
                 emitMultimodalAudit(tenantId, artifactId.toString(), "datacloud.multimodal", "FAILED",
-                    Map.of("correlationId", correlationId,
-                           "requestId", requestId,
-                           "error", e.getMessage()));
-            });
+                    Map.of("error", "PROCESSING_FAILED"));
+            })
+            .mapException(e -> new IllegalStateException("Data Cloud multimodal job failed"));
     }
 
     /**
@@ -283,8 +275,7 @@ public class PersistentMultimodalService {
      */
     public Promise<String> index(String artifactId, String tenantId, String indexType, Map<String, String> parameters) {
         return Promise.ofException(new IllegalStateException(
-            "Artifact-backed multimodal indexing requires a MediaArtifactRepository-backed adapter; "
-                + "PersistentMultimodalService cannot index artifact IDs without loading artifact bytes"));
+            "Artifact-backed multimodal indexing is unavailable"));
     }
 
     private Promise<AudioFileEntity> persistMediaFile(
@@ -323,8 +314,7 @@ public class PersistentMultimodalService {
 
         if (sttEngine == null) {
             return Promise.ofException(new UnsupportedOperationException(
-                "SttEngine is not configured. Inject a real SttEngine implementation " +
-                "(e.g. GrpcSttClientAdapter) to enable audio transcription."));
+                "Audio transcription provider is unavailable"));
         }
 
         AudioData audio = new AudioData(audioData, DEFAULT_SAMPLE_RATE_HZ, 1, 16);
@@ -332,8 +322,8 @@ public class PersistentMultimodalService {
         try {
             result = sttEngine.transcribe(audio);
         } catch (Exception e) {
-            LOG.error("[tenant={}] STT transcription failed for audioFileId={}: {}", tenantId, audioFileId, e.getMessage(), e);
-            return Promise.ofException(new RuntimeException("Transcription failed: " + e.getMessage(), e));
+            LOG.warn("STT transcription failed failureType={}", failureType(e));
+            return Promise.ofException(new RuntimeException("Audio transcription failed"));
         }
 
         TranscriptionEntity entity = new TranscriptionEntity(
@@ -360,8 +350,7 @@ public class PersistentMultimodalService {
 
         if (visionEngine == null) {
             return Promise.ofException(new UnsupportedOperationException(
-                "VisionEngine is not configured. Inject a real VisionEngine implementation " +
-                "to enable visual analysis."));
+                "Visual analysis provider is unavailable"));
         }
 
         // Image dimensions must be known for correct inference; if the caller supplies
@@ -383,14 +372,11 @@ public class PersistentMultimodalService {
                 java.util.List<String> labels = detection.objects().stream()
                     .map(com.ghatana.media.vision.api.DetectedObject::className)
                     .toList();
-                LOG.debug("[tenant={}] Visual detection for mediaId={}: {} objects detected",
-                    tenantId, mediaFileId, detection.count());
+                LOG.debug("Visual detection completed");
                 return new VisualAnalysis(detection.count() > 0, detection.count(), labels);
             })
-            .whenException(e ->
-                LOG.error("[tenant={}] Vision detection failed for mediaId={}: {}",
-                    tenantId, mediaFileId, e.getMessage(), e)
-            );
+            .whenException(e -> LOG.warn("Vision detection failed failureType={}", failureType(e)))
+            .mapException(e -> new IllegalStateException("Visual analysis failed"));
     }
 
     private String getExtension(String fileName) {
@@ -479,7 +465,11 @@ public class PersistentMultimodalService {
             
             auditService.record(event);
         } catch (Exception e) {
-            LOG.warn("Failed to emit audit event for multimodal operation {}: {}", operation, e.getMessage());
+            LOG.warn("Failed to emit multimodal audit event failureType={}", failureType(e));
         }
+    }
+
+    private static String failureType(Throwable failure) {
+        return failure == null ? "UNKNOWN" : failure.getClass().getSimpleName();
     }
 }
