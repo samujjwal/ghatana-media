@@ -214,18 +214,13 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void healthCheck(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
-        try (SttEngine stt = library.getSttEngine()) {
-            com.ghatana.media.common.EngineStatus status = stt.getStatus();
-            boolean healthy = status.state() == com.ghatana.media.common.EngineStatus.State.READY
-                || status.state() == com.ghatana.media.common.EngineStatus.State.BUSY;
-            responseObserver.onNext(HealthCheckResponse.newBuilder()
-                .setStatus(healthy ? HealthStatus.HEALTH_STATUS_HEALTHY : HealthStatus.HEALTH_STATUS_UNHEALTHY)
-                .setUptimeMs(status.uptimeMs())
-                .build());
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            responseObserver.onError(io.grpc.Status.INTERNAL.withDescription("Health check failed").asRuntimeException());
-        }
+        // An engine status alone does not establish service readiness: the canonical
+        // composition has not wired provider/model checks and shutdown state yet.
+        responseObserver.onNext(HealthCheckResponse.newBuilder()
+            .setStatus(HealthStatus.HEALTH_STATUS_UNHEALTHY)
+            .setMessage("STT_READINESS_NOT_ADMITTED: provider and model readiness checks are not wired")
+            .build());
+        responseObserver.onCompleted();
     }
 
     // ── AV-001.1: loadModel ────────────────────────────────────────────────

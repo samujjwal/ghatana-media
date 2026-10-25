@@ -5,10 +5,22 @@ import com.ghatana.media.common.AudioData;
 import com.ghatana.media.stt.api.ModelInfo;
 import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.media.stt.api.TranscriptionResult;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
+import com.ghatana.stt.core.grpc.proto.AdaptRequest;
+import com.ghatana.stt.core.grpc.proto.AudioChunk;
+import com.ghatana.stt.core.grpc.proto.CorrectionRequest;
+import com.ghatana.stt.core.grpc.proto.CreateProfileRequest;
+import com.ghatana.stt.core.grpc.proto.GetProfileRequest;
+import com.ghatana.stt.core.grpc.proto.HealthCheckRequest;
+import com.ghatana.stt.core.grpc.proto.ListModelsRequest;
+import com.ghatana.stt.core.grpc.proto.LoadModelRequest;
+import com.ghatana.stt.core.grpc.proto.HealthStatus;
+import com.ghatana.stt.core.grpc.proto.StatusRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.core.grpc.proto.UnloadModelRequest;
+import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -26,6 +38,9 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -145,5 +160,76 @@ class SttGrpcServiceInProcessIntegrationTest {
             replacement.shutdownNow();
         }
         throw new AssertionError("unloadModel must not report success without an engine unload operation");
+    }
+
+    @Test
+    @DisplayName("healthCheck stays unhealthy over gRPC until composition supplies readiness checks")
+    void healthCheckDoesNotReportStubEngineReadyOverGrpc() {
+        var response = STTServiceGrpc.newBlockingStub(channel)
+            .healthCheck(HealthCheckRequest.getDefaultInstance());
+
+        assertThat(response.getStatus()).isEqualTo(HealthStatus.HEALTH_STATUS_UNHEALTHY);
+        assertThat(response.getMessage()).contains("STT_READINESS_NOT_ADMITTED");
+    }
+
+    @Test
+    @DisplayName("authentication interceptor rejects all twelve STT RPCs when bearer identity is missing")
+    void missingBearerTokenIsRejectedForEveryRpc() throws Exception {
+        String previousSecret = System.getProperty("AV_JWT_SECRET");
+        System.setProperty("AV_JWT_SECRET", "stt-test-only-secret-not-used-to-sign-tokens");
+        Server securedServer;
+        try {
+            securedServer = ServerBuilder.forPort(0)
+                .directExecutor()
+                .addService(new SttGrpcService(mock(AudioVideoLibrary.class), new SimpleMeterRegistry()))
+                .intercept(new JwtServerInterceptor())
+                .build()
+                .start();
+        } finally {
+            if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
+            else System.setProperty("AV_JWT_SECRET", previousSecret);
+        }
+        ManagedChannel securedChannel = ManagedChannelBuilder.forAddress("localhost", securedServer.getPort())
+            .usePlaintext()
+            .directExecutor()
+            .build();
+        try {
+            STTServiceGrpc.STTServiceBlockingStub stub = STTServiceGrpc.newBlockingStub(securedChannel);
+            assertUnauthenticated(() -> stub.transcribe(TranscribeRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.loadModel(LoadModelRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.unloadModel(UnloadModelRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.listModels(ListModelsRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.adaptModel(AdaptRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.getStatus(StatusRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.healthCheck(HealthCheckRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.createProfile(CreateProfileRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.getProfile(GetProfileRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.updateProfile(UpdateProfileRequest.getDefaultInstance()));
+            assertUnauthenticated(() -> stub.submitCorrection(CorrectionRequest.getDefaultInstance()));
+
+            CountDownLatch streamDone = new CountDownLatch(1);
+            AtomicReference<Throwable> streamFailure = new AtomicReference<>();
+            var requestObserver = STTServiceGrpc.newStub(securedChannel).streamTranscribe(new io.grpc.stub.StreamObserver<>() {
+                @Override public void onNext(com.ghatana.stt.core.grpc.proto.Transcription value) { }
+                @Override public void onError(Throwable failure) { streamFailure.set(failure); streamDone.countDown(); }
+                @Override public void onCompleted() { streamDone.countDown(); }
+            });
+            requestObserver.onNext(AudioChunk.getDefaultInstance());
+            requestObserver.onCompleted();
+            assertThat(streamDone.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(streamFailure.get()).isInstanceOf(StatusRuntimeException.class);
+            assertThat(((StatusRuntimeException) streamFailure.get()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        } finally {
+            securedChannel.shutdownNow();
+            securedServer.shutdownNow();
+        }
+    }
+
+    private static void assertUnauthenticated(org.assertj.core.api.ThrowableAssert.ThrowingCallable call) {
+        assertThatThrownBy(call)
+            .isInstanceOf(StatusRuntimeException.class)
+            .matches(failure -> ((StatusRuntimeException) failure).getStatus().getCode()
+                == Status.UNAUTHENTICATED.getCode());
     }
 }

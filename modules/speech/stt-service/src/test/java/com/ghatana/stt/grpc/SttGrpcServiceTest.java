@@ -624,6 +624,32 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getActiveModel()).isEqualTo("whisper-base");
     }
 
+    @Test
+    @DisplayName("getStatus returns INTERNAL when provider status is unavailable")
+    void getStatus_providerFailure_returnsInternal() throws Exception {
+        when(mockEngine.getStatus()).thenThrow(new IllegalStateException("provider unavailable"));
+        CapturingObserver<StatusResponse> observer = new CapturingObserver<>();
+
+        service.getStatus(StatusRequest.getDefaultInstance(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+            .isEqualTo(Status.INTERNAL.getCode());
+    }
+
+    @Test
+    @DisplayName("healthCheck remains unhealthy until provider/model readiness checks are composed")
+    void healthCheck_doesNotInferReadinessFromEngineState() {
+        CapturingObserver<HealthCheckResponse> observer = new CapturingObserver<>();
+
+        service.healthCheck(HealthCheckRequest.getDefaultInstance(), observer);
+
+        assertThat(observer.hasError()).isFalse();
+        assertThat(observer.getValue().getStatus()).isEqualTo(HealthStatus.HEALTH_STATUS_UNHEALTHY);
+        assertThat(observer.getValue().getMessage()).contains("STT_READINESS_NOT_ADMITTED");
+        verify(mockLibrary, never()).getSttEngine();
+    }
+
     // ─────────────────────────────────────────────────────────────
     // submitCorrection
     // ─────────────────────────────────────────────────────────────
