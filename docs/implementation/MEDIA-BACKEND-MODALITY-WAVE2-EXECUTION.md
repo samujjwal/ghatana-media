@@ -666,3 +666,22 @@ Focused verification commands:
 - `git diff --check` — PASS.
 
 Task dispositions remain **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. VIS-03 was already in the locally verified set; STT-04 remains partial. No admitted model quality, native resource baseline, provider execution, formal PDP/gtool acceptance, deployment, data cutover or release is claimed.
+
+### Incremental execution record — 2026-10-25 (tenth round)
+
+Two code commits follow the ninth-round record: `0423d57` and `a873be6`. This round fixes a false-success case in the multimodal STT NOP adapter and extends OBS-06 from same-JVM runtime recreation to a measured separate-OS-process restart. OBS-06's exclusive disposition advances from PARTIAL to LOCALLY_VERIFIED for its declared local acceptance.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| MM-05 | `GrpcSttClientAdapter` in NOP mode now returns `AudioResult.error` with an unavailable reason instead of a non-error empty transcript. An in-process STT server counter proves NOP makes no gRPC call; an engine regression proves the unavailable result records provider FAILURE and no SUCCESS timer. Focused adapter and engine tests passed 37 tests. | PARTIAL: the real cross-service STT/Vision providers, shared authorization context, child cancellation/deadlines and actual positive effects remain unqualified. |
+| OBS-06 | Added the Gradle `postgresWorkflowProcessRestart` JavaExec integration task. It starts the Media launcher twice in distinct OS processes against the same PostgreSQL 16 and LocalStack state, seeds durable UNKNOWN/job-lease/outbox rows, and asserts distinct PIDs plus queue=1, unknown backlog=2, overdue job lease=1, overdue outbox claim=1, and both aggregate-query support gauges=1 after restart. The scrape asserts it contains no run, tenant, job or request identifiers. Prometheus fixture evaluation covers the exact metric snapshot and alert dispositions. | LOCALLY_VERIFIED for the declared Postgres/process-restart, metric and local rule-evaluation acceptance. No live Alertmanager/deployed alert-delivery claim. |
+
+Focused verification:
+
+- `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.adapter.GrpcSttClientAdapterTest' --tests 'com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL, 37 tests (9 adapter + 28 engine).
+- `./gradlew :services:media:integration-tests:postgresWorkflowProcessRestart --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; separate PIDs 16003 and 16009; exact metric counts above.
+- `./gradlew :services:media:integration-tests:test --tests 'com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL.
+- `promtool test rules infra/monitoring/tests/audio-video.rules.test.yml` — PASS; the checked-in fixture has 25 scenario groups and 51 alert assertions. `promtool check rules` validated 6 general and 30 audio-video rules.
+- `git diff --check` — PASS.
+
+Current exclusive task dispositions are **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. OBS-07 remains PARTIAL: provider readiness/quality signals are fixture-only where the launcher exports no modality gauge, and no deployed alert delivery was tested. W2-E12 remains incomplete because real provider/store dependency qualification and replay/finality conditions exceed this OBS-06 slice. No real STT/Vision provider quality, formal PDP/gtool acceptance, production deployment, cutover or release is claimed.
