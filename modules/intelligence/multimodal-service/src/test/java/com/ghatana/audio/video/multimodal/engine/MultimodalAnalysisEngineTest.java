@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MultimodalAnalysisEngineTest extends EventloopTestBase {
 
     @Test
-    @DisplayName("Should fuse audio image and text context")
-    void shouldFuseAudioImageAndTextContext() { 
+    @DisplayName("Should abstain from fusion when source references are unavailable")
+    void shouldAbstainFromFusionWithoutSourceReferences() {
         AudioResult audio = AudioResult.builder() 
             .transcription("hello from the meeting room")
             .confidence(0.93) 
@@ -47,9 +47,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
 
             assertEquals("hello from the meeting room", result.getAudioResult().getTranscription()); 
             assertEquals("A person standing near a whiteboard", result.getVisualResult().getSceneDescription()); 
-            assertTrue(result.getCombinedAnalysis().contains("Speech: \"hello from the meeting room\"")); 
-            assertTrue(result.getCombinedAnalysis().contains("Visual: A person standing near a whiteboard"));
-            assertTrue(result.getCombinedAnalysis().contains("Text context: board review"));
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
             assertTrue(result.getProcessingTimeMs() >= 0); 
         }
     }
@@ -93,8 +91,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertFalse(result.getTemporalAlignments().get(0).hasSyncMeasurement());
             assertEquals(0L, result.getTemporalAlignments().get(0).getSyncOffsetMs());
             assertEquals(0.0, result.getTemporalAlignments().get(0).getSyncConfidence());
-            assertTrue(result.getCombinedNarrative().contains("[0s] \"hello\"")); 
-            assertTrue(result.getCombinedNarrative().contains("[1s] \"world\"")); 
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedNarrative());
             assertFalse(result.getVideoResult().isError()); 
         }
     }
@@ -170,6 +167,31 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertEquals("NO_SOURCE_PTS", alignment.getTimestamp().unknownReason());
             assertEquals("", alignment.getSpeechText());
             assertFalse(alignment.hasSyncMeasurement());
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedNarrative());
+        }
+    }
+
+    @Test
+    @DisplayName("Audio-only or video-only evidence does not create a grounded narrative")
+    void incompleteSingleModalityEvidenceAbstains() {
+        AudioResult audio = AudioResult.builder().transcription("unreferenced words").build();
+        VisualResult video = VisualResult.builder().sceneDescription("unversioned scene")
+                .detections(List.of(new DetectionResult("object", 0.9, 1, 2, 3, 4))).build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), VisualResult.error("unused")),
+                AudioVideoRuntimeSettings.defaults())) {
+            MultimodalResult result = runPromise(() -> Promise.of(engine.analyse(
+                    MultimodalRequest.builder().audioData(new byte[] {1}).build())));
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
+        }
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(AudioResult.error("unused"), VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, false, true, 1)));
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedNarrative());
         }
     }
 

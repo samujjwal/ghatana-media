@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +28,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
     private static final int ANALYSIS_TIMEOUT_SECONDS = 60;
     private static final int MAX_MODALITY_BYTES = 32 * 1024 * 1024;
+    private static final String SOURCE_GROUNDING_ABSTENTION = "ABSTAIN: SOURCE_REFERENCES_INCOMPLETE";
 
     private final MultimodalMediaGateway mediaGateway;
     private final AudioVideoRuntimeSettings settings;
@@ -232,43 +231,10 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
     }
 
     private String fuse(AudioResult audio, VisualResult visual, String text) {
-        StringBuilder sb = new StringBuilder("Multimodal analysis: ");
-        int parts = 0;
-
-        if (audio != null && !audio.isError()) {
-            sb.append("Speech: \"").append(audio.getTranscription()).append("\"");
-            parts++;
-        }
-
-        if (visual != null && !visual.isError()) {
-            if (parts > 0) sb.append("; ");
-            sb.append("Visual: ").append(visual.getSceneDescription());
-            if (!visual.getDetections().isEmpty()) {
-                sb.append(" [").append(summariseDetections(visual.getDetections())).append("]");
-            }
-            parts++;
-        }
-
-        if (text != null && !text.isEmpty()) {
-            if (parts > 0) sb.append("; ");
-            sb.append("Text context: ").append(text);
-        }
-
-        if (parts == 0) {
-            sb.append("No content to analyse.");
-        }
-
-        return sb.toString();
-    }
-
-    private String summariseDetections(List<DetectionResult> detections) {
-        Map<String, Long> counts = new HashMap<>();
-        for (DetectionResult d : detections) {
-            counts.merge(d.getClassName(), 1L, Long::sum);
-        }
-        List<String> parts = new ArrayList<>();
-        counts.forEach((cls, cnt) -> parts.add(cnt + "x " + cls));
-        return String.join(", ", parts);
+        // Current result contracts do not carry source version, stable frame/word/region
+        // references, or claim-level uncertainty. Do not turn provider text or caller context
+        // into a generated description until those references and qualified semantics exist.
+        return SOURCE_GROUNDING_ABSTENTION;
     }
 
     private static void validatePayload(byte[] payload) {
@@ -309,37 +275,10 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
     private String buildNarrative(AudioResult audio, VisualResult video,
                                    List<TemporalAlignment> alignments) {
-        if (alignments.isEmpty()) {
-            String audioText = (audio != null && !audio.isError())
-                    ? audio.getTranscription() : "";
-            String videoText = (video != null && !video.isError())
-                    ? video.getSceneDescription() : "";
-            return "Video: " + videoText + (audioText.isEmpty() ? "" : ". Audio: " + audioText);
-        }
-
-        // Build narrative from first few key alignment points
-        StringBuilder sb = new StringBuilder();
-        int shown = 0;
-        for (TemporalAlignment a : alignments) {
-            if (shown >= 5) {
-                sb.append("... and ").append(alignments.size() - 5).append(" more moments.");
-                break;
-            }
-            if (a.hasTimestamp()) {
-                long secs = a.getTimestampMs() / 1000;
-                sb.append(String.format("[%ds] ", secs));
-            } else {
-                sb.append("[time unknown] ");
-            }
-            if (a.getSpeechText() != null && !a.getSpeechText().isEmpty()) {
-                sb.append("\"").append(a.getSpeechText()).append("\" ");
-            }
-            if (!a.getDetections().isEmpty()) {
-                sb.append("(").append(summariseDetections(a.getDetections())).append(") ");
-            }
-            shown++;
-        }
-        return sb.toString().trim();
+        // Timestamps alone do not provide frame/word/region version references or establish
+        // shared-clock semantics. Keep the structured temporal associations separately and abstain
+        // from composing them into a descriptive claim.
+        return SOURCE_GROUNDING_ABSTENTION;
     }
 
     @Override
