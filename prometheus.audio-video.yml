@@ -20,7 +20,7 @@ rule_files:
   - "infra/monitoring/alerts/*.yml"
 
 scrape_configs:
-  # STT Service — Java/gRPC, Spring Actuator metrics on port 8090
+  # STT Service — Media HealthMetricsServer /metrics sidecar on port 8090
   - job_name: "stt-service"
     metrics_path: "/metrics"
     static_configs:
@@ -36,7 +36,7 @@ scrape_configs:
         regex: '([^:]+)(?::\d+)?'
         replacement: "${1}"
 
-  # TTS Service — Java/gRPC, Spring Actuator metrics on port 8091
+  # TTS Service — Media HealthMetricsServer /metrics sidecar on port 8091
   - job_name: "tts-service"
     metrics_path: "/metrics"
     static_configs:
@@ -47,7 +47,7 @@ scrape_configs:
           runtime: "jvm"
           protocol: "grpc"
 
-  # Vision Service — Java/gRPC, Spring Actuator metrics on port 8092
+  # Vision Service — Media HealthMetricsServer /metrics sidecar on port 8092
   - job_name: "vision-service"
     metrics_path: "/metrics"
     static_configs:
@@ -58,7 +58,7 @@ scrape_configs:
           runtime: "jvm"
           protocol: "grpc"
 
-  # Multimodal Service — Java/gRPC, Spring Actuator metrics on port 8093
+  # Multimodal Service — Media HealthMetricsServer /metrics sidecar on port 8093
   - job_name: "multimodal-service"
     metrics_path: "/metrics"
     static_configs:

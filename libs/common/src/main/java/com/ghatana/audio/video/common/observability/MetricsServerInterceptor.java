@@ -1,15 +1,14 @@
 package com.ghatana.audio.video.common.observability;
 
 import io.grpc.ForwardingServerCall;
+import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -27,18 +26,15 @@ import java.util.concurrent.atomic.LongAdder;
  * <p>Metrics are exposed via {@link #scrape()} which returns a Prometheus text-format
  * string. Mount this on an HTTP /metrics endpoint in each service's health server.
  *
- * <p>This implementation is intentionally zero-dependency on a Prometheus client library
- * to keep the common module lightweight. When a Micrometer/OpenTelemetry SDK is present
- * in the consuming service, the service can bridge these counters or simply use its own
- * instrumentation on top of this interceptor.
+ * <p>This implementation has no dependency on a Prometheus client library. It records fixed
+ * protobuf method names, gRPC status codes, and durations only. Cancellation and handler-start
+ * failures receive terminal metric outcomes even when the call does not reach {@code close()}.
   * @doc.type class
  * @doc.purpose Provides metrics server interceptor functionality.
  * @doc.layer product
  * @doc.pattern Filter
 */
 public class MetricsServerInterceptor implements ServerInterceptor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MetricsServerInterceptor.class);
 
     private static final MetricsServerInterceptor INSTANCE = new MetricsServerInterceptor();
 
@@ -62,25 +58,46 @@ public class MetricsServerInterceptor implements ServerInterceptor {
         String method = call.getMethodDescriptor().getFullMethodName();
         started.computeIfAbsent(method, k -> new LongAdder()).increment();
         long startNs = System.nanoTime();
+        AtomicBoolean completed = new AtomicBoolean();
+        java.util.function.Consumer<Status> recordCompletion = status -> {
+            if (!completed.compareAndSet(false, true)) {
+                return;
+            }
+            long elapsedNs = System.nanoTime() - startNs;
+            String code = status.getCode().name();
 
-        return next.startCall(
-                new ForwardingServerCall.SimpleForwardingServerCall<>(call) {
-                    @Override
-                    public void close(Status status, Metadata trailers) {
-                        long elapsedNs = System.nanoTime() - startNs;
-                        String code = status.getCode().name();
+            handled.computeIfAbsent(method, k -> new ConcurrentHashMap<>())
+                    .computeIfAbsent(code, k -> new LongAdder())
+                    .increment();
 
-                        handled.computeIfAbsent(method, k -> new ConcurrentHashMap<>())
-                               .computeIfAbsent(code, k -> new LongAdder())
-                               .increment();
+            durationSumNs.computeIfAbsent(method, k -> new AtomicLong(0))
+                    .addAndGet(elapsedNs);
+            durationCount.computeIfAbsent(method, k -> new LongAdder()).increment();
+        };
 
-                        durationSumNs.computeIfAbsent(method, k -> new AtomicLong(0))
-                                     .addAndGet(elapsedNs);
-                        durationCount.computeIfAbsent(method, k -> new LongAdder()).increment();
-
-                        super.close(status, trailers);
+        try {
+            ServerCall.Listener<ReqT> delegate = next.startCall(
+                    new ForwardingServerCall.SimpleForwardingServerCall<>(call) {
+                        @Override
+                        public void close(Status status, Metadata trailers) {
+                            recordCompletion.accept(status);
+                            super.close(status, trailers);
+                        }
+                    }, headers);
+            return new ForwardingServerCallListener.SimpleForwardingServerCallListener<>(delegate) {
+                @Override
+                public void onCancel() {
+                    try {
+                        super.onCancel();
+                    } finally {
+                        recordCompletion.accept(Status.CANCELLED);
                     }
-                }, headers);
+                }
+            };
+        } catch (RuntimeException startupFailure) {
+            recordCompletion.accept(Status.UNKNOWN);
+            throw startupFailure;
+        }
     }
 
     // -------------------------------------------------------------------------

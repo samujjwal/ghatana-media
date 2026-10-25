@@ -146,26 +146,30 @@ unknown, not a zero backlog and not a healthy provider result. The outbox gauge
 counts unacknowledged, non-dead-lettered claims whose stored lease has expired;
 it does not estimate total pending-event age or provider health.
 
-Provider readiness and model quality are not Prometheus sources in this
-checkout. `MediaRuntime.healthSnapshot()` computes provider status internally,
-but the public `/health`, `/health/live`, `/health/ready`, and `/health/startup`
-routes expose only coarse process/readiness states. `GET /api/v1/providers`
-requires tenant and principal headers and returns provider IDs and capability
-profiles; it does not expose the health details. `AudioVideoHealthService` is
-not constructed by the current service roots. No admitted model-quality,
-provider-status, or provider-cost series exists, so no provider-unavailable or
-quality-regression alert is defined. An unadmitted provider or a missing quality
-series is `NOT_ADMITTED` / `NO_DATA`; operators must not turn that into a zero,
-a passing readiness claim, or permission to dispatch.
+Provider readiness and model quality are different telemetry sources. Each
+modality gRPC server constructs `AudioVideoHealthService` with required provider
+checks; gRPC Health `Check`/`Watch` and its HTTP health sidecar reflect startup,
+provider readiness, and drain state. Public health bodies remain coarse
+process/readiness signals. `GET /api/v1/providers` requires tenant and principal
+headers and returns provider IDs and capability profiles, without exposing
+private health details. The shared gRPC interceptor chain emits bounded
+per-method call counts, final gRPC status, and duration to the sidecar
+`/metrics` endpoint. It creates an OpenTelemetry server span per call when an
+SDK or agent is configured; only W3C trace context is extracted, and request
+metadata/baggage are not added to spans. No admitted model-quality or
+provider-cost series exists, so no provider-quality regression or cost alert is
+defined. An unadmitted provider or a missing quality series is
+`NOT_ADMITTED` / `NO_DATA`; operators must not turn that into a zero, a passing
+readiness claim, or permission to dispatch.
 
-The gRPC/JVM rules for `stt-service`, `tts-service`, `vision-service`, and
-`multimodal-service` depend on scrape targets and exporters outside the current
-Media Runtime path. `prometheus.audio-video.yml` describes internal diagnostic
-targets and does not admit production monitoring. Before relying on those rules,
-verify the intended targets are deployed and that their gRPC/JVM metric series
-are actually present; absent series are not evidence of a healthy model. The
-latency thresholds in those candidate rules are not approved reference-host
-budgets or model-quality claims.
+The gRPC service targets in `prometheus.audio-video.yml` scrape each
+`HealthMetricsServer` sidecar at its configured `AV_HEALTH_PORT`; deployment
+templates set STT/TTS/Vision/Multimodal ports to 8090/8091/8092/8093. The file
+describes internal diagnostic targets and does not admit production
+monitoring. Before relying on those rules, verify the intended targets are
+deployed and that gRPC call series are present; absent series are not evidence
+of a healthy model. The latency thresholds in candidate rules are not approved
+reference-host budgets or model-quality claims.
 
 For privacy-safe triage, use public liveness/readiness only for a yes/no signal.
 Scrape Prometheus text from `/metrics` with an explicit Prometheus `Accept`

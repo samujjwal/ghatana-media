@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,6 +73,30 @@ class MetricsServerInterceptorTest {
         String scrape = interceptor.scrape(); 
         assertThat(scrape).doesNotContain("audio.Video/Health");
         assertThat(scrape).contains("# HELP grpc_server_started_total");
+    }
+
+    @Test
+    @DisplayName("Should count a cancelled RPC once even when the call later closes")
+    void shouldRecordCancellationOnce() {
+        MetricsServerInterceptor interceptor = new MetricsServerInterceptor();
+        Metadata headers = new Metadata();
+        @SuppressWarnings("unchecked")
+        ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        AtomicReference<ServerCall<String, String>> wrapped = new AtomicReference<>();
+        when(next.startCall(any(), eq(headers))).thenAnswer(invocation -> {
+            wrapped.set(invocation.getArgument(0));
+            return new ServerCall.Listener<String>() {};
+        });
+
+        ServerCall.Listener<String> listener = interceptor.interceptCall(
+                createServerCall("audio.Video/Stream"), headers, next);
+        listener.onCancel();
+        wrapped.get().close(Status.CANCELLED, new Metadata());
+
+        String scrape = interceptor.scrape();
+        assertThat(scrape).contains(
+                "grpc_server_handled_total{grpc_method=\"audio.Video/Stream\",grpc_code=\"CANCELLED\"} 1",
+                "grpc_server_handling_seconds_count{grpc_method=\"audio.Video/Stream\"} 1");
     }
 
     @SuppressWarnings("unchecked")

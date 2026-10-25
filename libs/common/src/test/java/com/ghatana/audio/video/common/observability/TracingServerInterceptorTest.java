@@ -13,6 +13,7 @@ import org.slf4j.MDC;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -107,14 +108,36 @@ class TracingServerInterceptorTest {
         ServerCall<String, String> call = createServerCall("audio.Video/Analyze"); 
         @SuppressWarnings("unchecked")
         ServerCallHandler<String, String> next = mock(ServerCallHandler.class); 
-        when(next.startCall(any(), eq(headers))).thenReturn(new ServerCall.Listener<>() {}); 
+        AtomicReference<String> handlerService = new AtomicReference<>();
+        AtomicReference<String> handlerMethod = new AtomicReference<>();
+        AtomicReference<String> callbackService = new AtomicReference<>();
+        AtomicReference<String> callbackMethod = new AtomicReference<>();
+        when(next.startCall(any(), eq(headers))).thenAnswer(invocation -> {
+            handlerService.set(MDC.get("grpcService"));
+            handlerMethod.set(MDC.get("grpcMethod"));
+            return new ServerCall.Listener<String>() {
+                @Override
+                public void onHalfClose() {
+                    callbackService.set(MDC.get("grpcService"));
+                    callbackMethod.set(MDC.get("grpcMethod"));
+                }
+            };
+        });
 
-        interceptor.interceptCall(call, headers, next); 
+        ServerCall.Listener<String> listener = interceptor.interceptCall(call, headers, next);
 
         assertThat(MDC.get("traceId")).isNull();
         assertThat(MDC.get("spanId")).isNull();
-        assertThat(MDC.get("grpcService")).isEqualTo("audio.Video");
-        assertThat(MDC.get("grpcMethod")).isEqualTo("Analyze");
+        assertThat(MDC.get("grpcService")).isNull();
+        assertThat(MDC.get("grpcMethod")).isNull();
+        assertThat(handlerService.get()).isEqualTo("audio.Video");
+        assertThat(handlerMethod.get()).isEqualTo("Analyze");
+
+        listener.onHalfClose();
+        assertThat(callbackService.get()).isEqualTo("audio.Video");
+        assertThat(callbackMethod.get()).isEqualTo("Analyze");
+        assertThat(MDC.get("grpcService")).isNull();
+        assertThat(MDC.get("grpcMethod")).isNull();
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<ServerCall<String, String>> wrappedCallCaptor = ArgumentCaptor.forClass(ServerCall.class); 
