@@ -20,6 +20,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 /**
  * @doc.type class
@@ -176,6 +178,20 @@ class AudioVideoTracingServiceSpanAttributeTest {
 
             assertThatCode(() -> tracingService.recordTranscriptionResult(span, 0.0, "ja"))
                     .doesNotThrowAnyException();
+            verify(span).setAttribute("stt.confidence", 0.0);
+        }
+
+        @Test
+        @DisplayName("does not export non-finite or out-of-range provider confidence")
+        void shouldOmitInvalidConfidence() {
+            Span span = tracingService.startTranscriptionSpan("txn-invalid", "tenant-e", "en");
+
+            tracingService.recordTranscriptionResult(span, Double.NaN, null);
+            tracingService.recordTranscriptionResult(span, Double.POSITIVE_INFINITY, null);
+            tracingService.recordTranscriptionResult(span, -0.01, null);
+            tracingService.recordTranscriptionResult(span, 1.01, null);
+
+            verify(span, never()).setAttribute(eq("stt.confidence"), anyDouble());
         }
     }
 
@@ -250,6 +266,19 @@ class AudioVideoTracingServiceSpanAttributeTest {
 
             assertThatCode(() -> tracingService.recordVisionDetectionResult(span, 0, 0.0))
                     .doesNotThrowAnyException();
+            verify(span).setAttribute("vision.detection_count", 0L);
+            verify(span).setAttribute("vision.max_confidence", 0.0);
+        }
+
+        @Test
+        @DisplayName("omits invalid detection counts and provider confidence")
+        void shouldOmitInvalidDetectionTelemetry() {
+            Span span = tracingService.startVisionDetectionSpan("det-invalid", "tenant-invalid", 0.5);
+
+            tracingService.recordVisionDetectionResult(span, -1, Double.POSITIVE_INFINITY);
+
+            verify(span, never()).setAttribute(eq("vision.detection_count"), anyLong());
+            verify(span, never()).setAttribute(eq("vision.max_confidence"), anyDouble());
         }
     }
 }

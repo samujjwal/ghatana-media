@@ -223,7 +223,12 @@ public class AudioVideoTracingService {
         if (span == null) {
             return;
         }
-        span.setAttribute("stt.confidence", confidence);
+        // Provider output is untrusted input. Keep malformed confidence values out of
+        // telemetry instead of exporting NaN, infinity, or values outside the documented
+        // probability range as if they were measurements.
+        if (Double.isFinite(confidence) && confidence >= 0.0 && confidence <= 1.0) {
+            span.setAttribute("stt.confidence", confidence);
+        }
         if (detectedLanguage != null && !detectedLanguage.isBlank()) {
             span.setAttribute("stt.detected_language", safeLanguage(detectedLanguage));
         }
@@ -264,8 +269,10 @@ public class AudioVideoTracingService {
         if (span == null) {
             return;
         }
-        span.setAttribute("vision.detection_count", detectionCount);
-        if (!Double.isNaN(maxConfidence)) {
+        if (detectionCount >= 0) {
+            span.setAttribute("vision.detection_count", detectionCount);
+        }
+        if (Double.isFinite(maxConfidence) && maxConfidence >= 0.0 && maxConfidence <= 1.0) {
             span.setAttribute("vision.max_confidence", maxConfidence);
         }
     }
