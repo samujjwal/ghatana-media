@@ -8,6 +8,8 @@ import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.audiovideo.observability.instrumentation.AudioVideoGrpcInstrumentation;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.media.tts.api.TtsStreamingSession;
+import com.ghatana.media.tts.api.TtsStreamSink;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.tts.core.grpc.proto.AudioChunk;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
@@ -43,8 +45,13 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -64,23 +71,36 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(TtsGrpcService.class);
     private static final int MAX_TEXT_LENGTH = 5_000;
+    private static final int MAX_STREAM_CHUNK_BYTES = 64 * 1024;
+    private static final long MAX_STREAM_OUTPUT_BYTES = PcmAudioValidator.MAX_AUDIO_BYTES;
 
     private final AudioVideoLibrary library;
     private final Timer synthesizeTimer;
     private final Timer streamingTimer;
     private final AudioVideoGrpcInstrumentation instrumentation;
     private final BooleanSupplier synthesisAdmitted;
+    private final BooleanSupplier streamingAdmitted;
 
     /** Package-private injection constructor for production wrappers, persistence, and tests. */
     TtsGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
-        this(library, metrics, () -> false);
+        this(library, metrics, () -> false, () -> false);
     }
 
     /** Package-private admission seam for isolated provider-boundary tests; production defaults fail closed. */
     TtsGrpcService(AudioVideoLibrary library, MeterRegistry metrics, BooleanSupplier synthesisAdmitted) {
+        this(library, metrics, synthesisAdmitted, () -> false);
+    }
+
+    /** Explicit streaming qualification seam; production composition keeps this false until PCM framing is verified. */
+    TtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            BooleanSupplier synthesisAdmitted,
+            BooleanSupplier streamingAdmitted) {
         this.library = Objects.requireNonNull(library, "library");
         Objects.requireNonNull(metrics, "metrics");
         this.synthesisAdmitted = Objects.requireNonNull(synthesisAdmitted, "synthesisAdmitted");
+        this.streamingAdmitted = Objects.requireNonNull(streamingAdmitted, "streamingAdmitted");
         this.instrumentation = new AudioVideoGrpcInstrumentation(null, new MediaWorkflowMetrics(metrics, "tts"));
         this.synthesizeTimer = Timer.builder("tts.synthesize")
                 .description("Synthesis latency")
@@ -144,15 +164,30 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             StreamObserver<AudioChunk> responseObserver) {
         long startedNanos = System.nanoTime();
         AtomicBoolean cancelled = new AtomicBoolean();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        AtomicBoolean timerRecorded = new AtomicBoolean();
+        Runnable recordDuration = () -> {
+            if (timerRecorded.compareAndSet(false, true)) {
+                streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
+            }
+        };
+        AtomicReference<TtsStreamingSession> activeSession = new AtomicReference<>();
+        Object readinessLock = new Object();
         ServerCallStreamObserver<AudioChunk> serverObserver = serverObserver(responseObserver);
 
         if (serverObserver != null) {
-            serverObserver.setOnCancelHandler(() -> cancelled.set(true));
+            serverObserver.setOnCancelHandler(() -> {
+                cancelled.set(true);
+                sessionCancelled.set(true);
+                synchronized (readinessLock) { readinessLock.notifyAll(); }
+                TtsStreamingSession running = activeSession.get();
+                if (running != null) running.cancel();
+            });
             // The call may already be cancelled before the handler is installed. Check
             // transport state as well so canceled work does not continue into parsing or
             // capability evaluation merely because the callback was not observed here.
             if (cancelled.get() || serverObserver.isCancelled()) {
-                streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
+                recordDuration.run();
                 return;
             }
         }
@@ -161,18 +196,151 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             String text = validateText(request.getText());
             SynthesisControlPolicy.rejectUnqualifiedSsml(text);
             requireAuthorizedVoiceSelection(request);
-            options(request);
+            SynthesisOptions synthesisOptions = options(request);
             if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
-                streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
+                recordDuration.run();
                 return;
             }
-            // No streaming provider has been admitted. Fail before engine lookup/session creation,
-            // so a compatibility or synthetic engine cannot emit partial or final audio.
-            throw new TtsSynthesisEngine.SynthesisException(
-                    "TTS streaming is NOT_ADMITTED: no real streaming provider is configured",
-                    TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+            requireAdmittedVoiceLanguage(synthesisOptions.voiceId(), synthesisOptions.language());
+            requireAdmittedStreamingProvider();
+            if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
+                recordDuration.run();
+                return;
+            }
+            TtsEngine engine = library.getTtsEngine();
+            AtomicBoolean terminal = new AtomicBoolean();
+            AtomicInteger expectedSequence = new AtomicInteger();
+            AtomicBoolean finalChunkSeen = new AtomicBoolean();
+            AtomicLong outputBytes = new AtomicLong();
+            AtomicReference<com.ghatana.media.common.AudioChunk> pendingFinalChunk = new AtomicReference<>();
+            Object chunkLock = new Object();
+            if (serverObserver != null) {
+                serverObserver.setOnReadyHandler(() -> {
+                    synchronized (readinessLock) { readinessLock.notifyAll(); }
+                });
+            }
+            TtsStreamSink sink = new TtsStreamSink() {
+                @Override public boolean isReady() {
+                    return cancelled.get() || serverObserver == null || serverObserver.isReady();
+                }
+                @Override public boolean isCancelled() {
+                    return sessionCancelled.get() || cancelled.get()
+                            || serverObserver != null && serverObserver.isCancelled();
+                }
+                @Override public void awaitReady() throws InterruptedException {
+                    synchronized (readinessLock) {
+                        while (!isReady() && !isCancelled()) readinessLock.wait();
+                    }
+                }
+                @Override public void onChunk(com.ghatana.media.common.AudioChunk chunk) {
+                    if (terminal.get()) return;
+                    try {
+                        synchronized (chunkLock) {
+                            if (isCancelled() || terminal.get()) return;
+                            if (chunk.data().length == 0 || chunk.data().length > MAX_STREAM_CHUNK_BYTES) {
+                                throw new IllegalStateException("TTS stream chunk exceeds the admitted non-empty 64 KiB bound");
+                            }
+                            if (chunk.sequenceNumber() != expectedSequence.getAndIncrement()) {
+                                throw new IllegalStateException("TTS provider returned a non-contiguous chunk sequence");
+                            }
+                            if (finalChunkSeen.get()) {
+                                throw new IllegalStateException("TTS provider emitted audio after its final chunk");
+                            }
+                            long total = outputBytes.addAndGet(chunk.data().length);
+                            if (total > MAX_STREAM_OUTPUT_BYTES) {
+                                throw new IllegalStateException("TTS stream output exceeds the 50 MiB bound");
+                            }
+                            if (chunk.isLast()) {
+                                finalChunkSeen.set(true);
+                                pendingFinalChunk.set(chunk);
+                                return;
+                            }
+                            try {
+                                awaitSinkReady(this);
+                            } catch (InterruptedException interrupted) {
+                                Thread.currentThread().interrupt();
+                                throw new IllegalStateException("TTS stream interrupted while waiting for downstream readiness", interrupted);
+                            }
+                            if (!isCancelled()) responseObserver.onNext(toGrpcChunk(chunk, synthesisOptions, false));
+                        }
+                    } catch (RuntimeException streamFailure) {
+                        TtsStreamingSession running = activeSession.get();
+                        if (!isCancelled() && terminal.compareAndSet(false, true)) {
+                            if (running != null) running.cancel();
+                            fail(responseObserver, "Streaming synthesis", streamFailure);
+                            recordDuration.run();
+                        } else if (running != null) {
+                            running.cancel();
+                        }
+                    }
+                }
+            };
+            TtsStreamingSession session = engine.startStreaming(text, synthesisOptions, sink);
+            activeSession.set(session);
+            if (terminal.get() || cancelled.get() || serverObserver != null && serverObserver.isCancelled()) session.cancel();
+            long timeoutMillis = Math.max(1, synthesisOptions.timeout().toMillis());
+            CompletableFuture.delayedExecutor(timeoutMillis, TimeUnit.MILLISECONDS).execute(() -> {
+                if (!cancelled.get() && (serverObserver == null || !serverObserver.isCancelled())
+                        && terminal.compareAndSet(false, true)) {
+                    if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
+                        recordDuration.run();
+                        return;
+                    }
+                    sessionCancelled.set(true);
+                    synchronized (readinessLock) { readinessLock.notifyAll(); }
+                    session.cancel();
+                    fail(responseObserver, "Streaming synthesis", new TtsStreamTimeoutException());
+                    recordDuration.run();
+                }
+            });
+            session.completion().whenComplete((ignored, failure) -> {
+                Thread.startVirtualThread(() -> {
+                    if (terminal.get()) return;
+                    if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
+                        if (terminal.compareAndSet(false, true)) {
+                            recordDuration.run();
+                        }
+                        return;
+                    }
+                    if (failure != null) {
+                        Throwable cause = failure instanceof CompletionException && failure.getCause() != null
+                                ? failure.getCause() : failure;
+                        if (terminal.compareAndSet(false, true)) {
+                            fail(responseObserver, "Streaming synthesis", cause instanceof RuntimeException runtime
+                                    ? runtime : new IllegalStateException("TTS streaming provider failed", cause));
+                            recordDuration.run();
+                        }
+                    } else if (!finalChunkSeen.get() || pendingFinalChunk.get() == null) {
+                        if (terminal.compareAndSet(false, true)) {
+                            fail(responseObserver, "Streaming synthesis",
+                                    new IllegalStateException("TTS stream completed without a provider final chunk"));
+                            recordDuration.run();
+                        }
+                    } else {
+                        try {
+                            awaitSinkReady(sink);
+                            if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
+                                responseObserver.onNext(toGrpcChunk(pendingFinalChunk.get(), synthesisOptions, true));
+                                responseObserver.onCompleted();
+                            }
+                        } catch (InterruptedException interrupted) {
+                            Thread.currentThread().interrupt();
+                            if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
+                                fail(responseObserver, "Streaming synthesis",
+                                        new IllegalStateException("TTS stream interrupted before final delivery", interrupted));
+                            }
+                        } catch (RuntimeException finalDeliveryFailure) {
+                            if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
+                                fail(responseObserver, "Streaming synthesis", finalDeliveryFailure);
+                            }
+                        }
+                        recordDuration.run();
+                    }
+                });
+            });
+            return;
         } catch (RuntimeException exception) {
-            streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
+            recordDuration.run();
             if (!cancelled.get() && (serverObserver == null || !serverObserver.isCancelled())) {
                 fail(responseObserver, "Streaming synthesis", exception);
             }
@@ -317,6 +485,29 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
     }
 
+    private void requireAdmittedStreamingProvider() {
+        if (streamingAdmitted.getAsBoolean()) return;
+        throw new TtsSynthesisEngine.SynthesisException(
+                "TTS streaming is NOT_ADMITTED: no provider has verified mono PCM S16LE framing, sample rate, cancellation and finality",
+                TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+    }
+
+    private static void awaitSinkReady(TtsStreamSink sink) throws InterruptedException {
+        while (!sink.isReady() && !sink.isCancelled()) sink.awaitReady();
+    }
+
+    private static AudioChunk toGrpcChunk(
+            com.ghatana.media.common.AudioChunk chunk,
+            SynthesisOptions options,
+            boolean isFinal) {
+        return AudioChunk.newBuilder()
+                .setAudioData(com.google.protobuf.ByteString.copyFrom(chunk.data()))
+                .setSampleRate(options.sampleRate())
+                .setTimestampMs(chunk.timestampMs())
+                .setIsFinal(isFinal)
+                .build();
+    }
+
     private static PcmAudioValidator.PcmFacts validatePcm16Output(
             AudioData audio, AudioFormat requestedFormat, int requestedSampleRate) {
         if (requestedFormat != AudioFormat.PCM) {
@@ -367,6 +558,8 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             status = Status.INVALID_ARGUMENT;
         } else if (exception instanceof UnsupportedOperationException) {
             status = Status.UNIMPLEMENTED;
+        } else if (exception instanceof TtsStreamTimeoutException) {
+            status = Status.DEADLINE_EXCEEDED;
         } else if (exception instanceof IllegalStateException) {
             status = Status.FAILED_PRECONDITION;
         } else {
@@ -378,8 +571,15 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             case INVALID_ARGUMENT -> "Invalid TTS synthesis request";
             case UNIMPLEMENTED -> "TTS_NOT_ADMITTED: requested TTS capability is unsupported";
             case FAILED_PRECONDITION -> "TTS synthesis preconditions are not met";
+            case DEADLINE_EXCEEDED -> "TTS streaming deadline exceeded";
             default -> "TTS synthesis failed";
         };
         responseObserver.onError(status.withDescription(description).asRuntimeException());
+    }
+
+    private static final class TtsStreamTimeoutException extends RuntimeException {
+        private TtsStreamTimeoutException() {
+            super("TTS stream deadline exceeded");
+        }
     }
 }

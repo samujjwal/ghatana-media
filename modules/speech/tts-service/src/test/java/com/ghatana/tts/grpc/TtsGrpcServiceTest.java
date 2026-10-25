@@ -2,6 +2,8 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.media.tts.api.TtsStreamSink;
+import com.ghatana.media.tts.api.TtsStreamingSession;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
@@ -40,6 +42,8 @@ import java.util.List;
 import java.util.Locale;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -347,6 +351,121 @@ class TtsGrpcServiceTest {
         verify(observer, never()).onCompleted();
         verify(observer, never()).onError(any());
         verify(library, never()).getTtsEngine();
+    }
+
+    @Test
+    void admittedStreamWaitsForObserverReadinessAndPreservesProviderFinalChunk() throws Exception {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
+        AtomicReference<Runnable> readyHandler = new AtomicReference<>();
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        when(observer.isReady()).thenReturn(false, false, true, true);
+        doAnswer(invocation -> { readyHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnReadyHandler(any(Runnable.class));
+        doAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sinkRef.set(sink);
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            return TtsStreamingSession.create(new AtomicBoolean(), completion);
+        }).when(engine).startStreaming(anyString(), any(), any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        assertThat(sinkRef.get()).isNotNull();
+        Thread producer = Thread.startVirtualThread(() -> {
+            sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 6));
+            sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 1, true, 7));
+        });
+        Thread.sleep(30);
+        verify(observer, never()).onNext(any());
+        when(observer.isReady()).thenReturn(true);
+        readyHandler.get().run();
+        producer.join(1_000);
+        assertThat(producer.isAlive()).isFalse();
+        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk ->
+                chunk.getAudioData().toByteArray()[0] == 1 && !chunk.getIsFinal()));
+        completionRef.get().complete(null);
+        org.mockito.InOrder ordered = org.mockito.Mockito.inOrder(observer);
+        ordered.verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk ->
+                chunk.getAudioData().toByteArray()[0] == 1 && !chunk.getIsFinal()));
+        ordered.verify(observer, org.mockito.Mockito.timeout(1_000)).onNext(org.mockito.ArgumentMatchers.argThat(chunk ->
+                chunk.getAudioData().toByteArray()[0] == 3
+                        && chunk.getTimestampMs() == 7 && chunk.getIsFinal()));
+        verify(observer, org.mockito.Mockito.timeout(1_000)).onCompleted();
+    }
+
+    @Test
+    void admittedStreamCancellationCancelsSessionAndSuppressesFurtherChunks() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        doAnswer(invocation -> { cancelHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnCancelHandler(any(Runnable.class));
+        doAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            TtsStreamingSession session = TtsStreamingSession.create(sessionCancelled, completion);
+            return session;
+        }).when(engine).startStreaming(anyString(), any(), any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        cancelHandler.get().run();
+        assertThat(sessionCancelled).isTrue();
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1}, 0, true, 1));
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).onError(any());
+    }
+
+    @Test
+    void productionStreamingRemainsNotAdmittedWithoutProviderBytes() {
+        try (ProductionTtsGrpcService production = new ProductionTtsGrpcService(library, registry)) {
+            CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+            production.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+            assertStatus(observer, Status.Code.UNAVAILABLE);
+            assertThat(observer.value).isNull();
+            assertThat(observer.completed).isFalse();
+        }
+        verify(library, never()).getTtsEngine();
+    }
+
+    @Test
+    void admittedStreamStartFailureReturnsTerminalError() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        when(engine.startStreaming(anyString(), any(), any()))
+                .thenThrow(new IllegalStateException("controlled start failure"));
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+    }
+
+    @Test
+    void admittedStreamChunkValidationFailureReturnsTerminalErrorAndCancelsSession() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(
+                    new byte[64 * 1024 + 1], 0, false, 0));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        assertThat(sessionCancelled).isTrue();
     }
 
     @Test
