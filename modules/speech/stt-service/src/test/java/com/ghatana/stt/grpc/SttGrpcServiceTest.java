@@ -191,8 +191,8 @@ class SttGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("transcribe reports compressed formats as not admitted")
-    void transcribe_flac_returnsFailedPrecondition() {
+    @DisplayName("transcribe rejects truncated FLAC headers as invalid input")
+    void transcribe_truncatedFlacHeader_returnsInvalidArgument() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
         service.transcribe(TranscribeRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(new byte[] {'f', 'L', 'a', 'C', 0, 0}))
@@ -201,8 +201,8 @@ class SttGrpcServiceTest {
 
         assertThat(observer.hasError()).isTrue();
         StatusRuntimeException error = (StatusRuntimeException) observer.getError();
-        assertThat(error.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
-        assertThat(error.getStatus().getDescription()).isEqualTo("Audio input format is not admitted");
+        assertThat(error.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(error.getStatus().getDescription()).isEqualTo("Invalid audio input");
         verifyNoInteractions(mockEngine);
     }
 
