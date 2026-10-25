@@ -716,6 +716,30 @@ class SttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("submitCorrection never accepts correction input without a transcript revision or expected-version CAS")
+    void submitCorrection_doesNotFabricateSuccessForPopulatedRequest() {
+        CapturingObserver<CorrectionResponse> observer = new CapturingObserver<>();
+        CorrectionRequest request = CorrectionRequest.newBuilder()
+                .setOriginalText("recognized words")
+                .setCorrectedText("corrected words")
+                .setProfileId("profile-1")
+                .setContextId("context-1")
+                .setAudioFeatures(ByteString.copyFrom(new byte[] {1, 2, 3}))
+                .build();
+
+        runWithTenantContext(() -> service.submitCorrection(request, observer));
+
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(failure.getStatus().getDescription())
+                .startsWith("STT_CORRECTION_NOT_ADMITTED:")
+                .contains("immutable transcript revision store", "expected-version CAS");
+        assertThat(observer.getValue()).isNull();
+        verify(mockLibrary, never()).getSttEngine();
+    }
+
+    @Test
     @DisplayName("sensitive write RPCs return UNAUTHENTICATED before admission checks when identity is missing")
     void sensitiveWritesRequireIdentityBeforeCapabilityAdmission() {
         assertSensitiveWriteRpcStatus(Status.UNAUTHENTICATED, this::invokeSensitiveWriteRpcs);
