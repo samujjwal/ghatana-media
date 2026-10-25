@@ -55,6 +55,21 @@ tasks.test {
     }
 }
 
+// A JavaExec host gives the process-boundary fixture an explicit, Gradle-resolved
+// runtime classpath. The fixture passes that same path to MediaLauncher children;
+// it does not depend on Gradle Test worker classloader internals or nested builds.
+val integrationTestRuntimeClasspath = sourceSets.named("test").get().runtimeClasspath
+tasks.register<JavaExec>("postgresWorkflowProcessRestart") {
+    group = "verification"
+    description = "Verify PostgreSQL-backed Media metrics across separate launcher processes"
+    dependsOn(tasks.named("testClasses"))
+    classpath = integrationTestRuntimeClasspath
+    mainClass.set("com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT")
+    doFirst {
+        systemProperty("media.child.classpath", integrationTestRuntimeClasspath.asPath)
+    }
+}
+
 // Test-only module: no compiled main classes exist, so there is no public API surface to verify.
 tasks.named("verifyIntentionalPublicApi") {
     onlyIf { layout.buildDirectory.dir("classes/java/main").get().asFile.isDirectory }

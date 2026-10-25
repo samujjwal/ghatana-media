@@ -32,7 +32,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 /** Runtime scrape proof for durable workflow metrics after PostgreSQL-backed restart. */
 @Testcontainers(disabledWithoutDocker = true)
 @Tag("integration")
-class MediaRuntimePostgresWorkflowMetricsIT {
+public class MediaRuntimePostgresWorkflowMetricsIT {
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
             DockerImageName.parse("postgres:16-alpine"));
@@ -40,6 +40,25 @@ class MediaRuntimePostgresWorkflowMetricsIT {
     @Container
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
+
+    /** Entry point used by the Gradle JavaExec task to keep a resolved classpath for child JVMs. */
+    public static void main(String[] args) throws Exception {
+        boolean postgresStarted = false;
+        boolean localstackStarted = false;
+        try {
+            POSTGRES.start();
+            postgresStarted = true;
+            LOCALSTACK.start();
+            localstackStarted = true;
+            new MediaRuntimePostgresWorkflowMetricsIT().separateLauncherProcessesScrapeDurableMetrics();
+        } finally {
+            try {
+                if (localstackStarted) LOCALSTACK.stop();
+            } finally {
+                if (postgresStarted) POSTGRES.stop();
+            }
+        }
+    }
 
     @Test
     void restartedRuntimeScrapesDurableBacklogAndExpiredLeaseMetrics() throws Exception {
@@ -104,6 +123,159 @@ class MediaRuntimePostgresWorkflowMetricsIT {
         assertThat(rules).contains("MediaQueueCapacityHigh",
                         "media_workflow_queue_depth{contract_version=\"v1\"}").contains(") > 500");
     }
+
+    private void separateLauncherProcessesScrapeDurableMetrics() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-wf-process-" + runId;
+        try (S3Client s3 = s3()) {
+            s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        int port;
+        try (var socket = new java.net.ServerSocket(0)) {
+            port = socket.getLocalPort();
+        }
+        Map<String, String> environment = environment(bucket);
+        environment.put("MEDIA_HTTP_PORT", Integer.toString(port));
+        String classpath = System.getProperty("media.child.classpath", "");
+        assertThat(classpath).as("Gradle-resolved child application classpath").isNotBlank();
+
+        long firstPid;
+        LauncherChild first = startLauncherProcess(classpath, environment);
+        try {
+            awaitReady(first.process(), port);
+            firstPid = first.process().pid();
+        } finally {
+            stopLauncherProcess(first);
+        }
+
+        AutoCloseable installed = TestAwsStateInstall.install(environment);
+        try {
+            try (var seed = new com.ghatana.media.provider.aws.PostgresqlMediaJobStore()) {
+                seed.create(job("unknown-" + runId, "tenant-u-" + runId, JobStatus.OUTCOME_UNKNOWN));
+                ProcessingJob running = job("running-" + runId, "tenant-r-" + runId, JobStatus.ACCEPTED);
+                seed.create(running);
+                ProcessingJob leased = seed.startAttempt(
+                        running, "worker-crashed", Instant.now().plusSeconds(30), "provider-local").job();
+                expireJobLease(leased);
+                seedExpiredOutboxClaim(runId);
+
+                LauncherChild restarted = startLauncherProcess(classpath, environment);
+                try {
+                    awaitReady(restarted.process(), port);
+                    long restartedPid = restarted.process().pid();
+                    assertThat(restartedPid).isNotEqualTo(firstPid);
+
+                    // Seed after startup so the queue row and second expired lease are not
+                    // consumed by startup reconciliation before the metrics scrape.
+                    seed.create(job("scrape-accepted-" + runId, "tenant-s-" + runId, JobStatus.ACCEPTED));
+                    ProcessingJob liveLease = job(
+                            "live-lease-" + runId, "tenant-l-" + runId, JobStatus.ACCEPTED);
+                    seed.create(liveLease);
+                    ProcessingJob liveRunning = seed.startAttempt(
+                            liveLease, "worker-live-lease", Instant.now().plusSeconds(5), "provider-local").job();
+                    expireJobLease(liveRunning);
+
+                    String scrape = httpGet("http://127.0.0.1:" + port + "/metrics");
+                    double queue = metric(scrape, "media_workflow_queue_depth");
+                    double unknown = metric(scrape, "media_workflow_unknown_backlog");
+                    double leases = metric(scrape, "media_workflow_lease_overdue");
+                    double outbox = metric(scrape, "media_workflow_outbox_lease_overdue");
+                    double storeSupported = metric(scrape, "media_workflow_aggregate_store_queries_supported");
+                    double outboxSupported = metric(scrape, "media_workflow_outbox_aggregate_store_queries_supported");
+                    assertThat(queue).as(scrape).isEqualTo(1.0);
+                    assertThat(unknown).isEqualTo(2.0);
+                    assertThat(leases).isEqualTo(1.0);
+                    assertThat(outbox).isEqualTo(1.0);
+                    assertThat(storeSupported).isEqualTo(1.0);
+                    assertThat(outboxSupported).isEqualTo(1.0);
+                    assertThat(jobStatus(liveRunning)).isEqualTo("RUNNING");
+                    assertThat(scrape).doesNotContain(runId, "tenant-", "job_id", "request_id");
+                    System.out.printf("OS process restart verified: first_pid=%d restarted_pid=%d "
+                                    + "queue=%.0f unknown_backlog=%.0f overdue_job_lease=%.0f "
+                                    + "overdue_outbox_claim=%.0f store_queries_supported=%.0f "
+                                    + "outbox_queries_supported=%.0f%n",
+                            firstPid, restartedPid, queue, unknown, leases, outbox,
+                            storeSupported, outboxSupported);
+                } finally {
+                    stopLauncherProcess(restarted);
+                }
+            }
+        } finally {
+            installed.close();
+        }
+    }
+
+    private static LauncherChild startLauncherProcess(String classpath, Map<String, String> environment)
+            throws Exception {
+        String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
+        ProcessBuilder builder = new ProcessBuilder(java, "-cp", classpath,
+                "com.ghatana.media.launcher.MediaLauncher");
+        builder.environment().putAll(environment);
+        builder.redirectErrorStream(true);
+        Path log = Files.createTempFile("media-runtime-process-", ".log");
+        try {
+            builder.redirectOutput(log.toFile());
+            return new LauncherChild(builder.start(), log);
+        } catch (Exception failure) {
+            Files.deleteIfExists(log);
+            throw failure;
+        }
+    }
+
+    private static void awaitReady(Process process, int port) throws Exception {
+        long deadline = System.nanoTime() + java.time.Duration.ofMinutes(2).toNanos();
+        java.net.URI uri = java.net.URI.create("http://127.0.0.1:" + port + "/health/ready");
+        java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                .connectTimeout(java.time.Duration.ofSeconds(2))
+                .build();
+        while (System.nanoTime() < deadline) {
+            if (!process.isAlive()) {
+                throw new AssertionError("MediaLauncher child exited before readiness (exit="
+                        + process.exitValue() + ")");
+            }
+            try {
+                var response = client.send(java.net.http.HttpRequest.newBuilder(uri)
+                                .timeout(java.time.Duration.ofSeconds(3)).GET().build(),
+                        java.net.http.HttpResponse.BodyHandlers.discarding());
+                if (response.statusCode() == 200) return;
+            } catch (java.io.IOException ignored) {
+                // Startup is still binding its local listener.
+            }
+            Thread.sleep(250);
+        }
+        throw new AssertionError("MediaLauncher child did not become ready within two minutes");
+    }
+
+    private static String httpGet(String url) throws Exception {
+        var client = java.net.http.HttpClient.newBuilder()
+                .connectTimeout(java.time.Duration.ofSeconds(2))
+                .build();
+        var request = java.net.http.HttpRequest.newBuilder(java.net.URI.create(url))
+                .timeout(java.time.Duration.ofSeconds(5))
+                .header("Accept", "text/plain; version=0.0.4")
+                .GET()
+                .build();
+        var response = client.send(request,
+                java.net.http.HttpResponse.BodyHandlers.ofString());
+        assertThat(response.statusCode()).isEqualTo(200);
+        return response.body();
+    }
+
+    private static void stopLauncherProcess(LauncherChild child) throws Exception {
+        try {
+            Process process = child.process();
+            if (!process.isAlive()) return;
+            process.destroy();
+            if (!process.waitFor(20, java.util.concurrent.TimeUnit.SECONDS)) {
+                process.destroyForcibly();
+                assertThat(process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+            }
+        } finally {
+            Files.deleteIfExists(child.log());
+        }
+    }
+
+    private record LauncherChild(Process process, Path log) {}
 
     private static double metric(String scrape, String name) {
         return scrape.lines().filter(line -> line.startsWith(name + "{") || line.startsWith(name + " "))
