@@ -582,9 +582,9 @@ The bounded resource fixture recorded a local-test-workload-no-provider profile 
 | TTS | TTS-01, TTS-02, TTS-04, TTS-11 | TTS-03, TTS-05, TTS-06, TTS-08, TTS-09, TTS-10 | TTS-07, TTS-12 |
 | Vision | VIS-01, VIS-03, VIS-04, VIS-11 | VIS-05, VIS-06, VIS-07, VIS-08, VIS-09, VIS-10 | VIS-02, VIS-12 |
 | Multimodal | MM-01, MM-04, MM-07, MM-11 | MM-02, MM-03, MM-05, MM-06, MM-09, MM-10 | MM-12 |
-| Observability | OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-09, OBS-10 | OBS-06, OBS-07, OBS-08 | — |
+| Observability | OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06, OBS-09, OBS-10 | OBS-07, OBS-08 | — |
 
-MM-08 is the single SOURCE_CONFLICT. Total remains **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, 1 SOURCE_CONFLICT (58)**. LOCALLY_VERIFIED applies only to the bounded acceptance described for each task, not the physical surface. W2-E09 remains complete for the local 43-RPC contract matrix; W2-E01..08 and W2-E10..12 remain incomplete because their real effects, provider quality, durable readback, restart/fault, alert-evaluation or operational conditions are not established.
+MM-08 is the single SOURCE_CONFLICT. Current total: **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, 1 SOURCE_CONFLICT (58)**. LOCALLY_VERIFIED applies only to the bounded acceptance described for each task, not the physical surface. W2-E09 remains complete for the local 43-RPC contract matrix; W2-E01..08 and W2-E10..12 remain incomplete because their real effects, provider quality, durable readback, integrated failure/finality or operational conditions are not established. OBS-06 now has separate-process restart and local rule-evaluation evidence; it does not close W2-E12.
 
 The remaining external tasks are STT-12 (admitted model, real WER/CER and runtime/performance profile), TTS-07/TTS-12 (authorized real speech output, decoding/format checks and provider performance), VIS-02/VIS-12 (trusted signed model/license admission, positive model-quality and native-resource evidence), and MM-12 (real STT+Vision composed source-grounded results with quality corpus and measured temporal alignment). No GH-90000 skipped compose test was relabeled as pass; Track B lifecycle/PDP closure, production data/worker cutover and the Shared build-logic handoff remain separately owned. No formal acceptance, deployment or release is claimed.
 
