@@ -6,7 +6,8 @@
 
 The owner directs **backend-first implementation now**. The current PDP-0 (Product Truth), PDP-1 (Domain/Data), PDP-2 (Interface/Design) and PDP-3 (Complete Experience) source materials are usable as implementation requirements **even when their formalization, source-current projection, exact mapping, native gtool integration, readiness or closure is unfinished**. Treat the described capabilities as product intent. Start with the granular backend foundation execution slice at:
 
-- docs/implementation/MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md
+- docs/implementation/MEDIA-BACKEND-FOUNDATION-DEEP-IMPLEMENTATION-2026-10-24.md (first five contract/security/storage/job/event foundations)
+- docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md (next five Media physical surfaces: STT/TTS/Vision/Multimodal/observability, 58 tasks; 99 PDP capability memberships; 43 source gRPC RPCs; source-gated real quality)
 - docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md (the full canonical Build plan; current execution location is corrected by the focused slice and the owner addendum within that plan).
 
 **Default action: inspect and implement in `ghatana-media` (not `ghatana/services/media`), test, integrate and report the changed unit. Do not request another routine approval, stop for an incomplete PDP checklist, or block engineering on a gtool host, receipt, stage transition, independent reviewer, unavailable service, or unrelated surface.** Work can start immediately on contracts, safety tests, adapters, performance harnesses and deterministic local integration. Use issue/task handoffs only for real missing semantics or external admission. Avoid generating a new planning proposal when the next implementable task is known.
@@ -57,7 +58,11 @@ Assume that planned features belong to the product even if they are not fully fo
 - **Execution control:** all Media-specific source writes land on **`ghatana-media/main`**; never patch the old `ghatana/services/media` runtime as a workaround. Main branch only where owner directs; preserve other work, never force push; one writer for each edited shared path. Small commits with current tests. GitHub CI, all-repository PDP closure, or a remote gtool service are not a prerequisite for focused local backend tests. Do not claim an unfiltered full build when tasks or modules were excluded.
 - **Avoid loops:** reuse unchanged test results where inputs have not changed; rerun affected modules/contracts when they have; stop planning expansions when executable backlog is available. No arbitrary full campaign restart for a changed leaf.
 
-## 5. Logical completion standard for each of the five backend packages
+## 5. Logical completion standard for a selected backend package
+
+**Next five-surface Wave 2:** Apply the same actual-implementation, negative/fault/performance and real-provider-qualification tests to the five additional surfaces and 58 tasks in `docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md`. Do not infer a service's complete PDP capability from a typed NOT_ADMITTED fallback or a synthetic model. GH-90000 image-gated skipped tests, Checkstyle warnings, Track B stages and live legacy cutover are separately tracked residuals. Do not convert their skips to PASS or stop unrelated code implementation. The Shared `VerifyIntentionalPublicApiTask` NO-SOURCE issue is an owning-repository handoff; preserve targeted safe Media test-only workaround without disabling public API governance for publishable modules.
+
+
 
 For the selected package, require all of:
 1. Its declared feature/function scope is coded and reachable through the selected canonical runtime or a correctly exposed public SPI, **not just DTOs/proposals/stubs**.

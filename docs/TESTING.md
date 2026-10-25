@@ -4,6 +4,12 @@
 
 > This guide describes test practices and does not report current PDP status or product meaning. Consult the [PDP source index](../.product-experience/README.md) for phase-owned definitions and live source-pinned status. No Media application has been released.
 
+## Next five-surface backend conformance (implementation Wave 2)
+
+See [the five-modality/observability execution plan](implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md) for exact STT/TTS/Vision/Multimodal/observability module test commands, 43 RPCs, 99 PDP-0 capability memberships and 12 real/fault/quality scenarios. For source-only plan parity, run `pnpm test:backend-modality-wave2-plan`. Gradle in-process module tests and deterministic negative assertions run independently of the external Docker Compose images.
+
+**GH-90000 is an operational integration-test residual:** previously reported nine compose-stack tests skipped with explicit reason until pinned STT/TTS images are built/published or `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE` are supplied. The image-gated assertions are NOT VERIFIED by green in-process tests; re-run when images and Docker/test provider admission are available. Warn-level Checkstyle is tracked separately; formal gtool/PDP native closure, live deployed writer cutover and Shared convention `VerifyIntentionalPublicApiTask` NO-SOURCE bug are not part of Wave 2 package completion.
+
 ## Scope and intent
 
 The active Media test surface covers runtime contracts, artifact upload and
