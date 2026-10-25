@@ -5,9 +5,11 @@ import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
 import com.ghatana.testing.activej.EventloopTestBase;
 import com.ghatana.tts.grpc.PersistentTtsGrpcService;
-import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
+import com.ghatana.tts.core.grpc.proto.CloneOptions;
+import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
+import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.common.AudioData;
@@ -285,6 +287,37 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
         assertThat(exception.getStatus().getDescription()).contains("TTS_NOT_ADMITTED");
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
         verify(ttsEngine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("GIVEN authenticated populated clone request without rights authority WHEN cloneVoice THEN NOT_ADMITTED without effects or input leakage")
+    void populatedCloneVoiceWithoutAdmission_failsClosedWithoutEffectsOrLeakage() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
+        String voiceMarker = "private-voice-profile-marker-7f31";
+        String sampleMarker = "sensitive-clone-audio-sample-marker-2c94";
+
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+
+        CloneVoiceRequest request = CloneVoiceRequest.newBuilder()
+                .setVoiceName(voiceMarker)
+                .addAudioSamples(com.google.protobuf.ByteString.copyFrom(
+                        sampleMarker.getBytes(StandardCharsets.UTF_8)))
+                .setOptions(CloneOptions.newBuilder().setFineTuneEpochs(3).setLearningRate(0.01f).build())
+                .build();
+
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+                io.grpc.StatusRuntimeException.class,
+                () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).cloneVoice(request));
+
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNIMPLEMENTED);
+        assertThat(exception.getStatus().getDescription())
+                .contains("Voice cloning is NOT_ADMITTED")
+                .doesNotContain(voiceMarker)
+                .doesNotContain(sampleMarker);
+        verifyNoInteractions(audioFileService, ttsEngine);
+        verify(library, never()).getTtsEngine();
     }
 
     // Helper methods
