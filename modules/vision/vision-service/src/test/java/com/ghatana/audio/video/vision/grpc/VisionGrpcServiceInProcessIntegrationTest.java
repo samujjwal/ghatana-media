@@ -4,6 +4,10 @@ import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.vision.detection.VisionDetector;
 import com.ghatana.audio.video.vision.grpc.proto.DetectRequest;
 import com.ghatana.audio.video.vision.grpc.proto.DetectResponse;
+import com.ghatana.audio.video.vision.grpc.proto.AnalyzeRequest;
+import com.ghatana.audio.video.vision.grpc.proto.ClassifyRequest;
+import com.ghatana.audio.video.vision.grpc.proto.StatusRequest;
+import com.ghatana.audio.video.vision.grpc.proto.HealthCheckRequest;
 import com.ghatana.audio.video.vision.grpc.proto.VisionServiceGrpc;
 import com.ghatana.audio.video.vision.model.BoundingBox;
 import com.ghatana.audio.video.vision.model.DetectedObject;
@@ -34,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -61,6 +67,7 @@ class VisionGrpcServiceInProcessIntegrationTest {
 
     private Server server;
     private ManagedChannel channel;
+    private VisionDetector detector;
 
     @AfterEach
     void tearDown() {
@@ -74,7 +81,7 @@ class VisionGrpcServiceInProcessIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        VisionDetector detector = mock(VisionDetector.class);
+        detector = mock(VisionDetector.class);
         VideoFrameExtractor frameExtractor = mock(VideoFrameExtractor.class);
 
         when(detector.detectObjects(any(byte[].class), any(DetectionOptions.class))).thenReturn(List.of(
@@ -102,7 +109,7 @@ class VisionGrpcServiceInProcessIntegrationTest {
     }
 
     @Test
-    @DisplayName("detectObjects returns mapped detections over gRPC transport")
+    @DisplayName("maps detector test-double output over transport without model qualification")
     void detectObjectsOverGrpc() {
         VisionServiceGrpc.VisionServiceBlockingStub stub = VisionServiceGrpc.newBlockingStub(channel);
 
@@ -125,5 +132,41 @@ class VisionGrpcServiceInProcessIntegrationTest {
         assertThatThrownBy(() -> stub.detectObjects(DetectRequest.newBuilder().build()))
             .isInstanceOf(StatusRuntimeException.class)
             .matches(ex -> ((StatusRuntimeException) ex).getStatus().getCode() == Status.INVALID_ARGUMENT.getCode());
+    }
+
+    @Test
+    @DisplayName("initialized test double never establishes admitted service readiness over gRPC")
+    void readinessRemainsNotAdmittedOverGrpc() {
+        VisionServiceGrpc.VisionServiceBlockingStub stub = VisionServiceGrpc.newBlockingStub(channel);
+
+        var status = stub.getStatus(StatusRequest.getDefaultInstance());
+        assertThat(status.getStatus()).isEqualTo("not_admitted");
+        assertThat(status.getModelName()).isEqualTo("UNAVAILABLE");
+        assertThat(status.getDegradedReason()).isEqualTo("PROVIDER_NOT_ADMITTED");
+
+        var health = stub.healthCheck(HealthCheckRequest.getDefaultInstance());
+        assertThat(health.getHealthy()).isFalse();
+        assertThat(health.getMessage()).contains("NOT_ADMITTED");
+        verify(detector, never()).isInitialized();
+    }
+
+    @Test
+    @DisplayName("scene analysis and classification stay unavailable over gRPC without detector dispatch")
+    void sceneAnalysisAndClassificationRemainUnavailableOverGrpc() {
+        VisionServiceGrpc.VisionServiceBlockingStub stub = VisionServiceGrpc.newBlockingStub(channel);
+        ByteString validTestPayload = ByteString.copyFrom(new byte[]{0x01, 0x02});
+
+        assertThatThrownBy(() -> stub.analyzeImage(AnalyzeRequest.newBuilder()
+                .setImageData(validTestPayload).build()))
+                .isInstanceOf(StatusRuntimeException.class)
+                .matches(failure -> ((StatusRuntimeException) failure).getStatus().getCode()
+                        == Status.UNIMPLEMENTED.getCode());
+        assertThatThrownBy(() -> stub.classifyImage(ClassifyRequest.newBuilder()
+                .setImageData(validTestPayload).build()))
+                .isInstanceOf(StatusRuntimeException.class)
+                .matches(failure -> ((StatusRuntimeException) failure).getStatus().getCode()
+                        == Status.UNIMPLEMENTED.getCode());
+
+        verify(detector, never()).detectObjects(any(byte[].class), any(DetectionOptions.class));
     }
 }
