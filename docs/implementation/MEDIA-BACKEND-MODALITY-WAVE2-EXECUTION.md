@@ -822,7 +822,7 @@ The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/
 
 ### Incremental execution record — 2026-10-25 (seventeenth round)
 
-Two focused local commits follow the sixteenth-round cut: `3381943` and `d01b61e`. The 58-task denominator, source bindings and formal lifecycle boundary are unchanged. This round adds a bounded Vision camera-motion candidate and strengthens the authenticated TTS voice-cloning refusal path; neither change qualifies a model/provider or enables a real clone effect.
+The source changes are recorded in focused local commits `3381943` and `d01b61e`. The 58-task denominator, source bindings and formal lifecycle boundary are unchanged. This round adds a bounded Vision camera-motion candidate and strengthens the authenticated TTS voice-cloning refusal path; neither change qualifies a model/provider or enables a real clone effect.
 
 **Owner decision on provider admission (2026-10-25):** The user delegated the implementation choice for missing provider/rights inputs. `config/provider-manifest.json` declares STT and TTS `NOT_ADMITTED` and leaves model identity, digest, license, region and related profile data unset; this checkout contains no local model weights. PDP-1 `states.yaml` defines claimant rights as unverified and non-authorizing, and requires trusted consent for the exact tenant, principal, purpose, region and validity at each effect boundary. Therefore production provider effects remain `NOT_ADMITTED`; synthetic fixtures remain test-only. This resolves the implementation assumption without inventing provider qualification, third-party license evidence, a consent record, or immutable artifact/version authority.
 
