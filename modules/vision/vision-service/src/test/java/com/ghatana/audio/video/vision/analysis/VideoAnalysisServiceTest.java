@@ -222,18 +222,28 @@ class VideoAnalysisServiceTest {
         var timestamp = SourceMediaTimestamp.fromPts("90000", "1/90000");
         List<DetectedObject> detections = new java.util.ArrayList<>(List.of(
                 buildDetection("person", 0.9, 1, 2, 3, 4)));
-        List<Integer> trackIds = new java.util.ArrayList<>();
+        List<Integer> trackIds = new java.util.ArrayList<>(List.of(7));
         var observation = new VideoAnalysisService.FrameDetections(
                 2, timestamp.timestampMs(), timestamp, detections, trackIds);
 
         detections.clear();
-        trackIds.add(7);
+        trackIds.clear();
         assertThat(observation.detections()).hasSize(1);
-        assertThat(observation.trackIds()).isEmpty();
+        assertThat(observation.trackIds()).containsExactly(7);
         assertThatThrownBy(() -> new VideoAnalysisService.FrameDetections(
                 -1, timestamp.timestampMs(), timestamp, List.of(), List.of()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("non-negative emitted-frame ordinal");
+        assertThatThrownBy(() -> new VideoAnalysisService.FrameDetections(
+                0, timestamp.timestampMs(), timestamp,
+                List.of(buildDetection("person", 0.9, 1, 2, 3, 4)), List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exactly one track ID");
+        assertThatThrownBy(() -> new VideoAnalysisService.FrameDetections(
+                0, timestamp.timestampMs(), timestamp,
+                List.of(buildDetection("person", 0.9, 1, 2, 3, 4)), List.of(0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("positive and unique");
     }
 
     @Test
@@ -246,6 +256,29 @@ class VideoAnalysisServiceTest {
                 SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING").timestampMs(),
                 SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING"), List.of(), List.of()));
         assertThat(result.frameDetections()).isEmpty();
+        assertThatThrownBy(() -> new VideoAnalysisResult("clip.mp4", java.time.Instant.EPOCH,
+                1, 0, List.of(), java.time.Duration.ZERO, "HEURISTIC_UNCALIBRATED"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("counts must match");
+    }
+
+    @Test
+    void rationalClockEqualityAndUnknownPtsDoNotBridgeHeuristicTrackEpochs() throws IOException {
+        Path a = tempDir.resolve("clock-a.jpg"), b = tempDir.resolve("clock-b.jpg"), c = tempDir.resolve("clock-c.jpg");
+        Files.write(a, new byte[] {1}); Files.write(b, new byte[] {2}); Files.write(c, new byte[] {3});
+        Path video = tempDir.resolve("clock-epochs.mp4"); Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(a, SourceMediaTimestamp.fromPts("90000", "1/90000"), 0),
+                new VideoFrameExtractor.ExtractedFrame(b, SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING"), 1),
+                new VideoFrameExtractor.ExtractedFrame(c, SourceMediaTimestamp.fromPts("2", "1/2"), 2)));
+        when(detector.detectObjects(any(), any())).thenReturn(
+                List.of(buildDetection("person", 0.9, 0, 0, 10, 10)));
+
+        var result = service.analyze(video, VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        assertThat(result.frameDetections()).extracting(d -> d.timestampMs()).containsExactly(1000L, null, 1000L);
+        assertThat(result.frameDetections()).extracting(d -> d.trackIds().getFirst()).containsExactly(1, 2, 3);
+        assertThat(result.uniqueTracks()).isEqualTo(3);
     }
 
     @Test

@@ -79,25 +79,26 @@ public final class VideoAnalysisService {
 
             LOG.info("Analysing {} frames from video", frames.size());
 
-            List<FrameDetections> frameDetections = new ArrayList<>();
+            List<ObservedFrame> observedFrames = new ArrayList<>();
             for (VideoFrameExtractor.ExtractedFrame frame : frames) {
                 byte[] imageBytes = Files.readAllBytes(frame.getPath());
                 List<DetectedObject> detections = detector.detectObjects(imageBytes, options);
-                frameDetections.add(new FrameDetections(
+                observedFrames.add(new ObservedFrame(
                         frame.getFrameNumber(), frame.getTimestampMs(), frame.getSourceTimestamp(),
-                        new ArrayList<>(detections), List.of()
+                        new ArrayList<>(detections)
                 ));
             }
 
             Duration elapsed = Duration.between(startTime, Instant.now());
-            int uniqueTracks = assignHeuristicTracks(frameDetections, config.getFps());
+            TrackAssignment assignments = assignHeuristicTracks(observedFrames, config.getFps());
+            List<FrameDetections> frameDetections = assignments.frames();
 
             LOG.info("Video analysis complete: frames={}, temporalTracking=HEURISTIC_UNCALIBRATED, elapsed={}ms",
                     frames.size(), elapsed.toMillis());
 
             return new VideoAnalysisResult(
                     videoPath.getFileName().toString(),
-                    Instant.now(), frames.size(), uniqueTracks,
+                    Instant.now(), frames.size(), assignments.uniqueTracks(),
                     frameDetections, elapsed, "HEURISTIC_UNCALIBRATED"
             );
 
@@ -109,12 +110,13 @@ public final class VideoAnalysisService {
     }
 
     /** Greedy, one-frame-memory IoU association. IDs are scoped to this analysis call. */
-    private int assignHeuristicTracks(List<FrameDetections> frames, int samplingFps) {
+    private TrackAssignment assignHeuristicTracks(List<ObservedFrame> frames, int samplingFps) {
         Map<Integer, DetectedObject> previous = Map.of();
         SourceMediaTimestamp previousTimestamp = null;
         int nextId = 1;
+        List<FrameDetections> assignedFrames = new ArrayList<>(frames.size());
         for (int frameIndex = 0; frameIndex < frames.size(); frameIndex++) {
-            FrameDetections frame = frames.get(frameIndex);
+            ObservedFrame frame = frames.get(frameIndex);
             SourceMediaTimestamp timestamp = frame.sourceTimestamp();
             boolean reset = previousTimestamp == null || !timestamp.isKnown()
                     || !previousTimestamp.isKnown() || comparePts(timestamp, previousTimestamp) <= 0
@@ -141,14 +143,21 @@ public final class VideoAnalysisService {
                 ids.add(bestId);
                 current.put(bestId, detection);
             }
-            // FrameDetections is immutable, so replace the corresponding timeline entry.
-            frames.set(frameIndex, new FrameDetections(frame.frameNumber(), frame.timestampMs(), timestamp,
+            assignedFrames.add(new FrameDetections(frame.frameNumber(), frame.timestampMs(), timestamp,
                     frame.detections(), ids));
             previous = current;
             previousTimestamp = timestamp;
         }
-        return nextId - 1;
+        return new TrackAssignment(List.copyOf(assignedFrames), nextId - 1);
     }
+
+    private record ObservedFrame(
+            int frameNumber,
+            Long timestampMs,
+            SourceMediaTimestamp sourceTimestamp,
+            List<DetectedObject> detections) {}
+
+    private record TrackAssignment(List<FrameDetections> frames, int uniqueTracks) {}
 
     private static int comparePts(SourceMediaTimestamp a, SourceMediaTimestamp b) {
         BigInteger left = BigInteger.valueOf(a.pts()).multiply(BigInteger.valueOf(a.timeBaseNumerator()))
@@ -205,6 +214,13 @@ public final class VideoAnalysisService {
             }
             detections = List.copyOf(Objects.requireNonNull(detections, "detections"));
             trackIds = List.copyOf(Objects.requireNonNull(trackIds, "trackIds"));
+            if (trackIds.size() != detections.size()) {
+                throw new IllegalArgumentException("Each detection must have exactly one track ID");
+            }
+            if (trackIds.stream().anyMatch(trackId -> trackId == null || trackId <= 0)
+                    || trackIds.stream().distinct().count() != trackIds.size()) {
+                throw new IllegalArgumentException("Track IDs must be positive and unique within a frame");
+            }
             if ((sourceTimestamp.isKnown() && !Objects.equals(timestampMs, sourceTimestamp.timestampMs()))
                     || (!sourceTimestamp.isKnown() && timestampMs != null)) {
                 throw new IllegalArgumentException("Frame timestamp must match the source PTS status");
@@ -234,6 +250,16 @@ public final class VideoAnalysisService {
     ) {
         public VideoAnalysisResult {
             frameDetections = List.copyOf(Objects.requireNonNull(frameDetections, "frameDetections"));
+            if (framesAnalysed != frameDetections.size() || uniqueTracks < 0) {
+                throw new IllegalArgumentException("Video analysis counts must match the frame timeline");
+            }
+            long observedTrackCount = frameDetections.stream()
+                    .flatMap(frame -> frame.trackIds().stream())
+                    .distinct()
+                    .count();
+            if (uniqueTracks != observedTrackCount) {
+                throw new IllegalArgumentException("Unique track count must match the frame timeline");
+            }
         }
 
         /** Returns a summary of object classes detected across all frames. */
