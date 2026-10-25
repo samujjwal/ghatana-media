@@ -6,8 +6,14 @@ import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.tts.core.grpc.proto.AudioChunk;
+import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
+import com.ghatana.tts.core.grpc.proto.CloneVoiceResponse;
+import com.ghatana.tts.core.grpc.proto.CreateProfileRequest;
+import com.ghatana.tts.core.grpc.proto.GetProfileRequest;
+import com.ghatana.tts.core.grpc.proto.ProfileResponse;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
+import com.ghatana.tts.core.grpc.proto.UpdateProfileRequest;
 import com.ghatana.tts.service.PersistentTtsService;
 import io.activej.promise.Promise;
 import io.grpc.Context;
@@ -231,6 +237,39 @@ class PersistentTtsGrpcServiceTest {
         verifyNoInteractions(persistentTtsService);
     }
 
+    @Test
+    @DisplayName("profile and clone RPCs report NOT_ADMITTED without provider or persistence effects")
+    void voiceProfileAndCloneOperationsFailClosedWithoutAuthorizationAuthority() {
+        CapturingObserver<ProfileResponse> create = new CapturingObserver<>();
+        streamingService.createProfile(CreateProfileRequest.newBuilder().setDisplayName("Alice").build(), create);
+        assertThat(statusCode(create)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(description(create)).contains("NOT_ADMITTED", "ownership", "consent", "purpose", "retention");
+
+        CapturingObserver<ProfileResponse> get = new CapturingObserver<>();
+        streamingService.getProfile(GetProfileRequest.newBuilder().setProfileId("profile-1").build(), get);
+        assertThat(statusCode(get)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(description(get)).contains("NOT_ADMITTED", "ownership", "consent", "purpose", "retention");
+
+        CapturingObserver<ProfileResponse> update = new CapturingObserver<>();
+        streamingService.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("profile-1").build(), update);
+        assertThat(statusCode(update)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(description(update)).contains("NOT_ADMITTED", "ownership", "consent", "purpose", "retention");
+
+        CapturingObserver<CloneVoiceResponse> clone = new CapturingObserver<>();
+        streamingService.cloneVoice(CloneVoiceRequest.newBuilder()
+                .setVoiceName("Alice")
+                .addAudioSamples(com.google.protobuf.ByteString.copyFrom(new byte[256]))
+                .build(), clone);
+        assertThat(statusCode(clone)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(description(clone)).contains("NOT_ADMITTED", "owner consent", "biometric purpose", "retention");
+        assertThat(create.values).isEmpty();
+        assertThat(get.values).isEmpty();
+        assertThat(update.values).isEmpty();
+        assertThat(clone.values).isEmpty();
+        assertThat(create.completed || get.completed || update.completed || clone.completed).isFalse();
+        verifyNoInteractions(persistentTtsService, library, audioFileService, engine);
+    }
+
     // ─── streamSynthesize() tests ─────────────────────────────────────────────
 
     @Test
@@ -304,6 +343,11 @@ class PersistentTtsGrpcServiceTest {
     private static Status.Code statusCode(CapturingObserver<?> observer) {
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         return ((StatusRuntimeException) observer.error).getStatus().getCode();
+    }
+
+    private static String description(CapturingObserver<?> observer) {
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        return ((StatusRuntimeException) observer.error).getStatus().getDescription();
     }
 
     /**

@@ -197,6 +197,34 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
         streamingDelegate.streamSynthesize(request, responseObserver);
     }
 
+    @Override
+    public void createProfile(CreateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        profileOperationNotAdmitted(responseObserver);
+    }
+
+    @Override
+    public void getProfile(GetProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        profileOperationNotAdmitted(responseObserver);
+    }
+
+    @Override
+    public void updateProfile(UpdateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        profileOperationNotAdmitted(responseObserver);
+    }
+
+    @Override
+    public void cloneVoice(CloneVoiceRequest request, StreamObserver<CloneVoiceResponse> responseObserver) {
+        responseObserver.onError(Status.UNIMPLEMENTED
+                .withDescription("Voice cloning is NOT_ADMITTED until owner consent, biometric purpose, and retention are verified")
+                .asRuntimeException());
+    }
+
+    private static void profileOperationNotAdmitted(StreamObserver<ProfileResponse> responseObserver) {
+        responseObserver.onError(Status.UNIMPLEMENTED
+                .withDescription("TTS profile access is NOT_ADMITTED until tenant/principal ownership, consent, purpose and retention are backed by an authoritative scoped store")
+                .asRuntimeException());
+    }
+
     private String getTenantId() {
         String tenantId = JwtServerInterceptor.CTX_TENANT.get();
         return tenantId != null && !tenantId.isBlank() ? tenantId : null;
