@@ -88,6 +88,17 @@ class MediaWorkflowMetricsTest {
         assertThat(unknownBacklog.value()).isNaN();
         assertThat(overdueLeases.value()).isNaN();
         assertThat(querySupport.value()).isZero();
+
+        // A later complete durable refresh must restore measured values and support without
+        // carrying the failed refresh's unknown state forward as zero or remaining unavailable.
+        metrics.setQueueDepth(0);
+        metrics.setUnknownBacklog(3);
+        metrics.setOverdueLeases(1);
+        metrics.setAggregateStoreQueriesSupported(true);
+        assertThat(queueDepth.value()).isZero();
+        assertThat(unknownBacklog.value()).isEqualTo(3);
+        assertThat(overdueLeases.value()).isEqualTo(1);
+        assertThat(querySupport.value()).isEqualTo(1.0);
     }
 
     @Test
