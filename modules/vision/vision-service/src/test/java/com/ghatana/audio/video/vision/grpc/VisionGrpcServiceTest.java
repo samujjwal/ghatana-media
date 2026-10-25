@@ -295,6 +295,42 @@ class VisionGrpcServiceTest {
         assertThat(fakeDetector.calls).isZero();
     }
 
+    @ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {
+            "media.vision.segment.image",
+            "media.vision.segment.video",
+            "media.vision.segment.motion",
+            "media.vision.estimate.optical-flow",
+            "media.vision.estimate.depth",
+            "media.vision.estimate.surface-normals",
+            "media.vision.estimate.human-pose",
+            "media.vision.estimate.hand-pose",
+            "media.vision.matte.foreground-background",
+            "media.vision.estimate.saliency"
+    })
+    @DisplayName("analyzeImage: advanced tensor intents never fall back to YOLO boxes or scene labels")
+    void analyzeImage_advancedIntentNeverFallsBackToObjectDetections(String intentId) {
+        // An available detection is not evidence for segmentation, geometry, pose, matte,
+        // saliency, or a scene label. The RPC must fail before dispatching to that provider.
+        fakeDetector.setResults(buildDetections("person", "dog"));
+        AnalyzeRequest request = AnalyzeRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1}))
+                .addAnalysisTypes(intentId)
+                .build();
+        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.analyzeImage(request, observer));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(failure.getStatus().getDescription())
+                .contains(intentId)
+                .contains(VisionCapabilityDisposition.Status.NOT_ADMITTED.name());
+        assertThat(observer.getValue()).isNull();
+        assertThat(fakeDetector.calls).isZero();
+    }
+
     @Test
     @DisplayName("Vision capability census maps exactly 22 intents to the ten proto RPCs")
     void visionCapabilityCensusMatchesPdpIdsRpcContractsAndProviderQualification() {
