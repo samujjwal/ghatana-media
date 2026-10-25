@@ -71,6 +71,54 @@ class MediaClockMappingTest {
     }
 
     @Test
+    void mapsSyntheticAudioImpulseAgainstVariableRateVideoPtsWithinDeclaredTolerance() {
+        short[] pcm = new short[72_049];
+        pcm[72_048] = Short.MAX_VALUE;
+        int impulseSample = -1;
+        for (int i = 0; i < pcm.length; i++) {
+            if (pcm[i] != 0) {
+                impulseSample = i;
+                break;
+            }
+        }
+        assertThat(impulseSample).isEqualTo(72_048);
+
+        MediaClockTimestamp audioImpulse = MediaClockTimestamp.audioSamples(impulseSample, 48_000, "audio-a");
+        MediaClockTimestamp videoFrame = MediaClockTimestamp.fromSource(
+                SourceMediaTimestamp.fromPts("135000", "1/90000"), "video-a");
+        MediaClockMapping audioToMedia = new MediaClockMapping(1, 1, 0, 2);
+        MediaClockMapping videoToMedia = new MediaClockMapping(1, 1, 0, 2);
+
+        MediaClockTimestamp mappedAudioImpulse = audioToMedia.map(audioImpulse, null);
+        MediaClockTimestamp mappedVideoFrame = videoToMedia.map(videoFrame, null);
+        assertThat(mappedAudioImpulse.sharesClock(mappedVideoFrame)).isTrue();
+        long injectedOffsetMs = mappedAudioImpulse.toMilliseconds() - mappedVideoFrame.toMilliseconds();
+        assertThat(mappedAudioImpulse.toMilliseconds()).isEqualTo(1_501L);
+        assertThat(mappedVideoFrame.toMilliseconds()).isEqualTo(1_500L);
+        assertThat(injectedOffsetMs).isEqualTo(1L);
+        assertThat(Math.abs(injectedOffsetMs)).isLessThanOrEqualTo(2L);
+
+        TemporalAlignment alignment = new TemporalAlignment(mappedVideoFrame, 1, "fixture", List.of(),
+                0L, 0.0, TemporalAlignment.SyncStatus.SYNC_UNDETERMINED);
+        assertThat(alignment.hasSyncMeasurement()).isFalse();
+        assertThat(alignment.getTimestamp().domain()).isEqualTo(MediaClockTimestamp.ClockDomain.MEDIA);
+    }
+
+    @Test
+    void simulationAndWallClocksRemainUnresolvableAsSourcePts() {
+        MediaClockMapping mapping = new MediaClockMapping(1, 1, 0, 0);
+        MediaClockTimestamp simulation = new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN,
+                1_000L, 1L, 1_000L, MediaClockTimestamp.ClockDomain.SIMULATION, "sim-clock", null);
+        MediaClockTimestamp wall = new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN,
+                1_000L, 1L, 1_000L, MediaClockTimestamp.ClockDomain.WALL, "wall-clock", null);
+
+        assertThat(mapping.map(simulation, null).unknownReason()).isEqualTo("SOURCE_TIMESTAMP_UNAVAILABLE");
+        assertThat(mapping.map(wall, null).unknownReason()).isEqualTo("SOURCE_TIMESTAMP_UNAVAILABLE");
+        assertThat(TemporalAlignment.isWithinMediaWindow(simulation, 999, 1_001)).isFalse();
+        assertThat(TemporalAlignment.isWithinMediaWindow(wall, 999, 1_001)).isFalse();
+    }
+
+    @Test
     void rejectsInvalidAudioSampleClockDeclarations() {
         assertThatThrownBy(() -> MediaClockTimestamp.audioSamples(1, 0, "audio-a"))
                 .isInstanceOf(IllegalArgumentException.class);
