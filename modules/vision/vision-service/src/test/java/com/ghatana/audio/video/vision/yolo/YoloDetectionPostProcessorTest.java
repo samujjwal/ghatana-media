@@ -58,6 +58,19 @@ class YoloDetectionPostProcessorTest {
                 .containsExactly("cat:0.9", "dog:0.7");
     }
 
+    @Test void nmsThresholdControlsHowMuchOverlapIsSuppressed() {
+        var raw = List.of(
+                new YoloOutputParser.Detection(0, 0.9, 10, 10, 20, 20),
+                new YoloOutputParser.Detection(0, 0.8, 15, 10, 20, 20));
+        var transform = LetterboxTransform.fit(100, 100, 100);
+
+        var stricter = YoloDetectionPostProcessor.process(raw, CLASSES, transform, 0.3, 1, MODEL);
+        var morePermissive = YoloDetectionPostProcessor.process(raw, CLASSES, transform, 0.7, 1, MODEL);
+
+        assertThat(stricter).hasSize(1);
+        assertThat(morePermissive).hasSize(2);
+    }
+
     @Test void rejectsUnknownClassIdsInvalidNmsAndUnpinnedProvenance() {
         var unknownClass = List.of(new YoloOutputParser.Detection(2, 0.9, 1, 1, 2, 2));
         assertThatThrownBy(() -> YoloDetectionPostProcessor.process(unknownClass, CLASSES,

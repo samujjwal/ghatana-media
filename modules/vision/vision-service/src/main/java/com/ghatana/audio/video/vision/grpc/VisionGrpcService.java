@@ -178,11 +178,15 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             LOG.debug("Detecting objects in image ({} bytes)", dataSize);
 
-            DetectionOptions options = DetectionOptions.builder()
+            DetectionOptions.Builder optionsBuilder = DetectionOptions.builder()
                 .targetClasses(new HashSet<>(request.getTargetClassesList()))
-                .maxDetections(maxDetections)
-                .confidenceThreshold(request.getConfidenceThreshold() > 0 ? request.getConfidenceThreshold() : 0.5)
-                .build();
+                .maxDetections(maxDetections);
+            // Proto3 scalar zero is the existing omission sentinel for this request.
+            // Leave the option unset so a verified provider can use its configured default.
+            if (request.getConfidenceThreshold() > 0) {
+                optionsBuilder.confidenceThreshold(request.getConfidenceThreshold());
+            }
+            DetectionOptions options = optionsBuilder.build();
 
             List<DetectedObject> detectedObjects = detector.detectObjects(
                 request.getImageData().toByteArray(),

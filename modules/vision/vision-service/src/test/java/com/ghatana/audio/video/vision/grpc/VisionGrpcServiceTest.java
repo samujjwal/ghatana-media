@@ -133,7 +133,23 @@ class VisionGrpcServiceTest {
         assertThat(detection.getBoundingBox().getX()).isEqualTo(10.0); 
         assertThat(detection.getBoundingBox().getWidth()).isEqualTo(100.0); 
         assertThat(detection.getAttributes()).containsEntry("bbox.coordinate_space", "exif_oriented_source_raster_pixel_xywh");
+        assertThat(fakeDetector.lastOptions.isConfidenceThresholdSpecified()).isFalse();
         assertThat(detection.getAttributes()).containsEntry("source.content_version", "NOT_PROVIDED_BY_CONTRACT");
+    }
+
+    @Test
+    void detectObjectsPassesAnExplicitConfidenceThresholdToTheDetector() {
+        DetectRequest request = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[]{1, 2, 3}))
+                .setConfidenceThreshold(0.77)
+                .build();
+        CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.detectObjects(request, observer));
+
+        assertThat(observer.hasError()).isFalse();
+        assertThat(fakeDetector.lastOptions.isConfidenceThresholdSpecified()).isTrue();
+        assertThat(fakeDetector.lastOptions.getConfidenceThreshold()).isEqualTo(0.77);
     }
 
     @Test
@@ -763,6 +779,7 @@ class VisionGrpcServiceTest {
         private RuntimeException throwOnDetect = null;
         private boolean initialized = true;
         private int calls = 0;
+        private DetectionOptions lastOptions;
 
         void setResults(List<DetectedObject> results) { 
             this.results = results;
@@ -779,6 +796,7 @@ class VisionGrpcServiceTest {
         @Override
         public List<DetectedObject> detectObjects(byte[] imageData, DetectionOptions options) { 
             calls++;
+            lastOptions = options;
             if (throwOnDetect != null) { 
                 throw throwOnDetect;
             }

@@ -153,7 +153,8 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
             PreprocessedInput input = preprocessImage(image);
             processed = input.blob();
             List<DetectedObject> detections = postProcessDetections(
-                    runInference(processed), input.transform(), decoded.orientation());
+                    runInference(processed, confidenceThresholdFor(options)), input.transform(),
+                    decoded.orientation(), nmsThresholdFor(options));
             return finalizeDetections(detections, options);
         } catch (BoundedImageDecoder.UnsupportedImageMetadataException unsupported) {
             throw unsupported;
@@ -176,7 +177,8 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
             PreprocessedInput input = preprocessImage(frame);
             processed = input.blob();
             List<DetectedObject> detections = postProcessDetections(
-                    runInference(processed), input.transform(), 1);
+                    runInference(processed, confidenceThresholdFor(options)), input.transform(),
+                    1, nmsThresholdFor(options));
             return finalizeDetections(detections, options);
         } catch (RuntimeException failure) {
             throw new VisionDetector.DetectionException("Frame object detection failed", failure);
@@ -305,7 +307,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         }
     }
 
-    private List<YoloOutputParser.Detection> runInference(Mat processedImage) {
+    private List<YoloOutputParser.Detection> runInference(Mat processedImage, double requestConfidenceThreshold) {
         Net active = net;
         if (active == null || active.empty()) {
             throw new IllegalStateException("YOLOv8 network is unavailable");
@@ -314,7 +316,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         List<Mat> outputs = new ArrayList<>();
         try {
             active.forward(outputs, getOutputLayerNames(active));
-            return parseYoloOutput(outputs);
+            return parseYoloOutput(outputs, requestConfidenceThreshold);
         } finally {
             outputs.forEach(YoloV8Adapter::release);
         }
@@ -341,7 +343,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         }
     }
 
-    private List<YoloOutputParser.Detection> parseYoloOutput(List<Mat> outputs) {
+    private List<YoloOutputParser.Detection> parseYoloOutput(List<Mat> outputs, double threshold) {
         if (outputs.size() != 1) {
             throw new IllegalStateException("YOLOv8 ONNX must return exactly one detection tensor");
         }
@@ -365,7 +367,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
                 throw new IllegalStateException("YOLOv8 output tensor could not be read completely");
             }
             return YoloOutputParser.parse(batch, channels, numberOfBoxes, values,
-                    COCO_CLASSES.size(), confidenceThreshold);
+                    COCO_CLASSES.size(), threshold);
         } finally {
             flattened.release();
         }
@@ -374,14 +376,30 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
     private List<DetectedObject> postProcessDetections(
             List<YoloOutputParser.Detection> rawDetections,
             LetterboxTransform transform,
-            int orientation) {
+            int orientation,
+            double requestNmsThreshold) {
         VisionModelProfile profile = activeProfile;
         if (profile == null) {
             throw new IllegalStateException("Verified Vision model provenance is unavailable");
         }
-        return YoloDetectionPostProcessor.process(rawDetections, profile.classLabels(), transform, nmsThreshold,
+        return YoloDetectionPostProcessor.process(rawDetections, profile.classLabels(), transform, requestNmsThreshold,
                 orientation, new YoloDetectionPostProcessor.Provenance(
                         profile.modelId(), profile.version(), profile.sha256()));
+    }
+
+    double confidenceThresholdFor(DetectionOptions options) {
+        Objects.requireNonNull(options, "options");
+        // An explicit per-request threshold is the caller's inclusion policy;
+        // retain the admitted adapter setting only when the field was omitted.
+        return options.isConfidenceThresholdSpecified()
+                ? options.getConfidenceThreshold()
+                : confidenceThreshold;
+    }
+
+    double nmsThresholdFor(DetectionOptions options) {
+        Objects.requireNonNull(options, "options");
+        // NMS is adapter-configured by default and can be explicitly tuned per request.
+        return options.isNmsThresholdSpecified() ? options.getNmsThreshold() : nmsThreshold;
     }
 
     private static List<DetectedObject> filterByClasses(

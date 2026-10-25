@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.vision.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import java.util.Set;
@@ -16,9 +17,11 @@ public class DetectionOptions {
 
     @JsonProperty("confidence_threshold")
     private final double confidenceThreshold;
+    private final boolean confidenceThresholdSpecified;
 
     @JsonProperty("nms_threshold")
     private final double nmsThreshold;
+    private final boolean nmsThresholdSpecified;
 
     @JsonProperty("target_classes")
     private final Set<String> targetClasses;
@@ -34,7 +37,9 @@ public class DetectionOptions {
 
     private DetectionOptions(Builder builder) {
         this.confidenceThreshold = builder.confidenceThreshold;
+        this.confidenceThresholdSpecified = builder.confidenceThresholdSpecified;
         this.nmsThreshold = builder.nmsThreshold;
+        this.nmsThresholdSpecified = builder.nmsThresholdSpecified;
         this.targetClasses = builder.targetClasses == null ? null : Set.copyOf(builder.targetClasses);
         this.maxDetections = builder.maxDetections;
         this.includeAttributes = builder.includeAttributes;
@@ -45,8 +50,20 @@ public class DetectionOptions {
         return confidenceThreshold;
     }
 
+    /** Whether the caller explicitly supplied the confidence threshold. */
+    @JsonIgnore
+    public boolean isConfidenceThresholdSpecified() {
+        return confidenceThresholdSpecified;
+    }
+
     public double getNmsThreshold() {
         return nmsThreshold;
+    }
+
+    /** Whether the caller explicitly supplied the NMS threshold. */
+    @JsonIgnore
+    public boolean isNmsThresholdSpecified() {
+        return nmsThresholdSpecified;
     }
 
     public Set<String> getTargetClasses() {
@@ -71,7 +88,9 @@ public class DetectionOptions {
         if (o == null || getClass() != o.getClass()) return false;
         DetectionOptions that = (DetectionOptions) o;
         return Double.compare(that.confidenceThreshold, confidenceThreshold) == 0 &&
+               confidenceThresholdSpecified == that.confidenceThresholdSpecified &&
                Double.compare(that.nmsThreshold, nmsThreshold) == 0 &&
+               nmsThresholdSpecified == that.nmsThresholdSpecified &&
                maxDetections == that.maxDetections &&
                includeAttributes == that.includeAttributes &&
                trackObjects == that.trackObjects &&
@@ -80,7 +99,8 @@ public class DetectionOptions {
 
     @Override
     public int hashCode() {
-        return Objects.hash(confidenceThreshold, nmsThreshold, targetClasses,
+        return Objects.hash(confidenceThreshold, confidenceThresholdSpecified,
+                           nmsThreshold, nmsThresholdSpecified, targetClasses,
                            maxDetections, includeAttributes, trackObjects);
     }
 
@@ -88,7 +108,9 @@ public class DetectionOptions {
     public String toString() {
         return "DetectionOptions{" +
                "confidenceThreshold=" + confidenceThreshold +
+               ", confidenceThresholdSpecified=" + confidenceThresholdSpecified +
                ", nmsThreshold=" + nmsThreshold +
+               ", nmsThresholdSpecified=" + nmsThresholdSpecified +
                ", targetClasses=" + targetClasses +
                ", maxDetections=" + maxDetections +
                ", includeAttributes=" + includeAttributes +
@@ -120,19 +142,29 @@ public class DetectionOptions {
 
     public static class Builder {
         private double confidenceThreshold = 0.5;
+        private boolean confidenceThresholdSpecified;
         private double nmsThreshold = 0.4;
+        private boolean nmsThresholdSpecified;
         private Set<String> targetClasses = null;
         private int maxDetections = 100;
         private boolean includeAttributes = true;
         private boolean trackObjects = false;
 
         public Builder confidenceThreshold(double confidenceThreshold) {
+            if (Double.isNaN(confidenceThreshold)) {
+                throw new IllegalArgumentException("confidenceThreshold must not be NaN");
+            }
             this.confidenceThreshold = Math.max(0.0, Math.min(1.0, confidenceThreshold));
+            this.confidenceThresholdSpecified = true;
             return this;
         }
 
         public Builder nmsThreshold(double nmsThreshold) {
+            if (Double.isNaN(nmsThreshold)) {
+                throw new IllegalArgumentException("nmsThreshold must not be NaN");
+            }
             this.nmsThreshold = Math.max(0.0, Math.min(1.0, nmsThreshold));
+            this.nmsThresholdSpecified = true;
             return this;
         }
 
