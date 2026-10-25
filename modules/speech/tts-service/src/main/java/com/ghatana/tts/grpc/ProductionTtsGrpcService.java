@@ -58,6 +58,14 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     static TtsConfig createConfig(Map<String, String> environment) {
         Objects.requireNonNull(environment, "environment");
+        boolean allowSyntheticFallback = parseBoolean(
+                environment,
+                "MEDIA_TTS_ALLOW_SYNTHETIC_FALLBACK",
+                false);
+        if (allowSyntheticFallback) {
+            throw new IllegalStateException(
+                    "Synthetic TTS fallback is forbidden by the provider profile");
+        }
         ProviderProfile provider = resolveProviderProfile(environment);
         if (!"ADMITTED".equals(provider.status())) {
             throw new IllegalStateException("TTS_PROVIDER_NOT_ADMITTED: " + provider.reason());
@@ -67,14 +75,6 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
                 environment.get("MEDIA_PROFILE"),
                 "local");
         boolean productionLike = isProductionLike(profile);
-        boolean allowSyntheticFallback = parseBoolean(
-                environment,
-                "MEDIA_TTS_ALLOW_SYNTHETIC_FALLBACK",
-                false);
-        if (productionLike && allowSyntheticFallback) {
-            throw new IllegalStateException(
-                    "Synthetic TTS fallback is forbidden in production-like profile " + profile);
-        }
 
         Path modelPath = Path.of(environment.getOrDefault(
                 "TTS_MODEL_PATH",

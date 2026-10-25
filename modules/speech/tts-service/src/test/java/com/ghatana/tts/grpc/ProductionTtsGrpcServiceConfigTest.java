@@ -38,6 +38,15 @@ class ProductionTtsGrpcServiceConfigTest {
     }
 
     @Test
+    void syntheticFallbackIsRejectedForEveryRuntimeProfile() {
+        assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(Map.of(
+                        "MEDIA_RUNTIME_ENVIRONMENT", "local",
+                        "MEDIA_TTS_ALLOW_SYNTHETIC_FALLBACK", "true")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Synthetic TTS fallback is forbidden");
+    }
+
+    @Test
     void completeLocalProfileVerifiesDigestButIsNotProviderAdmission() throws Exception {
         Path model = Files.createTempFile("tts-model", ".onnx");
         try {
