@@ -168,6 +168,11 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 return;
             }
 
+            if (rejectWhenProviderUnavailable(responseObserver, "Object detection")) {
+                mediaMetrics.recordFailed("vision.detect");
+                return;
+            }
+
             LOG.debug("Detecting objects in image ({} bytes)", dataSize);
 
             DetectionOptions options = DetectionOptions.builder()
@@ -409,6 +414,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 return;
             }
 
+            if (rejectWhenProviderUnavailable(responseObserver, "Video analysis")) return;
+
             // AV-P1-012: Log request size without tenant/user identifiers.
             LOG.info("Analyzing video file ({} bytes)", dataSize);
 
@@ -552,6 +559,11 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         return;
                     }
 
+                    if (rejectWhenProviderUnavailable(responseObserver, "Video frame processing")) {
+                        terminal.set(true);
+                        return;
+                    }
+
                     LOG.debug("Processing video frame {} at {}ms ({} bytes)",
                         request.getFrameNumber(), request.getTimestampMs(), frameSize);
 
@@ -671,9 +683,22 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         }
     }
 
-    /** Test compositions and unadmitted providers remain unavailable until production admission wires readiness. */
+    /** Test compositions may exercise the gRPC adapter with a fake detector. */
     protected boolean isProviderReady() {
         return false;
+    }
+
+    /** Production wrapper overrides this with provider admission before detector dispatch. */
+    protected boolean isInferenceProviderAdmitted() {
+        return true;
+    }
+
+    private boolean rejectWhenProviderUnavailable(StreamObserver<?> responseObserver, String operation) {
+        if (isInferenceProviderAdmitted()) return false;
+        responseObserver.onError(io.grpc.Status.UNAVAILABLE
+                .withDescription(operation + " is unavailable: PROVIDER_NOT_ADMITTED")
+                .asRuntimeException());
+        return true;
     }
 
     /** Bind the custom Vision health RPC to the shared gRPC and HTTP readiness lifecycle. */

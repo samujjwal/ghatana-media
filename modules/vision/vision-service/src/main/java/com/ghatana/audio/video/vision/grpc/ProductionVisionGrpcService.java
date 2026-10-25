@@ -28,6 +28,11 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
         return !closed.get() && detector.isInitialized();
     }
 
+    @Override
+    protected boolean isInferenceProviderAdmitted() {
+        return isProviderReady();
+    }
+
     static Composition compose(Map<String, String> environment) {
         Objects.requireNonNull(environment, "environment");
         VisionModelProfile profile = VisionModelProfile.fromEnvironment(environment);

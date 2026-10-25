@@ -61,6 +61,7 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.grpc.inprocess)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation("com.ghatana.platform:testing:${providers.gradleProperty("ghatana.shared.version").get()}")
