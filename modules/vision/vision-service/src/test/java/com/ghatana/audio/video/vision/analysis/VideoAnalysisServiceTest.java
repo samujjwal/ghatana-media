@@ -463,6 +463,22 @@ class VideoAnalysisServiceTest {
                 .isInstanceOf(IllegalArgumentException.class); 
     }
 
+    @Test
+    @DisplayName("Builder rejects non-finite IoU and accepts inclusive bounds")
+    void builderRejectsNonFiniteIouAndAcceptsInclusiveBounds() {
+        for (double invalid : new double[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
+        }) {
+            assertThatThrownBy(() -> VideoAnalysisService.builder().iouThreshold(invalid))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+        for (double boundary : new double[] {0.0, 1.0}) {
+            org.assertj.core.api.Assertions.assertThatCode(
+                    () -> VideoAnalysisService.builder().iouThreshold(boundary))
+                    .doesNotThrowAnyException();
+        }
+    }
+
     // ─── Helpers ───────────────────────────────────────────────────────────────
 
     private Path writeSolidPng(String name, int rgb) throws IOException {

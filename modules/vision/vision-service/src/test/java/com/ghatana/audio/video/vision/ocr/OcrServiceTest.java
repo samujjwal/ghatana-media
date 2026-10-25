@@ -10,6 +10,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class OcrServiceTest {
 
     @Test
+    void factoryRejectsNonFiniteThresholdsAndAcceptsInclusiveBounds() {
+        OcrService.OcrModel model = image -> List.of();
+        for (double invalid : new double[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
+        }) {
+            assertThatThrownBy(() -> OcrService.of(model, invalid))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+        for (double boundary : new double[] {0.0, 1.0}) {
+            org.assertj.core.api.Assertions.assertThatCode(() -> OcrService.of(model, boundary))
+                    .doesNotThrowAnyException();
+        }
+    }
+
+    @Test
     void extractFailsNotAdmittedWithoutCallingLegacyModel() {
         AtomicInteger calls = new AtomicInteger();
         OcrService service = OcrService.of(image -> {

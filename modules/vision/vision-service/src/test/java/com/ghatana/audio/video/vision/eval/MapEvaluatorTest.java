@@ -19,6 +19,81 @@ import static org.assertj.core.api.Assertions.within;
 @DisplayName("MapEvaluator")
 class MapEvaluatorTest {
 
+    @Test
+    @DisplayName("computeMap rejects non-finite and out-of-range IoU thresholds")
+    void computeMapValidatesIouThreshold() {
+        for (double invalid : new double[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, -0.1, 1.1
+        }) {
+            org.assertj.core.api.Assertions.assertThatThrownBy(
+                    () -> MapEvaluator.computeMap(List.of(), List.of(), invalid))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+        for (double boundary : new double[] {0.0, 1.0}) {
+            org.assertj.core.api.Assertions.assertThatCode(
+                    () -> MapEvaluator.computeMap(List.of(), List.of(), boundary))
+                    .doesNotThrowAnyException();
+        }
+    }
+
+    @Test
+    @DisplayName("ground truth and prediction boxes validate geometry and snapshot arrays")
+    void boxRecordsValidateAndDefensivelySnapshotGeometry() {
+        for (double[] invalid : new double[][] {
+                null,
+                new double[] {0, 0, 1},
+                new double[] {0, 0, 1, 1, 1},
+                new double[] {Double.NaN, 0, 1, 1},
+                new double[] {Double.POSITIVE_INFINITY, 0, 1, 1},
+                new double[] {Double.NEGATIVE_INFINITY, 0, 1, 1},
+                new double[] {0, Double.NaN, 1, 1},
+                new double[] {0, Double.POSITIVE_INFINITY, 1, 1},
+                new double[] {0, 0, Double.NaN, 1},
+                new double[] {0, 0, Double.POSITIVE_INFINITY, 1},
+                new double[] {0, 0, Double.NEGATIVE_INFINITY, 1},
+                new double[] {0, 0, 1, Double.NaN},
+                new double[] {0, 0, 1, Double.NEGATIVE_INFINITY},
+                new double[] {0, 0, -1, 1},
+                new double[] {0, 0, 1, -1},
+                new double[] {Double.MAX_VALUE, 0, Double.MAX_VALUE, 1},
+                new double[] {0, Double.MAX_VALUE, 1, Double.MAX_VALUE},
+                new double[] {0, 0, Double.MAX_VALUE, 2}
+        }) {
+            org.assertj.core.api.Assertions.assertThatThrownBy(
+                    () -> new MapEvaluator.GroundTruth("img", "cat", invalid))
+                    .isInstanceOf(IllegalArgumentException.class);
+            org.assertj.core.api.Assertions.assertThatThrownBy(
+                    () -> new MapEvaluator.Prediction("img", "cat", invalid, 0.5))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        double[] callerBox = box(-4, -2, 3, 0);
+        MapEvaluator.GroundTruth groundTruth = new MapEvaluator.GroundTruth("img", "cat", callerBox);
+        MapEvaluator.Prediction prediction = new MapEvaluator.Prediction("img", "cat", callerBox, 1.0);
+        callerBox[0] = Double.NaN;
+        groundTruth.box()[0] = Double.POSITIVE_INFINITY;
+        prediction.box()[0] = Double.NEGATIVE_INFINITY;
+        assertThat(groundTruth.box()).containsExactly(-4, -2, 3, 0);
+        assertThat(prediction.box()).containsExactly(-4, -2, 3, 0);
+    }
+
+    @Test
+    @DisplayName("Prediction confidence must be finite and within inclusive bounds")
+    void predictionValidatesConfidence() {
+        for (double invalid : new double[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, -0.1, 1.1
+        }) {
+            org.assertj.core.api.Assertions.assertThatThrownBy(
+                    () -> new MapEvaluator.Prediction("img", "cat", box(0, 0, 1, 1), invalid))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+        for (double boundary : new double[] {0.0, 1.0}) {
+            org.assertj.core.api.Assertions.assertThatCode(
+                    () -> new MapEvaluator.Prediction("img", "cat", box(0, 0, 1, 1), boundary))
+                    .doesNotThrowAnyException();
+        }
+    }
+
     // -------------------------------------------------------------------------
     // IoU unit tests
     // -------------------------------------------------------------------------

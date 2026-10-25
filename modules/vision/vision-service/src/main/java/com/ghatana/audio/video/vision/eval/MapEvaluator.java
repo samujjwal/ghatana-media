@@ -39,6 +39,9 @@ public final class MapEvaluator {
             List<GroundTruth> groundTruths,
             List<Prediction> predictions,
             double iouThreshold) {
+        if (!Double.isFinite(iouThreshold) || iouThreshold < 0.0 || iouThreshold > 1.0) {
+            throw new IllegalArgumentException("iouThreshold must be finite and in [0.0, 1.0]");
+        }
 
         // Collect all class names
         List<String> classes = groundTruths.stream()
@@ -159,7 +162,16 @@ public final class MapEvaluator {
      * @param className category label (e.g. "person", "car")
      * @param box       bounding box [x, y, width, height] in pixels
      */
-    public record GroundTruth(String imageId, String className, double[] box) {}
+    public record GroundTruth(String imageId, String className, double[] box) {
+        public GroundTruth {
+            box = validatedBoxCopy(box);
+        }
+
+        @Override
+        public double[] box() {
+            return box.clone();
+        }
+    }
 
     /**
      * Model prediction for a single detected object.
@@ -169,7 +181,38 @@ public final class MapEvaluator {
      * @param box        predicted bounding box [x, y, width, height]
      * @param confidence detection confidence score in [0, 1]
      */
-    public record Prediction(String imageId, String className, double[] box, double confidence) {}
+    public record Prediction(String imageId, String className, double[] box, double confidence) {
+        public Prediction {
+            box = validatedBoxCopy(box);
+            if (!Double.isFinite(confidence) || confidence < 0.0 || confidence > 1.0) {
+                throw new IllegalArgumentException("confidence must be finite and in [0.0, 1.0]");
+            }
+        }
+
+        @Override
+        public double[] box() {
+            return box.clone();
+        }
+    }
+
+    private static double[] validatedBoxCopy(double[] box) {
+        if (box == null || box.length != 4) {
+            throw new IllegalArgumentException("box must contain exactly [x, y, width, height]");
+        }
+        double x = box[0];
+        double y = box[1];
+        double width = box[2];
+        double height = box[3];
+        if (!Double.isFinite(x) || !Double.isFinite(y)
+                || !Double.isFinite(width) || !Double.isFinite(height)
+                || width < 0.0 || height < 0.0
+                || !Double.isFinite(x + width) || !Double.isFinite(y + height)
+                || !Double.isFinite(width * height)) {
+            throw new IllegalArgumentException(
+                    "box coordinates and extents must be finite with non-negative, finite area");
+        }
+        return box.clone();
+    }
 
     /**
      * Per-class Average Precision.

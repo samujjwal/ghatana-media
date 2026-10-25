@@ -415,7 +415,9 @@ public final class VideoAnalysisService {
         }
 
         public Builder iouThreshold(double threshold) {
-            if (threshold < 0 || threshold > 1) throw new IllegalArgumentException("iouThreshold must be in [0, 1]");
+            if (!Double.isFinite(threshold) || threshold < 0 || threshold > 1) {
+                throw new IllegalArgumentException("iouThreshold must be in [0, 1]");
+            }
             this.iouThreshold = threshold;
             return this;
         }

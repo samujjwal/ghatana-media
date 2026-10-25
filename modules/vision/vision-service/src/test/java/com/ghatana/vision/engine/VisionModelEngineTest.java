@@ -366,6 +366,76 @@ class VisionModelEngineTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    @DisplayName("constructor rejects non-finite thresholds")
+    void nonFiniteThresholdThrows() {
+        for (double invalid : new double[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
+        }) {
+            assertThatThrownBy(() -> new VisionModelEngine("yolo", invalid))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Test
+    @DisplayName("public model result records reject non-finite confidence and accept bounds")
+    void publicModelResultsValidateConfidence() {
+        for (double invalid : new double[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, -0.1, 1.1
+        }) {
+            assertThatThrownBy(() -> new VisionModelEngine.DetectedObject("cat", invalid, 0, 0, 1, 1))
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> new VisionModelEngine.OcrResult("text", invalid, List.of()))
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> new VisionModelEngine.ClassificationResult("cat", invalid, List.of()))
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> new VisionModelEngine.FaceDetection(0, 0, 1, 1, invalid, Map.of()))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+        for (double boundary : new double[] {0.0, 1.0}) {
+            assertThatCode(() -> new VisionModelEngine.DetectedObject("cat", boundary, 0, 0, 1, 1))
+                    .doesNotThrowAnyException();
+            assertThatCode(() -> new VisionModelEngine.OcrResult("text", boundary, List.of()))
+                    .doesNotThrowAnyException();
+            assertThatCode(() -> new VisionModelEngine.ClassificationResult("cat", boundary, List.of()))
+                    .doesNotThrowAnyException();
+            assertThatCode(() -> new VisionModelEngine.FaceDetection(0, 0, 1, 1, boundary, Map.of()))
+                    .doesNotThrowAnyException();
+        }
+    }
+
+    @Test
+    @DisplayName("object and face records validate finite pixel geometry")
+    void publicGeometryResultsValidateBoundingBoxGeometry() {
+        for (double[] invalid : new double[][] {
+                new double[] {Double.NaN, 0, 1, 1},
+                new double[] {Double.POSITIVE_INFINITY, 0, 1, 1},
+                new double[] {Double.NEGATIVE_INFINITY, 0, 1, 1},
+                new double[] {0, Double.NaN, 1, 1},
+                new double[] {0, Double.NEGATIVE_INFINITY, 1, 1},
+                new double[] {0, 0, Double.NaN, 1},
+                new double[] {0, 0, Double.POSITIVE_INFINITY, 1},
+                new double[] {0, 0, 1, Double.NEGATIVE_INFINITY},
+                new double[] {0, 0, -1, 1},
+                new double[] {0, 0, 1, -1},
+                new double[] {Double.MAX_VALUE, 0, Double.MAX_VALUE, 1},
+                new double[] {0, Double.MAX_VALUE, 1, Double.MAX_VALUE},
+                new double[] {0, 0, Double.MAX_VALUE, 2}
+        }) {
+            assertThatThrownBy(() -> new VisionModelEngine.DetectedObject(
+                    "cat", 0.5, invalid[0], invalid[1], invalid[2], invalid[3]))
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> new VisionModelEngine.FaceDetection(
+                    invalid[0], invalid[1], invalid[2], invalid[3], 0.5, Map.of()))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        assertThatCode(() -> new VisionModelEngine.DetectedObject("cat", 0.0, -4, -2, 0, 0))
+                .doesNotThrowAnyException();
+        assertThatCode(() -> new VisionModelEngine.FaceDetection(-4, -2, 3, 0, 1.0, Map.of()))
+                .doesNotThrowAnyException();
+    }
+
     // ── Engine metadata ───────────────────────────────────────────────────────
 
     @Test

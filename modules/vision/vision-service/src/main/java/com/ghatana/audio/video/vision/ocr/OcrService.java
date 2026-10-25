@@ -58,7 +58,7 @@ public final class OcrService {
      */
     public static OcrService of(OcrModel model, double confidenceThreshold) {
         Objects.requireNonNull(model, "model must not be null");
-        if (confidenceThreshold < 0 || confidenceThreshold > 1) {
+        if (!Double.isFinite(confidenceThreshold) || confidenceThreshold < 0 || confidenceThreshold > 1) {
             throw new IllegalArgumentException("confidenceThreshold must be in [0, 1]");
         }
         return new OcrService(model, confidenceThreshold);

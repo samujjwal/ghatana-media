@@ -44,6 +44,21 @@ class SceneUnderstandingServiceTest {
                 .isThrownBy(() -> SceneUnderstandingService.of(STUB_MODEL, 1.5)); 
     }
 
+    @Test
+    @DisplayName("of rejects non-finite thresholds and accepts inclusive bounds")
+    void of_thresholdMustBeFiniteAndWithinInclusiveBounds() {
+        for (double invalid : new double[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
+        }) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> SceneUnderstandingService.of(STUB_MODEL, invalid));
+        }
+        for (double boundary : new double[] {0.0, 1.0}) {
+            org.assertj.core.api.Assertions.assertThatCode(() -> SceneUnderstandingService.of(STUB_MODEL, boundary))
+                    .doesNotThrowAnyException();
+        }
+    }
+
     // ─── classify() ─────────────────────────────────────────────────────────── 
 
     @Nested

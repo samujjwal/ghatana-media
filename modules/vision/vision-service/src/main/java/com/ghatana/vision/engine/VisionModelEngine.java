@@ -28,20 +28,38 @@ public class VisionModelEngine {
             double confidence,
             double x, double y,
             double width, double height
-    ) {}
+    ) {
+        public DetectedObject {
+            requireConfidence(confidence);
+            requireGeometry(x, y, width, height);
+        }
+    }
 
     /** OCR extraction result. */
-    public record OcrResult(String text, double confidence, List<DetectedObject> textRegions) {}
+    public record OcrResult(String text, double confidence, List<DetectedObject> textRegions) {
+        public OcrResult {
+            requireConfidence(confidence);
+        }
+    }
 
     /** Classification result. */
-    public record ClassificationResult(String label, double confidence, List<String> topLabels) {}
+    public record ClassificationResult(String label, double confidence, List<String> topLabels) {
+        public ClassificationResult {
+            requireConfidence(confidence);
+        }
+    }
 
     /** Detected face with landmarks. */
     public record FaceDetection(
             double x, double y, double width, double height,
             double confidence,
             Map<String, double[]> landmarks
-    ) {}
+    ) {
+        public FaceDetection {
+            requireConfidence(confidence);
+            requireGeometry(x, y, width, height);
+        }
+    }
 
     private final String modelId;
     private final double confidenceThreshold;
@@ -54,7 +72,7 @@ public class VisionModelEngine {
      */
     public VisionModelEngine(String modelId, double confidenceThreshold, VisionDetector detector) {
         Objects.requireNonNull(modelId, "modelId must not be null");
-        if (confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
+        if (!Double.isFinite(confidenceThreshold) || confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
             throw new IllegalArgumentException("confidenceThreshold must be in [0.0, 1.0]");
         }
         this.modelId = modelId;
@@ -171,6 +189,23 @@ public class VisionModelEngine {
 
     /** @return the confidence threshold for detection filtering */
     public double getConfidenceThreshold() { return confidenceThreshold; }
+
+    private static void requireConfidence(double confidence) {
+        if (!Double.isFinite(confidence) || confidence < 0.0 || confidence > 1.0) {
+            throw new IllegalArgumentException("confidence must be finite and in [0.0, 1.0]");
+        }
+    }
+
+    private static void requireGeometry(double x, double y, double width, double height) {
+        if (!Double.isFinite(x) || !Double.isFinite(y)
+                || !Double.isFinite(width) || !Double.isFinite(height)
+                || width < 0.0 || height < 0.0
+                || !Double.isFinite(x + width) || !Double.isFinite(y + height)
+                || !Double.isFinite(width * height)) {
+            throw new IllegalArgumentException(
+                    "bounding box coordinates and extents must be finite with non-negative, finite area");
+        }
+    }
 
     private void validateImage(byte[] imageData) {
         if (imageData == null || imageData.length == 0) {
