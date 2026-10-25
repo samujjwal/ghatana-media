@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @doc.type class
@@ -30,6 +32,22 @@ class AudioConverterTest {
         assertThat(restored[1]).isCloseTo(-0.5f, within(0.01f)); 
         assertThat(restored[3]).isCloseTo(0.5f, within(0.01f)); 
         assertThat(restored[4]).isCloseTo(1.0f, within(0.01f)); 
+    }
+
+    @Test
+    @DisplayName("non-finite float samples are rejected while finite out-of-range samples clamp")
+    void rejectsNonFiniteSamplesAndClampsFiniteSamples() {
+        List<Float> nonFinite = List.of(
+                Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY);
+        for (float sample : nonFinite) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> AudioConverter.floatSamplesToPcm16(new float[]{sample}));
+        }
+
+        float[] restored = AudioConverter.pcmToFloatSamples(
+                AudioConverter.floatSamplesToPcm16(new float[]{-2.0f, -1.0f, 1.0f, 2.0f}), 16);
+        assertThat(restored).containsExactly(-32767 / 32768.0f, -32767 / 32768.0f,
+                32767 / 32768.0f, 32767 / 32768.0f);
     }
 
     @Test

@@ -46,7 +46,11 @@ public final class AudioConverter {
         Objects.requireNonNull(samples, "samples cannot be null");
         byte[] bytes = new byte[samples.length * 2];
         for (int index = 0; index < samples.length; index++) {
-            int sample = Math.round(Math.max(-1.0f, Math.min(1.0f, samples[index])) * 32767.0f);
+            float value = samples[index];
+            if (!Float.isFinite(value)) {
+                throw new IllegalArgumentException("audio sample at index " + index + " must be finite");
+            }
+            int sample = Math.round(Math.max(-1.0f, Math.min(1.0f, value)) * 32767.0f);
             sample = Math.max(-32768, Math.min(32767, sample));
             bytes[index * 2] = (byte) (sample & 0xFF);
             bytes[index * 2 + 1] = (byte) ((sample >> 8) & 0xFF);

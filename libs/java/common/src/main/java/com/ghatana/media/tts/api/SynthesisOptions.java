@@ -24,6 +24,18 @@ public record SynthesisOptions(
     Emotion emotion,
     Duration timeout
 ) {
+    public SynthesisOptions {
+        requireFinite("speed", speed);
+        requireFinite("pitch", pitch);
+        requireFinite("volume", volume);
+    }
+
+    private static void requireFinite(String name, double value) {
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException(name + " must be finite");
+        }
+    }
+
     public static SynthesisOptions defaults() {
         return new SynthesisOptions(null, 1.0, 1.0, 1.0, null, AudioFormat.WAV, 22050, Emotion.NEUTRAL, Duration.ofSeconds(30));
     }
@@ -44,9 +56,21 @@ public record SynthesisOptions(
         private Duration timeout = Duration.ofSeconds(30);
 
         public Builder voiceId(String value) { this.voiceId = value; return this; }
-        public Builder speed(double value) { this.speed = Math.max(0.5, Math.min(2.0, value)); return this; }
-        public Builder pitch(double value) { this.pitch = Math.max(0.5, Math.min(2.0, value)); return this; }
-        public Builder volume(double value) { this.volume = Math.max(0.0, Math.min(2.0, value)); return this; }
+        public Builder speed(double value) {
+            requireFinite("speed", value);
+            this.speed = Math.max(0.5, Math.min(2.0, value));
+            return this;
+        }
+        public Builder pitch(double value) {
+            requireFinite("pitch", value);
+            this.pitch = Math.max(0.5, Math.min(2.0, value));
+            return this;
+        }
+        public Builder volume(double value) {
+            requireFinite("volume", value);
+            this.volume = Math.max(0.0, Math.min(2.0, value));
+            return this;
+        }
         public Builder language(Locale value) { this.language = value; return this; }
         public Builder outputFormat(AudioFormat value) { this.outputFormat = value; return this; }
         public Builder sampleRate(int value) { this.sampleRate = value; return this; }
