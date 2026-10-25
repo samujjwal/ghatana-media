@@ -22,8 +22,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -244,16 +246,44 @@ class PersistentTtsGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("streamSynthesize fails closed without provider access or chunks")
+    @DisplayName("streamSynthesize rejects missing subject before delegate or provider access")
     void streamSynthesizeFailsClosedWithoutProviderAccess() {
         CapturingObserver<AudioChunk> observer = new CapturingObserver<>();
         withContext("tenant-a", null, () ->
             streamingService.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer));
 
-        assertThat(statusCode(observer)).isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(statusCode(observer)).isEqualTo(Status.UNAUTHENTICATED.getCode());
         assertThat(observer.value).isNull();
+        assertThat(observer.values).isEmpty();
         assertThat(observer.completed).isFalse();
-        verifyNoInteractions(library, engine);
+        verifyNoInteractions(library, engine, audioFileService);
+    }
+
+    @Test
+    @DisplayName("streamSynthesize rejects blank subject before delegate or provider access")
+    void streamSynthesizeRejectsBlankSubjectBeforeProviderAccess() {
+        CapturingObserver<AudioChunk> observer = new CapturingObserver<>();
+        withContext("tenant-a", "   ", () ->
+            streamingService.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer));
+
+        assertThat(statusCode(observer)).isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(observer.values).isEmpty();
+        assertThat(observer.completed).isFalse();
+        verifyNoInteractions(library, engine, audioFileService);
+    }
+
+    @Test
+    @DisplayName("streamSynthesize rejects malformed subject before delegate or provider access")
+    void streamSynthesizeRejectsInvalidSubjectBeforeProviderAccess() {
+        CapturingObserver<AudioChunk> observer = new CapturingObserver<>();
+        withContext("tenant-a", "opaque-subject", () ->
+            streamingService.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer));
+
+        assertThat(statusCode(observer)).isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(observer.value).isNull();
+        assertThat(observer.values).isEmpty();
+        assertThat(observer.completed).isFalse();
+        verifyNoInteractions(library, engine, audioFileService);
     }
 
     @Test
@@ -295,8 +325,9 @@ class PersistentTtsGrpcServiceTest {
         private T value;
         private Throwable error;
         private boolean completed;
+        private final List<T> values = new ArrayList<>();
 
-        @Override public void onNext(T v)      { this.value = v; }
+        @Override public void onNext(T v)      { this.value = v; values.add(v); }
         @Override public void onError(Throwable t) { this.error = t; }
         @Override public void onCompleted()    { this.completed = true; }
     }

@@ -178,6 +178,22 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
             return;
         }
 
+        String userId = getUserId();
+        if (userId == null || userId.isBlank()) {
+            responseObserver.onError(Status.UNAUTHENTICATED
+                .withDescription("Missing authenticated subject")
+                .asRuntimeException());
+            return;
+        }
+        try {
+            UUID.fromString(userId);
+        } catch (IllegalArgumentException invalidSubject) {
+            responseObserver.onError(Status.UNAUTHENTICATED
+                .withDescription("Authenticated subject is not a supported principal identifier")
+                .asRuntimeException());
+            return;
+        }
+
         streamingDelegate.streamSynthesize(request, responseObserver);
     }
 
