@@ -5,10 +5,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Combined multimodal analysis engine.
@@ -27,21 +33,38 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(MultimodalAnalysisEngine.class);
 
     private static final int ANALYSIS_TIMEOUT_SECONDS = 60;
+    private static final int MAX_ANALYSIS_ADMISSIONS = 64;
     private static final int MAX_MODALITY_BYTES = 32 * 1024 * 1024;
     private static final String SOURCE_GROUNDING_ABSTENTION = "ABSTAIN: SOURCE_REFERENCES_INCOMPLETE";
 
     private final MultimodalMediaGateway mediaGateway;
-    private final AudioVideoRuntimeSettings settings;
     private final ExecutorService executor;
+    private final Semaphore admissions;
+    private final long analysisTimeoutNanos;
 
     public MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway) {
         this(mediaGateway, AudioVideoRuntimeSettings.load());
     }
 
     MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway, AudioVideoRuntimeSettings settings) {
+        this(mediaGateway, settings, TimeUnit.SECONDS.toNanos(ANALYSIS_TIMEOUT_SECONDS));
+    }
+
+    MultimodalAnalysisEngine(MultimodalMediaGateway mediaGateway, AudioVideoRuntimeSettings settings,
+                             long analysisTimeoutNanos) {
         this.mediaGateway = mediaGateway;
-        this.settings = settings;
-        this.executor = Executors.newVirtualThreadPerTaskExecutor();
+        java.util.Objects.requireNonNull(settings, "settings");
+        if (analysisTimeoutNanos <= 0) throw new IllegalArgumentException("analysis timeout must be positive");
+        this.analysisTimeoutNanos = analysisTimeoutNanos;
+        int permits = Math.max(1, Math.min(MAX_ANALYSIS_ADMISSIONS, settings.maxInputStreams()));
+        this.admissions = new Semaphore(permits, true);
+        AtomicInteger threadNumber = new AtomicInteger();
+        this.executor = new ThreadPoolExecutor(permits, permits, 0L, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(permits * 3), runnable -> {
+                    Thread thread = new Thread(runnable, "media-multimodal-" + threadNumber.incrementAndGet());
+                    thread.setDaemon(true);
+                    return thread;
+                }, new ThreadPoolExecutor.AbortPolicy());
         LOG.info("MultimodalAnalysisEngine initialised");
     }
 
@@ -57,30 +80,22 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
      */
     public MultimodalResult analyse(MultimodalRequest request) {
         java.util.Objects.requireNonNull(request, "request");
+        acquireAdmission();
         long startMs = System.currentTimeMillis();
-
-        // Launch parallel tasks only for modalities that are present
-        CompletableFuture<AudioResult> audioFuture = request.hasAudio()
-                ? CompletableFuture.supplyAsync(() -> transcribeAudio(request.getAudioData()), executor)
-                : CompletableFuture.completedFuture(null);
-
-        CompletableFuture<VisualResult> imageFuture = request.hasImage()
-                ? CompletableFuture.supplyAsync(() -> analyseImage(request.getImageData()), executor)
-                : CompletableFuture.completedFuture(null);
-
-        CompletableFuture<VisualResult> videoFuture = request.hasVideo()
-                ? CompletableFuture.supplyAsync(() -> analyseVideo(request.getVideoData(),
-                        request.getVideoSampleFps(), request.getVideoMaxFrames()), executor)
-                : CompletableFuture.completedFuture(null);
+        List<Future<?>> children = new ArrayList<>();
 
         try {
-            // Wait for all futures together
-            CompletableFuture.allOf(audioFuture, imageFuture, videoFuture)
-                    .get(ANALYSIS_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-
-            AudioResult audio  = audioFuture.get();
-            VisualResult image  = imageFuture.get();
-            VisualResult video  = videoFuture.get();
+            Future<AudioResult> audioFuture = request.hasAudio()
+                    ? submit(children, () -> transcribeAudio(request.getAudioData())) : null;
+            Future<VisualResult> imageFuture = request.hasImage()
+                    ? submit(children, () -> analyseImage(request.getImageData())) : null;
+            Future<VisualResult> videoFuture = request.hasVideo()
+                    ? submit(children, () -> analyseVideo(request.getVideoData(),
+                            request.getVideoSampleFps(), request.getVideoMaxFrames())) : null;
+            long deadline = System.nanoTime() + analysisTimeoutNanos;
+            AudioResult audio = await(audioFuture, deadline);
+            VisualResult image = await(imageFuture, deadline);
+            VisualResult video = await(videoFuture, deadline);
 
             // Merge image + video visual results
             VisualResult visual = mergeVisualResults(image, video);
@@ -101,10 +116,20 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                     .build();
 
         } catch (InterruptedException e) {
+            cancel(children);
             Thread.currentThread().interrupt();
-            throw new MultimodalException("Analysis interrupted", e);
-        } catch (Exception e) {
-            throw new MultimodalException("Analysis failed: " + e.getMessage(), e);
+            throw new MultimodalException("Analysis interrupted");
+        } catch (TimeoutException e) {
+            cancel(children);
+            throw new MultimodalException("Analysis outcome unavailable: deadline exceeded");
+        } catch (ExecutionException | RejectedExecutionException e) {
+            cancel(children);
+            throw new MultimodalException("Analysis outcome unavailable");
+        } catch (RuntimeException e) {
+            cancel(children);
+            throw e;
+        } finally {
+            admissions.release();
         }
     }
 
@@ -127,24 +152,18 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         if (sampleFps < 0 || sampleFps > 60) {
             throw new IllegalArgumentException("sampleFps must be between 0 and 60");
         }
+        acquireAdmission();
         long startMs = System.currentTimeMillis();
-
-        CompletableFuture<AudioResult> audioFuture = extractAudio
-                ? CompletableFuture.supplyAsync(
-                        () -> transcribeAudio(videoData), executor)
-                : CompletableFuture.completedFuture(null);
-
-        CompletableFuture<VisualResult> videoFuture = analyseFrames
-                ? CompletableFuture.supplyAsync(
-                        () -> analyseVideo(videoData, sampleFps, 100), executor)
-                : CompletableFuture.completedFuture(null);
+        List<Future<?>> children = new ArrayList<>();
 
         try {
-            CompletableFuture.allOf(audioFuture, videoFuture)
-                    .get(ANALYSIS_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-
-            AudioResult audio  = audioFuture.get();
-            VisualResult video  = videoFuture.get();
+            Future<AudioResult> audioFuture = extractAudio
+                    ? submit(children, () -> transcribeAudio(videoData)) : null;
+            Future<VisualResult> videoFuture = analyseFrames
+                    ? submit(children, () -> analyseVideo(videoData, sampleFps, 100)) : null;
+            long deadline = System.nanoTime() + analysisTimeoutNanos;
+            AudioResult audio = await(audioFuture, deadline);
+            VisualResult video = await(videoFuture, deadline);
 
             List<TemporalAlignment> alignments = buildTemporalAlignments(audio, video);
             String narrative = buildNarrative(audio, video, alignments);
@@ -159,10 +178,20 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                     .build();
 
         } catch (InterruptedException e) {
+            cancel(children);
             Thread.currentThread().interrupt();
-            throw new MultimodalException("Video-audio analysis interrupted", e);
-        } catch (Exception e) {
-            throw new MultimodalException("Video-audio analysis failed: " + e.getMessage(), e);
+            throw new MultimodalException("Video-audio analysis interrupted");
+        } catch (TimeoutException e) {
+            cancel(children);
+            throw new MultimodalException("Video-audio analysis outcome unavailable: deadline exceeded");
+        } catch (ExecutionException | RejectedExecutionException e) {
+            cancel(children);
+            throw new MultimodalException("Video-audio analysis outcome unavailable");
+        } catch (RuntimeException e) {
+            cancel(children);
+            throw e;
+        } finally {
+            admissions.release();
         }
     }
 
@@ -174,10 +203,13 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         try {
             validatePayload(audioData);
             LOG.debug("Transcribing {} bytes of audio", audioData.length);
-            return mediaGateway.transcribe(audioData);
+            AudioResult result = mediaGateway.transcribe(audioData);
+            return result == null || result.isError()
+                    ? AudioResult.error("Audio transcription unavailable") : result;
         } catch (Exception e) {
-            LOG.error("STT transcription failed", e);
-            return AudioResult.error(e.getMessage());
+            restoreInterruptIfPresent(e);
+            LOG.warn("STT transcription failed failureType={}", e.getClass().getSimpleName());
+            return AudioResult.error("Audio transcription unavailable");
         }
     }
 
@@ -185,10 +217,13 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         try {
             validatePayload(imageData);
             LOG.debug("Analysing image ({} bytes)", imageData.length);
-            return mediaGateway.analyseImage(imageData);
+            VisualResult result = mediaGateway.analyseImage(imageData);
+            return result == null || result.isError()
+                    ? VisualResult.error("Image analysis unavailable") : result;
         } catch (Exception e) {
-            LOG.error("Image analysis failed", e);
-            return VisualResult.error(e.getMessage());
+            restoreInterruptIfPresent(e);
+            LOG.warn("Image analysis failed failureType={}", e.getClass().getSimpleName());
+            return VisualResult.error("Image analysis unavailable");
         }
     }
 
@@ -200,15 +235,23 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
             }
             LOG.debug("Analysing video ({} bytes, {}fps, max {} frames)",
                     videoData.length, sampleFps, maxFrames);
-            return mediaGateway.analyseVideo(videoData, sampleFps, maxFrames);
+            VisualResult result = mediaGateway.analyseVideo(videoData, sampleFps, maxFrames);
+            return result == null || result.isError()
+                    ? VisualResult.error("Video analysis unavailable") : result;
         } catch (Exception e) {
-            LOG.error("Video analysis failed", e);
-            return VisualResult.error(e.getMessage());
+            restoreInterruptIfPresent(e);
+            LOG.warn("Video analysis failed failureType={}", e.getClass().getSimpleName());
+            return VisualResult.error("Video analysis unavailable");
         }
     }
 
     private VisualResult mergeVisualResults(VisualResult image, VisualResult video) {
         if (image == null && video == null) return null;
+        if ((image != null && image.isError()) || (video != null && video.isError())) {
+            // VisualResult has no PARTIAL disposition. Do not expose the successful child as an
+            // aggregate success; the available child is intentionally dropped pending that contract.
+            return VisualResult.error("Visual analysis unavailable");
+        }
         if (image == null) return video;
         if (video == null) return image;
 
@@ -228,6 +271,39 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                         image.getConfidence() != null ? image.getConfidence() : 0.0,
                         video.getConfidence() != null ? video.getConfidence() : 0.0))
                 .build();
+    }
+
+    private void acquireAdmission() {
+        if (!admissions.tryAcquire()) {
+            throw new MultimodalException("Analysis capacity unavailable");
+        }
+    }
+
+    private <T> Future<T> submit(List<Future<?>> children, java.util.concurrent.Callable<T> task) {
+        Future<T> child = executor.submit(task);
+        children.add(child);
+        return child;
+    }
+
+    private static <T> T await(Future<T> future, long deadlineNanos)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        if (future == null) return null;
+        long remaining = deadlineNanos - System.nanoTime();
+        if (remaining <= 0) throw new TimeoutException();
+        return future.get(remaining, TimeUnit.NANOSECONDS);
+    }
+
+    private static void cancel(List<Future<?>> children) {
+        for (Future<?> child : children) child.cancel(true);
+    }
+
+    private static void restoreInterruptIfPresent(Throwable failure) {
+        for (Throwable current = failure; current != null; current = current.getCause()) {
+            if (current instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
     }
 
     private String fuse(AudioResult audio, VisualResult visual, String text) {

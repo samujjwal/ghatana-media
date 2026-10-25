@@ -6,10 +6,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests for multimodal fusion and temporal alignment.
@@ -196,6 +200,119 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
         }
     }
 
+    @Test
+    @DisplayName("Audio failure remains explicit while successful visual result is preserved")
+    void oneModalityFailurePreservesOtherAndRedactsFailure() {
+        VisualResult visual = VisualResult.builder().sceneDescription("qualified fixture result").build();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("private marker"), visual,
+                VisualResult.error("unused")) {
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            MultimodalResult result = engine.analyse(MultimodalRequest.builder()
+                    .audioData(new byte[] {1}).imageData(new byte[] {2}).build());
+
+            assertTrue(result.getAudioResult().isError());
+            assertEquals("Audio transcription unavailable", result.getAudioResult().getError());
+            assertEquals("qualified fixture result", result.getVisualResult().getSceneDescription());
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
+        }
+    }
+
+    @Test
+    @DisplayName("Failed video result is not merged into apparent image success")
+    void failedVisualChildMakesMergedVisualExplicitlyUnavailable() {
+        VisualResult image = VisualResult.builder().sceneDescription("image fixture").build();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"), image,
+                VisualResult.error("unused")) {
+            @Override public VisualResult analyseVideo(byte[] input, int fps, int maxFrames) {
+                throw new IllegalStateException("private vision marker");
+            }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            MultimodalResult result = engine.analyse(MultimodalRequest.builder()
+                    .imageData(new byte[] {1}).videoData(new byte[] {2}).build());
+
+            assertTrue(result.getVisualResult().isError());
+            assertEquals("Visual analysis unavailable", result.getVisualResult().getError());
+            assertEquals("", result.getVisualResult().getSceneDescription());
+        }
+    }
+
+    @Test
+    @DisplayName("Timeout cancels child work and returns a stable unavailable result")
+    void timeoutCancelsChildrenAndRedactsProviderFailure() throws Exception {
+        CountDownLatch audioStarted = new CountDownLatch(1);
+        CountDownLatch audioInterrupted = new CountDownLatch(1);
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"),
+                VisualResult.builder().build(), VisualResult.builder().build()) {
+            @Override public AudioResult transcribe(byte[] input) {
+                audioStarted.countDown();
+                try {
+                    new CountDownLatch(1).await();
+                    return AudioResult.builder().build();
+                } catch (InterruptedException interrupted) {
+                    audioInterrupted.countDown();
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("private provider detail", interrupted);
+                }
+            }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults(), TimeUnit.MILLISECONDS.toNanos(50))) {
+            MultimodalException failure = assertThrows(MultimodalException.class,
+                    () -> engine.analyse(MultimodalRequest.builder()
+                            .audioData(new byte[] {1}).imageData(new byte[] {2}).build()));
+            assertEquals("Analysis outcome unavailable: deadline exceeded", failure.getMessage());
+            assertTrue(audioStarted.await(1, TimeUnit.SECONDS));
+            assertTrue(audioInterrupted.await(1, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    @DisplayName("Admission limit rejects excess concurrent analysis")
+    void capacityLimitAppliesBackpressure() throws Exception {
+        CountDownLatch audioStarted = new CountDownLatch(1);
+        CountDownLatch releaseAudio = new CountDownLatch(1);
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.builder().build(),
+                VisualResult.error("unused"), VisualResult.error("unused")) {
+            @Override public AudioResult transcribe(byte[] input) {
+                audioStarted.countDown();
+                try {
+                    releaseAudio.await();
+                    return AudioResult.builder().transcription("done").build();
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("interrupted");
+                }
+            }
+        };
+        AudioVideoRuntimeSettings base = AudioVideoRuntimeSettings.defaults();
+        AudioVideoRuntimeSettings singleAdmission = new AudioVideoRuntimeSettings(base.languageTag(),
+                base.sttSampleRate(), base.sttChannels(), base.sttBitsPerSample(), base.defaultImageWidth(),
+                base.defaultImageHeight(), base.syncToleranceMs(), base.syncAudioBufferMs(),
+                base.syncVideoBufferMs(), base.defaultVideoSampleFps(), base.defaultVideoMaxFrames(),
+                base.sttModelId(), base.visionModelId(), base.ttsVoiceId(), base.metricsEnabled(),
+                1, base.maxOutputStreams(), base.deviceAcquireTimeoutMs(), base.leakDetectionThresholdMs());
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, singleAdmission, TimeUnit.SECONDS.toNanos(2))) {
+            FutureTask<MultimodalResult> first = new FutureTask<>(() -> engine.analyse(
+                    MultimodalRequest.builder().audioData(new byte[] {1}).build()));
+            Thread caller = new Thread(first, "multimodal-capacity-test-caller");
+            caller.start();
+            assertTrue(audioStarted.await(1, TimeUnit.SECONDS));
+            MultimodalException rejected = assertThrows(MultimodalException.class,
+                    () -> engine.analyse(MultimodalRequest.builder()
+                            .audioData(new byte[] {2}).build()));
+            assertEquals("Analysis capacity unavailable", rejected.getMessage());
+            releaseAudio.countDown();
+            assertTrue(first.get(1, TimeUnit.SECONDS).getAudioResult() != null);
+        } finally {
+            releaseAudio.countDown();
+        }
+    }
+
     private static MediaClockTimestamp sourcePts(long ticks, long numerator, long denominator) {
         return new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN, ticks, numerator, denominator,
                 MediaClockTimestamp.ClockDomain.SOURCE, "source-pts", null);
@@ -275,7 +392,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
-    private static final class FakeMediaGateway implements MultimodalMediaGateway {
+    private static class FakeMediaGateway implements MultimodalMediaGateway {
         private final AudioResult audioResult;
         private final VisualResult imageResult;
         private final VisualResult videoResult;
