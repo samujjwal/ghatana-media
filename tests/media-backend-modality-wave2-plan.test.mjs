@@ -58,6 +58,32 @@ test('five selected physical surfaces have exact nonduplicated runnable task ide
   }
 });
 
+test('current task dispositions are explicit, exhaustive, disjoint, and match their counts', () => {
+  const sectionStart = plan.lastIndexOf('### Current task-disposition reconciliation — 2026-10-25');
+  assert.notEqual(sectionStart, -1, 'missing current task-disposition reconciliation');
+  const current = plan.slice(sectionStart);
+  const dispositions = new Map([
+    ['LOCALLY_VERIFIED', []],
+    ['PARTIAL', []],
+    ['EXTERNAL/OWNER', []],
+    ['SOURCE_CONFLICT', []],
+  ]);
+  for (const match of current.matchAll(/^- (LOCALLY_VERIFIED|PARTIAL|EXTERNAL\/OWNER|SOURCE_CONFLICT): (.+)$/gmu)) {
+    const [, label, ids] = match;
+    const parsed = ids === 'none' ? [] : [...ids.matchAll(/\b(?:STT|TTS|VIS|MM|OBS)-\d{2}\b/gmu)].map(id => id[0]);
+    dispositions.get(label).push(...parsed);
+  }
+  const all = [...dispositions.values()].flat();
+  assert.equal(new Set(all).size, all.length, 'a task appears in more than one disposition');
+  assert.deepEqual([...all].sort(), [...taskIds].sort(), 'every task must have exactly one current disposition');
+  assert.deepEqual(Object.fromEntries([...dispositions].map(([label, ids]) => [label, ids.length])), {
+    LOCALLY_VERIFIED: 22,
+    PARTIAL: 30,
+    'EXTERNAL/OWNER': 6,
+    SOURCE_CONFLICT: 0,
+  });
+});
+
 test('every task binds existing PDP-0 capability, current NFR, exact code and executable assertion', () => {
   for (const task of tasks) {
     const prefix = task.id.split('-')[0];
