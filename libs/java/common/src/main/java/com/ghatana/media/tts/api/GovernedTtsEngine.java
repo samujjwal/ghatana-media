@@ -247,6 +247,7 @@ public final class GovernedTtsEngine implements TtsEngine {
         if (!config.enableStreaming()) {
             throw new UnsupportedOperationException("Streaming synthesis is disabled");
         }
+        if (sink != null) sink.onAudioFormat(audio.canonicalFormat());
         int sampleRate = audio.sampleRate() > 0
                 ? audio.sampleRate()
                 : options.sampleRate() > 0 ? options.sampleRate() : config.sampleRate();

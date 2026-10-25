@@ -7,6 +7,7 @@ import com.ghatana.media.tts.api.TtsStreamingSession;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.common.CanonicalAudioFormat;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceResponse;
 import com.ghatana.tts.core.grpc.proto.CreateProfileRequest;
@@ -375,6 +376,7 @@ class TtsGrpcServiceTest {
 
         admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
         assertThat(sinkRef.get()).isNotNull();
+        sinkRef.get().onAudioFormat(monoPcm16Format());
         Thread producer = Thread.startVirtualThread(() -> {
             sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 6));
             sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 1, true, 7));
@@ -508,6 +510,7 @@ class TtsGrpcServiceTest {
         doAnswer(invocation -> { completed.countDown(); return null; }).when(observer).onCompleted();
 
         admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
         sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 4));
         completionRef.get().complete(null);
         assertThat(completed.await(1, TimeUnit.SECONDS)).isTrue();
@@ -525,6 +528,7 @@ class TtsGrpcServiceTest {
         AtomicBoolean sessionCancelled = new AtomicBoolean();
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(monoPcm16Format());
             sink.onChunk(new com.ghatana.media.common.AudioChunk(
                     new byte[64 * 1024 + 1], 0, false, 0));
             return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
@@ -545,6 +549,7 @@ class TtsGrpcServiceTest {
         AtomicBoolean sessionCancelled = new AtomicBoolean();
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(monoPcm16Format());
             sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 0));
             sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 2, true, 1));
             return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
@@ -582,6 +587,7 @@ class TtsGrpcServiceTest {
         doAnswer(invocation -> { errorReceived.countDown(); return null; }).when(observer).onError(any());
 
         admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
         sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 0));
         completionRef.get().completeExceptionally(new IllegalStateException("controlled provider failure"));
 
@@ -591,6 +597,67 @@ class TtsGrpcServiceTest {
         verify(observer, org.mockito.Mockito.times(1)).onNext(any());
         verify(observer, never()).onCompleted();
         verify(observer).onError(any());
+    }
+
+    @Test
+    void admittedStreamRejectsAudioBeforeFormatDeclaration() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 0));
+            return TtsStreamingSession.create(new AtomicBoolean(), new CompletableFuture<>());
+        });
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+    }
+
+    @Test
+    void admittedStreamRejectsDuplicateAudioFormatDeclarationBeforeBytes() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(monoPcm16Format());
+            sink.onAudioFormat(monoPcm16Format());
+            return TtsStreamingSession.create(new AtomicBoolean(), new CompletableFuture<>());
+        });
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+    }
+
+    @Test
+    void admittedStreamRejectsFormatsThatCannotBeRepresentedByTheGrpcResponse() {
+        List<CanonicalAudioFormat> unsupportedFormats = List.of(
+                new CanonicalAudioFormat(22_050, 1, 32, AudioFormat.PCM),
+                new CanonicalAudioFormat(22_050, 2, 16, AudioFormat.PCM),
+                new CanonicalAudioFormat(24_000, 1, 16, AudioFormat.PCM),
+                new CanonicalAudioFormat(22_050, 1, 16, AudioFormat.WAV));
+
+        for (CanonicalAudioFormat unsupported : unsupportedFormats) {
+            TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+            when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+                TtsStreamSink sink = invocation.getArgument(2);
+                sink.onAudioFormat(unsupported);
+                return TtsStreamingSession.create(new AtomicBoolean(), new CompletableFuture<>());
+            });
+            CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+
+            admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+            assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+            assertThat(observer.value).as("format %s", unsupported).isNull();
+            assertThat(observer.completed).as("format %s", unsupported).isFalse();
+            org.mockito.Mockito.reset(engine);
+        }
     }
 
     @Test
@@ -872,6 +939,10 @@ class TtsGrpcServiceTest {
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
                 .isEqualTo(expected);
+    }
+
+    private static CanonicalAudioFormat monoPcm16Format() {
+        return new CanonicalAudioFormat(22_050, 1, 16, AudioFormat.PCM);
     }
 
     private static final class CapturingObserver<T> implements StreamObserver<T> {

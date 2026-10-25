@@ -3,6 +3,7 @@ package com.ghatana.tts.grpc;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.common.CanonicalAudioFormat;
 import com.ghatana.media.common.ValidationError;
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.audiovideo.observability.instrumentation.AudioVideoGrpcInstrumentation;
@@ -229,6 +230,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             AtomicInteger expectedSequence = new AtomicInteger();
             AtomicBoolean finalChunkSeen = new AtomicBoolean();
             AtomicLong outputBytes = new AtomicLong();
+            AtomicReference<CanonicalAudioFormat> declaredStreamFormat = new AtomicReference<>();
             AtomicReference<com.ghatana.media.common.AudioChunk> pendingFinalChunk = new AtomicReference<>();
             Object chunkLock = new Object();
             if (serverObserver != null) {
@@ -249,13 +251,36 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                         while (!isReady() && !isCancelled()) readinessLock.wait();
                     }
                 }
+                @Override public void onAudioFormat(CanonicalAudioFormat format) {
+                    if (format == null) {
+                        throw new IllegalStateException("TTS provider did not declare an audio format");
+                    }
+                    if (!declaredStreamFormat.compareAndSet(null, format)) {
+                        throw new IllegalStateException("TTS provider declared the stream format more than once");
+                    }
+                    if (format.format() != AudioFormat.PCM
+                            || format.channels() != 1
+                            || format.bitsPerSample() != 16
+                            || format.sampleRate() != synthesisOptions.sampleRate()) {
+                        throw new IllegalStateException(
+                                "TTS stream format does not match the mono PCM S16LE response contract");
+                    }
+                }
                 @Override public void onChunk(com.ghatana.media.common.AudioChunk chunk) {
                     if (terminal.get()) return;
                     try {
                         synchronized (chunkLock) {
                             if (isCancelled() || terminal.get()) return;
-                            if (chunk.data().length == 0 || chunk.data().length > MAX_STREAM_CHUNK_BYTES) {
+                            CanonicalAudioFormat format = declaredStreamFormat.get();
+                            if (format == null) {
+                                throw new IllegalStateException("TTS provider emitted audio before declaring its format");
+                            }
+                            byte[] chunkData = chunk.data();
+                            if (chunkData.length == 0 || chunkData.length > MAX_STREAM_CHUNK_BYTES) {
                                 throw new IllegalStateException("TTS stream chunk exceeds the admitted non-empty 64 KiB bound");
+                            }
+                            if (chunkData.length % (format.channels() * (format.bitsPerSample() / 8)) != 0) {
+                                throw new IllegalStateException("TTS stream chunk ends inside an audio frame");
                             }
                             if (chunk.sequenceNumber() != expectedSequence.getAndIncrement()) {
                                 throw new IllegalStateException("TTS provider returned a non-contiguous chunk sequence");
