@@ -155,6 +155,38 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void collectedFramesPreserveEmissionSequenceGapsAndExactSourcePts() throws Exception {
+        Path output = Files.createDirectory(tempDir.resolve("sequence-gap"));
+        Files.write(output.resolve("frame_0001.jpg"), new byte[] {1});
+        Files.write(output.resolve("frame_0003.jpg"), new byte[] {3});
+        String diagnostics = "[Parsed_showinfo_0] config in time_base: 1/90000, frame_rate: 30/1\n"
+                + "[Parsed_showinfo_0] n: 0 pts: 90000 pts_time:1.0\n"
+                + "[Parsed_showinfo_0] n: 1 pts: 121500 pts_time:1.35\n"
+                + "[Parsed_showinfo_0] n: 2 pts: 81000 pts_time:0.9\n";
+
+        List<VideoFrameExtractor.ExtractedFrame> frames = new VideoFrameExtractor().collectExtractedFrames(
+                output, VideoFrameExtractor.ExtractionConfig.builder().maxFrames(3).build(),
+                "1/90000", diagnostics);
+
+        assertThat(frames).extracting(VideoFrameExtractor.ExtractedFrame::getFrameNumber)
+                .containsExactly(0, 2);
+        assertThat(frames).extracting(frame -> frame.getSourceTimestamp().pts())
+                .containsExactly(90000L, 81000L);
+        assertThat(frames).extracting(VideoFrameExtractor.ExtractedFrame::getTimestampMs)
+                .containsExactly(1000L, 900L);
+    }
+
+    @Test
+    void collectedFramesRejectAnInvalidZeroBasedSequence() throws Exception {
+        Path output = Files.createDirectory(tempDir.resolve("zero-sequence"));
+        Files.write(output.resolve("frame_0000.jpg"), new byte[] {1});
+
+        assertThatThrownBy(() -> new VideoFrameExtractor().collectExtractedFrames(
+                output, VideoFrameExtractor.ExtractionConfig.builder().build(), "1/1000", ""))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("sequence number");
+    }
+
+    @Test
     void preservesDiscontinuousPtsAndReturnsTypedUnknownForMissingOrInvalidTimebase() {
         String diagnostics = "[Parsed_showinfo_0] n: 0 pts: 45000 pts_time:0.5\n"
                 + "[Parsed_showinfo_0] n: 1 pts: 0 pts_time:0\n"

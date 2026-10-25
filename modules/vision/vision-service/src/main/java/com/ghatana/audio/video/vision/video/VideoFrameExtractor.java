@@ -363,7 +363,7 @@ public class VideoFrameExtractor {
         return collectExtractedFrames(outputDir, config, null, "");
     }
 
-    private List<ExtractedFrame> collectExtractedFrames(Path outputDir, ExtractionConfig config,
+    List<ExtractedFrame> collectExtractedFrames(Path outputDir, ExtractionConfig config,
             String timeBase, String diagnosticOutput) throws IOException {
 
         List<ExtractedFrame> frames = new ArrayList<>();
@@ -385,8 +385,8 @@ public class VideoFrameExtractor {
             cleanupFrames(outputDir, config.getFormat());
             throw new IOException("FFmpeg produced more frames than the configured limit");
         }
-        for (int i = 0; i < files.length; i++) {
-            Path framePath = files[i].toPath().toAbsolutePath().normalize();
+        for (File file : files) {
+            Path framePath = file.toPath().toAbsolutePath().normalize();
             if (Files.isSymbolicLink(framePath) || !framePath.startsWith(outputDir)
                     || !Files.isRegularFile(framePath, LinkOption.NOFOLLOW_LINKS)) {
                 cleanupFrames(outputDir, config.getFormat());
@@ -399,8 +399,14 @@ public class VideoFrameExtractor {
                 throw new IOException("Extracted frame output exceeded configured byte bounds");
             }
             int sourceSequence = frameSequenceNumber(framePath.getFileName().toString()) - 1;
+            if (sourceSequence < 0) {
+                cleanupFrames(outputDir, config.getFormat());
+                throw new IOException("FFmpeg produced an invalid frame sequence number");
+            }
             SourceMediaTimestamp timestamp = timestampForOutputFrame(diagnosticOutput, sourceSequence, timeBase);
-            frames.add(new ExtractedFrame(framePath, timestamp, i));
+            // Preserve the emitted sequence number so a missing frame remains visible as a gap;
+            // do not renumber observations densely or infer media time from this ordinal.
+            frames.add(new ExtractedFrame(framePath, timestamp, sourceSequence));
         }
 
         LOG.info("Collected {} extracted frames", frames.size());

@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -180,6 +181,25 @@ class VideoAnalysisServiceTest {
         assertThat(result.frameDetections().getFirst().trackIds()).isEmpty();
         assertThat(result.uniqueTracks()).isZero();
         assertThat(result.trackingStatus()).isEqualTo("NOT_ADMITTED");
+    }
+
+    @Test
+    void refusesFramesBeyondExtractionBudgetBeforeDetection() throws IOException {
+        Path first = tempDir.resolve("over-budget-1.jpg");
+        Path second = tempDir.resolve("over-budget-2.jpg");
+        Files.write(first, new byte[] {1});
+        Files.write(second, new byte[] {2});
+        Path fakeVideo = tempDir.resolve("over-budget.mp4");
+        Files.write(fakeVideo, new byte[] {0});
+        when(frameExtractor.extractFrames(eq(fakeVideo), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(first, SourceMediaTimestamp.fromPts("0", "1/1000"), 0),
+                new VideoFrameExtractor.ExtractedFrame(second, SourceMediaTimestamp.fromPts("1", "1/1000"), 1)));
+
+        assertThatThrownBy(() -> service.analyze(fakeVideo,
+                VideoFrameExtractor.ExtractionConfig.builder().maxFrames(1).build(), defaultOptions))
+                .isInstanceOf(VideoAnalysisService.VideoAnalysisException.class)
+                .hasMessageContaining("configured frame-count limit");
+        verifyNoInteractions(detector);
     }
 
     @Test

@@ -71,6 +71,9 @@ public final class VideoAnalysisService {
             tempDir = Files.createTempDirectory("avc-frames-");
             List<VideoFrameExtractor.ExtractedFrame> frames =
                     frameExtractor.extractFrames(videoPath, tempDir, config);
+            if (frames.size() > config.getMaxFrames()) {
+                throw new IOException("Frame extraction exceeded the configured frame-count limit");
+            }
 
             LOG.info("Analysing {} frames from video", frames.size());
 
@@ -120,7 +123,7 @@ public final class VideoAnalysisService {
     /**
      * Detections for a single video frame.
      *
-     * @param frameNumber  0-based frame index
+     * @param frameNumber  0-based emitted frame sequence, not media or wall time
      * @param timestampMs  source timestamp in milliseconds, null when PTS/timebase are unknown
      * @param sourceTimestamp exact source PTS/timebase state
      * @param detections   detected objects in this frame
