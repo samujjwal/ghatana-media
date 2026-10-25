@@ -1,13 +1,9 @@
 package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
-import com.ghatana.media.common.AudioData;
-import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.EngineMetrics;
 import com.ghatana.media.common.EngineStatus;
-import com.ghatana.media.common.ValidationError;
 import com.ghatana.media.tts.api.TtsEngine;
-import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceResponse;
@@ -24,7 +20,6 @@ import com.ghatana.tts.core.grpc.proto.StatusResponse;
 import com.ghatana.tts.core.grpc.proto.UpdateProfileRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
-import com.ghatana.tts.engine.TtsSynthesisEngine;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -39,7 +34,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +42,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -82,31 +75,43 @@ class TtsGrpcServiceTest {
     }
 
     @Test
-    void synthesizeReturnsAudioWithoutClosingBorrowedEngine() {
-        AudioData audio = new AudioData(
-                new byte[44_100],
-                22_050,
-                1,
-                16,
-                Duration.ofSeconds(1),
-                AudioFormat.PCM);
-        when(engine.synthesize(anyString(), any())).thenReturn(audio);
+    void synthesizeFailsBeforeProviderLookupWithoutExactAdmittedVoiceLanguageRightsProfile() {
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
 
         service.synthesize(
                 SynthesizeRequest.newBuilder().setText("Hello world").build(),
                 observer);
 
-        assertThat(observer.error).isNull();
-        assertThat(observer.completed).isTrue();
-        assertThat(observer.value.getSampleRate()).isEqualTo(22_050);
-        assertThat(observer.value.getAudioData()).hasSize(44_100);
-        var controls = forClass(SynthesisOptions.class);
-        verify(engine).synthesize(anyString(), controls.capture());
-        assertThat(controls.getValue().speed()).isEqualTo(1.0);
-        assertThat(controls.getValue().pitch()).isEqualTo(1.0);
-        assertThat(controls.getValue().volume()).isEqualTo(1.0);
+        assertStatus(observer, Status.Code.UNAVAILABLE);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "exact admitted voice-language-rights profile", "default", "unspecified");
+        verify(engine, never()).synthesize(anyString(), any());
+        verify(library, never()).getTtsEngine();
         verify(engine, never()).close();
+    }
+
+    @Test
+    void enNeHiAndRegionOrVoiceVariantsFailWithoutDefaultSubstitution() {
+        for (String language : List.of("en", "ne", "hi", "en-US", "ne-NP", "hi-IN", "bn-BD")) {
+            CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+            service.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                    .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                            .setLanguage(language).build()).build(), observer);
+            assertStatus(observer, Status.Code.UNAVAILABLE);
+            assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                    .contains("NOT_ADMITTED", "language=" + language);
+        }
+
+        CapturingObserver<SynthesizeResponse> explicit = new CapturingObserver<>();
+        service.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                .setVoiceId("provider-default")
+                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                        .setLanguage("hi-IN").build()).build(), explicit);
+        assertStatus(explicit, Status.Code.UNIMPLEMENTED);
+        assertThat(((StatusRuntimeException) explicit.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "owner", "consent");
+        verify(engine, never()).synthesize(anyString(), any());
+        verify(library, never()).getTtsEngine();
     }
 
     @Test
@@ -127,84 +132,6 @@ class TtsGrpcServiceTest {
             assertThat(observer.value).isNull();
         }
         verify(engine, never()).synthesize(anyString(), any());
-    }
-
-    @Test
-    void providerFormatMismatchDoesNotReturnAudio() {
-        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
-                new byte[44],
-                22_050,
-                1,
-                16,
-                Duration.ofMillis(1),
-                AudioFormat.MP3));
-        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-
-        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
-
-        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
-        assertThat(observer.value).isNull();
-        assertThat(observer.completed).isFalse();
-    }
-
-    @Test
-    void providerSampleWidthMismatchDoesNotReturnAudio() {
-        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
-                new byte[44], 22_050, 1, 32, Duration.ofMillis(1), AudioFormat.PCM));
-        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-
-        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
-
-        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
-        assertThat(observer.value).isNull();
-    }
-
-    @Test
-    void providerDurationMismatchDoesNotReturnAudio() {
-        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
-                new byte[44_100], 22_050, 1, 16, Duration.ofSeconds(2), AudioFormat.PCM));
-        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-
-        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
-
-        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
-        assertThat(observer.value).isNull();
-    }
-
-    @Test
-    void providerSampleRateMismatchDoesNotReturnAudio() {
-        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
-                new byte[32_000], 16_000, 1, 16, Duration.ofSeconds(1), AudioFormat.PCM));
-        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-
-        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
-
-        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
-        assertThat(observer.value).isNull();
-    }
-
-    @Test
-    void providerUnsupportedChannelLayoutDoesNotReturnAudio() {
-        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
-                new byte[44_100], 22_050, 3, 16, Duration.ofMillis(334), AudioFormat.PCM));
-        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-
-        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
-
-        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
-        assertThat(observer.value).isNull();
-    }
-
-    @Test
-    void stereoOutputIsRejectedBecauseCurrentWireResponseCannotDescribeChannels() {
-        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
-                new byte[88_200], 22_050, 2, 16, Duration.ofSeconds(1), AudioFormat.PCM));
-        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-
-        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
-
-        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
-        assertThat(observer.value).isNull();
     }
 
     @Test
@@ -247,45 +174,20 @@ class TtsGrpcServiceTest {
     }
 
     @Test
-    void oddBytePcmProviderOutputDoesNotReturnAudio() {
-        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
-                new byte[3], 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
-        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-
-        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
-
-        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
-        assertThat(observer.value).isNull();
-    }
-
-    @Test
-    void notAdmittedEngineFailureIsVisibleAsUnavailable() {
-        when(engine.synthesize(anyString(), any())).thenThrow(new TtsSynthesisEngine.SynthesisException(
-                "TTS synthesis is NOT_ADMITTED: no real provider",
-                TtsSynthesisEngine.FailureReason.NOT_ADMITTED));
-        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-
-        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
-
-        assertStatus(observer, Status.Code.UNAVAILABLE);
-        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
-                .contains("NOT_ADMITTED");
-        assertThat(observer.value).isNull();
-    }
-
-    @Test
     void validationFailuresMapToInvalidArgument() {
         CapturingObserver<SynthesizeResponse> empty = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.getDefaultInstance(), empty);
         assertStatus(empty, Status.Code.INVALID_ARGUMENT);
 
-        when(engine.synthesize(anyString(), any()))
-                .thenThrow(new ValidationError("unsupported text"));
         CapturingObserver<SynthesizeResponse> providerValidation = new CapturingObserver<>();
         service.synthesize(
                 SynthesizeRequest.newBuilder().setText("valid input").build(),
                 providerValidation);
-        assertStatus(providerValidation, Status.Code.INVALID_ARGUMENT);
+        assertStatus(providerValidation, Status.Code.UNAVAILABLE);
+        assertThat(((StatusRuntimeException) providerValidation.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "exact admitted voice-language-rights profile");
+        verify(engine, never()).synthesize(anyString(), any());
+        verify(library, never()).getTtsEngine();
     }
 
     @Test

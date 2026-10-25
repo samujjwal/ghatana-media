@@ -29,7 +29,7 @@ class TtsWave2InventoryTest {
     private record Entry(String disposition, String observation) {}
 
     private static final Map<String, Entry> RPCS = Map.ofEntries(
-            Map.entry("Synthesize", new Entry("PROVIDER_DEPENDENT", "Delegates to shared TtsEngine; no model, license, voice rights or speech quality is qualified.")),
+            Map.entry("Synthesize", new Entry("EXPLICITLY_NOT_ADMITTED", "The gRPC route rejects before engine lookup because no exact admitted voice-language-rights profile exists; no default substitution is permitted.")),
             Map.entry("StreamSynthesize", new Entry("EXPLICITLY_NOT_ADMITTED", "The gRPC handler rejects before engine lookup because no streaming provider is admitted.")),
             Map.entry("GetStatus", new Entry("IMPLEMENTED", "Projects engine status; does not establish readiness or quality.")),
             Map.entry("GetMetrics", new Entry("IMPLEMENTED", "Projects engine metrics.")),

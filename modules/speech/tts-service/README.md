@@ -4,14 +4,14 @@ Media-owned TTS implementation source and typed gRPC contracts. New Media code b
 
 ## Current implementation and admission status
 
-The gRPC façade delegates to the injected shared `TtsEngine`. Its actual output depends on the configured engine/model and is **provider-dependent, not independently qualified here**. `com.ghatana.tts.engine.TtsSynthesisEngine` has no model/provider integration and therefore returns `NOT_ADMITTED`; it must not be used to claim audio output. Voice cloning is explicitly `UNIMPLEMENTED` at the gRPC boundary until owner consent, biometric purpose, and retention can be verified. Feedback remains `UNIMPLEMENTED` pending a persistence/learning provider.
+The gRPC façade is backed by an injected shared `TtsEngine`, but synthesis currently fails closed before engine lookup because no exact admitted voice-language-rights profile exists. `com.ghatana.tts.engine.TtsSynthesisEngine` has no model/provider integration and also returns `NOT_ADMITTED`; neither path may claim audio output. Voice cloning is explicitly `UNIMPLEMENTED` at the gRPC boundary until owner consent, biometric purpose, and retention can be verified. Feedback remains `UNIMPLEMENTED` pending a persistence/learning provider.
 
 ### TTS-01 RPC inventory (11 declared methods)
 
 | Proto RPC | Current disposition | Source observation |
 | --- | --- | --- |
-| `Synthesize` | PROVIDER_DEPENDENT | Delegates to configured `TtsEngine`; no qualified model/license/voice profile is established by this module. |
-| `StreamSynthesize` | PROVIDER_DEPENDENT | Uses configured engine streaming API; real output, bounds, and finality require provider qualification. |
+| `Synthesize` | EXPLICITLY_NOT_ADMITTED | Rejects before engine lookup because no exact admitted voice-language-rights profile exists; provider defaults are not substituted. |
+| `StreamSynthesize` | EXPLICITLY_NOT_ADMITTED | Rejects before engine lookup; no streaming provider is admitted at this gRPC boundary. |
 | `GetStatus` | IMPLEMENTED | Projects the configured engine status; it does not itself establish model quality or readiness policy. |
 | `GetMetrics` | IMPLEMENTED | Projects configured engine metrics. |
 | `GetVoices` | PROVIDER_DEPENDENT | Lists engine-reported voices; a listed/configured voice is not proof of rights or provider readiness. |
@@ -63,6 +63,10 @@ The gRPC controls are checked for finite values, documented units and bounds: sp
 | `media.speech.synthesis.dub` | NOT_IMPLEMENTED | TTS-10 |
 
 `PROVIDER_DEPENDENT` means the API can delegate to an engine but this module has not established a qualified positive effect. It is not a claim of logical completion.
+
+### TTS-10 locale and voice boundary
+
+No exact voice-language-rights qualification profile is currently admitted. `Synthesize` therefore returns `UNAVAILABLE` with a stable `NOT_ADMITTED` reason before engine lookup for default and explicitly requested locales, including `en`, `ne`, `hi`, and region-tagged variants. The persistent service's input-validation language set (`en`, `ne`, `hi`, `es`, `fr`, `de`, `ja`, `zh`) is not a provider/voice qualification list. `GetVoices` is informational and cannot authorize synthesis; the requested locale is never replaced with an engine default. Cross-lingual synthesis, voice conversion, speech-to-speech, speech translation, and dubbing remain unavailable because no corresponding TTS RPC/provider path is wired.
 
 ## Purpose
 

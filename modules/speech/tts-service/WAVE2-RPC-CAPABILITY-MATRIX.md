@@ -6,7 +6,7 @@ This package-local inventory is a non-authoritative projection of the current gR
 
 | RPC | Current disposition | Boundary |
 |---|---|---|
-| Synthesize | PROVIDER_DEPENDENT | Delegates to the injected shared `TtsEngine`; real model/license/voice rights and decoded speech quality are not qualified. The standalone `TtsSynthesisEngine` fails `NOT_ADMITTED`. |
+| Synthesize | EXPLICITLY_NOT_ADMITTED | The gRPC route rejects before engine lookup because no exact admitted voice-language-rights profile exists; no default voice/language substitution is permitted. |
 | StreamSynthesize | EXPLICITLY_NOT_ADMITTED | Handler rejects before engine lookup/session creation; no streaming provider is admitted at this gRPC boundary. |
 | GetStatus | IMPLEMENTED | Projects shared engine status; response does not establish model readiness or quality. |
 | GetMetrics | IMPLEMENTED | Projects shared engine counters/latency/memory observations. |
@@ -45,3 +45,5 @@ The shared `TtsEngine` API supports synthesis, a callback streaming interface, v
 | `media.speech.synthesis.dub` | NOT_IMPLEMENTED | No dubbing operation is wired. |
 
 `PROVIDER_DEPENDENT` indicates a delegation/read path whose real provider result and rights remain unqualified. `EXPLICITLY_NOT_ADMITTED` indicates an intentional fail-closed boundary. Neither is a positive provider qualification.
+
+For TTS-10, requested `en`, `ne`, `hi`, region-tagged variants, and default-language requests all fail `NOT_ADMITTED` before engine lookup: this source cut has no exact admitted voice-language-rights profile. `PersistentTtsService`'s accepted language codes are input-validation bounds only. Engine voice listings cannot establish a qualification pair or rights decision. The source-declared multilingual intent remains provider-dependent only as a catalog/listing capability; there is no admitted locale-specific synthesis effect. Cross-lingual, voice conversion, speech-to-speech, speech translation, and dubbing remain `NOT_IMPLEMENTED` because no corresponding RPC or provider path exists.

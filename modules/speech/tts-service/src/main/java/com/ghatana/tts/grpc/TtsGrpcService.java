@@ -95,6 +95,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 SynthesisControlPolicy.rejectUnqualifiedSsml(text);
                 requireAuthorizedVoiceSelection(request);
                 SynthesisOptions options = options(request);
+                requireAdmittedVoiceLanguage(options.voiceId(), options.language());
                 AudioData audio = library.getTtsEngine().synthesize(text, options);
                 PcmAudioValidator.PcmFacts facts = validatePcm16Output(
                         audio, options.outputFormat(), options.sampleRate());
@@ -288,6 +289,20 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             throw new UnsupportedOperationException(
                     "Voice/profile selection is NOT_ADMITTED without an authoritative owner, rights and consent decision");
         }
+    }
+
+    /**
+     * No source-admitted voice/language/rights qualification profile is currently wired.
+     * Provider voice listings and configured defaults are informational only, so synthesis must
+     * fail before engine lookup instead of allowing a provider to silently select a substitute.
+     */
+    private static void requireAdmittedVoiceLanguage(String voiceId, Locale language) {
+        String requestedVoice = voiceId == null || voiceId.isBlank() ? "default" : "explicit";
+        String requestedLanguage = language == null ? "unspecified" : language.toLanguageTag();
+        throw new TtsSynthesisEngine.SynthesisException(
+                "TTS locale/voice NOT_ADMITTED: no exact admitted voice-language-rights profile "
+                        + "for requested voice=" + requestedVoice + ", language=" + requestedLanguage,
+                TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
     }
 
     private static PcmAudioValidator.PcmFacts validatePcm16Output(
