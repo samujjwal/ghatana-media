@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -13,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Unit tests for {@link LanguageDetectionService} — AV-007.2.
+ * Adapter contract tests for {@link LanguageDetectionService}; they do not qualify an STT model.
  *
  * @doc.type class
  * @doc.purpose Unit tests for the automatic language detection service
@@ -23,8 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("LanguageDetectionService")
 class LanguageDetectionServiceTest {
 
-    /** Deterministic text model: returns "en" at 0.97 confidence for any text containing "hello",
-     *  "fr" at 0.95 for "bonjour", else "de" at 0.60. */
+    /** Deterministic scripted model used to test propagation, not language classification. */
     private static final LanguageDetectionService.LanguageDetectionModel TEXT_MODEL = textSample -> {
         if (textSample.toLowerCase().contains("hello")) {
             return List.of(
@@ -84,7 +84,7 @@ class LanguageDetectionServiceTest {
     class Detect {
 
         @Test
-        @DisplayName("detects English for 'hello world' with high confidence")
+        @DisplayName("propagates the scripted English candidate for 'hello world'")
         void detect_english_highConfidence() {
             LanguageDetectionService service = LanguageDetectionService.of(TEXT_MODEL);
             LanguageDetectionService.DetectionResult result = service.detect("hello world");
@@ -94,7 +94,7 @@ class LanguageDetectionServiceTest {
         }
 
         @Test
-        @DisplayName("detects French for 'bonjour monde'")
+        @DisplayName("propagates the scripted French candidate for 'bonjour monde'")
         void detect_french_detected() {
             LanguageDetectionService service = LanguageDetectionService.of(TEXT_MODEL);
             LanguageDetectionService.DetectionResult result = service.detect("bonjour monde");
@@ -147,7 +147,7 @@ class LanguageDetectionServiceTest {
     class DetectFromAudio {
 
         @Test
-        @DisplayName("non-empty audio returns at least one candidate")
+        @DisplayName("non-empty audio returns the configured model candidate")
         void detectFromAudio_returnsCandidate() {
             LanguageDetectionService service = LanguageDetectionService.of(AUDIO_MODEL);
             LanguageDetectionService.DetectionResult result =
@@ -170,6 +170,112 @@ class LanguageDetectionServiceTest {
             LanguageDetectionService service = LanguageDetectionService.of(TEXT_MODEL);
             assertThatIllegalArgumentException()
                     .isThrownBy(() -> service.detectFromAudio(new byte[0]));
+        }
+    }
+
+    /**
+     * These checks exercise only the adapter contract. The controlled model is not a detector,
+     * and these fixture-shaped inputs do not establish language coverage or model quality.
+     */
+    @Nested
+    @DisplayName("scenario-shaped adapter contract")
+    class ScenarioShapedAdapterContract {
+
+        @Test
+        @DisplayName("passes Devanagari text unchanged to the configured model")
+        void devanagariTextIsDelegatedWithoutNormalization() {
+            String sample = "नमस्ते संसार";
+            AtomicReference<String> received = new AtomicReference<>();
+            var nepali = LanguageDetectionService.LanguageCandidate.of("ne-NP", 0.82);
+            var model = (LanguageDetectionService.LanguageDetectionModel) text -> {
+                received.set(text);
+                return List.of(nepali);
+            };
+
+            var result = LanguageDetectionService.of(model).detect(sample);
+
+            assertThat(received).hasValue(sample);
+            assertThat(result.candidates()).containsExactly(nepali);
+            assertThat(result.topLanguageTag()).contains("ne-NP");
+        }
+
+        @Test
+        @DisplayName("silence and seeded noise can abstain without a fabricated language")
+        void nonSpeechAudioAbstentionDoesNotInventCandidateOrConfidence() {
+            List<byte[]> received = new ArrayList<>();
+            var model = new LanguageDetectionService.LanguageDetectionModel() {
+                @Override
+                public List<LanguageDetectionService.LanguageCandidate> detect(String textSample) {
+                    return List.of();
+                }
+
+                @Override
+                public List<LanguageDetectionService.LanguageCandidate> detectFromAudio(byte[] audioBytes) {
+                    received.add(audioBytes.clone());
+                    return List.of();
+                }
+            };
+            byte[] silence = new byte[64];
+            byte[] seededNoise = new byte[] {7, -3, 12, 0, -9, 2};
+            var service = LanguageDetectionService.of(model);
+
+            var silenceResult = service.detectFromAudio(silence);
+            var noiseResult = service.detectFromAudio(seededNoise);
+
+            assertThat(received).hasSize(2);
+            assertThat(received.get(0)).containsExactly(silence);
+            assertThat(received.get(1)).containsExactly(seededNoise);
+            assertThat(silenceResult.candidates()).isEmpty();
+            assertThat(silenceResult.topLanguageTag()).isEmpty();
+            assertThat(silenceResult.isReliable()).isFalse();
+            assertThat(noiseResult.candidates()).isEmpty();
+            assertThat(noiseResult.topLanguageTag()).isEmpty();
+            assertThat(noiseResult.isReliable()).isFalse();
+        }
+
+        @Test
+        @DisplayName("unsupported and accent/overlap outcomes remain model-owned")
+        void unsupportedAndAmbiguousTextPreserveOnlyModelOutput() {
+            String unsupportedSample = "sample in a language outside this model's coverage";
+            String accentOverlapSample = "bonjour hello [overlapping speakers]";
+            AtomicReference<String> received = new AtomicReference<>();
+            var model = (LanguageDetectionService.LanguageDetectionModel) text -> {
+                received.set(text);
+                return List.of();
+            };
+            var service = LanguageDetectionService.of(model);
+
+            var unsupported = service.detect(unsupportedSample);
+            var accentOverlap = service.detect(accentOverlapSample);
+
+            assertThat(received).hasValue(accentOverlapSample);
+            assertThat(unsupported.candidates()).isEmpty();
+            assertThat(unsupported.topLanguageTag()).isEmpty();
+            assertThat(accentOverlap.candidates()).isEmpty();
+            assertThat(accentOverlap.topLanguageTag()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("reported confidence is preserved; empty output has no inferred confidence")
+        void confidenceAvailabilityIsNotSynthesized() {
+            var candidate = LanguageDetectionService.LanguageCandidate.of("en", 0.63);
+            var model = new LanguageDetectionService.LanguageDetectionModel() {
+                @Override
+                public List<LanguageDetectionService.LanguageCandidate> detect(String textSample) {
+                    return textSample.equals("confidence-present") ? List.of(candidate) : List.of();
+                }
+            };
+            var service = LanguageDetectionService.of(model, 0.60);
+
+            var present = service.detect("confidence-present");
+            var unavailable = service.detect("confidence-unavailable");
+
+            assertThat(present.topCandidate()).contains(candidate);
+            assertThat(present.topCandidate().orElseThrow().confidence()).isEqualTo(0.63);
+            assertThat(present.isReliable()).isTrue();
+            assertThat(unavailable.topCandidate()).isEmpty();
+            assertThat(unavailable.topLanguageTag()).isEmpty();
+            assertThat(unavailable.isReliable()).isFalse();
         }
     }
 

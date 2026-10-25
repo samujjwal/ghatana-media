@@ -11,15 +11,15 @@ import java.util.Optional;
 /**
  * Automatic language detection service for the STT pipeline (AV-007.2).
  *
- * <p>Identifies the spoken language from a short audio or text excerpt using
- * a pluggable {@link LanguageDetectionModel}. Returns a ranked list of
- * candidate languages with confidence scores.
+ * <p>Delegates language identification for a short audio or text excerpt to a
+ * pluggable {@link LanguageDetectionModel}. This class validates and exposes
+ * the model's ranked candidates; it does not contain a classifier or qualify
+ * model accuracy. An empty candidate list is an abstention (for example, an
+ * unsupported language or an input without usable speech).
  *
- * <h3>Acceptance criteria (AV-007.2)</h3>
- * <ul>
- *   <li>Automatic language identification from audio/text.</li>
- *   <li>Detection accuracy &gt;95% (validated in quality tests).</li>
- * </ul>
+ * <p>Language coverage, confidence calibration, and accuracy require a
+ * separately admitted model and representative quality corpus; unit tests of
+ * this adapter do not establish them.
  *
  * @doc.type class
  * @doc.purpose Automatic language detection for audio-video speech-to-text pipeline
