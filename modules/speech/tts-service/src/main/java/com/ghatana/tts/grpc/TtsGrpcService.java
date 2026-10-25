@@ -42,6 +42,7 @@ import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -80,6 +81,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     private final AudioVideoGrpcInstrumentation instrumentation;
     private final BooleanSupplier synthesisAdmitted;
     private final BooleanSupplier streamingAdmitted;
+    private final Duration streamingTimeoutOverride;
 
     /** Package-private injection constructor for production wrappers, persistence, and tests. */
     TtsGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
@@ -97,10 +99,25 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             MeterRegistry metrics,
             BooleanSupplier synthesisAdmitted,
             BooleanSupplier streamingAdmitted) {
+        this(library, metrics, synthesisAdmitted, streamingAdmitted, null);
+    }
+
+    /** Optional bounded deadline override is a package-private seam for deterministic timeout tests. */
+    TtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            BooleanSupplier synthesisAdmitted,
+            BooleanSupplier streamingAdmitted,
+            Duration streamingTimeoutOverride) {
         this.library = Objects.requireNonNull(library, "library");
         Objects.requireNonNull(metrics, "metrics");
         this.synthesisAdmitted = Objects.requireNonNull(synthesisAdmitted, "synthesisAdmitted");
         this.streamingAdmitted = Objects.requireNonNull(streamingAdmitted, "streamingAdmitted");
+        if (streamingTimeoutOverride != null
+                && (streamingTimeoutOverride.isZero() || streamingTimeoutOverride.isNegative())) {
+            throw new IllegalArgumentException("streamingTimeoutOverride must be positive");
+        }
+        this.streamingTimeoutOverride = streamingTimeoutOverride;
         this.instrumentation = new AudioVideoGrpcInstrumentation(null, new MediaWorkflowMetrics(metrics, "tts"));
         this.synthesizeTimer = Timer.builder("tts.synthesize")
                 .description("Synthesis latency")
@@ -165,6 +182,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         long startedNanos = System.nanoTime();
         AtomicBoolean cancelled = new AtomicBoolean();
         AtomicBoolean sessionCancelled = new AtomicBoolean();
+        AtomicBoolean terminal = new AtomicBoolean();
         AtomicBoolean timerRecorded = new AtomicBoolean();
         Runnable recordDuration = () -> {
             if (timerRecorded.compareAndSet(false, true)) {
@@ -208,7 +226,6 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 return;
             }
             TtsEngine engine = library.getTtsEngine();
-            AtomicBoolean terminal = new AtomicBoolean();
             AtomicInteger expectedSequence = new AtomicInteger();
             AtomicBoolean finalChunkSeen = new AtomicBoolean();
             AtomicLong outputBytes = new AtomicLong();
@@ -275,10 +292,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     }
                 }
             };
-            TtsStreamingSession session = engine.startStreaming(text, synthesisOptions, sink);
-            activeSession.set(session);
-            if (terminal.get() || cancelled.get() || serverObserver != null && serverObserver.isCancelled()) session.cancel();
-            long timeoutMillis = Math.max(1, synthesisOptions.timeout().toMillis());
+            Duration deadline = streamingTimeoutOverride == null
+                    ? synthesisOptions.timeout() : streamingTimeoutOverride;
+            long timeoutMillis = Math.max(1, deadline.toMillis());
             CompletableFuture.delayedExecutor(timeoutMillis, TimeUnit.MILLISECONDS).execute(() -> {
                 if (!cancelled.get() && (serverObserver == null || !serverObserver.isCancelled())
                         && terminal.compareAndSet(false, true)) {
@@ -288,11 +304,15 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     }
                     sessionCancelled.set(true);
                     synchronized (readinessLock) { readinessLock.notifyAll(); }
-                    session.cancel();
+                    TtsStreamingSession running = activeSession.get();
+                    if (running != null) running.cancel();
                     fail(responseObserver, "Streaming synthesis", new TtsStreamTimeoutException());
                     recordDuration.run();
                 }
             });
+            TtsStreamingSession session = engine.startStreaming(text, synthesisOptions, sink);
+            activeSession.set(session);
+            if (terminal.get() || cancelled.get() || serverObserver != null && serverObserver.isCancelled()) session.cancel();
             session.completion().whenComplete((ignored, failure) -> {
                 Thread.startVirtualThread(() -> {
                     if (terminal.get()) return;
@@ -341,7 +361,8 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             return;
         } catch (RuntimeException exception) {
             recordDuration.run();
-            if (!cancelled.get() && (serverObserver == null || !serverObserver.isCancelled())) {
+            if (!cancelled.get() && (serverObserver == null || !serverObserver.isCancelled())
+                    && terminal.compareAndSet(false, true)) {
                 fail(responseObserver, "Streaming synthesis", exception);
             }
         }

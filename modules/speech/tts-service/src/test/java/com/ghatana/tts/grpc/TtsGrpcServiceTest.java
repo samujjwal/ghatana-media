@@ -43,6 +43,7 @@ import java.util.Locale;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
@@ -446,6 +447,76 @@ class TtsGrpcServiceTest {
         assertStatus(observer, Status.Code.FAILED_PRECONDITION);
         assertThat(observer.value).isNull();
         assertThat(observer.completed).isFalse();
+    }
+
+    @Test
+    void blockedStartTimesOutAndCancelsSessionWhenFactoryEventuallyReturns() throws Exception {
+        TtsGrpcService admitted = new TtsGrpcService(
+                library, registry, () -> true, () -> true, Duration.ofMillis(100));
+        CountDownLatch startEntered = new CountDownLatch(1);
+        CountDownLatch releaseStart = new CountDownLatch(1);
+        CountDownLatch errorReceived = new CountDownLatch(1);
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        AtomicBoolean lateSessionCancelled = new AtomicBoolean();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            startEntered.countDown();
+            if (!releaseStart.await(2, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("test did not release blocked start");
+            }
+            return TtsStreamingSession.create(lateSessionCancelled, new CompletableFuture<>());
+        });
+        @SuppressWarnings("unchecked")
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(StreamObserver.class);
+        doAnswer(invocation -> {
+            error.set(invocation.getArgument(0));
+            errorReceived.countDown();
+            return null;
+        }).when(observer).onError(any());
+
+        Thread request = Thread.startVirtualThread(() ->
+                admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer));
+        assertThat(startEntered.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(errorReceived.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+        releaseStart.countDown();
+        request.join(1_000);
+        assertThat(request.isAlive()).isFalse();
+        assertThat(lateSessionCancelled).isTrue();
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+    }
+
+    @Test
+    void successfulSessionCompletionWinsDeadlineAndIsNotTimedOutLater() throws Exception {
+        TtsGrpcService admitted = new TtsGrpcService(
+                library, registry, () -> true, () -> true, Duration.ofMillis(250));
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        CountDownLatch completed = new CountDownLatch(1);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
+        when(observer.isReady()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false);
+        doAnswer(invocation -> { ((Runnable) invocation.getArgument(0)).run(); return null; })
+                .when(observer).setOnReadyHandler(any(Runnable.class));
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            return TtsStreamingSession.create(new AtomicBoolean(), completion);
+        });
+        doAnswer(invocation -> { completed.countDown(); return null; }).when(observer).onCompleted();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 4));
+        completionRef.get().complete(null);
+        assertThat(completed.await(1, TimeUnit.SECONDS)).isTrue();
+        Thread.sleep(350);
+
+        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk -> chunk.getIsFinal()));
+        verify(observer).onCompleted();
+        verify(observer, never()).onError(any());
+        assertThat(registry.get("tts.synthesize.streaming").timer().count()).isEqualTo(1);
     }
 
     @Test
