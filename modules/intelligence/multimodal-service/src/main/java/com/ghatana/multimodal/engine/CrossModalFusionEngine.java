@@ -98,12 +98,13 @@ public class CrossModalFusionEngine {
                 missingVisual ? 0.0 : visual.confidence()
         );
 
-        Map<String, Double> weights = new LinkedHashMap<>();
-        weights.put("audio", missingAudio ? 0.0 : audio.confidence());
-        weights.put("visual", missingVisual ? 0.0 : visual.confidence());
+        Map<String, Double> weights = normalizedWeights(
+                "audio", missingAudio ? 0.0 : audio.confidence(),
+                "visual", missingVisual ? 0.0 : visual.confidence());
 
         Duration elapsed = Duration.ofNanos(System.nanoTime() - startNs);
-        double fusionConf = (weights.get("audio") + weights.get("visual")) / 2.0;
+        double fusionConf = ((missingAudio ? 0.0 : audio.confidence())
+                + (missingVisual ? 0.0 : visual.confidence())) / 2.0;
         return new FusionResult(fused, fusionConf, weights, elapsed, missingAudio || missingVisual);
     }
 
@@ -138,12 +139,13 @@ public class CrossModalFusionEngine {
                 missingVisual ? 0.0 : visual.confidence()
         );
 
-        Map<String, Double> weights = new LinkedHashMap<>();
-        weights.put("text", missingText ? 0.0 : text.confidence());
-        weights.put("visual", missingVisual ? 0.0 : visual.confidence());
+        Map<String, Double> weights = normalizedWeights(
+                "text", missingText ? 0.0 : text.confidence(),
+                "visual", missingVisual ? 0.0 : visual.confidence());
 
         Duration elapsed = Duration.ofNanos(System.nanoTime() - startNs);
-        double fusionConf = (weights.values().stream().mapToDouble(Double::doubleValue).sum()) / weights.size();
+        double fusionConf = ((missingText ? 0.0 : text.confidence())
+                + (missingVisual ? 0.0 : visual.confidence())) / 2.0;
         return new FusionResult(fused, fusionConf, weights, elapsed, missingText || missingVisual);
     }
 
@@ -167,6 +169,18 @@ public class CrossModalFusionEngine {
             }
         }
         return result;
+    }
+
+    /** Returns normalized contribution weights; these are not quality or identity confidence. */
+    private Map<String, Double> normalizedWeights(
+            String nameA, double weightA, String nameB, double weightB) {
+        double total = weightA + weightB;
+        double wa = total > 0.0 ? weightA / total : 0.5;
+        double wb = total > 0.0 ? weightB / total : 0.5;
+        Map<String, Double> weights = new LinkedHashMap<>();
+        weights.put(nameA, wa);
+        weights.put(nameB, wb);
+        return weights;
     }
 
     private void validateEmbedding(String modality, double[] embedding) {

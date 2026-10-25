@@ -64,7 +64,13 @@ class CrossModalFusionEngineTest {
         AudioFeatures audio = makeAudio(DIM, 0.8); 
         VisualFeatures visual = makeVisual(DIM, 0.6); 
         FusionResult result = engine.fuseAudioVisual(audio, visual); 
-        assertThat(result.modalityWeights()).containsKeys("audio", "visual"); 
+        assertThat(result.modalityWeights().get("audio")).isCloseTo(4.0 / 7.0,
+                org.assertj.core.data.Offset.offset(1.0e-12));
+        assertThat(result.modalityWeights().get("visual")).isCloseTo(3.0 / 7.0,
+                org.assertj.core.data.Offset.offset(1.0e-12));
+        assertThat(result.modalityWeights().values()).allMatch(Double::isFinite);
+        assertThat(result.modalityWeights().values().stream().mapToDouble(Double::doubleValue).sum())
+                .isEqualTo(1.0);
     }
 
     @Test
@@ -83,6 +89,7 @@ class CrossModalFusionEngineTest {
         VisualFeatures visual = makeVisual(DIM, 0.7); 
         FusionResult result = engine.fuseAudioVisual(emptyAudio, visual); 
         assertThat(result.hadMissingModality()).isTrue(); 
+        assertThat(result.modalityWeights()).containsEntry("audio", 0.0).containsEntry("visual", 1.0);
     }
 
     @Test
@@ -157,6 +164,25 @@ class CrossModalFusionEngineTest {
         assertThat(result.fusedEmbeddings()[0]).isFinite();
         assertThatThrownBy(() -> result.modalityWeights().put("extra", 0.5))
                 .isInstanceOf(UnsupportedOperationException.class);
+        assertThat(result.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+    }
+
+    @Test
+    @DisplayName("sparse finite embeddings are fused without turning weights into confidence")
+    void sparseEmbeddingsKeepNormalizedContributionWeightsAndUncalibratedScore() {
+        double[] sparseAudio = new double[DIM];
+        double[] sparseVisual = new double[DIM];
+        sparseAudio[2] = 1.0;
+        sparseVisual[17] = 1.0;
+
+        FusionResult result = engine.fuseAudioVisual(
+                new AudioFeatures(sparseAudio, 0.8),
+                new VisualFeatures(sparseVisual, new double[4], 0.2));
+
+        assertThat(result.modalityWeights()).containsEntry("audio", 0.8).containsEntry("visual", 0.2);
+        assertThat(result.modalityWeights().values().stream().mapToDouble(Double::doubleValue).sum())
+                .isEqualTo(1.0);
+        assertThat(result.fusionConfidence()).isEqualTo(0.5);
         assertThat(result.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
     }
 
