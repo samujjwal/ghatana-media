@@ -84,7 +84,9 @@ public final class VideoAnalysisService {
 
             List<ObservedFrame> observedFrames = new ArrayList<>();
             List<ShotBoundaryHeuristic.Assessment> shotBoundaryAssessments = new ArrayList<>();
+            List<CameraMotionHeuristic.Assessment> cameraMotionAssessments = new ArrayList<>();
             ObservedFrame previousFrame = null;
+            byte[] previousImageBytes = null;
             int[] previousLuma = null;
             for (VideoFrameExtractor.ExtractedFrame frame : frames) {
                 byte[] imageBytes = Files.readAllBytes(frame.getPath());
@@ -98,10 +100,15 @@ public final class VideoAnalysisService {
                     shotBoundaryAssessments.add(ShotBoundaryHeuristic.compare(
                             previousFrame.frameNumber(), previousFrame.sourceTimestamp(), previousLuma,
                             observedFrame.frameNumber(), observedFrame.sourceTimestamp(), currentLuma));
+                    cameraMotionAssessments.add(CameraMotionHeuristic.compare(
+                            previousFrame.frameNumber(), previousFrame.sourceTimestamp(), previousImageBytes,
+                            observedFrame.frameNumber(), observedFrame.sourceTimestamp(), imageBytes,
+                            config.getFps()));
                 }
                 observedFrames.add(observedFrame);
                 previousFrame = observedFrame;
                 previousLuma = currentLuma;
+                previousImageBytes = imageBytes;
             }
 
             Duration elapsed = Duration.between(startTime, Instant.now());
@@ -115,7 +122,8 @@ public final class VideoAnalysisService {
                     videoPath.getFileName().toString(),
                     Instant.now(), frames.size(), assignments.uniqueTracks(),
                     frameDetections, elapsed, "HEURISTIC_UNCALIBRATED",
-                    shotBoundaryAssessments, "HEURISTIC_UNCALIBRATED"
+                    shotBoundaryAssessments, "HEURISTIC_UNCALIBRATED",
+                    cameraMotionAssessments, "HEURISTIC_UNCALIBRATED"
             );
 
         } catch (IOException e) {
@@ -262,6 +270,8 @@ public final class VideoAnalysisService {
      * @param trackingStatus HEURISTIC_UNCALIBRATED for local IoU association; never a quality claim
      * @param shotBoundaryAssessments pairwise pixel-change candidates; not ground-truth boundaries
      * @param shotBoundaryStatus HEURISTIC_UNCALIBRATED; no corpus calibration or source-version join
+     * @param cameraMotionAssessments source-timestamped global optical-flow candidates
+     * @param cameraMotionStatus HEURISTIC_UNCALIBRATED; image-plane translation only
      */
     public record VideoAnalysisResult(
             String videoName,
@@ -272,18 +282,26 @@ public final class VideoAnalysisService {
             Duration processingTime,
             String trackingStatus,
             List<ShotBoundaryHeuristic.Assessment> shotBoundaryAssessments,
-            String shotBoundaryStatus
+            String shotBoundaryStatus,
+            List<CameraMotionHeuristic.Assessment> cameraMotionAssessments,
+            String cameraMotionStatus
     ) {
         public VideoAnalysisResult {
             frameDetections = List.copyOf(Objects.requireNonNull(frameDetections, "frameDetections"));
             shotBoundaryAssessments = List.copyOf(Objects.requireNonNull(
                     shotBoundaryAssessments, "shotBoundaryAssessments"));
             Objects.requireNonNull(shotBoundaryStatus, "shotBoundaryStatus");
+            cameraMotionAssessments = List.copyOf(Objects.requireNonNull(
+                    cameraMotionAssessments, "cameraMotionAssessments"));
+            Objects.requireNonNull(cameraMotionStatus, "cameraMotionStatus");
             if (framesAnalysed != frameDetections.size() || uniqueTracks < 0) {
                 throw new IllegalArgumentException("Video analysis counts must match the frame timeline");
             }
             if (shotBoundaryAssessments.size() != Math.max(0, framesAnalysed - 1)) {
                 throw new IllegalArgumentException("Shot-boundary assessments must cover each adjacent frame pair");
+            }
+            if (cameraMotionAssessments.size() != Math.max(0, framesAnalysed - 1)) {
+                throw new IllegalArgumentException("Camera-motion assessments must cover each adjacent frame pair");
             }
             for (int index = 1; index < frameDetections.size(); index++) {
                 ShotBoundaryHeuristic.Assessment assessment = shotBoundaryAssessments.get(index - 1);
@@ -291,6 +309,12 @@ public final class VideoAnalysisService {
                         || assessment.frameNumber() != frameDetections.get(index).frameNumber()
                         || !assessment.sourceTimestamp().equals(frameDetections.get(index).sourceTimestamp())) {
                     throw new IllegalArgumentException("Shot-boundary assessments must match adjacent source frames");
+                }
+                CameraMotionHeuristic.Assessment motion = cameraMotionAssessments.get(index - 1);
+                if (motion.previousFrameNumber() != frameDetections.get(index - 1).frameNumber()
+                        || motion.frameNumber() != frameDetections.get(index).frameNumber()
+                        || !motion.sourceTimestamp().equals(frameDetections.get(index).sourceTimestamp())) {
+                    throw new IllegalArgumentException("Camera-motion assessments must match adjacent source frames");
                 }
             }
             long observedTrackCount = frameDetections.stream()
@@ -302,13 +326,23 @@ public final class VideoAnalysisService {
             }
         }
 
+        /** Source-compatible constructor for results with shot-boundary assessments only. */
+        public VideoAnalysisResult(String videoName, Instant analysedAt, int framesAnalysed, int uniqueTracks,
+                                   List<FrameDetections> frameDetections, Duration processingTime,
+                                   String trackingStatus, List<ShotBoundaryHeuristic.Assessment> shotBoundaryAssessments,
+                                   String shotBoundaryStatus) {
+            this(videoName, analysedAt, framesAnalysed, uniqueTracks, frameDetections, processingTime,
+                    trackingStatus, shotBoundaryAssessments, shotBoundaryStatus,
+                    unavailableCameraMotionAssessments(frameDetections), "NOT_COMPUTED");
+        }
+
         /** Source-compatible constructor for callers that provide only tracking results. */
         public VideoAnalysisResult(String videoName, Instant analysedAt, int framesAnalysed, int uniqueTracks,
                                    List<FrameDetections> frameDetections, Duration processingTime,
                                    String trackingStatus) {
             this(videoName, analysedAt, framesAnalysed, uniqueTracks, frameDetections, processingTime,
                     trackingStatus, unavailableShotBoundaryAssessments(frameDetections),
-                    "NOT_COMPUTED");
+                    "NOT_COMPUTED", unavailableCameraMotionAssessments(frameDetections), "NOT_COMPUTED");
         }
 
         /** Returns a summary of object classes detected across all frames. */
@@ -332,6 +366,20 @@ public final class VideoAnalysisService {
                     ShotBoundaryHeuristic.Disposition.UNKNOWN,
                     ShotBoundaryHeuristic.UnknownReason.PIXEL_ASSESSMENT_NOT_COMPUTED,
                     "NOT_COMPUTED", "UNKNOWN"));
+        }
+        return List.copyOf(assessments);
+    }
+
+    private static List<CameraMotionHeuristic.Assessment> unavailableCameraMotionAssessments(
+            List<FrameDetections> frameDetections) {
+        Objects.requireNonNull(frameDetections, "frameDetections");
+        if (frameDetections.size() < 2) return List.of();
+        List<CameraMotionHeuristic.Assessment> assessments = new ArrayList<>(frameDetections.size() - 1);
+        for (int index = 1; index < frameDetections.size(); index++) {
+            FrameDetections previous = frameDetections.get(index - 1);
+            FrameDetections current = frameDetections.get(index);
+            assessments.add(CameraMotionHeuristic.Assessment.unknown(previous.frameNumber(), current.frameNumber(),
+                    current.sourceTimestamp(), CameraMotionHeuristic.UnknownReason.FRAME_ANALYSIS_UNAVAILABLE));
         }
         return List.copyOf(assessments);
     }
