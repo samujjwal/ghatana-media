@@ -1,10 +1,5 @@
 package com.ghatana.audio.video.vision.recognition;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,8 +23,6 @@ import java.util.UUID;
  * @doc.pattern Service
  */
 public final class FacialRecognitionService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FacialRecognitionService.class);
 
     private final FaceRecognitionModel model;
     private final double identificationThreshold;
@@ -116,12 +109,7 @@ public final class FacialRecognitionService {
         if (imageBytes.length == 0) {
             throw new IllegalArgumentException("imageBytes must not be empty");
         }
-        List<FaceDetection> detections = model.detectFaces(imageBytes).stream()
-                .filter(face -> face.confidence() >= detectionConfidenceThreshold)
-                .toList();
-        LOG.debug("Facial detection: {} face(s) detected in {} byte image",
-                detections.size(), imageBytes.length);
-        return Collections.unmodifiableList(new ArrayList<>(detections));
+        throw new NotAdmittedException();
     }
 
     /**
@@ -147,47 +135,17 @@ public final class FacialRecognitionService {
         Objects.requireNonNull(enrolledIdentities, "enrolledIdentities must not be null");
         Objects.requireNonNull(actorId, "actorId must not be null");
 
-        if (!recognitionEnabled) {
-            auditSink.record(FacialRecognitionAuditEvent.denied("feature_disabled", actorId));
-            return Optional.empty();
-        }
-        if (!consentGranted) {
-            auditSink.record(FacialRecognitionAuditEvent.denied("consent_missing", actorId));
-            return Optional.empty();
-        }
+        // Consent booleans and caller supplied identities are not trusted
+        // authority. Do not call the model or emit an audit payload.
+        throw new NotAdmittedException();
 
-        String bestId = null;
-        double bestSim = -1.0;
-
-        for (var entry : enrolledIdentities.entrySet()) {
-            double sim = cosineSimilarity(faceEmbedding, entry.getValue());
-            if (sim > bestSim) {
-                bestSim = sim;
-                bestId = entry.getKey();
-            }
-        }
-
-        if (bestId != null && bestSim >= identificationThreshold) {
-            LOG.debug("Face identified as '{}' (similarity={})", bestId, bestSim);
-            IdentityMatch match = new IdentityMatch(bestId, bestSim);
-            auditSink.record(FacialRecognitionAuditEvent.success(actorId, bestId, bestSim));
-            return Optional.of(match);
-        }
-        auditSink.record(FacialRecognitionAuditEvent.noMatch(actorId, bestSim));
-        return Optional.empty();
     }
 
-    // ─── internal ─────────────────────────────────────────────────────────────
-
-    private static double cosineSimilarity(float[] a, float[] b) {
-        double dot = 0, normA = 0, normB = 0;
-        for (int i = 0; i < Math.min(a.length, b.length); i++) {
-            dot += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
+    /** Restricted face analysis has no admitted authority or provider in this service. */
+    public static final class NotAdmittedException extends SecurityException {
+        public NotAdmittedException() {
+            super("NOT_ADMITTED: trusted biometric rights authority is unavailable");
         }
-        if (normA == 0 || normB == 0) return 0.0;
-        return dot / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
     // ─── domain types ─────────────────────────────────────────────────────────
@@ -233,7 +191,9 @@ public final class FacialRecognitionService {
     }
 
     /**
-     * A detected face with bounding box and optional embedding.
+     * A face-region observation with a bounding box. Geometry is not an
+     * identity assertion; identity results use the separate {@link IdentityMatch}
+     * type and remain unavailable without admitted biometric rights.
      *
      * @param faceId    unique identifier for this face detection
      * @param boundingBox bounding box in relative coordinates [0,1]
