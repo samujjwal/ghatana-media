@@ -1201,3 +1201,15 @@ Focused verification on this source cut:
 
 - `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.grpc.VisionGrpcServiceTest --tests com.ghatana.audio.video.vision.grpc.ProductionVisionGrpcServiceRpcMatrixTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 71 tests, 0 failures/errors/skips.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (thirty-sixth round)
+
+This round records focused follow-up audits for observability alerts, multimodal provider orchestration, and transcript versioning. Each has safe local failure behavior, but its declared positive or owner-governed scope is still missing; no task status changed and no external authority or service was simulated.
+
+| Task | Audit finding and exact remaining work | Current disposition |
+| --- | --- | --- |
+| OBS-07 | Readiness alerts and fixtures are bounded, privacy-safe, and distinguish observed zero from healthy/missing/NaN. They measure modality readiness only; no admitted provider-quality metric identifies a provider-specific regression, and deployment/delivery is not available. | PARTIAL: retain the safe readiness behavior; provider-specific diagnostics require an admitted per-provider health/quality signal. |
+| MM-05 | The default platform adapter reports STT/Vision `NOT_ADMITTED`; the persistent aggregate path rejects family requests. Existing engine admission, queue, timeout, and cancellation controls do not create canonical per-capability operations, an owner job, or split retries. Internal persistent modality helpers are unreachable through the gated public service and do not form a safe completion path. | PARTIAL: actual STT/Vision provider composition plus canonical owner-job, attempt, and split-retry binding remain required. |
+| STT-08 | Transcript writes and correction remain NOT_ADMITTED because only a mutable legacy transcription row exists; there is no immutable transcript/source digest/version store or expected-version CAS contract. Forced alignment, translation, and source-versioned subtitle output are unavailable. The shared job result-ID guard does not supply this lineage. | PARTIAL: needs the governed artifact/version store and authorized source/rights semantics before implementing immutable revisions or correction. |
+
+The current exclusive task dispositions remain **24 LOCALLY_VERIFIED, 28 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. The 99 PDP capability memberships, 43 source RPC identities, and five residual handoffs are unchanged. These were read-only audits; no Gradle or provider tests were run for them in this round.
