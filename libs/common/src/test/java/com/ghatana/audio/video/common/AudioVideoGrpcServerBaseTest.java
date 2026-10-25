@@ -4,6 +4,7 @@ import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServiceDescriptor;
 import com.ghatana.audio.video.common.health.ServerReadinessLifecycle;
+import com.ghatana.audio.video.common.observability.MetricsServerInterceptor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -85,6 +86,22 @@ class AudioVideoGrpcServerBaseTest {
     }
 
     @Test
+    void exposesProviderReadinessThroughTheSharedMetricsScrape() throws IOException {
+        MetricsServerInterceptor metrics = MetricsServerInterceptor.getInstance();
+        metrics.reset();
+        FakeReadinessLifecycle readiness = new FakeReadinessLifecycle(true);
+        TestServer server = new TestServer(
+                "stt-service", 0, new CloseableNoOpService(readiness::isServing), readiness);
+
+        assertThat(metrics.scrape()).contains("av_service_readiness{service=\"stt\"} 0");
+        server.start();
+        assertThat(metrics.scrape()).contains("av_service_readiness{service=\"stt\"} 1");
+
+        server.close();
+        assertThat(metrics.scrape()).doesNotContain("av_service_readiness{service=\"stt\"");
+    }
+
+    @Test
     void failedGrpcBindMarksDownAndClosesReadinessAndServiceResources() throws IOException {
         try (ServerSocket occupiedPort = new ServerSocket(0)) {
             FakeReadinessLifecycle readiness = new FakeReadinessLifecycle(true);
@@ -146,6 +163,14 @@ class AudioVideoGrpcServerBaseTest {
 
         private TestServer(int port, BindableService service, ServerReadinessLifecycle readiness) {
             super("test-service", port, service, List.of(), TransportSecurity.plaintext(), readiness);
+        }
+
+        private TestServer(
+                String serviceName,
+                int port,
+                BindableService service,
+                ServerReadinessLifecycle readiness) {
+            super(serviceName, port, service, List.of(), TransportSecurity.plaintext(), readiness);
         }
     }
 

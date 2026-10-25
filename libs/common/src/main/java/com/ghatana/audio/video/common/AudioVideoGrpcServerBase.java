@@ -38,6 +38,7 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
     private final Server server;
     private final HealthMetricsServer healthServer;
     private final ServerReadinessLifecycle readinessLifecycle;
+    private final Runnable readinessMetricRegistration;
     private final AutoCloseable serviceResource;
     private final TransportSecurity transportSecurity;
     private final AtomicBoolean closed = new AtomicBoolean();
@@ -106,6 +107,9 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         }
         this.server = builder.build();
         this.healthServer = new HealthMetricsServer(this.serviceName, this::isReady);
+        this.readinessMetricRegistration =
+                com.ghatana.audio.video.common.observability.MetricsServerInterceptor.getInstance()
+                        .registerServiceReadiness(this.serviceName, this::isReady);
     }
 
     public final void start() throws IOException {
@@ -128,7 +132,11 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
                 try {
                     closeReadinessResource();
                 } finally {
-                    closeServiceResource();
+                    try {
+                        closeServiceResource();
+                    } finally {
+                        closeReadinessMetricRegistration();
+                    }
                 }
             }
             throw exception;
@@ -155,6 +163,7 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
     public final void close() {
         if (!closed.compareAndSet(false, true)) {
             closeServiceResource();
+            closeReadinessMetricRegistration();
             return;
         }
 
@@ -182,7 +191,11 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
             try {
                 closeReadinessResource();
             } finally {
-                closeServiceResource();
+                try {
+                    closeServiceResource();
+                } finally {
+                    closeReadinessMetricRegistration();
+                }
             }
         }
         LOG.info("{} stopped", serviceName);
@@ -219,6 +232,10 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         } catch (Exception exception) {
             LOG.error("Error closing {} readiness resources", serviceName, exception);
         }
+    }
+
+    private void closeReadinessMetricRegistration() {
+        readinessMetricRegistration.run();
     }
 
     public final int getPort() {

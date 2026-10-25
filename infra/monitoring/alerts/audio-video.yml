@@ -51,6 +51,17 @@ groups:
           summary: "Multimodal gRPC service is down"
           description: "{{ $labels.instance }} has been unreachable for more than 1 minute."
 
+      - alert: AudioVideoProviderNotReady
+        expr: sum(av_service_readiness{service=~"stt|tts|vision|multimodal"} == 0) > 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: grpc
+        annotations:
+          summary: "An Audio-Video gRPC service is not ready"
+          description: "At least one observed service readiness check is zero. Check the service readiness endpoint and provider configuration; missing or unknown series do not trigger this alert."
+
   # -------------------------------------------------------------------------
   # 2. STT (Speech-to-Text) Performance
   # -------------------------------------------------------------------------
@@ -274,9 +285,9 @@ groups:
   #    service, stage, event, contract_version. No tenant/request/job/attempt
   #    identity is ever exported as a label.
 #
-# Provider readiness and model-quality alert rules are intentionally absent:
-# current service roots do not export provider-health or qualified-quality
-# Prometheus series. NOT_ADMITTED/no data must not be interpreted as healthy zero.
+# Model-quality alert rules remain intentionally absent because no admitted
+# model-quality metric source exists. Provider readiness uses the shared gRPC
+# server lifecycle's low-cardinality readiness gauge.
   # -------------------------------------------------------------------------
   - name: media.workflow
     rules:

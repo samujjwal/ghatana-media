@@ -149,10 +149,15 @@ it does not estimate total pending-event age or provider health.
 Provider readiness and model quality are different telemetry sources. Each
 modality gRPC server constructs `AudioVideoHealthService` with required provider
 checks; gRPC Health `Check`/`Watch` and its HTTP health sidecar reflect startup,
-provider readiness, and drain state. Public health bodies remain coarse
-process/readiness signals. `GET /api/v1/providers` requires tenant and principal
-headers and returns provider IDs and capability profiles, without exposing
-private health details. The shared gRPC interceptor chain emits bounded
+provider readiness, and drain state. The shared gRPC server lifecycle exports
+the low-cardinality Prometheus gauge
+`av_service_readiness{service="stt|tts|vision|multimodal"}`: `1` means the
+server is serving and required provider checks are healthy; `0` means it is not
+ready. `AudioVideoProviderNotReady` fires only when an observed readiness value
+is `0`; do not alert on an absent or NaN series. Public health bodies remain
+coarse process/readiness signals. `GET /api/v1/providers` requires tenant and
+principal headers and returns provider IDs and capability profiles, without
+exposing private health details. The shared gRPC interceptor chain emits bounded
 per-method call counts, final gRPC status, and duration to the sidecar
 `/metrics` endpoint. It creates an OpenTelemetry server span per call when an
 SDK or agent is configured; only W3C trace context is extracted, and request
@@ -171,7 +176,8 @@ deployed and that gRPC call series are present; absent series are not evidence
 of a healthy model. The latency thresholds in candidate rules are not approved
 reference-host budgets or model-quality claims.
 
-For privacy-safe triage, use public liveness/readiness only for a yes/no signal.
+For privacy-safe triage, use public liveness/readiness and
+`av_service_readiness` only for a yes/no signal.
 Scrape Prometheus text from `/metrics` with an explicit Prometheus `Accept`
 header rather than treating its default JSON response as a metric schema. Use
 the existing authenticated provider metadata route for IDs/capability profiles.

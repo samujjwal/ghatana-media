@@ -131,7 +131,7 @@ class AudioVideoHealthServiceTest {
         healthService.check(HealthCheckRequest.newBuilder().build(), observer); 
 
         verify(metricsCollector).incrementCounter( 
-                "av.health.check", "service", "stt-service", "status", "serving");
+                "av.health.check", "service", "stt", "status", "serving");
     }
 
     @Test
@@ -145,7 +145,23 @@ class AudioVideoHealthServiceTest {
         assertThat(observer.responses.get(0).getStatus())
                 .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
         verify(metricsCollector).incrementCounter(
-                "av.health.check", "service", "stt-service", "status", "not_serving");
+                "av.health.check", "service", "stt", "status", "not_serving");
+    }
+
+    @Test
+    @DisplayName("Collapses unrecognized service configuration before emitting metric labels")
+    void healthMetricsUseBoundedServiceVocabulary() {
+        AudioVideoHealthService healthWithSensitiveServiceName = new AudioVideoHealthService(
+                "tenant-secret-model-path-42", metricsCollector);
+        try {
+            CapturingObserver observer = new CapturingObserver();
+            healthWithSensitiveServiceName.check(HealthCheckRequest.getDefaultInstance(), observer);
+
+            verify(metricsCollector).incrementCounter(
+                    "av.health.check", "service", "unknown", "status", "not_serving");
+        } finally {
+            healthWithSensitiveServiceName.close();
+        }
     }
 
     @Test

@@ -7,15 +7,21 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.BooleanSupplier;
 
 /**
  * gRPC server interceptor that collects Prometheus-compatible metrics for every call.
  *
- * <p>Metrics collected (all labelled by {@code grpc_method}):
+ * <p>Per-call metrics are labelled by the fixed protobuf {@code grpc_method}. The separate
+ * {@code av_service_readiness} gauge uses only one of the four fixed Media modality labels.
+ * Per-call metrics collected:
  * <ul>
  *   <li>{@code grpc_server_started_total} — counter, incremented on call start</li>
  *   <li>{@code grpc_server_handled_total} — counter per gRPC status code</li>
@@ -37,6 +43,11 @@ import java.util.concurrent.atomic.LongAdder;
 public class MetricsServerInterceptor implements ServerInterceptor {
 
     private static final MetricsServerInterceptor INSTANCE = new MetricsServerInterceptor();
+    private static final Map<String, String> READINESS_SERVICES = Map.of(
+            "stt-service", "stt",
+            "tts-service", "tts",
+            "vision-service", "vision",
+            "multimodal-service", "multimodal");
 
     public static MetricsServerInterceptor getInstance() { return INSTANCE; }
 
@@ -48,6 +59,47 @@ public class MetricsServerInterceptor implements ServerInterceptor {
     // duration sums and counts [method]
     private final ConcurrentHashMap<String, AtomicLong> durationSumNs = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, LongAdder> durationCount = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Set<ReadinessProbe>> readinessProbes = new ConcurrentHashMap<>();
+
+    private static final class ReadinessProbe {
+        private final BooleanSupplier supplier;
+
+        private ReadinessProbe(BooleanSupplier supplier) {
+            this.supplier = supplier;
+        }
+    }
+
+    /**
+     * Register a bounded service-readiness series for a Media modality server.
+     *
+     * <p>The label is selected from a fixed server vocabulary. A configured name outside that
+     * vocabulary is ignored, so arbitrary service, tenant, or request strings cannot create
+     * Prometheus series. The returned action unregisters this probe and is safe to call more than
+     * once.</p>
+     */
+    public Runnable registerServiceReadiness(String serviceName, BooleanSupplier isReady) {
+        String serviceLabel = serviceName == null ? null : READINESS_SERVICES.get(serviceName);
+        if (serviceLabel == null || isReady == null) {
+            return () -> { };
+        }
+        ReadinessProbe probe = new ReadinessProbe(isReady);
+        AtomicReference<Set<ReadinessProbe>> ownedSet = new AtomicReference<>();
+        readinessProbes.compute(serviceLabel, (ignored, existing) -> {
+            Set<ReadinessProbe> probes = existing == null
+                    ? ConcurrentHashMap.newKeySet() : existing;
+            probes.add(probe);
+            ownedSet.set(probes);
+            return probes;
+        });
+        AtomicBoolean registered = new AtomicBoolean(true);
+        return () -> {
+            readinessProbes.computeIfPresent(serviceLabel, (ignored, existing) -> {
+                if (existing != ownedSet.get() || !registered.compareAndSet(true, false)) return existing;
+                existing.remove(probe);
+                return existing.isEmpty() ? null : existing;
+            });
+        };
+    }
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
@@ -111,6 +163,20 @@ public class MetricsServerInterceptor implements ServerInterceptor {
     public String scrape() {
         StringBuilder sb = new StringBuilder(2048);
 
+        sb.append("# HELP av_service_readiness 1 when a Media gRPC service is serving with required provider checks healthy; 0 otherwise.\n");
+        sb.append("# TYPE av_service_readiness gauge\n");
+        new java.util.TreeMap<>(readinessProbes).forEach((service, probes) -> {
+            boolean ready = !probes.isEmpty() && probes.stream().allMatch(probe -> {
+                try {
+                    return probe.supplier.getAsBoolean();
+                } catch (RuntimeException unavailable) {
+                    return false;
+                }
+            });
+            sb.append("av_service_readiness{service=\"")
+                    .append(service).append("\"} ").append(ready ? "1" : "0").append('\n');
+        });
+
         sb.append("# HELP grpc_server_started_total Total number of RPCs started on the server.\n");
         sb.append("# TYPE grpc_server_started_total counter\n");
         started.forEach((method, adder) -> sb
@@ -147,6 +213,7 @@ public class MetricsServerInterceptor implements ServerInterceptor {
         handled.clear();
         durationSumNs.clear();
         durationCount.clear();
+        readinessProbes.clear();
     }
 
     private static String escape(String s) {

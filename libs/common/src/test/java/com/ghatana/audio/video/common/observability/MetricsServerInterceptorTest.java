@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,6 +98,30 @@ class MetricsServerInterceptorTest {
         assertThat(scrape).contains(
                 "grpc_server_handled_total{grpc_method=\"audio.Video/Stream\",grpc_code=\"CANCELLED\"} 1",
                 "grpc_server_handling_seconds_count{grpc_method=\"audio.Video/Stream\"} 1");
+    }
+
+    @Test
+    @DisplayName("Should expose only bounded provider readiness and fail closed on probe errors")
+    void shouldExposeBoundedReadinessAndFailClosedOnProbeErrors() {
+        MetricsServerInterceptor interceptor = new MetricsServerInterceptor();
+        AtomicBoolean ready = new AtomicBoolean();
+        Runnable unregister = interceptor.registerServiceReadiness("stt-service", ready::get);
+        interceptor.registerServiceReadiness("tenant-42-request-secret", () -> true);
+
+        assertThat(interceptor.scrape()).contains("av_service_readiness{service=\"stt\"} 0")
+                .doesNotContain("tenant-42", "request-secret");
+
+        ready.set(true);
+        assertThat(interceptor.scrape()).contains("av_service_readiness{service=\"stt\"} 1");
+
+        unregister.run();
+        assertThat(interceptor.scrape()).doesNotContain("av_service_readiness{service=\"stt\"");
+
+        interceptor.registerServiceReadiness("vision-service", () -> {
+            throw new IllegalStateException("sensitive provider detail");
+        });
+        assertThat(interceptor.scrape()).contains("av_service_readiness{service=\"vision\"} 0")
+                .doesNotContain("sensitive provider detail");
     }
 
     @SuppressWarnings("unchecked")

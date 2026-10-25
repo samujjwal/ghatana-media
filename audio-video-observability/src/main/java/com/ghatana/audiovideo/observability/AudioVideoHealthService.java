@@ -67,7 +67,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     private final ExecutorService checkExecutor;
     private final long checkTimeoutNanos;
     private final MetricsCollector metricsCollector;
-    private final String serviceName;
+    private final String metricServiceName;
     private final Set<WatchSubscription> watchSubscribers =
             Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final Object watchLock = new Object();
@@ -91,7 +91,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     /** Construct the health service with an explicit maximum duration for the full check set. */
     public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector,
                                    Set<String> requiredChecks, Duration checkTimeout) {
-        this.serviceName = requireName(serviceName, "serviceName");
+        this.metricServiceName = safeMetricServiceName(requireName(serviceName, "serviceName"));
         this.metricsCollector = Objects.requireNonNull(metricsCollector, "metricsCollector");
         Objects.requireNonNull(requiredChecks, "requiredChecks");
         this.requiredChecks = requiredChecks.stream()
@@ -103,14 +103,14 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         }
         this.checkTimeoutNanos = checkTimeout.toNanos();
         ThreadFactory threadFactory = runnable -> {
-            Thread thread = new Thread(runnable, "av-health-check-" + this.serviceName);
+            Thread thread = new Thread(runnable, "av-health-check-" + this.metricServiceName);
             thread.setDaemon(true);
             return thread;
         };
         this.checkExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new SynchronousQueue<>(), threadFactory, new ThreadPoolExecutor.AbortPolicy());
         ThreadFactory watchThreadFactory = runnable -> {
-            Thread thread = new Thread(runnable, "av-health-watch-" + this.serviceName);
+            Thread thread = new Thread(runnable, "av-health-watch-" + this.metricServiceName);
             thread.setDaemon(true);
             return thread;
         };
@@ -128,9 +128,9 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         Supplier<Boolean> validCheck = Objects.requireNonNull(check, "check supplier");
         checks.put(validName, validCheck);
         if (lifecycle.compareAndSet(LifecycleState.READY, LifecycleState.STARTING)) {
-            LOG.warn("Health check changed after readiness; service returned to NOT_SERVING: {}", serviceName);
+            LOG.warn("Health check changed after readiness; service returned to NOT_SERVING: {}", metricServiceName);
         }
-        LOG.info("Health check registered: service={} check={}", serviceName, validName);
+        LOG.info("Health check registered: service={}", metricServiceName);
     }
 
     /**
@@ -145,7 +145,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         if (checks.isEmpty() || !checks.keySet().containsAll(requiredChecks)) return false;
         if (state == LifecycleState.READY) return true;
         if (!lifecycle.compareAndSet(LifecycleState.STARTING, LifecycleState.READY)) return false;
-        LOG.info("Service marked ready: {}", serviceName);
+        LOG.info("Service marked ready: {}", metricServiceName);
         return true;
     }
 
@@ -155,7 +155,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
      */
     public void setNotServing() {
         lifecycle.set(LifecycleState.DRAINING);
-        LOG.info("Service marked NOT_SERVING: {}", serviceName);
+        LOG.info("Service marked NOT_SERVING: {}", metricServiceName);
     }
 
     /**
@@ -181,7 +181,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
 
         HealthCheckResponse.ServingStatus status = currentStatus();
         metricsCollector.incrementCounter("av.health.check",
-                "service", serviceName, "status", status.name().toLowerCase());
+                "service", metricServiceName, "status", status.name().toLowerCase());
 
         respond(responseObserver, status);
     }
@@ -221,7 +221,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
 
         HealthCheckResponse.ServingStatus status = currentStatus();
         metricsCollector.incrementCounter("av.health.check",
-                "service", serviceName, "status", status.name().toLowerCase());
+                "service", metricServiceName, "status", status.name().toLowerCase());
         try {
             subscription.sendInitial(status);
         } catch (RuntimeException observerFailure) {
@@ -324,7 +324,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
             try {
                 if (subscriber.sendIfChanged(status)) {
                     metricsCollector.incrementCounter("av.health.check",
-                            "service", serviceName, "status", status.name().toLowerCase());
+                            "service", metricServiceName, "status", status.name().toLowerCase());
                 }
             } catch (RuntimeException observerFailure) {
                 removeWatchSubscriber(subscriber);
@@ -340,7 +340,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
                 if (!Boolean.TRUE.equals(check.get())) return false;
             } catch (RuntimeException failure) {
                 LOG.warn("A health dependency check failed for service={} (type={})",
-                        serviceName, failure.getClass().getSimpleName());
+                        metricServiceName, failure.getClass().getSimpleName());
                 return false;
             }
         }
@@ -352,19 +352,19 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         try {
             future = checkExecutor.submit(task);
         } catch (RejectedExecutionException overloaded) {
-            LOG.warn("Health check capacity unavailable for service={}", serviceName);
+            LOG.warn("Health check capacity unavailable for service={}", metricServiceName);
             return failureValue;
         }
         try {
             return future.get(checkTimeoutNanos, TimeUnit.NANOSECONDS);
         } catch (TimeoutException timeout) {
             future.cancel(true);
-            LOG.warn("Health check timed out for service={}", serviceName);
+            LOG.warn("Health check timed out for service={}", metricServiceName);
         } catch (InterruptedException interrupted) {
             future.cancel(true);
             Thread.currentThread().interrupt();
         } catch (ExecutionException failure) {
-            LOG.warn("Health check failed for service={} (type={})", serviceName,
+            LOG.warn("Health check failed for service={} (type={})", metricServiceName,
                     failure.getCause() == null ? "unknown" : failure.getCause().getClass().getSimpleName());
         }
         return failureValue;
@@ -379,6 +379,19 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
             throw new IllegalArgumentException(field + " must not be blank");
         }
         return value.trim();
+    }
+
+    /** Collapse configured service names to the bounded observability vocabulary. */
+    private static String safeMetricServiceName(String serviceName) {
+        return switch (serviceName.toLowerCase(java.util.Locale.ROOT)) {
+            case "launcher" -> "launcher";
+            case "stt", "stt-service" -> "stt";
+            case "tts", "tts-service" -> "tts";
+            case "vision", "vision-service" -> "vision";
+            case "multimodal", "multimodal-service" -> "multimodal";
+            case "ai-voice", "ai-voice-service" -> "ai-voice";
+            default -> "unknown";
+        };
     }
 
     private enum LifecycleState { STARTING, READY, DRAINING }

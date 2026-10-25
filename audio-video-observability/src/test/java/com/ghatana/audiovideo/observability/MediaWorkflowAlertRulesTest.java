@@ -97,19 +97,33 @@ class MediaWorkflowAlertRulesTest {
     }
 
     @Test
-    void missingProviderAndQualitySourcesHaveNoAlertRuleOrHealthyZeroFallback() throws IOException {
+    void providerReadinessAlertUsesOnlyObservedZeroAndQualityHasNoAlertRule() throws IOException {
         Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
         Path operationsPath = Path.of("..", "docs", "OPERATIONS.md");
         String rules = Files.readString(rulesPath);
         String operations = Files.readString(operationsPath);
 
         assertThat(rules)
-                .contains("Provider readiness and model-quality alert rules are intentionally absent")
-                .doesNotContain("alert: MediaProviderUnavailable", "alert: MediaQualityRegression",
-                        "media_provider_health", "media_model_quality", "av_health_check");
+                .contains("alert: AudioVideoProviderNotReady",
+                        "sum(av_service_readiness{service=~\"stt|tts|vision|multimodal\"} == 0) > 0",
+                        "component: grpc")
+                .doesNotContain("alert: MediaQualityRegression", "media_provider_health", "media_model_quality");
         assertThat(operations).contains(
-                "Provider readiness and model quality are not Prometheus sources",
+                "`av_service_readiness{service=\"stt|tts|vision|multimodal\"}`",
+                "fires only when an observed readiness value",
+                "do not alert on an absent or NaN series",
                 "`NOT_ADMITTED` / `NO_DATA`",
                 "must not turn that into a zero");
+    }
+
+    @Test
+    void providerNotReadyAlertHasFixedLabelsAndDoesNotFireForMissingOrNanSeries() throws IOException {
+        Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
+        String rules = Files.readString(rulesPath);
+        String expression = "sum(av_service_readiness{service=~\"stt|tts|vision|multimodal\"} == 0) > 0";
+
+        assertThat(rules).contains(expression,
+                "severity: critical\n          product: audio-video\n          component: grpc");
+        assertThat(expression).doesNotContain("or", "absent", "NaN", "vector(0)");
     }
 }
