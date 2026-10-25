@@ -1090,3 +1090,26 @@ Focused verification on this source cut:
 - `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.service.SttAudioInputDecoderTest --tests com.ghatana.stt.service.PersistentSttServiceValidationTest --tests com.ghatana.stt.grpc.SttGrpcServiceTest --console=plain` — BUILD SUCCESSFUL; 74 tests, 0 failures/errors/skips.
 - `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (thirty-first round)
+
+This round adds deterministic temporal and fusion evidence and validates the readiness alert rules against the pinned Prometheus evaluator. None of these increments meets full task acceptance; the exclusive task count does not change.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| OBS-07 | Added a Java guard that checks the Prometheus fixture retains observed-zero firing plus healthy, missing and NaN no-data cases for the four modalities, with no identity/content markers. Prometheus `promtool` v3.15.1 validated 6 general and 30 audio-video rules and passed the checked-in fixture: 25 scenario groups and 51 alert assertions. Focused alert/health and common metric tests passed 24 and 12 tests respectively. | PARTIAL: readiness rules, labels, false-alarm fixtures and safe triage are locally verified; no provider-quality metric is admitted for quality-regression alerting, and no Alertmanager deployment/delivery is claimed. |
+| MM-03 | Added a fixture with a PCM impulse at sample 72,048/48 kHz and a video PTS at 135,000/90 kHz; mapped clocks yield an exact +1 ms fixture offset within 2 ms while `TemporalAlignment` remains `SYNC_UNDETERMINED`. Simulation and wall clocks remain typed unresolvable outcomes. Existing tests cover irregular rational PTS, drift bounds and clock mismatch. | PARTIAL: `MediaClockMapping` is not wired into production request/source-clock or feature-window alignment; no measured synchronization is claimed. |
+| MM-06 | Re-ran the existing fusion suites: 39 `CrossModalFusionEngineTest` and 17 `CrossModalHeuristicFusionTest` cases pass for dimensions, coordinate-space IDs, finite normalized weights, sparse/missing modalities and `HEURISTIC_UNCALIBRATED` confidence. | PARTIAL: the canonical analysis engine does not use this fusion utility and abstains with incomplete source references; source-grounded production fusion, rights-backed identity and labeled-corpus evidence remain absent. No redundant code was added. |
+
+Current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. The 99 PDP capability memberships, 43 source RPC identities and five residual handoffs are unchanged. No provider admission, quality qualification, formal PDP acceptance, lifecycle transition/closure, cutover, deployment or release is claimed.
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:audio-video-observability:test --tests 'com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest' --tests 'com.ghatana.audiovideo.observability.AudioVideoHealthServiceTest' --console=plain` — 24 tests, 0 failures/errors/skips.
+- `./gradlew :services:media:libs:common:test --tests 'com.ghatana.audio.video.common.observability.MetricsServerInterceptorTest' --tests 'com.ghatana.audio.video.common.AudioVideoGrpcServerBaseTest' --no-daemon --console=plain` — 12 tests, 0 failures/errors/skips.
+- `docker run --rm -v /Users/samujjwal/Development/ghatana-media:/workspace -w /workspace --entrypoint /bin/promtool prom/prometheus:v3.15.1 check rules monitoring/prometheus/rules/media.yml infra/monitoring/alerts/audio-video.yml` — PASS; 6 and 30 rules validated.
+- `docker run --rm -v /Users/samujjwal/Development/ghatana-media:/workspace -w /workspace --entrypoint /bin/promtool prom/prometheus:v3.15.1 test rules infra/monitoring/tests/audio-video.rules.test.yml` — PASS; 25 scenarios and 51 alert assertions.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.engine.MediaClockMappingTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 13 tests, 0 failures/errors/skips.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.multimodal.engine.CrossModalFusionEngineTest --tests com.ghatana.multimodal.quality.CrossModalHeuristicFusionTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 56 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
