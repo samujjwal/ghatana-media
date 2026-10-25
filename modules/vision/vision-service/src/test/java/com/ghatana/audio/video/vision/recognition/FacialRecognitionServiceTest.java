@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.vision.recognition;
 
+import com.ghatana.audio.video.vision.model.VisionCapabilityDisposition;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -54,28 +55,31 @@ class FacialRecognitionServiceTest {
     }
 
     @Test
-    void sameTenantStillNeedsTrustedRightsAndHasNoRestrictedEffects() {
-        assertDeniedWithoutEffects(true, "tenant-a", true);
+    void sameTenantClaimAndConsentBooleanDoNotStandInForTrustedRights() {
+        assertDeniedWithoutEffects(true, "tenant-a:purpose=identity:consent=valid");
     }
 
     @Test
-    void foreignTenantIsNotAuthorizedByCallerSuppliedTenantClaim() {
-        // This legacy API has no trusted tenant binding, so the supplied label
-        // cannot authorize a restricted biometric operation.
-        assertDeniedWithoutEffects(true, "tenant-b", true);
+    void otherTenantClaimCannotAuthorizeRestrictedFaceAnalysis() {
+        assertDeniedWithoutEffects(true, "tenant-b:purpose=identity:consent=valid");
     }
 
     @Test
-    void revokedConsentBlocksRestrictedAnalysisWithoutEffects() {
-        assertDeniedWithoutEffects(false, "tenant-a", true);
+    void revokedConsentClaimBlocksRestrictedAnalysisWithoutEffects() {
+        assertDeniedWithoutEffects(false, "tenant-a:purpose=identity:consent=revoked");
     }
 
     @Test
-    void missingRightsBlocksRestrictedAnalysisWithoutEffects() {
-        assertDeniedWithoutEffects(true, "tenant-a", false);
+    void missingRightsClaimBlocksRestrictedAnalysisWithoutEffects() {
+        assertDeniedWithoutEffects(true, "tenant-a:purpose=identity:rights=missing");
     }
 
-    private static void assertDeniedWithoutEffects(boolean consentClaim, String tenantClaim, boolean rightsClaim) {
+    @Test
+    void wrongPurposeClaimCannotAuthorizeRestrictedFaceAnalysis() {
+        assertDeniedWithoutEffects(true, "tenant-a:purpose=analytics:consent=valid");
+    }
+
+    private static void assertDeniedWithoutEffects(boolean consentClaim, String callerSuppliedActorClaim) {
         AtomicInteger providerCalls = new AtomicInteger();
         FacialRecognitionService.FacialRecognitionAuditSink audit = mock(
                 FacialRecognitionService.FacialRecognitionAuditSink.class);
@@ -87,13 +91,43 @@ class FacialRecognitionServiceTest {
         assertThatThrownBy(() -> service.detect(new byte[]{1, 2}))
                 .isInstanceOf(FacialRecognitionService.NotAdmittedException.class)
                 .hasMessage("NOT_ADMITTED: trusted biometric rights authority is unavailable");
+        // The legacy API has no trusted tenant/purpose input. A caller-authored
+        // actor string and boolean are claims only and cannot authorize dispatch.
         assertThatThrownBy(() -> service.identify(
                 new float[]{1, 0}, Map.of("subject", new float[]{1, 0}), consentClaim,
-                tenantClaim + (rightsClaim ? "-rights-claimed" : "-rights-missing")))
+                callerSuppliedActorClaim))
                 .isInstanceOf(FacialRecognitionService.NotAdmittedException.class)
                 .hasMessage("NOT_ADMITTED: trusted biometric rights authority is unavailable");
 
         org.assertj.core.api.Assertions.assertThat(providerCalls).hasValue(0);
         verify(audit, never()).record(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void boundingBoxIsGeometryAndNotAnIdentityAssertion() {
+        var detection = new FacialRecognitionService.FaceDetection(
+                "ephemeral-detection-1", new FacialRecognitionService.BoundingBox(0.1, 0.2, 0.3, 0.4),
+                0.9, new float[0]);
+
+        org.assertj.core.api.Assertions.assertThat(detection.boundingBox())
+                .isEqualTo(new FacialRecognitionService.BoundingBox(0.1, 0.2, 0.3, 0.4));
+        org.assertj.core.api.Assertions.assertThat(detection.faceId()).isEqualTo("ephemeral-detection-1");
+        org.assertj.core.api.Assertions.assertThat(FacialRecognitionService.FaceDetection.class.getRecordComponents())
+                .extracting(java.lang.reflect.RecordComponent::getName)
+                .containsExactly("faceId", "boundingBox", "confidence", "embedding")
+                .doesNotContain("identityId", "personId");
+    }
+
+    @Test
+    void restrictedFaceLandmarkExpressionGazeCapabilitiesRemainNotAdmitted() {
+        org.assertj.core.api.Assertions.assertThat(VisionCapabilityDisposition.forIntentId(
+                "media.vision.estimate.face-landmarks").orElseThrow().status())
+                .isEqualTo(VisionCapabilityDisposition.Status.NOT_ADMITTED);
+        org.assertj.core.api.Assertions.assertThat(VisionCapabilityDisposition.forIntentId(
+                "media.vision.analyze.expression").orElseThrow().status())
+                .isEqualTo(VisionCapabilityDisposition.Status.NOT_ADMITTED);
+        org.assertj.core.api.Assertions.assertThat(VisionCapabilityDisposition.forIntentId(
+                "media.vision.analyze.gaze").orElseThrow().status())
+                .isEqualTo(VisionCapabilityDisposition.Status.NOT_ADMITTED);
     }
 }

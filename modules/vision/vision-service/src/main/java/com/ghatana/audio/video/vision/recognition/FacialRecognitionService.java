@@ -195,7 +195,7 @@ public final class FacialRecognitionService {
      * identity assertion; identity results use the separate {@link IdentityMatch}
      * type and remain unavailable without admitted biometric rights.
      *
-     * @param faceId    unique identifier for this face detection
+     * @param faceId    ephemeral identifier for this detection only; not a person identity
      * @param boundingBox bounding box in relative coordinates [0,1]
      * @param confidence  detection confidence in [0,1]
      * @param embedding   face embedding vector (may be empty if not supported)
