@@ -16,10 +16,10 @@ import java.util.Objects;
 /**
  * Production composition for {@link TtsGrpcService}.
  *
- * <p>The embedded engine is constructed and warmed before this service is returned to the server.
- * Synthetic fallback is explicit local/test behavior and is rejected in production-like profiles.
- * Production-like profiles also require a durable profile storage path because profile routes are
- * part of the exposed TTS contract.
+ * <p>Provider admission is checked before an embedded engine is constructed or warmed. The current
+ * provider resolver remains {@code NOT_ADMITTED}, so production composition fails closed at that
+ * check. Synthetic fallback is not a production synthesis path. Production-like profiles also
+ * require a durable profile storage path because profile routes are part of the exposed contract.
  *
  * @doc.type class
  * @doc.purpose Fail-closed TTS gRPC composition and owned library lifecycle

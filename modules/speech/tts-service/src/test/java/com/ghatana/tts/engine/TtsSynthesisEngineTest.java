@@ -37,15 +37,15 @@ class TtsSynthesisEngineTest {
     // ── Default voice synthesis ───────────────────────────────────────────────
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: synthesis Default Voice Produces Audio")
-    void synthesisDefaultVoiceProducesAudio() { 
+    @DisplayName("default voice returns NOT_ADMITTED without a synthesis result or audio")
+    void defaultVoiceReturnsNoAudioWithoutProvider() {
         VoiceConfig voice = VoiceConfig.defaults(); 
         assertNotAdmitted(() -> engine.synthesize("Hello world", voice, AudioEncoding.PCM_16BIT));
     }
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: synthesis Result Has Voice Id")
-    void synthesisResultHasVoiceId() { 
+    @DisplayName("voice metadata is not returned when synthesis is NOT_ADMITTED")
+    void voiceMetadataIsNotReturnedWithoutProvider() {
         VoiceConfig voice = VoiceConfig.defaults(); 
         assertNotAdmitted(() -> engine.synthesize("Test input", voice, AudioEncoding.PCM_16BIT));
     }
@@ -54,21 +54,21 @@ class TtsSynthesisEngineTest {
 
     @ParameterizedTest(name = "voice={0}") 
     @EnumSource(AudioEncoding.class) 
-    @DisplayName("NOT_ADMITTED without real provider: all Encodings Accepted")
-    void allEncodingsAccepted(AudioEncoding encoding) { 
+    @DisplayName("all requested encodings remain NOT_ADMITTED without a provider")
+    void allEncodingsRemainNotAdmitted(AudioEncoding encoding) {
         assertNotAdmitted(() -> engine.synthesize("Test", VoiceConfig.defaults(), encoding));
     }
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: second Voice Produces Audio")
-    void secondVoiceProducesAudio() { 
+    @DisplayName("second voice returns NOT_ADMITTED without audio")
+    void secondVoiceReturnsNoAudioWithoutProvider() {
         VoiceConfig voice = new VoiceConfig("en-US-standard-b", "en-US", "MALE", 1.0f, 0.0f, 0.0f); 
         assertNotAdmitted(() -> engine.synthesize("Hello again", voice, AudioEncoding.PCM_16BIT));
     }
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: french Voice Produces Audio")
-    void frenchVoiceProducesAudio() { 
+    @DisplayName("French voice returns NOT_ADMITTED without audio")
+    void frenchVoiceReturnsNoAudioWithoutProvider() {
         VoiceConfig voice = new VoiceConfig("fr-FR-standard-a", "fr-FR", "FEMALE", 1.0f, 0.0f, 0.0f); 
         assertNotAdmitted(() -> engine.synthesize("Bonjour le monde", voice, AudioEncoding.OPUS));
     }
@@ -76,22 +76,22 @@ class TtsSynthesisEngineTest {
     // ── SSML synthesis ────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: ssml Break Accepted")
-    void ssmlBreakAccepted() { 
+    @DisplayName("SSML break request returns NOT_ADMITTED without audio")
+    void ssmlBreakReturnsNoAudioWithoutProvider() {
         String ssml = "<speak>Hello <break time=\"500ms\"/> world.</speak>";
         assertNotAdmitted(() -> engine.synthesize(ssml, VoiceConfig.defaults(), AudioEncoding.PCM_16BIT));
     }
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: ssml Prosody Accepted")
-    void ssmlProsodyAccepted() { 
+    @DisplayName("SSML prosody request returns NOT_ADMITTED without audio")
+    void ssmlProsodyReturnsNoAudioWithoutProvider() {
         String ssml = "<speak><prosody rate=\"slow\">Test text to speak.</prosody></speak>";
         assertNotAdmitted(() -> engine.synthesize(ssml, VoiceConfig.defaults(), AudioEncoding.MP3));
     }
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: ssml Emphasis Produces Audio")
-    void ssmlEmphasisProducesAudio() { 
+    @DisplayName("SSML emphasis request returns NOT_ADMITTED without audio")
+    void ssmlEmphasisReturnsNoAudioWithoutProvider() {
         String ssml = "<speak>This is <emphasis level=\"strong\">important</emphasis>.</speak>";
         assertNotAdmitted(() -> engine.synthesize(ssml, VoiceConfig.defaults(), AudioEncoding.PCM_16BIT));
     }
@@ -99,8 +99,8 @@ class TtsSynthesisEngineTest {
     // ── Prosody control ───────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: faster Rate Shorts Duration")
-    void fasterRateShortsDuration() { 
+    @DisplayName("non-neutral rates return NOT_ADMITTED without duration output")
+    void nonNeutralRatesReturnNoDurationWithoutProvider() {
         VoiceConfig fast = new VoiceConfig("en-US-standard-a", "en-US", "NEUTRAL", 2.0f, 0.0f, 0.0f); 
         VoiceConfig slow = new VoiceConfig("en-US-standard-a", "en-US", "NEUTRAL", 0.5f, 0.0f, 0.0f); 
         String text = "This is a test sentence with several words";
@@ -109,8 +109,8 @@ class TtsSynthesisEngineTest {
     }
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: pitch And Volume Accepted")
-    void pitchAndVolumeAccepted() { 
+    @DisplayName("non-neutral pitch and volume return NOT_ADMITTED without output")
+    void nonNeutralPitchAndVolumeReturnNoOutputWithoutProvider() {
         VoiceConfig voice = new VoiceConfig("en-US-standard-a", "en-US", "NEUTRAL", 1.0f, 2.0f, -3.0f); 
         assertNotAdmitted(() -> engine.synthesize("Test pitch and volume", voice, AudioEncoding.PCM_16BIT));
     }
@@ -118,20 +118,20 @@ class TtsSynthesisEngineTest {
     // ── Synthesis quality attributes ──────────────────────────────────────────
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: sample Rate Is Positive")
-    void sampleRateIsPositive() { 
+    @DisplayName("sample rate metadata is unavailable without synthesis output")
+    void sampleRateMetadataUnavailableWithoutProvider() {
         assertNotAdmitted(() -> engine.synthesize("Sample rate check", VoiceConfig.defaults(), AudioEncoding.PCM_16BIT));
     }
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: processing Time Is Non Negative")
-    void processingTimeIsNonNegative() { 
+    @DisplayName("processing time metadata is unavailable without synthesis output")
+    void processingTimeMetadataUnavailableWithoutProvider() {
         assertNotAdmitted(() -> engine.synthesize("Processing time", VoiceConfig.defaults(), AudioEncoding.PCM_16BIT));
     }
 
     @Test
-    @DisplayName("NOT_ADMITTED without real provider: longer Text Has Longer Duration")
-    void longerTextHasLongerDuration() { 
+    @DisplayName("text duration comparison is unavailable without synthesis output")
+    void textDurationComparisonUnavailableWithoutProvider() {
         String longText = "The quick brown fox jumps over the lazy dog. " .repeat(10); 
         String shortText = "Hello world";
         assertNotAdmitted(() -> engine.synthesize(longText, VoiceConfig.defaults(), AudioEncoding.PCM_16BIT));
@@ -139,6 +139,15 @@ class TtsSynthesisEngineTest {
     }
 
     // ── Error handling ────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("NOT_ADMITTED is thrown instead of returning fabricated audio")
+    void noSynthesisResultOrAudioIsReturnedWithoutProvider() {
+        assertThatThrownBy(() -> engine.synthesize("Hello world", VoiceConfig.defaults(), AudioEncoding.PCM_16BIT))
+                .isInstanceOfSatisfying(SynthesisException.class, error ->
+                        assertThat(error.reason()).isEqualTo(FailureReason.NOT_ADMITTED))
+                .hasMessageContaining("NOT_ADMITTED");
+    }
 
     @Test
     @DisplayName("null text throws SynthesisException")

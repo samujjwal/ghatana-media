@@ -155,9 +155,10 @@ class PersistentTtsGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("synthesize returns audio data on success")
-    void synthesizeOnSuccessReturnsResponse() {
+    @DisplayName("test-double result exercises response mapping only; it is not provider audio")
+    void testDoubleResultExercisesResponseMappingOnly() {
         UUID audioFileId = UUID.randomUUID();
+        // Test-only silent PCM-shaped bytes validate the legacy adapter mapping; they are not speech.
         byte[] audioBytes = new byte[44_100];
         PersistentTtsService.SynthesisResult result =
             new PersistentTtsService.SynthesisResult(audioFileId, audioBytes, 22050, 123L,
