@@ -685,3 +685,14 @@ Focused verification:
 - `git diff --check` — PASS.
 
 Current exclusive task dispositions are **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. OBS-07 remains PARTIAL: provider readiness/quality signals are fixture-only where the launcher exports no modality gauge, and no deployed alert delivery was tested. W2-E12 remains incomplete because real provider/store dependency qualification and replay/finality conditions exceed this OBS-06 slice. No real STT/Vision provider quality, formal PDP/gtool acceptance, production deployment, cutover or release is claimed.
+
+### Incremental execution record — 2026-10-25 (eleventh round)
+
+The current selected module source cut passed all four complete modality test tasks after the STT, TTS, Vision and Multimodal boundary changes:
+
+- `./gradlew :services:media:modules:speech:stt-service:test :services:media:modules:vision:vision-service:test :services:media:modules:intelligence:multimodal-service:test --no-build-cache --no-daemon --console=plain --parallel` — BUILD SUCCESSFUL; STT 272, Vision 346, and Multimodal 264 tests, all with 0 failures/errors/skips.
+- `./gradlew :services:media:modules:speech:tts-service:test --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 278 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
+
+These were four selected module tasks, not a full repository build. The current exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No status is inferred from test count alone; provider quality, live alert delivery, formal lifecycle acceptance, production cutover and release remain unclaimed.
