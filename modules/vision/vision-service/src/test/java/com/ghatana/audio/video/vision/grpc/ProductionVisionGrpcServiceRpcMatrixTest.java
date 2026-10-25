@@ -151,6 +151,10 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
                 () -> authenticated.classifyImage(ClassifyRequest.getDefaultInstance()));
         assertStatus(Status.Code.INVALID_ARGUMENT, "Video data cannot be empty",
                 () -> authenticated.analyzeVideoFile(VideoFileRequest.getDefaultInstance()));
+        assertStatus(Status.Code.INVALID_ARGUMENT, "Video sampling settings exceed supported bounds",
+                () -> authenticated.analyzeVideoFile(VideoFileRequest.newBuilder()
+                        .setVideoData(ByteString.copyFrom(new byte[] {4}))
+                        .setSampleFps(61).build()));
         assertProcessVideoFailure(authenticatedAsync(), VideoFrameRequest.getDefaultInstance(),
                 Status.Code.INVALID_ARGUMENT, "Frame data cannot be empty");
         assertStatus(Status.Code.INVALID_ARGUMENT, "modelId must not be blank",
