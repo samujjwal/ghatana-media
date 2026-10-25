@@ -126,10 +126,19 @@ public final class BoundedImageDecoder {
 
     private static byte[] webpExif(byte[] bytes) {
         if (bytes.length < 12 || !ascii(bytes, 0, "RIFF") || !ascii(bytes, 8, "WEBP")) return null;
+        long riffLength = u32le(bytes, 4);
+        long containerEndLong = 8L + riffLength;
+        if (riffLength < 4 || containerEndLong > bytes.length) {
+            throw metadataError("Invalid WebP RIFF container length");
+        }
+        int containerEnd = (int) containerEndLong;
         int offset = 12;
-        while (offset + 8 <= bytes.length) {
+        while (offset < containerEnd) {
+            if (containerEnd - offset < 8) throw metadataError("Truncated WebP chunk header");
             long length = u32le(bytes, offset + 4);
-            if (length > Integer.MAX_VALUE || offset + 8L + length > bytes.length) {
+            long chunkEnd = offset + 8L + length;
+            long paddedEnd = chunkEnd + (length & 1);
+            if (length > Integer.MAX_VALUE || paddedEnd > containerEnd) {
                 throw metadataError("Invalid WebP chunk length");
             }
             int data = offset + 8;
@@ -138,7 +147,7 @@ public final class BoundedImageDecoder {
                 if (length >= 6 && ascii(bytes, start, "Exif\0\0")) start += 6;
                 return copyRange(bytes, start, data + (int) length);
             }
-            offset = data + (int) length + ((int) length & 1);
+            offset = (int) paddedEnd;
         }
         return null;
     }

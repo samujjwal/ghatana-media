@@ -111,6 +111,57 @@ class BoundedImageDecoderTest {
                 .isInstanceOf(BoundedImageDecoder.UnsupportedImageMetadataException.class);
     }
 
+    @Test void ignoresExifChunkBytesOutsideDeclaredWebpRiffContainer() throws Exception {
+        byte[] trailingExif = new byte[] {
+                'R', 'I', 'F', 'F', 4, 0, 0, 0, 'W', 'E', 'B', 'P',
+                'E', 'X', 'I', 'F', 8, 0, 0, 0,
+                'I', 'I', 42, 0, 8, 0, 0, 0
+        };
+        assertThat(parseWebpExif(trailingExif)).isNull();
+    }
+
+    @Test void rejectsWebpRiffLengthBeyondAvailableBytes() {
+        byte[] oversizedContainer = new byte[] {
+                'R', 'I', 'F', 'F', (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                'W', 'E', 'B', 'P'
+        };
+        assertThatThrownBy(() -> parseWebpExif(oversizedContainer))
+                .hasCauseInstanceOf(BoundedImageDecoder.UnsupportedImageMetadataException.class);
+    }
+
+    @Test void rejectsTruncatedWebpChunkHeaderWithinDeclaredContainer() {
+        byte[] truncatedHeader = new byte[] {
+                'R', 'I', 'F', 'F', 5, 0, 0, 0, 'W', 'E', 'B', 'P', 'X'
+        };
+        assertThatThrownBy(() -> parseWebpExif(truncatedHeader))
+                .hasCauseInstanceOf(BoundedImageDecoder.UnsupportedImageMetadataException.class);
+    }
+
+    @Test void rejectsWebpOddChunkWithoutRequiredPaddingByte() {
+        byte[] missingPadding = new byte[] {
+                'R', 'I', 'F', 'F', 13, 0, 0, 0, 'W', 'E', 'B', 'P',
+                'V', 'P', '8', ' ', 1, 0, 0, 0, 7
+        };
+        assertThatThrownBy(() -> parseWebpExif(missingPadding))
+                .hasCauseInstanceOf(BoundedImageDecoder.UnsupportedImageMetadataException.class);
+    }
+
+    @Test void returnsExifOnlyFromAnInBoundsWebpChunk() throws Exception {
+        byte[] tiff = new byte[] {'I', 'I', 42, 0, 8, 0, 0, 0};
+        byte[] inBoundsExif = new byte[] {
+                'R', 'I', 'F', 'F', 26, 0, 0, 0, 'W', 'E', 'B', 'P',
+                'E', 'X', 'I', 'F', 14, 0, 0, 0,
+                'E', 'x', 'i', 'f', 0, 0, 'I', 'I', 42, 0, 8, 0, 0, 0
+        };
+        assertThat(parseWebpExif(inBoundsExif)).containsExactly(tiff);
+    }
+
+    private static byte[] parseWebpExif(byte[] bytes) throws Exception {
+        var parser = BoundedImageDecoder.class.getDeclaredMethod("webpExif", byte[].class);
+        parser.setAccessible(true);
+        return (byte[]) parser.invoke(null, (Object) bytes);
+    }
+
     private static byte[] withExifOrientation(byte[] jpeg, int orientation) {
         byte[] tiff = new byte[] {
                 'I', 'I', 42, 0, 8, 0, 0, 0, 1, 0,
