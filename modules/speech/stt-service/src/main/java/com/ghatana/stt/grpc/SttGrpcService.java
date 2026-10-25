@@ -88,12 +88,11 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
             .publishPercentileHistogram()
             .register(metrics);
 
-        LOG.info("STT Service initialized with model: {}", config.modelId());
+        LOG.info("STT service initialized");
     }
 
     @Override
     public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> responseObserver) {
-        String cid = cid();
         transcribeTimer.record(() -> {
             try {
                 // Inspect the protobuf's declared byte count before creating another byte array.
@@ -110,7 +109,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                         String langCode = language.toLowerCase(Locale.ROOT).split("-")[0];
                         if (!SUPPORTED_LANGUAGES.contains(langCode)) {
                             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                                .withDescription("Unsupported language: " + language)
+                                .withDescription("Unsupported language")
                                 .asRuntimeException());
                             return;
                         }
@@ -125,30 +124,34 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                 }
 
                 TranscribeResponse.Builder mapped = SttTranscriptionResponseMapper.toProto(result, audio.duration());
-                String elapsed = result.processingTime() == null
-                        ? "unknown" : Long.toString(result.processingTime().toMillis());
-                LOG.info("[{}] Transcribed: length={}, confidence={}, elapsed={}",
-                    cid, mapped.getText().length(), result.confidence(), elapsed);
-
                 responseObserver.onNext(mapped.build());
                 responseObserver.onCompleted();
             } catch (SttTranscriptionResponseMapper.InvalidResultException e) {
                 responseObserver.onError(io.grpc.Status.INTERNAL
-                        .withDescription(e.getMessage()).asRuntimeException());
+                        .withDescription("Invalid transcription result").asRuntimeException());
             } catch (SttAudioInputDecoder.InputException e) {
                 io.grpc.Status status = switch (e.kind()) {
                     case INVALID_ARGUMENT -> io.grpc.Status.INVALID_ARGUMENT;
                     case RESOURCE_EXHAUSTED -> io.grpc.Status.RESOURCE_EXHAUSTED;
                     case NOT_ADMITTED -> io.grpc.Status.FAILED_PRECONDITION;
                 };
-                responseObserver.onError(status.withDescription(e.getMessage()).asRuntimeException());
+                String description = switch (e.kind()) {
+                    case INVALID_ARGUMENT -> "Invalid audio input";
+                    case RESOURCE_EXHAUSTED -> "Audio input exceeds the supported limit";
+                    case NOT_ADMITTED -> "Audio input format is not admitted";
+                };
+                responseObserver.onError(status.withDescription(description).asRuntimeException());
             } catch (com.ghatana.media.common.ValidationError e) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
+                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                        .withDescription("Invalid transcription request").asRuntimeException());
             } catch (com.ghatana.media.common.InferenceError e) {
                 io.grpc.Status status = e.isRetryable() ? io.grpc.Status.UNAVAILABLE : io.grpc.Status.INTERNAL;
-                responseObserver.onError(status.withDescription(e.getMessage()).asRuntimeException());
+                String description = e.isRetryable()
+                        ? "Transcription provider temporarily unavailable"
+                        : "Transcription failed";
+                responseObserver.onError(status.withDescription(description).asRuntimeException());
             } catch (Exception e) {
-                LOG.error("[{}] Unexpected error: {}", cid, e.getMessage(), e);
+                LOG.error("STT transcription failed failureType={}", failureType(e));
                 responseObserver.onError(io.grpc.Status.INTERNAL.withDescription("Internal error").asRuntimeException());
             }
         });
@@ -260,7 +263,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
             long memoryBytes = stt.getMetrics().memoryUsageBytes();
 
-            LOG.info("STT model loaded: {} in {}ms", modelId, loadTimeMs);
+            LOG.info("STT model loaded in {}ms", loadTimeMs);
             responseObserver.onNext(LoadModelResponse.newBuilder()
                 .setSuccess(true)
                 .setMessage("Model loaded successfully: " + modelId)
@@ -270,14 +273,14 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                 .build());
             responseObserver.onCompleted();
         } catch (com.ghatana.media.common.ModelLoadingError e) {
-            LOG.warn("Failed to load STT model {}: {}", modelId, e.getMessage());
+            LOG.warn("STT model load failed failureType={}", failureType(e));
             responseObserver.onError(io.grpc.Status.NOT_FOUND
-                .withDescription("Model not found or cannot be loaded: " + modelId)
+                .withDescription("Model not found or cannot be loaded")
                 .asRuntimeException());
         } catch (Exception e) {
-            LOG.error("Unexpected error loading STT model {}: {}", modelId, e.getMessage(), e);
+            LOG.error("STT model load failed failureType={}", failureType(e));
             responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Failed to load model: " + e.getMessage())
+                .withDescription("Failed to load model")
                 .asRuntimeException());
         }
     }
@@ -299,7 +302,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
             boolean found = models.stream().anyMatch(m -> modelId.equals(m.modelId()));
             if (!found) {
                 responseObserver.onError(io.grpc.Status.NOT_FOUND
-                    .withDescription("Model not found: " + modelId)
+                    .withDescription("Model not found")
                     .asRuntimeException());
                 return;
             }
@@ -309,9 +312,9 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                 .withDescription("Model unload is not supported by the active STT engine")
                 .asRuntimeException());
         } catch (Exception e) {
-            LOG.error("Error unloading STT model {}: {}", modelId, e.getMessage(), e);
+            LOG.error("STT model unload failed failureType={}", failureType(e));
             responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Failed to unload model: " + e.getMessage())
+                .withDescription("Failed to unload model")
                 .asRuntimeException());
         }
     }
@@ -367,9 +370,9 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
         } catch (Exception e) {
-            LOG.error("Failed to list STT models: {}", e.getMessage(), e);
+            LOG.error("STT model listing failed failureType={}", failureType(e));
             responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Failed to list models: " + e.getMessage())
+                .withDescription("Failed to list models")
                 .asRuntimeException());
         }
     }
@@ -442,7 +445,9 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
         return true;
     }
 
-    private static String cid() {
-        return UUID.randomUUID().toString().substring(0, 8);
+    private static String failureType(Throwable error) {
+        Throwable cause = error;
+        while (cause.getCause() != null && cause.getCause() != cause) cause = cause.getCause();
+        return cause.getClass().getSimpleName();
     }
 }

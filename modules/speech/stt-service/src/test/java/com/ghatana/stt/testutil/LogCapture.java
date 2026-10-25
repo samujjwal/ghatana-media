@@ -7,6 +7,8 @@ import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
 
 import java.util.List;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Captures one SLF4J-backed Log4j logger for privacy regression tests. */
@@ -32,7 +34,14 @@ public final class LogCapture extends AbstractAppender implements AutoCloseable 
 
     @Override
     public void append(LogEvent event) {
-        messages.add(event.getMessage().getFormattedMessage());
+        StringBuilder entry = new StringBuilder(event.getMessage().getFormattedMessage())
+                .append(' ').append(event.getContextData().toMap());
+        if (event.getThrown() != null) {
+            StringWriter stack = new StringWriter();
+            event.getThrown().printStackTrace(new PrintWriter(stack));
+            entry.append(' ').append(stack);
+        }
+        messages.add(entry.toString());
     }
 
     public String output() {

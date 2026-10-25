@@ -153,7 +153,8 @@ class SttGrpcServiceTest {
         assertThat(observer.hasError()).isTrue();
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.INTERNAL.getCode());
-        assertThat(observer.getError().getMessage()).contains("STT_RESULT_INVALID");
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getDescription())
+                .isEqualTo("Invalid transcription result");
     }
 
     @Test
@@ -185,7 +186,7 @@ class SttGrpcServiceTest {
         assertThat(observer.hasError()).isTrue();
         StatusRuntimeException error = (StatusRuntimeException) observer.getError();
         assertThat(error.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode());
-        assertThat(error.getStatus().getDescription()).contains("STT_AUDIO_INVALID_HEADER");
+        assertThat(error.getStatus().getDescription()).isEqualTo("Invalid audio input");
         verifyNoInteractions(mockEngine);
     }
 
@@ -201,7 +202,7 @@ class SttGrpcServiceTest {
         assertThat(observer.hasError()).isTrue();
         StatusRuntimeException error = (StatusRuntimeException) observer.getError();
         assertThat(error.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
-        assertThat(error.getStatus().getDescription()).contains("STT_AUDIO_FORMAT_NOT_ADMITTED");
+        assertThat(error.getStatus().getDescription()).isEqualTo("Audio input format is not admitted");
         verifyNoInteractions(mockEngine);
     }
 
@@ -237,7 +238,7 @@ class SttGrpcServiceTest {
         assertThat(observer.hasError()).isTrue(); 
         StatusRuntimeException ex = (StatusRuntimeException) observer.getError(); 
         assertThat(ex.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode()); 
-        assertThat(ex.getStatus().getDescription()).contains("bad audio format");
+        assertThat(ex.getStatus().getDescription()).isEqualTo("Invalid transcription request");
     }
 
     @Test

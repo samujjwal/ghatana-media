@@ -97,7 +97,6 @@ public final class SpeakerDiarizationService {
             String speakerId = assignSpeaker(embedding, centroids);
 
             result.add(new SpeakerTurn(speakerId, segment.startMs(), segment.endMs(), segment.text()));
-            LOG.debug("Segment [{}-{}ms] assigned to {}", segment.startMs(), segment.endMs(), speakerId);
         }
 
         LOG.info("Diarization complete: {} segments → {} speaker(s)",
