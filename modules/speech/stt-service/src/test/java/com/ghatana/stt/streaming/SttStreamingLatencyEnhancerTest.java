@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -101,5 +105,135 @@ class SttStreamingLatencyEnhancerTest {
                 .maxBufferChunks(10) 
                 .build()) 
                 .isInstanceOf(NullPointerException.class); 
+    }
+
+    @Test
+    @DisplayName("Retains a bounded copy instead of the caller-owned chunk array")
+    void ingestCopiesCallerOwnedBytes() {
+        byte[] callerBuffer = new byte[] {1, 2, 3};
+        assertThat(enhancer.ingest(callerBuffer, 1, 1000L)).isTrue();
+        callerBuffer[0] = 99;
+
+        enhancer.flush();
+
+        assertThat(emitted).hasSize(1);
+        assertThat(emitted.get(0).audioChunks().get(0)).containsExactly(1, 2, 3);
+        assertThat(enhancer.bufferedBytes()).isZero();
+    }
+
+    @Test
+    @DisplayName("Rejects chunks above the configured cap before retaining them")
+    void ingestRejectsOversizedChunk() {
+        SttStreamingLatencyEnhancer bounded = SttStreamingLatencyEnhancer.builder()
+                .maxBufferChunks(20)
+                .maxChunkBytes(4)
+                .maxBufferBytes(8)
+                .emitter(ignored -> { })
+                .build();
+
+        assertThatThrownBy(() -> bounded.ingest(new byte[5], 1, 1000L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_CHUNK_TOO_LARGE");
+        assertThat(bounded.bufferedBytes()).isZero();
+        assertThat(bounded.stats().chunksReceived()).isZero();
+    }
+
+    @Test
+    @DisplayName("Bounds aggregate pending bytes and releases the reservation after flush")
+    void aggregateBufferByteLimitAndFlushRelease() {
+        SttStreamingLatencyEnhancer bounded = SttStreamingLatencyEnhancer.builder()
+                .maxBufferChunks(20)
+                .maxChunkBytes(48)
+                .maxBufferBytes(64)
+                .emitter(ignored -> { })
+                .build();
+
+        assertThat(bounded.ingest(new byte[48], 1, 1000L)).isTrue();
+        assertThat(bounded.ingest(new byte[16], 2, 1010L)).isTrue();
+        assertThat(bounded.bufferedBytes()).isEqualTo(64);
+        assertThat(bounded.isBackPressureActive()).isTrue();
+        assertThat(bounded.ingest(new byte[1], 3, 1020L)).isFalse();
+        assertThat(bounded.bufferedBytes()).isEqualTo(64);
+
+        bounded.flush();
+
+        assertThat(bounded.bufferedBytes()).isZero();
+        assertThat(bounded.isBackPressureActive()).isFalse();
+        assertThat(bounded.ingest(new byte[16], 3, 1020L)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Emitter failures do not retain byte reservations or poison later input")
+    void emitterFailureReleasesReservation() {
+        SttStreamingLatencyEnhancer bounded = SttStreamingLatencyEnhancer.builder()
+                .maxBufferChunks(4)
+                .maxChunkBytes(8)
+                .maxBufferBytes(8)
+                .emitter(ignored -> { throw new IllegalStateException("fixture failure"); })
+                .build();
+
+        assertThat(bounded.ingest(new byte[] {1, 2}, 1, 1000L)).isTrue();
+        assertThat(bounded.bufferedBytes()).isZero();
+        assertThat(bounded.ingest(new byte[] {3, 4}, 2, 1010L)).isTrue();
+        assertThat(bounded.bufferedBytes()).isZero();
+        assertThat(bounded.stats().chunksReceived()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Keeps in-flight emitter payloads inside the aggregate byte budget")
+    void inFlightEmitterBytesRemainReserved() throws Exception {
+        CountDownLatch emitterEntered = new CountDownLatch(1);
+        CountDownLatch allowEmitterReturn = new CountDownLatch(1);
+        SttStreamingLatencyEnhancer bounded = SttStreamingLatencyEnhancer.builder()
+                .maxBufferChunks(4)
+                .maxChunkBytes(8)
+                .maxBufferBytes(8)
+                .emitter(ignored -> {
+                    emitterEntered.countDown();
+                    try {
+                        if (!allowEmitterReturn.await(5, TimeUnit.SECONDS)) {
+                            throw new IllegalStateException("fixture emitter wait timed out");
+                        }
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        throw new IllegalStateException("fixture emitter interrupted");
+                    }
+                })
+                .build();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        try {
+            var firstIngest = executor.submit(() -> bounded.ingest(new byte[8], 1, 1000L));
+            assertThat(emitterEntered.await(5, TimeUnit.SECONDS)).isTrue();
+            assertThat(bounded.bufferedBytes()).isEqualTo(8);
+            assertThat(bounded.ingest(new byte[1], 2, 1010L)).isFalse();
+
+            allowEmitterReturn.countDown();
+            assertThat(firstIngest.get(5, TimeUnit.SECONDS)).isTrue();
+            assertThat(bounded.bufferedBytes()).isZero();
+        } finally {
+            allowEmitterReturn.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @DisplayName("Builder hard ceilings cannot be bypassed by configuration")
+    void builderRejectsUnsafeResourceCaps() {
+        assertThatThrownBy(() -> SttStreamingLatencyEnhancer.builder()
+                .maxChunkBytes(SttStreamingLatencyEnhancer.MAX_ALLOWED_CHUNK_BYTES + 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> SttStreamingLatencyEnhancer.builder()
+                .maxBufferBytes(SttStreamingLatencyEnhancer.MAX_ALLOWED_BUFFER_BYTES + 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> SttStreamingLatencyEnhancer.builder()
+                .maxBufferChunks(SttStreamingLatencyEnhancer.MAX_ALLOWED_BUFFER_CHUNKS + 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> SttStreamingLatencyEnhancer.builder()
+                .maxChunkBytes(8)
+                .maxBufferBytes(4)
+                .emitter(ignored -> { })
+                .build())
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
