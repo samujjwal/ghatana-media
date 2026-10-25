@@ -259,7 +259,21 @@ class SsmlProcessorTest {
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><emphasis>broken</speak>"));
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak>" + "x".repeat(SsmlProcessor.MAX_INPUT_CHARS) + "</speak>"));
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><break time=\"11s\"/></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><break time=\"10s\"/><break time=\"10s\"/><break time=\"10s\"/><break time=\"1ms\"/></speak>"));
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><script>unsafe</script></speak>"));
+    }
+
+    @Test
+    @DisplayName("accepts exact input and pause bounds and decodes escaped XML text")
+    void acceptsExactBoundsAndDecodesEscapes() {
+        String exactInput = "<speak>" + "x".repeat(SsmlProcessor.MAX_INPUT_CHARS - "<speak></speak>".length()) + "</speak>";
+        assertThat(processor.parse(exactInput)).singleElement()
+                .satisfies(segment -> assertThat(segment.text()).hasSize(SsmlProcessor.MAX_INPUT_CHARS - "<speak></speak>".length()));
+        assertThat(processor.parse("<speak><break time=\"10s\"/><break time=\"10s\"/><break time=\"10s\"/></speak>"))
+                .hasSize(3);
+        assertThat(processor.parse("<speak>Tom &amp; Jerry &lt;3 &#x1F642;</speak>"))
+                .singleElement().extracting(SsmlProcessor.SsmlSegment::text)
+                .isEqualTo("Tom & Jerry <3 🙂");
     }
 
     @Test
