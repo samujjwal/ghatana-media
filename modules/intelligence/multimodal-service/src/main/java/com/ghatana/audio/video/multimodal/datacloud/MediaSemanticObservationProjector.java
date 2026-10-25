@@ -18,6 +18,9 @@ import static com.ghatana.datacloud.semantic.OperationalSemanticContext.*;
  * does not project raw media payloads.
  */
 public final class MediaSemanticObservationProjector {
+    // OperationalSemanticContext keeps this text bound private; mirror the bound enforced by its values.
+    private static final int MAX_CONTRACT_TEXT_LENGTH = 512;
+
     /**
      * Format a local projection candidate. This method validates field consistency but does not
      * authenticate source, consent, provider, or redaction references and does not authorize publication.
@@ -179,8 +182,63 @@ public final class MediaSemanticObservationProjector {
         public MediaDerivedObservation {
             observedAt = Objects.requireNonNull(observedAt, "observedAt");
             recordedAt = Objects.requireNonNull(recordedAt, "recordedAt");
-            permittedPurposes = List.copyOf(permittedPurposes);
+            if (recordedAt.isBefore(observedAt)) {
+                throw new IllegalArgumentException("recordedAt must not be before observedAt");
+            }
+            if (qualityScore < 0 || qualityScore > 100) {
+                throw new IllegalArgumentException("qualityScore must be 0..100");
+            }
+
+            tenantId = requireText(tenantId, "tenantId");
+            sourceTenantId = requireText(sourceTenantId, "sourceTenantId");
+            artifactId = requireText(artifactId, "artifactId");
+            requestedArtifactVersionId = requireText(requestedArtifactVersionId, "requestedArtifactVersionId");
+            sourceArtifactVersionId = requireText(sourceArtifactVersionId, "sourceArtifactVersionId");
+            observationId = requireText(observationId, "observationId");
+            observationType = requireToken(observationType, "observationType");
+            redactedValue = requireText(redactedValue, "redactedValue");
+            sourceSystem = requireToken(sourceSystem, "sourceSystem");
+            sourceEventId = requireText(sourceEventId, "sourceEventId");
+            // providerId becomes Reference.ownerService, which is token-constrained by the public contract.
+            providerId = requireToken(providerId, "providerId");
+            providerVersion = requireText(providerVersion, "providerVersion");
+            redactionDecisionRef = requireText(redactionDecisionRef, "redactionDecisionRef");
+            consentOwnerService = requireToken(consentOwnerService, "consentOwnerService");
+            consentRef = requireText(consentRef, "consentRef");
+            ownerId = requireToken(ownerId, "ownerId");
+            stewardId = requireToken(stewardId, "stewardId");
+            sourceClassification = requireToken(sourceClassification, "sourceClassification");
+            classification = requireToken(classification, "classification");
+            permittedPurposes = requirePurposes(permittedPurposes);
+            residency = requireToken(residency, "residency");
             retentionPolicyRef = retentionPolicyRef == null ? Optional.empty() : retentionPolicyRef;
+            retentionPolicyRef = retentionPolicyRef.map(value -> requireText(value, "retentionPolicyRef"));
+            trustGrade = requireToken(trustGrade, "trustGrade");
         }
+    }
+
+    private static List<String> requirePurposes(List<String> purposes) {
+        if (purposes == null || purposes.isEmpty() || purposes.size() > MAX_ITEMS) {
+            throw new IllegalArgumentException("permittedPurposes must contain 1.." + MAX_ITEMS + " bounded tokens");
+        }
+        return purposes.stream().map(value -> requireToken(value, "permittedPurposes")).toList();
+    }
+
+    private static String requireText(String value, String field) {
+        if (value == null || value.isBlank() || value.length() > MAX_CONTRACT_TEXT_LENGTH) {
+            throw new IllegalArgumentException(field + " is required and bounded");
+        }
+        if (!value.equals(value.trim())) {
+            throw new IllegalArgumentException(field + " must not have surrounding whitespace");
+        }
+        return value;
+    }
+
+    private static String requireToken(String value, String field) {
+        String normalized = requireText(value, field);
+        if (!normalized.matches("[A-Za-z0-9][A-Za-z0-9._:-]*")) {
+            throw new IllegalArgumentException(field + " must be a token");
+        }
+        return normalized;
     }
 }
