@@ -434,15 +434,19 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
     @Override
     public void close() {
-        mediaGateway.close();
-        executor.shutdown();
         try {
-            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+            mediaGateway.close();
+        } finally {
+            // A provider/channel close failure must not leave the bounded worker pool live.
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 executor.shutdownNow();
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            executor.shutdownNow();
         }
     }
 

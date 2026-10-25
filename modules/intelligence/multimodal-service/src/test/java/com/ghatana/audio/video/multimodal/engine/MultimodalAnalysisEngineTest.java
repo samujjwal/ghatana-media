@@ -20,6 +20,8 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -599,6 +601,146 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Caller interruption cancels every submitted modality child and restores the interrupt")
+    void callerInterruptionCancelsAllChildrenAndRestoresInterrupt() throws Exception {
+        CountDownLatch childrenStarted = new CountDownLatch(3);
+        CountDownLatch childrenInterrupted = new CountDownLatch(3);
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"),
+                VisualResult.error("unused"), VisualResult.error("unused")) {
+            private void awaitCancellation() {
+                childrenStarted.countDown();
+                try {
+                    new CountDownLatch(1).await();
+                } catch (InterruptedException cancelled) {
+                    childrenInterrupted.countDown();
+                    throw new CancellationException("child cancelled");
+                }
+            }
+
+            @Override public AudioResult transcribe(byte[] input) {
+                awaitCancellation();
+                return AudioResult.error("unexpected completion");
+            }
+
+            @Override public VisualResult analyseImage(byte[] input) {
+                awaitCancellation();
+                return VisualResult.error("unexpected completion");
+            }
+
+            @Override public VisualResult analyseVideo(byte[] input, int sampleFps, int maxFrames) {
+                awaitCancellation();
+                return VisualResult.error("unexpected completion");
+            }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, settingsWithMaxInputStreams(3), TimeUnit.SECONDS.toNanos(5))) {
+            AtomicReference<MultimodalException> failure = new AtomicReference<>();
+            AtomicBoolean interruptRestored = new AtomicBoolean();
+            Thread caller = new Thread(() -> {
+                try {
+                    engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1})
+                            .imageData(new byte[] {2}).videoData(new byte[] {3}).build());
+                } catch (MultimodalException interrupted) {
+                    failure.set(interrupted);
+                    interruptRestored.set(Thread.currentThread().isInterrupted());
+                }
+            }, "multimodal-parent-cancellation-test");
+
+            caller.start();
+            assertTrue(childrenStarted.await(2, TimeUnit.SECONDS));
+            caller.interrupt();
+            caller.join(2_000);
+
+            assertFalse(caller.isAlive());
+            assertEquals("Analysis interrupted", failure.get().getMessage());
+            assertTrue(interruptRestored.get());
+            assertTrue(childrenInterrupted.await(2, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    @DisplayName("Caller interruption cancels queued modality work before provider dispatch")
+    void callerInterruptionCancelsQueuedChildBeforeDispatch() throws Exception {
+        CountDownLatch activeChildrenStarted = new CountDownLatch(2);
+        CountDownLatch activeChildrenInterrupted = new CountDownLatch(2);
+        CountDownLatch queuedVideoStarted = new CountDownLatch(1);
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"),
+                VisualResult.error("unused"), VisualResult.error("unused")) {
+            private void awaitCancellation() {
+                activeChildrenStarted.countDown();
+                try {
+                    new CountDownLatch(1).await();
+                } catch (InterruptedException cancelled) {
+                    activeChildrenInterrupted.countDown();
+                    throw new CancellationException("child cancelled");
+                }
+            }
+
+            @Override public AudioResult transcribe(byte[] input) {
+                awaitCancellation();
+                return AudioResult.error("unexpected completion");
+            }
+
+            @Override public VisualResult analyseImage(byte[] input) {
+                awaitCancellation();
+                return VisualResult.error("unexpected completion");
+            }
+
+            @Override public VisualResult analyseVideo(byte[] input, int sampleFps, int maxFrames) {
+                queuedVideoStarted.countDown();
+                awaitCancellation();
+                return VisualResult.error("unexpected completion");
+            }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults(), TimeUnit.SECONDS.toNanos(5))) {
+            AtomicReference<MultimodalException> failure = new AtomicReference<>();
+            Thread caller = new Thread(() -> {
+                try {
+                    engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1})
+                            .imageData(new byte[] {2}).videoData(new byte[] {3}).build());
+                } catch (MultimodalException interrupted) {
+                    failure.set(interrupted);
+                }
+            }, "multimodal-queued-cancellation-test-caller");
+
+            caller.start();
+            assertTrue(activeChildrenStarted.await(2, TimeUnit.SECONDS));
+            caller.interrupt();
+            caller.join(2_000);
+
+            assertFalse(caller.isAlive());
+            assertEquals("Analysis interrupted", failure.get().getMessage());
+            assertTrue(activeChildrenInterrupted.await(2, TimeUnit.SECONDS));
+            assertFalse(queuedVideoStarted.await(100, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    @DisplayName("Gateway close failure still shuts down the bounded child executor")
+    void gatewayCloseFailureStillShutsDownExecutor() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.builder().build(),
+                VisualResult.error("unused"), VisualResult.error("unused")) {
+            @Override public AudioResult transcribe(byte[] input) {
+                providerCalls.incrementAndGet();
+                return AudioResult.builder().transcription("unexpected").build();
+            }
+
+            @Override public void close() {
+                throw new IllegalStateException("fixture close failure");
+            }
+        };
+        MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults());
+
+        assertThrows(IllegalStateException.class, engine::close);
+        assertThrows(MultimodalException.class, () -> engine.analyse(
+                MultimodalRequest.builder().audioData(new byte[] {1}).build()));
+        assertEquals(0, providerCalls.get());
+    }
+
+    @Test
     @DisplayName("Admission limit rejects excess concurrent analysis")
     void capacityLimitAppliesBackpressure() throws Exception {
         CountDownLatch audioStarted = new CountDownLatch(1);
@@ -671,6 +813,16 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     private static MediaClockTimestamp sourcePts(long ticks, long numerator, long denominator) {
         return new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN, ticks, numerator, denominator,
                 MediaClockTimestamp.ClockDomain.SOURCE, "test-video-clock", null);
+    }
+
+    private static AudioVideoRuntimeSettings settingsWithMaxInputStreams(int maxInputStreams) {
+        AudioVideoRuntimeSettings base = AudioVideoRuntimeSettings.defaults();
+        return new AudioVideoRuntimeSettings(base.languageTag(), base.sttSampleRate(), base.sttChannels(),
+                base.sttBitsPerSample(), base.defaultImageWidth(), base.defaultImageHeight(),
+                base.syncToleranceMs(), base.syncAudioBufferMs(), base.syncVideoBufferMs(),
+                base.defaultVideoSampleFps(), base.defaultVideoMaxFrames(), base.sttModelId(),
+                base.visionModelId(), base.ttsVoiceId(), base.metricsEnabled(), maxInputStreams,
+                base.maxOutputStreams(), base.deviceAcquireTimeoutMs(), base.leakDetectionThresholdMs());
     }
 
     private static MediaClockTimestamp mediaTime(long ticks, long numerator, long denominator) {
