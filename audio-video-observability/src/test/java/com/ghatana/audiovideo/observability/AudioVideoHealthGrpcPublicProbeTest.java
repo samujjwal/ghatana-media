@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,7 +127,40 @@ class AudioVideoHealthGrpcPublicProbeTest {
 
             health.close();
             assertThat(health.activeWatchSubscriberCount()).isZero();
-            assertThat(observers).allSatisfy(observer -> assertThat(observer.completed).isTrue());
+            assertThat(observers).allSatisfy(observer -> {
+                assertThat(observer.responses).hasSize(2);
+                assertThat(observer.responses.getLast().getStatus())
+                        .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+                assertThat(observer.completed).isTrue();
+            });
+        } finally {
+            health.close();
+        }
+    }
+
+    @Test
+    void watchPublishesProviderReadinessTransitionsUntilClosed() throws InterruptedException {
+        AtomicBoolean providerReady = new AtomicBoolean(true);
+        AudioVideoHealthService health = new AudioVideoHealthService(
+                "vision-service", mock(MetricsCollector.class), Set.of("provider"));
+        health.registerCheck("provider", providerReady::get);
+        assertThat(health.markReady()).isTrue();
+        RecordingObserver observer = new RecordingObserver();
+        try {
+            health.watch(HealthCheckRequest.newBuilder().setService("vision-service").build(), observer);
+            assertThat(observer.responses).hasSize(1);
+            assertThat(observer.responses.getFirst().getStatus())
+                    .isEqualTo(HealthCheckResponse.ServingStatus.SERVING);
+
+            providerReady.set(false);
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(3);
+            while (observer.responses.size() < 2 && System.nanoTime() < deadline) Thread.sleep(5);
+
+            assertThat(observer.responses).extracting(HealthCheckResponse::getStatus)
+                    .containsExactly(HealthCheckResponse.ServingStatus.SERVING,
+                            HealthCheckResponse.ServingStatus.NOT_SERVING);
+            health.close();
+            assertThat(observer.completed).isTrue();
         } finally {
             health.close();
         }

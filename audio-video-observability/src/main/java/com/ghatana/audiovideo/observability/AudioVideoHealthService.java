@@ -22,6 +22,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -36,6 +38,8 @@ import java.util.function.Supplier;
  * <p>Implements the standard gRPC Health Checking Protocol (grpc.health.v1.Health).
  * Each Audio-Video gRPC server (STT, TTS, Vision, Multimodal) registers this
  * service to expose a standardised {@code /health} probe.
+ * {@code Watch} sends its initial status and bounded readiness changes while a
+ * subscriber is connected, then sends {@code NOT_SERVING} before shutdown completion.
  *
  * <p>Service readiness is determined by named health checks. A service is healthy
  * when all registered checks pass. Any failing check sets the overall status to
@@ -55,6 +59,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     private static final Duration DEFAULT_CHECK_TIMEOUT = Duration.ofMillis(250);
     private static final Duration MAX_CHECK_TIMEOUT = Duration.ofSeconds(5);
     private static final int MAX_WATCH_SUBSCRIBERS = 128;
+    private static final long WATCH_REFRESH_MILLIS = 1_000L;
 
     private final Map<String, Supplier<Boolean>> checks = new ConcurrentHashMap<>();
     private final Set<String> requiredChecks;
@@ -63,9 +68,11 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     private final long checkTimeoutNanos;
     private final MetricsCollector metricsCollector;
     private final String serviceName;
-    private final Set<StreamObserver<HealthCheckResponse>> watchSubscribers =
+    private final Set<WatchSubscription> watchSubscribers =
             Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final Object watchLock = new Object();
+    private final ScheduledExecutorService watchPublisher;
+    private ScheduledFuture<?> watchPollTask;
     private volatile boolean closed;
 
     public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector) {
@@ -102,6 +109,12 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         };
         this.checkExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new SynchronousQueue<>(), threadFactory, new ThreadPoolExecutor.AbortPolicy());
+        ThreadFactory watchThreadFactory = runnable -> {
+            Thread thread = new Thread(runnable, "av-health-watch-" + this.serviceName);
+            thread.setDaemon(true);
+            return thread;
+        };
+        this.watchPublisher = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(watchThreadFactory);
     }
 
     /**
@@ -178,6 +191,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
             HealthCheckRequest request,
             StreamObserver<HealthCheckResponse> responseObserver) {
         Objects.requireNonNull(responseObserver, "responseObserver");
+        WatchSubscription subscription = new WatchSubscription(responseObserver);
         synchronized (watchLock) {
             if (closed) {
                 responseObserver.onError(Status.UNAVAILABLE
@@ -189,14 +203,19 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
                         .withDescription("Health watch capacity reached").asRuntimeException());
                 return;
             }
-            watchSubscribers.add(responseObserver);
+            watchSubscribers.add(subscription);
+            startWatchPollingLocked();
         }
-
         if (responseObserver instanceof ServerCallStreamObserver<?> serverObserver) {
-            serverObserver.setOnCancelHandler(() -> watchSubscribers.remove(responseObserver));
-            if (serverObserver.isCancelled()) {
-                watchSubscribers.remove(responseObserver);
-                return;
+            try {
+                serverObserver.setOnCancelHandler(() -> removeWatchSubscriber(subscription));
+                if (serverObserver.isCancelled()) {
+                    removeWatchSubscriber(subscription);
+                    return;
+                }
+            } catch (RuntimeException observerFailure) {
+                removeWatchSubscriber(subscription);
+                throw observerFailure;
             }
         }
 
@@ -204,9 +223,9 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         metricsCollector.incrementCounter("av.health.check",
                 "service", serviceName, "status", status.name().toLowerCase());
         try {
-            responseObserver.onNext(HealthCheckResponse.newBuilder().setStatus(status).build());
+            subscription.sendInitial(status);
         } catch (RuntimeException observerFailure) {
-            watchSubscribers.remove(responseObserver);
+            removeWatchSubscriber(subscription);
             throw observerFailure;
         }
     }
@@ -242,17 +261,22 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
 
     @Override
     public void close() {
-        Set<StreamObserver<HealthCheckResponse>> subscribersToComplete;
+        Set<WatchSubscription> subscribersToComplete;
         synchronized (watchLock) {
             closed = true;
             subscribersToComplete = Set.copyOf(watchSubscribers);
             watchSubscribers.clear();
+            if (watchPollTask != null) {
+                watchPollTask.cancel(false);
+                watchPollTask = null;
+            }
         }
         setNotServing();
+        watchPublisher.shutdownNow();
         checkExecutor.shutdownNow();
-        for (StreamObserver<HealthCheckResponse> subscriber : subscribersToComplete) {
+        for (WatchSubscription subscriber : subscribersToComplete) {
             try {
-                subscriber.onCompleted();
+                subscriber.complete(HealthCheckResponse.ServingStatus.NOT_SERVING);
             } catch (RuntimeException observerFailure) {
                 LOG.debug("Unable to complete a health Watch during shutdown (type={})",
                         observerFailure.getClass().getSimpleName());
@@ -268,6 +292,44 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
 
     int activeWatchSubscriberCount() {
         return watchSubscribers.size();
+    }
+
+    private void startWatchPollingLocked() {
+        if (watchPollTask == null || watchPollTask.isDone()) {
+            watchPollTask = watchPublisher.scheduleAtFixedRate(this::refreshWatchSubscribers,
+                    WATCH_REFRESH_MILLIS, WATCH_REFRESH_MILLIS, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void removeWatchSubscriber(WatchSubscription subscription) {
+        subscription.cancel();
+        synchronized (watchLock) {
+            watchSubscribers.remove(subscription);
+            if (watchSubscribers.isEmpty() && watchPollTask != null) {
+                watchPollTask.cancel(false);
+                watchPollTask = null;
+            }
+        }
+    }
+
+    private void refreshWatchSubscribers() {
+        if (closed) return;
+        HealthCheckResponse.ServingStatus status = currentStatus();
+        Set<WatchSubscription> snapshot;
+        synchronized (watchLock) {
+            if (closed || watchSubscribers.isEmpty()) return;
+            snapshot = Set.copyOf(watchSubscribers);
+        }
+        for (WatchSubscription subscriber : snapshot) {
+            try {
+                if (subscriber.sendIfChanged(status)) {
+                    metricsCollector.incrementCounter("av.health.check",
+                            "service", serviceName, "status", status.name().toLowerCase());
+                }
+            } catch (RuntimeException observerFailure) {
+                removeWatchSubscriber(subscriber);
+            }
+        }
     }
 
     private boolean allChecksHealthy() {
@@ -320,5 +382,48 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     }
 
     private enum LifecycleState { STARTING, READY, DRAINING }
+
+    private static final class WatchSubscription {
+        private final StreamObserver<HealthCheckResponse> observer;
+        private HealthCheckResponse.ServingStatus lastStatus;
+        private boolean initialized;
+        private boolean ended;
+
+        private WatchSubscription(StreamObserver<HealthCheckResponse> observer) {
+            this.observer = observer;
+        }
+
+        synchronized void sendInitial(HealthCheckResponse.ServingStatus status) {
+            if (ended) return;
+            observer.onNext(response(status));
+            lastStatus = status;
+            initialized = true;
+        }
+
+        synchronized boolean sendIfChanged(HealthCheckResponse.ServingStatus status) {
+            if (ended || !initialized || status == lastStatus) return false;
+            observer.onNext(response(status));
+            lastStatus = status;
+            return true;
+        }
+
+        synchronized void complete(HealthCheckResponse.ServingStatus finalStatus) {
+            if (ended) return;
+            try {
+                if (!initialized || finalStatus != lastStatus) observer.onNext(response(finalStatus));
+            } finally {
+                ended = true;
+            }
+            observer.onCompleted();
+        }
+
+        synchronized void cancel() {
+            ended = true;
+        }
+
+        private static HealthCheckResponse response(HealthCheckResponse.ServingStatus status) {
+            return HealthCheckResponse.newBuilder().setStatus(status).build();
+        }
+    }
 }
 
