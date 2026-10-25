@@ -15,9 +15,9 @@ import java.util.Objects;
 /**
  * Verified local metadata for the one YOLO ONNX model that the Vision service may initialize.
  *
- * <p>The declared license value is provenance supplied by the operator; it is not an independent
- * license approval. A profile is not constructed unless the local model's SHA-256 matches the
- * configured pin and its device/class metadata matches this provider's supported boundary.
+ * <p>The declared license value is untrusted operator metadata, not license approval or provider
+ * admission. A profile proves local file digest and metadata consistency only; it does not authorize
+ * production initialization.
  */
 public record VisionModelProfile(
         String modelId,
@@ -194,6 +194,7 @@ public record VisionModelProfile(
         MODEL_DIGEST_MISMATCH,
         MODEL_CLASS_MISMATCH,
         DEVICE_NOT_ADMITTED,
+        PROVIDER_NOT_ADMITTED,
         NATIVE_INITIALIZATION_FAILED
     }
 

@@ -2,13 +2,14 @@ package com.ghatana.audio.video.vision.grpc;
 
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.vision.model.VisionModelProfile;
+import com.ghatana.audio.video.vision.model.VisionProviderAdmission;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audio.video.vision.yolo.YoloV8Adapter;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Production composition that admits only a digest-verified, initialized detector. */
+/** Production composition gated by trusted model/license provider admission. */
 public final class ProductionVisionGrpcService extends VisionGrpcService implements AutoCloseable {
     private final YoloV8Adapter detector;
     private final AtomicBoolean closed = new AtomicBoolean();
@@ -25,6 +26,8 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
     static Composition compose(Map<String, String> environment) {
         Objects.requireNonNull(environment, "environment");
         VisionModelProfile profile = VisionModelProfile.fromEnvironment(environment);
+        YoloV8Adapter.validateProfileMetadata(profile, profile.modelDirectory());
+        VisionProviderAdmission.requireAdmitted(profile);
         double confidence = boundedDouble(environment, "VISION_CONFIDENCE_THRESHOLD", 0.5);
         double nms = boundedDouble(environment, "VISION_NMS_THRESHOLD", 0.4);
         YoloV8Adapter detector = new YoloV8Adapter(profile.modelDirectory(), confidence, nms);

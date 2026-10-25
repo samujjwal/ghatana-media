@@ -1,21 +1,21 @@
 # Vision Wave 2 W0 disposition inventory
 
-This inventory records the current service boundary, not provider qualification. The only intended executable model capability is digest-pinned YOLO object detection. Local model bytes, license rights, native runtime, and output quality still require independent evidence.
+This inventory records the current service boundary, not provider qualification. Digest, class, and device checks are local model preflight only. No trusted license/provider admission source is wired, so production model initialization and traffic remain NOT_ADMITTED even when an operator supplies a license identifier and matching model digest. The narrow YOLO detector behavior is conditional on that separate trusted admission.
 
 ## 10 gRPC RPCs
 
 | RPC | Current disposition | Boundary |
 |---|---|---|
-| DetectObjects | Conditional: detector must be initialized | Narrow YOLO object boxes/classes only |
+| DetectObjects | Production NOT_ADMITTED; conditional only after trusted provider admission and initialized detector | Narrow YOLO object boxes/classes only |
 | AnalyzeImage | UNIMPLEMENTED after authentication/input validation | No scene understanding implementation admitted; detector is never called |
 | ClassifyImage | UNIMPLEMENTED after authentication/input validation | Detection confidence is not image classification; detector is never called |
-| AnalyzeVideoFile | Conditional: frame extraction plus initialized detector | Per-frame detections; no temporal scene claims |
-| ProcessVideo | Conditional: frame extraction plus initialized detector | Streaming detections; no tracking claims |
+| AnalyzeVideoFile | Production NOT_ADMITTED; conditional only after trusted provider admission and initialized detector | Per-frame detections; no temporal scene claims |
+| ProcessVideo | Production NOT_ADMITTED; conditional only after trusted provider admission and initialized detector | Streaming detections; no tracking claims |
 | LoadModel | UNIMPLEMENTED after model ID validation | No registry mutation; dynamic model loading is not supported |
 | UnloadModel | UNIMPLEMENTED after model ID validation | No registry mutation; dynamic model unloading is not supported |
-| ListModels | Active models only | Lists only loaded model metadata; supported task is detection only |
-| GetStatus | Readiness only | Ready requires a live initialized detector |
-| HealthCheck | Readiness only | Healthy requires a live initialized detector |
+| ListModels | Active models only after admission | Lists only actually loaded model metadata; supported task is detection only |
+| GetStatus | Readiness only | Ready requires trusted admission and a live initialized detector |
+| HealthCheck | Readiness only | Healthy requires trusted admission and a live initialized detector |
 
 ## 22 PDP capability intents
 
@@ -23,7 +23,7 @@ This inventory records the current service boundary, not provider qualification.
 |---|---|
 | media.vision.scene-text.region.track | NOT_ADMITTED |
 | media.vision.scene-text.observation.create | NOT_ADMITTED |
-| media.vision.detect | Conditional narrow object detection |
+| media.vision.detect | NOT_ADMITTED in production pending trusted provider admission; local implementation is narrow object detection only |
 | media.vision.classify | NOT_ADMITTED |
 | media.vision.segment.image | NOT_ADMITTED |
 | media.vision.segment.video | NOT_ADMITTED |

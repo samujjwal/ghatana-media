@@ -1,10 +1,9 @@
 package com.ghatana.audio.video.vision.yolo;
 
 import com.ghatana.audio.video.vision.detection.VisionDetector;
-import com.ghatana.audio.video.vision.model.BoundingBox;
 import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
-import com.ghatana.audio.video.vision.model.ObjectAttributes;
+import com.ghatana.audio.video.vision.model.VisionProviderAdmission;
 import com.ghatana.audio.video.vision.model.VisionModelProfile;
 import com.ghatana.audio.video.vision.image.BoundedImageDecoder;
 import com.ghatana.audio.video.vision.image.SrgbToBgr;
@@ -25,11 +24,7 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,23 +61,13 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
             "cell phone", "microwave", "oven", "toaster", "sink", "refrigerator", "book",
             "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush");
 
-    static {
-        try {
-            NativeLoader.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            LOG.info("OpenCV native library loaded successfully");
-        } catch (Exception failure) {
-            LOG.error("Failed to load OpenCV native library", failure);
-            throw new ExceptionInInitializerError(failure);
-        }
-    }
-
     private final AtomicBoolean initialized = new AtomicBoolean();
     private final AtomicBoolean closed = new AtomicBoolean();
     private final Path modelDirectory;
-    private final Map<String, Integer> classMapping;
     private final double confidenceThreshold;
     private final double nmsThreshold;
     private volatile Net net;
+    private volatile VisionModelProfile activeProfile;
 
     public YoloV8Adapter(Path modelDirectory, double confidenceThreshold, double nmsThreshold) {
         this.modelDirectory = Objects.requireNonNull(modelDirectory, "modelDirectory")
@@ -98,27 +83,18 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         }
         this.confidenceThreshold = confidenceThreshold;
         this.nmsThreshold = nmsThreshold;
-        this.classMapping = createClassMapping();
     }
 
     public synchronized void initialize(VisionModelProfile profile) {
         ensureOpen();
-        Objects.requireNonNull(profile, "profile");
+        validateProfileMetadata(profile, modelDirectory);
         if (initialized.get()) {
             throw new IllegalStateException("YOLOv8 adapter is already initialized");
         }
-        if (!profile.modelDirectory().equals(modelDirectory)
-                || !profile.modelFile().getParent().equals(modelDirectory)) {
-            throw new IllegalArgumentException("Verified Vision model profile does not match adapter directory");
-        }
-        if (profile.device() != VisionModelProfile.Device.CPU
-                || !profile.classLabels().equals(COCO_CLASSES)) {
-            throw new VisionModelProfile.VisionProviderUnavailableException(
-                    VisionModelProfile.UnavailableReason.MODEL_CLASS_MISMATCH,
-                    "YOLOv8 model class labels or execution device are not supported");
-        }
+        VisionProviderAdmission.requireAdmitted(profile);
 
         try {
+            loadOpenCvNativeLibrary();
             profile.verifyUnchanged();
             Net loaded = Dnn.readNetFromONNX(profile.modelFile().toString());
             if (loaded == null || loaded.empty()) {
@@ -128,6 +104,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
             loaded.setPreferableTarget(Dnn.DNN_TARGET_CPU);
             profile.verifyUnchanged();
             this.net = loaded;
+            this.activeProfile = profile;
             initialized.set(true);
             LOG.info("YOLOv8 ONNX model initialized: {} version {} sha256 {} on CPU",
                     profile.modelId(), profile.version(), profile.sha256());
@@ -217,12 +194,33 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         return COCO_CLASSES;
     }
 
+    public static List<String> supportedClassLabels() {
+        return COCO_CLASSES;
+    }
+
+    /** Validates local metadata without loading OpenCV or initializing the model. */
+    public static void validateProfileMetadata(VisionModelProfile profile, Path expectedModelDirectory) {
+        Objects.requireNonNull(profile, "profile");
+        Path expected = Objects.requireNonNull(expectedModelDirectory, "expectedModelDirectory")
+                .toAbsolutePath().normalize();
+        if (!profile.modelDirectory().equals(expected) || !profile.modelFile().getParent().equals(expected)) {
+            throw new IllegalArgumentException("Verified Vision model profile does not match adapter directory");
+        }
+        if (profile.device() != VisionModelProfile.Device.CPU
+                || !profile.classLabels().equals(COCO_CLASSES)) {
+            throw new VisionModelProfile.VisionProviderUnavailableException(
+                    VisionModelProfile.UnavailableReason.MODEL_CLASS_MISMATCH,
+                    "YOLOv8 model class labels or execution device are not supported");
+        }
+    }
+
     @Override
     public synchronized void close() {
         if (!closed.compareAndSet(false, true)) return;
         initialized.set(false);
         // OpenCV 4.9 Net exposes no deterministic native release API.
         net = null;
+        activeProfile = null;
     }
 
     private List<DetectedObject> finalizeDetections(
@@ -243,20 +241,24 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         if (closed.get()) throw new IllegalStateException("YOLOv8 adapter is closed");
     }
 
+    private static void loadOpenCvNativeLibrary() {
+        try {
+            NativeLoader.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+            LOG.info("OpenCV native library loaded successfully");
+        } catch (Exception | LinkageError failure) {
+            LOG.error("Failed to load OpenCV native library", failure);
+            throw new VisionModelProfile.VisionProviderUnavailableException(
+                    VisionModelProfile.UnavailableReason.NATIVE_INITIALIZATION_FAILED,
+                    "Vision native runtime initialization failed", failure);
+        }
+    }
+
     private void ensureInitialized() {
         ensureOpen();
         Net active = net;
         if (!initialized.get() || active == null || active.empty()) {
             throw new IllegalStateException("YOLOv8 adapter is not initialized");
         }
-    }
-
-    private Map<String, Integer> createClassMapping() {
-        Map<String, Integer> mapping = new HashMap<>();
-        for (int index = 0; index < COCO_CLASSES.size(); index++) {
-            mapping.put(COCO_CLASSES.get(index), index);
-        }
-        return Map.copyOf(mapping);
     }
 
     private Mat bufferedImageToMat(BufferedImage image) {
@@ -299,7 +301,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         }
     }
 
-    private List<YoloDetection> runInference(Mat processedImage) {
+    private List<YoloOutputParser.Detection> runInference(Mat processedImage) {
         Net active = net;
         if (active == null || active.empty()) {
             throw new IllegalStateException("YOLOv8 network is unavailable");
@@ -335,107 +337,47 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         }
     }
 
-    private List<YoloDetection> parseYoloOutput(List<Mat> outputs) {
-        if (outputs.isEmpty() || outputs.getFirst().empty()) return List.of();
-        Mat result = outputs.getFirst().reshape(1, outputs.getFirst().size(1));
+    private List<YoloOutputParser.Detection> parseYoloOutput(List<Mat> outputs) {
+        if (outputs.size() != 1) {
+            throw new IllegalStateException("YOLOv8 ONNX must return exactly one detection tensor");
+        }
+        Mat output = outputs.getFirst();
+        if (output == null || output.empty() || output.dims() != 3 || output.channels() != 1
+                || output.depth() != CvType.CV_32F) {
+            throw new IllegalStateException("YOLOv8 output must be a non-empty single-channel float32 rank-3 tensor");
+        }
+        int batch = output.size(0);
+        int channels = output.size(1);
+        int numberOfBoxes = output.size(2);
+        if (batch != 1 || channels != 4 + COCO_CLASSES.size()
+                || numberOfBoxes < 1 || numberOfBoxes > YoloOutputParser.MAX_BOXES) {
+            throw new IllegalStateException("YOLOv8 output layout must be [1, 4 + 80 classes, boxes]");
+        }
+        Mat flattened = output.reshape(1, 1);
         try {
-            int numberOfBoxes = result.cols();
-            int numberOfClasses = result.rows() - 4;
-            if (numberOfClasses < 1) {
-                throw new IllegalStateException("YOLOv8 output has no class scores");
+            float[] values = new float[Math.multiplyExact(channels, numberOfBoxes)];
+            int copied = flattened.get(0, 0, values);
+            if (copied != values.length) {
+                throw new IllegalStateException("YOLOv8 output tensor could not be read completely");
             }
-
-            List<YoloDetection> candidates = new ArrayList<>();
-            for (int box = 0; box < numberOfBoxes; box++) {
-                double bestScore = 0.0;
-                int bestClass = -1;
-                for (int classIndex = 0; classIndex < numberOfClasses; classIndex++) {
-                    double[] value = result.get(4 + classIndex, box);
-                    if (value == null || value.length == 0) continue;
-                    if (value[0] > bestScore) {
-                        bestScore = value[0];
-                        bestClass = classIndex;
-                    }
-                }
-                if (bestClass < 0 || bestClass >= COCO_CLASSES.size()
-                        || !Double.isFinite(bestScore) || bestScore < confidenceThreshold || bestScore > 1.0) {
-                    continue;
-                }
-                double centerX = scalar(result, 0, box);
-                double centerY = scalar(result, 1, box);
-                double width = scalar(result, 2, box);
-                double height = scalar(result, 3, box);
-                candidates.add(new YoloDetection(
-                        bestClass,
-                        bestScore,
-                        centerX - width / 2.0,
-                        centerY - height / 2.0,
-                        width,
-                        height));
-            }
-            return List.copyOf(candidates);
+            return YoloOutputParser.parse(batch, channels, numberOfBoxes, values,
+                    COCO_CLASSES.size(), confidenceThreshold);
         } finally {
-            result.release();
+            flattened.release();
         }
-    }
-
-    private static double scalar(Mat mat, int row, int column) {
-        double[] value = mat.get(row, column);
-        if (value == null || value.length == 0) {
-            throw new IllegalStateException("YOLOv8 output contains a missing scalar");
-        }
-        return value[0];
     }
 
     private List<DetectedObject> postProcessDetections(
-            List<YoloDetection> rawDetections,
+            List<YoloOutputParser.Detection> rawDetections,
             LetterboxTransform transform,
             int orientation) {
-        List<DetectedObject> detections = new ArrayList<>();
-        for (YoloDetection detection : rawDetections) {
-            LetterboxTransform.Box sourceBox = transform.toSourcePixels(new LetterboxTransform.Box(
-                    detection.x(), detection.y(), detection.width(), detection.height()));
-            if (sourceBox.width() <= 0 || sourceBox.height() <= 0) continue;
-            String orientationLabel = "EXIF_ORIENTATION_" + orientation + (orientation == 1 ? "_OR_ABSENT" : "_APPLIED");
-            BoundingBox boundingBox = BoundingBox.builder()
-                    .x(sourceBox.x()).y(sourceBox.y())
-                    .width(sourceBox.width()).height(sourceBox.height()).build();
-            ObjectAttributes attributes = ObjectAttributes.builder()
-                    .size(calculateObjectSize(sourceBox.width(), sourceBox.height()))
-                    .orientation(orientationLabel)
-                    .additionalProperties(Map.of(
-                            "bbox.coordinate_space", "exif_oriented_source_raster_pixel_xywh",
-                            "confidence.unit", "raw_yolo_score_0_1_uncalibrated",
-                            "input.color", "sRGB_composited_gray114_then_RGB_model_input",
-                            "source.orientation", orientationLabel,
-                            "source.content_version", "NOT_PROVIDED_BY_CONTRACT"))
-                    .build();
-            detections.add(DetectedObject.builder()
-                    .className(COCO_CLASSES.get(detection.classId()))
-                    .confidence(detection.confidence())
-                    .boundingBox(boundingBox)
-                    .attributes(attributes)
-                    .build());
+        VisionModelProfile profile = activeProfile;
+        if (profile == null) {
+            throw new IllegalStateException("Verified Vision model provenance is unavailable");
         }
-        return applyNonMaximumSuppression(detections);
-    }
-
-    private List<DetectedObject> applyNonMaximumSuppression(List<DetectedObject> detections) {
-        List<DetectedObject> filtered = new ArrayList<>();
-        for (DetectedObject candidate : detections.stream()
-                .sorted((left, right) -> Double.compare(right.getConfidence(), left.getConfidence()))
-                .toList()) {
-            boolean keep = true;
-            for (DetectedObject retained : filtered) {
-                if (candidate.getClassName().equals(retained.getClassName())
-                        && candidate.getBoundingBox().calculateIoU(retained.getBoundingBox()) > nmsThreshold) {
-                    keep = false;
-                    break;
-                }
-            }
-            if (keep) filtered.add(candidate);
-        }
-        return filtered;
+        return YoloDetectionPostProcessor.process(rawDetections, profile.classLabels(), transform, nmsThreshold,
+                orientation, new YoloDetectionPostProcessor.Provenance(
+                        profile.modelId(), profile.version(), profile.sha256()));
     }
 
     private static List<DetectedObject> filterByClasses(
@@ -444,13 +386,6 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         return detections.stream()
                 .filter(detection -> targetClasses.contains(detection.getClassName()))
                 .toList();
-    }
-
-    private static String calculateObjectSize(double width, double height) {
-        double area = width * height;
-        if (area < 10_000) return "small";
-        if (area < 50_000) return "medium";
-        return "large";
     }
 
     private static String requireModelName(String value) {
@@ -471,11 +406,4 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
 
     private record PreprocessedInput(Mat blob, LetterboxTransform transform) { }
 
-    private record YoloDetection(
-            int classId,
-            double confidence,
-            double x,
-            double y,
-            double width,
-            double height) {}
 }
