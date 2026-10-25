@@ -27,7 +27,8 @@ class AvJobLifecycleAdapterTest {
     void mapsCreatedJobToCanonical() {
         AvTranscriptionJob job = AvTranscriptionJob.create(
                 "audio-1", "tenant-1", "ne",
-                Map.of("diarization", "true"),
+                Map.of("diarization", "true", "authorization", "Bearer sensitive-token",
+                        "prompt", "private transcription context"),
                 "trace-1", "req-1", "whisper-3");
 
         CanonicalJobRecord canonical = AvJobLifecycleAdapter.toCanonical(job);
@@ -37,6 +38,8 @@ class AvJobLifecycleAdapterTest {
         assertThat(canonical.status()).isEqualTo(CanonicalJobStatus.PENDING);
         assertThat(canonical.tenantId()).isEqualTo("tenant-1");
         assertThat(canonical.input()).containsEntry("languageCode", "ne");
+        assertThat(canonical.input()).containsEntry("artifactId", "audio-1")
+                .doesNotContainKeys("diarization", "authorization", "prompt");
         assertThat(canonical.tags()).contains("speech-to-text");
     }
 

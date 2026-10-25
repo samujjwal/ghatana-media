@@ -55,8 +55,9 @@ public final class AvJobLifecycleAdapter {
                     + job.status() + " without falsely projecting it as RUNNING");
         }
 
+        // Job parameters are caller-controlled and may carry prompt text, credentials,
+        // or source content. They are not safe to copy into a cross-service projection.
         Map<String, Object> input = new HashMap<>();
-        if (job.parameters() != null) input.putAll(job.parameters());
         input.put("artifactId", job.artifactId());
         input.put("languageCode", job.languageCode());
 
