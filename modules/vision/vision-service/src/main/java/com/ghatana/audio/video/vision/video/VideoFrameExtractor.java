@@ -58,6 +58,9 @@ public class VideoFrameExtractor {
     private static final long MAX_FRAME_BYTES = 32L * 1024 * 1024;
     private static final long MAX_SINGLE_FRAME_BYTES = 32L * 1024 * 1024;
     private static final long MAX_PIXELS = 16_000_000L;
+    /** Bound aggregate codec/probe processes so per-child limits cannot multiply without bound. */
+    private static final java.util.concurrent.Semaphore MEDIA_PROCESS_SLOTS =
+            new java.util.concurrent.Semaphore(2, true);
     private static final java.util.Set<String> ALLOWED_VIDEO_EXTENSIONS =
             java.util.Set.of("mp4", "mov", "mkv", "avi", "webm");
 
@@ -533,16 +536,25 @@ public class VideoFrameExtractor {
             Path monitoredOutput, long maxOutputBytes) throws IOException {
         if (timeout.isNegative() || timeout.isZero()) throw new IllegalArgumentException("timeout must be positive");
         if (maxOutputChars < 0) throw new IllegalArgumentException("maxOutputChars must not be negative");
-        Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
-        ByteArrayOutputStream captured = new ByteArrayOutputStream(Math.min(maxOutputChars, 1024));
-        AtomicReference<IOException> drainFailure = new AtomicReference<>();
-        java.util.concurrent.atomic.AtomicBoolean diagnosticExceeded = new java.util.concurrent.atomic.AtomicBoolean();
-        Thread drain = new Thread(() -> drainBounded(process.getInputStream(), captured, maxOutputChars,
-                diagnosticExceeded, process, drainFailure),
-            "media-child-output-drain");
-        drain.setDaemon(true);
-        drain.start();
+        if (!MEDIA_PROCESS_SLOTS.tryAcquire()) {
+            throw new IOException("Media process capacity is exhausted");
+        }
+        Process process;
         try {
+            process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        } catch (IOException | RuntimeException | Error failure) {
+            MEDIA_PROCESS_SLOTS.release();
+            throw failure;
+        }
+        try {
+            ByteArrayOutputStream captured = new ByteArrayOutputStream(Math.min(maxOutputChars, 1024));
+            AtomicReference<IOException> drainFailure = new AtomicReference<>();
+            java.util.concurrent.atomic.AtomicBoolean diagnosticExceeded = new java.util.concurrent.atomic.AtomicBoolean();
+            Thread drain = new Thread(() -> drainBounded(process.getInputStream(), captured, maxOutputChars,
+                    diagnosticExceeded, process, drainFailure),
+                "media-child-output-drain");
+            drain.setDaemon(true);
+            drain.start();
             long deadline = System.nanoTime() + timeout.toNanos();
             boolean finished = false;
             boolean outputExceeded = false;
@@ -588,6 +600,7 @@ public class VideoFrameExtractor {
             throw new IOException("Media child process interrupted", interrupted);
         } finally {
             if (process.isAlive()) terminateProcessTree(process);
+            MEDIA_PROCESS_SLOTS.release();
         }
     }
 

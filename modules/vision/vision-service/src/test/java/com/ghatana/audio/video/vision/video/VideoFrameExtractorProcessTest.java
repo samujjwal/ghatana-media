@@ -50,6 +50,49 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void rejectsConcurrentCodecProcessesOnceBoundedSlotsAreOccupied() throws Exception {
+        Path firstMarker = tempDir.resolve("first.pid");
+        Path secondMarker = tempDir.resolve("second.pid");
+        java.util.concurrent.atomic.AtomicReference<Throwable> firstFailure = new java.util.concurrent.atomic.AtomicReference<>();
+        java.util.concurrent.atomic.AtomicReference<Throwable> secondFailure = new java.util.concurrent.atomic.AtomicReference<>();
+        Thread first = new Thread(() -> runMarkedChild(firstMarker, firstFailure), "first-media-child-test");
+        Thread second = new Thread(() -> runMarkedChild(secondMarker, secondFailure), "second-media-child-test");
+        first.start();
+        second.start();
+        try {
+            awaitFile(firstMarker);
+            awaitFile(secondMarker);
+
+            assertThatThrownBy(() -> VideoFrameExtractor.runProcess(
+                    childCommand("sleep"), Duration.ofSeconds(1), 128))
+                    .isInstanceOf(java.io.IOException.class).hasMessageContaining("capacity is exhausted");
+        } finally {
+            first.interrupt();
+            second.interrupt();
+            first.join(3_000);
+            second.join(3_000);
+        }
+        assertThat(first.isAlive()).isFalse();
+        assertThat(second.isAlive()).isFalse();
+        assertThat(firstFailure.get()).isInstanceOf(java.io.IOException.class).hasMessageContaining("interrupted");
+        assertThat(secondFailure.get()).isInstanceOf(java.io.IOException.class).hasMessageContaining("interrupted");
+    }
+
+    private static void runMarkedChild(Path marker, java.util.concurrent.atomic.AtomicReference<Throwable> failure) {
+        try {
+            VideoFrameExtractor.runProcess(childCommand("sleep-mark", marker.toString()), Duration.ofSeconds(30), 128);
+        } catch (Throwable thrown) {
+            failure.set(thrown);
+        }
+    }
+
+    private static void awaitFile(Path path) throws Exception {
+        long deadline = System.nanoTime() + Duration.ofSeconds(5).toNanos();
+        while (!Files.exists(path) && System.nanoTime() < deadline) Thread.sleep(10);
+        assertThat(path).exists();
+    }
+
+    @Test
     void rejectsSymlinkedVideoInputBeforeStartingFfmpeg() throws Exception {
         Path target = tempDir.resolve("source.mp4");
         Files.write(target, new byte[] {1});
@@ -326,6 +369,9 @@ class VideoFrameExtractorProcessTest {
         } else if ("sleep".equals(args[0])) {
             System.out.write("waiting".getBytes(StandardCharsets.UTF_8));
             System.out.flush();
+            Thread.sleep(30_000);
+        } else if ("sleep-mark".equals(args[0])) {
+            Files.writeString(Path.of(args[1]), Long.toString(ProcessHandle.current().pid()));
             Thread.sleep(30_000);
         } else if ("tree".equals(args[0])) {
             String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
