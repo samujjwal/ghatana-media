@@ -795,6 +795,49 @@ class SttGrpcServiceTest {
         verify(mockLibrary, never()).getSttEngine();
     }
 
+    @Test
+    @DisplayName("streamTranscribe: admitted identity reports bounded NOT_ADMITTED span")
+    void streamTranscribe_recordsNotAdmittedOutcome() {
+        io.opentelemetry.api.trace.Tracer tracer = mock(io.opentelemetry.api.trace.Tracer.class);
+        io.opentelemetry.api.trace.SpanBuilder builder = mock(io.opentelemetry.api.trace.SpanBuilder.class);
+        io.opentelemetry.api.trace.Span span = mock(io.opentelemetry.api.trace.Span.class);
+        when(tracer.spanBuilder("audiovideo.grpc.streaming")).thenReturn(builder);
+        when(builder.setSpanKind(any())).thenReturn(builder);
+        when(builder.setAttribute(anyString(), anyString())).thenReturn(builder);
+        when(builder.setAttribute(anyString(), org.mockito.ArgumentMatchers.anyBoolean())).thenReturn(builder);
+        when(builder.startSpan()).thenReturn(span);
+        SttGrpcService tracedService = new SttGrpcService(mockLibrary, meterRegistry, tracer);
+        CapturingObserver<Transcription> observer = new CapturingObserver<>();
+
+        runWithTenantContext(() -> tracedService.streamTranscribe(observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        verify(builder).setAttribute("method.name", "StreamTranscribe");
+        verify(builder, never()).setAttribute(org.mockito.ArgumentMatchers.startsWith("tenant"), anyString());
+        verify(builder, never()).setAttribute(org.mockito.ArgumentMatchers.startsWith("principal"), anyString());
+        verify(span).setStatus(io.opentelemetry.api.trace.StatusCode.ERROR, "Media operation failed");
+        verify(span).end();
+        verify(mockLibrary, never()).getSttEngine();
+    }
+
+    @Test
+    @DisplayName("streamTranscribe: invalid identity is rejected before span creation")
+    void streamTranscribe_invalidIdentityDoesNotCreateSpan() {
+        io.opentelemetry.api.trace.Tracer tracer = mock(io.opentelemetry.api.trace.Tracer.class);
+        SttGrpcService tracedService = new SttGrpcService(mockLibrary, meterRegistry, tracer);
+        CapturingObserver<Transcription> observer = new CapturingObserver<>();
+
+        io.grpc.Context.current()
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT, "not-a-uuid")
+                .run(() -> tracedService.streamTranscribe(observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(tracer);
+    }
+
     // ─────────────────────────────────────────────────────────────
     // Test infrastructure
     // ─────────────────────────────────────────────────────────────

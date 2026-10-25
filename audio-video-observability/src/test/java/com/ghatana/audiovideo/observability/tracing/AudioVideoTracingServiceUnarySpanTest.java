@@ -53,9 +53,43 @@ class AudioVideoTracingServiceUnarySpanTest {
         verify(builder, never()).setAttribute(anyString(), eq(marker));
     }
 
+    @Test
+    void registeredSttStreamingMethodUsesExactBoundedName() {
+        Tracer tracer = mock(Tracer.class);
+        SpanBuilder builder = configuredStreamingBuilder(tracer);
+
+        new AudioVideoTracingService(tracer).startGrpcStreamingSpan("StreamTranscribe", "private-tenant");
+
+        verify(builder).setAttribute("method.name", "StreamTranscribe");
+        verify(builder).setAttribute("tenant.present", true);
+        verify(builder, never()).setAttribute(anyString(), eq("private-tenant"));
+    }
+
+    @Test
+    void unknownStreamingMethodCollapsesToStaticLabel() {
+        Tracer tracer = mock(Tracer.class);
+        SpanBuilder builder = configuredStreamingBuilder(tracer);
+        String marker = "unregistered-rpc-marker-402";
+
+        new AudioVideoTracingService(tracer).startGrpcStreamingSpan(marker, null);
+
+        verify(builder).setAttribute("method.name", "unknown");
+        verify(builder, never()).setAttribute(anyString(), eq(marker));
+    }
+
     private static SpanBuilder configuredBuilder(Tracer tracer) {
         SpanBuilder builder = mock(SpanBuilder.class);
         when(tracer.spanBuilder("audiovideo.vision.rpc")).thenReturn(builder);
+        when(builder.setSpanKind(SpanKind.INTERNAL)).thenReturn(builder);
+        when(builder.setAttribute(anyString(), anyBoolean())).thenReturn(builder);
+        when(builder.setAttribute(anyString(), anyString())).thenReturn(builder);
+        when(builder.startSpan()).thenReturn(mock(Span.class));
+        return builder;
+    }
+
+    private static SpanBuilder configuredStreamingBuilder(Tracer tracer) {
+        SpanBuilder builder = mock(SpanBuilder.class);
+        when(tracer.spanBuilder("audiovideo.grpc.streaming")).thenReturn(builder);
         when(builder.setSpanKind(SpanKind.INTERNAL)).thenReturn(builder);
         when(builder.setAttribute(anyString(), anyBoolean())).thenReturn(builder);
         when(builder.setAttribute(anyString(), anyString())).thenReturn(builder);

@@ -328,7 +328,7 @@ public class AudioVideoTracingService {
 
     private static String safeMethod(String methodName) {
         if (methodName == null || !methodName.matches("[A-Za-z][A-Za-z0-9_.]{0,63}")) return "unknown";
-        return Set.of("VisionStream", "ProcessVideo", "StreamAudio", "Transcribe", "Synthesize")
+        return Set.of("VisionStream", "ProcessVideo", "StreamAudio", "Transcribe", "StreamTranscribe", "Synthesize")
                 .contains(methodName) ? methodName : "unknown";
     }
 

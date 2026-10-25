@@ -265,12 +265,20 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
             return noOpAudioObserver();
         }
 
+        Span span = tracingService.startGrpcStreamingSpan("StreamTranscribe", tenantId);
+        long startedNanos = System.nanoTime();
+
         // Stream-session state is owned by MediaRuntime and requires a trusted consent/purpose
         // decision. This service has neither runtime injection nor an admission authority, so it
         // must stop before creating a model session or dispatching audio.
-        responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
-                .withDescription("STT_STREAM_CONSENT_NOT_ADMITTED: trusted purpose and consent admission are unavailable")
-                .asRuntimeException());
+        try {
+            responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                    .withDescription("STT_STREAM_CONSENT_NOT_ADMITTED: trusted purpose and consent admission are unavailable")
+                    .asRuntimeException());
+        } finally {
+            tracingService.recordError(span, new IllegalStateException("stream admission unavailable"),
+                    java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos));
+        }
         return noOpAudioObserver();
     }
 
