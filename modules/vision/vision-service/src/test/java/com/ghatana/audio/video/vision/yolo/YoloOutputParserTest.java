@@ -13,6 +13,24 @@ class YoloOutputParserTest {
         assertThat(parsed).containsExactly(new YoloOutputParser.Detection(1, 0.75, 30, 30, 20, 20));
     }
 
+    @Test void parsesMultipleBoxesFromChannelMajorOutputWithoutMixingTheirScores() {
+        // [1, 6, 2]: each channel contains both boxes, as emitted by the YOLOv8 ONNX export.
+        float[] tensor = {
+                40, 80, // center x
+                40, 80, // center y
+                20, 20, // width
+                20, 20, // height
+                0.8f, 0.1f, // class 0 scores
+                0.2f, 0.9f  // class 1 scores
+        };
+
+        List<YoloOutputParser.Detection> parsed = YoloOutputParser.parse(1, 6, 2, tensor, 2, 0.1);
+
+        assertThat(parsed).containsExactly(
+                new YoloOutputParser.Detection(0, (double) 0.8f, 30, 30, 20, 20),
+                new YoloOutputParser.Detection(1, (double) 0.9f, 70, 70, 20, 20));
+    }
+
     @Test void rejectsUnsupportedLayoutsAndInconsistentTensorLengths() {
         float[] values = tensor(0.8f, 0.2f);
         assertThatThrownBy(() -> YoloOutputParser.parse(2, 6, 1, values, 2, 0.2))
