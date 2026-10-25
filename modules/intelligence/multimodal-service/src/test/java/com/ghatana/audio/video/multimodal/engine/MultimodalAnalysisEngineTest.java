@@ -88,10 +88,66 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertEquals(2, result.getTemporalAlignments().size()); 
             assertEquals("hello", result.getTemporalAlignments().get(0).getSpeechText()); 
             assertEquals("world", result.getTemporalAlignments().get(1).getSpeechText()); 
-            assertTrue(result.getTemporalAlignments().get(0).getSyncConfidence() > 0.0); 
+            assertEquals(TemporalAlignment.SyncStatus.SYNC_UNDETERMINED,
+                    result.getTemporalAlignments().get(0).getSyncStatus());
+            assertFalse(result.getTemporalAlignments().get(0).hasSyncMeasurement());
+            assertEquals(0L, result.getTemporalAlignments().get(0).getSyncOffsetMs());
+            assertEquals(0.0, result.getTemporalAlignments().get(0).getSyncConfidence());
             assertTrue(result.getCombinedNarrative().contains("[0s] \"hello\"")); 
             assertTrue(result.getCombinedNarrative().contains("[1s] \"world\"")); 
             assertFalse(result.getVideoResult().isError()); 
+        }
+    }
+
+    @Test
+    @DisplayName("Should not report timestamp association as measured synchronization")
+    void shouldLeaveSynchronizationUndeterminedWithoutSignalFeatures() {
+        AudioResult audio = AudioResult.builder()
+                .transcription("hello")
+                .timedSegments(List.of(new AudioResult.TimedSegment(0, 999, "hello")))
+                .build();
+        VisualResult video = VisualResult.builder()
+                .frameResults(List.of(new FrameResult(1, 500, List.of())))
+                .build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            TemporalAlignment alignment = result.getTemporalAlignments().get(0);
+            assertEquals("hello", alignment.getSpeechText());
+            assertEquals(TemporalAlignment.SyncStatus.SYNC_UNDETERMINED, alignment.getSyncStatus());
+            assertFalse(alignment.hasSyncMeasurement());
+            assertEquals(0L, alignment.getSyncOffsetMs());
+            assertEquals(0.0, alignment.getSyncConfidence());
+        }
+    }
+
+    @Test
+    @DisplayName("Should keep unavailable synchronization unknown for positive and negative timestamp offsets")
+    void shouldKeepUnmeasuredTimestampOffsetsUndetermined() {
+        List<AudioResult.TimedSegment> segments = List.of(
+                new AudioResult.TimedSegment(1_000, 1_999, "audio leads"),
+                new AudioResult.TimedSegment(0, 999, "audio lags"));
+        List<FrameResult> frames = List.of(
+                new FrameResult(1, 500, List.of()),
+                new FrameResult(2, 1_500, List.of()));
+        AudioResult audio = AudioResult.builder().transcription("audio").timedSegments(segments).build();
+        VisualResult video = VisualResult.builder().frameResults(frames).build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            assertEquals(2, result.getTemporalAlignments().size());
+            assertTrue(result.getTemporalAlignments().stream().allMatch(alignment ->
+                    alignment.getSyncStatus() == TemporalAlignment.SyncStatus.SYNC_UNDETERMINED));
+            assertTrue(result.getTemporalAlignments().stream().noneMatch(
+                    TemporalAlignment::hasSyncMeasurement));
         }
     }
 

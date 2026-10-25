@@ -211,6 +211,9 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         assertThat(response.getCombinedNarrative()).contains("Person walking");
         assertThat(response.getAudioTranscription()).isEqualTo("Hello world");
         assertThat(response.getFrameAnalysesCount()).isEqualTo(1);
+        assertThat(response.getSynchronizationStatus())
+            .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.VideoAudioResponse
+                .SynchronizationStatus.SYNC_UNDETERMINED);
         assertThat(response.getFrameAnalyses(0).getObjectsCount()).isEqualTo(1);
         assertThat(response.getFrameAnalyses(0).getObjects(0).getClassName()).isEqualTo("person");
     }

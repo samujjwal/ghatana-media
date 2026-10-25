@@ -160,6 +160,15 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             VideoAudioResponse.Builder responseBuilder = VideoAudioResponse.newBuilder()
                     .setCombinedNarrative(result.getCombinedNarrative());
+            List<com.ghatana.audio.video.multimodal.engine.TemporalAlignment> alignments =
+                    result.getTemporalAlignments();
+            boolean synchronizationMeasured = alignments != null && !alignments.isEmpty()
+                    && alignments.stream()
+                            .allMatch(com.ghatana.audio.video.multimodal.engine.TemporalAlignment
+                                    ::hasSyncMeasurement);
+            responseBuilder.setSynchronizationStatus(synchronizationMeasured
+                    ? VideoAudioResponse.SynchronizationStatus.MEASURED
+                    : VideoAudioResponse.SynchronizationStatus.SYNC_UNDETERMINED);
 
             if (result.getAudioResult() != null && !result.getAudioResult().isError()) {
                 responseBuilder

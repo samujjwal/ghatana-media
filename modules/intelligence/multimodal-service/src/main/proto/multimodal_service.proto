@@ -101,6 +101,11 @@ message VideoAudioResponse {
   string audio_transcription = 2;
   repeated FrameAnalysis frame_analyses = 3;
   string combined_narrative = 4;
+  enum SynchronizationStatus {
+    SYNC_UNDETERMINED = 0;
+    MEASURED = 1;
+  }
+  SynchronizationStatus synchronization_status = 5;
 }
 
 message FrameAnalysis {

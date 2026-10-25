@@ -200,6 +200,8 @@ class MultimodalGrpcServiceTest {
         assertThat(observer.hasError()).isFalse(); 
         assertThat(observer.getValue().getCombinedNarrative()).isEqualTo("narrator speaking with outdoor scene");
         assertThat(observer.getValue().getAudioTranscription()).isEqualTo("narrator speaking");
+        assertThat(observer.getValue().getSynchronizationStatus())
+            .isEqualTo(VideoAudioResponse.SynchronizationStatus.SYNC_UNDETERMINED);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
