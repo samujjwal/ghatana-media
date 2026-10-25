@@ -419,9 +419,9 @@ LOCALLY_VERIFIED means the task's bounded local behavior or inventory acceptance
 | STT | STT-11 | STT-01, STT-03, STT-04, STT-05, STT-06, STT-08, STT-09 | STT-02, STT-07, STT-10, STT-12 | — |
 | TTS | TTS-01, TTS-02, TTS-04, TTS-11 | TTS-08, TTS-09 | TTS-03, TTS-05, TTS-06, TTS-07, TTS-10, TTS-12 | — |
 | Vision | VIS-01, VIS-03, VIS-04, VIS-11 | VIS-07 | VIS-02, VIS-05, VIS-06, VIS-08, VIS-09, VIS-10, VIS-12 | — |
-| Multimodal | MM-01, MM-04, MM-11 | MM-02, MM-03, MM-06, MM-07, MM-09, MM-10 | MM-05, MM-12 | MM-08 |
+| Multimodal | MM-01, MM-04, MM-07, MM-11 | MM-02, MM-03, MM-06, MM-09, MM-10 | MM-05, MM-12 | MM-08 |
 | Observability | OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-09, OBS-10 | OBS-06, OBS-07 | OBS-08 | — |
-| **Total** | **19** | **18** | **20** | **1** |
+| **Total** | **20** | **17** | **20** | **1** |
 
 Key local changes at this cut:
 
@@ -494,12 +494,14 @@ No model-quality corpus, licensed provider, biometric consent authority, product
 
 ### Incremental execution record — 2026-10-25 (second round)
 
-The following focused checks advanced two existing partial task rows. The task denominator and exclusive dispositions remain 58 total: 19 LOCALLY_VERIFIED, 18 PARTIAL, 20 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT. No surface or integrated W2-E scenario is closed.
+The following focused checks advanced two existing partial task rows and reclassified one task's bounded abstention behavior after focused tests. The task denominator remains 58: 20 LOCALLY_VERIFIED, 17 PARTIAL, 20 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT. No surface or integrated W2-E scenario is closed.
 
 | Task | Change and evidence | Current disposition |
 | --- | --- | --- |
+| MM-07 | Added a caller-context-only test with tempting fixture provider output. `MultimodalAnalysisEngineTest` proves `NO_MODALITY`, no audio/visual child results, no context echo, and the exact `ABSTAIN: SOURCE_REFERENCES_INCOMPLETE` result. Existing tests cover audio-only, video-only, and mixed input abstention. The engine already enforced this behavior; no runtime change was needed. | LOCALLY_VERIFIED for the bounded fail-closed abstention behavior only. Source references and qualified semantic providers remain unavailable, so no multimodal description, summary, or structured claim is produced. |
+| STT-04 | Rechecked `SttAudioInputDecoder`, canonical and persistent gRPC boundaries, and focused tests. Input/decoded byte and duration limits, WAV/PCM shape, sample rate and malformed headers are rejected before provider invocation; unsupported FLAC remains explicitly NOT_ADMITTED. The persistent service returns `STT_TRANSCRIPT_VERSION_NOT_ADMITTED` before mutable persistence/provider work. | PARTIAL: local request validation is covered; governed immutable source/version persistence and the admitted positive path remain unavailable. |
 | TTS-08 | Added gRPC tests proving a valid stream request returns the existing typed `UNAVAILABLE`/`NOT_ADMITTED` outcome without emitting partial/final audio or opening a provider session, and that input beyond the 5,000-character bound is rejected before provider lookup. `TtsGrpcServiceTest` passed. The current `AudioChunk` proto has no sequence/version/pause/resume fields and no streaming provider is admitted, so no real chunk ordering, backpressure, or finality claim is made. | PARTIAL: successful streaming and real provider cancellation/finality remain unimplemented or unqualified. |
 | OBS-07 | Added runbook links and redacted, provider-specific actions to the four readiness alert annotations. Readiness fixtures cover observed zero, healthy one, missing, and NaN values; labels remain fixed and content-free. `MediaWorkflowAlertRulesTest` and `AudioVideoHealthServiceTest` passed: 20 tests. `promtool` and a Prometheus evaluator were unavailable; rule evaluation/deployment is not claimed. No quality regression alert was added because no admitted provider-quality metric exists. | PARTIAL: readiness alert contract and safe local triage are covered; quality/regression telemetry and deployed alert evaluation remain unavailable. |
 
-TTS verification command: `./gradlew :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.TtsGrpcServiceTest --no-daemon --console=plain` — BUILD SUCCESSFUL. OBS verification command: `./gradlew :services:media:audio-video-observability:test --tests 'com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest' --tests 'com.ghatana.audiovideo.observability.AudioVideoHealthServiceTest' --no-daemon --console=plain` — BUILD SUCCESSFUL, 20 selected tests. `git diff --check` passed for both changes.
+MM-07 verification command: `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineTest' --no-daemon --console=plain` — BUILD SUCCESSFUL, 25 tests. STT-04 verification command: `./gradlew --no-daemon --console=plain :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.service.SttAudioInputDecoderTest' --tests 'com.ghatana.stt.grpc.SttGrpcServiceTest' --tests 'com.ghatana.stt.grpc.PersistentSttGrpcServiceTest'` — BUILD SUCCESSFUL, 62 tests, 0 skipped. TTS verification command: `./gradlew :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.TtsGrpcServiceTest --no-daemon --console=plain` — BUILD SUCCESSFUL. OBS verification command: `./gradlew :services:media:audio-video-observability:test --tests 'com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest' --tests 'com.ghatana.audiovideo.observability.AudioVideoHealthServiceTest' --no-daemon --console=plain` — BUILD SUCCESSFUL, 20 selected tests. `git diff --check` passed for all changed paths.
 

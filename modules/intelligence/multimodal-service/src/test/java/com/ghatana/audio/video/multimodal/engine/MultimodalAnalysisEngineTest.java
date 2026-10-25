@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -165,6 +166,28 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertEquals("A person standing near a whiteboard", result.getVisualResult().getSceneDescription()); 
             assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
             assertTrue(result.getProcessingTimeMs() >= 0); 
+        }
+    }
+
+    @Test
+    @DisplayName("Caller context alone is not presented as an observed multimodal result")
+    void callerContextOnlyAbstainsWithoutDispatchingModalities() {
+        String callerContext = "Caller says the clip shows a red car at 8:12";
+        AudioResult providerAudio = AudioResult.builder().transcription("unreferenced provider speech").build();
+        VisualResult providerVisual = VisualResult.builder().sceneDescription("unreferenced provider scene").build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(providerAudio, providerVisual, providerVisual),
+                AudioVideoRuntimeSettings.defaults())) {
+            MultimodalResult result = runPromise(() -> Promise.of(engine.analyse(
+                    MultimodalRequest.builder().text(callerContext).build())));
+
+            assertEquals(MultimodalResult.Outcome.NO_MODALITY, result.getOutcome());
+            assertNull(result.getAudioResult());
+            assertNull(result.getVisualResult());
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
+            assertFalse(result.getCombinedAnalysis().contains(callerContext));
+            assertFalse(result.getCombinedAnalysis().contains("red car"));
         }
     }
 
