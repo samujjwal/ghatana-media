@@ -27,6 +27,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -257,8 +259,8 @@ class VisionGrpcServiceTest {
 
     @ParameterizedTest
     @EnumSource(VisionCapabilityDisposition.class)
-    @DisplayName("advanced Vision intents return NOT_ADMITTED before detector dispatch")
-    void analyzeImage_advancedIntentIsNotAdmittedBeforeDetectorCall(
+    @DisplayName("registered Vision intents return NOT_ADMITTED before detector dispatch")
+    void analyzeImage_registeredIntentIsNotAdmittedBeforeDetectorCall(
             VisionCapabilityDisposition disposition) {
         AnalyzeRequest request = AnalyzeRequest.newBuilder()
                 .setImageData(ByteString.copyFrom(new byte[] {1}))
@@ -278,23 +280,72 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("advanced capability registry retains the exact VIS-08 and tracking intent IDs")
-    void advancedCapabilityRegistryContainsExpectedIntentIds() {
+    @DisplayName("Vision capability census maps exactly 22 intents to the ten proto RPCs")
+    void visionCapabilityCensusMatchesPdpIdsRpcContractsAndProviderQualification() {
+        Map<String, Set<String>> expectedRpcBindings = Map.ofEntries(
+                Map.entry("media.vision.scene-text.region.track", Set.of("AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.scene-text.observation.create",
+                        Set.of("AnalyzeImage", "AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.detect", Set.of("DetectObjects", "AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.classify", Set.of("ClassifyImage")),
+                Map.entry("media.vision.segment.image", Set.of("AnalyzeImage")),
+                Map.entry("media.vision.segment.video", Set.of("AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.track.object", Set.of("AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.track.point", Set.of("AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.estimate.optical-flow", Set.of("AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.estimate.depth",
+                        Set.of("AnalyzeImage", "AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.estimate.surface-normals", Set.of("AnalyzeImage")),
+                Map.entry("media.vision.estimate.human-pose", Set.of("AnalyzeImage")),
+                Map.entry("media.vision.estimate.hand-pose", Set.of("AnalyzeImage")),
+                Map.entry("media.vision.estimate.face-landmarks", Set.of("AnalyzeImage")),
+                Map.entry("media.vision.analyze.expression", Set.of("AnalyzeImage")),
+                Map.entry("media.vision.analyze.gaze", Set.of("AnalyzeImage")),
+                Map.entry("media.vision.matte.foreground-background",
+                        Set.of("AnalyzeImage", "AnalyzeVideoFile")),
+                Map.entry("media.vision.segment.motion", Set.of("AnalyzeVideoFile", "ProcessVideo")),
+                Map.entry("media.vision.estimate.saliency", Set.of("AnalyzeImage", "AnalyzeVideoFile")),
+                Map.entry("media.vision.classify.scene", Set.of("AnalyzeImage", "ClassifyImage")),
+                Map.entry("media.vision.detect.shot-boundary", Set.of("AnalyzeVideoFile")),
+                Map.entry("media.vision.estimate.camera-motion", Set.of("AnalyzeVideoFile", "ProcessVideo")));
+
         assertThat(java.util.Arrays.stream(VisionCapabilityDisposition.values())
-                .map(VisionCapabilityDisposition::intentId))
+                .map(VisionCapabilityDisposition::intentId).toList())
+                .containsExactlyInAnyOrderElementsOf(expectedRpcBindings.keySet());
+        assertThat(VisionCapabilityDisposition.values()).hasSize(22);
+
+        for (VisionCapabilityDisposition capability : VisionCapabilityDisposition.values()) {
+            assertThat(capability.rpcMethods())
+                    .as("RPC bindings for %s", capability.intentId())
+                    .containsExactlyInAnyOrderElementsOf(expectedRpcBindings.get(capability.intentId()));
+            assertThat(capability.status()).isEqualTo(VisionCapabilityDisposition.Status.NOT_ADMITTED);
+            assertThat(capability.qualifiedModelVersion()).isEmpty();
+            assertThat(capability.qualifiedFormats()).isEmpty();
+        }
+        assertThat(java.util.Arrays.stream(VisionCapabilityDisposition.values())
+                .filter(capability -> capability.status() == VisionCapabilityDisposition.Status.NOT_ADMITTED))
+                .hasSize(22);
+
+        List<String> implemented = java.util.Arrays.stream(VisionCapabilityDisposition.values())
+                .filter(capability -> capability.implementationStatus()
+                        == VisionCapabilityDisposition.ImplementationStatus.IMPLEMENTED)
+                .map(VisionCapabilityDisposition::intentId).toList();
+        assertThat(implemented).containsExactly("media.vision.detect");
+        List<String> contractOnly = java.util.Arrays.stream(VisionCapabilityDisposition.values())
+                .filter(capability -> capability.implementationStatus()
+                        == VisionCapabilityDisposition.ImplementationStatus.CONTRACT_ONLY)
+                .map(VisionCapabilityDisposition::intentId).toList();
+        assertThat(contractOnly).containsExactlyInAnyOrder(
+                        "media.vision.classify",
+                        "media.vision.classify.scene",
+                        "media.vision.detect.shot-boundary",
+                        "media.vision.estimate.camera-motion");
+
+        assertThat(VisionServiceGrpc.getServiceDescriptor().getMethods())
+                .extracting("bareMethodName")
                 .containsExactlyInAnyOrder(
-                        "media.vision.segment.image",
-                        "media.vision.segment.video",
-                        "media.vision.track.object",
-                        "media.vision.track.point",
-                        "media.vision.estimate.optical-flow",
-                        "media.vision.estimate.depth",
-                        "media.vision.estimate.surface-normals",
-                        "media.vision.estimate.human-pose",
-                        "media.vision.estimate.hand-pose",
-                        "media.vision.matte.foreground-background",
-                        "media.vision.segment.motion",
-                        "media.vision.estimate.saliency");
+                        "DetectObjects", "AnalyzeImage", "ClassifyImage", "AnalyzeVideoFile", "ProcessVideo",
+                        "LoadModel", "UnloadModel", "ListModels", "GetStatus", "HealthCheck");
     }
 
     // -------------------------------------------------------------------------
