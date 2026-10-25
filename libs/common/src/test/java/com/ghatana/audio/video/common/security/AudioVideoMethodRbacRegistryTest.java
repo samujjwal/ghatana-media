@@ -52,6 +52,8 @@ class AudioVideoMethodRbacRegistryTest {
     @DisplayName("health check is always exempt")
     void healthCheckIsExempt() {
         assertThat(AudioVideoMethodRbacRegistry.isExempt("/grpc.health.v1.Health/Check")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isExempt("grpc.health.v1.Health/Check")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isExempt("grpc.health.v1.Health/Watch")).isTrue();
         assertThat(AudioVideoMethodRbacRegistry.isExempt("HealthCheck")).isTrue();
         assertThat(AudioVideoMethodRbacRegistry.isExempt("healthCheck")).isTrue();
     }

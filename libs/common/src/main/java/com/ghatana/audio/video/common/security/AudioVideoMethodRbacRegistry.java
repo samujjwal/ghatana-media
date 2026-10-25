@@ -139,7 +139,9 @@ public final class AudioVideoMethodRbacRegistry {
      * @return {@code true} if the method is exempt
      */
     public static boolean isExempt(String fullMethodName) {
-        if (EXEMPT_METHODS.contains(fullMethodName)) {
+        if (fullMethodName == null) return false;
+        String fullMethodPath = fullMethodName.startsWith("/") ? fullMethodName : "/" + fullMethodName;
+        if (EXEMPT_METHODS.contains(fullMethodPath)) {
             return true;
         }
         String simple = extractSimpleName(fullMethodName);

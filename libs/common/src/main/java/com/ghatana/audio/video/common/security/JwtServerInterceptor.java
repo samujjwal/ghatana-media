@@ -109,8 +109,9 @@ public class JwtServerInterceptor implements ServerInterceptor {
             ServerCallHandler<ReqT, RespT> next) {
 
         String fullMethod = call.getMethodDescriptor().getFullMethodName();
+        String fullMethodPath = fullMethod.startsWith("/") ? fullMethod : "/" + fullMethod;
 
-        if (EXEMPT_METHODS.contains(fullMethod)) {
+        if (EXEMPT_METHODS.contains(fullMethodPath)) {
             return next.startCall(call, headers);
         }
 
@@ -126,8 +127,8 @@ public class JwtServerInterceptor implements ServerInterceptor {
         try {
             jwt = SignedJWT.parse(token);
         } catch (Exception e) {
-            LOG.warn("JWT parsing failed on {}: {}", fullMethod, e.getMessage());
-            call.close(Status.UNAUTHENTICATED.withDescription("Invalid token: " + e.getMessage()),
+            LOG.warn("JWT parsing failed on {} (type={})", fullMethod, e.getClass().getSimpleName());
+            call.close(Status.UNAUTHENTICATED.withDescription("Invalid token"),
                     new Metadata());
             return new ServerCall.Listener<>() {};
         }
@@ -146,7 +147,7 @@ public class JwtServerInterceptor implements ServerInterceptor {
             Context ctx = Context.current()
                     .withValue(CTX_SUBJECT, subject != null ? subject : "unknown")
                     .withValue(CTX_TENANT, tenantId);
-            LOG.debug("Authenticated subject='{}' tenant='{}' on {}", subject, tenantId, fullMethod);
+            LOG.debug("Authenticated request on {}", fullMethod);
             return Contexts.interceptCall(ctx, call, headers, next);
 
         } catch (Exception e) {
@@ -172,7 +173,7 @@ public class JwtServerInterceptor implements ServerInterceptor {
                         return new ServerCall.Listener<>() {};
                     }
                     String subject = gwResult.userId() != null ? gwResult.userId() : "platform";
-                    LOG.debug("Platform auth-gateway accepted token, subject='{}', tenant='{}'", subject, tenantId);
+                    LOG.debug("Platform auth-gateway accepted request on {}", fullMethod);
                     Context ctx = Context.current()
                             .withValue(CTX_SUBJECT, subject)
                             .withValue(CTX_TENANT, tenantId);
@@ -180,8 +181,8 @@ public class JwtServerInterceptor implements ServerInterceptor {
                 }
             }
 
-            LOG.warn("JWT validation failed on {}: {}", fullMethod, e.getMessage());
-            call.close(Status.UNAUTHENTICATED.withDescription("Invalid token: " + e.getMessage()),
+            LOG.warn("JWT validation failed on {} (type={})", fullMethod, e.getClass().getSimpleName());
+            call.close(Status.UNAUTHENTICATED.withDescription("Invalid token"),
                     new Metadata());
             return new ServerCall.Listener<>() {};
         }

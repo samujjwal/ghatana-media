@@ -98,8 +98,8 @@ class TracingServerInterceptorTest {
     }
 
     @Test
-    @DisplayName("Should clear MDC context when gRPC call closes")
-    void shouldClearMdcWhenCallCloses() { 
+    @DisplayName("Should keep trace identifiers out of MDC and clear method context when call closes")
+    void shouldKeepTraceMetadataOutOfMdcAndClearMethodContextWhenCallCloses() {
         TracingServerInterceptor interceptor = new TracingServerInterceptor(); 
         Metadata headers = new Metadata(); 
 
@@ -111,8 +111,8 @@ class TracingServerInterceptorTest {
 
         interceptor.interceptCall(call, headers, next); 
 
-        assertThat(MDC.get("traceId")).isNotBlank();
-        assertThat(MDC.get("spanId")).isNotBlank();
+        assertThat(MDC.get("traceId")).isNull();
+        assertThat(MDC.get("spanId")).isNull();
         assertThat(MDC.get("grpcService")).isEqualTo("audio.Video");
         assertThat(MDC.get("grpcMethod")).isEqualTo("Analyze");
 

@@ -18,8 +18,8 @@ import java.util.UUID;
  * <p>For each inbound call this interceptor:
  * <ol>
  *   <li>Generates or propagates a {@code trace-id} from the {@code x-trace-id} header.</li>
- *   <li>Injects {@code traceId}, {@code method}, and {@code service} into the SLF4J MDC
- *       so that all log statements within the call carry these fields automatically.</li>
+ *   <li>Injects only the gRPC method and service into the SLF4J MDC. Trace and span identifiers
+ *       are propagated in gRPC headers but are not copied into ordinary log fields.</li>
  *   <li>Records call duration and final gRPC status at INFO level.</li>
  *   <li>Cleans up MDC on completion to prevent cross-request leakage.</li>
  * </ol>
@@ -59,8 +59,6 @@ public class TracingServerInterceptor implements ServerInterceptor {
         String service = parts.length > 0 ? parts[0] : fullMethod;
         String method  = parts.length > 1 ? parts[1] : fullMethod;
 
-        MDC.put("traceId", traceId);
-        MDC.put("spanId", spanId);
         MDC.put("grpcService", service);
         MDC.put("grpcMethod", method);
 
@@ -85,11 +83,11 @@ public class TracingServerInterceptor implements ServerInterceptor {
                 if (status.isOk()) {
                     LOG.info("gRPC call completed: {} status=OK durationMs={}", fullMethod, durationMs);
                 } else {
-                    LOG.warn("gRPC call failed: {} status={} durationMs={} description={}",
-                            fullMethod, status.getCode(), durationMs, status.getDescription());
+                    String errorCategory = status.getCause() == null
+                            ? "none" : status.getCause().getClass().getSimpleName();
+                    LOG.warn("gRPC call failed: {} status={} durationMs={} errorCategory={}",
+                            fullMethod, status.getCode(), durationMs, errorCategory);
                 }
-                MDC.remove("traceId");
-                MDC.remove("spanId");
                 MDC.remove("grpcService");
                 MDC.remove("grpcMethod");
                 super.close(status, trailers);

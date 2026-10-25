@@ -11,7 +11,6 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -35,8 +34,8 @@ import java.util.Set;
  *   <li><b>Cross-tenant guard</b> — if the JWT tenant and metadata tenant differ the call
  *       is rejected with PERMISSION_DENIED.</li>
  *   <li><b>Audit</b> — every call decision is emitted to {@link AuditEventSink}.</li>
- *   <li><b>Correlation ID</b> — reads {@code x-correlation-id} from metadata and places it
- *       in the SLF4J MDC for the duration of the call.</li>
+ *   <li><b>Privacy</b> — identity, role, tenant, and correlation metadata are excluded from
+ *       ordinary application log fields; the dedicated security audit record remains complete.</li>
  * </ol>
  *
  * <h3>Placement in the chain</h3>
@@ -52,8 +51,6 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
 
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoRequestContextInterceptor.class);
 
-    private static final Metadata.Key<String> CORRELATION_ID_KEY =
-        Metadata.Key.of("x-correlation-id", Metadata.ASCII_STRING_MARSHALLER);
     private static final Metadata.Key<String> ROLES_KEY =
         Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER);
 
@@ -90,14 +87,6 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
             return next.startCall(call, headers);
         }
 
-        // ── 1. Correlation ID ─────────────────────────────────────────────
-        String correlationId = headers.get(CORRELATION_ID_KEY);
-        if (correlationId == null || correlationId.isBlank()) {
-            correlationId = java.util.UUID.randomUUID().toString();
-        }
-        MDC.put("correlationId", correlationId);
-        final String finalCorrelationId = correlationId;
-
         // ── 2. Tenant extraction ───────────────────────────────────────────
         // Prefer the JWT-validated tenant from JwtServerInterceptor.CTX_TENANT,
         // then fall back to the TenantGrpcInterceptor context key.
@@ -106,11 +95,10 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
 
         String effectiveTenant = selectTenant(jwtTenant, metaTenant);
         if (effectiveTenant == null || effectiveTenant.isBlank()) {
-            LOG.warn("[{}] Rejected: missing tenant on {}", finalCorrelationId, fullMethod);
+            LOG.warn("Rejected request without tenant on {}", fullMethod);
             auditSink.emit(new AuditRecord(
                 "unknown", principal(), roles(headers), fullMethod,
                 Outcome.DENIED_MISSING_TENANT, "missing tenant ID"));
-            MDC.remove("correlationId");
             call.close(Status.INVALID_ARGUMENT.withDescription("Tenant ID is required"), new Metadata());
             return new ServerCall.Listener<>() {};
         }
@@ -120,13 +108,11 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         if (jwtTenant != null && !jwtTenant.isBlank()
                 && metaTenant != null && !metaTenant.isBlank()
                 && !jwtTenant.equals(metaTenant)) {
-            LOG.warn("[{}] Cross-tenant mismatch: jwtTenant={} metaTenant={} on {}",
-                finalCorrelationId, jwtTenant, metaTenant, fullMethod);
+            LOG.warn("Rejected cross-tenant request on {}", fullMethod);
             auditSink.emit(new AuditRecord(
                 effectiveTenant, principal(), roles(headers), fullMethod,
                 Outcome.DENIED_CROSS_TENANT,
                 "JWT tenant '" + jwtTenant + "' does not match header tenant '" + metaTenant + "'"));
-            MDC.remove("correlationId");
             call.close(Status.PERMISSION_DENIED.withDescription("Cross-tenant access denied"), new Metadata());
             return new ServerCall.Listener<>() {};
         }
@@ -134,11 +120,10 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         // ── 4. Principal ───────────────────────────────────────────────────
         String principal = principal();
         if (principal == null || principal.isBlank() || "unknown".equals(principal)) {
-            LOG.warn("[{}] Rejected: missing principal on {}", finalCorrelationId, fullMethod);
+            LOG.warn("Rejected request without principal on {}", fullMethod);
             auditSink.emit(new AuditRecord(
                 effectiveTenant, "unknown", roles(headers), fullMethod,
                 Outcome.DENIED_UNAUTHENTICATED, "missing authenticated principal"));
-            MDC.remove("correlationId");
             call.close(Status.UNAUTHENTICATED.withDescription("Authenticated principal required"), new Metadata());
             return new ServerCall.Listener<>() {};
         }
@@ -146,13 +131,11 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         // ── 5. RBAC ────────────────────────────────────────────────────────
         Set<String> callerRoles = parseRoles(headers);
         if (!AudioVideoMethodRbacRegistry.isAllowedAny(fullMethod, callerRoles)) {
-            LOG.warn("[{}] RBAC denied: principal={} roles={} method={}",
-                finalCorrelationId, principal, callerRoles, fullMethod);
+            LOG.warn("RBAC denied request for method={}", fullMethod);
             auditSink.emit(new AuditRecord(
                 effectiveTenant, principal, String.join(",", callerRoles), fullMethod,
                 Outcome.DENIED_INSUFFICIENT_ROLE,
                 "roles " + callerRoles + " insufficient for " + fullMethod));
-            MDC.remove("correlationId");
             call.close(Status.PERMISSION_DENIED.withDescription("Insufficient role for operation"), new Metadata());
             return new ServerCall.Listener<>() {};
         }
@@ -161,10 +144,9 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         auditSink.emit(new AuditRecord(
             effectiveTenant, principal, String.join(",", callerRoles),
             fullMethod, Outcome.ALLOWED, ""));
-        LOG.debug("[{}] Allowed: principal={} tenant={} roles={} method={}",
-            finalCorrelationId, principal, effectiveTenant, callerRoles, fullMethod);
+        LOG.debug("Allowed request for method={}", fullMethod);
 
-        return new CleanupListener<>(next.startCall(call, headers), finalCorrelationId);
+        return next.startCall(call, headers);
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────
@@ -199,25 +181,4 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         return h != null ? h : "";
     }
 
-    /** Forwards all call events to the delegate and cleans up MDC on cancel/complete. */
-    private static final class CleanupListener<ReqT> extends ServerCall.Listener<ReqT> {
-
-        private final ServerCall.Listener<ReqT> delegate;
-        private final String correlationId;
-
-        CleanupListener(ServerCall.Listener<ReqT> delegate, String correlationId) {
-            this.delegate = delegate;
-            this.correlationId = correlationId;
-        }
-
-        @Override public void onMessage(ReqT message) { delegate.onMessage(message); }
-        @Override public void onHalfClose() { delegate.onHalfClose(); }
-        @Override public void onCancel() {
-            try { delegate.onCancel(); } finally { MDC.remove("correlationId"); }
-        }
-        @Override public void onComplete() {
-            try { delegate.onComplete(); } finally { MDC.remove("correlationId"); }
-        }
-        @Override public void onReady() { delegate.onReady(); }
-    }
 }

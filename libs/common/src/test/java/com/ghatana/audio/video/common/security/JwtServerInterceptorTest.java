@@ -95,6 +95,25 @@ class JwtServerInterceptorTest {
             verify(call, never()).close(any(), any()); 
             verify(handler).startCall(eq(call), any()); 
         }
+
+        @Test
+        @DisplayName("Health Check descriptor name without path slash also bypasses JWT validation")
+        void canonicalGrpcMethodNameBypassesValidation() {
+            @SuppressWarnings("unchecked")
+            ConfigurableJWTProcessor<SecurityContext> processor = mock(ConfigurableJWTProcessor.class);
+            JwtServerInterceptor interceptor = new JwtServerInterceptor(processor, disabledTokenValidator());
+            ServerCall<Object, Object> call = mockCall("grpc.health.v1.Health/Check");
+            @SuppressWarnings("unchecked")
+            ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+            @SuppressWarnings("unchecked")
+            ServerCall.Listener<Object> listener = mock(ServerCall.Listener.class);
+            when(handler.startCall(any(), any())).thenReturn(listener);
+
+            interceptor.interceptCall(call, new Metadata(), handler);
+
+            verify(call, never()).close(any(), any());
+            verify(handler).startCall(eq(call), any());
+        }
     }
 
     @Nested

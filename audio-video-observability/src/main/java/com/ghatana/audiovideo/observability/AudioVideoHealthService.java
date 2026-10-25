@@ -5,6 +5,8 @@ import com.ghatana.observability.MetricsCollector;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.health.v1.HealthGrpc;
+import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Collections;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,6 +54,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoHealthService.class);
     private static final Duration DEFAULT_CHECK_TIMEOUT = Duration.ofMillis(250);
     private static final Duration MAX_CHECK_TIMEOUT = Duration.ofSeconds(5);
+    private static final int MAX_WATCH_SUBSCRIBERS = 128;
 
     private final Map<String, Supplier<Boolean>> checks = new ConcurrentHashMap<>();
     private final Set<String> requiredChecks;
@@ -59,6 +63,10 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     private final long checkTimeoutNanos;
     private final MetricsCollector metricsCollector;
     private final String serviceName;
+    private final Set<StreamObserver<HealthCheckResponse>> watchSubscribers =
+            Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Object watchLock = new Object();
+    private volatile boolean closed;
 
     public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector) {
         this(serviceName, metricsCollector, Set.of(), DEFAULT_CHECK_TIMEOUT);
@@ -158,12 +166,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
             HealthCheckRequest request,
             StreamObserver<HealthCheckResponse> responseObserver) {
 
-        boolean allHealthy = isServing();
-
-        HealthCheckResponse.ServingStatus status = allHealthy
-                ? HealthCheckResponse.ServingStatus.SERVING
-                : HealthCheckResponse.ServingStatus.NOT_SERVING;
-
+        HealthCheckResponse.ServingStatus status = currentStatus();
         metricsCollector.incrementCounter("av.health.check",
                 "service", serviceName, "status", status.name().toLowerCase());
 
@@ -174,23 +177,38 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     public void watch(
             HealthCheckRequest request,
             StreamObserver<HealthCheckResponse> responseObserver) {
-        // Emit current status and keep stream open — simplified (single-shot for now)
-        check(request, new StreamObserver<>() {
-            @Override
-            public void onNext(HealthCheckResponse value) {
-                responseObserver.onNext(value);
+        Objects.requireNonNull(responseObserver, "responseObserver");
+        synchronized (watchLock) {
+            if (closed) {
+                responseObserver.onError(Status.UNAVAILABLE
+                        .withDescription("Health service is shutting down").asRuntimeException());
+                return;
             }
+            if (watchSubscribers.size() >= MAX_WATCH_SUBSCRIBERS) {
+                responseObserver.onError(Status.RESOURCE_EXHAUSTED
+                        .withDescription("Health watch capacity reached").asRuntimeException());
+                return;
+            }
+            watchSubscribers.add(responseObserver);
+        }
 
-            @Override
-            public void onError(Throwable t) {
-                responseObserver.onError(t);
+        if (responseObserver instanceof ServerCallStreamObserver<?> serverObserver) {
+            serverObserver.setOnCancelHandler(() -> watchSubscribers.remove(responseObserver));
+            if (serverObserver.isCancelled()) {
+                watchSubscribers.remove(responseObserver);
+                return;
             }
+        }
 
-            @Override
-            public void onCompleted() {
-                // Do not complete the watch stream — clients expect it to stay open
-            }
-        });
+        HealthCheckResponse.ServingStatus status = currentStatus();
+        metricsCollector.incrementCounter("av.health.check",
+                "service", serviceName, "status", status.name().toLowerCase());
+        try {
+            responseObserver.onNext(HealthCheckResponse.newBuilder().setStatus(status).build());
+        } catch (RuntimeException observerFailure) {
+            watchSubscribers.remove(responseObserver);
+            throw observerFailure;
+        }
     }
 
     // ── helpers ────────────────────────────────────────────────────────────
@@ -224,8 +242,32 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
 
     @Override
     public void close() {
+        Set<StreamObserver<HealthCheckResponse>> subscribersToComplete;
+        synchronized (watchLock) {
+            closed = true;
+            subscribersToComplete = Set.copyOf(watchSubscribers);
+            watchSubscribers.clear();
+        }
         setNotServing();
         checkExecutor.shutdownNow();
+        for (StreamObserver<HealthCheckResponse> subscriber : subscribersToComplete) {
+            try {
+                subscriber.onCompleted();
+            } catch (RuntimeException observerFailure) {
+                LOG.debug("Unable to complete a health Watch during shutdown (type={})",
+                        observerFailure.getClass().getSimpleName());
+            }
+        }
+    }
+
+    private HealthCheckResponse.ServingStatus currentStatus() {
+        return isServing()
+                ? HealthCheckResponse.ServingStatus.SERVING
+                : HealthCheckResponse.ServingStatus.NOT_SERVING;
+    }
+
+    int activeWatchSubscriberCount() {
+        return watchSubscribers.size();
     }
 
     private boolean allChecksHealthy() {
