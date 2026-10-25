@@ -168,9 +168,9 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
-        @DisplayName("max speakers cap is respected")
-        void diarize_maxSpeakersCap() { 
-            // Allow only 2 speakers but send 3 distinct acoustic buckets
+        @DisplayName("unmatched segment at speaker cap fails instead of inheriting another speaker")
+        void diarize_unmatchedSegmentAtMaxSpeakersFailsClosed() {
+            // Allow only 2 speakers but send 3 distinct acoustic buckets.
             SpeakerDiarizationService service = SpeakerDiarizationService.builder() 
                     .embeddingExtractor(STUB_EXTRACTOR) 
                     .admission(() -> true) // test fixture; no production rights authority is wired
@@ -182,12 +182,28 @@ class SpeakerDiarizationServiceTest {
             var seg1 = new SpeakerDiarizationService.AudioSegment(new byte[4], 500, 1000, "b"); // bucket 1 
             var seg2 = new SpeakerDiarizationService.AudioSegment(new byte[5], 1000, 1500, "c"); // bucket 2 
 
-            List<SpeakerDiarizationService.SpeakerTurn> turns =
-                    service.diarize(List.of(seg0, seg1, seg2)); 
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(List.of(seg0, seg1, seg2)))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_SPEAKER_LIMIT_EXCEEDED:");
+        }
 
-            long distinctSpeakers = turns.stream().map(SpeakerDiarizationService.SpeakerTurn::speakerId) 
-                    .distinct().count(); 
-            assertThat(distinctSpeakers).isLessThanOrEqualTo(2); 
+        @Test
+        @DisplayName("existing speaker remains assignable after speaker cap is reached")
+        void diarizeExistingMatchStillWorksAtSpeakerCap() {
+            SpeakerDiarizationService service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(STUB_EXTRACTOR)
+                    .admission(() -> true)
+                    .maxSpeakers(2)
+                    .similarityThreshold(0.80)
+                    .build();
+
+            List<SpeakerDiarizationService.SpeakerTurn> turns = service.diarize(List.of(
+                    new SpeakerDiarizationService.AudioSegment(new byte[3], 0, 500, "first"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[4], 500, 1000, "second"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[3], 1000, 1500, "first again")));
+
+            assertThat(turns).extracting(SpeakerDiarizationService.SpeakerTurn::speakerId)
+                    .containsExactly("SPEAKER_0", "SPEAKER_1", "SPEAKER_0");
         }
     }
 

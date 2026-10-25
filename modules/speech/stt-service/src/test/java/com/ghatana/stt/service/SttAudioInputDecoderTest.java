@@ -92,10 +92,20 @@ class SttAudioInputDecoderTest {
     @Test
     void rejectsUnsupportedFlacInsteadOfPassingContainerBytesAsPcm() {
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
-                new byte[] {'f', 'L', 'a', 'C', 0, 0}, AudioFormat.FLAC, 16_000))
+                validFlacStreamInfoHeader(), AudioFormat.FLAC, 16_000))
                 .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
                     assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.NOT_ADMITTED);
                     assertThat(failure).hasMessageContaining("STT_AUDIO_FORMAT_NOT_ADMITTED");
+                });
+    }
+
+    @Test
+    void rejectsTruncatedFlacHeaderAsMalformedBeforeProviderAdmission() {
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(
+                new byte[] {'f', 'L', 'a', 'C', 0, 0}, AudioFormat.FLAC, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
                 });
     }
 
@@ -165,6 +175,14 @@ class SttAudioInputDecoderTest {
         buffer.putInt(40, pcm.length);
         System.arraycopy(pcm, 0, wav, 44, pcm.length);
         return wav;
+    }
+
+    private static byte[] validFlacStreamInfoHeader() {
+        byte[] flac = new byte[42];
+        putAscii(flac, 0, "fLaC");
+        flac[4] = (byte) 0x80; // Last metadata block, type STREAMINFO.
+        flac[7] = 34; // STREAMINFO payload length.
+        return flac;
     }
 
     private static void putAscii(byte[] bytes, int offset, String text) {

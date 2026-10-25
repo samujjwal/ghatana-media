@@ -94,9 +94,27 @@ public final class SttAudioInputDecoder {
         if ("UNKNOWN".equals(format)) {
             throw invalid("STT_AUDIO_INVALID_HEADER: unable to identify audio container");
         }
+        if ("FLAC".equalsIgnoreCase(format)) {
+            validateFlacStreamInfoHeader(input);
+        }
         throw new InputException(FailureKind.NOT_ADMITTED,
                 "STT_AUDIO_FORMAT_NOT_ADMITTED: no qualified decoder is available for "
                         + format.toUpperCase(Locale.ROOT));
+    }
+
+    /** Validate FLAC's mandatory first STREAMINFO metadata block before reporting no decoder. */
+    private static void validateFlacStreamInfoHeader(byte[] input) {
+        // fLaC marker (4), metadata block header (4), mandatory STREAMINFO (34).
+        if (input.length < 42 || input[0] != 'f' || input[1] != 'L'
+                || input[2] != 'a' || input[3] != 'C') {
+            throw invalid("STT_AUDIO_INVALID_HEADER: malformed FLAC stream header");
+        }
+        int blockType = input[4] & 0x7f;
+        int streamInfoLength = ((input[5] & 0xff) << 16)
+                | ((input[6] & 0xff) << 8) | (input[7] & 0xff);
+        if (blockType != 0 || streamInfoLength != 34 || 8L + streamInfoLength > input.length) {
+            throw invalid("STT_AUDIO_INVALID_HEADER: FLAC must begin with a complete STREAMINFO block");
+        }
     }
 
     public static void requireSampleRate(int sampleRate) {

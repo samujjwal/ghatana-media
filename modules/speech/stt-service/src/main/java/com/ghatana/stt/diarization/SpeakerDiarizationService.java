@@ -147,8 +147,10 @@ public final class SpeakerDiarizationService {
             return "SPEAKER_" + (centroids.size() - 1);
         }
 
-        // Exceeded cap — assign to best match
-        return "SPEAKER_" + (bestIdx >= 0 ? bestIdx : 0);
+        // Do not force an acoustically dissimilar segment into an existing anonymous
+        // identity. The configured cap cannot justify manufacturing a speaker match.
+        throw new DiarizationException(
+                "STT_DIARIZATION_SPEAKER_LIMIT_EXCEEDED: no existing speaker matched and maxSpeakers was reached");
     }
 
     private static double cosineSimilarity(float[] a, float[] b) {
