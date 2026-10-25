@@ -199,8 +199,8 @@ public class VideoFrameExtractor {
 
         Files.createDirectories(canonicalOutput);
 
-        LOG.info("Extracting frames from video: {} with fps={}, maxFrames={}",
-            canonicalVideo.getFileName(), config.getFps(), config.getMaxFrames());
+        LOG.info("Extracting frames from video with fps={}, maxFrames={}",
+            config.getFps(), config.getMaxFrames());
 
         ProcessResult result;
         int timestampDiagnosticBudget = (int) Math.min(MAX_FRAME_TIMESTAMP_DIAGNOSTIC_BYTES,
@@ -287,7 +287,7 @@ public class VideoFrameExtractor {
             "-n"
         );
 
-        LOG.info("Extracting frame at timestamp {}ms from: {}", timestampMs, videoPath.getFileName());
+        LOG.info("Extracting frame at timestamp {}ms", timestampMs);
 
         try {
             ProcessResult result = runProcess(command, Duration.ofSeconds(30), MAX_DIAGNOSTIC_BYTES);
@@ -358,7 +358,7 @@ public class VideoFrameExtractor {
         return command;
     }
 
-    private List<ExtractedFrame> collectExtractedFrames(Path outputDir, ExtractionConfig config)
+    List<ExtractedFrame> collectExtractedFrames(Path outputDir, ExtractionConfig config)
             throws IOException {
         return collectExtractedFrames(outputDir, config, null, "");
     }
@@ -372,7 +372,7 @@ public class VideoFrameExtractor {
             name.startsWith("frame_") && name.endsWith("." + config.getFormat()));
 
         if (files == null || files.length == 0) {
-            LOG.warn("No frames extracted to directory: {}", outputDir);
+            LOG.warn("No frames extracted");
             return frames;
         }
 

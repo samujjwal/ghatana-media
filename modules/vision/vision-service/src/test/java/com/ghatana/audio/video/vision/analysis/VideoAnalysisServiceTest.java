@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.vision.analysis;
 
+import com.ghatana.audio.video.vision.VisionLogCapture;
 import com.ghatana.audio.video.vision.analysis.VideoAnalysisService.VideoAnalysisResult;
 import com.ghatana.audio.video.vision.detection.VisionDetector;
 import com.ghatana.audio.video.vision.model.BoundingBox;
@@ -98,6 +99,22 @@ class VideoAnalysisServiceTest {
         assertThat(result.frameDetections().get(1).trackIds()).isEmpty();
         assertThat(result.trackingStatus()).isEqualTo("NOT_ADMITTED");
         assertThat(result.processingTime()).isNotNull(); 
+    }
+
+    @Test
+    @DisplayName("analyze logs do not include the source filename while result retains it")
+    void analyzeDoesNotLogSourceFilename() throws IOException {
+        Path video = tempDir.resolve("video-name-marker-private.mp4");
+        when(frameExtractor.extractFrames(eq(video), any(), any())).thenReturn(List.of());
+        try (VisionLogCapture logs = new VisionLogCapture(VideoAnalysisService.class)) {
+            VideoAnalysisResult result = service.analyze(video,
+                    VideoFrameExtractor.ExtractionConfig.builder().build(), defaultOptions);
+
+            assertThat(result.videoName()).isEqualTo(video.getFileName().toString());
+            String output = String.join("\n", logs.messages());
+            assertThat(output).contains("Analysing 0 frames from video");
+            assertThat(output).doesNotContain(video.getFileName().toString());
+        }
     }
 
     @Test

@@ -161,7 +161,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 return;
             }
 
-            LOG.debug("Detecting objects in image ({} bytes) for tenant={}, user={}", dataSize, tenantId, userId);
+            LOG.debug("Detecting objects in image ({} bytes)", dataSize);
 
             DetectionOptions options = DetectionOptions.builder()
                 .targetClasses(new HashSet<>(request.getTargetClassesList()))
@@ -212,36 +212,36 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
             mediaMetrics.recordFailed("vision.detect");
             responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
-                    .withDescription(e.getMessage()).asRuntimeException());
+                    .withDescription("Unsupported image metadata").asRuntimeException());
         } catch (VisionDetector.DetectionException e) {
-            LOG.error("Object detection engine failure", e);
+            LOG.error("Object detection engine failure ({})", e.getClass().getSimpleName());
             mediaMetrics.recordFailed("vision.detect");
             
             // AV-P1-012: Emit audit event for detection failure
             emitVisionAudit(tenantId, userId, "vision.detect", "FAILED",
-                Map.of("error", e.getMessage(), "imageSizeBytes", String.valueOf(dataSize)));
+                Map.of("errorCode", "DETECTION_FAILED", "imageSizeBytes", String.valueOf(dataSize)));
             
             responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Detection engine error: " + e.getMessage())
+                .withDescription("Detection engine error")
                 .asRuntimeException());
         } catch (IllegalArgumentException e) {
-            LOG.warn("Invalid detection request: {}", e.getMessage());
+            LOG.warn("Invalid detection request ({})", e.getClass().getSimpleName());
             mediaMetrics.recordFailed("vision.detect");
             
             // AV-P1-012: Emit audit event for invalid request
             emitVisionAudit(tenantId, userId, "vision.detect", "INVALID",
-                Map.of("error", e.getMessage(), "imageSizeBytes", String.valueOf(dataSize)));
+                Map.of("errorCode", "INVALID_REQUEST", "imageSizeBytes", String.valueOf(dataSize)));
             
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                .withDescription(e.getMessage())
+                .withDescription("Invalid detection request")
                 .asRuntimeException());
         } catch (Exception e) {
-            LOG.error("Unexpected error during object detection", e);
+            LOG.error("Unexpected error during object detection ({})", e.getClass().getSimpleName());
             mediaMetrics.recordFailed("vision.detect");
             
             // AV-P1-012: Emit audit event for unexpected error
             emitVisionAudit(tenantId, userId, "vision.detect", "ERROR",
-                Map.of("error", e.getMessage(), "imageSizeBytes", String.valueOf(dataSize)));
+                Map.of("errorCode", "INTERNAL_ERROR", "imageSizeBytes", String.valueOf(dataSize)));
             
             responseObserver.onError(io.grpc.Status.INTERNAL
                 .withDescription("Internal detection error")
@@ -389,9 +389,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
         } catch (Exception e) {
-            LOG.error("Failed to list vision models: {}", e.getMessage(), e);
+            LOG.error("Failed to list vision models ({})", e.getClass().getSimpleName());
             responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Failed to list models: " + e.getMessage())
+                .withDescription("Failed to list models")
                 .asRuntimeException());
         }
     }
@@ -430,10 +430,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 return;
             }
 
-            // AV-P1-012: Log with tenant/user context
-            String tenantId = resolveTenantId();
-            String userId = resolveUserId();
-            LOG.info("Analyzing video file ({} bytes) for tenant={}, user={}", dataSize, tenantId, userId);
+            // AV-P1-012: Log request size without tenant/user identifiers.
+            LOG.info("Analyzing video file ({} bytes)", dataSize);
 
             tempDir = Files.createTempDirectory("vision-video-");
             Path videoFile = tempDir.resolve("input.mp4");
@@ -511,11 +509,11 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
         } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
             responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
-                .withDescription(e.getMessage()).asRuntimeException());
+                .withDescription("Unsupported video metadata").asRuntimeException());
         } catch (IOException e) {
-            LOG.error("Video analysis failed", e);
+            LOG.error("Video analysis failed ({})", e.getClass().getSimpleName());
             responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Video analysis failed: " + e.getMessage())
+                .withDescription("Video analysis failed")
                 .asRuntimeException());
         } finally {
             if (tempDir != null) {
@@ -613,18 +611,19 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
                     terminal.set(true);
                     responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
-                            .withDescription(e.getMessage()).asRuntimeException());
+                            .withDescription("Unsupported video frame metadata").asRuntimeException());
                 } catch (Exception e) {
                     terminal.set(true);
-                    LOG.error("Video frame processing failed", e);
-                    responseObserver.onError(e);
+                    LOG.error("Video frame processing failed ({})", e.getClass().getSimpleName());
+                    responseObserver.onError(io.grpc.Status.INTERNAL
+                            .withDescription("Video frame processing failed").asRuntimeException());
                 }
             }
 
             @Override
             public void onError(Throwable t) {
                 terminal.set(true);
-                LOG.error("Video processing stream error", t);
+                LOG.error("Video processing stream error ({})", t.getClass().getSimpleName());
             }
 
             @Override
@@ -659,8 +658,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             responseObserver.onCompleted();
 
         } catch (Exception e) {
-            LOG.error("Failed to get status", e);
-            responseObserver.onError(e);
+            LOG.error("Failed to get status ({})", e.getClass().getSimpleName());
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Failed to get status").asRuntimeException());
         }
     }
 
@@ -686,8 +686,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             responseObserver.onCompleted();
 
         } catch (Exception e) {
-            LOG.error("Health check failed", e);
-            responseObserver.onError(e);
+            LOG.error("Health check failed ({})", e.getClass().getSimpleName());
+            responseObserver.onError(io.grpc.Status.UNAVAILABLE
+                    .withDescription("Vision readiness is unavailable").asRuntimeException());
         }
     }
 
@@ -781,10 +782,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .sorted(Comparator.reverseOrder())
                 .forEach(path -> {
                     try { Files.deleteIfExists(path); }
-                    catch (IOException e) { LOG.warn("Failed to delete temp file: {}", path); }
+                    catch (IOException e) { LOG.warn("Failed to delete temporary file"); }
                 });
         } catch (IOException e) {
-            LOG.warn("Failed to cleanup temp directory: {}", dir);
+            LOG.warn("Failed to cleanup temporary directory");
         }
     }
 
@@ -846,7 +847,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             
             auditService.record(event);
         } catch (Exception e) {
-            LOG.warn("Failed to emit audit event for vision operation {}: {}", operation, e.getMessage());
+            LOG.warn("Failed to emit audit event for vision operation {} ({})",
+                    operation, e.getClass().getSimpleName());
         }
     }
 }

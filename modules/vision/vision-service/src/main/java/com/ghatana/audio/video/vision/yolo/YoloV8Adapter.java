@@ -246,11 +246,15 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
             NativeLoader.loadLibrary(Core.NATIVE_LIBRARY_NAME);
             LOG.info("OpenCV native library loaded successfully");
         } catch (Exception | LinkageError failure) {
-            LOG.error("Failed to load OpenCV native library", failure);
+            logNativeLibraryLoadFailure(failure);
             throw new VisionModelProfile.VisionProviderUnavailableException(
                     VisionModelProfile.UnavailableReason.NATIVE_INITIALIZATION_FAILED,
                     "Vision native runtime initialization failed", failure);
         }
+    }
+
+    static void logNativeLibraryLoadFailure(Throwable failure) {
+        LOG.error("Failed to load OpenCV native library ({})", failure.getClass().getSimpleName());
     }
 
     private void ensureInitialized() {

@@ -45,30 +45,30 @@ public class DataCloudVisionAdapter implements MediaProcessorPort {
     @Override
     public Promise<String> transcribeAudio(String artifactId, String tenantId, String languageCode, Map<String, String> parameters) {
         // WS3: Vision adapter does not support transcription
-        LOG.warn("[WS3] Transcription not supported by vision adapter artifactId={} tenantId={}", artifactId, tenantId);
+        LOG.warn("[WS3] Transcription not supported by vision adapter");
         return Promise.of(null);
     }
 
     @Override
     public Promise<String> analyzeVision(String artifactId, String tenantId, String analysisType, Map<String, String> parameters) {
-        LOG.info("[WS3] Analyzing vision artifactId={} tenantId={} analysisType={}", artifactId, tenantId, analysisType);
+        LOG.info("[WS3] Analyzing vision artifact");
         
         // WS3: Delegate to vision service for analysis
         // The vision service should return a frame index ID that can be stored in Data Cloud
         return visionService.analyze(artifactId, tenantId, analysisType, parameters)
             .map(frameIndexId -> {
-                LOG.info("[WS3] Vision analysis completed artifactId={} frameIndexId={}", artifactId, frameIndexId);
+                LOG.info("[WS3] Vision analysis completed");
                 return frameIndexId;
             })
             .whenException(ex -> {
-                LOG.error("[WS3] Vision analysis failed artifactId={} tenantId={}", artifactId, tenantId, ex);
+                LOG.error("[WS3] Vision analysis failed ({})", ex.getClass().getSimpleName());
             });
     }
 
     @Override
     public Promise<String> indexMultimodal(String artifactId, String tenantId, String indexType, Map<String, String> parameters) {
         // WS3: Vision adapter does not support multimodal indexing
-        LOG.warn("[WS3] Multimodal indexing not supported by vision adapter artifactId={} tenantId={}", artifactId, tenantId);
+        LOG.warn("[WS3] Multimodal indexing not supported by vision adapter");
         return Promise.of(null);
     }
 

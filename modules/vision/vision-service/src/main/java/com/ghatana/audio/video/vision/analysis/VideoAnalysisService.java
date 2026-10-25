@@ -72,7 +72,7 @@ public final class VideoAnalysisService {
             List<VideoFrameExtractor.ExtractedFrame> frames =
                     frameExtractor.extractFrames(videoPath, tempDir, config);
 
-            LOG.info("Analysing {} frames from video: {}", frames.size(), videoPath.getFileName());
+            LOG.info("Analysing {} frames from video", frames.size());
 
             List<FrameDetections> frameDetections = new ArrayList<>();
             for (VideoFrameExtractor.ExtractedFrame frame : frames) {
@@ -111,7 +111,7 @@ public final class VideoAnalysisService {
                     .map(Path::toFile)
                     .forEach(java.io.File::delete);
         } catch (IOException e) {
-            LOG.warn("Failed to clean up temp dir {}: {}", dir, e.getMessage());
+            LOG.warn("Failed to clean up temporary directory ({})", e.getClass().getSimpleName());
         }
     }
 
