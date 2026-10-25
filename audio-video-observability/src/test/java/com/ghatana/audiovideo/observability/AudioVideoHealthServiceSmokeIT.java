@@ -123,11 +123,11 @@ class AudioVideoHealthServiceSmokeIT {
     }
 
     @Test
-    @DisplayName("Check RPC returns SERVING with no checks registered (no-op baseline)")
-    void checkReturnsServingWithNoChecksRegistered() {
+    @DisplayName("Check RPC returns NOT_SERVING with no checks registered")
+    void checkReturnsNotServingWithNoChecksRegistered() {
         HealthCheckResponse response = stub.check(HealthCheckRequest.getDefaultInstance());
 
         assertThat(response.getStatus())
-                .isEqualTo(HealthCheckResponse.ServingStatus.SERVING);
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
     }
 }

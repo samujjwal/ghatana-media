@@ -43,15 +43,15 @@ class AudioVideoHealthServiceTest {
     }
 
     @Test
-    @DisplayName("Returns SERVING when no checks registered")
-    void shouldReturnServingWithNoChecks() { 
+    @DisplayName("Returns NOT_SERVING when no checks are registered")
+    void shouldReturnNotServingWithNoChecks() {
         CapturingObserver observer = new CapturingObserver(); 
 
         healthService.check(HealthCheckRequest.newBuilder().build(), observer); 
 
         assertThat(observer.responses).hasSize(1); 
         assertThat(observer.responses.get(0).getStatus()) 
-                .isEqualTo(HealthCheckResponse.ServingStatus.SERVING); 
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
     }
 
     @Test
@@ -111,11 +111,26 @@ class AudioVideoHealthServiceTest {
     @Test
     @DisplayName("Emits metric counter on every Check call")
     void shouldEmitMetricOnEveryCheck() { 
+        healthService.registerCheck("ready", () -> true);
         CapturingObserver observer = new CapturingObserver(); 
         healthService.check(HealthCheckRequest.newBuilder().build(), observer); 
 
         verify(metricsCollector).incrementCounter( 
                 "av.health.check", "service", "stt-service", "status", "serving");
+    }
+
+    @Test
+    @DisplayName("Emits NOT_SERVING metric when no checks are registered")
+    void shouldEmitNotServingMetricWithNoChecks() {
+        CapturingObserver observer = new CapturingObserver();
+
+        healthService.check(HealthCheckRequest.newBuilder().build(), observer);
+
+        assertThat(observer.responses).hasSize(1);
+        assertThat(observer.responses.get(0).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+        verify(metricsCollector).incrementCounter(
+                "av.health.check", "service", "stt-service", "status", "not_serving");
     }
 
     @Test

@@ -78,7 +78,9 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
             return;
         }
 
-        boolean allHealthy = checks.entrySet().stream()
+        // An empty registry means readiness was never configured. Treat it as unavailable
+        // instead of allowing Stream.allMatch's vacuous truth to report SERVING.
+        boolean allHealthy = !checks.isEmpty() && checks.entrySet().stream()
                 .allMatch(e -> {
                     try {
                         boolean ok = e.getValue().get();
