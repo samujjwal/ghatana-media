@@ -23,6 +23,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @doc.type class
@@ -111,7 +114,7 @@ class PersistentSttServiceValidationTest {
         assertThatThrownBy(() -> service.transcribeAndPersist(
                 TENANT, USER, huge, "huge.wav", AudioFormat.WAV, "en", VALID_RATE))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("maximum size");
+            .hasMessageContaining("100 MiB input limit");
     }
 
     // -----------------------------------------------------------------------
@@ -125,13 +128,13 @@ class PersistentSttServiceValidationTest {
         assertThatThrownBy(() -> service.transcribeAndPersist(
                 TENANT, USER, audio, "clip.avi", AudioFormat.WAV, "en", VALID_RATE))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Unsupported audio format");
+            .hasMessageContaining("STT_AUDIO_FORMAT_MISMATCH");
     }
 
     @Test
     @DisplayName("wav extension is accepted without exception")
     void wavExtensionAccepted() {
-        byte[] audio = new byte[1024];
+        byte[] audio = pcmWav(VALID_RATE, 4);
         // Validation passes; persistence will be attempted — let the Promise propagate normally.
         assertThatCode(() -> service.transcribeAndPersist(
                 TENANT, USER, audio, "clip.wav", AudioFormat.WAV, "en", VALID_RATE))
@@ -139,12 +142,12 @@ class PersistentSttServiceValidationTest {
     }
 
     @Test
-    @DisplayName("mp3 extension is accepted without exception")
-    void mp3ExtensionAccepted() {
-        byte[] audio = new byte[1024];
-        assertThatCode(() -> service.transcribeAndPersist(
-                TENANT, USER, audio, "clip.mp3", AudioFormat.WAV, "en", VALID_RATE))
-            .doesNotThrowAnyException();
+    @DisplayName("MP3 fails closed until a decoder is admitted")
+    void mp3IsNotAdmitted() {
+        assertThatThrownBy(() -> service.transcribeAndPersist(
+                TENANT, USER, new byte[] {(byte) 0xff, (byte) 0xfb}, "clip.mp3", AudioFormat.MP3, "en", VALID_RATE))
+            .isInstanceOf(SttAudioInputDecoder.InputException.class)
+            .hasMessageContaining("STT_AUDIO_FORMAT_NOT_ADMITTED");
     }
 
     // -----------------------------------------------------------------------
@@ -154,32 +157,31 @@ class PersistentSttServiceValidationTest {
     @Test
     @DisplayName("sample rate below 8000 Hz throws IllegalArgumentException")
     void sampleRateTooLowThrows() {
-        byte[] audio = new byte[1024];
+        byte[] audio = pcmWav(VALID_RATE, 4);
         assertThatThrownBy(() -> service.transcribeAndPersist(
                 TENANT, USER, audio, "sample.wav", AudioFormat.WAV, "en", 7_999))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Sample rate");
+            .hasMessageContaining("STT_AUDIO_SAMPLE_RATE_INVALID");
     }
 
     @Test
     @DisplayName("sample rate above 48000 Hz throws IllegalArgumentException")
     void sampleRateTooHighThrows() {
-        byte[] audio = new byte[1024];
+        byte[] audio = pcmWav(VALID_RATE, 4);
         assertThatThrownBy(() -> service.transcribeAndPersist(
                 TENANT, USER, audio, "sample.wav", AudioFormat.WAV, "en", 48_001))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Sample rate");
+            .hasMessageContaining("STT_AUDIO_SAMPLE_RATE_INVALID");
     }
 
     @Test
     @DisplayName("boundary sample rates 8000 and 48000 are accepted")
     void boundarySampleRatesAccepted() {
-        byte[] audio = new byte[1024];
         assertThatCode(() -> service.transcribeAndPersist(
-                TENANT, USER, audio, "sample.wav", AudioFormat.WAV, "en", 8_000))
+                TENANT, USER, pcmWav(8_000, 4), "sample.wav", AudioFormat.WAV, "en", 8_000))
             .doesNotThrowAnyException();
         assertThatCode(() -> service.transcribeAndPersist(
-                TENANT, USER, audio, "sample.wav", AudioFormat.WAV, "en", 48_000))
+                TENANT, USER, pcmWav(48_000, 4), "sample.wav", AudioFormat.WAV, "en", 48_000))
             .doesNotThrowAnyException();
     }
 
@@ -190,7 +192,7 @@ class PersistentSttServiceValidationTest {
     @Test
     @DisplayName("unsupported language code throws IllegalArgumentException")
     void unsupportedLanguageThrows() {
-        byte[] audio = new byte[1024];
+        byte[] audio = pcmWav(VALID_RATE, 4);
         assertThatThrownBy(() -> service.transcribeAndPersist(
                 TENANT, USER, audio, "sample.wav", AudioFormat.WAV, "klingon", VALID_RATE))
             .isInstanceOf(IllegalArgumentException.class)
@@ -200,7 +202,7 @@ class PersistentSttServiceValidationTest {
     @Test
     @DisplayName("null language is accepted (no language hint)")
     void nullLanguageAccepted() {
-        byte[] audio = new byte[1024];
+        byte[] audio = pcmWav(VALID_RATE, 4);
         assertThatCode(() -> service.transcribeAndPersist(
                 TENANT, USER, audio, "sample.wav", AudioFormat.WAV, null, VALID_RATE))
             .doesNotThrowAnyException();
@@ -209,10 +211,44 @@ class PersistentSttServiceValidationTest {
     @Test
     @DisplayName("BCP-47 tag with region (en-US) resolves to supported base language")
     void bcp47TagWithRegionAccepted() {
-        byte[] audio = new byte[1024];
+        byte[] audio = pcmWav(VALID_RATE, 4);
         assertThatCode(() -> service.transcribeAndPersist(
                 TENANT, USER, audio, "sample.wav", AudioFormat.WAV, "en-US", VALID_RATE))
             .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("WAV container sample rate must match the request sample rate")
+    void sampleRateMismatchRejected() {
+        assertThatThrownBy(() -> service.transcribeAndPersist(
+                TENANT, USER, pcmWav(16_000, 4), "sample.wav", AudioFormat.WAV, "en", 22_050))
+            .isInstanceOf(SttAudioInputDecoder.InputException.class)
+            .hasMessageContaining("STT_AUDIO_SAMPLE_RATE_MISMATCH");
+        verifyNoInteractions(audioFileService, transcriptionService, library);
+    }
+
+    private static byte[] pcmWav(int sampleRate, int pcmBytes) {
+        byte[] wav = new byte[44 + pcmBytes];
+        ByteBuffer buffer = ByteBuffer.wrap(wav).order(ByteOrder.LITTLE_ENDIAN);
+        putAscii(wav, 0, "RIFF");
+        buffer.putInt(4, wav.length - 8);
+        putAscii(wav, 8, "WAVE");
+        putAscii(wav, 12, "fmt ");
+        buffer.putInt(16, 16);
+        buffer.putShort(20, (short) 1);
+        buffer.putShort(22, (short) 1);
+        buffer.putInt(24, sampleRate);
+        buffer.putInt(28, sampleRate * 2);
+        buffer.putShort(32, (short) 2);
+        buffer.putShort(34, (short) 16);
+        putAscii(wav, 36, "data");
+        buffer.putInt(40, pcmBytes);
+        return wav;
+    }
+
+    private static void putAscii(byte[] bytes, int offset, String text) {
+        byte[] value = text.getBytes(StandardCharsets.US_ASCII);
+        System.arraycopy(value, 0, bytes, offset, value.length);
     }
 
     // -----------------------------------------------------------------------

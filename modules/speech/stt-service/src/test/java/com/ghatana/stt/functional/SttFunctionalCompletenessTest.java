@@ -7,11 +7,14 @@ package com.ghatana.stt.functional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import com.ghatana.media.common.AudioFormat;
+import com.ghatana.stt.service.SttAudioInputDecoder;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * AV-004: STT functional completeness tests.
@@ -88,16 +91,14 @@ class SttFunctionalCompletenessTest {
     }
 
     @Test
-    @DisplayName("AV-004: Supported format validation accepts MP3")
-    void supportedFormatValidationAcceptsMp3() {
-        String format = "mp3";
-
-        Map<String, Object> formatCheck = Map.of(
-            "supported", true,
-            "format", format
-        );
-
-        assertThat(formatCheck.get("supported")).isEqualTo(true);
+    @DisplayName("AV-004: MP3 remains not admitted until a decoder is qualified")
+    void mp3RemainsNotAdmittedWithoutDecoder() {
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(
+                new byte[] {'I', 'D', '3', 0, 0, 0}, AudioFormat.MP3, 16_000))
+            .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.NOT_ADMITTED);
+                assertThat(failure).hasMessageContaining("STT_AUDIO_FORMAT_NOT_ADMITTED");
+            });
     }
 
     @Test

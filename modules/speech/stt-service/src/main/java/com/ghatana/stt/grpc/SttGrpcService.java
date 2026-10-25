@@ -2,12 +2,12 @@ package com.ghatana.stt.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
-import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.api.UserProfile;
+import com.ghatana.stt.service.SttAudioInputDecoder;
 import com.ghatana.stt.core.grpc.proto.*;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -42,9 +42,6 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     // AV-P1-004: Supported languages and sample-rate bounds (mirrors PersistentSttService constants).
     static final Set<String> SUPPORTED_LANGUAGES = Set.of(
         "en", "es", "fr", "de", "it", "pt", "nl", "pl", "ru", "zh", "ja", "ko", "ar", "hi", "tr");
-    static final int MIN_SAMPLE_RATE = 8_000;
-    static final int MAX_SAMPLE_RATE = 48_000;
-    static final long MAX_AUDIO_SIZE_BYTES = 100L * 1024 * 1024; // 100 MB
 
     /**
      * Package-private constructor for unit testing — supply a pre-configured library.
@@ -89,30 +86,13 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
         String cid = cid();
         transcribeTimer.record(() -> {
             try {
+                // Inspect the protobuf's declared byte count before creating another byte array.
+                SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
                 byte[] audioBytes = request.getAudioData().toByteArray();
-                if (audioBytes.length == 0) {
-                    responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                        .withDescription("Audio data cannot be empty")
-                        .asRuntimeException());
-                    return;
-                }
-
-                    // AV-P1-004: Validate audio size
-                    if (audioBytes.length > MAX_AUDIO_SIZE_BYTES) {
-                        responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                            .withDescription("Audio data exceeds maximum size of 100 MB")
-                            .asRuntimeException());
-                        return;
-                    }
 
                     // AV-P1-004: Validate and resolve sample rate
                     int sampleRate = request.getSampleRate() > 0 ? request.getSampleRate() : 16_000;
-                    if (sampleRate < MIN_SAMPLE_RATE || sampleRate > MAX_SAMPLE_RATE) {
-                        responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                            .withDescription("Sample rate must be between " + MIN_SAMPLE_RATE + " and " + MAX_SAMPLE_RATE + " Hz")
-                            .asRuntimeException());
-                        return;
-                    }
+                    SttAudioInputDecoder.requireSampleRate(sampleRate);
 
                     // AV-P1-004: Validate language if provided
                     String language = request.getLanguage();
@@ -126,7 +106,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                         }
                     }
 
-                    AudioData audio = new AudioData(audioBytes, sampleRate, 1, 16, Duration.ZERO, AudioFormat.PCM);
+                AudioData audio = SttAudioInputDecoder.decode(audioBytes, null, sampleRate);
 
                 TranscriptionResult result;
                 try (SttEngine stt = library.getSttEngine()) {
@@ -143,6 +123,13 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                     .setModelUsed(result.modelId() != null ? result.modelId() : "")
                     .build());
                 responseObserver.onCompleted();
+            } catch (SttAudioInputDecoder.InputException e) {
+                io.grpc.Status status = switch (e.kind()) {
+                    case INVALID_ARGUMENT -> io.grpc.Status.INVALID_ARGUMENT;
+                    case RESOURCE_EXHAUSTED -> io.grpc.Status.RESOURCE_EXHAUSTED;
+                    case NOT_ADMITTED -> io.grpc.Status.FAILED_PRECONDITION;
+                };
+                responseObserver.onError(status.withDescription(e.getMessage()).asRuntimeException());
             } catch (com.ghatana.media.common.ValidationError e) {
                 responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
             } catch (com.ghatana.media.common.InferenceError e) {

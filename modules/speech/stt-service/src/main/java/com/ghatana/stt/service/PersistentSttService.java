@@ -47,10 +47,6 @@ import java.util.concurrent.TimeoutException;
 public class PersistentSttService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistentSttService.class);
-    private static final long MAX_AUDIO_SIZE_BYTES = 100 * 1024 * 1024;
-    private static final int MIN_SAMPLE_RATE = 8_000;
-    private static final int MAX_SAMPLE_RATE = 48_000;
-    private static final Set<String> SUPPORTED_FORMATS = Set.of("wav", "mp3", "flac", "ogg", "m4a");
     private static final Set<String> SUPPORTED_LANGUAGES = Set.of(
             "en", "ne", "hi", "es", "fr", "de", "ja", "zh");
     private static final long BATCH_TRANSCRIPTION_TIMEOUT_MS = 30_000;
@@ -106,8 +102,9 @@ public class PersistentSttService {
         Objects.requireNonNull(userId, "userId cannot be null");
         Objects.requireNonNull(audioBytes, "audioBytes cannot be null");
 
+        AudioData decodedAudio;
         try {
-            validateSttInput(audioBytes, fileName, format, sampleRate, language);
+            decodedAudio = validateSttInput(audioBytes, fileName, format, sampleRate, language);
         } catch (IllegalArgumentException failure) {
             emitSttAudit(
                     tenantId,
@@ -130,7 +127,7 @@ public class PersistentSttService {
                     LOG.info(
                             "[tenant={}] Audio file persisted: id={}, sizeBytes={}",
                             tenantId, audioFile.getId(), audioBytes.length);
-                    return performTranscription(audioBytes, sampleRate, language)
+                    return performTranscription(decodedAudio, language)
                             .then(transcriptionResult -> persistTranscription(
                                     tenantId,
                                     userId,
@@ -271,10 +268,7 @@ public class PersistentSttService {
         return audioFileService.save(tenantId, entity);
     }
 
-    private Promise<TranscriptionResult> performTranscription(
-            byte[] audioBytes,
-            int sampleRate,
-            String language) {
+    private Promise<TranscriptionResult> performTranscription(AudioData audio, String language) {
         if (degraded) {
             LOG.warn("STT service is in degraded mode");
             return Promise.ofException(new IllegalStateException("STT service is degraded"));
@@ -288,8 +282,6 @@ public class PersistentSttService {
                         return thread;
                     });
             Future<TranscriptionResult> future = singleUse.submit(() -> {
-                AudioData audio = new AudioData(
-                        audioBytes, sampleRate, 1, 16, Duration.ZERO, AudioFormat.PCM);
                 try (SttEngine stt = library.getSttEngine()) {
                     TranscriptionOptions options = TranscriptionOptions.builder()
                             .language(language != null && !language.isBlank()
@@ -374,30 +366,30 @@ public class PersistentSttService {
         return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
     }
 
-    private void validateSttInput(
+    private AudioData validateSttInput(
             byte[] audioBytes,
             String fileName,
             AudioFormat format,
             int sampleRate,
             String language) {
-        if (audioBytes.length == 0) {
-            throw new IllegalArgumentException("Audio data cannot be empty");
-        }
-        if (audioBytes.length > MAX_AUDIO_SIZE_BYTES) {
-            throw new IllegalArgumentException(
-                    "Audio data exceeds maximum size of "
-                            + (MAX_AUDIO_SIZE_BYTES / 1024 / 1024) + "MB");
-        }
         String extension = getExtension(fileName).toLowerCase(Locale.ROOT);
-        if (!SUPPORTED_FORMATS.contains(extension)) {
-            throw new IllegalArgumentException(
-                    "Unsupported audio format: " + extension + ". Supported: " + SUPPORTED_FORMATS);
+        if (format == null) {
+            throw new SttAudioInputDecoder.InputException(
+                    SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT,
+                    "STT_AUDIO_FORMAT_REQUIRED: audio format must be declared");
         }
-        if (sampleRate < MIN_SAMPLE_RATE || sampleRate > MAX_SAMPLE_RATE) {
+        boolean extensionMatches = (format == AudioFormat.WAV && extension.equals("wav"))
+                || (format == AudioFormat.PCM && extension.equals("pcm"));
+        if (!extensionMatches) {
+            if (format != AudioFormat.WAV && format != AudioFormat.PCM) {
+                throw new SttAudioInputDecoder.InputException(
+                        SttAudioInputDecoder.FailureKind.NOT_ADMITTED,
+                        "STT_AUDIO_FORMAT_NOT_ADMITTED: no qualified decoder is available for " + format);
+            }
             throw new IllegalArgumentException(
-                    "Sample rate must be between " + MIN_SAMPLE_RATE + " and "
-                            + MAX_SAMPLE_RATE + " Hz, got: " + sampleRate);
+                    "STT_AUDIO_FORMAT_MISMATCH: file extension does not match declared " + format);
         }
+        SttAudioInputDecoder.requireSampleRate(sampleRate);
         if (language != null && !language.isBlank()) {
             String langCode = language.toLowerCase(Locale.ROOT).split("-")[0];
             if (!SUPPORTED_LANGUAGES.contains(langCode)) {
@@ -405,6 +397,7 @@ public class PersistentSttService {
                         "Unsupported language: " + language + ". Supported: " + SUPPORTED_LANGUAGES);
             }
         }
+        return SttAudioInputDecoder.decode(audioBytes, format, sampleRate);
     }
 
     private static String resolveFailureOutcome(Throwable failure) {

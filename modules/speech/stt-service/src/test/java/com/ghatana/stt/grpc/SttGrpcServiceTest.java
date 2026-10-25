@@ -119,13 +119,61 @@ class SttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("transcribe rejects malformed RIFF header before inference")
+    void transcribe_badWavHeader_returnsInvalidArgument() {
+        byte[] malformed = new byte[] {'R', 'I', 'F', 'F', 0, 0, 0, 0, 'N', 'O', 'P', 'E'};
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(malformed))
+                .setSampleRate(16_000)
+                .build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException error = (StatusRuntimeException) observer.getError();
+        assertThat(error.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(error.getStatus().getDescription()).contains("STT_AUDIO_INVALID_HEADER");
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("transcribe reports compressed formats as not admitted")
+    void transcribe_flac_returnsFailedPrecondition() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {'f', 'L', 'a', 'C', 0, 0}))
+                .setSampleRate(16_000)
+                .build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException error = (StatusRuntimeException) observer.getError();
+        assertThat(error.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(error.getStatus().getDescription()).contains("STT_AUDIO_FORMAT_NOT_ADMITTED");
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("transcribe rejects sample rates outside supported boundaries")
+    void transcribe_outOfRangeSampleRate_returnsInvalidArgument() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {0x01, 0x02}))
+                .setSampleRate(48_001)
+                .build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
     @DisplayName("transcribe: ValidationError from engine → INVALID_ARGUMENT gRPC error")
     void transcribe_validationError_returnsInvalidArgument() throws Exception { 
         when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))) 
             .thenThrow(new ValidationError("bad audio format"));
 
         TranscribeRequest request = TranscribeRequest.newBuilder() 
-            .setAudioData(ByteString.copyFrom(new byte[]{0x01})) 
+            .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02}))
             .setSampleRate(16000) 
             .build(); 
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>(); 
@@ -145,7 +193,7 @@ class SttGrpcServiceTest {
             .thenThrow(new InferenceError("model crash", null, false)); 
 
         TranscribeRequest request = TranscribeRequest.newBuilder() 
-            .setAudioData(ByteString.copyFrom(new byte[]{0x01})) 
+            .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02}))
             .setSampleRate(16000) 
             .build(); 
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>(); 
@@ -164,7 +212,7 @@ class SttGrpcServiceTest {
             .thenThrow(new InferenceError("backend overloaded", null, true)); 
 
         TranscribeRequest request = TranscribeRequest.newBuilder() 
-            .setAudioData(ByteString.copyFrom(new byte[]{0x01})) 
+            .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02}))
             .setSampleRate(16000) 
             .build(); 
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>(); 
@@ -205,7 +253,7 @@ class SttGrpcServiceTest {
                 Duration.ofMillis(15), "en", "whisper-base"));
 
         TranscribeRequest request = TranscribeRequest.newBuilder() 
-            .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02, 0x03})) 
+            .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02, 0x03, 0x04}))
             .setSampleRate(16000) 
             .build(); 
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>(); 

@@ -22,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -120,7 +122,7 @@ class TranscriptPrivacySecurityTest {
 
         ArgumentCaptor<TranscribeResponse> captor = ArgumentCaptor.forClass(TranscribeResponse.class);
 
-        byte[] audioBytes = new byte[]{0x52, 0x49, 0x46, 0x46, 0x04, 0x00, 0x00, 0x00}; // minimal WAV
+        byte[] audioBytes = validPcmWav();
 
         service.transcribe(
             TranscribeRequest.newBuilder()
@@ -145,7 +147,7 @@ class TranscriptPrivacySecurityTest {
         when(mockEngine.transcribe(any(AudioData.class), any(TranscriptionOptions.class)))
             .thenReturn(tenantAResult);
 
-        byte[] audioBytes = new byte[]{0x52, 0x49, 0x46, 0x46, 0x04, 0x00, 0x00, 0x00};
+        byte[] audioBytes = validPcmWav();
         ArgumentCaptor<TranscribeResponse> captor = ArgumentCaptor.forClass(TranscribeResponse.class);
 
         service.transcribe(
@@ -159,5 +161,15 @@ class TranscriptPrivacySecurityTest {
         String responseText = captor.getValue().getText();
         assertThat(responseText).isEqualTo(tenantAText);
         assertThat(responseText).doesNotContain("tenant-b-data");
+    }
+
+    private static byte[] validPcmWav() {
+        byte[] wav = new byte[48];
+        ByteBuffer buffer = ByteBuffer.wrap(wav).order(ByteOrder.LITTLE_ENDIAN);
+        buffer.put(new byte[]{'R', 'I', 'F', 'F'}).putInt(40).put(new byte[]{'W', 'A', 'V', 'E'});
+        buffer.put(new byte[]{'f', 'm', 't', ' '}).putInt(16).putShort((short) 1).putShort((short) 1);
+        buffer.putInt(16000).putInt(32000).putShort((short) 2).putShort((short) 16);
+        buffer.put(new byte[]{'d', 'a', 't', 'a'}).putInt(4).putShort((short) 120).putShort((short) -120);
+        return wav;
     }
 }

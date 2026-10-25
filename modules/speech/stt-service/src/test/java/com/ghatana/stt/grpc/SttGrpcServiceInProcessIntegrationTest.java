@@ -90,7 +90,7 @@ class SttGrpcServiceInProcessIntegrationTest {
 
         TranscribeResponse response = stub.transcribe(
             TranscribeRequest.newBuilder()
-                .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02, 0x03}))
+                .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02, 0x03, 0x04}))
                 .setSampleRate(16000)
                 .build()
         );
