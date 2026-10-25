@@ -2,8 +2,8 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
+import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.ValidationError;
-import com.ghatana.media.tts.api.CloneOptions;
 import com.ghatana.media.tts.api.ProfileSettings;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
@@ -32,6 +32,7 @@ import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
 import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
 import com.ghatana.tts.core.grpc.proto.UpdateProfileRequest;
+import com.ghatana.tts.engine.TtsSynthesisEngine;
 import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -40,8 +41,6 @@ import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -102,6 +101,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 String text = validateText(request.getText());
                 SynthesisOptions options = options(request);
                 AudioData audio = library.getTtsEngine().synthesize(text, options);
+                validatePcm16Output(audio, options.outputFormat());
 
                 long elapsed = System.currentTimeMillis() - startedAt;
                 double durationMs = (audio.data().length / 2.0 / audio.sampleRate()) * 1_000;
@@ -177,6 +177,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 @Override
                 public void onChunk(com.ghatana.media.common.AudioChunk chunk) {
                     if (isCancelled()) throw new CancellationException("gRPC TTS stream cancelled");
+                    if (chunk.data().length % 2 != 0) {
+                        throw new IllegalStateException(
+                                "TTS provider returned a partial PCM S16LE sample");
+                    }
                     responseObserver.onNext(AudioChunk.newBuilder()
                             .setAudioData(com.google.protobuf.ByteString.copyFrom(chunk.data()))
                             .setSampleRate(sampleRate)
@@ -404,48 +408,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     public void cloneVoice(
             CloneVoiceRequest request,
             StreamObserver<CloneVoiceResponse> responseObserver) {
-        try {
-            String voiceName = requireText(request.getVoiceName(), "voiceName");
-            if (request.getAudioSamplesList().isEmpty()) {
-                throw new IllegalArgumentException(
-                        "At least one audio sample is required for voice cloning");
-            }
-            List<AudioData> samples = new ArrayList<>();
-            for (com.google.protobuf.ByteString sample : request.getAudioSamplesList()) {
-                if (!sample.isEmpty()) {
-                    samples.add(new AudioData(sample.toByteArray(), 22_050, 1, 16));
-                }
-            }
-            if (samples.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "At least one non-empty audio sample is required for voice cloning");
-            }
-            CloneOptions options = new CloneOptions(
-                    request.getOptions().getFineTuneEpochs() > 0
-                            ? request.getOptions().getFineTuneEpochs()
-                            : 100,
-                    request.getOptions().getLearningRate() > 0
-                            ? request.getOptions().getLearningRate()
-                            : 0.001f,
-                    3,
-                    Duration.ofSeconds(5));
-            VoiceInfo cloned = library.getTtsEngine().cloneVoice(voiceName, samples, options);
-            responseObserver.onNext(CloneVoiceResponse.newBuilder()
-                    .setSuccess(true)
-                    .setMessage("Voice cloned successfully: " + voiceName)
-                    .setVoiceId(cloned.voiceId())
-                    .setSimilarityScore(cloned.similarityScore())
-                    .setVoice(com.ghatana.tts.core.grpc.proto.VoiceInfo.newBuilder()
-                            .setVoiceId(cloned.voiceId())
-                            .setName(cloned.name())
-                            .setIsCloned(cloned.isCloned())
-                            .setSizeBytes(cloned.modelSizeBytes())
-                            .build())
-                    .build());
-            responseObserver.onCompleted();
-        } catch (RuntimeException exception) {
-            fail(responseObserver, "Voice cloning", correlationId(), exception);
-        }
+        responseObserver.onError(Status.UNIMPLEMENTED
+                .withDescription(
+                        "Voice cloning is NOT_ADMITTED until owner consent, biometric purpose, and retention are verified")
+                .asRuntimeException());
     }
 
     @Override
@@ -459,6 +425,16 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     }
 
     private static SynthesisOptions options(SynthesizeRequest request) {
+        AudioFormat outputFormat = switch (request.getOptions().getOutputFormat()) {
+            case AUDIO_FORMAT_UNSPECIFIED, AUDIO_FORMAT_PCM_S16LE -> AudioFormat.PCM;
+            case AUDIO_FORMAT_PCM_F32LE -> throw new UnsupportedOperationException(
+                    "PCM F32LE output is NOT_ADMITTED until the provider can verify this encoding");
+            case AUDIO_FORMAT_WAV -> throw new UnsupportedOperationException(
+                    "WAV output is NOT_ADMITTED until the provider can verify its container header");
+            case AUDIO_FORMAT_MP3 -> throw new UnsupportedOperationException(
+                    "MP3 output is NOT_ADMITTED until an MP3 encoder is admitted");
+            case UNRECOGNIZED -> throw new IllegalArgumentException("Unknown TTS output format");
+        };
         return SynthesisOptions.builder()
                 .voiceId(request.getVoiceId().isBlank() ? null : request.getVoiceId())
                 .speed(request.getOptions().getSpeed())
@@ -467,7 +443,20 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 .language(request.getOptions().getLanguage().isBlank()
                         ? null
                         : Locale.forLanguageTag(request.getOptions().getLanguage()))
+                .outputFormat(outputFormat)
                 .build();
+    }
+
+    private static void validatePcm16Output(AudioData audio, AudioFormat requestedFormat) {
+        if (requestedFormat != AudioFormat.PCM
+                || audio.format() != AudioFormat.PCM
+                || audio.bitsPerSample() != 16) {
+            throw new IllegalStateException(
+                    "TTS provider output does not match the admitted PCM S16LE response format");
+        }
+        if (audio.data().length % 2 != 0) {
+            throw new IllegalStateException("TTS provider returned a partial PCM S16LE sample");
+        }
     }
 
     private static String validateText(String text) {
@@ -511,7 +500,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             String correlationId,
             RuntimeException exception) {
         Status status;
-        if (exception instanceof ValidationError || exception instanceof IllegalArgumentException) {
+        if (exception instanceof TtsSynthesisEngine.SynthesisException synthesis
+                && synthesis.reason() == TtsSynthesisEngine.FailureReason.NOT_ADMITTED) {
+            status = Status.UNAVAILABLE;
+        } else if (exception instanceof ValidationError || exception instanceof IllegalArgumentException) {
             status = Status.INVALID_ARGUMENT;
         } else if (exception instanceof UnsupportedOperationException) {
             status = Status.UNIMPLEMENTED;

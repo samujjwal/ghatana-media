@@ -1,16 +1,18 @@
 package com.ghatana.tts.engine;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * TTS (text-to-speech) synthesis engine.
  *
- * <p>Implements multi-voice synthesis with prosody control and SSML support.
- * Produces raw PCM audio at configurable sample rates.
+ * <p>This compatibility façade has no admitted synthesis provider. It validates
+ * requests and fails closed instead of manufacturing bytes that could be
+ * mistaken for speech or for an encoded audio format.
  *
  * @doc.type    class
- * @doc.purpose TTS synthesis engine: multi-voice, SSML, prosody control
+ * @doc.purpose Fail-closed TTS façade until a real synthesis provider is admitted
  * @doc.layer   product
  * @doc.pattern Engine
  */
@@ -33,7 +35,7 @@ public class TtsSynthesisEngine {
         }
     }
 
-    /** Result of a synthesis request. */
+    /** Result of a synthesis request from a real provider. */
     public record SynthesisResult(
             byte[] audioContent,
             AudioEncoding encoding,
@@ -65,21 +67,21 @@ public class TtsSynthesisEngine {
      */
     public SynthesisResult synthesize(String text, VoiceConfig voice, AudioEncoding encoding) {
         if (text == null || text.isBlank()) {
-            throw new SynthesisException("Input text must not be blank");
+            throw new SynthesisException("Input text must not be blank", FailureReason.INVALID_REQUEST);
         }
-        Objects.requireNonNull(voice, "voice must not be null");
-        Objects.requireNonNull(encoding, "encoding must not be null");
-
-        if (!supportedVoiceIds.contains(voice.voiceId())) {
-            throw new SynthesisException("Unsupported voice: " + voice.voiceId());
+        if (voice == null) {
+            throw new SynthesisException("Voice configuration must not be null", FailureReason.INVALID_REQUEST);
+        }
+        if (encoding == null) {
+            throw new SynthesisException("Audio encoding must not be null", FailureReason.INVALID_REQUEST);
         }
 
-        long startNs = System.nanoTime();
-        byte[] audio = generateAudio(text, voice, encoding);
-        double processingSeconds = (System.nanoTime() - startNs) / 1e9;
-        Duration audioDuration = estimateDuration(text, voice.speakingRate());
-
-        return new SynthesisResult(audio, encoding, 24_000, audioDuration, voice.voiceId(), processingSeconds);
+        if (voice.voiceId() == null || !supportedVoiceIds.contains(voice.voiceId())) {
+            throw new SynthesisException("Unsupported voice: " + voice.voiceId(), FailureReason.INVALID_REQUEST);
+        }
+        throw new SynthesisException(
+                "TTS synthesis is NOT_ADMITTED: no real provider is configured for model " + modelId,
+                FailureReason.NOT_ADMITTED);
     }
 
     /**
@@ -92,26 +94,23 @@ public class TtsSynthesisEngine {
      */
     public Set<String> getSupportedVoiceIds() { return supportedVoiceIds; }
 
-    // ── Private helpers (fallback implementations) ───────────────────────────────
-
-    private byte[] generateAudio(String text, VoiceConfig voice, AudioEncoding encoding) {
-        // Fallback: produce deterministic PCM-like byte array proportional to text length
-        int sampleCount = Math.max(1, text.length() * 400); // ~400 samples per character at 8kHz
-        byte[] audio = new byte[sampleCount];
-        Arrays.fill(audio, (byte) 0x3C);  // repeating pattern to simulate audio
-        return audio;
-    }
-
-    private Duration estimateDuration(String text, float speakingRate) {
-        // Rough estimate: ~150 words per minute at rate=1.0
-        long wordCount = text.split("\\s+").length;
-        long millis = (long) (wordCount / (150.0 * speakingRate) * 60_000);
-        return Duration.ofMillis(Math.max(200, millis));
-    }
-
     /** Thrown when synthesis fails. */
     public static class SynthesisException extends RuntimeException {
-        public SynthesisException(String message) { super(message); }
-        public SynthesisException(String message, Throwable cause) { super(message, cause); }
+        private final FailureReason reason;
+
+        public SynthesisException(String message) { this(message, FailureReason.INVALID_REQUEST); }
+        public SynthesisException(String message, Throwable cause) {
+            super(message, cause);
+            this.reason = FailureReason.INVALID_REQUEST;
+        }
+        public SynthesisException(String message, FailureReason reason) {
+            super(message);
+            this.reason = Objects.requireNonNull(reason, "reason");
+        }
+
+        public FailureReason reason() { return reason; }
     }
+
+    /** Stable classification for callers deciding whether to correct or route a request. */
+    public enum FailureReason { INVALID_REQUEST, NOT_ADMITTED }
 }

@@ -1,5 +1,8 @@
 package com.ghatana.tts.engine;
 
+import com.ghatana.tts.engine.TtsSynthesisEngine.FailureReason;
+import com.ghatana.tts.engine.TtsSynthesisEngine.SynthesisException;
+
 import com.ghatana.tts.engine.TtsSynthesisEngine.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -87,17 +90,19 @@ class TextToSpeechServiceTest {
         }
 
         @Test
-        @DisplayName("null voice config throws NullPointerException")
-        void nullVoiceConfig_throwsNullPointerException() { 
+        @DisplayName("null voice config is classified as an invalid request")
+        void nullVoiceConfig_throwsSynthesisException() {
             assertThatThrownBy(() -> engine.synthesize(SIMPLE_TEXT, null, AudioEncoding.MP3)) 
-                    .isInstanceOf(NullPointerException.class); 
+                    .isInstanceOfSatisfying(SynthesisException.class, error ->
+                            assertThat(error.reason()).isEqualTo(FailureReason.INVALID_REQUEST));
         }
 
         @Test
-        @DisplayName("null audio encoding throws NullPointerException")
-        void nullAudioEncoding_throwsNullPointerException() { 
+        @DisplayName("null audio encoding is classified as an invalid request")
+        void nullAudioEncoding_throwsSynthesisException() {
             assertThatThrownBy(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, null)) 
-                    .isInstanceOf(NullPointerException.class); 
+                    .isInstanceOfSatisfying(SynthesisException.class, error ->
+                            assertThat(error.reason()).isEqualTo(FailureReason.INVALID_REQUEST));
         }
 
         @Test
@@ -114,12 +119,10 @@ class TextToSpeechServiceTest {
         }
 
         @Test
-        @DisplayName("single character text is accepted")
+        @DisplayName("NOT_ADMITTED without real provider: single Character Text is Accepted")
         void singleCharacterText_isAccepted() { 
-            SynthesisResult result = engine.synthesize("A", defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize("A", defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result).isNotNull(); 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
     }
 
@@ -133,61 +136,47 @@ class TextToSpeechServiceTest {
 
         @ParameterizedTest
         @EnumSource(TtsSynthesisEngine.AudioEncoding.class) 
-        @DisplayName("synthesis succeeds for all supported encodings")
+        @DisplayName("NOT_ADMITTED without real provider: synthesis Succeeds For All Encodings")
         void synthesisSucceedsForAllEncodings(TtsSynthesisEngine.AudioEncoding encoding) { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, encoding); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, encoding));
 
-            assertThat(result).isNotNull(); 
-            assertThat(result.audioContent()).isNotEmpty(); 
-            assertThat(result.encoding()).isEqualTo(encoding); 
         }
 
         @Test
-        @DisplayName("PCM_16BIT encoding produces valid output")
+        @DisplayName("NOT_ADMITTED without real provider: pcm16 Bit Encoding Produces Valid Output")
         void pcm16BitEncodingProducesValidOutput() { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.PCM_16BIT); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.PCM_16BIT));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
-            assertThat(result.sampleRateHz()).isGreaterThan(8000); 
-            assertThat(result.encoding()).isEqualTo(AudioEncoding.PCM_16BIT); 
         }
 
         @Test
-        @DisplayName("MP3 encoding produces valid output")
+        @DisplayName("NOT_ADMITTED without real provider: mp3 Encoding Produces Valid Output")
         void mp3EncodingProducesValidOutput() { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
-            assertThat(result.encoding()).isEqualTo(AudioEncoding.MP3); 
         }
 
         @Test
-        @DisplayName("OPUS encoding produces valid output")
+        @DisplayName("NOT_ADMITTED without real provider: opus Encoding Produces Valid Output")
         void opusEncodingProducesValidOutput() { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.OPUS); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.OPUS));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
-            assertThat(result.encoding()).isEqualTo(AudioEncoding.OPUS); 
         }
 
         @Test
-        @DisplayName("PCM_32BIT encoding produces valid output")
+        @DisplayName("NOT_ADMITTED without real provider: pcm32 Bit Encoding Produces Valid Output")
         void pcm32BitEncodingProducesValidOutput() { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.PCM_32BIT); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.PCM_32BIT));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
-            assertThat(result.encoding()).isEqualTo(AudioEncoding.PCM_32BIT); 
         }
 
         @Test
-        @DisplayName("different encodings produce different byte content for same text")
+        @DisplayName("NOT_ADMITTED without real provider: different Encodings Produce Different Output")
         void differentEncodingsProduceDifferentOutput() { 
-            SynthesisResult r1 = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3); 
-            SynthesisResult r2 = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.PCM_16BIT); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3));
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.PCM_16BIT));
 
             // Different encodings should produce different byte sequences
-            assertThat(r1.audioContent()).as("MP3 content").isNotEmpty();
-            assertThat(r2.audioContent()).as("PCM content").isNotEmpty();
         }
     }
 
@@ -200,45 +189,40 @@ class TextToSpeechServiceTest {
     class VoiceSelection {
 
         @Test
-        @DisplayName("default voice is used when provided")
+        @DisplayName("NOT_ADMITTED without real provider: default Voice Is Used")
         void defaultVoiceIsUsed() { 
             VoiceConfig voice = VoiceConfig.defaults(); 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, voice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, voice, AudioEncoding.MP3));
 
-            assertThat(result.voiceId()).isEqualTo(voice.voiceId()); 
         }
 
         @Test
-        @DisplayName("all supported voices are accepted")
+        @DisplayName("NOT_ADMITTED without real provider: all Supported Voices Are Accepted")
         void allSupportedVoicesAreAccepted() { 
             for (String voiceId : SUPPORTED_VOICES) { 
                 VoiceConfig voice = new VoiceConfig(voiceId, "en-US", "NEUTRAL", 1.0f, 0.0f, 0.0f); 
-                SynthesisResult result = engine.synthesize(SIMPLE_TEXT, voice, AudioEncoding.MP3); 
+                assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, voice, AudioEncoding.MP3));
 
-                assertThat(result.voiceId()).isEqualTo(voiceId); 
-                assertThat(result.audioContent()).isNotEmpty(); 
             }
         }
 
         @Test
-        @DisplayName("different voices may produce different audio characteristics")
+        @DisplayName("NOT_ADMITTED without real provider: different Voices May Produce Different Audio")
         void differentVoicesMayProduceDifferentAudio() { 
             VoiceConfig voice1 = new VoiceConfig("en-US-standard-a", "en-US", "NEUTRAL", 1.0f, 0.0f, 0.0f); 
             VoiceConfig voice2 = new VoiceConfig("en-US-standard-b", "en-US", "NEUTRAL", 1.0f, 0.0f, 0.0f); 
 
-            SynthesisResult r1 = engine.synthesize(SIMPLE_TEXT, voice1, AudioEncoding.MP3); 
-            SynthesisResult r2 = engine.synthesize(SIMPLE_TEXT, voice2, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, voice1, AudioEncoding.MP3));
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, voice2, AudioEncoding.MP3));
 
-            assertThat(r1.voiceId()).isNotEqualTo(r2.voiceId()); 
         }
 
         @Test
-        @DisplayName("voice configuration parameters are preserved in result")
+        @DisplayName("NOT_ADMITTED without real provider: voice Config Parameters Are Preserved")
         void voiceConfigParametersArePreserved() { 
             VoiceConfig voice = new VoiceConfig("en-US-standard-a", "en-US", "MALE", 1.5f, 2.0f, 5.0f); 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, voice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, voice, AudioEncoding.MP3));
 
-            assertThat(result.voiceId()).isEqualTo(voice.voiceId()); 
         }
     }
 
@@ -251,74 +235,67 @@ class TextToSpeechServiceTest {
     class ProsodyControl {
 
         @Test
-        @DisplayName("speaking rate can be increased (1.5x)")
+        @DisplayName("NOT_ADMITTED without real provider: speaking Rate Can Be Increased")
         void speakingRateCanBeIncreased() { 
             VoiceConfig fasterVoice = new VoiceConfig( 
                     "en-US-standard-a", "en-US", "NEUTRAL", 1.5f, 0.0f, 0.0f
             );
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, fasterVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, fasterVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
-            assertThat(result.voiceId()).isEqualTo(fasterVoice.voiceId()); 
         }
 
         @Test
-        @DisplayName("speaking rate can be decreased (0.8x)")
+        @DisplayName("NOT_ADMITTED without real provider: speaking Rate Can Be Decreased")
         void speakingRateCanBeDecreased() { 
             VoiceConfig slowerVoice = new VoiceConfig( 
                     "en-US-standard-a", "en-US", "NEUTRAL", 0.8f, 0.0f, 0.0f
             );
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, slowerVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, slowerVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("pitch can be raised (positive value)")
+        @DisplayName("NOT_ADMITTED without real provider: pitch Can Be Raised")
         void pitchCanBeRaised() { 
             VoiceConfig higherPitch = new VoiceConfig( 
                     "en-US-standard-a", "en-US", "NEUTRAL", 1.0f, 5.0f, 0.0f
             );
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, higherPitch, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, higherPitch, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("pitch can be lowered (negative value)")
+        @DisplayName("NOT_ADMITTED without real provider: pitch Can Be Lowered")
         void pitchCanBeLowered() { 
             VoiceConfig lowerPitch = new VoiceConfig( 
                     "en-US-standard-a", "en-US", "NEUTRAL", 1.0f, -5.0f, 0.0f
             );
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, lowerPitch, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, lowerPitch, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("volume gain can be increased (positive dB)")
+        @DisplayName("NOT_ADMITTED without real provider: volume Gain Can Be Increased")
         void volumeGainCanBeIncreased() { 
             VoiceConfig louderVoice = new VoiceConfig( 
                     "en-US-standard-a", "en-US", "NEUTRAL", 1.0f, 0.0f, 6.0f
             );
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, louderVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, louderVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("volume gain can be decreased (negative dB)")
+        @DisplayName("NOT_ADMITTED without real provider: volume Gain Can Be Decreased")
         void volumeGainCanBeDecreased() { 
             VoiceConfig quieterVoice = new VoiceConfig( 
                     "en-US-standard-a", "en-US", "NEUTRAL", 1.0f, 0.0f, -6.0f
             );
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, quieterVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, quieterVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("all prosody parameters can be combined")
+        @DisplayName("NOT_ADMITTED without real provider: all Prosody Parameters Can Be Combined")
         void allProsodyParametersCanBeCombined() { 
             VoiceConfig customVoice = new VoiceConfig( 
                     "en-US-standard-a", "en-US", "NEUTRAL",
@@ -326,9 +303,8 @@ class TextToSpeechServiceTest {
                     3.0f,    // higher pitch
                     3.0f     // louder volume
             );
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, customVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, customVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
     }
 
@@ -341,72 +317,64 @@ class TextToSpeechServiceTest {
     class SpecialCharactersAndPunctuation {
 
         @Test
-        @DisplayName("simple punctuation is handled correctly")
+        @DisplayName("NOT_ADMITTED without real provider: simple Punctuation Is Handled")
         void simplePunctuationIsHandled() { 
-            SynthesisResult result = engine.synthesize(PUNCTUATION_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(PUNCTUATION_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("special characters are handled without error")
+        @DisplayName("NOT_ADMITTED without real provider: special Characters Are Handled")
         void specialCharactersAreHandled() { 
-            SynthesisResult result = engine.synthesize(SPECIAL_CHARS_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SPECIAL_CHARS_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("numbers are synthesized correctly")
+        @DisplayName("NOT_ADMITTED without real provider: numbers Are Synthesized")
         void numbersAreSynthesized() { 
             String numberText = "The number is 42. Call 555-1234 for more info.";
-            SynthesisResult result = engine.synthesize(numberText, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(numberText, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("email addresses are handled without error")
+        @DisplayName("NOT_ADMITTED without real provider: email Addresses Are Handled")
         void emailAddressesAreHandled() { 
             String emailText = "Contact us at support@example.com for assistance.";
-            SynthesisResult result = engine.synthesize(emailText, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(emailText, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("URLs are handled without error")
+        @DisplayName("NOT_ADMITTED without real provider: urls Are Handled")
         void urlsAreHandled() { 
             String urlText = "Visit https://www.example.com for more information.";
-            SynthesisResult result = engine.synthesize(urlText, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(urlText, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("SSML content is processed")
+        @DisplayName("NOT_ADMITTED without real provider: ssml Content Is Processed")
         void ssmlContentIsProcessed() { 
-            SynthesisResult result = engine.synthesize(SSML_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SSML_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("quotes are handled correctly")
+        @DisplayName("NOT_ADMITTED without real provider: quotes Are Handled")
         void quotesAreHandled() { 
             String quoteText = "He said, \"Hello, world!\" with emphasis.";
-            SynthesisResult result = engine.synthesize(quoteText, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(quoteText, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
 
         @Test
-        @DisplayName("apostrophes are handled correctly")
+        @DisplayName("NOT_ADMITTED without real provider: apostrophes Are Handled")
         void apostrophesAreHandled() { 
             String apostropheText = "It's what you're looking for, isn't it?";
-            SynthesisResult result = engine.synthesize(apostropheText, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(apostropheText, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
         }
     }
 
@@ -419,58 +387,47 @@ class TextToSpeechServiceTest {
     class OutputQualityAndValidation {
 
         @Test
-        @DisplayName("result contains non-empty audio content")
+        @DisplayName("NOT_ADMITTED without real provider: result Contains Non Empty Audio")
         void resultContainsNonEmptyAudio() { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
-            assertThat(result.isEmpty()).isFalse(); 
         }
 
         @Test
-        @DisplayName("sample rate is valid (within typical range)")
+        @DisplayName("NOT_ADMITTED without real provider: sample Rate Is Valid")
         void sampleRateIsValid() { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.sampleRateHz()) 
-                    .isBetween(8000, 48000); // Common sample rates 
         }
 
         @Test
-        @DisplayName("duration is non-negative and reasonable")
+        @DisplayName("NOT_ADMITTED without real provider: duration Is Reasonable")
         void durationIsReasonable() { 
-            SynthesisResult result = engine.synthesize(LONG_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(LONG_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.duration()).isNotNull(); 
-            assertThat(result.duration().toMillis()).isGreaterThanOrEqualTo(0); 
-            assertThat(result.duration().toMillis()).isLessThan(120_000); // < 2 minutes for test text 
         }
 
         @Test
-        @DisplayName("processing time is recorded and non-negative")
+        @DisplayName("NOT_ADMITTED without real provider: processing Time Is Recorded")
         void processingTimeIsRecorded() { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.processingSeconds()).isGreaterThanOrEqualTo(0.0); 
         }
 
         @Test
-        @DisplayName("audio duration increases with longer text")
+        @DisplayName("NOT_ADMITTED without real provider: audio Duration Increases With Text")
         void audioDurationIncreasesWithText() { 
-            SynthesisResult short_ = engine.synthesize("Hello", defaultVoice, AudioEncoding.MP3); 
-            SynthesisResult long_ = engine.synthesize(LONG_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize("Hello", defaultVoice, AudioEncoding.MP3));
+            assertNotAdmitted(() -> engine.synthesize(LONG_TEXT, defaultVoice, AudioEncoding.MP3));
 
             // Longer text should result in longer audio
-            assertThat(long_.duration()).isGreaterThanOrEqualTo(short_.duration()); 
         }
 
         @Test
-        @DisplayName("isEmpty() reflects actual audio content")
+        @DisplayName("NOT_ADMITTED without real provider: is Empty Reflects Content")
         void isEmptyReflectsContent() { 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(result.isEmpty()) 
-                    .isEqualTo(result.audioContent() == null || result.audioContent().length == 0); 
         }
     }
 
@@ -483,26 +440,23 @@ class TextToSpeechServiceTest {
     class Consistency {
 
         @Test
-        @DisplayName("same input produces deterministic output")
+        @DisplayName("NOT_ADMITTED without real provider: same Input Produces Deterministic Output")
         void sameInputProducesDeterministicOutput() { 
-            SynthesisResult r1 = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3); 
-            SynthesisResult r2 = engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3));
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaultVoice, AudioEncoding.MP3));
 
-            assertThat(r1.audioContent()).isEqualTo(r2.audioContent()); 
-            assertThat(r1.duration()).isEqualTo(r2.duration()); 
         }
 
         @Test
-        @DisplayName("same text with different voices produces different audio")
+        @DisplayName("NOT_ADMITTED without real provider: same Text Different Voices Produces Different Audio")
         void sameTextDifferentVoicesProducesDifferentAudio() { 
             VoiceConfig v1 = new VoiceConfig("en-US-standard-a", "en-US", "NEUTRAL", 1.0f, 0.0f, 0.0f); 
             VoiceConfig v2 = new VoiceConfig("en-US-standard-b", "en-US", "NEUTRAL", 1.0f, 0.0f, 0.0f); 
 
-            SynthesisResult r1 = engine.synthesize(SIMPLE_TEXT, v1, AudioEncoding.MP3); 
-            SynthesisResult r2 = engine.synthesize(SIMPLE_TEXT, v2, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, v1, AudioEncoding.MP3));
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, v2, AudioEncoding.MP3));
 
             // Different voices should produce different audio
-            assertThat(r1.voiceId()).isNotEqualTo(r2.voiceId()); 
         }
     }
 
@@ -551,13 +505,11 @@ class TextToSpeechServiceTest {
     class VoiceConfigDefaults {
 
         @Test
-        @DisplayName("default voice config can be used for synthesis")
+        @DisplayName("NOT_ADMITTED without real provider: default Voice Config Can Be Used")
         void defaultVoiceConfigCanBeUsed() { 
             VoiceConfig defaults = VoiceConfig.defaults(); 
-            SynthesisResult result = engine.synthesize(SIMPLE_TEXT, defaults, AudioEncoding.MP3); 
+            assertNotAdmitted(() -> engine.synthesize(SIMPLE_TEXT, defaults, AudioEncoding.MP3));
 
-            assertThat(result.audioContent()).isNotEmpty(); 
-            assertThat(result.voiceId()).isEqualTo(defaults.voiceId()); 
         }
 
         @Test
@@ -569,5 +521,13 @@ class TextToSpeechServiceTest {
             assertThat(defaults.pitch()).isEqualTo(0.0f); 
             assertThat(defaults.volumeGainDb()).isEqualTo(0.0f); 
         }
+    }
+
+    private static void assertNotAdmitted(Runnable request) {
+        org.assertj.core.api.Assertions.assertThatThrownBy(request::run)
+                .isInstanceOfSatisfying(SynthesisException.class, error ->
+                        org.assertj.core.api.Assertions.assertThat(error.reason())
+                                .isEqualTo(FailureReason.NOT_ADMITTED))
+                .hasMessageContaining("NOT_ADMITTED");
     }
 }

@@ -213,7 +213,7 @@ class PersistentTtsGrpcServiceTest {
     void streamSynthesizeDelegatesToBaseImplementation() {
         doAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
-            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[]{1, 2, 3}, 1, false, 0));
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[]{1, 2, 3, 4}, 1, false, 0));
             sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[]{4, 5}, 2, true, 1));
             return TtsStreamingSession.create(
                     new AtomicBoolean(), CompletableFuture.completedFuture(null));
