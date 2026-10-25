@@ -13,6 +13,7 @@ import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileServi
 import com.ghatana.audio.video.infrastructure.persistence.service.TranscriptionService;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.audit.AuditService;
 import io.activej.promise.Promise;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,8 @@ class PersistentSttServiceValidationTest {
     private AudioFileService audioFileService;
     @Mock
     private TranscriptionService transcriptionService;
+    @Mock
+    private AuditService auditService;
 
     private PersistentSttService service;
 
@@ -76,6 +79,20 @@ class PersistentSttServiceValidationTest {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("tenantId cannot be blank");
         verifyNoInteractions(audioFileService, transcriptionService, library);
+    }
+
+    @Test
+    @DisplayName("missing principal is rejected before persistence, inference, or audit")
+    void missingPrincipalIsRejectedBeforeWork() {
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        assertThatThrownBy(() -> auditedService.transcribeAndPersist(
+                TENANT, null, pcmWav(VALID_RATE, 4), "sample.wav", AudioFormat.WAV, "en", VALID_RATE))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("userId cannot be null");
+
+        verifyNoInteractions(audioFileService, transcriptionService, library, auditService);
     }
 
     @Test
