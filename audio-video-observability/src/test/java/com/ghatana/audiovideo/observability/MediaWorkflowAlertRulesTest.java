@@ -68,6 +68,18 @@ class MediaWorkflowAlertRulesTest {
     }
 
     @Test
+    void perServiceRateAlertsRetainTheServiceLabelUsedByTheirAnnotations() throws IOException {
+        Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
+        String rules = Files.readString(rulesPath);
+
+        assertThat(rules).contains(
+                "sum by (service) (rate(media_workflow_events_total{contract_version=\"v1\", event=\"publication_ambiguous\"}[15m])) > 0",
+                "sum by (service) (rate(media_workflow_events_total{contract_version=\"v1\", event=\"denied\"}[10m]))",
+                "sum by (service) (rate(media_workflow_requests_total{contract_version=\"v1\"}[10m]))",
+                "on {{ $labels.service }}");
+    }
+
+    @Test
     void alertLabelsRemainFixedAndCannotContainRequestOrProviderIdentity() throws IOException {
         Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
         String[] lines = Files.readString(rulesPath).split("\\R");

@@ -378,7 +378,7 @@ groups:
 
       - alert: MediaPublicationAmbiguityIncreasing
         expr: |
-          sum(rate(media_workflow_events_total{contract_version="v1", event="publication_ambiguous"}[15m])) > 0
+          sum by (service) (rate(media_workflow_events_total{contract_version="v1", event="publication_ambiguous"}[15m])) > 0
         for: 5m
         labels:
           severity: critical
@@ -391,9 +391,9 @@ groups:
       - alert: MediaPolicyDenialRateHigh
         expr: |
           (
-            sum(rate(media_workflow_events_total{contract_version="v1", event="denied"}[10m]))
+            sum by (service) (rate(media_workflow_events_total{contract_version="v1", event="denied"}[10m]))
             /
-            sum(rate(media_workflow_requests_total{contract_version="v1"}[10m]))
+            sum by (service) (rate(media_workflow_requests_total{contract_version="v1"}[10m]))
           ) > 0.20
         for: 10m
         labels:
