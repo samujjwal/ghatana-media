@@ -22,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,6 +61,7 @@ class MultimodalGrpcServiceTest {
     @BeforeEach
     void setUp() { 
         service = new MultimodalGrpcService(mockEngine, mockAdapter, MediaProcessingMetrics.noop(),
+                // Test fixture only: production constructors retain unavailable authorization.
                 request -> SourceAuthorization.Decision.ADMITTED);
         lenient().when(mockAdapter.backendName()).thenReturn("test-backend");
         lenient().when(mockAdapter.metricsEnabled()).thenReturn(false); 
@@ -135,6 +138,92 @@ class MultimodalGrpcServiceTest {
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.UNAVAILABLE.getCode());
         verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: production constructor remains unavailable without source authority")
+    void processMultimodal_defaultAuthorityIsUnavailable() {
+        MultimodalGrpcService noAuthority = new MultimodalGrpcService(
+                mockEngine, mockAdapter, MediaProcessingMetrics.noop());
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> noAuthority.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: authorization binds trusted identity, modalities, source, purpose and UTF-8 size")
+    void processMultimodal_authorizationReceivesExactRequestBoundary() {
+        AtomicReference<SourceAuthorization.AuthorizationRequest> captured = new AtomicReference<>();
+        MultimodalGrpcService capturing = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> {
+                    captured.set(request);
+                    return SourceAuthorization.Decision.ADMITTED; // Test fixture only.
+                });
+        MultimodalRequest request = MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2}))
+                .setImageData(ByteString.copyFrom(new byte[] {3}))
+                .setText("é")
+                .setTenantId("caller-controlled-tenant")
+                .setArtifactId("caller-source-ref")
+                .setConsentStatus("GRANTED")
+                .build();
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> capturing.processMultimodal(request, observer));
+
+        assertThat(captured.get().tenantId()).isEqualTo(TENANT_ID);
+        assertThat(captured.get().principalId()).isEqualTo(java.util.UUID.fromString(SUBJECT_ID));
+        assertThat(captured.get().modalities()).isEqualTo(Set.of(
+                SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.IMAGE,
+                SourceAuthorization.Modality.TEXT));
+        assertThat(captured.get().artifactId()).isEqualTo("caller-source-ref");
+        assertThat(captured.get().purpose()).isEqualTo("multimodal.analyse");
+        assertThat(captured.get().contentBytes()).isEqualTo(2 + 1 + 2);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: revoked or unavailable source authority denies before engine dispatch")
+    void processMultimodal_revokedAndUnavailableAuthorityDenyBeforeDispatch() {
+        for (SourceAuthorization authorization : List.<SourceAuthorization>of(
+                request -> SourceAuthorization.Decision.NOT_ADMITTED,
+                request -> { throw new IllegalStateException("authority unavailable"); })) {
+            MultimodalGrpcService denied = new MultimodalGrpcService(mockEngine, mockAdapter,
+                    MediaProcessingMetrics.noop(), authorization);
+            CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+            withContext(TENANT_ID, () -> denied.processMultimodal(MultimodalRequest.newBuilder()
+                    .setVideoData(ByteString.copyFrom(new byte[] {1}))
+                    .build(), observer));
+
+            assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                    .isEqualTo(Status.UNAVAILABLE.getCode());
+        }
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("analyzeVideoWithAudio: authorization includes video source and requested audio extraction")
+    void analyzeVideoWithAudio_authorizationBindsVideoAndAudioExtraction() {
+        AtomicReference<SourceAuthorization.AuthorizationRequest> captured = new AtomicReference<>();
+        MultimodalGrpcService capturing = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> {
+                    captured.set(request);
+                    return SourceAuthorization.Decision.ADMITTED; // Test fixture only.
+                });
+        byte[] video = {1, 2, 3, 4};
+        CapturingObserver<VideoAudioResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> capturing.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(video))
+                .setExtractAudio(true)
+                .setAnalyzeFrames(false)
+                .build(), observer));
+
+        assertThat(captured.get().modalities()).isEqualTo(Set.of(
+                SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.VIDEO));
+        assertThat(captured.get().contentBytes()).isEqualTo(video.length);
+        assertThat(captured.get().purpose()).isEqualTo("multimodal.video-audio-analysis");
     }
 
     @Test

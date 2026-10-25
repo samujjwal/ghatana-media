@@ -91,7 +91,7 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         lenient().when(adapter.metricsEnabled()).thenReturn(false);
 
         service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
-                request -> SourceAuthorization.Decision.ADMITTED);
+                admitTestFixtureOnly());
         sttProviderReady = new AtomicBoolean(false);
         visionProviderReady = new AtomicBoolean(false);
         readiness = MultimodalGrpcServer.readinessService(
@@ -198,7 +198,7 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
             .directExecutor()
             .intercept(new TenantInjector())
             .addService(new MultimodalGrpcService(failingEngine, adapter, MediaProcessingMetrics.noop(),
-                    request -> SourceAuthorization.Decision.ADMITTED))
+                    admitTestFixtureOnly()))
             .build()
             .start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
@@ -261,7 +261,7 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
             .directExecutor()
             .intercept(new TenantInjector())
             .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
-                    request -> SourceAuthorization.Decision.ADMITTED))
+                    admitTestFixtureOnly()))
             .build()
             .start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
@@ -336,7 +336,7 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
             .directExecutor()
             .intercept(new TenantInjector())
             .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
-                    request -> SourceAuthorization.Decision.ADMITTED))
+                    admitTestFixtureOnly()))
             .build()
             .start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
@@ -398,7 +398,7 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
             .directExecutor()
             .intercept(new TenantInjector())
             .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
-                    request -> SourceAuthorization.Decision.ADMITTED))
+                    admitTestFixtureOnly()))
             .build()
             .start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
@@ -424,6 +424,11 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
     }
 
     // ── TenantInjector: injects tenant into gRPC context server-side ──────────
+
+    /** Explicit local fixture admission; never used by production construction. */
+    private static SourceAuthorization admitTestFixtureOnly() {
+        return request -> SourceAuthorization.Decision.ADMITTED;
+    }
 
     private static final class TenantInjector implements ServerInterceptor {
         @Override

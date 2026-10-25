@@ -113,16 +113,14 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
                 !request.getImageData().isEmpty(), !request.getVideoData().isEmpty(), !request.getText().isEmpty()),
                 request.getArtifactId(), request.getAudioData().size() + request.getImageData().size()
-                        + request.getVideoData().size())) {
+                        + request.getVideoData().size() + utf8Length(request.getText()), "multimodal.analyse")) {
             responseObserver.onError(authorityUnavailable());
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
-        String tenantId = identity.tenantId().toString();
-
         try {
-            LOG.debug("Processing multimodal request with {} analysis types for tenant={}",
-                    request.getAnalysisTypesList().size(), tenantId);
+            LOG.debug("Processing multimodal request with {} analysis types",
+                    request.getAnalysisTypesList().size());
 
             // Build engine request from proto — ByteString.isEmpty() and toByteArray() are valid
             com.ghatana.audio.video.multimodal.engine.MultimodalRequest engineRequest =
@@ -202,15 +200,13 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .asRuntimeException());
             return;
         }
-        if (!authorized(identity, modalities(request.getExtractAudio(), false, request.getAnalyzeFrames(), false),
-                null, request.getVideoData().size())) {
+        if (!authorized(identity, modalities(request.getExtractAudio(), false, true, false),
+                null, request.getVideoData().size(), "multimodal.video-audio-analysis")) {
             responseObserver.onError(authorityUnavailable());
             return;
         }
-        String tenantId = identity.tenantId().toString();
         try {
-            LOG.debug("Analyzing video with audio extraction: {} for tenant={}",
-                    request.getExtractAudio(), tenantId);
+            LOG.debug("Analyzing video with audio extraction: {}", request.getExtractAudio());
 
             VideoAudioResult result = engine.analyseVideoWithAudio(
                     request.getVideoData().toByteArray(),
@@ -302,14 +298,13 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         }
         if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
                 !request.getImageData().isEmpty(), false, !request.getContext().isEmpty()),
-                null, request.getAudioData().size() + request.getImageData().size())) {
+                null, request.getAudioData().size() + request.getImageData().size()
+                        + utf8Length(request.getContext()), "multimodal.description")) {
             responseObserver.onError(authorityUnavailable());
             return;
         }
-        String tenantId = identity.tenantId().toString();
         try {
-            LOG.debug("Generating description with style: {} for tenant={}",
-                    request.getStyle(), tenantId);
+            LOG.debug("Generating description with style: {}", request.getStyle());
 
             com.ghatana.audio.video.multimodal.engine.MultimodalRequest engineRequest =
                     com.ghatana.audio.video.multimodal.engine.MultimodalRequest.builder()
@@ -368,11 +363,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         }
         if (!authorized(identity, modalities(!request.getAudioData().isEmpty(), false,
                 !request.getVideoData().isEmpty(), false), null,
-                request.getAudioData().size() + request.getVideoData().size())) {
+                request.getAudioData().size() + request.getVideoData().size(), "multimodal.cross-modal-analysis")) {
             responseObserver.onError(authorityUnavailable());
             return;
         }
-        String tenantId = identity.tenantId().toString();
         long startTime = System.currentTimeMillis();
         try {
             LOG.debug("Analyzing cross-modal alignment: audio={}, video={}",
@@ -439,11 +433,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
                 !request.getImageData().isEmpty(), !request.getVideoData().isEmpty(), !request.getText().isEmpty()),
                 null, request.getAudioData().size() + request.getImageData().size()
-                        + request.getVideoData().size())) {
+                        + request.getVideoData().size() + utf8Length(request.getText()), "multimodal.insights")) {
             responseObserver.onError(authorityUnavailable());
             return;
         }
-        String tenantId = identity.tenantId().toString();
         long startTime = System.currentTimeMillis();
         try {
             com.ghatana.audio.video.multimodal.engine.MultimodalRequest engineRequest =
@@ -727,15 +720,19 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     private boolean authorized(Identity identity, Set<SourceAuthorization.Modality> modalities,
-                               String artifactId, long contentBytes) {
+                               String artifactId, long contentBytes, String purpose) {
         SourceAuthorization.AuthorizationRequest authorizationRequest =
                 new SourceAuthorization.AuthorizationRequest(identity.tenantId(), identity.principalId(),
-                        modalities, artifactId, null, null, null, contentBytes);
+                        modalities, artifactId, null, purpose, null, contentBytes);
         try {
             return sourceAuthorization.authorize(authorizationRequest) == SourceAuthorization.Decision.ADMITTED;
         } catch (RuntimeException unavailable) {
             return false;
         }
+    }
+
+    private static int utf8Length(String value) {
+        return value.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
     }
 
     private static Set<SourceAuthorization.Modality> modalities(boolean audio, boolean image,
