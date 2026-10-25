@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -97,9 +98,11 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
         };
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
                 gateway, AudioVideoRuntimeSettings.defaults(), TimeUnit.SECONDS.toNanos(60), metrics)) {
-            MultimodalResult result = engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1}).build());
-            assertTrue(result.getAudioResult().isError());
-            result = engine.analyse(MultimodalRequest.builder().audioData(new byte[] {2}).build());
+            MultimodalException unknown = assertThrows(MultimodalException.class,
+                    () -> engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1}).build()));
+            assertEquals("Analysis outcome unavailable", unknown.getMessage());
+            MultimodalResult result = engine.analyse(
+                    MultimodalRequest.builder().audioData(new byte[] {2}).build());
             assertTrue(result.getAudioResult().isError());
         }
         assertTrue(registry.find("media.modality.boundary.duration")
@@ -114,6 +117,44 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 .tag("outcome", "failure").timer();
         assertTrue(failure != null && failure.count() == 1);
         registry.close();
+    }
+
+    @Test
+    @DisplayName("Ambiguous child failure does not become an aggregate partial response")
+    void ambiguousVisionFailureAfterAudioSuccessReturnsNoAggregateResult() {
+        AudioResult audio = AudioResult.builder().transcription("child result").build();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(audio,
+                VisualResult.builder().build(), VisualResult.builder().build()) {
+            @Override public VisualResult analyseImage(byte[] input) {
+                throw new IllegalStateException("private provider detail");
+            }
+        };
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            MultimodalException failure = assertThrows(MultimodalException.class,
+                    () -> engine.analyse(MultimodalRequest.builder()
+                            .audioData(new byte[] {1}).imageData(new byte[] {2}).build()));
+            assertEquals("Analysis outcome unavailable", failure.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("Provider cancellation remains unknown instead of becoming known unavailability")
+    void providerCancellationIsNotConvertedToUnavailableModality() {
+        MultimodalMediaGateway gateway = new FakeMediaGateway(
+                AudioResult.error("unused"), VisualResult.error("unused"), VisualResult.error("unused")) {
+            @Override public AudioResult transcribe(byte[] input) {
+                throw new CancellationException("private provider cancellation detail");
+            }
+        };
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            MultimodalException failure = assertThrows(MultimodalException.class,
+                    () -> engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1}).build()));
+            assertEquals("Analysis outcome unavailable", failure.getMessage());
+        }
     }
 
     @Test
@@ -441,7 +482,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
         MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"), image,
                 VisualResult.error("unused")) {
             @Override public VisualResult analyseVideo(byte[] input, int fps, int maxFrames) {
-                throw new IllegalStateException("private vision marker");
+                return VisualResult.error("known video provider unavailable");
             }
         };
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(

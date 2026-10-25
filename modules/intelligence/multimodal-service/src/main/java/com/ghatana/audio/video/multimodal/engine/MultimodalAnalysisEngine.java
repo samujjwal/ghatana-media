@@ -250,66 +250,45 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
     }
 
     private AudioResult transcribeAudio(byte[] audioData) {
-        try {
-            validatePayload(audioData);
-            LOG.debug("Transcribing {} bytes of audio", audioData.length);
-            try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.STT)) {
-                AudioResult result = mediaGateway.transcribe(audioData);
-                if (result == null || result.isError()) {
-                    boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
-                    return AudioResult.error("Audio transcription unavailable");
-                }
-                boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
-                return result;
+        LOG.debug("Transcribing {} bytes of audio", audioData.length);
+        try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.STT)) {
+            AudioResult result = mediaGateway.transcribe(audioData);
+            if (result == null || result.isError()) {
+                boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                return AudioResult.error("Audio transcription unavailable");
             }
-        } catch (Exception e) {
-            restoreInterruptIfPresent(e);
-            LOG.warn("STT transcription failed failureType={}", e.getClass().getSimpleName());
-            return AudioResult.error("Audio transcription unavailable");
+            boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+            return result;
         }
     }
 
     private VisualResult analyseImage(byte[] imageData) {
-        try {
-            validatePayload(imageData);
-            LOG.debug("Analysing image ({} bytes)", imageData.length);
-            try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.VISION)) {
-                VisualResult result = mediaGateway.analyseImage(imageData);
-                if (result == null || result.isError()) {
-                    boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
-                    return VisualResult.error("Image analysis unavailable");
-                }
-                boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
-                return result;
+        LOG.debug("Analysing image ({} bytes)", imageData.length);
+        try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.VISION)) {
+            VisualResult result = mediaGateway.analyseImage(imageData);
+            if (result == null || result.isError()) {
+                boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                return VisualResult.error("Image analysis unavailable");
             }
-        } catch (Exception e) {
-            restoreInterruptIfPresent(e);
-            LOG.warn("Image analysis failed failureType={}", e.getClass().getSimpleName());
-            return VisualResult.error("Image analysis unavailable");
+            boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+            return result;
         }
     }
 
     private VisualResult analyseVideo(byte[] videoData, int sampleFps, int maxFrames) {
-        try {
-            validatePayload(videoData);
-            if (sampleFps < 0 || sampleFps > 60 || maxFrames < 0 || maxFrames > 100) {
-                throw new IllegalArgumentException("Video sampling is outside configured limits");
+        if (sampleFps < 0 || sampleFps > 60 || maxFrames < 0 || maxFrames > 100) {
+            throw new IllegalArgumentException("Video sampling is outside configured limits");
+        }
+        LOG.debug("Analysing video ({} bytes, {}fps, max {} frames)",
+                videoData.length, sampleFps, maxFrames);
+        try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.VISION)) {
+            VisualResult result = mediaGateway.analyseVideo(videoData, sampleFps, maxFrames);
+            if (result == null || result.isError()) {
+                boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                return VisualResult.error("Video analysis unavailable");
             }
-            LOG.debug("Analysing video ({} bytes, {}fps, max {} frames)",
-                    videoData.length, sampleFps, maxFrames);
-            try (ProviderMeasurement boundary = providerMeasurement(MediaWorkflowMetrics.Modality.VISION)) {
-                VisualResult result = mediaGateway.analyseVideo(videoData, sampleFps, maxFrames);
-                if (result == null || result.isError()) {
-                    boundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
-                    return VisualResult.error("Video analysis unavailable");
-                }
-                boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
-                return result;
-            }
-        } catch (Exception e) {
-            restoreInterruptIfPresent(e);
-            LOG.warn("Video analysis failed failureType={}", e.getClass().getSimpleName());
-            return VisualResult.error("Video analysis unavailable");
+            boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+            return result;
         }
     }
 
@@ -390,15 +369,6 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
     private static void cancel(List<Future<?>> children) {
         for (Future<?> child : children) child.cancel(true);
-    }
-
-    private static void restoreInterruptIfPresent(Throwable failure) {
-        for (Throwable current = failure; current != null; current = current.getCause()) {
-            if (current instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
     }
 
     private String fuse(AudioResult audio, VisualResult visual, String text) {
