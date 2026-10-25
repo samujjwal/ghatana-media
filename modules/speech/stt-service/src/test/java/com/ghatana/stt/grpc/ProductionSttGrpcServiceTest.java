@@ -228,6 +228,27 @@ class ProductionSttGrpcServiceTest {
     }
 
     @Test
+    void grpcModeRequiresAnEndpointAndManifestDeclaresItsRuntimeProfileFields() throws Exception {
+        Map<String, String> profile = new java.util.HashMap<>(grpcProfile());
+        profile.remove("STT_GRPC_HOST");
+        assertThatThrownBy(() -> ProductionSttGrpcService.resolveProviderProfile(profile))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_GRPC_HOST is required");
+
+        Path root = repositoryRoot();
+        String manifest = Files.readString(root.resolve("config/provider-manifest.json"));
+        Matcher grpcProfileMatcher = Pattern.compile(
+                "(?s)\\\"mode\\\": \\\"GRPC\\\".*?\\\"requiredProfileFields\\\": \\[(.*?)\\]")
+                .matcher(manifest);
+        assertThat(grpcProfileMatcher.find()).isTrue();
+        assertThat(grpcProfileMatcher.group(1))
+                .contains("\"host\"")
+                .contains("\"port\"")
+                .contains("\"modelId\"")
+                .contains("\"region\"");
+    }
+
+    @Test
     void localOnnxProviderVerifiesModelDigestButRemainsNotAdmitted() throws Exception {
         Path model = tempDir.resolve("model.onnx");
         byte[] contents = new byte[] {1, 2, 3, 4};

@@ -70,6 +70,8 @@
           "status": "NOT_ADMITTED",
           "reason": "The STT server composition has no upstream gRPC provider adapter.",
           "requiredProfileFields": [
+            "host",
+            "port",
             "modelId",
             "modelVersion",
             "modelSha256",
