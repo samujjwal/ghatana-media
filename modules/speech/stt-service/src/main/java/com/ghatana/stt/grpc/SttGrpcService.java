@@ -289,20 +289,11 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                     .asRuntimeException());
                 return;
             }
-            // The platform engine manages its own lifecycle; track memory before/after
-            long memBefore = stt.getMetrics().memoryUsageBytes();
-            // Signal the engine to release any cached state for this model
-            // (actual unload depends on engine implementation; we record the intent)
-            long memAfter = stt.getMetrics().memoryUsageBytes();
-            long freed = Math.max(0L, memBefore - memAfter);
-
-            LOG.info("STT model unloaded: {} (freed ~{} bytes)", modelId, freed);
-            responseObserver.onNext(UnloadModelResponse.newBuilder()
-                .setSuccess(true)
-                .setMessage("Model unloaded: " + modelId)
-                .setMemoryFreedBytes(freed)
-                .build());
-            responseObserver.onCompleted();
+            // SttEngine exposes no unload operation. Merely observing the model and its
+            // memory counters cannot establish that it was unloaded, so fail explicitly.
+            responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                .withDescription("Model unload is not supported by the active STT engine")
+                .asRuntimeException());
         } catch (Exception e) {
             LOG.error("Error unloading STT model {}: {}", modelId, e.getMessage(), e);
             responseObserver.onError(io.grpc.Status.INTERNAL

@@ -2,11 +2,13 @@ package com.ghatana.stt.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
+import com.ghatana.media.stt.api.ModelInfo;
 import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
+import com.ghatana.stt.core.grpc.proto.UnloadModelRequest;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -22,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -110,5 +114,36 @@ class SttGrpcServiceInProcessIntegrationTest {
         ))
             .isInstanceOf(StatusRuntimeException.class)
             .matches(ex -> ((StatusRuntimeException) ex).getStatus().getCode() == Status.INVALID_ARGUMENT.getCode());
+    }
+
+    @Test
+    @DisplayName("unloadModel does not report success when engine has no unload operation")
+    void unloadModelReturnsUnimplementedOverGrpc() throws Exception {
+        SttEngine engine = mock(SttEngine.class);
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        when(library.getSttEngine()).thenReturn(engine);
+        when(engine.getAvailableModels()).thenReturn(List.of(new ModelInfo(
+            "whisper-base", "Whisper Base", "1.0", new Locale[]{Locale.ENGLISH}, 10L, false)));
+
+        Server replacement = ServerBuilder.forPort(0)
+            .directExecutor()
+            .addService(new SttGrpcService(library, new SimpleMeterRegistry()))
+            .build()
+            .start();
+        ManagedChannel replacementChannel = ManagedChannelBuilder.forAddress("localhost", replacement.getPort())
+            .usePlaintext()
+            .directExecutor()
+            .build();
+        try {
+            STTServiceGrpc.newBlockingStub(replacementChannel).unloadModel(
+                UnloadModelRequest.newBuilder().setModelId("whisper-base").build());
+        } catch (StatusRuntimeException failure) {
+            assertThat(failure.getStatus().getCode()).isEqualTo(Status.UNIMPLEMENTED.getCode());
+            return;
+        } finally {
+            replacementChannel.shutdownNow();
+            replacement.shutdownNow();
+        }
+        throw new AssertionError("unloadModel must not report success without an engine unload operation");
     }
 }

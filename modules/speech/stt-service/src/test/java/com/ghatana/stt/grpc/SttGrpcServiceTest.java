@@ -387,18 +387,19 @@ class SttGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("unloadModel: model exists → success response")
-    void unloadModel_modelExists_succeeds() throws Exception { 
+    @DisplayName("unloadModel: registered model is explicitly unavailable when engine has no unload API")
+    void unloadModel_registeredModel_returnsUnimplemented() throws Exception {
         ModelInfo info = new ModelInfo("whisper-base", "Whisper Base", "1.0", 
             new Locale[]{Locale.ENGLISH}, 150_000_000L, false);
         when(mockEngine.getAvailableModels()).thenReturn(List.of(info)); 
-        when(mockEngine.getMetrics()).thenReturn(new EngineMetrics(1L, 0L, 0.0, 0L, 150_000_000L)); 
 
         CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>(); 
         service.unloadModel(UnloadModelRequest.newBuilder().setModelId("whisper-base").build(), observer);
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getSuccess()).isTrue(); 
+        assertThat(observer.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+            .isEqualTo(Status.UNIMPLEMENTED.getCode());
+        verify(mockEngine, never()).getMetrics();
     }
 
     @Test
