@@ -16,6 +16,8 @@ dependencies {
     val sharedVersion = providers.gradleProperty("ghatana.shared.version").get()
 
     api(project(":services:media:runtime-contracts"))
+    implementation("com.ghatana.platform:core:$sharedVersion")
+    implementation("com.ghatana.platform:messaging:$sharedVersion")
     implementation(project(":platform:java:launcher-support"))
     implementation(platform(libs.jackson.bom))
     implementation(libs.jackson.databind)

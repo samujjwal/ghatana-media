@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.grpc.protobuf)
     implementation(libs.slf4j.api)
     implementation(libs.opentelemetry.api)
+    implementation(libs.micrometer.core)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.jupiter.engine)

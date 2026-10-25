@@ -54,7 +54,7 @@ class TranscriptionCacheIT {
         String host = REDIS.getHost();
         int port = REDIS.getFirstMappedPort();
 
-        objectMapper = new ObjectMapper()
+        objectMapper = new ObjectMapper();
 
         redisBackend = new AsyncRedisCacheBackend(host, port, null, 0, 2_000);
         DistributedCacheService cachePort = new DistributedCacheService(

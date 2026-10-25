@@ -279,8 +279,10 @@ public final class MediaModalityContracts {
                 || !governance.permitsRegion(governance.residency())) {
             throw new SecurityException("external modality result is outside the consent/privacy envelope");
         }
-        if (!governance.providerRetentionAllowed() && providerRetention != ProviderDataRetention.NONE) {
-            throw new SecurityException("provider retention posture is not permitted by governance");
+        if (providerRetention != ProviderDataRetention.NONE
+                && (!governance.providerRetentionAllowed()
+                        || !consent.permitsProviderRetention(providerRetention))) {
+            throw new SecurityException("provider retention posture is not permitted by verified consent");
         }
     }
 

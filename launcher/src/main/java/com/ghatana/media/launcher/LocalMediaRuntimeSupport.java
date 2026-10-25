@@ -11,8 +11,12 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamSessionStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
+import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
+import com.ghatana.media.runtime.MediaRuntimeContracts.RecoveryCursor;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamAck;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
@@ -685,6 +689,7 @@ public final class LocalMediaRuntimeSupport {
     public static final class JobStore implements MediaJobStore {
         private final ConcurrentMap<String, ProcessingJob> jobs = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, String> requests = new ConcurrentHashMap<>();
+        private final ConcurrentMap<String, String> submissionDigests = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, JobLease> leases = new ConcurrentHashMap<>();
         private final boolean clearStateOnClose;
 
@@ -705,6 +710,13 @@ public final class LocalMediaRuntimeSupport {
 
         @Override public String storeId() { return "local-job-store"; }
         @Override public ProcessingJob create(ProcessingJob job) {
+            return create(job, job.requestFingerprint());
+        }
+        @Override public ProcessingJob create(ProcessingJob job, String submissionDigest) {
+            if (submissionDigest == null || !submissionDigest.isBlank()
+                    && !submissionDigest.matches("[0-9a-f]{64}")) {
+                throw new IllegalArgumentException("Media submission digest must be a lowercase SHA-256 value");
+            }
             String requestKey = key(job.tenantId(), job.requestId());
             // Publish the request index and job as one operation. Without this lock, a concurrent
             // idempotent replay can observe the index between putIfAbsent and jobs.put and fail
@@ -715,21 +727,34 @@ public final class LocalMediaRuntimeSupport {
                     ProcessingJob existing = jobs.get(key(job.tenantId(), existingJobId));
                     if (existing == null) throw new IllegalStateException("Media request index is inconsistent");
                     verifyRequestIdentity(existing, job);
+                    String storedDigest = submissionDigests.get(requestKey);
+                    if (storedDigest != null && !storedDigest.equals(submissionDigest)) {
+                        throw new IllegalStateException("Media request ID was reused for a different submission");
+                    }
                     return existing;
                 }
                 String jobKey = key(job.tenantId(), job.jobId());
                 if (jobs.putIfAbsent(jobKey, job) != null) {
                     throw new IllegalStateException("Media job already exists");
                 }
+                submissionDigests.put(requestKey, submissionDigest);
                 requests.put(requestKey, job.jobId());
                 return job;
             }
         }
         @Override public ProcessingJob update(ProcessingJob expected, ProcessingJob updated) {
             if (!expected.jobId().equals(updated.jobId()) || !expected.tenantId().equals(updated.tenantId())
+                    || !expected.expectedArtifactVersion().equals(updated.expectedArtifactVersion())
                     || !expected.requestFingerprint().equals(updated.requestFingerprint())
                     || updated.version() != expected.version() + 1) {
                 throw new IllegalArgumentException("Media job identity/version is invalid");
+            }
+            // A terminal durable state is a recorded fact: it cannot regress or relabel through
+            // an unconditional update. Leaving OUTCOME_UNKNOWN uses the evidence-bound paths.
+            if (terminal(expected.status()) && expected.status() != updated.status()) {
+                throw new IllegalStateException(
+                        "Media terminal job state " + expected.status() + " cannot be rewritten to "
+                                + updated.status() + " through an unconditional update");
             }
             if (!jobs.replace(key(expected.tenantId(), expected.jobId()), expected, updated)) {
                 throw new com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException(
@@ -747,6 +772,10 @@ public final class LocalMediaRuntimeSupport {
                 if (!leaseValid(lease)) throw new IllegalStateException("Media job lease fence is stale");
                 return update(expected, updated);
             }
+        }
+        private static boolean terminal(JobStatus status) {
+            return status == JobStatus.COMPLETED || status == JobStatus.FAILED
+                    || status == JobStatus.CANCELLED || status == JobStatus.OUTCOME_UNKNOWN;
         }
         @Override public Optional<ProcessingJob> find(String tenantId, String jobId) {
             return Optional.ofNullable(jobs.get(key(tenantId, jobId)));
@@ -802,6 +831,32 @@ public final class LocalMediaRuntimeSupport {
                     .limit(Math.max(1, Math.min(limit, 1_000)))
                     .toList();
         }
+        @Override public List<ProcessingJob> recoverableAfter(int limit, RecoveryCursor cursor) {
+            return jobs.values().stream()
+                    .filter(job -> job.status() == JobStatus.ACCEPTED || job.status() == JobStatus.RUNNING)
+                    .filter(job -> cursor == null || job.createdAt().isAfter(cursor.createdAt())
+                            || (job.createdAt().equals(cursor.createdAt())
+                            && job.tenantId().compareTo(cursor.tenantId()) > 0)
+                            || (job.createdAt().equals(cursor.createdAt())
+                            && job.tenantId().equals(cursor.tenantId())
+                            && job.jobId().compareTo(cursor.jobId()) > 0))
+                    .sorted(Comparator.comparing(ProcessingJob::createdAt)
+                            .thenComparing(ProcessingJob::tenantId).thenComparing(ProcessingJob::jobId))
+                    .limit(Math.max(1, Math.min(limit, 1_000)))
+                    .toList();
+        }
+        @Override public long countByStatus(JobStatus status) {
+            return jobs.values().stream().filter(job -> job.status() == status).count();
+        }
+        @Override public long countOverdueLeases(java.time.Instant now) {
+            return leases.entrySet().stream()
+                    .filter(entry -> !entry.getValue().expiresAt().isAfter(now))
+                    .filter(entry -> {
+                        ProcessingJob job = jobs.get(entry.getKey());
+                        return job != null && job.status() == JobStatus.RUNNING;
+                    })
+                    .count();
+        }
         @Override public boolean durable() { return false; }
         @Override public boolean productionEligible() { return false; }
         @Override public boolean ready() { return true; }
@@ -809,6 +864,7 @@ public final class LocalMediaRuntimeSupport {
             if (clearStateOnClose) {
                 jobs.clear();
                 requests.clear();
+                submissionDigests.clear();
                 leases.clear();
             }
         }
@@ -822,7 +878,7 @@ public final class LocalMediaRuntimeSupport {
                     || !existing.artifactId().equals(requested.artifactId())
                     || existing.jobType() != requested.jobType()
                     || !existing.requestFingerprint().equals(requested.requestFingerprint())) {
-                throw new IllegalStateException("Media request ID was reused for a different job payload");
+                throw new IllegalStateException("Media request ID was reused for a different submission");
             }
         }
     }
@@ -941,14 +997,36 @@ public final class LocalMediaRuntimeSupport {
         @Override public String processingRegion() { return "local"; }
         @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
             context.cancellation().throwIfCancelled();
-            return CompletableFuture.completedFuture(Map.of(
+            return CompletableFuture.completedFuture(diagnosticResult(context));
+        }
+        /**
+         * The diagnostic transform is deterministic and local, so a typed attempt can be
+         * answered with a proven receipt rather than UNKNOWN. Operation and receipt
+         * identity are derived from the exact attempt query so replays reconcile to the
+         * same recorded effect.
+         */
+        @Override public CompletableFuture<ProviderSubmission> processAttempt(
+                ProcessingContext context, ProviderAttemptContext attempt) {
+            context.cancellation().throwIfCancelled();
+            Map<String, Object> result = diagnosticResult(context);
+            String operationId = "local-diagnostic:" + attempt.jobId() + ':' + attempt.attemptNumber();
+            String provenance = sha256((context.artifact().sha256() + ':' + result)
+                    .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            String receiptId = sha256((operationId + ':' + provenance)
+                    .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return CompletableFuture.completedFuture(new ProviderSubmission(
+                    AttemptFinality.SUCCEEDED, operationId, receiptId, result, provenance,
+                    Instant.now()));
+        }
+        private static Map<String, Object> diagnosticResult(ProcessingContext context) {
+            return Map.of(
                     "diagnostic", true,
                     "jobType", context.request().jobType().name(),
                     "artifactId", context.artifact().artifactId(),
                     "sizeBytes", context.artifact().sizeBytes(),
                     "sha256", context.artifact().sha256(),
                     "contentType", context.artifact().contentType(),
-                    "rawMediaRead", false));
+                    "rawMediaRead", false);
         }
     }
 

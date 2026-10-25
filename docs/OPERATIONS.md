@@ -167,6 +167,31 @@ Investigate or alert on:
 10. Verify recovery with the focused tests in TESTING.md and repeat the health
     checks before returning traffic.
 
+## Durable lifecycle outbox replay and dead-letter handling
+
+The durable lifecycle outbox is the only supported way to publish Media
+lifecycle events in staging, production, and sovereign profiles. It provides
+at-least-once delivery with safe replay; it is not exactly-once. Consumers must
+be idempotent on the stable event ID and must treat redelivery after a
+broker-acknowledged send as normal operation.
+
+- State and outbox rows are written in the same transaction as the Media state
+  transition. A crash after commit but before broker send, or after broker ACK
+  but before the publication row is acknowledged, causes redelivery on the next
+  claim. No manual re-emission is required and none should be fabricated.
+- Publication claims are leased and fenced. Only one publisher/writer may be
+  active; never run a second runtime instance against the same outbox.
+- Failed publications retry with bounded backoff until the retry budget is
+  exhausted, after which the event is dead-lettered rather than dropped or
+  retried forever. A growing dead-letter set is an alert condition.
+- To replay, restore Event Plane connectivity and let the publisher reclaim
+  pending and dead-lettered rows in order. Replaying a dead-lettered event is
+  safe for idempotent consumers; investigate the poison payload before replay
+  so the same failure does not immediately re-dead-letter it.
+- Do not edit, delete, or synthesize outbox rows by hand to force delivery.
+  If Media local/durable state and Event Plane diverge, reconcile from the
+  durable Media state as the source of truth and record the discrepancy.
+
 ## Source-valid operational contract
 
 The Level-A contract is resolved against the canonical Media Prometheus rules

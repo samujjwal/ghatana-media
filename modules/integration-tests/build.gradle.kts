@@ -37,3 +37,8 @@ tasks.test {
     include("**/*Test.class", "**/*IT.class", "**/*E2ETest.class")
 }
 
+// Test-only module: no compiled main classes exist, so there is no public API surface to verify.
+tasks.named("verifyIntentionalPublicApi") {
+    onlyIf { layout.buildDirectory.dir("classes/java/main").get().asFile.isDirectory }
+}
+

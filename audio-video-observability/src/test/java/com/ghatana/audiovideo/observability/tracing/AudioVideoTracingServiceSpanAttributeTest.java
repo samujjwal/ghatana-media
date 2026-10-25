@@ -16,8 +16,7 @@ import static org.mockito.Mockito.mock;
 
 /**
  * @doc.type class
- * @doc.purpose Unit tests for AV-M2: custom OpenTelemetry span attributes — tenant, language,
- *              and confidence — on STT transcription and vision detection operations.
+ * @doc.purpose Unit tests for bounded OpenTelemetry span attributes and log-context redaction.
  * @doc.layer test
  * @doc.pattern UnitTest
  */
@@ -44,44 +43,44 @@ class AudioVideoTracingServiceSpanAttributeTest {
     }
 
     // -------------------------------------------------------------------------
-    // STT transcription span — language attribute
+    // STT transcription span — do not copy identifiers or content tags into log MDC
     // -------------------------------------------------------------------------
 
     @Nested
-    @DisplayName("startTranscriptionSpan — language custom attribute")
+    @DisplayName("startTranscriptionSpan — redacted log context")
     class StartTranscriptionSpanTests {
 
         @Test
-        @DisplayName("sets transcriptionId in MDC")
-        void shouldSetTranscriptionIdInMdc() {
+        @DisplayName("does not put transcription ID in MDC")
+        void shouldNotSetTranscriptionIdInMdc() {
             Span span = tracingService.startTranscriptionSpan("txn-001", "tenant-en", "en");
 
             assertThat(span).isNotNull();
-            assertThat(MDC.get("transcriptionId")).isEqualTo("txn-001");
+            assertThat(MDC.get("transcriptionId")).isNull();
         }
 
         @Test
-        @DisplayName("sets requested language in MDC")
-        void shouldSetLanguageInMdc() {
+        @DisplayName("does not put requested language in MDC")
+        void shouldNotSetLanguageInMdc() {
             tracingService.startTranscriptionSpan("txn-002", "tenant-fr", "fr");
 
-            assertThat(MDC.get("sttLanguage")).isEqualTo("fr");
+            assertThat(MDC.get("sttLanguage")).isNull();
         }
 
         @Test
-        @DisplayName("defaults sttLanguage MDC key to 'auto' when language is null")
+        @DisplayName("does not put auto-detected language into MDC")
         void shouldDefaultLanguageToAutoWhenNull() {
             tracingService.startTranscriptionSpan("txn-003", "tenant-auto", null);
 
-            assertThat(MDC.get("sttLanguage")).isEqualTo("auto");
+            assertThat(MDC.get("sttLanguage")).isNull();
         }
 
         @Test
-        @DisplayName("sets correlationId in MDC")
-        void shouldSetCorrelationIdInMdc() {
+        @DisplayName("does not put correlation ID in MDC")
+        void shouldNotSetCorrelationIdInMdc() {
             tracingService.startTranscriptionSpan("txn-004", "tenant-x", "de");
 
-            assertThat(MDC.get("correlationId")).isNotNull().isNotBlank();
+            assertThat(MDC.get("correlationId")).isNull();
         }
     }
 
@@ -137,20 +136,20 @@ class AudioVideoTracingServiceSpanAttributeTest {
     class StartVisionDetectionSpanTests {
 
         @Test
-        @DisplayName("sets detectionId in MDC")
-        void shouldSetDetectionIdInMdc() {
+        @DisplayName("does not put detection ID in MDC")
+        void shouldNotSetDetectionIdInMdc() {
             Span span = tracingService.startVisionDetectionSpan("det-001", "tenant-vis", 0.75);
 
             assertThat(span).isNotNull();
-            assertThat(MDC.get("detectionId")).isEqualTo("det-001");
+            assertThat(MDC.get("detectionId")).isNull();
         }
 
         @Test
-        @DisplayName("sets correlationId in MDC")
-        void shouldSetCorrelationIdInMdc() {
+        @DisplayName("does not put correlation ID in MDC")
+        void shouldNotSetCorrelationIdInMdc() {
             tracingService.startVisionDetectionSpan("det-002", "tenant-v2", 0.5);
 
-            assertThat(MDC.get("correlationId")).isNotNull().isNotBlank();
+            assertThat(MDC.get("correlationId")).isNull();
         }
 
         @Test

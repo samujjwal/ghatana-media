@@ -15,6 +15,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
+import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -81,12 +82,14 @@ class MediaConsentRevocationTest {
             assertThatThrownBy(() -> runtime.acceptFrame(new StreamFrame(
                     "tenant-a", connected.sessionId(), registration.connectionToken(), 1,
                     "must-not-leave".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
-                    .isInstanceOf(SecurityException.class)
-                    .hasMessageContaining("not active");
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
             assertThatThrownBy(() -> runtime.connectStream(
                     "tenant-a", connected.sessionId(), registration.connectionToken()))
-                    .isInstanceOf(SecurityException.class)
-                    .hasMessageContaining("not active");
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
             assertThat(provider.acceptedFrames()).isEqualTo(1);
             assertThat(authority.verifications()).isEqualTo(5);
 

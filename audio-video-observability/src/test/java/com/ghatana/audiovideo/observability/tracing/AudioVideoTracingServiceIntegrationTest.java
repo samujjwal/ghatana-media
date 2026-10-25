@@ -47,8 +47,8 @@ class AudioVideoTracingServiceIntegrationTest {
 
             // Then
             assertThat(span).isNotNull(); 
-            assertThat(MDC.get("methodName")).isEqualTo(methodName);
-            assertThat(MDC.get("correlationId")).isNotNull();
+            assertThat(MDC.get("methodName")).isNull();
+            assertThat(MDC.get("correlationId")).isNull();
 
             span.end(); 
             MDC.clear(); 
@@ -64,7 +64,7 @@ class AudioVideoTracingServiceIntegrationTest {
             Span span = tracingService.startGrpcStreamingSpan(methodName, tenantId); 
 
             // Then
-            assertThat(MDC.get("methodName")).isEqualTo(methodName);
+            assertThat(MDC.get("methodName")).isNull();
 
             span.end(); 
             MDC.clear(); 
@@ -104,8 +104,8 @@ class AudioVideoTracingServiceIntegrationTest {
 
             // Then
             assertThat(span).isNotNull(); 
-            assertThat(MDC.get("processId")).isEqualTo(processId);
-            assertThat(MDC.get("correlationId")).isNotNull();
+            assertThat(MDC.get("processId")).isNull();
+            assertThat(MDC.get("correlationId")).isNull();
 
             span.end(); 
             MDC.clear(); 
@@ -121,7 +121,7 @@ class AudioVideoTracingServiceIntegrationTest {
             Span span = tracingService.startVideoProcessingSpan(processId, tenantId); 
 
             // Then
-            assertThat(MDC.get("processId")).isEqualTo(processId);
+            assertThat(MDC.get("processId")).isNull();
 
             span.end(); 
             MDC.clear(); 
@@ -144,10 +144,8 @@ class AudioVideoTracingServiceIntegrationTest {
             String correlationId2 = MDC.get("correlationId");
 
             // Then
-            assertThat(correlationId1).isNotNull(); 
-            assertThat(correlationId2).isNotNull(); 
-            // Two independent processes should have independent correlation IDs
-            // unless explicitly reused
+            assertThat(correlationId1).isNull();
+            assertThat(correlationId2).isNull();
 
             span1.end(); 
             span2.end(); 
@@ -170,8 +168,8 @@ class AudioVideoTracingServiceIntegrationTest {
 
             // Then
             assertThat(span).isNotNull(); 
-            assertThat(MDC.get("processId")).isEqualTo(processId);
-            assertThat(MDC.get("correlationId")).isNotNull();
+            assertThat(MDC.get("processId")).isNull();
+            assertThat(MDC.get("correlationId")).isNull();
 
             span.end(); 
             MDC.clear(); 
@@ -187,7 +185,7 @@ class AudioVideoTracingServiceIntegrationTest {
             Span span = tracingService.startAudioProcessingSpan(processId, tenantId); 
 
             // Then
-            assertThat(MDC.get("processId")).isEqualTo("audio-transcode-001");
+            assertThat(MDC.get("processId")).isNull();
 
             span.end(); 
             MDC.clear(); 
@@ -209,8 +207,8 @@ class AudioVideoTracingServiceIntegrationTest {
 
             // Then
             assertThat(span).isNotNull(); 
-            assertThat(MDC.get("synthesisId")).isEqualTo(synthesisId);
-            assertThat(MDC.get("correlationId")).isNotNull();
+            assertThat(MDC.get("synthesisId")).isNull();
+            assertThat(MDC.get("correlationId")).isNull();
 
             span.end(); 
             MDC.clear(); 
@@ -226,7 +224,7 @@ class AudioVideoTracingServiceIntegrationTest {
             Span span = tracingService.startSynthesisSpan(synthesisId, tenantId); 
 
             // Then
-            assertThat(MDC.get("synthesisId")).isEqualTo(synthesisId);
+            assertThat(MDC.get("synthesisId")).isNull();
 
             span.end(); 
             MDC.clear(); 

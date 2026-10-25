@@ -2,6 +2,7 @@ package com.ghatana.media.launcher;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -71,6 +72,12 @@ class MediaSecurityFilterTest {
         HttpExchange exchange = mock(HttpExchange.class);
         when(exchange.getRequestURI()).thenReturn(URI.create(path));
         when(exchange.getRequestMethod()).thenReturn("GET");
+        Map<String, Object> attributes = new HashMap<>();
+        doAnswer(invocation -> {
+            attributes.put(invocation.getArgument(0), invocation.getArgument(1));
+            return null;
+        }).when(exchange).setAttribute(anyString(), any());
+        when(exchange.getAttribute(anyString())).thenAnswer(invocation -> attributes.get(invocation.getArgument(0)));
 
         com.sun.net.httpserver.Headers httpHeaders = new com.sun.net.httpserver.Headers();
         for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -102,7 +109,7 @@ class MediaSecurityFilterTest {
 
             filter.handle(exchange);
 
-            verify(delegate).handle(exchange);
+            verify(delegate).handle(any(HttpExchange.class));
         }
 
         @Test
@@ -113,7 +120,7 @@ class MediaSecurityFilterTest {
 
             filter.handle(exchange);
 
-            verify(delegate).handle(exchange);
+            verify(delegate).handle(any(HttpExchange.class));
         }
 
         @Test
@@ -124,7 +131,7 @@ class MediaSecurityFilterTest {
 
             filter.handle(exchange);
 
-            verify(delegate).handle(exchange);
+            verify(delegate).handle(any(HttpExchange.class));
         }
 
         @Test
@@ -135,7 +142,7 @@ class MediaSecurityFilterTest {
 
             filter.handle(exchange);
 
-            verify(delegate).handle(exchange);
+            verify(delegate).handle(any(HttpExchange.class));
         }
     }
 
@@ -180,7 +187,44 @@ class MediaSecurityFilterTest {
 
             filter.handle(exchange);
 
-            verify(delegate).handle(exchange);
+            var seen = ArgumentCaptor.forClass(HttpExchange.class);
+            verify(delegate).handle(seen.capture());
+            assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id"))
+                    .isEqualTo("media-api-key-service");
+        }
+
+        @Test
+        void apiKeyCannotSelectCallerPrincipal() throws IOException {
+            HttpHandler delegate = mock(HttpHandler.class);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "local", environment(), CLOCK);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Tenant-Id", "tenant-a");
+            headers.put("X-API-Key", "test-key");
+            headers.put("X-Principal-Id", "victim-user");
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            var seen = ArgumentCaptor.forClass(HttpExchange.class);
+            verify(delegate).handle(seen.capture());
+            assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id"))
+                    .isEqualTo("media-api-key-service");
+        }
+
+        @Test
+        void rejectsAmbiguousApiKeyAndBearerCredentials() throws Exception {
+            HttpHandler delegate = mock(HttpHandler.class);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "local", environment(), CLOCK);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Tenant-Id", "tenant-a");
+            headers.put("X-API-Key", "test-key");
+            headers.put("Authorization", "Bearer " + signedJwt("tenant-a"));
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            verify(delegate, never()).handle(any());
+            verify(exchange).sendResponseHeaders(eq(401), anyLong());
         }
 
         @Test
@@ -189,12 +233,37 @@ class MediaSecurityFilterTest {
             MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "local", environment(), CLOCK);
             Map<String, String> headers = new HashMap<>();
             headers.put("X-Tenant-Id", "tenant-a");
+            headers.put("X-Principal-Id", "forged-admin");
             headers.put("Authorization", "Bearer " + signedJwt("tenant-a"));
             HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
 
             filter.handle(exchange);
 
-            verify(delegate).handle(exchange);
+            var seen = ArgumentCaptor.forClass(HttpExchange.class);
+            verify(delegate).handle(seen.capture());
+            assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id")).isEqualTo("user-1");
+            var authenticated = (com.ghatana.launcher.security.SecurityFilterSupport.AuthenticatedPrincipal)
+                    exchange.getAttribute(
+                            com.ghatana.launcher.security.SecurityFilterSupport.ATTRIBUTE_AUTHENTICATED_PRINCIPAL);
+            assertThat(authenticated).isNotNull();
+            assertThat(authenticated.subject()).isEqualTo("user-1");
+            assertThat(authenticated.tenantId()).isEqualTo("tenant-a");
+        }
+
+        @Test
+        void rejectsForgedPrincipalHintWithoutAuthenticatedHostContext() throws IOException {
+            HttpHandler delegate = mock(HttpHandler.class);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "production");
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Tenant-Id", "tenant-a");
+            headers.put("X-Principal-Id", "forged-admin");
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            verify(delegate, never()).handle(any());
+            verify(exchange).sendResponseHeaders(eq(401), anyLong());
+
         }
 
         @Test
@@ -259,7 +328,27 @@ class MediaSecurityFilterTest {
 
             filter.handle(exchange);
 
-            verify(delegate).handle(exchange);
+            var seen = ArgumentCaptor.forClass(HttpExchange.class);
+            verify(delegate).handle(seen.capture());
+            assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id"))
+                    .isEqualTo("media-local-development");
+        }
+
+        @Test
+        void unauthenticatedFixtureCannotSelectCallerPrincipal() throws IOException {
+            HttpHandler delegate = mock(HttpHandler.class);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "local");
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Tenant-Id", "fixture-tenant");
+            headers.put("X-Principal-Id", "victim-user");
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            var seen = ArgumentCaptor.forClass(HttpExchange.class);
+            verify(delegate).handle(seen.capture());
+            assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id"))
+                    .isEqualTo("media-local-development");
         }
     }
 

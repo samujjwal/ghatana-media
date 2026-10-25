@@ -89,6 +89,7 @@ log4j-core = { module = "org.apache.logging.log4j:log4j-core", version = { ref =
 log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version = { ref = "log4j" } }
 lombok = { module = "org.projectlombok:lombok", version = { ref = "lombok" } }
 micrometer-core = { module = "io.micrometer:micrometer-core", version = { ref = "micrometer" } }
+micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version = { ref = "micrometer" } }
 mockito-core = { module = "org.mockito:mockito-core", version = { ref = "mockito" } }
 mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version = { ref = "mockito" } }
 native-lib-loader = { module = "org.scijava:native-lib-loader", version = { ref = "native-lib-loader" } }

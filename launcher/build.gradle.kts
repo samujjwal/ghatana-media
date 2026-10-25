@@ -15,6 +15,7 @@ dependencies {
     val sharedVersion = providers.gradleProperty("ghatana.shared.version").get()
 
     implementation(project(":services:media:runtime-contracts"))
+    implementation(project(":services:media:audio-video-observability"))
     runtimeOnly(project(":services:media:providers:aws-postgresql"))
 
     implementation(project(":services:media:modules:audio-streaming"))
@@ -41,6 +42,7 @@ dependencies {
     implementation(libs.activej.common)
     implementation(libs.jackson.databind)
     implementation(libs.slf4j.api)
+    implementation(libs.micrometer.registry.prometheus)
     implementation(project(":platform:java:launcher-support"))
 
     compileOnly(libs.jetbrains.annotations)

@@ -91,9 +91,10 @@ class MediaAwsPostgresqlRuntimeStateTest {
 
                     byte[] content = new byte[5 * 1024 * 1024 + 257];
                     Arrays.fill(content, (byte) 7);
+                    wavHeader(content);
                     String digest = sha256(content);
                     UploadRequest uploadRequest = new UploadRequest(
-                            "tenant-a", "principal-a", "clip.bin", "application/octet-stream", content.length,
+                            "tenant-a", "principal-a", "clip.wav", "audio/wav", content.length,
                             digest, "RESTRICTED", Duration.ofDays(30), Map.of("source", "test"));
                     var upload = artifacts.begin(uploadRequest, "runtime-state-primary");
                     var initialReplay = artifacts.begin(uploadRequest, "runtime-state-primary");
@@ -119,19 +120,19 @@ class MediaAwsPostgresqlRuntimeStateTest {
                         pool.shutdownNow();
                     }
                     assertThatThrownBy(() -> artifacts.begin(new UploadRequest(
-                            "tenant-a", "principal-a", "changed.bin", "application/octet-stream", content.length,
+                            "tenant-a", "principal-a", "changed.wav", "audio/wav", content.length,
                             digest, "RESTRICTED", Duration.ofDays(30), Map.of("source", "test")),
                             "runtime-state-primary"))
                             .isInstanceOf(IllegalArgumentException.class)
                             .hasMessageContaining("different upload request");
                     var sameKeyOtherPrincipal = artifacts.begin(new UploadRequest(
-                            "tenant-a", "principal-b", "clip.bin", "application/octet-stream", content.length,
+                            "tenant-a", "principal-b", "clip.wav", "audio/wav", content.length,
                             digest, "RESTRICTED", Duration.ofDays(30), Map.of("source", "test")),
                             "runtime-state-primary");
                     assertThat(sameKeyOtherPrincipal.uploadId()).isNotEqualTo(upload.uploadId());
-                    byte[] expiredBytes = "expired-finalization".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                    byte[] expiredBytes = wav("expired-finalization".getBytes(StandardCharsets.UTF_8));
                     UploadRequest expiredRequest = new UploadRequest("tenant-expired-complete", "principal-a",
-                            "expired.bin", "application/octet-stream", expiredBytes.length, sha256(expiredBytes),
+                            "expired.wav", "audio/wav", expiredBytes.length, sha256(expiredBytes),
                             "INTERNAL", Duration.ofDays(1), Map.of());
                     var expiredUpload = artifacts.begin(expiredRequest, "expired-complete-key");
                     artifacts.append(expiredUpload.tenantId(), expiredUpload.principalId(),
@@ -158,8 +159,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             assertThat(result.getLong(1)).isZero();
                         }
                     }
-                    UploadRequest legacyRequest = new UploadRequest("tenant-legacy-key", "principal-a", "legacy.bin",
-                            "application/octet-stream", 1, sha256(new byte[] { 1 }), "RESTRICTED",
+                    UploadRequest legacyRequest = new UploadRequest("tenant-legacy-key", "principal-a", "legacy.wav",
+                            "audio/wav", 1, sha256(new byte[] { 1 }), "RESTRICTED",
                             Duration.ofDays(1), Map.of());
                     var legacyKeyUpload = artifacts.begin(legacyRequest, "legacy-key");
                     try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
@@ -207,28 +208,28 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             "job-a", "request-a", "tenant-a", "principal-a", artifact.artifactId(), JobType.VISION,
                             "http-media-processing", JobStatus.ACCEPTED,
                             Instant.now().truncatedTo(ChronoUnit.MILLIS), null, null,
-                            Map.of(), "", 1, "sha256:request-a-payload");
+                            Map.of(), "", 1, "", sha256("request-a-payload".getBytes(StandardCharsets.UTF_8)));
                     assertThat(jobs.create(accepted)).isEqualTo(accepted);
                     ProcessingJob duplicateRequest = new ProcessingJob(
                             "job-other", "request-a", "tenant-a", "principal-a", artifact.artifactId(), JobType.VISION,
                             "http-media-processing", JobStatus.ACCEPTED, Instant.now(), null, null,
-                            Map.of(), "", 1, accepted.requestFingerprint());
+                            Map.of(), "", 1, "", accepted.requestFingerprint());
                     assertThat(jobs.create(duplicateRequest)).isEqualTo(accepted);
                     ProcessingJob replayedByOtherPrincipal = new ProcessingJob(
                             "job-replayed", "request-a", "tenant-a", "principal-b",
                             artifact.artifactId(), JobType.VISION, "http-media-processing",
-                            JobStatus.ACCEPTED, Instant.now(), null, null, Map.of(), "", 1,
-                            "sha256:different-principal-request");
+                            JobStatus.ACCEPTED, Instant.now(), null, null, Map.of(), "", 1, "",
+                            sha256("different-principal-request".getBytes(StandardCharsets.UTF_8)));
                     assertThatThrownBy(() -> jobs.create(replayedByOtherPrincipal))
                             .isInstanceOf(IllegalStateException.class)
-                            .hasMessageContaining("different job payload");
+                            .hasMessageContaining("different submission");
                     ProcessingJob changedPayload = new ProcessingJob(
                             "job-payload-mismatch", "request-a", "tenant-a", "principal-a", artifact.artifactId(),
                             JobType.VISION, "http-media-processing", JobStatus.ACCEPTED, Instant.now(), null, null,
-                            Map.of(), "", 1, "sha256:altered-request-payload");
+                            Map.of(), "", 1, "", sha256("altered-request-payload".getBytes(StandardCharsets.UTF_8)));
                     assertThatThrownBy(() -> jobs.create(changedPayload))
                             .isInstanceOf(IllegalStateException.class)
-                            .hasMessageContaining("different job payload");
+                            .hasMessageContaining("different submission");
                     ProcessingJob legacy = new ProcessingJob(
                             "job-legacy", "request-legacy", "tenant-a", "principal-a", artifact.artifactId(),
                             JobType.VISION, "http-media-processing", JobStatus.FAILED,
@@ -250,7 +251,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     ProcessingJob running = new ProcessingJob(
                             accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(), accepted.artifactId(),
                             accepted.jobType(), accepted.providerId(), JobStatus.RUNNING, accepted.createdAt(),
-                            Instant.now().truncatedTo(ChronoUnit.MILLIS), null, Map.of(), "", 2,
+                            Instant.now().truncatedTo(ChronoUnit.MILLIS), null, Map.of(), "", 2, "",
                             accepted.requestFingerprint());
                     assertThat(jobs.update(lease, accepted, running)).isEqualTo(running);
                     assertThat(jobs.leaseValid(lease)).isTrue();
@@ -266,7 +267,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     ProcessingJob staleCompletion = new ProcessingJob(
                             running.jobId(), running.requestId(), running.tenantId(), running.principalId(), running.artifactId(),
                             running.jobType(), running.providerId(), JobStatus.COMPLETED, running.createdAt(),
-                            running.startedAt(), Instant.now().truncatedTo(ChronoUnit.MILLIS), Map.of(), "", 3,
+                            running.startedAt(), Instant.now().truncatedTo(ChronoUnit.MILLIS), Map.of(), "", 3, "",
                             running.requestFingerprint());
                     assertThatThrownBy(() -> jobs.update(lease, running, staleCompletion))
                             .isInstanceOf(IllegalStateException.class)
@@ -274,7 +275,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     ProcessingJob replacementRunning = new ProcessingJob(
                             running.jobId(), running.requestId(), running.tenantId(), running.principalId(), running.artifactId(),
                             running.jobType(), running.providerId(), JobStatus.RUNNING, running.createdAt(),
-                            running.startedAt(), null, Map.of(), "", 3, running.requestFingerprint());
+                            running.startedAt(), null, Map.of(), "", 3, "", running.requestFingerprint());
                     assertThat(jobs.update(replacementLease, running, replacementRunning)).isEqualTo(replacementRunning);
                     assertThat(jobs.find("tenant-a", running.jobId())).contains(replacementRunning);
                     jobs.release(replacementLease);
@@ -367,9 +368,9 @@ class MediaAwsPostgresqlRuntimeStateTest {
             String artifactObjectKey,
             ProcessingJob running,
             StreamSession closed) throws Exception {
-        byte[] abandonedBytes = "expired-abandoned-upload".getBytes(StandardCharsets.UTF_8);
+        byte[] abandonedBytes = wav("expired-abandoned-upload".getBytes(StandardCharsets.UTF_8));
         UploadSession abandoned = artifacts.begin(new UploadRequest(
-                "tenant-expired", "principal-expired", "expired.bin", "application/octet-stream",
+                "tenant-expired", "principal-expired", "expired.wav", "audio/wav",
                 abandonedBytes.length, sha256(abandonedBytes), "RESTRICTED", Duration.ofDays(1), Map.of()), "expired-abandoned");
         artifacts.append("tenant-expired", abandoned.principalId(), abandoned.uploadId(), 0, abandonedBytes);
 
@@ -378,7 +379,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                 running.jobId(), running.requestId(), running.tenantId(), running.principalId(),
                 running.artifactId(), running.jobType(), running.providerId(), JobStatus.COMPLETED,
                 running.createdAt(), running.startedAt(), completedAt,
-                Map.of("derivedFaceCount", 2, "transcriptSummary", "sensitive-result"), "", running.version() + 1,
+                Map.of("derivedFaceCount", 2, "transcriptSummary", "sensitive-result"), "", running.version() + 1, "",
                 running.requestFingerprint());
         assertThat(jobs.update(running, completed)).isEqualTo(completed);
 
@@ -448,8 +449,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
             S3PostgresqlMediaArtifactStore artifacts,
             String bucket) throws Exception {
         MediaArtifact artifact = upload(
-                artifacts, "purge-retry-after-object-delete".getBytes(StandardCharsets.UTF_8),
-                "retry.bin", "application/octet-stream", "RESTRICTED", Duration.ofDays(30), Map.of());
+                artifacts, wav("purge-retry-after-object-delete".getBytes(StandardCharsets.UTF_8)),
+                "retry.wav", "audio/wav", "RESTRICTED", Duration.ofDays(30), Map.of());
         String key = objectKey(artifact.objectReference());
         try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
              var update = connection.prepareStatement(
@@ -471,7 +472,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                      new PostgresqlMediaPrivacyMaintenance(maintenanceEnvironment)) {
             assertThatThrownBy(() -> maintenance.purgeExpired(Instant.now()))
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("delete expired Media artifact metadata");
+                    .hasMessageContaining("purge expired Media artifact lineage");
         }
         assertThat(artifactRowExists(environment, artifact)).isTrue();
         assertThatThrownBy(() -> admin.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build()))
@@ -524,8 +525,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
             S3PostgresqlMediaArtifactStore artifacts,
             String bucket) throws Exception {
         MediaArtifact artifact = upload(
-                artifacts, "renew-during-purge".getBytes(StandardCharsets.UTF_8),
-                "renew.bin", "application/octet-stream", "RESTRICTED", Duration.ofDays(30), Map.of());
+                artifacts, wav("renew-during-purge".getBytes(StandardCharsets.UTF_8)),
+                "renew.wav", "audio/wav", "RESTRICTED", Duration.ofDays(30), Map.of());
         long expiredAt = Instant.now().minus(Duration.ofDays(2)).toEpochMilli();
         long renewedUntil = Instant.now().plus(Duration.ofDays(30)).toEpochMilli();
         String jdbcUrl = environment.get("MEDIA_POSTGRES_JDBC_URL");
@@ -622,10 +623,10 @@ class MediaAwsPostgresqlRuntimeStateTest {
             S3Client admin,
             S3PostgresqlMediaArtifactStore artifacts,
             String bucket) throws Exception {
-        byte[] chunk = "active-finalization-chunk".getBytes(StandardCharsets.UTF_8);
+        byte[] chunk = wav("active-finalization-chunk".getBytes(StandardCharsets.UTF_8));
         UploadSession upload = artifacts.begin(new UploadRequest(
-                "tenant-active-finalization", "principal-active-finalization", "finalizing.bin",
-                "application/octet-stream", chunk.length, sha256(chunk), "RESTRICTED",
+                "tenant-active-finalization", "principal-active-finalization", "finalizing.wav",
+                "audio/wav", chunk.length, sha256(chunk), "RESTRICTED",
                 Duration.ofDays(30), Map.of()), "active-finalization");
         artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, chunk);
 
@@ -715,9 +716,9 @@ class MediaAwsPostgresqlRuntimeStateTest {
             S3Client admin,
             String bucket,
             S3PostgresqlMediaArtifactStore artifacts) throws Exception {
-        byte[] bytes = "rollback-cleanup".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = wav("rollback-cleanup".getBytes(StandardCharsets.UTF_8));
         UploadSession upload = artifacts.begin(new UploadRequest(
-                "tenant-rollback", "principal-rollback", "rollback.bin", "application/octet-stream", bytes.length,
+                "tenant-rollback", "principal-rollback", "rollback.wav", "audio/wav", bytes.length,
                 sha256(bytes), "RESTRICTED", Duration.ofDays(1), Map.of("source", "rollback")), "rollback-upload");
         String jdbcUrl = environment.get("MEDIA_POSTGRES_JDBC_URL");
         try (var connection = DriverManager.getConnection(jdbcUrl);
@@ -747,37 +748,37 @@ class MediaAwsPostgresqlRuntimeStateTest {
 
     private static void verifiesGovernedByteDeduplication(
             S3PostgresqlMediaArtifactStore artifacts) throws Exception {
-        byte[] bytes = "governed-deduplication".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = wav("governed-deduplication".getBytes(StandardCharsets.UTF_8));
         Map<String, Object> metadata = Map.of("source", "dedup", "consent", "verified");
         MediaArtifact original = upload(
-                artifacts, bytes, "dedup.bin", "application/octet-stream",
+                artifacts, bytes, "dedup.wav", "audio/wav",
                 "RESTRICTED", Duration.ofDays(30), metadata);
         MediaArtifact compatible = upload(
-                artifacts, bytes, "dedup.bin", "application/octet-stream",
+                artifacts, bytes, "dedup.wav", "audio/wav",
                 "RESTRICTED", Duration.ofDays(29), metadata);
         assertThat(compatible.artifactId()).isEqualTo(original.artifactId());
 
-        assertConflict(artifacts, bytes, "different.bin", "application/octet-stream",
+        assertConflict(artifacts, bytes, "different.wav", "audio/wav",
                 "RESTRICTED", Duration.ofDays(29), metadata, "fileName");
-        assertConflict(artifacts, bytes, "dedup.bin", "text/plain",
+        assertConflict(artifacts, bytes, "dedup.wav", "audio/x-wav",
                 "RESTRICTED", Duration.ofDays(29), metadata, "contentType");
-        assertConflict(artifacts, bytes, "dedup.bin", "application/octet-stream",
+        assertConflict(artifacts, bytes, "dedup.wav", "audio/wav",
                 "INTERNAL", Duration.ofDays(29), metadata, "classification");
-        assertConflict(artifacts, bytes, "dedup.bin", "application/octet-stream",
+        assertConflict(artifacts, bytes, "dedup.wav", "audio/wav",
                 "RESTRICTED", Duration.ofDays(29), Map.of("source", "other"), "metadata");
-        assertConflict(artifacts, bytes, "dedup.bin", "application/octet-stream",
+        assertConflict(artifacts, bytes, "dedup.wav", "audio/wav",
                 "RESTRICTED", Duration.ofDays(31), metadata, "retention");
     }
 
     private static void verifiesConcurrentGovernedByteDeduplication(
             S3PostgresqlMediaArtifactStore artifacts) throws Exception {
-        byte[] bytes = "concurrent-governed-deduplication".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = wav("concurrent-governed-deduplication".getBytes(StandardCharsets.UTF_8));
         Map<String, Object> metadata = Map.of("source", "concurrent-dedup", "consent", "verified");
         UploadSession first = prepareUpload(
-                artifacts, bytes, "concurrent.bin", "application/octet-stream",
+                artifacts, bytes, "concurrent.wav", "audio/wav",
                 "RESTRICTED", Duration.ofDays(30), metadata);
         UploadSession second = prepareUpload(
-                artifacts, bytes, "concurrent.bin", "application/octet-stream",
+                artifacts, bytes, "concurrent.wav", "audio/wav",
                 "RESTRICTED", Duration.ofDays(30), metadata);
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -857,6 +858,21 @@ class MediaAwsPostgresqlRuntimeStateTest {
                 .hasMessageContaining(expectedField);
     }
 
+
+    private static byte[] wav(byte[] payload) {
+        byte[] out = new byte[payload.length + 12];
+        out[0] = 'R'; out[1] = 'I'; out[2] = 'F'; out[3] = 'F';
+        int size = payload.length + 4;
+        out[4] = (byte) size; out[5] = (byte) (size >> 8); out[6] = (byte) (size >> 16); out[7] = (byte) (size >> 24);
+        out[8] = 'W'; out[9] = 'A'; out[10] = 'V'; out[11] = 'E';
+        System.arraycopy(payload, 0, out, 12, payload.length);
+        return out;
+    }
+
+    private static void wavHeader(byte[] bytes) {
+        bytes[0] = 'R'; bytes[1] = 'I'; bytes[2] = 'F'; bytes[3] = 'F';
+        bytes[8] = 'W'; bytes[9] = 'A'; bytes[10] = 'V'; bytes[11] = 'E';
+    }
     private static String sha256(byte[] value) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
     }

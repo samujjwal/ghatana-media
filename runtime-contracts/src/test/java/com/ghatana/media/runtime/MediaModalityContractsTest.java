@@ -131,8 +131,16 @@ class MediaModalityContractsTest {
                 Set.of("media-analysis"), Set.of("us-west-2"), true, true);
         assertThat(MediaModalityContracts.governedResult(
                 request(JobType.VISION, eligible, Map.of()), artifact(),
-                "vision", "v1", "model-v1", Map.of("faceCount", 1), consent))
+                "vision", "v1", "model-v1", Map.of("faceCount", 1), consent,
+                ProcessingBoundary.EXTERNAL, ProviderDataRetention.NONE))
                 .containsEntry("classification", "CONFIDENTIAL");
+
+        assertThatThrownBy(() -> MediaModalityContracts.governedResult(
+                request(JobType.VISION, eligible, Map.of()), artifact(),
+                "vision", "v1", "model-v1", Map.of("faceCount", 1), consent,
+                ProcessingBoundary.EXTERNAL, ProviderDataRetention.TRANSIENT))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("verified consent");
     }
 
     @Test

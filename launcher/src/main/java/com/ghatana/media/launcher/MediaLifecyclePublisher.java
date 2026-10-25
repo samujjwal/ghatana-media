@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Typed Event Plane client for neutral Media lifecycle events. */
 final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
+    private static final int MAX_EVENT_PLANE_IDENTIFIER_LENGTH = 255;
+
     private final ObjectMapper mapper = JsonMapper.builder().addModules(tools.jackson.databind.cfg.MapperBuilder.findModules()).build();
     private final HttpClient client;
     private final URI endpoint;
@@ -81,12 +83,23 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
 
     @Override public String publisherId() { return endpoint == null ? "disabled" : "event-plane-http"; }
     @Override public boolean ready() { return !closed.get() && endpoint != null; }
-    @Override public boolean productionEligible() { return ready() && productionEligible; }
+
+    /**
+     * This synchronous publisher has no durable Media outbox, retry worker, or restart reconciliation.
+     * HTTPS and credentials protect the transport but do not make publication durable.
+     */
+    @Override public boolean productionEligible() { return false; }
 
     @Override
     public void publish(MediaLifecycleEvent event) {
         if (!ready()) return;
         java.util.Objects.requireNonNull(event, "event");
+        requireEventPlaneText(event.eventId(), "eventId");
+        requireEventPlaneText(event.eventType(), "eventType");
+        requireEventPlaneText(event.tenantId(), "tenantId");
+        requireEventPlaneText(event.principalId(), "principalId");
+        requireEventPlaneText(event.correlationId(), "correlationId");
+        if (!event.causationId().isBlank()) requireEventPlaneText(event.causationId(), "causationId");
         try {
             Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("aggregateType", event.aggregateType());
@@ -141,6 +154,12 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
             return value;
         } catch (NumberFormatException failure) {
             throw new IllegalArgumentException(key + " must be an integer", failure);
+        }
+    }
+
+    private static void requireEventPlaneText(String value, String field) {
+        if (value.length() > MAX_EVENT_PLANE_IDENTIFIER_LENGTH) {
+            throw new IllegalArgumentException(field + " exceeds Event Plane's 255-character limit");
         }
     }
 }

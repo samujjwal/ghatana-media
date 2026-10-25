@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<ruleset name="Test Ruleset"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+    <description>PMD ruleset for test code</description>
+
+    <!-- Exclude generated code -->
+    <exclude-pattern>.*/generated/.*</exclude-pattern>
+    <exclude-pattern>.*/build/generated/.*</exclude-pattern>
+    <exclude-pattern>.*/target/generated-sources/.*</exclude-pattern>
+    <exclude-pattern>.*/target/generated-test-sources/.*</exclude-pattern>
+
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="AvoidLiteralsInIfCondition"/>
+        <exclude name="AvoidDuplicateLiterals"/>
+        <exclude name="AssignmentInOperand"/>
+        <exclude name="AvoidAccessibilityAlteration"/>
+        <exclude name="AvoidBranchingStatementAsLastInLoop"/>
+        <exclude name="ConfusingArgumentToVarargsMethod"/>
+        <exclude name="AvoidCatchingThrowable"/>
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
+        <exclude name="AvoidInstanceofChecksInCatchClause"/>
+        <exclude name="CloseResource"/>
+        <exclude name="DetachedTestCase"/>
+        <exclude name="DoNotCallGarbageCollectionExplicitly"/>
+        <exclude name="EmptyCatchBlock"/>
+        <exclude name="InvalidLogMessageFormat"/>
+        <exclude name="MissingStaticMethodInNonInstantiatableClass"/>
+        <exclude name="MissingSerialVersionUID"/>
+        <exclude name="MoreThanOneLogger"/>
+        <exclude name="NonSerializableClass"/>
+        <exclude name="NullAssignment"/>
+        <exclude name="ReturnEmptyCollectionRatherThanNull"/>
+        <exclude name="SingletonClassReturningNewInstance"/>
+        <exclude name="SuspiciousEqualsMethodName"/>
+        <exclude name="TestClassWithoutTestCases"/>
+        <exclude name="UnnecessaryCaseChange"/>
+        <exclude name="UseLocaleWithCaseConversions"/>
+        <exclude name="UseProperClassLoader"/>
+        <exclude name="UselessOperationOnImmutable"/>
+    </rule>
+</ruleset>

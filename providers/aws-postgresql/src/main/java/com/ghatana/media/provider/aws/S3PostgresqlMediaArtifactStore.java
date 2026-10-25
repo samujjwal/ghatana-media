@@ -1,8 +1,14 @@
 package com.ghatana.media.provider.aws;
 
 import tools.jackson.core.type.TypeReference;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactLineage;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanDecision;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanVerdict;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactScanner;
+import com.ghatana.media.runtime.MediaRuntimeContracts.QuarantinedArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadBeginResult;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadCompletionResult;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
@@ -10,6 +16,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
 import com.ghatana.media.runtime.MediaUploadRequestFingerprint;
 import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
@@ -39,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -54,9 +62,26 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
     private static final int MIN_MULTIPART_PART_BYTES = 5 * 1024 * 1024;
     private static final long FINALIZATION_STALE_MILLIS = Duration.ofMinutes(15).toMillis();
     private static final long DEDUP_RETENTION_TOLERANCE_MILLIS = Duration.ofMinutes(1).toMillis();
+    private static final String FORMAT_ADMISSION_PREDICATE =
+            "AND (EXISTS (SELECT 1 FROM media_artifact_format_verifications verification "
+                    + "WHERE verification.tenant_id=media_artifacts.tenant_id "
+                    + "AND verification.artifact_id=media_artifacts.artifact_id "
+                    + "AND verification.state='SIGNATURE_MATCH') "
+                    + "OR EXISTS (SELECT 1 FROM media_artifact_lineage lineage "
+                    + "WHERE lineage.tenant_id=media_artifacts.tenant_id "
+                    + "AND lineage.derived_artifact_id=media_artifacts.artifact_id "
+                    + "AND lineage.derived_version='sha256:' || media_artifacts.sha256 "
+                    + "AND lineage.admission_status='CANDIDATE'))";
 
     private final MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+    private final MediaArtifactScanner scannerOverride;
     private final AtomicBoolean closed = new AtomicBoolean(false);
+
+    public S3PostgresqlMediaArtifactStore() { this(null); }
+
+    S3PostgresqlMediaArtifactStore(MediaArtifactScanner scannerOverride) {
+        this.scannerOverride = scannerOverride;
+    }
 
     @Override public String storeId() { return "s3-postgresql"; }
 
@@ -73,7 +98,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         if (idempotencyKey.length() > 255) throw new IllegalArgumentException("Idempotency-Key must not exceed 255 characters");
         String fingerprint = MediaUploadRequestFingerprint.compute(request);
         String uploadId = UUID.randomUUID().toString();
-        Instant now = Instant.ofEpochMilli(System.currentTimeMillis());
+        Instant now = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
         Instant expiresAt = now.plus(Duration.ofHours(1));
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
@@ -86,11 +111,11 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     return new UploadBeginResult(existing.session(), false);
                 }
                 try (PreparedStatement statement = connection.prepareStatement(
-                     "INSERT INTO media_upload_sessions "
-                             + "(tenant_id,upload_id,principal_id,file_name,content_type,expected_size_bytes,expected_sha256,"
-                             + "classification,retention_millis,created_at,expires_at,bytes_received,next_chunk_index,"
-                             + "status,metadata_json,artifact_id,updated_at,finalization_token,finalization_started_at,"
-                             + "idempotency_key,request_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                        "INSERT INTO media_upload_sessions "
+                                + "(tenant_id,upload_id,principal_id,file_name,content_type,expected_size_bytes,expected_sha256,"
+                                + "classification,retention_millis,created_at,expires_at,bytes_received,next_chunk_index,"
+                                + "status,metadata_json,artifact_id,updated_at,finalization_token,finalization_started_at,"
+                                + "idempotency_key,request_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
                     statement.setString(1, request.tenantId());
                     statement.setString(2, uploadId);
                     statement.setString(3, request.principalId());
@@ -262,8 +287,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         FinalizationClaim claim = claimFinalization(tenantId, principalId, uploadId);
         if (claim.existingArtifact() != null) return new UploadCompletionResult(claim.existingArtifact(), false);
 
-        String finalKey = artifactKey(tenantId, claim.row().expectedSha256());
+        String finalKey = artifactKey(tenantId, uploadId, claim.row().expectedSha256());
         String multipartId = null;
+        boolean objectCompleted = false;
+        boolean scanRejected = false;
         try {
             var create = state.s3().createMultipartUpload(CreateMultipartUploadRequest.builder()
                     .bucket(state.bucket())
@@ -278,6 +305,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             List<CompletedPart> completedParts = new ArrayList<>();
             ByteArrayOutputStream partBuffer = new ByteArrayOutputStream(MIN_MULTIPART_PART_BYTES * 2);
+            ByteArrayOutputStream signaturePrefix = new ByteArrayOutputStream(32);
             long totalBytes = 0L;
             int partNumber = 1;
             List<ChunkRow> chunks = chunks(tenantId, uploadId);
@@ -290,6 +318,9 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     throw new IllegalStateException("Stored upload chunk failed integrity verification");
                 }
                 digest.update(data);
+                if (signaturePrefix.size() < 32) {
+                    signaturePrefix.write(data, 0, Math.min(32 - signaturePrefix.size(), data.length));
+                }
                 totalBytes = Math.addExact(totalBytes, data.length);
                 partBuffer.write(data);
                 if (partBuffer.size() >= MIN_MULTIPART_PART_BYTES) {
@@ -308,16 +339,41 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 markAborted(tenantId, uploadId, claim.token());
                 throw new IllegalStateException("Upload checksum does not match expected SHA-256");
             }
+            MediaArtifactFormatVerifier.Verification verification = MediaArtifactFormatVerifier.verify(
+                    claim.row().fileName(), claim.row().contentType(), signaturePrefix.toByteArray());
+            if (!"SIGNATURE_MATCH".equals(verification.state())) {
+                rejectFormatClaim(tenantId, uploadId, claim.token(), claim.row(), verification);
+                throw new IllegalStateException("Uploaded format is not admitted: " + verification.state());
+            }
             state.s3().completeMultipartUpload(CompleteMultipartUploadRequest.builder()
                     .bucket(state.bucket())
                     .key(finalKey)
                     .uploadId(multipartId)
                     .multipartUpload(CompletedMultipartUpload.builder().parts(completedParts).build())
                     .build());
-            MediaArtifact artifact = persistArtifact(claim, finalKey, totalBytes, actualDigest);
+            objectCompleted = true;
+            QuarantinedArtifact quarantined = new QuarantinedArtifact(
+                    tenantId, claim.row().principalId(), uploadId, actualDigest, totalBytes,
+                    claim.row().contentType(), "s3://" + state.bucket() + "/" + finalKey);
+            ArtifactScanDecision scan = scan(quarantined);
+            if (scan.verdict() != ArtifactScanVerdict.CLEAN) {
+                recordScanStatus(tenantId, uploadId, claim.token(), scan,
+                        scan.verdict() == ArtifactScanVerdict.REJECT ? "REJECTED" : "UNAVAILABLE");
+                if (scan.verdict() == ArtifactScanVerdict.REJECT) {
+                    scanRejected = true;
+                    markAborted(tenantId, uploadId, claim.token());
+                    state.s3().deleteObject(DeleteObjectRequest.builder().bucket(state.bucket()).key(finalKey).build());
+                }
+                throw new IllegalStateException("Media artifact scan did not return a clean verdict: " + scan.verdict());
+            }
+            MediaArtifact artifact = persistArtifact(claim, finalKey, totalBytes, actualDigest, scan, verification);
+            if (!artifact.objectReference().equals("s3://" + state.bucket() + "/" + finalKey)) {
+                state.s3().deleteObject(DeleteObjectRequest.builder().bucket(state.bucket()).key(finalKey).build());
+            }
             deleteChunks(chunks);
             return new UploadCompletionResult(artifact, true);
         } catch (RuntimeException failure) {
+            if (objectCompleted && !scanRejected) recordScanStatus(tenantId, uploadId, claim.token(), null, "UNAVAILABLE");
             if (multipartId != null) {
                 try {
                     state.s3().abortMultipartUpload(AbortMultipartUploadRequest.builder()
@@ -326,7 +382,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     failure.addSuppressed(abortFailure);
                 }
             }
-            releaseFinalization(tenantId, uploadId, claim.token());
+            if (!scanRejected) releaseFinalization(tenantId, uploadId, claim.token());
             throw failure;
         } catch (Exception failure) {
             RuntimeException wrapped = new IllegalStateException("Unable to finalize Media upload", failure);
@@ -338,7 +394,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     wrapped.addSuppressed(abortFailure);
                 }
             }
-            releaseFinalization(tenantId, uploadId, claim.token());
+            if (objectCompleted && !scanRejected) recordScanStatus(tenantId, uploadId, claim.token(), null, "UNAVAILABLE");
+            if (!scanRejected) releaseFinalization(tenantId, uploadId, claim.token());
             throw wrapped;
         }
     }
@@ -361,7 +418,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT principal_id,file_name,content_type,size_bytes,sha256,object_reference,classification,"
                              + "created_at,expires_at,metadata_json FROM media_artifacts "
-                             + "WHERE tenant_id=? AND artifact_id=? AND expires_at>?")) {
+                             + "WHERE tenant_id=? AND artifact_id=? AND expires_at>? AND scan_status='CLEAN' "
+                             + FORMAT_ADMISSION_PREDICATE)) {
             statement.setString(1, tenantId);
             statement.setString(2, artifactId);
             statement.setLong(3, System.currentTimeMillis());
@@ -373,13 +431,205 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         }
     }
 
+    @Override
+    public MediaArtifact registerDerived(MediaArtifact derivedArtifact, ArtifactLineage lineage) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(derivedArtifact, "derivedArtifact");
+        java.util.Objects.requireNonNull(lineage, "lineage");
+        if (!derivedArtifact.tenantId().equals(lineage.tenantId())) {
+            throw new IllegalArgumentException("Derived artifact identity does not match lineage tenant");
+        }
+        // Current checks establish live source/job/consent state, but there is no authoritative
+        // rights-decision/policy-version lookup yet. Persist provenance as a candidate only and
+        // keep production derived-artifact admission closed until that authority is wired.
+        if (state.productionEligible()) {
+            throw new UnsupportedOperationException(
+                    "Derived artifact rights and policy authority admission is pending");
+        }
+        try (Connection connection = state.connection()) {
+            validateLineage(connection, derivedArtifact, lineage, false);
+        } catch (SQLException failure) {
+            throw databaseFailure("validate derived Media artifact lineage", failure);
+        }
+        verifyStoredObject(derivedArtifact.objectReference(), derivedArtifact.sizeBytes(), derivedArtifact.sha256());
+        QuarantinedArtifact quarantined = new QuarantinedArtifact(
+                derivedArtifact.tenantId(), derivedArtifact.principalId(), derivedArtifact.artifactId(),
+                derivedArtifact.sha256(), derivedArtifact.sizeBytes(), derivedArtifact.contentType(),
+                derivedArtifact.objectReference());
+        ArtifactScanDecision scan;
+        try {
+            scan = scan(quarantined);
+        } catch (RuntimeException scanFailure) {
+            cleanupDerivedQuarantineObject(derivedArtifact.objectReference());
+            throw scanFailure;
+        }
+        if (scan.verdict() != ArtifactScanVerdict.CLEAN) {
+            cleanupDerivedQuarantineObject(derivedArtifact.objectReference());
+            throw new IllegalStateException("Derived Media artifact scan did not return CLEAN: " + scan.verdict());
+        }
+        long now = System.currentTimeMillis();
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                validateLineage(connection, derivedArtifact, lineage, true);
+                insertArtifact(connection, derivedArtifact, scan);
+                try (PreparedStatement lineageInsert = connection.prepareStatement(
+                        "INSERT INTO media_artifact_lineage (tenant_id,derived_artifact_id,derived_version,"
+                                + "source_artifact_id,source_version,job_id,processing_profile,rights_decision_id,"
+                                + "consent_decision_id,policy_version,admission_status,created_at) "
+                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                    lineageInsert.setString(1, lineage.tenantId());
+                    lineageInsert.setString(2, derivedArtifact.artifactId());
+                    lineageInsert.setString(3, derivedArtifact.version().value());
+                    lineageInsert.setString(4, lineage.sourceArtifactId());
+                    lineageInsert.setString(5, lineage.sourceVersion().value());
+                    lineageInsert.setString(6, lineage.jobId());
+                    lineageInsert.setString(7, lineage.profileId());
+                    lineageInsert.setString(8, lineage.rightsDecisionId());
+                    lineageInsert.setString(9, lineage.consentDecisionId());
+                    lineageInsert.setString(10, lineage.policyVersion());
+                    lineageInsert.setString(11, "CANDIDATE");
+                    lineageInsert.setLong(12, now);
+                    lineageInsert.executeUpdate();
+                }
+                connection.commit();
+                return derivedArtifact;
+            } catch (RuntimeException | SQLException failure) {
+                rollback(connection, failure);
+                if (failure instanceof RuntimeException runtime) throw runtime;
+                throw databaseFailure("register derived Media artifact", (SQLException) failure);
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("open derived Media artifact transaction", failure);
+        }
+    }
+
+    private void validateLineage(
+            Connection connection, MediaArtifact derived, ArtifactLineage lineage, boolean lock) throws SQLException {
+        MediaArtifact source = artifactForUpdate(connection, lineage.tenantId(), lineage.sourceArtifactId());
+        if (source == null || !source.version().equals(lineage.sourceVersion())) {
+            throw new IllegalStateException("Derived artifact source version is missing or stale");
+        }
+        if (!source.principalId().equals(derived.principalId())) {
+            throw new SecurityException("Derived artifact principal does not match its source artifact");
+        }
+        String suffix = lock ? " FOR UPDATE" : "";
+        try (PreparedStatement job = connection.prepareStatement(
+                "SELECT artifact_id,expected_artifact_version,provider_id,status FROM media_processing_jobs "
+                        + "WHERE tenant_id=? AND job_id=?" + suffix)) {
+            job.setString(1, lineage.tenantId());
+            job.setString(2, lineage.jobId());
+            try (ResultSet result = job.executeQuery()) {
+                if (!result.next() || !lineage.sourceArtifactId().equals(result.getString(1))
+                        || !lineage.sourceVersion().value().equals(result.getString(2))
+                        || !lineage.profileId().equals(result.getString(3))
+                        || !("RUNNING".equals(result.getString(4)) || "COMPLETED".equals(result.getString(4)))) {
+                    throw new IllegalStateException("Derived artifact lineage does not match a current governed job");
+                }
+            }
+        }
+        try (PreparedStatement consent = connection.prepareStatement(
+                "SELECT 1 FROM media_consents WHERE tenant_id=? AND consent_id=? AND principal_id=? "
+                        + "AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at>?)" + suffix)) {
+            consent.setString(1, lineage.tenantId());
+            consent.setString(2, lineage.consentDecisionId());
+            consent.setString(3, derived.principalId());
+            consent.setLong(4, System.currentTimeMillis());
+            try (ResultSet result = consent.executeQuery()) {
+                if (!result.next()) throw new SecurityException("Derived artifact consent is missing, revoked, or expired");
+            }
+        }
+    }
+
+    private void verifyStoredObject(String reference, long expectedSize, String expectedDigest) {
+        String prefix = "s3://" + state.bucket() + "/";
+        if (reference == null || !reference.startsWith(prefix) || reference.length() == prefix.length()) {
+            throw new SecurityException("Artifact object reference is outside the configured Media bucket");
+        }
+        String key = reference.substring(prefix.length());
+        try (ResponseInputStream<?> object = state.s3().getObject(GetObjectRequest.builder()
+                .bucket(state.bucket()).key(key).build())) {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[64 * 1024];
+            long total = 0;
+            int read;
+            while ((read = object.read(buffer)) != -1) {
+                total = Math.addExact(total, read);
+                digest.update(buffer, 0, read);
+            }
+            String actual = HexFormat.of().formatHex(digest.digest());
+            if (total != expectedSize || !actual.equals(expectedDigest)) {
+                throw new SecurityException("Artifact object bytes do not match the declared immutable version");
+            }
+        } catch (SecurityException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("Unable to verify exact Media artifact object bytes", failure);
+        }
+    }
+
+    /** Remove only private, store-owned derived quarantine objects; other keys remain caller-owned. */
+    private void cleanupDerivedQuarantineObject(String reference) {
+        String bucketPrefix = "s3://" + state.bucket() + "/";
+        String ownedPrefix = state.key("quarantine/derived/");
+        if (reference == null || !reference.startsWith(bucketPrefix)) return;
+        String key = reference.substring(bucketPrefix.length());
+        if (!key.startsWith(ownedPrefix)) return;
+        try (Connection connection = state.connection();
+             PreparedStatement referenceCheck = connection.prepareStatement(
+                     "SELECT 1 FROM media_artifacts WHERE object_reference=?")) {
+            referenceCheck.setString(1, reference);
+            try (ResultSet result = referenceCheck.executeQuery()) {
+                if (result.next()) return;
+            }
+            state.s3().deleteObject(DeleteObjectRequest.builder().bucket(state.bucket()).key(key).build());
+        } catch (SQLException failure) {
+            throw databaseFailure("check derived quarantine object ownership", failure);
+        }
+    }
+
+    /**
+     * Resolve the tenant-scoped artifact only when its stored digest is the caller's captured
+     * version. Keep the comparison in SQL so the identity and version check share one read.
+     */
+    @Override
+    public Optional<MediaArtifact> artifact(
+            String tenantId, String artifactId, ArtifactVersion expectedVersion) {
+        ensureOpen();
+        require(tenantId, "tenantId");
+        require(artifactId, "artifactId");
+        java.util.Objects.requireNonNull(expectedVersion, "expectedVersion");
+        try (Connection connection = state.connection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT principal_id,file_name,content_type,size_bytes,sha256,object_reference,classification,"
+                             + "created_at,expires_at,metadata_json FROM media_artifacts "
+                             + "WHERE tenant_id=? AND artifact_id=? AND sha256=? AND expires_at>? AND scan_status='CLEAN' "
+                             + FORMAT_ADMISSION_PREDICATE)) {
+            statement.setString(1, tenantId);
+            statement.setString(2, artifactId);
+            statement.setString(3, expectedVersion.value().substring("sha256:".length()));
+            statement.setLong(4, System.currentTimeMillis());
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? Optional.of(readArtifact(tenantId, artifactId, result)) : Optional.empty();
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("read version-pinned Media artifact", failure);
+        }
+    }
+
     @Override public boolean durable() { return true; }
     @Override public boolean productionEligible() { return state.productionEligible(); }
     @Override public boolean ready() { return !closed.get() && state.ready(); }
 
     @Override
     public void close() {
-        if (closed.compareAndSet(false, true)) state.release();
+        if (closed.compareAndSet(false, true)) {
+            try {
+                if (scannerOverride != null) scannerOverride.close();
+            } finally {
+                state.release();
+            }
+        }
     }
 
     private Optional<UploadSession> reconcileFailedChunkWrite(
@@ -444,7 +694,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 if (row.status() == UploadStatus.COMPLETED && row.artifactId() != null) {
                     MediaArtifact artifact = artifactForUpdate(connection, tenantId, row.artifactId());
                     if (artifact == null) {
-                        throw new IllegalStateException("Completed Media upload is missing its stored artifact");
+                        throw new IllegalStateException("Completed Media artifact lacks an admitted signature state");
                     }
                     connection.commit();
                     return new FinalizationClaim(row, token, artifact);
@@ -486,7 +736,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
     }
 
     private MediaArtifact persistArtifact(
-            FinalizationClaim claim, String finalKey, long totalBytes, String digest) {
+            FinalizationClaim claim, String finalKey, long totalBytes, String digest,
+            ArtifactScanDecision scan, MediaArtifactFormatVerifier.Verification verification) {
         String tenantId = claim.row().tenantId();
         String uploadId = claim.row().uploadId();
         long now = System.currentTimeMillis();
@@ -501,16 +752,22 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     throw new IllegalStateException("Media upload finalization ownership changed");
                 }
                 MediaArtifact artifact = resolveOrInsertArtifact(
-                        connection, current, reference, totalBytes, digest, now, expiresAt);
+                        connection, current, reference, totalBytes, digest, now, expiresAt, scan);
+                recordFormatVerification(connection, tenantId, uploadId, artifact.artifactId(), current,
+                        verification, now);
                 try (PreparedStatement update = connection.prepareStatement(
-                        "UPDATE media_upload_sessions SET status='COMPLETED',artifact_id=?,updated_at=?,"
+                        "UPDATE media_upload_sessions SET status='COMPLETED',artifact_id=?,scan_status='CLEAN',"
+                                + "scan_policy_version=?,scanner_id=?,scanned_at=?,updated_at=?,"
                                 + "finalization_token=NULL,finalization_started_at=NULL "
                                 + "WHERE tenant_id=? AND upload_id=? AND finalization_token=?")) {
                     update.setString(1, artifact.artifactId());
-                    update.setLong(2, now);
-                    update.setString(3, tenantId);
-                    update.setString(4, uploadId);
-                    update.setString(5, claim.token());
+                    update.setString(2, scan.policyId() + "/" + scan.policyVersion());
+                    update.setString(3, scan.scannerId() + "/" + scan.scannerVersion());
+                    update.setLong(4, scan.evaluatedAt().toEpochMilli());
+                    update.setLong(5, now);
+                    update.setString(6, tenantId);
+                    update.setString(7, uploadId);
+                    update.setString(8, claim.token());
                     if (update.executeUpdate() != 1) {
                         throw new IllegalStateException("Media upload finalization ownership changed");
                     }
@@ -527,6 +784,131 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         }
     }
 
+    private ArtifactScanDecision scan(QuarantinedArtifact artifact) {
+        if (scannerOverride != null) {
+            if (!scannerOverride.ready()
+                    || state.productionEligible() && !scannerOverride.productionEligible()) {
+                throw new IllegalStateException("Injected Media artifact scanner is not admitted");
+            }
+            ArtifactScanDecision decision = scannerOverride.scan(artifact);
+            if (decision == null || !decision.matches(artifact, Instant.now())) {
+                throw new SecurityException("Media artifact scanner returned an expired or mismatched attestation");
+            }
+            return decision;
+        }
+        List<MediaArtifactScanner> scanners = new ArrayList<>();
+        for (ServiceLoader.Provider<MediaArtifactScanner> provider : ServiceLoader.load(MediaArtifactScanner.class).stream().toList()) {
+            MediaArtifactScanner candidate = provider.get();
+            if (candidate.ready() && (!state.productionEligible() || candidate.productionEligible())) {
+                scanners.add(candidate);
+            } else {
+                candidate.close();
+            }
+        }
+        if (scanners.size() != 1) {
+            scanners.forEach(MediaArtifactScanner::close);
+            throw new IllegalStateException(scanners.isEmpty()
+                    ? "No ready Media artifact scanner is admitted"
+                    : "Multiple ready Media artifact scanners are ambiguous");
+        }
+        MediaArtifactScanner scanner = scanners.getFirst();
+        if (state.productionEligible() && !scanner.productionEligible()) {
+            throw new IllegalStateException("Selected Media artifact scanner is not production eligible");
+        }
+        ArtifactScanDecision decision;
+        try {
+            decision = scanner.scan(artifact);
+        } finally {
+            scanner.close();
+        }
+        if (decision == null || !decision.matches(artifact, Instant.now())) {
+            throw new SecurityException("Media artifact scanner returned an expired or mismatched attestation");
+        }
+        return decision;
+    }
+
+    private void recordScanStatus(
+            String tenantId, String uploadId, String token, ArtifactScanDecision scan, String status) {
+        String policy = scan == null ? null : scan.policyId() + "/" + scan.policyVersion();
+        String scanner = scan == null ? null : scan.scannerId() + "/" + scan.scannerVersion();
+        Long scannedAt = scan == null ? null : scan.evaluatedAt().toEpochMilli();
+        try (Connection connection = state.connection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "UPDATE media_upload_sessions SET scan_status=?,scan_policy_version=?,scanner_id=?,scanned_at=?,updated_at=? "
+                             + "WHERE tenant_id=? AND upload_id=? AND finalization_token=?")) {
+            statement.setString(1, status);
+            statement.setString(2, policy);
+            statement.setString(3, scanner);
+            if (scannedAt == null) statement.setNull(4, java.sql.Types.BIGINT);
+            else statement.setLong(4, scannedAt);
+            statement.setLong(5, System.currentTimeMillis());
+            statement.setString(6, tenantId);
+            statement.setString(7, uploadId);
+            statement.setString(8, token);
+            statement.executeUpdate();
+        } catch (SQLException failure) {
+            throw databaseFailure("record Media artifact scan status", failure);
+        }
+    }
+
+    /** Persist a deterministic signature rejection and abort the upload under the finalization token. */
+    private void rejectFormatClaim(
+            String tenantId, String uploadId, String token, UploadRow upload,
+            MediaArtifactFormatVerifier.Verification verification) {
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                UploadRow current = lockUpload(connection, tenantId, uploadId);
+                if (current == null || current.status() != UploadStatus.FINALIZING
+                        || !token.equals(current.finalizationToken())) {
+                    throw new IllegalStateException("Media upload finalization ownership changed");
+                }
+                long now = System.currentTimeMillis();
+                recordFormatVerification(connection, tenantId, uploadId, null, upload, verification, now);
+                try (PreparedStatement update = connection.prepareStatement(
+                        "UPDATE media_upload_sessions SET status='ABORTED',finalization_token=NULL,"
+                                + "finalization_started_at=NULL,updated_at=? "
+                                + "WHERE tenant_id=? AND upload_id=? AND finalization_token=?")) {
+                    update.setLong(1, now);
+                    update.setString(2, tenantId);
+                    update.setString(3, uploadId);
+                    update.setString(4, token);
+                    if (update.executeUpdate() != 1) {
+                        throw new IllegalStateException("Media upload finalization ownership changed");
+                    }
+                }
+                connection.commit();
+            } catch (RuntimeException | SQLException failure) {
+                rollback(connection, failure);
+                if (failure instanceof RuntimeException runtime) throw runtime;
+                throw databaseFailure("persist Media format rejection", (SQLException) failure);
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("open Media format rejection transaction", failure);
+        }
+    }
+
+    private void recordFormatVerification(
+            Connection connection, String tenantId, String uploadId, String artifactId, UploadRow upload,
+            MediaArtifactFormatVerifier.Verification verification, long checkedAt) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO media_artifact_format_verifications "
+                        + "(tenant_id,upload_id,artifact_id,policy_version,state,claimed_file_name,"
+                        + "claimed_content_type,detected_format,detail,checked_at) VALUES (?,?,?,?,?,?,?,?,?,?)")) {
+            statement.setString(1, tenantId);
+            statement.setString(2, uploadId);
+            statement.setString(3, artifactId);
+            statement.setString(4, MediaArtifactFormatVerifier.POLICY_VERSION);
+            statement.setString(5, verification.state());
+            statement.setString(6, upload.fileName());
+            statement.setString(7, upload.contentType());
+            statement.setString(8, verification.detectedFormat());
+            statement.setString(9, verification.detail());
+            statement.setLong(10, checkedAt);
+            statement.executeUpdate();
+        }
+    }
+
     private MediaArtifact resolveOrInsertArtifact(
             Connection connection,
             UploadRow current,
@@ -534,7 +916,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             long totalBytes,
             String digest,
             long now,
-            long expiresAt) throws SQLException {
+            long expiresAt,
+            ArtifactScanDecision scan) throws SQLException {
         MediaArtifact existing = artifactByHash(
                 connection, current.tenantId(), digest, totalBytes, current, expiresAt);
         if (existing != null) return existing;
@@ -545,7 +928,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 Instant.ofEpochMilli(expiresAt), current.metadata());
         Savepoint deduplicationSavepoint = connection.setSavepoint("media_artifact_deduplication");
         try {
-            insertArtifact(connection, candidate);
+            insertArtifact(connection, candidate, scan);
             return candidate;
         } catch (SQLException failure) {
             if (!duplicateKey(failure)) throw failure;
@@ -660,11 +1043,13 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         }
     }
 
-    private void insertArtifact(Connection connection, MediaArtifact artifact) throws SQLException {
+    private void insertArtifact(
+            Connection connection, MediaArtifact artifact, ArtifactScanDecision scan) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO media_artifacts "
                         + "(tenant_id,artifact_id,principal_id,file_name,content_type,size_bytes,sha256,object_reference,"
-                        + "classification,created_at,expires_at,metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                        + "classification,created_at,expires_at,metadata_json,scan_status,scan_policy_version,scanner_id,scanned_at) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'CLEAN',?,?,?)")) {
             statement.setString(1, artifact.tenantId());
             statement.setString(2, artifact.artifactId());
             statement.setString(3, artifact.principalId());
@@ -677,6 +1062,9 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             statement.setLong(10, artifact.createdAt().toEpochMilli());
             statement.setLong(11, artifact.expiresAt().toEpochMilli());
             statement.setString(12, json(artifact.metadata()));
+            statement.setString(13, scan.policyId() + "/" + scan.policyVersion());
+            statement.setString(14, scan.scannerId() + "/" + scan.scannerVersion());
+            statement.setLong(15, scan.evaluatedAt().toEpochMilli());
             statement.executeUpdate();
         }
     }
@@ -690,13 +1078,16 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             long requiredExpiresAt) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT artifact_id,file_name,content_type,object_reference,classification,created_at,expires_at,"
-                        + "metadata_json FROM media_artifacts WHERE tenant_id=? AND principal_id=? AND sha256=? AND size_bytes=? FOR UPDATE")) {
+                        + "metadata_json,scan_status FROM media_artifacts WHERE tenant_id=? AND principal_id=? AND sha256=? AND size_bytes=? FOR UPDATE")) {
             statement.setString(1, tenantId);
             statement.setString(2, requested.principalId());
             statement.setString(3, digest);
             statement.setLong(4, size);
             try (ResultSet result = statement.executeQuery()) {
                 if (!result.next()) return null;
+                if (!"CLEAN".equals(result.getString("scan_status"))) {
+                    throw new IllegalStateException("Existing byte-identical Media artifact is not currently scan-verified");
+                }
                 MediaArtifact existing = new MediaArtifact(
                         tenantId, requested.principalId(), result.getString("artifact_id"), result.getString("file_name"),
                         result.getString("content_type"), size, digest, result.getString("object_reference"),
@@ -725,11 +1116,18 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT principal_id,file_name,content_type,size_bytes,sha256,object_reference,classification,created_at,"
-                        + "expires_at,metadata_json FROM media_artifacts WHERE tenant_id=? AND artifact_id=? FOR UPDATE")) {
+                        + "expires_at,metadata_json,scan_status FROM media_artifacts WHERE tenant_id=? AND artifact_id=? "
+                        + FORMAT_ADMISSION_PREDICATE + " FOR UPDATE")) {
             statement.setString(1, tenantId);
             statement.setString(2, artifactId);
             try (ResultSet result = statement.executeQuery()) {
-                return result.next() ? readArtifact(tenantId, artifactId, result) : null;
+                if (result.next()) {
+                    if (!"CLEAN".equals(result.getString("scan_status"))) {
+                        throw new IllegalStateException("Media source artifact has no clean scan attestation");
+                    }
+                    return Optional.of(readArtifact(tenantId, artifactId, result)).orElse(null);
+                }
+                return null;
             }
         }
     }
@@ -784,8 +1182,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         return state.key("uploads/" + opaque(tenantId) + "/" + uploadId + "/chunks/" + index);
     }
 
-    private String artifactKey(String tenantId, String digest) {
-        return state.key("artifacts/" + opaque(tenantId) + "/" + digest);
+    private String artifactKey(String tenantId, String uploadId, String digest) {
+        // DB registration is the only publication boundary. Scanner-unavailable objects remain
+        // under a private quarantine prefix and cannot be reached through artifact lookup.
+        return state.key("quarantine/finalized/" + opaque(tenantId) + "/" + uploadId + "/" + digest);
     }
 
     private static String opaque(String value) {
@@ -793,13 +1193,17 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
     }
 
     static String safeFileName(String value) {
-        // Treat both common path separators as separators regardless of the OS
-        // running the service. Path.of(...).getFileName() only recognizes the
-        // host platform's separator (for example, Linux does not split '\\').
-        java.nio.file.Path fileName = java.nio.file.Path.of(value.replace('\\', '/')).getFileName();
-        if (fileName == null) throw new IllegalArgumentException("fileName is invalid");
-        String normalized = fileName.toString().replaceAll("[\\r\\n]", "_");
-        if (normalized.isBlank()) throw new IllegalArgumentException("fileName is invalid");
+        require(value, "fileName");
+        // A display name is never a path. Reject both separator styles so this rule is stable
+        // across hosts and does not turn traversal input into an apparently valid name.
+        if (value.indexOf('/') >= 0 || value.indexOf('\\') >= 0 || value.equals(".") || value.equals("..")
+                || value.indexOf('\0') >= 0 || value.indexOf(':') >= 0) {
+            throw new IllegalArgumentException("fileName must be a plain file name without path components");
+        }
+        String normalized = value.replaceAll("[\\r\\n]", "_").trim();
+        if (normalized.isBlank() || normalized.equals(".") || normalized.equals("..")) {
+            throw new IllegalArgumentException("fileName is invalid");
+        }
         return normalized;
     }
 

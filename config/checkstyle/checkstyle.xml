@@ -1,0 +1,188 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Checkstyle configuration for Ghatana project
+    Based on Google Java Style Guide with customizations
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    <property name="fileExtensions" value="java, properties, xml"/>
+
+    <!-- Suppressions -->
+    <module name="SuppressionFilter">
+        <property name="file" value="${config_loc}/suppressions.xml" default=""/>
+        <property name="optional" value="true"/>
+    </module>
+
+    <!-- Excludes all 'module-info.java' files -->
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="module\-info\.java$"/>
+    </module>
+
+    <!-- Checks for whitespace -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <!-- Checks for file length -->
+    <module name="FileLength">
+        <property name="max" value="2500"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Naming Conventions -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+        <module name="TypeName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="ConstantName">
+            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>
+        </module>
+        <module name="LocalVariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- Imports -->
+        <module name="AvoidStarImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- Size Violations -->
+        <module name="MethodLength">
+            <property name="max" value="150"/>
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>
+        <module name="ParameterNumber">
+            <property name="max" value="10"/>
+        </module>
+
+        <!-- Whitespace -->
+        <module name="EmptyForIteratorPad"/>
+        <module name="GenericWhitespace"/>
+        <module name="MethodParamPad"/>
+        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OperatorWrap"/>
+        <module name="ParenPad"/>
+        <module name="TypecastParenPad"/>
+        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround"/>
+
+        <!-- Modifier Checks -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <!-- Blocks -->
+        <module name="AvoidNestedBlocks"/>
+        <module name="EmptyBlock"/>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="RightCurly"/>
+
+        <!-- Coding -->
+        <module name="EmptyStatement"/>
+        <module name="EqualsHashCode"/>
+        <module name="IllegalInstantiation"/>
+        <module name="InnerAssignment"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+
+        <!-- Class Design -->
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="InterfaceIsType"/>
+
+        <!-- Miscellaneous -->
+        <module name="ArrayTypeStyle"/>
+        <module name="UpperEll"/>
+
+        <!-- Ghatana Platform Standards -->
+
+        <!-- RULE: Ban CompletableFuture in favor of ActiveJ Promise -->
+        <module name="IllegalImport">
+            <property name="id" value="BanCompletableFuture"/>
+            <property name="illegalPkgs" value="java.util.concurrent.CompletableFuture"/>
+            <message key="import.illegal"
+                value="Use ActiveJ Promise instead of CompletableFuture. See copilot-instructions.md."/>
+        </module>
+
+        <!-- RULE: Ban Log4j2 in favor of SLF4J -->
+        <module name="IllegalImport">
+            <property name="id" value="BanLog4j2"/>
+            <property name="illegalClasses" value="lombok.extern.log4j.Log4j2"/>
+            <message key="import.illegal"
+                value="Use @Slf4j instead of @Log4j2. See copilot-instructions.md."/>
+        </module>
+
+        <!-- RULE: Require Javadoc on public classes -->
+        <module name="MissingJavadocType">
+            <property name="severity" value="warning"/>
+            <property name="scope" value="public"/>
+            <property name="excludeScope" value="private"/>
+            <property name="skipAnnotations" value="Generated"/>
+        </module>
+
+        <!-- RULE: Require Javadoc on public methods -->
+        <module name="MissingJavadocMethod">
+            <property name="severity" value="warning"/>
+            <property name="scope" value="public"/>
+            <property name="minLineCount" value="5"/>
+            <property name="allowedAnnotations" value="Override, Test, Bean, PostConstruct, PreDestroy"/>
+        </module>
+
+        <!-- Allow suppression via annotations -->
+        <module name="SuppressWarningsHolder"/>
+    </module>
+
+    <!-- Support @SuppressWarnings annotation -->
+    <module name="SuppressWarningsFilter"/>
+
+    <!-- Ghatana Regex Checks -->
+    <module name="RegexpSingleline">
+        <property name="id" value="NoGetResultOnPromise"/>
+        <property name="format" value="\.getResult\(\)"/>
+        <property name="minimum" value="0"/>
+        <property name="maximum" value="0"/>
+        <property name="message" value="Blocking .getResult() on Promise is forbidden. Use async chaining with .then() or .map()."/>
+    </module>
+
+    <!-- RULE: Warn when code extends RuntimeException directly (prefer platform exceptions) -->
+    <!-- Exempt: platform/core/exception classes which ARE the base exceptions -->
+    <module name="RegexpSingleline">
+        <property name="id" value="NoDirectRuntimeException"/>
+        <property name="severity" value="warning"/>
+        <property name="format" value="^\s*(public|protected)?\s*(abstract\s+)?class\s+\w+\s+extends\s+(java\.lang\.)?RuntimeException\b"/>
+        <property name="message" value="Do not extend RuntimeException directly in product code. Use platform exceptions: ServiceException, ResourceNotFoundException, ConfigurationException, etc. See REPO_WIDE_CONSISTENCY_AUDIT_REPORT.md §JAVA-005."/>
+    </module>
+
+    <!-- Suppress NoDirectRuntimeException for platform core exception hierarchy -->
+    <module name="SuppressionSingleFilter">
+        <property name="id" value="NoDirectRuntimeException"/>
+        <property name="files" value=".*[\\/]platform[\\/]java[\\/]core[\\/].*[\\/]exception[\\/].*\.java$"/>
+    </module>
+
+    <!--
+        Ghatana @doc Tag Policy
+
+        All public classes MUST include the following JavaDoc tags:
+          @doc.type     - class | interface | record | enum
+          @doc.purpose  - One-line description
+          @doc.layer    - core | product | platform
+          @doc.pattern  - Service | Repository | ValueObject | etc.
+
+        Enforcement is via ArchUnit tests:
+          ArchitectureGuardrailsTest (platform/java/core)
+
+        See: copilot-instructions.md § Documentation
+    -->
+</module>

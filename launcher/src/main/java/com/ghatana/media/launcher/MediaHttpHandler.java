@@ -2,8 +2,10 @@ package com.ghatana.media.launcher;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaConsentAdministration;
 import com.ghatana.media.runtime.MediaMetadataSanitizer;
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
@@ -65,13 +67,17 @@ public final class MediaHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        String requestPath = exchange.getRequestURI().getPath();
+        io.micrometer.core.instrument.Timer.Sample requestSample = HEALTH_PATHS.contains(requestPath)
+                ? null : runtime.startWorkflowStage();
         try {
-            String path = exchange.getRequestURI().getPath();
+            String path = requestPath;
             String method = exchange.getRequestMethod();
             if (HEALTH_PATHS.contains(path)) {
                 health(exchange, path);
                 return;
             }
+            runtime.recordHttpRequest();
             if (!runtime.ready()) {
                 error(exchange, 503, "RUNTIME_NOT_READY", "Media Runtime is not ready");
                 return;
@@ -162,7 +168,10 @@ public final class MediaHttpHandler implements HttpHandler {
                 providers(exchange); return;
             }
             error(exchange, 404, "NOT_FOUND", "Route not found");
+        } catch (MediaCapabilityNotAdmittedException failure) {
+            admissionFailure(exchange, failure);
         } catch (SecurityException failure) {
+            runtime.recordDeniedRequest();
             error(exchange, 403, "TENANT_FORBIDDEN", "Request tenant is not permitted");
         } catch (IllegalArgumentException failure) {
             error(exchange, 400, "INVALID_REQUEST", "Media request is invalid");
@@ -170,14 +179,21 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 409, "MEDIA_STATE_CONFLICT", "Media resource state changed; re-read before retrying");
         } catch (Exception failure) {
             error(exchange, 500, "INTERNAL_ERROR", "Media Runtime request failed");
+        } finally {
+            runtime.stopWorkflowStage(requestSample, MediaWorkflowMetrics.Stage.REQUEST);
         }
     }
 
     private void grantConsent(HttpExchange exchange, String tenantId) throws IOException {
         MediaConsentAdministration administration = requireConsentAdministration();
         String principalId = requiredHeader(exchange, "X-Principal-Id");
-        ConsentGrantBody body = mapper.readValue(
-                boundedBody(exchange, runtime.config().maximumBodyBytes()), ConsentGrantBody.class);
+        ConsentGrantBody body;
+        try {
+            body = mapper.readValue(
+                    boundedBody(exchange, runtime.config().maximumBodyBytes()), ConsentGrantBody.class);
+        } catch (Exception invalidBody) {
+            throw new IllegalArgumentException("Consent grant body is invalid", invalidBody);
+        }
         String correlationId = optionalHeader(
                 exchange, "X-Correlation-Id", UUID.randomUUID().toString());
         MediaConsentAdministration.ConsentRecord record = administration.grant(
@@ -290,26 +306,32 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private void submit(HttpExchange exchange, String tenantId, String principalId) throws IOException {
-        ProcessingJobRequest request = mapper.readValue(
-                boundedBody(exchange, runtime.config().maximumBodyBytes()), ProcessingJobRequest.class);
+        ProcessingJobRequest request;
+        try {
+            request = mapper.readValue(
+                    boundedBody(exchange, runtime.config().maximumBodyBytes()), ProcessingJobRequest.class);
+        } catch (Exception invalidBody) {
+            throw new IllegalArgumentException("Job request body is invalid", invalidBody);
+        }
         if (!tenantId.equals(request.tenantId())) throw new SecurityException("Job tenant does not match authenticated tenant");
         if (!principalId.equals(request.principalId())) {
             throw new SecurityException("Job principal does not match authenticated principal");
         }
-        json(exchange, 202, runtime.submit(request));
+        json(exchange, 202, runtime.projectJobView(runtime.submit(request)));
     }
 
     private void listJobs(HttpExchange exchange, String tenantId, String principalId) throws IOException {
-        var jobs = runtime.jobs(tenantId, principalId, queryLimit(exchange, 100));
+        var jobs = runtime.jobViews(tenantId, principalId, queryLimit(exchange, 100));
         json(exchange, 200, Map.of("jobs", jobs));
     }
 
     private void job(HttpExchange exchange, String tenantId, String principalId, String jobId) throws IOException {
         ProcessingJob job = runtime.job(tenantId, principalId, jobId).orElse(null);
-        if (job == null) {
+        String requestId = reconciliationRequestId(exchange);
+        if (job == null || !matchesRequestIdentity(job, requestId)) {
             error(exchange, 404, "JOB_NOT_FOUND", "Media job not found"); return;
         }
-        json(exchange, 200, job);
+        json(exchange, 200, runtime.projectJobView(job));
     }
 
     private void cancel(HttpExchange exchange, String tenantId, String principalId, String jobId) throws IOException {
@@ -317,12 +339,17 @@ public final class MediaHttpHandler implements HttpHandler {
         if (existing == null) {
             error(exchange, 404, "JOB_NOT_FOUND", "Media job not found"); return;
         }
-        json(exchange, 200, runtime.cancel(tenantId, principalId, jobId));
+        json(exchange, 200, runtime.projectJobView(runtime.cancel(tenantId, principalId, jobId)));
     }
 
     private void openStream(HttpExchange exchange, String tenantId, String principalId) throws IOException {
-        StreamSessionRequest request = mapper.readValue(
-                boundedBody(exchange, runtime.config().maximumBodyBytes()), StreamSessionRequest.class);
+        StreamSessionRequest request;
+        try {
+            request = mapper.readValue(
+                    boundedBody(exchange, runtime.config().maximumBodyBytes()), StreamSessionRequest.class);
+        } catch (Exception invalidBody) {
+            throw new IllegalArgumentException("Stream session request body is invalid", invalidBody);
+        }
         if (!tenantId.equals(request.tenantId())) {
             throw new SecurityException("Stream tenant does not match authenticated tenant");
         }
@@ -391,8 +418,8 @@ public final class MediaHttpHandler implements HttpHandler {
         response.put("streamStoreId", health.get("streamStoreId"));
         response.put("consentAdministrationId", consentAdministration == null
                 ? "not-configured" : consentAdministration.administrationId());
-        response.put("genericModelIntegration", "ai-inference-capability");
         response.put("metadataIntegration", "data-cloud-capability");
+        response.put("genericModelIntegration", "ai-inference-capability");
         json(exchange, 200, Map.copyOf(response));
     }
 
@@ -404,11 +431,20 @@ public final class MediaHttpHandler implements HttpHandler {
         } else if ("/health/startup".equals(path)) {
             json(exchange, ready ? 200 : 503, Map.of("status", ready ? "STARTED" : "STARTING"));
         } else if ("/metrics".equals(path)) {
-            Map<String, Object> snapshot = runtime.healthSnapshot();
-            json(exchange, 200, Map.of(
-                    "service", "media", "ready", ready,
-                    "activeJobs", snapshot.get("activeJobs"),
-                    "activeStreams", snapshot.get("activeStreams")));
+            String accept = exchange.getRequestHeaders().getFirst("Accept");
+            if (accept != null && (accept.contains("text/plain") || accept.contains("application/openmetrics-text"))) {
+                byte[] bytes = runtime.prometheusMetrics().getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type", "text/plain; version=0.0.4; charset=utf-8");
+                exchange.getResponseHeaders().set("Cache-Control", "no-store");
+                exchange.sendResponseHeaders(200, bytes.length);
+                try (var output = exchange.getResponseBody()) { output.write(bytes); }
+            } else {
+                Map<String, Object> snapshot = runtime.healthSnapshot();
+                json(exchange, 200, Map.of(
+                        "service", "media", "ready", ready,
+                        "activeJobs", snapshot.get("activeJobs"),
+                        "activeStreams", snapshot.get("activeStreams")));
+            }
         } else if ("/info".equals(path)) {
             json(exchange, 200, Map.of(
                     "service", "media",
@@ -451,6 +487,28 @@ public final class MediaHttpHandler implements HttpHandler {
         return fallback;
     }
 
+    /** Optional exact request identity for a read-only reconciliation lookup. */
+    private static String reconciliationRequestId(HttpExchange exchange) {
+        String query = exchange.getRequestURI().getRawQuery();
+        if (query == null) return null;
+        String requestId = null;
+        for (String part : query.split("&")) {
+            String[] pair = part.split("=", 2);
+            if (pair.length > 0 && "requestId".equals(decode(pair[0]))) {
+                if (requestId != null || pair.length != 2) {
+                    throw new IllegalArgumentException("requestId must be supplied once");
+                }
+                requestId = decode(pair[1]);
+                if (requestId.isBlank()) throw new IllegalArgumentException("requestId must not be blank");
+            }
+        }
+        return requestId;
+    }
+
+    static boolean matchesRequestIdentity(ProcessingJob job, String requestId) {
+        return requestId == null || requestId.equals(job.requestId());
+    }
+
     private static String requiredHeader(HttpExchange exchange, String name) {
         String value = exchange.getRequestHeaders().getFirst(name);
         if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " header is required");
@@ -468,15 +526,60 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private void error(HttpExchange exchange, int status, String code, String message) throws IOException {
+        error(exchange, status, code, message, Map.of());
+    }
+
+    private void admissionFailure(
+            HttpExchange exchange, MediaCapabilityNotAdmittedException failure) throws IOException {
+        int status;
+        String code;
+        String message;
+        switch (failure.reason()) {
+            case NOT_ADMITTED -> {
+                status = 422;
+                code = "MEDIA_CAPABILITY_NOT_ADMITTED";
+                message = "The requested Media capability is not admitted";
+            }
+            case PROVIDER_UNAVAILABLE -> {
+                status = 503;
+                code = "MEDIA_PROVIDER_UNAVAILABLE";
+                message = "The admitted Media capability is temporarily unavailable";
+            }
+            case POLICY_DENIED -> {
+                status = 403;
+                code = "MEDIA_POLICY_DENIED";
+                message = "The Media request was denied by policy";
+            }
+            case SOURCE_VERSION_STALE -> {
+                status = 409;
+                code = "MEDIA_SOURCE_VERSION_STALE";
+                message = "The Media source version is stale; select a current version";
+            }
+            default -> throw new IllegalStateException("Unhandled Media admission reason");
+        }
+        error(exchange, status, code, message, Map.of(
+                "reason", failure.reason().name(),
+                "modality", failure.modality()));
+    }
+
+    private void error(
+            HttpExchange exchange, int status, String code, String message, Map<String, ?> details)
+            throws IOException {
         String requestId = safeIdentity(exchange.getRequestHeaders().getFirst("X-Request-ID"));
         if (requestId == null) requestId = UUID.randomUUID().toString();
         String correlationId = safeIdentity(exchange.getRequestHeaders().getFirst("X-Correlation-ID"));
         if (correlationId == null) correlationId = requestId;
         exchange.getResponseHeaders().set("X-Request-ID", requestId);
         exchange.getResponseHeaders().set("X-Correlation-ID", correlationId);
+        Map<String, Object> error = new java.util.LinkedHashMap<>();
+        error.put("code", code);
+        error.put("message", message);
+        error.put("retryable", isRetryable(status));
+        error.put("evidenceRefs", List.of());
+        error.put("actionRefs", List.of());
+        if (details != null && !details.isEmpty()) error.put("details", Map.copyOf(details));
         json(exchange, status, Map.of(
-                "error", Map.of("code", code, "message", message, "retryable", isRetryable(status),
-                        "evidenceRefs", List.of(), "actionRefs", List.of()),
+                "error", Map.copyOf(error),
                 "meta", Map.of("requestId", requestId, "correlationId", correlationId,
                         "timestamp", Instant.now().toString(), "apiVersion", "1.0.0")));
     }

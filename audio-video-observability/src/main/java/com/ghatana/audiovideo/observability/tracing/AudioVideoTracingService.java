@@ -16,8 +16,13 @@ import java.util.UUID;
  * @doc.purpose OpenTelemetry distributed tracing for Audio-Video service operations
  * @doc.layer observability
  * @doc.pattern Service
+ *
+ * <p>Operation and tenant identifiers stay in spans only; they are never copied into MDC, which
+ * structured logging commonly exports. Error messages and exception payloads are also redacted.
  */
 public class AudioVideoTracingService {
+
+    private static final String CONTRACT_VERSION = "v1";
 
     private static final Logger log = LoggerFactory.getLogger(AudioVideoTracingService.class);
 
@@ -37,12 +42,10 @@ public class AudioVideoTracingService {
         Span span = tracer.spanBuilder("audiovideo.grpc.streaming")
                 .setSpanKind(SpanKind.INTERNAL)
                 .setAttribute("method.name", methodName)
-                .setAttribute("tenant.id", tenantId)
+                .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
+                .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("correlation.id", correlationId)
                 .startSpan();
-
-        MDC.put("methodName", methodName);
-        MDC.put("correlationId", correlationId);
 
         return span;
     }
@@ -56,11 +59,10 @@ public class AudioVideoTracingService {
         Span span = tracer.spanBuilder("audiovideo.video.processing")
                 .setSpanKind(SpanKind.INTERNAL)
                 .setAttribute("process.id", processId)
-                .setAttribute("tenant.id", tenantId)
+                .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
+                .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("correlation.id", correlationId)
                 .startSpan();
-
-        MDC.put("processId", processId);
 
         return span;
     }
@@ -74,11 +76,10 @@ public class AudioVideoTracingService {
         Span span = tracer.spanBuilder("audiovideo.audio.processing")
                 .setSpanKind(SpanKind.INTERNAL)
                 .setAttribute("process.id", processId)
-                .setAttribute("tenant.id", tenantId)
+                .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
+                .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("correlation.id", correlationId)
                 .startSpan();
-
-        MDC.put("processId", processId);
 
         return span;
     }
@@ -92,11 +93,10 @@ public class AudioVideoTracingService {
         Span span = tracer.spanBuilder("audiovideo.synthesis")
                 .setSpanKind(SpanKind.INTERNAL)
                 .setAttribute("synthesis.id", synthesisId)
-                .setAttribute("tenant.id", tenantId)
+                .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
+                .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("correlation.id", correlationId)
                 .startSpan();
-
-        MDC.put("synthesisId", synthesisId);
 
         return span;
     }
@@ -125,15 +125,15 @@ public class AudioVideoTracingService {
      */
     public void recordError(Span span, Exception exception, long durationMs) {
         if (span != null) {
-            span.setStatus(StatusCode.ERROR, exception.getMessage());
-            span.recordException(exception);
+            // Exception messages can contain user supplied paths, tokens, or media metadata.
+            span.setStatus(StatusCode.ERROR, "Media operation failed");
             span.setAttribute("duration.ms", durationMs);
             span.setAttribute("error", true);
-            span.setAttribute("error.type", exception.getClass().getName());
+            span.setAttribute("error.type", exception.getClass().getSimpleName());
             span.end();
 
-            log.error("Audio-Video operation failed after {}ms: {}",
-                    durationMs, exception.getMessage(), exception);
+            log.error("Audio-Video operation failed after {}ms (type={})",
+                    durationMs, exception.getClass().getSimpleName());
         }
     }
 
@@ -151,7 +151,6 @@ public class AudioVideoTracingService {
         String correlationId = MDC.get("correlationId");
         if (correlationId == null) {
             correlationId = UUID.randomUUID().toString();
-            MDC.put("correlationId", correlationId);
         }
         return correlationId;
     }
@@ -171,13 +170,11 @@ public class AudioVideoTracingService {
         Span span = tracer.spanBuilder("audiovideo.stt.transcribe")
                 .setSpanKind(SpanKind.INTERNAL)
                 .setAttribute("transcription.id", transcriptionId)
-                .setAttribute("tenant.id", tenantId)
+                .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
+                .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("stt.language", language != null ? language : "auto")
                 .setAttribute("correlation.id", correlationId)
                 .startSpan();
-
-        MDC.put("transcriptionId", transcriptionId);
-        MDC.put("sttLanguage", language != null ? language : "auto");
 
         return span;
     }
@@ -217,12 +214,11 @@ public class AudioVideoTracingService {
         Span span = tracer.spanBuilder("audiovideo.vision.detect")
                 .setSpanKind(SpanKind.INTERNAL)
                 .setAttribute("detection.id", detectionId)
-                .setAttribute("tenant.id", tenantId)
+                .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
+                .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("vision.confidence_threshold", confidenceThreshold)
                 .setAttribute("correlation.id", correlationId)
                 .startSpan();
-
-        MDC.put("detectionId", detectionId);
 
         return span;
     }

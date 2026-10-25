@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -78,7 +79,7 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT tenant_id,artifact_id FROM media_artifacts "
-                             + "WHERE expires_at<=? ORDER BY expires_at LIMIT ?")) {
+                             + "WHERE expires_at<=? AND legal_hold=FALSE ORDER BY expires_at LIMIT ?")) {
             statement.setLong(1, now.toEpochMilli());
             statement.setInt(2, batchSize);
             try (ResultSet result = statement.executeQuery()) {
@@ -94,46 +95,118 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
 
         int deleted = 0;
         for (ArtifactDelete artifact : expired) {
-            try (Connection connection = state.connection()) {
-                connection.setAutoCommit(false);
-                try {
-                    String reference;
-                    try (PreparedStatement lock = connection.prepareStatement(
-                            "SELECT object_reference FROM media_artifacts "
-                                    + "WHERE tenant_id=? AND artifact_id=? AND expires_at<=? FOR UPDATE")) {
-                        lock.setString(1, artifact.tenantId());
-                        lock.setString(2, artifact.artifactId());
-                        lock.setLong(3, now.toEpochMilli());
-                        try (ResultSet result = lock.executeQuery()) {
-                            if (!result.next()) {
-                                connection.commit();
-                                continue;
-                            }
-                            reference = result.getString("object_reference");
-                        }
-                    }
-                    // Prevent a concurrent retention renewal from preserving metadata after its
-                    // referenced object has been deleted.
-                    deleteObject(objectKey(reference));
-                    try (PreparedStatement remove = connection.prepareStatement(
-                            "DELETE FROM media_artifacts WHERE tenant_id=? AND artifact_id=? AND expires_at<=?")) {
-                        remove.setString(1, artifact.tenantId());
-                        remove.setString(2, artifact.artifactId());
-                        remove.setLong(3, now.toEpochMilli());
-                        deleted += remove.executeUpdate();
-                    }
-                    connection.commit();
-                } catch (SQLException | RuntimeException failure) {
-                    try { connection.rollback(); } catch (SQLException rollbackFailure) {
-                        failure.addSuppressed(rollbackFailure);
-                    }
-                    throw failure;
-                }
-            } catch (SQLException failure) {
-                throw databaseFailure("delete expired Media artifact metadata", failure);
-            }
+            deleted += purgeArtifactTree(artifact.tenantId(), artifact.artifactId(), now.toEpochMilli(), true);
         }
         return deleted;
+    }
+
+    /** Deletes derived descendants with their source so no derived bytes outlive their lineage. */
+    private int purgeArtifactTree(String tenantId, String rootArtifactId, long now, boolean requireExpiredRoot) {
+        LinkedHashMap<String, ArtifactNode> tree = new LinkedHashMap<>();
+        collectArtifactTree(tenantId, rootArtifactId, tree);
+        ArtifactNode root = tree.get(rootArtifactId);
+        if (root == null || root.legalHold()
+                || requireExpiredRoot && root.expiresAt() > now
+                || tree.values().stream().anyMatch(ArtifactNode::legalHold)) return 0;
+
+        // Delete all bytes before metadata. A failure leaves every row and lineage available for retry.
+        List<ArtifactNode> reverse;
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                // Lock every lineage row before touching bytes so a concurrent retention renewal
+                // or legal-hold change commits first and is re-evaluated under the lock.
+                List<ArtifactNode> locked = new ArrayList<>();
+                for (ArtifactNode node : tree.values()) {
+                    String objectKey;
+                    try (PreparedStatement lock = connection.prepareStatement(
+                            "SELECT object_reference FROM media_artifacts "
+                                    + "WHERE tenant_id=? AND artifact_id=? FOR UPDATE")) {
+                        lock.setString(1, tenantId); lock.setString(2, node.artifactId());
+                        try (ResultSet result = lock.executeQuery()) {
+                            if (!result.next()) continue;
+                            objectKey = objectKey(result.getString(1));
+                        }
+                    }
+                    try (PreparedStatement recheck = connection.prepareStatement(
+                            "SELECT legal_hold,expires_at FROM media_artifacts "
+                                    + "WHERE tenant_id=? AND artifact_id=?")) {
+                        recheck.setString(1, tenantId); recheck.setString(2, node.artifactId());
+                        try (ResultSet result = recheck.executeQuery()) {
+                            if (!result.next()) continue;
+                            locked.add(new ArtifactNode(node.artifactId(), objectKey,
+                                    result.getBoolean(1), result.getLong(2)));
+                        }
+                    }
+                }
+                ArtifactNode lockedRoot = locked.stream()
+                        .filter(node -> node.artifactId().equals(rootArtifactId)).findFirst().orElse(null);
+                if (lockedRoot == null || lockedRoot.legalHold()
+                        || requireExpiredRoot && lockedRoot.expiresAt() > now
+                        || locked.stream().anyMatch(ArtifactNode::legalHold)) {
+                    connection.commit();
+                    return 0;
+                }
+                for (ArtifactNode node : locked) deleteObject(node.objectKey());
+                reverse = new ArrayList<>(locked);
+                java.util.Collections.reverse(reverse);
+                for (ArtifactNode node : locked) {
+                    try (PreparedStatement transcripts = connection.prepareStatement(
+                            "DELETE FROM media_transcript_revisions WHERE tenant_id=? AND source_artifact_id=?")) {
+                        transcripts.setString(1, tenantId); transcripts.setString(2, node.artifactId());
+                        transcripts.executeUpdate();
+                    }
+                    try (PreparedStatement lineage = connection.prepareStatement(
+                            "DELETE FROM media_artifact_lineage WHERE tenant_id=? "
+                                    + "AND (source_artifact_id=? OR derived_artifact_id=?)")) {
+                        lineage.setString(1, tenantId); lineage.setString(2, node.artifactId());
+                        lineage.setString(3, node.artifactId()); lineage.executeUpdate();
+                    }
+                }
+                int removed = 0;
+                for (ArtifactNode node : reverse) {
+                    try (PreparedStatement artifact = connection.prepareStatement(
+                            "DELETE FROM media_artifacts WHERE tenant_id=? AND artifact_id=? AND legal_hold=FALSE"
+                                    + (node.artifactId().equals(rootArtifactId) && requireExpiredRoot
+                                            ? " AND expires_at<=?" : ""))) {
+                        artifact.setString(1, tenantId); artifact.setString(2, node.artifactId());
+                        if (node.artifactId().equals(rootArtifactId) && requireExpiredRoot) artifact.setLong(3, now);
+                        removed += artifact.executeUpdate();
+                    }
+                }
+                connection.commit();
+                return removed;
+            } catch (SQLException failure) {
+                try { connection.rollback(); } catch (SQLException rollbackFailure) { failure.addSuppressed(rollbackFailure); }
+                throw failure;
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("purge expired Media artifact lineage", failure);
+        }
+    }
+
+    private void collectArtifactTree(String tenantId, String artifactId, Map<String, ArtifactNode> tree) {
+        if (tree.containsKey(artifactId)) return;
+        try (Connection connection = state.connection(); PreparedStatement artifact = connection.prepareStatement(
+                "SELECT object_reference,legal_hold,expires_at FROM media_artifacts WHERE tenant_id=? AND artifact_id=?")) {
+            artifact.setString(1, tenantId); artifact.setString(2, artifactId);
+            try (ResultSet result = artifact.executeQuery()) {
+                if (!result.next()) return;
+                tree.put(artifactId, new ArtifactNode(artifactId, objectKey(result.getString(1)),
+                        result.getBoolean(2), result.getLong(3)));
+            }
+            try (PreparedStatement children = connection.prepareStatement(
+                    "SELECT derived_artifact_id FROM media_artifact_lineage WHERE tenant_id=? AND source_artifact_id=?")) {
+                children.setString(1, tenantId); children.setString(2, artifactId);
+                try (ResultSet rows = children.executeQuery()) {
+                    List<String> ids = new ArrayList<>();
+                    while (rows.next()) ids.add(rows.getString(1));
+                    for (String child : ids) collectArtifactTree(tenantId, child, tree);
+                }
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("read derived Media artifact lineage", failure);
+        }
     }
 
     private UploadPurge purgeUploads(Instant now) {
@@ -213,9 +286,6 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                         remove.setLong(4, staleFinalizingBefore);
                         removedUpload = remove.executeUpdate();
                     }
-                    if (removedUpload != 1) {
-                        throw new IllegalStateException("Expired Media upload changed while row lock was held");
-                    }
                     connection.commit();
                     chunksDeleted += removedChunks;
                     uploadsDeleted += removedUpload;
@@ -230,29 +300,86 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
         return new UploadPurge(uploadsDeleted, chunksDeleted);
     }
 
-    private List<String> uploadChunkKeys(Connection connection, UploadDelete upload) throws SQLException {
+    private List<String> uploadChunkKeys(Connection connection, UploadDelete upload) {
         List<String> keys = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(
-                "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=? ORDER BY chunk_index")) {
+                     "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=? ORDER BY chunk_index")) {
             statement.setString(1, upload.tenantId());
             statement.setString(2, upload.uploadId());
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) keys.add(result.getString("object_key"));
             }
             return List.copyOf(keys);
+        } catch (SQLException failure) {
+            throw databaseFailure("read expired Media upload chunks", failure);
         }
     }
 
     private int purgeJobs(Instant completedBefore) {
-        try (Connection connection = state.connection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "DELETE FROM media_processing_jobs WHERE status IN ('COMPLETED','FAILED','CANCELLED') "
-                             + "AND completed_at IS NOT NULL AND completed_at<=?")) {
-            statement.setLong(1, completedBefore.toEpochMilli());
-            return statement.executeUpdate();
+        // Preserve OUTCOME_UNKNOWN rows because their request identity still fences replay.
+        List<JobDelete> candidates = new ArrayList<>();
+        try (Connection connection = state.connection(); PreparedStatement jobs = connection.prepareStatement(
+                "SELECT tenant_id,job_id FROM media_processing_jobs WHERE status IN ('COMPLETED','FAILED','CANCELLED') "
+                        + "AND completed_at IS NOT NULL AND completed_at<=?")) {
+            jobs.setLong(1, completedBefore.toEpochMilli());
+            try (ResultSet rows = jobs.executeQuery()) {
+                while (rows.next()) candidates.add(new JobDelete(rows.getString(1), rows.getString(2)));
+            }
         } catch (SQLException failure) {
             throw databaseFailure("purge terminal Media jobs", failure);
         }
+        int deleted = 0;
+        for (JobDelete job : candidates) {
+            List<String> derivedRoots = new ArrayList<>();
+            try (Connection connection = state.connection(); PreparedStatement lineage = connection.prepareStatement(
+                    "SELECT derived_artifact_id FROM media_artifact_lineage WHERE tenant_id=? AND job_id=?")) {
+                lineage.setString(1, job.tenantId()); lineage.setString(2, job.jobId());
+                try (ResultSet rows = lineage.executeQuery()) {
+                    while (rows.next()) derivedRoots.add(rows.getString(1));
+                }
+            } catch (SQLException failure) {
+                throw databaseFailure("read job-derived Media artifacts", failure);
+            }
+            for (String derived : derivedRoots) purgeArtifactTree(job.tenantId(), derived, Long.MAX_VALUE, false);
+            try (Connection connection = state.connection()) {
+                connection.setAutoCommit(false);
+                try {
+                    // A legal-held derived artifact preserves its job/lineage until the hold is released.
+                    try (PreparedStatement check = connection.prepareStatement(
+                            "SELECT 1 FROM media_artifact_lineage WHERE tenant_id=? AND job_id=?")) {
+                        check.setString(1, job.tenantId()); check.setString(2, job.jobId());
+                        try (ResultSet row = check.executeQuery()) {
+                            if (row.next()) { connection.rollback(); continue; }
+                        }
+                    }
+                    try (PreparedStatement transcripts = connection.prepareStatement(
+                            "DELETE FROM media_transcript_revisions WHERE tenant_id=? AND job_id=?");
+                         PreparedStatement lineage = connection.prepareStatement(
+                                 "DELETE FROM media_artifact_lineage WHERE tenant_id=? AND job_id=?");
+                         PreparedStatement attempts = connection.prepareStatement(
+                                 "DELETE FROM media_processing_attempts WHERE tenant_id=? AND job_id=?");
+                         PreparedStatement delete = connection.prepareStatement(
+                                 "DELETE FROM media_processing_jobs WHERE tenant_id=? AND job_id=? "
+                                         + "AND status IN ('COMPLETED','FAILED','CANCELLED') AND completed_at<=?")) {
+                        transcripts.setString(1, job.tenantId()); transcripts.setString(2, job.jobId());
+                        transcripts.executeUpdate();
+                        lineage.setString(1, job.tenantId()); lineage.setString(2, job.jobId());
+                        lineage.executeUpdate();
+                        attempts.setString(1, job.tenantId()); attempts.setString(2, job.jobId());
+                        attempts.executeUpdate();
+                        delete.setString(1, job.tenantId()); delete.setString(2, job.jobId());
+                        delete.setLong(3, completedBefore.toEpochMilli()); deleted += delete.executeUpdate();
+                    }
+                    connection.commit();
+                } catch (SQLException failure) {
+                    try { connection.rollback(); } catch (SQLException rollbackFailure) { failure.addSuppressed(rollbackFailure); }
+                    throw failure;
+                }
+            } catch (SQLException failure) {
+                throw databaseFailure("purge terminal Media job children", failure);
+            }
+        }
+        return deleted;
     }
 
     private int purgeStreams(Instant closedBefore) {
@@ -329,6 +456,8 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
     }
 
     private record ArtifactDelete(String tenantId, String artifactId) { }
+    private record ArtifactNode(String artifactId, String objectKey, boolean legalHold, long expiresAt) { }
+    private record JobDelete(String tenantId, String jobId) { }
     private record UploadDelete(String tenantId, String uploadId) { }
     private record UploadPurge(int uploads, int chunks) { }
 }

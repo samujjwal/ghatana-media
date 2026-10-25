@@ -267,3 +267,87 @@ groups:
         annotations:
           summary: "Audio-Video node memory above 90%"
           description: "Node {{ $labels.instance }} at {{ $value | humanizePercentage }} memory usage."
+
+  # -------------------------------------------------------------------------
+  # 7. Media Durable Workflow (launcher job processing + lifecycle publication)
+  #    Metrics emitted by MediaWorkflowMetrics — bounded cardinality only:
+  #    service, stage, event, contract_version. No tenant/request/job/attempt
+  #    identity is ever exported as a label.
+  # -------------------------------------------------------------------------
+  - name: media.workflow
+    rules:
+      - alert: MediaJobLeaseStuck
+        expr: |
+          max(media_workflow_lease_overdue{contract_version="v1"}) > 0
+        for: 10m
+        labels:
+          severity: critical
+          product: audio-video
+          component: workflow
+        annotations:
+          summary: "Media job leases overdue without recovery"
+          description: "{{ $value }} durable Media job lease(s) on {{ $labels.service }} have stayed expired for over 10 minutes — a worker may have crashed or job-store recovery may be stalled. Inspect worker health and rerun the restart-reconciliation procedure in docs/OPERATIONS.md."
+
+      - alert: MediaUnknownFinalityBacklog
+        expr: |
+          max(media_workflow_unknown_backlog{contract_version="v1"}) > 25
+        for: 15m
+        labels:
+          severity: warning
+          product: audio-video
+          component: workflow
+        annotations:
+          summary: "Media jobs with unknown finality are accumulating"
+          description: "{{ $value }} Media job(s) on {{ $labels.service }} are in OUTCOME_UNKNOWN for over 15 minutes. Provider outcome reconciliation is falling behind — check provider connectivity and the reconciliation pass before resubmitting anything; unknown outcomes must never be blindly retried."
+
+      - alert: MediaPublicationAmbiguityIncreasing
+        expr: |
+          sum(rate(media_workflow_events_total{contract_version="v1", event="publication_ambiguous"}[15m])) > 0
+        for: 5m
+        labels:
+          severity: critical
+          product: audio-video
+          component: workflow
+        annotations:
+          summary: "Media lifecycle publication outcomes are ambiguous"
+          description: "The lifecycle outbox on {{ $labels.service }} is recording ambiguous broker-acknowledgement outcomes. Events may be safely claimed and fenced but publication finality is unconfirmed — verify the event-plane broker and follow the outbox replay/DLQ procedure in docs/OPERATIONS.md."
+
+      - alert: MediaPolicyDenialRateHigh
+        expr: |
+          (
+            sum(rate(media_workflow_events_total{contract_version="v1", event="denied"}[10m]))
+            /
+            sum(rate(media_workflow_requests_total{contract_version="v1"}[10m]))
+          ) > 0.20
+        for: 10m
+        labels:
+          severity: warning
+          product: audio-video
+          component: workflow
+        annotations:
+          summary: "Media policy/governance denial rate above 20%"
+          description: "Over 20% of Media workflow requests on {{ $labels.service }} are being denied by security, consent, or governance checks for 10 minutes. Confirm consent authorities are reachable and that upstream clients are sending authorized requests."
+
+      - alert: MediaQueueCapacityHigh
+        expr: |
+          max(media_workflow_queue_depth{contract_version="v1"}) > 500
+        for: 10m
+        labels:
+          severity: warning
+          product: audio-video
+          component: workflow
+        annotations:
+          summary: "Media work queue depth above 500"
+          description: "The Media job dispatch queue on {{ $labels.service }} has held more than 500 pending items for 10 minutes. Check global and per-tenant concurrency limits, provider latency, and worker availability before increasing capacity."
+
+      - alert: MediaWorkflowAggregateStoreMetricsUnavailable
+        expr: |
+          max(media_workflow_aggregate_store_queries_supported{contract_version="v1"}) == 0
+        for: 15m
+        labels:
+          severity: warning
+          product: audio-video
+          component: workflow
+        annotations:
+          summary: "Media job store cannot supply aggregate workflow metrics"
+          description: "The configured Media job store on {{ $labels.service }} reports it does not support the aggregate queries backing lease/backlog/queue-depth gauges — workflow health signals on this service are degraded, not absent."

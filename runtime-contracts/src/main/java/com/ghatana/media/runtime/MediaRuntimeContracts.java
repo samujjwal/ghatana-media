@@ -32,10 +32,12 @@ public final class MediaRuntimeContracts {
     }
 
     public enum UploadStatus { OPEN, FINALIZING, COMPLETED, ABORTED, EXPIRED }
+    public enum ArtifactScanVerdict { CLEAN, REJECT, UNAVAILABLE }
     /** Logical job outcome and observation; OUTCOME_UNKNOWN is never a replay or failure signal. */
     public enum JobStatus { ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED }
     public enum CancellationOutcome { CONFIRMED, REQUESTED_UNCONFIRMED, UNSUPPORTED }
     public enum JobType { TRANSCODE, SPEECH_TO_TEXT, TEXT_TO_SPEECH, VISION, MULTIMODAL }
+    public enum JobAttemptStatus { DISPATCH_INTENT, RUNNING, COMPLETED, FAILED, OUTCOME_UNKNOWN }
     public enum StreamKind { AUDIO, VIDEO, MULTIMODAL }
     public enum StreamState { OPEN, CONNECTED, DEGRADED, DRAINING, CLOSED, FAILED }
     public enum ProcessingBoundary { LOCAL, EXTERNAL }
@@ -141,19 +143,42 @@ public final class MediaRuntimeContracts {
             Set<String> allowedPurposes,
             Set<String> allowedRegions,
             boolean externalProcessingAllowed,
-            boolean biometricProcessingAllowed) {
+            boolean biometricProcessingAllowed,
+            Set<ProviderDataRetention> allowedProviderRetention) {
         public ConsentDecision {
             authorityId = optional(authorityId);
             consentId = optional(consentId);
             verifiedAt = verifiedAt == null ? Instant.EPOCH : verifiedAt;
             allowedPurposes = normalizedSet(allowedPurposes);
             allowedRegions = normalizedSet(allowedRegions);
+            allowedProviderRetention = Set.copyOf(allowedProviderRetention == null
+                    ? Set.of() : allowedProviderRetention);
             if (verified && (authorityId.isBlank() || consentId.isBlank())) {
                 throw new IllegalArgumentException("verified consent requires authorityId and consentId");
             }
             if (verified && expiresAt != null && !expiresAt.isAfter(verifiedAt)) {
                 throw new IllegalArgumentException("consent expiresAt must be after verifiedAt");
             }
+        }
+
+        /**
+         * Compatibility bridge for authorities that have not yet published retention rights.
+         * Such authorities can affirm no provider retention, but cannot authorize a retaining
+         * provider by relying on caller-supplied governance intent.
+         */
+        public ConsentDecision(
+                boolean verified,
+                String authorityId,
+                String consentId,
+                Instant verifiedAt,
+                Instant expiresAt,
+                Set<String> allowedPurposes,
+                Set<String> allowedRegions,
+                boolean externalProcessingAllowed,
+                boolean biometricProcessingAllowed) {
+            this(verified, authorityId, consentId, verifiedAt, expiresAt,
+                    allowedPurposes, allowedRegions, externalProcessingAllowed,
+                    biometricProcessingAllowed, Set.of(ProviderDataRetention.NONE));
         }
 
         /** Compatibility bridge; intentionally grants no processing rights. */
@@ -187,6 +212,10 @@ public final class MediaRuntimeContracts {
             String normalized = optional(region).toLowerCase(Locale.ROOT);
             return !normalized.isBlank()
                     && (allowedRegions.contains("*") || allowedRegions.contains(normalized));
+        }
+
+        public boolean permitsProviderRetention(ProviderDataRetention retention) {
+            return retention != null && allowedProviderRetention.contains(retention);
         }
     }
 
@@ -345,6 +374,77 @@ public final class MediaRuntimeContracts {
         public String purpose() { return metadataPurpose(metadata); }
     }
 
+    /** Exact, immutable identity presented to a scanner after quarantine finalization. */
+    public record QuarantinedArtifact(
+            String tenantId, String principalId, String uploadId, String sha256,
+            long sizeBytes, String contentType, String objectReference) {
+        public QuarantinedArtifact {
+            tenantId = required(tenantId, "tenantId");
+            principalId = required(principalId, "principalId");
+            uploadId = required(uploadId, "uploadId");
+            sha256 = requireSha256(sha256);
+            if (sizeBytes < 1) throw new IllegalArgumentException("sizeBytes must be positive");
+            contentType = required(contentType, "contentType");
+            objectReference = required(objectReference, "objectReference");
+        }
+    }
+
+    /** Scanner attestation is bound to the exact quarantined bytes and expires at a fixed time. */
+    public record ArtifactScanDecision(
+            String scannerId, String scannerVersion, String policyId, String policyVersion,
+            String tenantId, String principalId, String uploadId, String sourceSha256,
+            long sizeBytes, String contentType, ArtifactScanVerdict verdict,
+            Instant evaluatedAt, Instant expiresAt) {
+        public ArtifactScanDecision {
+            scannerId = required(scannerId, "scannerId");
+            scannerVersion = required(scannerVersion, "scannerVersion");
+            policyId = required(policyId, "policyId");
+            policyVersion = required(policyVersion, "policyVersion");
+            tenantId = required(tenantId, "tenantId");
+            principalId = required(principalId, "principalId");
+            uploadId = required(uploadId, "uploadId");
+            sourceSha256 = requireSha256(sourceSha256);
+            if (sizeBytes < 1) throw new IllegalArgumentException("sizeBytes must be positive");
+            contentType = required(contentType, "contentType");
+            verdict = java.util.Objects.requireNonNull(verdict, "verdict");
+            evaluatedAt = java.util.Objects.requireNonNull(evaluatedAt, "evaluatedAt");
+            expiresAt = java.util.Objects.requireNonNull(expiresAt, "expiresAt");
+            if (!expiresAt.isAfter(evaluatedAt)) throw new IllegalArgumentException("scan decision expiry must follow evaluation");
+        }
+
+        public boolean matches(QuarantinedArtifact artifact, Instant now) {
+            return artifact != null && now != null && expiresAt.isAfter(now)
+                    && tenantId.equals(artifact.tenantId()) && principalId.equals(artifact.principalId())
+                    && uploadId.equals(artifact.uploadId()) && sourceSha256.equals(artifact.sha256())
+                    && sizeBytes == artifact.sizeBytes() && contentType.equals(artifact.contentType());
+        }
+    }
+
+    public interface MediaArtifactScanner extends AutoCloseable {
+        String scannerId();
+        boolean ready();
+        boolean productionEligible();
+        ArtifactScanDecision scan(QuarantinedArtifact artifact);
+        @Override default void close() { }
+    }
+
+    /**
+     * Immutable content version for a Media artifact. The artifact id locates a tenant-scoped
+     * record; this value pins a caller to the bytes represented by that record.
+     */
+    public record ArtifactVersion(String value) {
+        public ArtifactVersion {
+            value = required(value, "value");
+            if (!value.matches("sha256:[0-9a-f]{64}")) {
+                throw new IllegalArgumentException("artifact version must be sha256:<64 lowercase hex>");
+            }
+        }
+
+        public static ArtifactVersion fromSha256(String sha256) {
+            return new ArtifactVersion("sha256:" + requireSha256(sha256));
+        }
+    }
+
     public record MediaArtifact(
             String tenantId,
             String principalId,
@@ -374,6 +474,26 @@ public final class MediaRuntimeContracts {
         }
 
         public String purpose() { return metadataPurpose(metadata); }
+
+        /** Version of the immutable content stored for this artifact locator. */
+        public ArtifactVersion version() { return ArtifactVersion.fromSha256(sha256); }
+    }
+
+    /** Provenance required to register a derived version without mutating its source. */
+    public record ArtifactLineage(
+            String tenantId, String sourceArtifactId, ArtifactVersion sourceVersion,
+            String jobId, String profileId, String consentDecisionId,
+            String rightsDecisionId, String policyVersion) {
+        public ArtifactLineage {
+            tenantId = required(tenantId, "tenantId");
+            sourceArtifactId = required(sourceArtifactId, "sourceArtifactId");
+            sourceVersion = java.util.Objects.requireNonNull(sourceVersion, "sourceVersion");
+            jobId = required(jobId, "jobId");
+            profileId = required(profileId, "profileId");
+            consentDecisionId = required(consentDecisionId, "consentDecisionId");
+            rightsDecisionId = required(rightsDecisionId, "rightsDecisionId");
+            policyVersion = required(policyVersion, "policyVersion");
+        }
     }
 
     public record ProcessingJobRequest(
@@ -382,6 +502,7 @@ public final class MediaRuntimeContracts {
             String principalId,
             String correlationId,
             String artifactId,
+            String expectedArtifactVersion,
             JobType jobType,
             String providerHint,
             Map<String, Object> parameters,
@@ -392,6 +513,12 @@ public final class MediaRuntimeContracts {
             principalId = required(principalId, "principalId");
             correlationId = required(correlationId, "correlationId");
             artifactId = required(artifactId, "artifactId");
+            if (expectedArtifactVersion == null) {
+                expectedArtifactVersion = "";
+            } else {
+                expectedArtifactVersion = required(expectedArtifactVersion, "expectedArtifactVersion");
+                new ArtifactVersion(expectedArtifactVersion);
+            }
             jobType = java.util.Objects.requireNonNull(jobType, "jobType");
             providerHint = optional(providerHint);
             parameters = immutableJsonObject(parameters == null ? Map.of() : parameters);
@@ -408,8 +535,30 @@ public final class MediaRuntimeContracts {
         public ProcessingJobRequest(
                 String requestId, String tenantId, String principalId, String correlationId,
                 String artifactId, JobType jobType, String providerHint, Map<String, Object> parameters) {
-            this(requestId, tenantId, principalId, correlationId, artifactId, jobType,
+            this(requestId, tenantId, principalId, correlationId, artifactId, null, jobType,
                     providerHint, parameters, MediaGovernanceContext.compatibilityDefault());
+        }
+
+        public ProcessingJobRequest(
+                String requestId, String tenantId, String principalId, String correlationId,
+                String artifactId, String expectedArtifactVersion, JobType jobType,
+                String providerHint, Map<String, Object> parameters) {
+            this(requestId, tenantId, principalId, correlationId, artifactId, expectedArtifactVersion,
+                    jobType, providerHint, parameters, MediaGovernanceContext.compatibilityDefault());
+        }
+
+        public ProcessingJobRequest(
+                String requestId, String tenantId, String principalId, String correlationId,
+                String artifactId, JobType jobType, String providerHint, Map<String, Object> parameters,
+                MediaGovernanceContext governanceContext) {
+            this(requestId, tenantId, principalId, correlationId, artifactId, null, jobType,
+                    providerHint, parameters, governanceContext);
+        }
+
+        public java.util.Optional<ArtifactVersion> requestedArtifactVersion() {
+            return expectedArtifactVersion.isBlank()
+                    ? java.util.Optional.empty()
+                    : java.util.Optional.of(new ArtifactVersion(expectedArtifactVersion));
         }
     }
 
@@ -428,6 +577,7 @@ public final class MediaRuntimeContracts {
             Map<String, Object> result,
             String failureCode,
             long version,
+            String expectedArtifactVersion,
             String requestFingerprint) {
         public ProcessingJob {
             jobId = required(jobId, "jobId");
@@ -441,17 +591,30 @@ public final class MediaRuntimeContracts {
             createdAt = createdAt == null ? Instant.now() : createdAt;
             result = Map.copyOf(result == null ? Map.of() : result);
             failureCode = optional(failureCode);
+            expectedArtifactVersion = optional(expectedArtifactVersion);
+            if (!expectedArtifactVersion.isBlank()) new ArtifactVersion(expectedArtifactVersion);
             requestFingerprint = optional(requestFingerprint);
             if (version < 1) throw new IllegalArgumentException("version must be positive");
         }
 
-        /** Compatibility constructor for pre-fingerprint records and non-submission fixtures. */
+        /** Compatibility constructor for historical jobs without a pinned content version. */
         public ProcessingJob(
                 String jobId, String requestId, String tenantId, String principalId, String artifactId,
                 JobType jobType, String providerId, JobStatus status, Instant createdAt, Instant startedAt,
                 Instant completedAt, Map<String, Object> result, String failureCode, long version) {
             this(jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status,
-                    createdAt, startedAt, completedAt, result, failureCode, version, "");
+                    createdAt, startedAt, completedAt, result, failureCode, version, "", "");
+        }
+
+        /** Compatibility constructor for jobs that pin a content version but predate request fingerprints. */
+        public ProcessingJob(
+                String jobId, String requestId, String tenantId, String principalId, String artifactId,
+                JobType jobType, String providerId, JobStatus status, Instant createdAt, Instant startedAt,
+                Instant completedAt, Map<String, Object> result, String failureCode, long version,
+                String expectedArtifactVersion) {
+            this(jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status,
+                    createdAt, startedAt, completedAt, result, failureCode, version,
+                    expectedArtifactVersion, "");
         }
     }
 
@@ -468,6 +631,173 @@ public final class MediaRuntimeContracts {
             ownerId = required(ownerId, "ownerId");
             if (fencingToken < 1L) throw new IllegalArgumentException("fencingToken must be positive");
             expiresAt = java.util.Objects.requireNonNull(expiresAt, "expiresAt");
+        }
+    }
+
+    public record RecoveryCursor(Instant createdAt, String tenantId, String jobId) {
+        public RecoveryCursor {
+            createdAt = java.util.Objects.requireNonNull(createdAt, "createdAt");
+            tenantId = required(tenantId, "tenantId");
+            jobId = required(jobId, "jobId");
+        }
+        public static RecoveryCursor after(ProcessingJob job) {
+            return new RecoveryCursor(job.createdAt(), job.tenantId(), job.jobId());
+        }
+    }
+
+    public enum AttemptFinality { SUCCEEDED, FAILED, NO_EFFECT_PROVEN, UNKNOWN }
+
+    /** Exact identity used for an observation-only provider lookup. */
+    public record ProviderAttemptQuery(
+            String tenantId, String jobId, String requestId, int attemptNumber,
+            long fencingToken, String requestFingerprint, String providerId,
+            String providerOperationId, String providerReceiptId) {
+        public ProviderAttemptQuery {
+            tenantId = required(tenantId, "tenantId");
+            jobId = required(jobId, "jobId");
+            requestId = required(requestId, "requestId");
+            if (attemptNumber < 1 || fencingToken < 1) throw new IllegalArgumentException("attempt and fencing token must be positive");
+            requestFingerprint = requireSha256(requestFingerprint);
+            providerId = required(providerId, "providerId");
+            providerOperationId = required(providerOperationId, "providerOperationId");
+            providerReceiptId = required(providerReceiptId, "providerReceiptId");
+        }
+    }
+
+    public record ProviderAttemptContext(
+            String tenantId, String jobId, String requestId, int attemptNumber,
+            long fencingToken, String requestFingerprint) {
+        public ProviderAttemptContext {
+            tenantId = required(tenantId, "tenantId");
+            jobId = required(jobId, "jobId");
+            requestId = required(requestId, "requestId");
+            if (attemptNumber < 1 || fencingToken < 1) throw new IllegalArgumentException("attempt and fencing token must be positive");
+            requestFingerprint = requireSha256(requestFingerprint);
+        }
+        public static ProviderAttemptContext from(ProcessingAttempt attempt) {
+            return new ProviderAttemptContext(attempt.tenantId(), attempt.jobId(), attempt.requestId(),
+                    attempt.attemptNumber(), attempt.fencingToken(), attempt.requestFingerprint());
+        }
+    }
+
+    /** Typed provider response; legacy maps are deliberately downgraded to UNKNOWN. */
+    public record ProviderSubmission(
+            AttemptFinality finality, String providerOperationId, String providerReceiptId,
+            Map<String, Object> result, String provenanceDigest, Instant observedAt) {
+        public ProviderSubmission {
+            finality = java.util.Objects.requireNonNull(finality, "finality");
+            providerOperationId = optional(providerOperationId);
+            providerReceiptId = optional(providerReceiptId);
+            result = Map.copyOf(result == null ? Map.of() : result);
+            provenanceDigest = optional(provenanceDigest);
+            if (finality == AttemptFinality.SUCCEEDED || finality == AttemptFinality.FAILED
+                    || finality == AttemptFinality.NO_EFFECT_PROVEN) {
+                if (providerOperationId.isBlank() || providerReceiptId.isBlank()
+                        || !provenanceDigest.matches("[0-9a-f]{64}") || observedAt == null) {
+                    throw new IllegalArgumentException("final submission requires provider receipt and provenance evidence");
+                }
+            }
+            if (finality == AttemptFinality.UNKNOWN && !result.isEmpty()) {
+                throw new IllegalArgumentException("unknown submission cannot expose an unverified result");
+            }
+            if (finality == AttemptFinality.NO_EFFECT_PROVEN && !result.isEmpty()) {
+                throw new IllegalArgumentException("no-effect proof cannot carry a processing result");
+            }
+        }
+        public static ProviderSubmission unknown() {
+            return new ProviderSubmission(AttemptFinality.UNKNOWN, "", "", Map.of(), "", Instant.now());
+        }
+    }
+
+    /** Provider's read-only statement bound back to the exact attempt query. */
+    public record ProviderAttemptObservation(
+            ProviderAttemptQuery query, AttemptFinality finality, String providerReceiptId,
+            Map<String, Object> result, String provenanceDigest, Instant observedAt) {
+        public ProviderAttemptObservation {
+            query = java.util.Objects.requireNonNull(query, "query");
+            finality = java.util.Objects.requireNonNull(finality, "finality");
+            providerReceiptId = required(providerReceiptId, "providerReceiptId");
+            if (!query.providerReceiptId().equals(providerReceiptId)) {
+                throw new IllegalArgumentException("provider observation receipt does not match exact query");
+            }
+            result = Map.copyOf(result == null ? Map.of() : result);
+            provenanceDigest = optional(provenanceDigest);
+            if ((finality == AttemptFinality.SUCCEEDED || finality == AttemptFinality.FAILED
+                    || finality == AttemptFinality.NO_EFFECT_PROVEN)
+                    && !provenanceDigest.matches("[0-9a-f]{64}")) {
+                throw new IllegalArgumentException("final provider observation requires a provenance SHA-256 digest");
+            }
+            if (finality == AttemptFinality.NO_EFFECT_PROVEN && !result.isEmpty()) {
+                throw new IllegalArgumentException("no-effect proof cannot carry a processing result");
+            }
+            observedAt = java.util.Objects.requireNonNull(observedAt, "observedAt");
+        }
+    }
+
+    public record ProcessingAttempt(
+            String tenantId, String jobId, String requestId, int attemptNumber,
+            long fencingToken, String requestFingerprint, String providerId,
+            String providerOperationId, String providerReceiptId, AttemptFinality finality,
+            String resultDigest, String provenanceDigest, Instant observedAt) {
+        public ProcessingAttempt {
+            tenantId = required(tenantId, "tenantId");
+            jobId = required(jobId, "jobId");
+            requestId = required(requestId, "requestId");
+            if (attemptNumber < 1 || fencingToken < 1) throw new IllegalArgumentException("attempt and fencing token must be positive");
+            requestFingerprint = requireSha256(requestFingerprint);
+            providerId = required(providerId, "providerId");
+            providerOperationId = optional(providerOperationId);
+            providerReceiptId = optional(providerReceiptId);
+            finality = java.util.Objects.requireNonNull(finality, "finality");
+            resultDigest = optional(resultDigest);
+            provenanceDigest = optional(provenanceDigest);
+        }
+
+        public ProviderAttemptQuery query() {
+            if (providerOperationId.isBlank() || providerReceiptId.isBlank()) {
+                throw new IllegalStateException("attempt has no persisted provider operation and receipt identity");
+            }
+            return new ProviderAttemptQuery(tenantId, jobId, requestId, attemptNumber, fencingToken,
+                    requestFingerprint, providerId, providerOperationId, providerReceiptId);
+        }
+    }
+
+    /** A durable provider execution attempt. A DISPATCH_INTENT is persisted before provider I/O. */
+    public record JobAttempt(
+            String tenantId,
+            String jobId,
+            int attemptNumber,
+            String providerId,
+            String requestId,
+            long fencingToken,
+            JobAttemptStatus status,
+            Instant createdAt,
+            Instant completedAt,
+            String outcomeCode) {
+        public JobAttempt {
+            tenantId = required(tenantId, "tenantId");
+            jobId = required(jobId, "jobId");
+            providerId = required(providerId, "providerId");
+            requestId = required(requestId, "requestId");
+            if (attemptNumber < 1) throw new IllegalArgumentException("attemptNumber must be positive");
+            if (fencingToken < 1) throw new IllegalArgumentException("fencingToken must be positive");
+            status = java.util.Objects.requireNonNull(status, "status");
+            createdAt = createdAt == null ? Instant.now() : createdAt;
+            outcomeCode = optional(outcomeCode);
+        }
+    }
+
+    /** Result of atomically claiming a newly accepted job and persisting its first dispatch intent. */
+    public record StartedJobAttempt(ProcessingJob job, JobLease lease, JobAttempt attempt) {
+        public StartedJobAttempt {
+            job = java.util.Objects.requireNonNull(job, "job");
+            lease = java.util.Objects.requireNonNull(lease, "lease");
+            attempt = java.util.Objects.requireNonNull(attempt, "attempt");
+            if (!job.tenantId().equals(lease.tenantId()) || !job.jobId().equals(lease.jobId())
+                    || !job.tenantId().equals(attempt.tenantId()) || !job.jobId().equals(attempt.jobId())
+                    || lease.fencingToken() != attempt.fencingToken()) {
+                throw new IllegalArgumentException("started job, attempt, and lease identities must match");
+            }
         }
     }
 
@@ -611,6 +941,21 @@ public final class MediaRuntimeContracts {
         }
         Optional<UploadSession> upload(String tenantId, String uploadId);
         Optional<MediaArtifact> artifact(String tenantId, String artifactId);
+        /**
+         * Read an artifact only when its current immutable content version matches the caller's
+         * expected version. A missing artifact and a stale version both return empty.
+         */
+        default Optional<MediaArtifact> artifact(
+                String tenantId, String artifactId, ArtifactVersion expectedVersion) {
+            java.util.Objects.requireNonNull(expectedVersion, "expectedVersion");
+            return artifact(tenantId, artifactId)
+                    .filter(value -> expectedVersion.equals(value.version()));
+        }
+        /** Atomically register a new immutable derived artifact and its exact source lineage. */
+        default MediaArtifact registerDerived(
+                MediaArtifact derivedArtifact, ArtifactLineage lineage) {
+            throw new UnsupportedOperationException("derived artifact registration is not supported");
+        }
         boolean durable();
         boolean productionEligible();
         boolean ready();
@@ -619,7 +964,12 @@ public final class MediaRuntimeContracts {
 
     public interface MediaJobStore extends AutoCloseable {
         String storeId();
-        ProcessingJob create(ProcessingJob job);
+        /** Creates a job bound to the request fingerprint already pinned on the record. */
+        default ProcessingJob create(ProcessingJob job) {
+            return create(job, job.requestFingerprint());
+        }
+        /** Creates an idempotent job bound to the digest of its normalized submission and provider plan. */
+        ProcessingJob create(ProcessingJob job, String submissionDigest);
         ProcessingJob update(ProcessingJob expected, ProcessingJob updated);
         /** Update a worker-owned job only while the supplied lease fence is current and unexpired. */
         ProcessingJob update(JobLease lease, ProcessingJob expected, ProcessingJob updated);
@@ -629,10 +979,101 @@ public final class MediaRuntimeContracts {
         boolean leaseValid(JobLease lease);
         void release(JobLease lease);
         List<ProcessingJob> recoverable(int limit);
+        default List<ProcessingJob> recoverableAfter(int limit, RecoveryCursor cursor) {
+            return recoverable(limit).stream().filter(job -> cursor == null
+                    || job.createdAt().isAfter(cursor.createdAt())
+                    || (job.createdAt().equals(cursor.createdAt()) && job.tenantId().compareTo(cursor.tenantId()) > 0)
+                    || (job.createdAt().equals(cursor.createdAt()) && job.tenantId().equals(cursor.tenantId())
+                    && job.jobId().compareTo(cursor.jobId()) > 0)).toList();
+        }
+        default AttemptStart startAttempt(
+                ProcessingJob accepted, ProcessingJob running, JobLease lease,
+                int attemptNumber, String requestFingerprint) {
+            throw new UnsupportedOperationException("atomic running transition and attempt creation is not supported");
+        }
+        default ProcessingAttempt recordProviderReceipt(
+                ProcessingAttempt attempt, JobLease lease, String providerOperationId, String providerReceiptId) {
+            throw new UnsupportedOperationException("provider receipt persistence is not supported");
+        }
+        /** Atomically persists the exact attempt observation, terminal job state, and lifecycle outbox row. */
+        default ProcessingJob commitFinalOutcome(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+                ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent) {
+            throw new UnsupportedOperationException("atomic attempt finalization is not supported");
+        }
+        default ProcessingJob markOutcomeUnknown(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob unknown,
+                Map<String, Object> observation, MediaLifecycleEvent lifecycleEvent) {
+            throw new UnsupportedOperationException("atomic unknown-outcome persistence is not supported");
+        }
+        /** Atomically records a policy refusal proven to occur before provider dispatch. */
+        default ProcessingJob markPreDispatchNoEffect(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob failed,
+                MediaLifecycleEvent lifecycleEvent) {
+            throw new UnsupportedOperationException("pre-dispatch finality is not supported");
+        }
+        default ProcessingJob reconcileExpired(
+                ProcessingJob expected, ProcessingJob terminal, MediaLifecycleEvent lifecycleEvent) {
+            return update(expected, terminal);
+        }
+        /** Aggregate status count used for tenant-safe operational gauges. */
+        default long countByStatus(JobStatus status) {
+            throw new UnsupportedOperationException("Aggregate status counts are not supported");
+        }
+        /** Count expired leases attached to running jobs without exposing their identifiers. */
+        default long countOverdueLeases(Instant now) {
+            throw new UnsupportedOperationException("Overdue lease counts are not supported");
+        }
+        /** Atomically claims an accepted job and persists RUNNING, its first attempt, and dispatch intent. */
+        default StartedJobAttempt startAttempt(
+                ProcessingJob expected, String ownerId, Instant expiresAt, String providerId) {
+            JobLease lease = claim(expected, ownerId, expiresAt);
+            Instant now = Instant.now();
+            ProcessingJob running = new ProcessingJob(expected.jobId(), expected.requestId(), expected.tenantId(),
+                    expected.principalId(), expected.artifactId(), expected.jobType(), providerId,
+                    JobStatus.RUNNING, expected.createdAt(), now, null, Map.of(), "",
+                    expected.version() + 1, expected.expectedArtifactVersion(), expected.requestFingerprint());
+            update(expected, running);
+            int attemptNumber = latestAttempt(expected.tenantId(), expected.jobId())
+                    .map(previous -> previous.attemptNumber() + 1).orElse(1);
+            JobAttempt attempt = new JobAttempt(expected.tenantId(), expected.jobId(), attemptNumber,
+                    providerId, expected.requestId(), lease.fencingToken(), JobAttemptStatus.DISPATCH_INTENT,
+                    now, null, "");
+            beginAttempt(attempt);
+            return new StartedJobAttempt(running, lease, attempt);
+        }
+        /** Persists the provider dispatch intent before any provider call is made. */
+        default JobAttempt beginAttempt(JobAttempt attempt) { return attempt; }
+        /** Records provider finality under the same attempt identity and fencing token. */
+        default void finishAttempt(JobAttempt attempt, JobAttemptStatus status, Instant completedAt, String outcomeCode) { }
+        default Optional<JobAttempt> latestAttempt(String tenantId, String jobId) { return Optional.empty(); }
         boolean durable();
         boolean productionEligible();
         boolean ready();
         @Override default void close() { }
+    }
+
+    /** Result of the single transaction that enters RUNNING and records dispatch intent. */
+    public record AttemptStart(ProcessingJob running, ProcessingAttempt attempt) {
+        public AttemptStart {
+            running = java.util.Objects.requireNonNull(running, "running");
+            attempt = java.util.Objects.requireNonNull(attempt, "attempt");
+            if (running.status() != JobStatus.RUNNING || !running.jobId().equals(attempt.jobId())
+                    || !running.tenantId().equals(attempt.tenantId())) {
+                throw new IllegalArgumentException("running job and attempt identities must match");
+            }
+        }
+    }
+
+    public record ProviderObservation(JobAttemptStatus status, String outcomeCode, Map<String, Object> result) {
+        public ProviderObservation {
+            status = java.util.Objects.requireNonNull(status, "status");
+            if (status != JobAttemptStatus.COMPLETED && status != JobAttemptStatus.FAILED) {
+                throw new IllegalArgumentException("provider observation must be final");
+            }
+            outcomeCode = optional(outcomeCode);
+            result = Map.copyOf(result == null ? Map.of() : result);
+        }
     }
 
     public interface MediaStreamSessionStore extends AutoCloseable {
@@ -654,6 +1095,13 @@ public final class MediaRuntimeContracts {
         default String providerVersion() { return "unspecified"; }
         default String modelVersion(JobType modality) { return providerVersion(); }
         Set<JobType> capabilities();
+        /**
+         * Exact STT profile candidate. An absent profile is unqualified; a provider capability
+         * declaration or a caller-supplied model hint is not profile admission evidence.
+         */
+        default java.util.Optional<MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
+            return java.util.Optional.empty();
+        }
         default List<MediaModalityContracts.CapabilityProfile> capabilityProfiles() {
             return capabilities().stream().sorted().map(modality -> switch (modality) {
                 case SPEECH_TO_TEXT, TEXT_TO_SPEECH -> new MediaModalityContracts.CapabilityProfile(
@@ -704,6 +1152,17 @@ public final class MediaRuntimeContracts {
         boolean productionEligible();
         int priority();
         CompletableFuture<Map<String, Object>> process(ProcessingContext context);
+        default CompletableFuture<ProviderSubmission> processAttempt(
+                ProcessingContext context, ProviderAttemptContext attempt) {
+            java.util.Objects.requireNonNull(attempt, "attempt");
+            return process(context).thenApply(ignored -> ProviderSubmission.unknown());
+        }
+        /** Read-only exact lookup; default implementation never infers a result from a missing receipt. */
+        default CompletableFuture<ProviderAttemptObservation> reconcileAttempt(ProviderAttemptQuery query) {
+            java.util.Objects.requireNonNull(query, "query");
+            return CompletableFuture.completedFuture(new ProviderAttemptObservation(
+                    query, AttemptFinality.UNKNOWN, query.providerReceiptId(), Map.of(), "", Instant.now()));
+        }
         default CancellationOutcome cancel(
                 String tenantId, String principalId, String correlationId, String jobId) {
             return CancellationOutcome.UNSUPPORTED;
@@ -715,6 +1174,14 @@ public final class MediaRuntimeContracts {
          * idempotency, or reconciliation guarantee.
          */
         default boolean fallbackEligible(Throwable failure) { return false; }
+        /**
+         * Returns a final observation only when the provider can query this exact tenant, job,
+         * request, and attempt identity. Implementations must not create or retry provider work.
+         */
+        default Optional<ProviderObservation> reconcileAttempt(
+                String tenantId, String jobId, String requestId, int attemptNumber) {
+            return Optional.empty();
+        }
         default ProcessingBoundary processingBoundary() { return ProcessingBoundary.EXTERNAL; }
         default String processingRegion() { return "unspecified"; }
         default ProviderDataRetention providerDataRetention() { return ProviderDataRetention.UNKNOWN; }

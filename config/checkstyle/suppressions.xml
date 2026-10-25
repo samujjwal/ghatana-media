@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Suppress checks for auto-generated files -->
+    <suppress files="[\\/]generated[\\/]" checks=".*" />
+    <suppress files="[\\/]build[\\/]" checks=".*" />
+    <suppress files="[\\/]target[\\/]" checks=".*" />
+
+    <!-- Suppress specific checks for test files -->
+    <suppress files="Test\.java$" checks="JavadocMethod" />
+    <suppress files="Test\.java$" checks="MagicNumber" />
+
+    <!-- Suppress for protobuf generated files -->
+    <suppress files="[\\/]generated[\\/]proto[\\/]" checks=".*" />
+
+    <!-- Legacy test style debt in audio-video modules (keep production checks strict) -->
+    <suppress
+        files="[\\/]products[\\/]audio-video[\\/]modules[\\/]intelligence[\\/]multimodal-service[\\/]src[\\/]test[\\/]java[\\/].*"
+        checks="AvoidStarImport|MethodName|ParenPad|LeftCurly|WhitespaceAround|NeedBraces|WhitespaceAfter|FinalClass|UnusedImports|EmptyBlock" />
+    <suppress
+        files="[\\/]products[\\/]audio-video[\\/]modules[\\/]speech[\\/]stt-service[\\/]src[\\/]test[\\/]java[\\/].*"
+        checks="AvoidStarImport|MethodName|ParenPad|LeftCurly|WhitespaceAround|NeedBraces|WhitespaceAfter|OperatorWrap" />
+
+    <suppress
+        files="[\\/]products[\\/]audio-video[\\/]modules[\\/]intelligence[\\/]multimodal-service[\\/]src[\\/]main[\\/]java[\\/].*"
+        checks="AvoidStarImport|FinalClass|LeftCurly|MissingJavadocMethod|NeedBraces|OperatorWrap|WhitespaceAround" />
+
+    <!-- Data Cloud runtime-composition test style debt (performance/stress tests use BDD-style naming) -->
+    <suppress
+        files="[\\/]products[\\/]data-cloud[\\/]delivery[\\/]runtime-composition[\\/]src[\\/]test[\\/]java[\\/].*"
+        checks="AvoidStarImport|MethodName|ParenPad|LeftCurly|WhitespaceAround|NeedBraces|WhitespaceAfter" />
+
+    <!-- Platform messaging module style debt (RabbitMQ/S3/SQS config classes use compact style) -->
+    <suppress
+        files="[\\/]platform[\\/]java[\\/]messaging[\\/]src[\\/]main[\\/]java[\\/].*"
+        checks="LeftCurly|WhitespaceAround|NeedBraces" />
+
+    <!-- Integration tests style debt (runtime interaction tests use compact style) -->
+    <suppress
+        files="[\\/]integration-tests[\\/]cross-service-workflow[\\/].*"
+        checks="UnusedImports|WhitespaceAround|LeftCurly|NeedBraces" />
+</suppressions>

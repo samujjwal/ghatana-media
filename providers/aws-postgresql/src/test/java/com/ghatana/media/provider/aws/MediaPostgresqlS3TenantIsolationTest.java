@@ -45,8 +45,8 @@ class MediaPostgresqlS3TenantIsolationTest {
     void idempotentBeginAndCompletionSurviveStoreRecreation() throws Exception {
         String bucket = createBucketAndStoreName();
         Map<String, String> environment = integrationEnvironment(bucket);
-        byte[] bytes = "restart-stable-upload".getBytes(StandardCharsets.UTF_8);
-        UploadRequest request = upload("tenant-a", "principal-a", "restart.bin", bytes, Duration.ofDays(30));
+        byte[] bytes = wav("restart-stable-upload".getBytes(StandardCharsets.UTF_8));
+        UploadRequest request = upload("tenant-a", "principal-a", "restart.wav", bytes, Duration.ofDays(30));
         try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment)) {
             try (S3PostgresqlMediaArtifactStore initial = new S3PostgresqlMediaArtifactStore()) {
                 UploadSession firstUpload = initial.begin(request, "restart-key");
@@ -66,7 +66,7 @@ class MediaPostgresqlS3TenantIsolationTest {
                         assertThat(restarted.complete("tenant-a", "principal-a", afterRestart.uploadId()))
                                 .isEqualTo(firstArtifact);
                         assertThatThrownBy(() -> restarted.begin(
-                                upload("tenant-a", "principal-a", "different.bin", bytes, Duration.ofDays(30)),
+                                upload("tenant-a", "principal-a", "different.wav", bytes, Duration.ofDays(30)),
                                 "restart-key"))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining("different upload request");
@@ -83,8 +83,8 @@ class MediaPostgresqlS3TenantIsolationTest {
         try (S3Client admin = s3Client();
              AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
              S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
-            byte[] bytes = "tenant-scoped-upload".getBytes(StandardCharsets.UTF_8);
-            var upload = store.begin(upload("tenant-a", "principal-a", "a.bin", bytes, Duration.ofDays(30)), "tenant-a-a");
+            byte[] bytes = wav("tenant-scoped-upload".getBytes(StandardCharsets.UTF_8));
+            var upload = store.begin(upload("tenant-a", "principal-a", "a.wav", bytes, Duration.ofDays(30)), "tenant-a-a");
 
             assertThat(store.upload("tenant-b", upload.uploadId())).isEmpty();
             assertThatThrownBy(() -> store.append("tenant-a", "principal-b", upload.uploadId(), 0, bytes))
@@ -118,18 +118,18 @@ class MediaPostgresqlS3TenantIsolationTest {
         try (S3Client admin = s3Client();
              AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
              S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
-            byte[] bytesA = "expired-tenant-a-artifact".getBytes(StandardCharsets.UTF_8);
-            byte[] bytesB = "retained-tenant-b-artifact".getBytes(StandardCharsets.UTF_8);
-            MediaArtifact artifactA = complete(store, "tenant-a", "principal-a", "a.bin", bytesA);
-            MediaArtifact artifactB = complete(store, "tenant-b", "principal-b", "b.bin", bytesB);
+            byte[] bytesA = wav("expired-tenant-a-artifact".getBytes(StandardCharsets.UTF_8));
+            byte[] bytesB = wav("retained-tenant-b-artifact".getBytes(StandardCharsets.UTF_8));
+            MediaArtifact artifactA = complete(store, "tenant-a", "principal-a", "a.wav", bytesA);
+            MediaArtifact artifactB = complete(store, "tenant-b", "principal-b", "b.wav", bytesB);
             String artifactKeyA = objectKey(artifactA);
             String artifactKeyB = objectKey(artifactB);
 
-            byte[] chunkA = "expired-upload-chunk".getBytes(StandardCharsets.UTF_8);
-            byte[] chunkB = "retained-upload-chunk".getBytes(StandardCharsets.UTF_8);
-            var uploadA = store.begin(upload("tenant-a", "principal-a", "pending-a.bin", chunkA,
+            byte[] chunkA = wav("expired-upload-chunk".getBytes(StandardCharsets.UTF_8));
+            byte[] chunkB = wav("retained-upload-chunk".getBytes(StandardCharsets.UTF_8));
+            var uploadA = store.begin(upload("tenant-a", "principal-a", "pending-a.wav", chunkA,
                     Duration.ofDays(30)), "pending-a");
-            var uploadB = store.begin(upload("tenant-b", "principal-b", "pending-b.bin", chunkB,
+            var uploadB = store.begin(upload("tenant-b", "principal-b", "pending-b.wav", chunkB,
                     Duration.ofDays(30)), "pending-b");
             store.append("tenant-a", uploadA.principalId(), uploadA.uploadId(), 0, chunkA);
             store.append("tenant-b", uploadB.principalId(), uploadB.uploadId(), 0, chunkB);
@@ -197,9 +197,24 @@ class MediaPostgresqlS3TenantIsolationTest {
         return environment;
     }
 
+
+    private static byte[] wav(byte[] payload) {
+        byte[] out = new byte[payload.length + 12];
+        out[0] = 'R'; out[1] = 'I'; out[2] = 'F'; out[3] = 'F';
+        int size = payload.length + 4;
+        out[4] = (byte) size; out[5] = (byte) (size >> 8); out[6] = (byte) (size >> 16); out[7] = (byte) (size >> 24);
+        out[8] = 'W'; out[9] = 'A'; out[10] = 'V'; out[11] = 'E';
+        System.arraycopy(payload, 0, out, 12, payload.length);
+        return out;
+    }
+
+    private static void wavHeader(byte[] bytes) {
+        bytes[0] = 'R'; bytes[1] = 'I'; bytes[2] = 'F'; bytes[3] = 'F';
+        bytes[8] = 'W'; bytes[9] = 'A'; bytes[10] = 'V'; bytes[11] = 'E';
+    }
     private static UploadRequest upload(
             String tenantId, String principalId, String fileName, byte[] bytes, Duration retention) throws Exception {
-        return new UploadRequest(tenantId, principalId, fileName, "application/octet-stream", bytes.length,
+        return new UploadRequest(tenantId, principalId, fileName, "audio/wav", bytes.length,
                 sha256(bytes), "RESTRICTED", retention, Map.of());
     }
 

@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,9 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MediaRuntimeJobTimeoutTest {
 
     @Test
-    void timeoutCancelsProviderWorkAndPersistsOneTerminalFailure() throws Exception {
+    void timeoutPreservesUnknownProviderOutcomeAndDoesNotFallback() throws Exception {
         var root = Files.createTempDirectory("media-job-timeout-");
         var provider = new BlockingProcessingProvider();
+        var fallback = new CountingFallbackProvider();
         var runtime = new MediaRuntime(
                 new MediaRuntimeConfig(
                         true,
@@ -50,7 +52,7 @@ class MediaRuntimeJobTimeoutTest {
                 new LocalMediaRuntimeSupport.JobStore(),
                 new LocalMediaRuntimeSupport.StreamStore(),
                 null,
-                List.of(provider),
+                List.of(provider, fallback),
                 List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
 
         try {
@@ -86,8 +88,10 @@ class MediaRuntimeJobTimeoutTest {
                 terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             }
 
-            assertThat(terminal.status()).isEqualTo(JobStatus.FAILED);
-            assertThat(terminal.failureCode()).isEqualTo("PROCESSING_TIMEOUT");
+            assertThat(terminal.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(terminal.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(terminal.result()).containsEntry("providerOutcome", "UNKNOWN");
+            assertThat(fallback.calls()).hasValue(0);
             assertThat(provider.cancellation()).isNotNull();
             assertThat(provider.cancellation().cancelled()).isTrue();
             assertThat(provider.future().isCancelled()).isTrue();
@@ -96,8 +100,8 @@ class MediaRuntimeJobTimeoutTest {
             long terminalVersion = terminal.version();
             Thread.sleep(20);
             var persisted = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
-            assertThat(persisted.status()).isEqualTo(JobStatus.FAILED);
-            assertThat(persisted.failureCode()).isEqualTo("PROCESSING_TIMEOUT");
+            assertThat(persisted.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(persisted.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
             assertThat(persisted.version()).isEqualTo(terminalVersion);
             assertThat(persisted.result()).doesNotContainKey("late");
         } finally {
@@ -129,5 +133,23 @@ class MediaRuntimeJobTimeoutTest {
 
         Cancellation cancellation() { return cancellation.get(); }
         CompletableFuture<Map<String, Object>> future() { return future; }
+    }
+
+    private static final class CountingFallbackProvider implements MediaProcessingProvider {
+        private final AtomicInteger calls = new AtomicInteger();
+
+        @Override public String providerId() { return "fallback-processing-provider"; }
+        @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+        @Override public boolean ready() { return true; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return 2; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public String processingRegion() { return "local"; }
+        @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+            calls.incrementAndGet();
+            return CompletableFuture.completedFuture(Map.of("duplicate", true));
+        }
+
+        AtomicInteger calls() { return calls; }
     }
 }

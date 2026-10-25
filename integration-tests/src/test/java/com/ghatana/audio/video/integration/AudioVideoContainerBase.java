@@ -5,6 +5,7 @@
 package com.ghatana.audio.video.integration;
 
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -35,6 +36,7 @@ import java.time.Duration;
  */
 @Tag("integration")
 @Testcontainers
+@ExtendWith(IntegrationImagesCondition.class)
 public abstract class AudioVideoContainerBase {
 
     /** Service name as declared in {@code docker-compose.integration.yml}. */
@@ -76,8 +78,7 @@ public abstract class AudioVideoContainerBase {
                     .withExposedService(TTS_SERVICE, SERVICE_HTTP_PORT,
                             Wait.forHttp("/health/live")
                                     .forStatusCode(200)
-                                    .withStartupTimeout(Duration.ofSeconds(120)))
-                    .withLocalCompose(true);
+                                    .withStartupTimeout(Duration.ofSeconds(120)));
 
     // ---- Helper accessors --------------------------------------------------
 

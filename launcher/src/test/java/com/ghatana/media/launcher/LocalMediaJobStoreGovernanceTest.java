@@ -26,13 +26,13 @@ class LocalMediaJobStoreGovernanceTest {
                 first.jobId(), first.requestId(), first.tenantId(), first.principalId(), first.artifactId(),
                 first.jobType(), "provider-fallback", JobStatus.COMPLETED, first.createdAt(),
                 Instant.now(), Instant.now(), Map.of("providerId", "provider-fallback"), "", 2,
-                first.requestFingerprint());
+                first.expectedArtifactVersion(), first.requestFingerprint());
         store.update(first, fallbackCompleted);
         assertThat(store.create(job("job-after-fallback", "request-1", "artifact-1")))
                 .isEqualTo(fallbackCompleted);
         assertThatThrownBy(() -> store.create(job("job-3", "request-1", "different-artifact")))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("different job payload");
+                .hasMessageContaining("different submission");
     }
 
     @Test
@@ -86,7 +86,7 @@ class LocalMediaJobStoreGovernanceTest {
                 accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(),
                 accepted.artifactId(), accepted.jobType(), accepted.providerId(), JobStatus.FAILED,
                 accepted.createdAt(), null, Instant.now(), Map.of(), "RECONCILED", 2,
-                accepted.requestFingerprint());
+                accepted.expectedArtifactVersion(), accepted.requestFingerprint());
         store.update(accepted, failed);
         assertThat(store.recoverable(10)).isEmpty();
     }
@@ -100,7 +100,7 @@ class LocalMediaJobStoreGovernanceTest {
                 accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(),
                 accepted.artifactId(), accepted.jobType(), accepted.providerId(), JobStatus.OUTCOME_UNKNOWN,
                 accepted.createdAt(), null, null, Map.of("reconciliation", "outcome unknown"), "", 2,
-                accepted.requestFingerprint());
+                accepted.expectedArtifactVersion(), accepted.requestFingerprint());
 
         store.update(accepted, unknown);
 
@@ -111,6 +111,16 @@ class LocalMediaJobStoreGovernanceTest {
         return new ProcessingJob(
                 jobId, requestId, "tenant-a", "principal-a", artifactId, JobType.VISION,
                 "provider-a", JobStatus.ACCEPTED, Instant.now(), null, null, Map.of(), "", 1,
-                "sha256:" + requestId + ":" + artifactId);
+                "", sha256(requestId + ":" + artifactId));
+    }
+
+    private static String sha256(String value) {
+        try {
+            return java.util.HexFormat.of().formatHex(
+                    java.security.MessageDigest.getInstance("SHA-256")
+                            .digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException failure) {
+            throw new IllegalStateException(failure);
+        }
     }
 }

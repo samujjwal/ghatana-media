@@ -33,7 +33,7 @@ public class AudioVideoGrpcInstrumentation {
         long startTime = System.currentTimeMillis();
 
         try (Scope scope = tracingService.createScope(span)) {
-            log.info("Starting gRPC streaming: {}", methodName);
+            log.info("Starting gRPC streaming operation");
 
             T result = task.execute();
 
@@ -63,7 +63,7 @@ public class AudioVideoGrpcInstrumentation {
         long startTime = System.currentTimeMillis();
 
         try (Scope scope = tracingService.createScope(span)) {
-            log.info("Starting video processing: {}", processId);
+            log.info("Starting video processing operation");
 
             T result = task.execute();
 
@@ -93,7 +93,7 @@ public class AudioVideoGrpcInstrumentation {
         long startTime = System.currentTimeMillis();
 
         try (Scope scope = tracingService.createScope(span)) {
-            log.info("Starting audio processing: {}", processId);
+            log.info("Starting audio processing operation");
 
             T result = task.execute();
 
@@ -123,7 +123,7 @@ public class AudioVideoGrpcInstrumentation {
         long startTime = System.currentTimeMillis();
 
         try (Scope scope = tracingService.createScope(span)) {
-            log.info("Starting synthesis: {}", synthesisId);
+            log.info("Starting synthesis operation");
 
             T result = task.execute();
 
@@ -191,7 +191,7 @@ public class AudioVideoGrpcInstrumentation {
         long startTime = System.currentTimeMillis();
 
         try (io.opentelemetry.context.Scope scope = tracingService.createScope(span)) {
-            log.info("Starting STT transcription: transcriptionId={}, language={}", transcriptionId, language);
+            log.info("Starting STT transcription operation");
 
             T result = task.execute(span);
 
@@ -233,7 +233,7 @@ public class AudioVideoGrpcInstrumentation {
         long startTime = System.currentTimeMillis();
 
         try (io.opentelemetry.context.Scope scope = tracingService.createScope(span)) {
-            log.info("Starting vision detection: detectionId={}, confidenceThreshold={}", detectionId, confidenceThreshold);
+            log.info("Starting vision detection operation");
 
             T result = task.execute(span);
 

@@ -1,0 +1,83 @@
+{
+  "version": "0.0.1",
+  "description": "Runtime service registry for the standalone ghatana-media repository. This repository is the sole owner of Media-specific backend code; the monorepo registry at ghatana/config/runtime-service-registry.json retains the historical media entry as provenance until operational cutover.",
+  "architecture": {
+    "sharedApiModules": [
+      ":services:data-cloud:planes:shared-spi",
+      ":services:data-cloud:delivery:api",
+      ":services:event-plane:contracts",
+      ":services:ai-inference:delivery:api"
+    ],
+    "allowedCycles": [],
+    "allowedDependencyDirectionEdges": []
+  },
+  "registry": {
+    "media": {
+      "id": "media",
+      "name": "Media",
+      "description": "Audio/video providers, speech-to-text, text-to-speech, vision analysis, multimodal inference, media processing jobs",
+      "type": "runtime-service",
+      "kind": "runtime-service",
+      "classification": "media-owned",
+      "manifestPath": "contracts/openapi/media.yaml",
+      "manifestFormat": "yaml",
+      "buildFile": "launcher/build.gradle.kts",
+      "gradleModules": [
+        ":services:media",
+        ":services:media:adapters:ledger",
+        ":services:media:audio-video-observability",
+        ":services:media:integration-tests",
+        ":services:media:launcher",
+        ":services:media:libs:common",
+        ":services:media:libs:java:common",
+        ":services:media:modules:audio-streaming",
+        ":services:media:modules:infrastructure:cache",
+        ":services:media:modules:infrastructure:messaging",
+        ":services:media:modules:infrastructure:persistence",
+        ":services:media:modules:infrastructure:security",
+        ":services:media:modules:integration-tests",
+        ":services:media:modules:intelligence:multimodal-service",
+        ":services:media:modules:speech:stt-service",
+        ":services:media:modules:speech:tts-service",
+        ":services:media:modules:video-streaming",
+        ":services:media:modules:vision:vision-service",
+        ":services:media:providers:aws-postgresql",
+        ":services:media:runtime-contracts"
+      ],
+      "surfaces": [
+        {
+          "surfaceId": "media-api",
+          "type": "backend-api",
+          "path": "."
+        }
+      ],
+      "pnpmPackages": [
+        "libs/audio-video-client",
+        "libs/audio-video-types",
+        "libs/audio-video-ui",
+        "modules/intelligence/ai-voice/libs/ai-voice-ui-react"
+      ],
+      "cargoCrates": [
+        ".",
+        "modules/intelligence/speech/libs/speech-audio-rust"
+      ],
+      "ci": {
+        "enabled": true,
+        "gates": [
+          "build",
+          "test",
+          "manifest-validation",
+          "security-scan"
+        ]
+      },
+      "metadata": {
+        "owner": "Media Team",
+        "created": "2026-03-19",
+        "documentation": "README.md",
+        "extractionDate": "2026-06-21",
+        "extractedFrom": "services/data-cloud/planes/data/entity/media",
+        "standalonePathsNote": "Paths are relative to this repository root. The monorepo equivalents carried the services/media/ prefix."
+      }
+    }
+  }
+}

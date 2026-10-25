@@ -26,7 +26,8 @@ public record MediaRuntimeConfig(
         String jobStoreId,
         boolean localStoresEnabled,
         boolean localProviderEnabled,
-        Path localStorageRoot) {
+        Path localStorageRoot,
+        int maximumConcurrentJobsPerTenant) {
 
     private static final Set<String> SUPPORTED_PROFILES = Set.of(
             "local", "dev", "development", "test", "ci", "staging", "production", "sovereign");
@@ -60,6 +61,10 @@ public record MediaRuntimeConfig(
         if (maximumConcurrentJobs < 1 || maximumConcurrentJobs > 10_000) {
             throw new IllegalArgumentException("MEDIA_MAX_CONCURRENT_JOBS must be between 1 and 10000");
         }
+        if (maximumConcurrentJobsPerTenant < 0 || maximumConcurrentJobsPerTenant > maximumConcurrentJobs) {
+            throw new IllegalArgumentException(
+                    "MEDIA_MAX_CONCURRENT_JOBS_PER_TENANT must be 0 (unbounded) or at most MEDIA_MAX_CONCURRENT_JOBS");
+        }
         boolean productionLike = productionLike(profile);
         if (productionLike && !runtimeEnabled) {
             throw new IllegalArgumentException("Production-like Media Runtime cannot be disabled");
@@ -71,6 +76,17 @@ public record MediaRuntimeConfig(
             throw new IllegalArgumentException(
                     "MEDIA_ARTIFACT_STORE_ID and MEDIA_JOB_STORE_ID are required for production-like profiles");
         }
+    }
+
+    /** Compatibility constructor for callers that predate the per-tenant fairness bound. */
+    public MediaRuntimeConfig(
+            boolean runtimeEnabled, String profile, int httpPort, int maximumBodyBytes,
+            int maximumChunkBytes, long maximumArtifactBytes, Duration jobTimeout,
+            int maximumConcurrentJobs, String artifactStoreId, String jobStoreId,
+            boolean localStoresEnabled, boolean localProviderEnabled, Path localStorageRoot) {
+        this(runtimeEnabled, profile, httpPort, maximumBodyBytes, maximumChunkBytes,
+                maximumArtifactBytes, jobTimeout, maximumConcurrentJobs, artifactStoreId,
+                jobStoreId, localStoresEnabled, localProviderEnabled, localStorageRoot, 0);
     }
 
     public static MediaRuntimeConfig fromEnvironment(Map<String, String> environment) {
@@ -88,7 +104,8 @@ public record MediaRuntimeConfig(
                 environment.getOrDefault("MEDIA_JOB_STORE_ID", ""),
                 bool(environment, "MEDIA_LOCAL_STORES_ENABLED", false),
                 bool(environment, "MEDIA_LOCAL_PROVIDER_ENABLED", false),
-                Path.of(environment.getOrDefault("MEDIA_LOCAL_STORAGE_ROOT", "build/media-runtime-local")));
+                Path.of(environment.getOrDefault("MEDIA_LOCAL_STORAGE_ROOT", "build/media-runtime-local")),
+                integer(environment, "MEDIA_MAX_CONCURRENT_JOBS_PER_TENANT", 0));
     }
 
     public boolean productionLike() {

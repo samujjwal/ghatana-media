@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "intentional-public-api",
+  "description": "Media public-type ownership for the standalone ghatana-media repository. Every compiled public type in a java-module surface resolves to exactly one ownership entry. Requirement IDs reference the canonical Media requirement registry in .product-experience/pdp-0-product-truth/requirements.yaml and nonfunctional-requirements.yaml; a Gradle-readable requirements authority does not yet exist for this repository, so IDs are validated against the canonical registry by review rather than by the task's requirements table.",
+  "adapterPackagePrefixes": [
+    "com.ghatana.media.provider.aws.",
+    "com.ghatana.audiovideo.adapter.ledger"
+  ],
+  "adapterTypePrefixes": [],
+  "ownership": {
+    "description": "Every effectively publishable Media Java public type resolves to explicit ownership. Requirement-classified selectors name canonical MEDIA-REQ-* and NFR-* requirement IDs.",
+    "java": [
+      {
+        "surface": "services/media/runtime-contracts",
+        "selector": "type-family:com.ghatana.media.runtime.*",
+        "classification": "requirements",
+        "freezeDisposition": "SUPPORTED_PUBLIC_CONTRACT",
+        "requirementIds": ["MEDIA-REQ-CAP-ARTIFACT", "MEDIA-REQ-CAP-JOB", "MEDIA-REQ-CAP-PROVENANCE", "MEDIA-REQ-CAP-RIGHTS", "MEDIA-REQ-CAP-STREAM"]
+      },
+      {
+        "surface": "services/media/launcher",
+        "selector": "type-family:com.ghatana.media.launcher.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-JOB", "MEDIA-REQ-CAP-HEALTH", "MEDIA-REQ-CAP-STREAM", "MEDIA-REQ-CAP-PROFILE", "NFR-SEC-001", "NFR-RECOVERY-001"]
+      },
+      {
+        "surface": "services/media/providers/aws-postgresql",
+        "selector": "type-family:com.ghatana.media.provider.aws.*",
+        "classification": "requirements",
+        "freezeDisposition": "EXPLICIT_PROVIDER_ADAPTER",
+        "requirementIds": ["MEDIA-REQ-CAP-ARTIFACT", "MEDIA-REQ-CAP-JOB", "MEDIA-REQ-CAP-RIGHTS", "MEDIA-REQ-CAP-PROVENANCE", "NFR-RECOVERY-001"]
+      },
+      {
+        "surface": "services/media/modules/infrastructure/security",
+        "selector": "type-family:com.ghatana.audio.video.infrastructure.security.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-RIGHTS", "NFR-SEC-001", "NFR-PRIV-001"]
+      },
+      {
+        "surface": "services/media/modules/infrastructure/messaging",
+        "selector": "type-family:com.ghatana.audio.video.infrastructure.messaging.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-JOB", "NFR-RECOVERY-001"]
+      },
+      {
+        "surface": "services/media/modules/infrastructure/persistence",
+        "selector": "type-family:com.ghatana.audio.video.infrastructure.persistence.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-ARTIFACT", "MEDIA-REQ-CAP-PROVENANCE", "NFR-RECOVERY-001"]
+      },
+      {
+        "surface": "services/media/modules/infrastructure/cache",
+        "selector": "type-family:com.ghatana.audio.video.infrastructure.cache.*",
+        "classification": "requirements",
+        "requirementIds": ["NFR-PERF-001"]
+      },
+      {
+        "surface": "services/media/modules/audio-streaming",
+        "selector": "type-family:com.ghatana.audio.streaming.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-STREAM"]
+      },
+      {
+        "surface": "services/media/modules/video-streaming",
+        "selector": "type-family:com.ghatana.video.streaming.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-STREAM"]
+      },
+      {
+        "surface": "services/media/modules/intelligence/multimodal-service",
+        "selector": "type-family:com.ghatana.audio.video.multimodal.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-MULTIMODAL"]
+      },
+      {
+        "surface": "services/media/modules/intelligence/multimodal-service",
+        "selector": "type-family:com.ghatana.multimodal.engine.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-MULTIMODAL"]
+      },
+      {
+        "surface": "services/media/modules/speech/stt-service",
+        "selector": "type-family:com.ghatana.stt.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION"]
+      },
+      {
+        "surface": "services/media/modules/speech/tts-service",
+        "selector": "type-family:com.ghatana.tts.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-SPEECH-SYNTHESIS"]
+      },
+      {
+        "surface": "services/media/modules/vision/vision-service",
+        "selector": "type-family:com.ghatana.audio.video.vision.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-VISION", "MEDIA-REQ-CAP-VISION-SCENE-TEXT"]
+      },
+      {
+        "surface": "services/media/modules/vision/vision-service",
+        "selector": "type-family:com.ghatana.vision.engine.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-VISION"]
+      },
+      {
+        "surface": "services/media/libs/common",
+        "selector": "type-family:com.ghatana.audio.video.common.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-HEALTH", "NFR-OBS-001", "NFR-SEC-001", "NFR-RECOVERY-001"]
+      },
+      {
+        "surface": "services/media/libs/common",
+        "selector": "type-family:com.ghatana.audio.video.tools.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-CAPABILITY"]
+      },
+      {
+        "surface": "services/media/libs/java/common",
+        "selector": "type-family:com.ghatana.media.*",
+        "classification": "requirements",
+        "requirementIds": ["MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION", "MEDIA-REQ-CAP-SPEECH-SYNTHESIS", "MEDIA-REQ-CAP-VISION", "MEDIA-REQ-CAP-SYNC", "MEDIA-REQ-CAP-CAPABILITY"]
+      },
+      {
+        "surface": "services/media/adapters/ledger",
+        "selector": "type-family:com.ghatana.audiovideo.adapter.ledger.*",
+        "classification": "requirements",
+        "freezeDisposition": "EXPLICIT_PROVIDER_ADAPTER",
+        "requirementIds": ["MEDIA-REQ-CAP-PROVENANCE"]
+      },
+      {
+        "surface": "services/media/audio-video-observability",
+        "selector": "type-family:com.ghatana.audiovideo.observability.*",
+        "classification": "requirements",
+        "requirementIds": ["NFR-OBS-001", "NFR-SLO-001"]
+      }
+    ],
+    "typescript": []
+  }
+}

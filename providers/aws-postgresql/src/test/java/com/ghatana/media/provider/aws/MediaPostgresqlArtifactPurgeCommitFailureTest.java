@@ -55,9 +55,9 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
 
             try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
                  S3PostgresqlMediaArtifactStore artifacts = new S3PostgresqlMediaArtifactStore()) {
-                byte[] bytes = "commit-failure-complete-retry".getBytes(StandardCharsets.UTF_8);
+                byte[] bytes = wav("commit-failure-complete-retry".getBytes(StandardCharsets.UTF_8));
                 var upload = artifacts.begin(new UploadRequest("tenant-complete-commit", "principal-complete-commit",
-                        "complete.bin", "application/octet-stream", bytes.length, sha256(bytes),
+                        "complete.wav", "audio/wav", bytes.length, sha256(bytes),
                         "RESTRICTED", Duration.ofDays(30), Map.of()), "complete-commit");
                 artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, bytes);
                 createDeferredArtifactInsertFailureTrigger();
@@ -122,9 +122,9 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
 
             try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
                  S3PostgresqlMediaArtifactStore artifacts = new S3PostgresqlMediaArtifactStore()) {
-                byte[] bytes = "commit-failure-purge-retry".getBytes(StandardCharsets.UTF_8);
+                byte[] bytes = wav("commit-failure-purge-retry".getBytes(StandardCharsets.UTF_8));
                 var upload = artifacts.begin(new UploadRequest("tenant-commit", "principal-commit",
-                        "commit.bin", "application/octet-stream", bytes.length, sha256(bytes),
+                        "commit.wav", "audio/wav", bytes.length, sha256(bytes),
                         "RESTRICTED", Duration.ofDays(30), Map.of()), "purge-commit");
                 artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, bytes);
                 MediaArtifact artifact = artifacts.complete(upload.tenantId(), upload.principalId(), upload.uploadId());
@@ -144,7 +144,7 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
                              new PostgresqlMediaPrivacyMaintenance(environment)) {
                     assertThatThrownBy(() -> maintenance.purgeExpired(Instant.now()))
                             .isInstanceOf(IllegalStateException.class)
-                            .hasMessageContaining("delete expired Media artifact metadata")
+                            .hasMessageContaining("purge expired Media artifact lineage")
                             .satisfies(failure -> assertThat(failure.getCause())
                                     .hasMessageContaining("injected deferred artifact deletion commit failure"));
                 }
@@ -254,6 +254,21 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
                 .isInstanceOf(software.amazon.awssdk.services.s3.model.NoSuchKeyException.class);
     }
 
+
+    private static byte[] wav(byte[] payload) {
+        byte[] out = new byte[payload.length + 12];
+        out[0] = 'R'; out[1] = 'I'; out[2] = 'F'; out[3] = 'F';
+        int size = payload.length + 4;
+        out[4] = (byte) size; out[5] = (byte) (size >> 8); out[6] = (byte) (size >> 16); out[7] = (byte) (size >> 24);
+        out[8] = 'W'; out[9] = 'A'; out[10] = 'V'; out[11] = 'E';
+        System.arraycopy(payload, 0, out, 12, payload.length);
+        return out;
+    }
+
+    private static void wavHeader(byte[] bytes) {
+        bytes[0] = 'R'; bytes[1] = 'I'; bytes[2] = 'F'; bytes[3] = 'F';
+        bytes[8] = 'W'; bytes[9] = 'A'; bytes[10] = 'V'; bytes[11] = 'E';
+    }
     private static String sha256(byte[] bytes) throws Exception {
         return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
     }
