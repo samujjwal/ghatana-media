@@ -263,10 +263,28 @@ class SsmlProcessorTest {
     @DisplayName("rejects invalid prosody units and ranges and negative pauses")
     void rejectsInvalidProsodyUnitsAndRanges() {
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody rate=\"NaN%\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody rate=\"Infinity%\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody rate=\"fast-ish\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody pitch=\"2hz\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody volume=\"loud-ish\">x</prosody></speak>"));
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody rate=\"201%\">x</prosody></speak>"));
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody pitch=\"13st\">x</prosody></speak>"));
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody volume=\"7dB\">x</prosody></speak>"));
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><break time=\"-1ms\"/></speak>"));
+    }
+
+    @Test
+    @DisplayName("accepts finite prosody values at documented bounds without claiming provider effects")
+    void acceptsProsodyValuesAtBounds() {
+        assertThat(processor.parse("<speak><prosody rate=\"50%\" pitch=\"-12st\" volume=\"-20dB\">x</prosody></speak>"))
+                .hasSize(1);
+        assertThat(processor.parse("<speak><prosody rate=\"200%\" pitch=\"+12st\" volume=\"200%\">x</prosody></speak>"))
+                .hasSize(1);
+        assertThat(processor.parse("<speak><phoneme alphabet=\"ipa\" ph=\"həˈloʊ\">hello</phoneme></speak>"))
+                .singleElement().satisfies(segment -> {
+                    assertThat(segment).isInstanceOf(SsmlProcessor.SsmlSegment.PhonemeSegment.class);
+                    assertThat(((SsmlProcessor.SsmlSegment.PhonemeSegment) segment).phoneme()).isEqualTo("həˈloʊ");
+                });
     }
 
     @Test
