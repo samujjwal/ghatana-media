@@ -482,100 +482,14 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             responseObserver.onError(authorityUnavailable());
             return;
         }
-        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()
-                && request.getVideoData().isEmpty()) {
-            responseObserver.onError(Status.UNAVAILABLE
-                    .withDescription("No qualified semantic provider is available for text-only insights")
-                    .asRuntimeException());
-            return;
-        }
-        long startTime = System.currentTimeMillis();
-        try {
-            com.ghatana.audio.video.multimodal.engine.MultimodalRequest engineRequest =
-                com.ghatana.audio.video.multimodal.engine.MultimodalRequest.builder()
-                    .audioData(request.getAudioData().isEmpty() ? null : request.getAudioData().toByteArray())
-                    .videoData(request.getVideoData().isEmpty() ? null : request.getVideoData().toByteArray())
-                    .imageData(request.getImageData().isEmpty() ? null : request.getImageData().toByteArray())
-                    .text(request.getText())
-                    .build();
-
-            MultimodalResult result = engine.analyse(engineRequest);
-
-            if ((!request.getAudioData().isEmpty() && (result.getAudioResult() == null
-                    || result.getAudioResult().isError()))
-                    || ((!request.getVideoData().isEmpty() || !request.getImageData().isEmpty())
-                    && (result.getVisualResult() == null || result.getVisualResult().isError()))) {
-                responseObserver.onError(Status.UNAVAILABLE
-                        .withDescription("A requested multimodal provider did not produce a result")
-                        .asRuntimeException());
-                return;
-            }
-
-            InsightsResponse.Builder builder = InsightsResponse.newBuilder();
-            List<String> topics = new ArrayList<>();
-            List<String> entities = new ArrayList<>();
-            List<String> actions = new ArrayList<>();
-
-            // Extract audio insights
-            if (result.getAudioResult() != null && !result.getAudioResult().isError()) {
-                String transcription = result.getAudioResult().getTranscription();
-                topics.add("speech");
-                if (!transcription.isBlank()) {
-                    // Simple NER heuristic: capitalized words as entities
-                    for (String word : transcription.split("\\s+")) {
-                        if (word.length() > 1 && Character.isUpperCase(word.charAt(0))) {
-                            String clean = word.replaceAll("[^\\w]", "");
-                            if (!clean.isBlank()) entities.add(clean);
-                        }
-                    }
-                }
-
-                // Simple sentiment based on transcription content
-                String lower = transcription.toLowerCase();
-                builder.setOverallSentiment(
-                    lower.contains("good") || lower.contains("great") || lower.contains("happy") ? "positive"
-                    : lower.contains("bad") || lower.contains("fail") || lower.contains("error") ? "negative"
-                    : "neutral");
-            }
-
-            // Extract visual insights
-            if (result.getVisualResult() != null && !result.getVisualResult().isError()) {
-                topics.add("visual");
-                String sceneDesc = result.getVisualResult().getSceneDescription();
-                if (!sceneDesc.isBlank()) {
-                    // Infer actions from scene description verbs
-                    if (sceneDesc.contains("running") || sceneDesc.contains("walking")) {
-                        actions.add("movement");
-                    }
-                    if (sceneDesc.contains("talking") || sceneDesc.contains("speaking")) {
-                        actions.add("communication");
-                    }
-                }
-            }
-
-            // Text insights
-            if (!request.getText().isBlank()) {
-                topics.add("text");
-            }
-
-            // Build confidence scores
-            builder.addAllTopics(topics)
-                .addAllEntities(entities.stream().distinct().limit(10).toList())
-                .addAllActions(actions)
-                .setProcessingTimeMs(System.currentTimeMillis() - startTime);
-
-            if (builder.getOverallSentiment().isBlank()) {
-                builder.setOverallSentiment("neutral");
-            }
-
-            LOG.info("Insights extracted: topics={}, entities={}", topics.size(), entities.size());
-            responseObserver.onNext(builder.build());
-            responseObserver.onCompleted();
-
-        } catch (Exception e) {
-            LOG.warn("Insights extraction failed ({})", e.getClass().getSimpleName());
-            responseObserver.onError(safeFailureStatus(e, "Insights extraction failed").asRuntimeException());
-        }
+        // The current STT/Vision results do not expose claim-level source references,
+        // calibrated semantic confidence, or a qualified insights provider. Heuristic
+        // sentiment, entity, and action extraction would turn unversioned observations
+        // into unsupported claims. Fail before dispatching modality providers until the
+        // source-grounded insights contract is implemented.
+        responseObserver.onError(Status.UNAVAILABLE
+                .withDescription("No qualified source-grounded semantic provider is available for insights")
+                .asRuntimeException());
     }
 
     // ── AV-004.1: loadModel ────────────────────────────────────────────────

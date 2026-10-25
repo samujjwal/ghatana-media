@@ -134,10 +134,8 @@ class MultimodalGrpcProductionWrapperMatrixTest {
                 .isEqualTo(CrossModalResponse.SynchronizationStatus.SYNC_UNDETERMINED);
         assertThat(crossModal.getEventsList()).isEmpty();
 
-        InsightsResponse insights = authenticated.getInsights(InsightsRequest.newBuilder()
-                .setAudioData(ByteString.copyFrom(new byte[] {6})).build());
-        assertThat(insights.getTopicsList()).contains("speech");
-        assertThat(insights.getConfidenceScoresMap()).isEmpty();
+        assertUnavailable(() -> authenticated.getInsights(InsightsRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {6})).build()));
 
         assertUnavailable(() -> authenticated.loadModel(LoadModelRequest.newBuilder()
                 .setModelId("unknown-model").build()));

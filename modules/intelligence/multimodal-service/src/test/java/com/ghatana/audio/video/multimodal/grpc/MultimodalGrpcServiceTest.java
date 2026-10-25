@@ -544,29 +544,18 @@ class MultimodalGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("getInsights: audio with transcription → topics and sentiment extracted")
-    void getInsights_withAudio_extractsTopicsAndSentiment() { 
-        MultimodalResult result = MultimodalResult.builder() 
-            .audioResult(AudioResult.builder() 
-                .transcription("The project is great and the team did a good job")
-                .confidence(0.9).build()) 
-            .combinedAnalysis("positive meeting")
-            .processingTimeMs(15L) 
-            .build(); 
-        when(mockEngine.analyse(any())).thenReturn(result); 
-
+    @DisplayName("getInsights: heuristic claims are unavailable before modality dispatch")
+    void getInsights_withAudioDoesNotReturnHeuristicInsights() {
         CapturingObserver<InsightsResponse> observer = new CapturingObserver<>(); 
         withContext(TENANT_ID, () -> service.getInsights( 
             InsightsRequest.newBuilder() 
-                .setAudioData(ByteString.copyFrom(new byte[]{1})) 
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
                 .build(), 
             observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        InsightsResponse response = observer.getValue(); 
-        assertThat(response.getTopicsList()).contains("speech");
-        assertThat(response.getOverallSentiment()).isEqualTo("positive");
-        assertThat(response.getProcessingTimeMs()).isGreaterThanOrEqualTo(0); 
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
