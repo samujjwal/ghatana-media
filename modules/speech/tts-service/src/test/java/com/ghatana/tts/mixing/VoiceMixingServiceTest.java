@@ -80,6 +80,25 @@ class VoiceMixingServiceTest {
         }
 
         @Test
+        @DisplayName("mix timeline duration includes track offsets")
+        void mix_durationIncludesOffsets() {
+            var early = new VoiceMixingService.AudioTrack(new byte[]{1}, 1.0, 0.0, 0L, 300L, "early");
+            var late = new VoiceMixingService.AudioTrack(new byte[]{2}, 1.0, 0.0, 500L, 300L, "late");
+
+            assertThat(buildService().mix(List.of(early, late)).totalDurationMs()).isEqualTo(800L);
+        }
+
+        @Test
+        @DisplayName("mix rejects a timeline duration that overflows")
+        void mix_durationOverflowFailsClosed() {
+            var overflowing = new VoiceMixingService.AudioTrack(
+                    new byte[]{1}, 1.0, 0.0, Long.MAX_VALUE, 1L, "overflow");
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> buildService().mix(List.of(overflowing)))
+                    .isInstanceOf(ArithmeticException.class);
+        }
+
+        @Test
         @DisplayName("null tracks throws NullPointerException")
         void mix_null_throwsNPE() { 
             VoiceMixingService service = buildService(); 

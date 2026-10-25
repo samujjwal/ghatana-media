@@ -73,8 +73,12 @@ public final class VoiceMixingService {
         }
 
         byte[] mixed = mixer.mix(Collections.unmodifiableList(tracks));
+        // Duration is measured from the mix origin, so a track that starts later
+        // extends the output timeline by its offset as well as its own duration.
+        // Fail closed if that timeline cannot be represented in the public long-ms
+        // duration field rather than wrapping to a misleading shorter value.
         long totalDurationMs = tracks.stream()
-                .mapToLong(t -> t.durationMs())
+                .mapToLong(t -> Math.addExact(t.offsetMs(), t.durationMs()))
                 .max()
                 .orElse(0L);
 

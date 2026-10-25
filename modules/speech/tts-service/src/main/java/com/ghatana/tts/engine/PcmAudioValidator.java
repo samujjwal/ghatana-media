@@ -48,14 +48,18 @@ public final class PcmAudioValidator {
             throw new IllegalStateException("TTS PCM payload contains a partial sample frame");
         }
         long frames = bytes.length / bytesPerFrame;
-        long durationMillis = Math.round(frames * 1_000.0d / audio.sampleRate());
+        long durationNumerator = Math.multiplyExact(frames, 1_000L);
+        long durationMillis = durationNumerator / audio.sampleRate();
+        long durationRemainder = durationNumerator % audio.sampleRate();
+        // Round the exact rational frame clock to the nearest millisecond, with
+        // ties rounded up. The validated payload limit keeps numerator bounded.
+        if (durationRemainder * 2L >= audio.sampleRate()) durationMillis++;
         if (durationMillis <= 0) {
             throw new IllegalStateException("TTS PCM duration rounds to zero milliseconds");
         }
         Duration measuredDuration = Duration.ofMillis(durationMillis);
         Duration claimed = audio.duration();
-        if (claimed == null || claimed.isNegative() || claimed.isZero()
-                || Math.abs(claimed.toNanos() - measuredDuration.toNanos()) > 1_000_000L) {
+        if (claimed == null || claimed.isNegative() || claimed.isZero() || !claimed.equals(measuredDuration)) {
             throw new IllegalStateException("TTS PCM duration metadata does not match frame count and sample rate");
         }
         double sumSquares = 0.0d;

@@ -36,6 +36,23 @@ class PcmAudioValidatorTest {
     }
 
     @Test
+    void rejectsOneMillisecondDurationMismatchAtTheToleranceBoundary() {
+        // 32 mono S16 samples at 16 kHz are exactly 1 ms; the prior 1 ms
+        // tolerance also accepted this deliberately incorrect 2 ms claim.
+        assertThatThrownBy(() -> PcmAudioValidator.validate(new AudioData(
+                new byte[32], 16_000, 1, 16, Duration.ofMillis(2), AudioFormat.PCM)))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("duration metadata");
+    }
+
+    @Test
+    void roundsHalfMillisecondFrameDurationUsingExactRationalClock() {
+        // 8 frames at 16 kHz are 0.5 ms; ties round up to 1 ms.
+        var facts = PcmAudioValidator.validate(new AudioData(
+                new byte[16], 16_000, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
+        assertThat(facts.duration()).isEqualTo(Duration.ofMillis(1));
+    }
+
+    @Test
     void rejectsNonemptyPcmWhoseDurationRoundsToZeroMilliseconds() {
         assertThatThrownBy(() -> PcmAudioValidator.validate(new AudioData(
                 new byte[2], 96_000, 1, 16, Duration.ofMillis(1), AudioFormat.PCM)))
