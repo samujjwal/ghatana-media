@@ -48,6 +48,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     // AV-P1-013: Validation constants
     private static final long MAX_IMAGE_BYTES = 50 * 1024 * 1024; // 50MB
     private static final long MAX_VIDEO_BYTES = 500 * 1024 * 1024; // 500MB
+    private static final long MAX_PROCESS_VIDEO_BYTES = 512L * 1024 * 1024;
+    private static final int MAX_VIDEO_SAMPLE_FPS = 60;
+    private static final int MAX_VIDEO_ANALYSIS_FRAMES = 10_000;
     private static final int DEFAULT_MAX_DETECTIONS = 100;
     private static final Set<String> SUPPORTED_IMAGE_FORMATS = Set.of("jpg", "jpeg", "png", "bmp", "webp");
     private static final Set<String> SUPPORTED_VIDEO_FORMATS = Set.of("mp4", "avi", "mov", "mkv");
@@ -414,6 +417,17 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 return;
             }
 
+            int sampleFps = request.getSampleFps();
+            int maxFrames = request.getMaxFrames();
+            if (sampleFps < 0 || sampleFps > MAX_VIDEO_SAMPLE_FPS
+                    || maxFrames < 0 || maxFrames > MAX_VIDEO_ANALYSIS_FRAMES) {
+                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("Video sampling settings exceed supported bounds")
+                    .asRuntimeException());
+                mediaMetrics.recordFailed("vision.analyzeVideo");
+                return;
+            }
+
             if (rejectWhenProviderUnavailable(responseObserver, "Video analysis")) return;
 
             // AV-P1-012: Log request size without tenant/user identifiers.
@@ -421,13 +435,17 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             tempDir = Files.createTempDirectory("vision-video-");
             Path videoFile = tempDir.resolve("input.mp4");
-            Files.write(videoFile, request.getVideoData().toByteArray());
+            try (var output = Files.newOutputStream(videoFile)) {
+                // ByteString is already held by the RPC request. Stream it to disk so a
+                // second 500 MiB heap copy is not created before FFprobe/FFmpeg runs.
+                request.getVideoData().writeTo(output);
+            }
 
             VideoFrameExtractor.VideoMetadata metadata = frameExtractor.getVideoMetadata(videoFile);
             LOG.info("Video metadata: {}", metadata);
 
-            int fps = request.getSampleFps() > 0 ? request.getSampleFps() : 1;
-            int maxFrames = request.getMaxFrames() > 0 ? request.getMaxFrames() : 50;
+            int fps = sampleFps > 0 ? sampleFps : 1;
+            maxFrames = maxFrames > 0 ? maxFrames : 50;
 
             VideoFrameExtractor.ExtractionConfig extractConfig = VideoFrameExtractor.ExtractionConfig.builder()
                 .fps(fps)
@@ -528,6 +546,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         return new StreamObserver<VideoFrameRequest>() {
             private final java.util.concurrent.atomic.AtomicBoolean terminal =
                     new java.util.concurrent.atomic.AtomicBoolean();
+            private final VideoStreamBudget budget = new VideoStreamBudget();
 
             @Override
             public void onNext(VideoFrameRequest request) {
@@ -555,6 +574,14 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         terminal.set(true);
                         responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                             .withDescription("Frame data exceeds maximum size of " + (MAX_IMAGE_BYTES / 1024 / 1024) + "MB")
+                            .asRuntimeException());
+                        return;
+                    }
+
+                    if (!budget.tryAccept(frameSize)) {
+                        terminal.set(true);
+                        responseObserver.onError(io.grpc.Status.RESOURCE_EXHAUSTED
+                            .withDescription("Video frame stream exceeds its cumulative resource budget")
                             .asRuntimeException());
                         return;
                     }
@@ -624,6 +651,21 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 LOG.info("Video processing stream completed");
             }
         };
+    }
+
+    /** Tracks finite request-stream work independently of per-frame decoder bounds. */
+    static final class VideoStreamBudget {
+        static final int MAX_FRAMES = 10_000;
+        private int frames;
+        private long bytes;
+
+        boolean tryAccept(int frameBytes) {
+            if (frameBytes <= 0 || frames >= MAX_FRAMES
+                    || frameBytes > MAX_PROCESS_VIDEO_BYTES - bytes) return false;
+            frames++;
+            bytes += frameBytes;
+            return true;
+        }
     }
 
     @Override

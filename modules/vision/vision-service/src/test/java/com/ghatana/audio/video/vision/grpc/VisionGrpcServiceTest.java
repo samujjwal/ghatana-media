@@ -421,6 +421,43 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    void analyzeVideoFile_rejectsOutOfRangeSamplingBeforeProviderOrTempStorage() {
+        CapturingObserver<VideoFileResponse> excessiveFps = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.analyzeVideoFile(VideoFileRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[]{1}))
+                .setSampleFps(61)
+                .build(), excessiveFps));
+        assertThat(((StatusRuntimeException) excessiveFps.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+
+        CapturingObserver<VideoFileResponse> excessiveFrames = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.analyzeVideoFile(VideoFileRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[]{1}))
+                .setMaxFrames(10_001)
+                .build(), excessiveFrames));
+        assertThat(((StatusRuntimeException) excessiveFrames.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void videoStreamBudgetBoundsCumulativeInputAndFrameCount() {
+        VisionGrpcService.VideoStreamBudget byteBudget = new VisionGrpcService.VideoStreamBudget();
+        int maxImageBytes = 50 * 1024 * 1024;
+        for (int frame = 0; frame < 10; frame++) {
+            assertThat(byteBudget.tryAccept(maxImageBytes)).isTrue();
+        }
+        assertThat(byteBudget.tryAccept(maxImageBytes)).isFalse();
+
+        VisionGrpcService.VideoStreamBudget frameBudget = new VisionGrpcService.VideoStreamBudget();
+        for (int frame = 0; frame < VisionGrpcService.VideoStreamBudget.MAX_FRAMES; frame++) {
+            assertThat(frameBudget.tryAccept(1)).isTrue();
+        }
+        assertThat(frameBudget.tryAccept(1)).isFalse();
+        assertThat(frameBudget.tryAccept(0)).isFalse();
+    }
+
+    @Test
     void processVideo_missingTenantRejectsFrameBeforeProvider() {
         CapturingObserver<VideoFrameResponse> observer = new CapturingObserver<>();
         var stream = service.processVideo(observer);
