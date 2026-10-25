@@ -7,6 +7,7 @@ import com.ghatana.audio.video.vision.model.BoundingBox;
 import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.audio.video.vision.model.ObjectAttributes;
+import com.ghatana.audio.video.vision.model.VisionCapabilityDisposition;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import com.google.protobuf.ByteString;
@@ -17,6 +18,8 @@ import io.grpc.stub.StreamObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -187,8 +190,8 @@ class VisionGrpcServiceTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("analyzeImage: objects detected → scene description generated")
-    void analyzeImage_withObjects_generatesSceneDescription() {
+    @DisplayName("analyzeImage: objects cannot be substituted for admitted scene analysis")
+    void analyzeImage_withObjectsRemainsUnimplemented() {
         fakeDetector.setResults(buildDetections("person", "dog"));
         AnalyzeRequest request = AnalyzeRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).addAnalysisTypes("scene").build();
         CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
@@ -198,8 +201,8 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("analyzeImage: no detections → scene description indicates empty scene")
-    void analyzeImage_noDetections_returnsEmptySceneHint() {
+    @DisplayName("analyzeImage: no detections does not produce an inferred scene")
+    void analyzeImage_noDetectionsRemainsUnimplemented() {
         AnalyzeRequest request = AnalyzeRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build();
         CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.analyzeImage(request, observer));
@@ -239,14 +242,56 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("analyzeImage: DetectionException from detector → INTERNAL gRPC error")
-    void analyzeImage_detectorThrows_mapsToInternal() {
+    @DisplayName("analyzeImage: unsupported analysis does not dispatch to detector")
+    void analyzeImage_unsupportedAnalysisDoesNotCallDetector() {
         fakeDetector.setThrowOnDetect(new VisionDetector.DetectionException("model error", null));
         AnalyzeRequest request = AnalyzeRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build();
         CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.analyzeImage(request, observer));
         assertUnimplemented(observer);
         assertThat(fakeDetector.calls).isZero();
+    }
+
+    @ParameterizedTest
+    @EnumSource(VisionCapabilityDisposition.class)
+    @DisplayName("advanced Vision intents return NOT_ADMITTED before detector dispatch")
+    void analyzeImage_advancedIntentIsNotAdmittedBeforeDetectorCall(
+            VisionCapabilityDisposition disposition) {
+        AnalyzeRequest request = AnalyzeRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1}))
+                .addAnalysisTypes(disposition.intentId())
+                .build();
+        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.analyzeImage(request, observer));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(failure.getStatus().getDescription())
+                .contains(disposition.intentId())
+                .contains(VisionCapabilityDisposition.Status.NOT_ADMITTED.name());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    @DisplayName("advanced capability registry retains the exact VIS-08 and tracking intent IDs")
+    void advancedCapabilityRegistryContainsExpectedIntentIds() {
+        assertThat(java.util.Arrays.stream(VisionCapabilityDisposition.values())
+                .map(VisionCapabilityDisposition::intentId))
+                .containsExactlyInAnyOrder(
+                        "media.vision.segment.image",
+                        "media.vision.segment.video",
+                        "media.vision.track.object",
+                        "media.vision.track.point",
+                        "media.vision.estimate.optical-flow",
+                        "media.vision.estimate.depth",
+                        "media.vision.estimate.surface-normals",
+                        "media.vision.estimate.human-pose",
+                        "media.vision.estimate.hand-pose",
+                        "media.vision.matte.foreground-background",
+                        "media.vision.segment.motion",
+                        "media.vision.estimate.saliency");
     }
 
     // -------------------------------------------------------------------------
@@ -280,8 +325,8 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("classifyImage: detections returned \u2192 labels ranked by confidence")
-    void classifyImage_withDetections_returnsRankedLabels() {
+    @DisplayName("classifyImage: object detections cannot be substituted for classification")
+    void classifyImage_withDetectionsRemainsUnimplemented() {
         fakeDetector.setResults(buildDetections("cat", "cat", "dog"));
         ClassifyRequest request = ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).setTopK(5).build();
         CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>();
@@ -291,8 +336,8 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("classifyImage: DetectionException → INTERNAL")
-    void classifyImage_detectorThrows_returnsInternal() {
+    @DisplayName("classifyImage: unsupported classification does not dispatch to detector")
+    void classifyImage_unsupportedClassificationDoesNotCallDetector() {
         fakeDetector.setThrowOnDetect(new VisionDetector.DetectionException("model error", null));
         ClassifyRequest request = ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build();
         CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>();

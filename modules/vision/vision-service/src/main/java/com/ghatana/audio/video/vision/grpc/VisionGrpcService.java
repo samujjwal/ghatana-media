@@ -7,7 +7,10 @@ import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.vision.detection.VisionDetector;
 import com.ghatana.audio.video.vision.grpc.proto.*;
-import com.ghatana.audio.video.vision.model.*;
+import com.ghatana.audio.video.vision.model.DetectedObject;
+import com.ghatana.audio.video.vision.model.DetectionOptions;
+import com.ghatana.audio.video.vision.model.ObjectAttributes;
+import com.ghatana.audio.video.vision.model.VisionCapabilityDisposition;
 import com.ghatana.audio.video.vision.yolo.YoloV8Adapter;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audit.AuditEvent;
@@ -268,6 +271,17 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                     .withDescription("Image data exceeds maximum size of 50MB")
                     .asRuntimeException());
             return;
+        }
+        for (String requestedIntent : request.getAnalysisTypesList()) {
+            var disposition = VisionCapabilityDisposition.forIntentId(requestedIntent);
+            if (disposition.isPresent()) {
+                mediaMetrics.recordFailed("vision.analyze");
+                responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                        .withDescription("Vision capability " + disposition.get().intentId() + " is "
+                                + disposition.get().status())
+                        .asRuntimeException());
+                return;
+            }
         }
         mediaMetrics.recordFailed("vision.analyze");
         responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
