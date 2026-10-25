@@ -4,8 +4,6 @@ import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.tts.api.TtsEngine;
-import com.ghatana.media.tts.api.TtsStreamSink;
-import com.ghatana.media.tts.api.TtsStreamingSession;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.tts.core.grpc.proto.AudioChunk;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
@@ -26,8 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +32,6 @@ import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -245,25 +240,16 @@ class PersistentTtsGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("streamSynthesize delegates to base TTS streaming implementation")
-    void streamSynthesizeDelegatesToBaseImplementation() {
-        doAnswer(invocation -> {
-            TtsStreamSink sink = invocation.getArgument(2);
-            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[]{1, 2, 3, 4}, 1, false, 0));
-            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[]{4, 5}, 2, true, 1));
-            return TtsStreamingSession.create(
-                    new AtomicBoolean(), CompletableFuture.completedFuture(null));
-        }).when(engine).startStreaming(anyString(), any(), any());
-
+    @DisplayName("streamSynthesize fails closed without provider access or chunks")
+    void streamSynthesizeFailsClosedWithoutProviderAccess() {
         CapturingObserver<AudioChunk> observer = new CapturingObserver<>();
         withContext("tenant-a", null, () ->
             streamingService.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer));
 
-        assertThat(observer.error).isNull();
-        assertThat(observer.completed).isTrue();
-        assertThat(observer.value).isNotNull();
-        assertThat(observer.value.getAudioData().toByteArray()).containsExactly(4, 5);
-        assertThat(observer.value.getIsFinal()).isTrue();
+        assertThat(statusCode(observer)).isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verifyNoInteractions(library, engine);
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

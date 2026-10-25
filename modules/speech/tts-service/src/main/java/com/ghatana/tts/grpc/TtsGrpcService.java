@@ -6,8 +6,6 @@ import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.ValidationError;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
-import com.ghatana.media.tts.api.TtsStreamSink;
-import com.ghatana.media.tts.api.TtsStreamingSession;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.tts.core.grpc.proto.AudioChunk;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
@@ -44,11 +42,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * TTS gRPC façade over an injected, lifecycle-owned {@link AudioVideoLibrary}.
@@ -128,91 +123,25 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         String correlationId = correlationId();
         long startedNanos = System.nanoTime();
         AtomicBoolean cancelled = new AtomicBoolean();
-        AtomicBoolean terminal = new AtomicBoolean();
-        AtomicReference<TtsStreamingSession> sessionRef = new AtomicReference<>();
-        Object readinessMonitor = new Object();
         ServerCallStreamObserver<AudioChunk> serverObserver = serverObserver(responseObserver);
 
         if (serverObserver != null) {
-            serverObserver.setOnReadyHandler(() -> {
-                synchronized (readinessMonitor) {
-                    readinessMonitor.notifyAll();
-                }
-            });
-            serverObserver.setOnCancelHandler(() -> {
-                cancelled.set(true);
-                TtsStreamingSession session = sessionRef.get();
-                if (session != null) session.cancel();
-                synchronized (readinessMonitor) {
-                    readinessMonitor.notifyAll();
-                }
-            });
+            serverObserver.setOnCancelHandler(() -> cancelled.set(true));
         }
 
         try {
             String text = validateText(request.getText());
             SynthesisControlPolicy.rejectUnqualifiedSsml(text);
             requireAuthorizedVoiceSelection(request);
-            SynthesisOptions options = options(request);
-            TtsEngine engine = library.getTtsEngine();
-            int sampleRate = engine.getActiveVoice().sampleRate();
-            TtsStreamSink sink = new TtsStreamSink() {
-                @Override
-                public boolean isReady() {
-                    return serverObserver == null || serverObserver.isReady();
-                }
-
-                @Override
-                public boolean isCancelled() {
-                    return cancelled.get()
-                            || (serverObserver != null && serverObserver.isCancelled());
-                }
-
-                @Override
-                public void awaitReady() throws InterruptedException {
-                    synchronized (readinessMonitor) {
-                        while (!isReady() && !isCancelled()) {
-                            readinessMonitor.wait();
-                        }
-                    }
-                }
-
-                @Override
-                public void onChunk(com.ghatana.media.common.AudioChunk chunk) {
-                    if (isCancelled()) throw new CancellationException("gRPC TTS stream cancelled");
-                    if (chunk.data().length % 2 != 0) {
-                        throw new IllegalStateException(
-                                "TTS provider returned a partial PCM S16LE sample");
-                    }
-                    responseObserver.onNext(AudioChunk.newBuilder()
-                            .setAudioData(com.google.protobuf.ByteString.copyFrom(chunk.data()))
-                            .setSampleRate(sampleRate)
-                            .setIsFinal(chunk.isLast())
-                            .build());
-                }
-            };
-
-            TtsStreamingSession session = engine.startStreaming(text, options, sink);
-            sessionRef.set(session);
-            if (cancelled.get()) session.cancel();
-            session.completion().whenComplete((ignored, failure) -> {
-                streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
-                if (!terminal.compareAndSet(false, true) || cancelled.get()) return;
-                if (failure == null) {
-                    LOG.info("[{}] stream synthesis completed", correlationId);
-                    responseObserver.onCompleted();
-                    return;
-                }
-                Throwable cause = unwrap(failure);
-                if (cause instanceof CancellationException) return;
-                RuntimeException runtime = cause instanceof RuntimeException value
-                        ? value
-                        : new IllegalStateException("Streaming synthesis failed", cause);
-                fail(responseObserver, "Streaming synthesis", correlationId, runtime);
-            });
+            options(request);
+            // No streaming provider has been admitted. Fail before engine lookup/session creation,
+            // so a compatibility or synthetic engine cannot emit partial or final audio.
+            throw new TtsSynthesisEngine.SynthesisException(
+                    "TTS streaming is NOT_ADMITTED: no real streaming provider is configured",
+                    TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
         } catch (RuntimeException exception) {
             streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
-            if (terminal.compareAndSet(false, true) && !cancelled.get()) {
+            if (!cancelled.get()) {
                 fail(responseObserver, "Streaming synthesis", correlationId, exception);
             }
         }
@@ -385,14 +314,6 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             StreamObserver<AudioChunk> observer) {
         if (!(observer instanceof ServerCallStreamObserver<?> raw)) return null;
         return (ServerCallStreamObserver<AudioChunk>) raw;
-    }
-
-    private static Throwable unwrap(Throwable failure) {
-        Throwable current = failure;
-        while (current instanceof CompletionException && current.getCause() != null) {
-            current = current.getCause();
-        }
-        return current;
     }
 
     private static String requireText(String value, String field) {

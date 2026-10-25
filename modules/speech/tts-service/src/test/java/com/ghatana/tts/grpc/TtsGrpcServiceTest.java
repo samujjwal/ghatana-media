@@ -28,6 +28,7 @@ import com.ghatana.tts.engine.TtsSynthesisEngine;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -42,6 +43,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,6 +52,8 @@ import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -201,6 +205,45 @@ class TtsGrpcServiceTest {
 
         assertStatus(observer, Status.Code.FAILED_PRECONDITION);
         assertThat(observer.value).isNull();
+    }
+
+    @Test
+    void streamFailsUnavailableBeforeProviderLookupWhenDownstreamIsNotReady() {
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        lenient().when(observer.isReady()).thenReturn(false);
+
+        service.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        var failure = org.mockito.ArgumentCaptor.forClass(Throwable.class);
+        verify(observer).onError(failure.capture());
+        assertThat(Status.fromThrowable(failure.getValue()).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).isReady();
+        verify(library, never()).getTtsEngine();
+    }
+
+    @Test
+    void streamCancellationCreatesNoProviderSessionOrAudioChunks() {
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        doAnswer(invocation -> {
+            cancelHandler.set(invocation.getArgument(0));
+            cancelHandler.get().run();
+            return null;
+        }).when(observer).setOnCancelHandler(any(Runnable.class));
+
+        service.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertThat(cancelHandler.get()).isNotNull();
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).onError(any());
+        verify(library, never()).getTtsEngine();
     }
 
     @Test
