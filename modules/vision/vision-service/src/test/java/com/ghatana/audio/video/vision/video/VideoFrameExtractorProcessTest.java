@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.vision.video;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assumptions;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -118,6 +119,23 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void rejectsVideoInputBeneathSymlinkedAncestorBeforeStartingFfmpeg() throws Exception {
+        Path actual = Files.createDirectory(tempDir.resolve("input-target"));
+        Path target = actual.resolve("source.mp4");
+        Files.write(target, new byte[] {1});
+        Path link = tempDir.resolve("input-parent-link");
+        try {
+            Files.createSymbolicLink(link, actual);
+        } catch (UnsupportedOperationException | java.nio.file.FileSystemException unavailable) {
+            Assumptions.abort("Symlink creation is unavailable on this filesystem");
+        }
+        assertThatThrownBy(() -> new VideoFrameExtractor().extractFrames(
+                link.resolve("source.mp4"), tempDir.resolve("out-parent-link"),
+                VideoFrameExtractor.ExtractionConfig.builder().build()))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("unsafe");
+    }
+
+    @Test
     void rejectsProtocolAndOptionLikeInputNamesBeforeStartingFfmpeg() throws Exception {
         for (String filename : List.of("http:evil.mp4", "-evil.mp4")) {
             Path file = tempDir.resolve(filename);
@@ -142,6 +160,24 @@ class VideoFrameExtractorProcessTest {
         assertThatThrownBy(() -> new VideoFrameExtractor().extractFrames(
                 input, link, VideoFrameExtractor.ExtractionConfig.builder().build()))
                 .isInstanceOf(java.io.IOException.class).hasMessageContaining("symlink");
+    }
+
+    @Test
+    void rejectsOutputDirectoryBeneathSymlinkedAncestorBeforeCreatingOutput() throws Exception {
+        Path actual = Files.createDirectory(tempDir.resolve("output-target"));
+        Path link = tempDir.resolve("output-parent-link");
+        try {
+            Files.createSymbolicLink(link, actual);
+        } catch (UnsupportedOperationException | java.nio.file.FileSystemException unavailable) {
+            Assumptions.abort("Symlink creation is unavailable on this filesystem");
+        }
+        Path input = tempDir.resolve("input-for-linked-output.mp4");
+        Files.write(input, new byte[] {1});
+        Path requestedOutput = link.resolve("frames");
+        assertThatThrownBy(() -> new VideoFrameExtractor().extractFrames(
+                input, requestedOutput, VideoFrameExtractor.ExtractionConfig.builder().build()))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("symlinks");
+        assertThat(Files.exists(actual.resolve("frames"))).isFalse();
     }
 
     @Test

@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 class BoundedImageDecoderTest {
     @Test void decodesAllowedImageWithinBounds() throws Exception {
@@ -33,6 +36,15 @@ class BoundedImageDecoderTest {
         ByteArrayOutputStream encoded = new ByteArrayOutputStream();
         ImageIO.write(source, "png", encoded);
         assertThatThrownBy(() -> BoundedImageDecoder.decode(encoded.toByteArray()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("dimensions");
+    }
+
+    @Test
+    @Timeout(value = 1, unit = java.util.concurrent.TimeUnit.SECONDS)
+    void rejectsTinyPngHeaderWithDecodedPixelExpansionBeforeRasterAllocation() {
+        byte[] header = pngHeader(BoundedImageDecoder.MAX_DIMENSION, BoundedImageDecoder.MAX_DIMENSION);
+        assertThat(header).hasSizeLessThan(64);
+        assertThatThrownBy(() -> BoundedImageDecoder.decode(header))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("dimensions");
     }
 
@@ -109,6 +121,17 @@ class BoundedImageDecoderTest {
         System.arraycopy(new byte[] {'E', 'x', 'i', 'f', 0, 0}, 0, exif, 0, 6);
         System.arraycopy(tiff, 0, exif, 6, tiff.length);
         return withExifPayload(jpeg, exif);
+    }
+
+    private static byte[] pngHeader(int width, int height) {
+        ByteBuffer png = ByteBuffer.allocate(33).order(ByteOrder.BIG_ENDIAN);
+        png.put(new byte[] {(byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'});
+        png.putInt(13).put(new byte[] {'I', 'H', 'D', 'R'}).putInt(width).putInt(height);
+        png.put(new byte[] {8, 2, 0, 0, 0});
+        java.util.zip.CRC32 crc = new java.util.zip.CRC32();
+        crc.update(png.array(), 12, 17);
+        png.putInt((int) crc.getValue());
+        return png.array();
     }
 
     private static byte[] withExifPayload(byte[] jpeg, byte[] exifPayload) {

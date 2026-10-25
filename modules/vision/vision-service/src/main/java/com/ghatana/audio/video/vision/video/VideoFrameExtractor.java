@@ -611,11 +611,12 @@ public class VideoFrameExtractor {
     }
 
     private static Path validateInput(Path input) throws IOException {
-        if (input == null || Files.isSymbolicLink(input)) throw new IOException("Video input path is unsafe");
+        if (input == null) throw new IOException("Video input path is unsafe");
         for (Path component : input) {
             if (component.toString().equals("..")) throw new IOException("Video input traversal is not allowed");
         }
         Path absolute = input.toAbsolutePath().normalize();
+        rejectSymlinkComponents(absolute, "Video input path is unsafe");
         String filename = absolute.getFileName() == null ? "" : absolute.getFileName().toString();
         int dot = filename.lastIndexOf('.');
         String extension = dot < 0 ? "" : filename.substring(dot + 1).toLowerCase(Locale.ROOT);
@@ -636,7 +637,7 @@ public class VideoFrameExtractor {
             if (component.toString().equals("..")) throw new IOException("Output traversal is not allowed");
         }
         Path output = requested.toAbsolutePath().normalize();
-        if (Files.isSymbolicLink(output)) throw new IOException("Output directory cannot be a symlink");
+        rejectSymlinkComponents(output, "Output directory cannot contain symlinks");
         Files.createDirectories(output);
         Path real = output.toRealPath(LinkOption.NOFOLLOW_LINKS);
         if (!Files.isDirectory(real, LinkOption.NOFOLLOW_LINKS) || Files.isSymbolicLink(real)) {
@@ -646,6 +647,23 @@ public class VideoFrameExtractor {
             if (entries.findAny().isPresent()) throw new IOException("Output directory must be empty and isolated");
         }
         return real;
+    }
+
+    /** Reject aliases in any existing component so validation and child-process access share one path. */
+    private static void rejectSymlinkComponents(Path absolute, String message) throws IOException {
+        Path current = absolute.getRoot();
+        if (current == null) throw new IOException(message);
+        Path systemTemp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath();
+        for (Path component : absolute) {
+            current = current.resolve(component);
+            // Some platforms expose the configured system temp directory through a
+            // stable OS alias (for example /var -> /private/var on macOS). Permit
+            // only symlinks whose real targets are ancestors of that trusted temp root.
+            if (Files.isSymbolicLink(current)) {
+                Path realComponent = current.toRealPath();
+                if (!systemTemp.startsWith(realComponent)) throw new IOException(message);
+            }
+        }
     }
 
     private static void cleanupFrames(Path directory, String format) {
