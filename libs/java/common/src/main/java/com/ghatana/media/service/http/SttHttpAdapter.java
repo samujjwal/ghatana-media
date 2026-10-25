@@ -9,7 +9,10 @@ import io.activej.http.HttpRequest;
 import io.activej.http.HttpResponse;
 import io.activej.promise.Promise;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +71,7 @@ public class SttHttpAdapter {
 
                     TranscriptionResult result = stt.transcribe(audio, options);
 
-                    TranscribeResponse response = toResponse(result);
+                    TranscribeResponse response = toResponse(result, audio.duration());
 
                     return HttpResponse.ok200()
                         .withJson(mapper.writeValueAsString(response))
@@ -88,15 +91,76 @@ public class SttHttpAdapter {
         });
     }
 
-    static TranscribeResponse toResponse(TranscriptionResult result) {
+    static TranscribeResponse toResponse(TranscriptionResult result, Duration audioDuration) {
+        if (result == null) throw invalidResult("provider returned no transcription result");
+        if (result.getText() == null) throw invalidResult("provider returned null transcript text");
+        if (audioDuration == null || audioDuration.isNegative()) {
+            throw invalidResult("decoded audio duration is unavailable");
+        }
+        if (result.hasConfidence() && !confidence(result.confidence())) {
+            throw invalidResult("transcript confidence must be finite and in [0, 1]");
+        }
+        if (result.processingTime() == null || result.processingTime().isNegative()) {
+            throw invalidResult("processing time must be available and nonnegative");
+        }
+
+        List<WordTiming> timings = result.words() == null ? List.of() : result.words();
+        BigDecimal durationSeconds = BigDecimal.valueOf(audioDuration.getSeconds())
+                .add(BigDecimal.valueOf(audioDuration.getNano(), 9));
+        List<WordTimingJson> words = new java.util.ArrayList<>(timings.size());
+        double previousStart = -1.0d;
+        double previousEnd = 0.0d;
+        long previousEndMs = -1L;
+        for (WordTiming timing : timings) {
+            if (timing == null || timing.word() == null || timing.word().isBlank()) {
+                throw invalidResult("word timing text is required");
+            }
+            double start = timing.startSec();
+            double end = timing.endSec();
+            if (!Double.isFinite(start) || !Double.isFinite(end) || start < 0.0d || end <= start) {
+                throw invalidResult("word timing interval must be finite, nonnegative, and nonempty");
+            }
+            if (start <= previousStart || start < previousEnd) {
+                throw invalidResult("word timing intervals must be strictly ordered and non-overlapping");
+            }
+            if (BigDecimal.valueOf(end).compareTo(durationSeconds) > 0) {
+                throw invalidResult("word timing interval exceeds decoded audio duration");
+            }
+            if (!confidence(timing.confidence())) {
+                throw invalidResult("word timing confidence must be finite and in [0, 1]");
+            }
+            long startMs = toMillis(start);
+            long endMs = toMillis(end);
+            if (endMs <= startMs || startMs < previousEndMs) {
+                throw invalidResult("word timing interval cannot be represented as ordered millisecond bounds");
+            }
+            words.add(new WordTimingJson(timing.word(), startMs, endMs, timing.confidence()));
+            previousStart = start;
+            previousEnd = end;
+            previousEndMs = endMs;
+        }
         return new TranscribeResponse(
                 result.getText(),
                 result.hasConfidence() ? result.confidence() : null,
-                result.words().stream()
-                        .map(w -> new WordTimingJson(w.word(), Math.round(w.startSec() * 1_000),
-                                Math.round(w.endSec() * 1_000), w.confidence()))
-                        .toList(),
+                List.copyOf(words),
                 result.processingTime().toMillis());
+    }
+
+    private static boolean confidence(double value) {
+        return Double.isFinite(value) && value >= 0.0d && value <= 1.0d;
+    }
+
+    private static long toMillis(double seconds) {
+        try {
+            return BigDecimal.valueOf(seconds).movePointRight(3)
+                    .setScale(0, RoundingMode.HALF_UP).longValueExact();
+        } catch (ArithmeticException overflow) {
+            throw invalidResult("word timing interval exceeds representable millisecond bounds");
+        }
+    }
+
+    private static IllegalArgumentException invalidResult(String detail) {
+        return new IllegalArgumentException("STT_RESULT_INVALID: " + detail);
     }
 
     /**
