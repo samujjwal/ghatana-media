@@ -22,6 +22,7 @@ final class SttStreamSequenceValidator {
     private long lastTimestampMs = -1;
     private int sampleRate;
     private Boolean sequenced;
+    private long acceptedPcmBytes;
 
     SttStreamSequenceValidator(String sessionId) {
         if (sessionId == null || sessionId.isBlank()) {
@@ -48,8 +49,28 @@ final class SttStreamSequenceValidator {
         if (sampleRate != 0 && sampleRate != requestedSampleRate) {
             throw invalid("STT_STREAM_SAMPLE_RATE_CHANGED: sample rate must remain constant within a stream");
         }
+        // Streaming accepts raw mono S16LE PCM only. Enforce the same five-minute
+        // duration budget as file transcription without allowing arithmetic wraparound.
+        long maxPcmBytes = (long) requestedSampleRate * Short.BYTES
+                * SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS;
+        if (acceptedPcmBytes > maxPcmBytes - payloadBytes) {
+            throw new StreamInputException(Failure.NOT_ADMITTED,
+                    "STT_STREAM_DURATION_LIMIT: stream exceeds the configured duration limit");
+        }
         if (timestampMs < 0 || (lastTimestampMs >= 0 && timestampMs < lastTimestampMs)) {
             throw invalid("STT_STREAM_TIMESTAMP_INVALID: source timestamps must be nonnegative and monotonic");
+        }
+        // Timestamp values are source-clock milliseconds. Convert without an
+        // intermediate multiplication overflow before handing them to a sample clock.
+        long wholeSeconds = timestampMs / 1_000;
+        long fractionalMs = timestampMs % 1_000;
+        if (wholeSeconds > Long.MAX_VALUE / requestedSampleRate) {
+            throw invalid("STT_STREAM_TIMESTAMP_LIMIT: source timestamp exceeds the supported sample clock");
+        }
+        long wholeSecondSamples = wholeSeconds * requestedSampleRate;
+        long fractionalSamples = fractionalMs * requestedSampleRate / 1_000;
+        if (wholeSecondSamples > Long.MAX_VALUE - fractionalSamples) {
+            throw invalid("STT_STREAM_TIMESTAMP_LIMIT: source timestamp exceeds the supported sample clock");
         }
 
         boolean hasSequence = sequence > 0;
@@ -75,6 +96,7 @@ final class SttStreamSequenceValidator {
                     : "STT_STREAM_SEQUENCE_GAP: sequence must be contiguous");
         }
         lastSequence = next;
+        acceptedPcmBytes += payloadBytes;
         if (sampleRate == 0) sampleRate = requestedSampleRate;
         lastTimestampMs = timestampMs;
         return next;

@@ -42,6 +42,42 @@ class SttStreamSequenceValidatorTest {
         assertInvalid(validator, 2, "STT_STREAM_TIMESTAMP_INVALID", "session", 16_000, 9);
     }
 
+    @Test
+    void enforcesFiveMinutePcmSampleBudgetWithoutAdvancingSequenceOnFailure() {
+        SttStreamSequenceValidator validator = new SttStreamSequenceValidator("session");
+        int maxChunk = 1_048_576;
+        long sequence = 1;
+        long accepted = 0;
+        while (accepted + maxChunk <= 8_000L * 2 * 300) {
+            assertThat(validator.accept("session", sequence++, 8_000, sequence, maxChunk))
+                    .isEqualTo(sequence - 1);
+            accepted += maxChunk;
+        }
+        int remainder = (int) (8_000L * 2 * 300 - accepted);
+        assertThat(remainder).isPositive().isEven();
+        assertThat(validator.accept("session", sequence++, 8_000, sequence, remainder))
+                .isEqualTo(sequence - 1);
+        long rejectedSequence = sequence;
+        assertThatThrownBy(() -> validator.accept("session", rejectedSequence, 8_000, rejectedSequence, 2))
+                .isInstanceOfSatisfying(SttStreamSequenceValidator.StreamInputException.class, failure -> {
+                    assertThat(failure.failure()).isEqualTo(SttStreamSequenceValidator.Failure.NOT_ADMITTED);
+                    assertThat(failure).hasMessageContaining("STT_STREAM_DURATION_LIMIT");
+                });
+        assertThat(validator.lastSequence()).isEqualTo(sequence - 1);
+    }
+
+    @Test
+    void rejectsTimestampBeyondRepresentableSampleClock() {
+        SttStreamSequenceValidator validator = new SttStreamSequenceValidator("session");
+        long impossibleTimestamp = Long.MAX_VALUE;
+        assertThatThrownBy(() -> validator.accept("session", 1, 8_000, impossibleTimestamp, 2))
+                .isInstanceOfSatisfying(SttStreamSequenceValidator.StreamInputException.class, failure -> {
+                    assertThat(failure.failure()).isEqualTo(SttStreamSequenceValidator.Failure.INVALID);
+                    assertThat(failure).hasMessageContaining("STT_STREAM_TIMESTAMP_LIMIT");
+                });
+        assertThat(validator.lastSequence()).isZero();
+    }
+
     private static void assertInvalid(SttStreamSequenceValidator validator, long sequence, String message) {
         assertInvalid(validator, sequence, message, "session", 16_000, sequence * 10);
     }
