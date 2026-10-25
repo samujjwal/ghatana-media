@@ -96,43 +96,10 @@ public final class KernelOcrProviderAdapter
         if (!started.get()) {
             return completed(failure(request.operationId(), "PROVIDER_NOT_STARTED", context));
         }
-        if (request.image().content().length == 0) {
-            Operation unavailable = new Operation(
-                    context, request.idempotencyKey(), request.image().payloadDigest());
-            Operation existing = operations.putIfAbsent(request.operationId(), unavailable);
-            if (existing != null) return existing.result;
-            unavailable.result.complete(failure(request.operationId(), "IMAGE_PAYLOAD_UNAVAILABLE", context));
-            return unavailable.result;
-        }
-
-        Operation candidate = new Operation(
-                context, request.idempotencyKey(), request.image().payloadDigest());
-        Operation existing = operations.putIfAbsent(request.operationId(), candidate);
-        if (existing != null) {
-            if (!existing.tenantId.equals(context.tenantId())) {
-                return completed(failure(request.operationId(), "TENANT_SCOPE_MISMATCH", context));
-            }
-            if (!existing.idempotencyKey.equals(request.idempotencyKey())) {
-                return completed(failure(request.operationId(), "IDEMPOTENCY_KEY_MISMATCH", context));
-            }
-            if (!existing.payloadDigest.equals(request.image().payloadDigest())) {
-                return completed(failure(request.operationId(), "IDEMPOTENCY_PAYLOAD_MISMATCH", context));
-            }
-            return existing.result;
-        }
-
-        byte[] image = request.image().content();
-        CompletableFuture.runAsync(() -> execute(context, request, image, candidate), executor)
-                .orTimeout(request.timeout().toMillis(), TimeUnit.MILLISECONDS)
-                .whenComplete((ignored, failure) -> {
-                    if (failure == null || candidate.result.isDone()) return;
-                    candidate.cancelled.set(true);
-                    candidate.result.complete(failure(
-                            request.operationId(),
-                            unwrap(failure) instanceof TimeoutException ? "OCR_TIMEOUT" : "OCR_EXECUTION_FAILED",
-                            context));
-                });
-        return candidate.result;
+        // No admitted public Document Intelligence adapter is wired in this
+        // module. Fail before operation registration, executor dispatch, or
+        // payload handling; a legacy Media model must never emit OCR text.
+        return completed(failure(request.operationId(), "NOT_ADMITTED", context));
     }
 
     @Override
@@ -151,8 +118,8 @@ public final class KernelOcrProviderAdapter
         return List.of(new CapabilitySupportDescriptor(
                 CAPABILITY,
                 providerId,
-                java.util.Set.of(operation),
-                started.get() && !closed.get(),
+                java.util.Set.of(),
+                false,
                 CapabilityVersion.of("1.0.0")));
     }
 
@@ -167,10 +134,10 @@ public final class KernelOcrProviderAdapter
         return new ProductRuntimeHealth(
                 closed.get()
                         ? ProductRuntimeHealth.Status.STOPPED
-                        : started.get() ? ProductRuntimeHealth.Status.READY : ProductRuntimeHealth.Status.STARTING,
+                        : ProductRuntimeHealth.Status.DEGRADED,
                 closed.get()
                         ? "provider-closed"
-                        : started.get() ? "model-backed-ocr-ready" : "provider-not-started",
+                        : "NOT_ADMITTED",
                 java.util.Set.of(CAPABILITY));
     }
 
@@ -182,19 +149,7 @@ public final class KernelOcrProviderAdapter
         Objects.requireNonNull(context, "context must not be null");
         required(operationId, "operationId");
         required(idempotencyKey, "idempotencyKey");
-        Operation operation = operations.get(operationId);
-        if (operation == null) {
-            return completed(failure(operationId, "OPERATION_NOT_FOUND", context));
-        }
-        if (!operation.tenantId.equals(context.tenantId())) {
-            return completed(failure(operationId, "TENANT_SCOPE_MISMATCH", context));
-        }
-        if (!operation.idempotencyKey.equals(idempotencyKey)) {
-            return completed(failure(operationId, "IDEMPOTENCY_KEY_MISMATCH", context));
-        }
-        operation.cancelled.set(true);
-        operation.result.complete(failure(operationId, "CANCELLED", context));
-        return operation.result;
+        return completed(failure(operationId, "NOT_ADMITTED", context));
     }
 
     @Override
@@ -203,14 +158,7 @@ public final class KernelOcrProviderAdapter
             String operationId) {
         Objects.requireNonNull(context, "context must not be null");
         required(operationId, "operationId");
-        Operation operation = operations.get(operationId);
-        if (operation == null) {
-            return completed(failure(operationId, "OPERATION_NOT_FOUND", context));
-        }
-        if (!operation.tenantId.equals(context.tenantId())) {
-            return completed(failure(operationId, "TENANT_SCOPE_MISMATCH", context));
-        }
-        return operation.result;
+        return completed(failure(operationId, "NOT_ADMITTED", context));
     }
 
     @Override

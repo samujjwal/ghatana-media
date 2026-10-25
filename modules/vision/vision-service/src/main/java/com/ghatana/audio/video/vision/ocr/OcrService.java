@@ -80,14 +80,7 @@ public final class OcrService {
             throw new IllegalArgumentException("imageBytes must not be empty");
         }
 
-        List<TextRegion> raw = model.extractRegions(imageBytes);
-        List<TextRegion> filtered = raw.stream()
-                .filter(r -> r.confidence() >= confidenceThreshold)
-                .toList();
-
-        LOG.debug("OCR: {} raw regions → {} above threshold ({}) in {} byte image",
-                raw.size(), filtered.size(), confidenceThreshold, imageBytes.length);
-        return Collections.unmodifiableList(new ArrayList<>(filtered));
+        throw new IllegalStateException("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
     }
 
     /**

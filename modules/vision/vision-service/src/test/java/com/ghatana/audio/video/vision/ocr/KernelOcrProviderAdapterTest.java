@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,7 +31,6 @@ class KernelOcrProviderAdapterTest {
     private static final Instant NOW = Instant.parse("2026-09-11T00:00:00Z");
     private static final Clock CLOCK = Clock.fixed(NOW, ZoneOffset.UTC);
     private static final Executor DIRECT = Runnable::run;
-    private static final OcrService.BoundingBox BOX = new OcrService.BoundingBox(0.1, 0.2, 0.5, 0.25);
     private static final ProductExecutionContext CONTEXT = new ProductExecutionContext(
             "media",
             ProductTenantScope.tenant("tenant-a"),
@@ -43,25 +43,30 @@ class KernelOcrProviderAdapterTest {
             "test");
 
     @Test
-    void mapsModelOutputToKernelContractWithProvenanceAndDigest() {
-        KernelOcrProviderAdapter adapter = adapter(image -> List.of(
-                new OcrService.TextRegion("patient", BOX, 0.96, 0)));
+    void returnsNotAdmittedWithoutCallingModelOrRegisteringOperation() {
+        AtomicInteger calls = new AtomicInteger();
+        KernelOcrProviderAdapter adapter = adapter(image -> {
+            calls.incrementAndGet();
+            return List.of();
+        });
         ProductRuntimeFacets.OcrRequest request = request("ocr-1", "sha256:payload-1", new byte[]{1, 2, 3});
 
         ProductRuntimeFacets.OcrResult result = adapter.extract(CONTEXT, request).toCompletableFuture().join();
 
-        assertThat(result.status()).isEqualTo(ProductRuntimeFacets.TerminalStatus.SUCCEEDED);
-        assertThat(result.fullText()).isEqualTo("patient");
-        assertThat(result.regions()).hasSize(1);
-        assertThat(result.modelRef()).contains("media-test-model");
-        assertThat(result.modelVersion()).contains("2026.09");
-        assertThat(result.resultDigest()).startsWith("sha256:");
-        assertThat(result.providerReceiptRef()).isEqualTo("media.ocr.provider:media-test:ocr-1");
+        assertThat(result.status()).isEqualTo(ProductRuntimeFacets.TerminalStatus.FAILED);
+        assertThat(result.failureCode()).contains("NOT_ADMITTED");
+        assertThat(result.fullText()).isEqualTo("NOT_ADMITTED");
+        assertThat(calls).hasValue(0);
+        assertThat(adapter.status(CONTEXT, "ocr-1").toCompletableFuture().join().failureCode())
+                .contains("NOT_ADMITTED");
         assertThat(adapter.providerId()).isEqualTo("media-test");
         assertThat(adapter.capabilities()).containsExactly("media.ocr");
         assertThat(adapter.capabilitySupport()).singleElement()
-                .satisfies(descriptor -> assertThat(descriptor.healthy()).isTrue());
-        assertThat(adapter.health().ready()).isTrue();
+                .satisfies(descriptor -> {
+                    assertThat(descriptor.healthy()).isFalse();
+                    assertThat(descriptor.operations()).isEmpty();
+                });
+        assertThat(adapter.health().ready()).isFalse();
     }
 
     @Test
@@ -75,14 +80,15 @@ class KernelOcrProviderAdapterTest {
                 DIRECT);
 
         assertThat(adapter.health().status())
-                .isEqualTo(com.ghatana.kernel.product.api.runtime.ProductRuntimeHealth.Status.STARTING);
+                .isEqualTo(com.ghatana.kernel.product.api.runtime.ProductRuntimeHealth.Status.DEGRADED);
+        assertThat(adapter.health().reasonCode()).isEqualTo("NOT_ADMITTED");
         assertThat(adapter.capabilitySupport()).singleElement()
                 .satisfies(descriptor -> assertThat(descriptor.healthy()).isFalse());
         assertThat(adapter.extract(CONTEXT, request("ocr-before-start", "sha256:payload-0", new byte[]{0}))
                 .toCompletableFuture().join().failureCode()).contains("PROVIDER_NOT_STARTED");
 
         adapter.start();
-        assertThat(adapter.health().ready()).isTrue();
+        assertThat(adapter.health().ready()).isFalse();
         adapter.close();
         assertThat(adapter.health().status())
                 .isEqualTo(com.ghatana.kernel.product.api.runtime.ProductRuntimeHealth.Status.STOPPED);
@@ -101,7 +107,7 @@ class KernelOcrProviderAdapterTest {
     }
 
     @Test
-    void startedAdapterIsAdmittedThroughKernelPublicCapabilityRegistry() {
+    void startedLegacyAdapterRemainsUnavailableThroughKernelCapabilityRegistry() {
         KernelOcrProviderAdapter adapter = adapter(image -> List.of());
         CapabilityRequirement requirement = new CapabilityRequirement(
                 "media.ocr", ProductRuntimeCapabilityOperations.MEDIA_OCR, "1.0.0");
@@ -114,26 +120,30 @@ class KernelOcrProviderAdapterTest {
                 java.util.Set.of(ProductRuntimeCapabilityOperations.MEDIA_OCR));
         CapabilityRegistry capabilities = CapabilityRegistry.of(java.util.Set.of(providerBinding));
 
-        assertThat(capabilities.resolve(requirement))
-                .get()
-                .extracting(resolvedBinding -> resolvedBinding.provider())
-                .isSameAs(adapter);
+        assertThat(capabilities.resolve(requirement)).isPresent();
+        assertThat(adapter.capabilitySupport()).singleElement()
+                .satisfies(descriptor -> {
+                    assertThat(descriptor.healthy()).isFalse();
+                    assertThat(descriptor.supports(ProductRuntimeCapabilityOperations.MEDIA_OCR)).isFalse();
+                });
+        assertThat(adapter.health().status())
+                .isEqualTo(com.ghatana.kernel.product.api.runtime.ProductRuntimeHealth.Status.DEGRADED);
+        assertThat(adapter.health().reasonCode()).isEqualTo("NOT_ADMITTED");
     }
 
     @Test
-    void enforcesRequestTimeoutWhenModelExecutionDoesNotStart() throws Exception {
+    void doesNotDispatchUnavailableOcrToExecutor() {
         List<Runnable> queued = new ArrayList<>();
         KernelOcrProviderAdapter adapter = adapter(image -> List.of(), queued::add);
         ProductRuntimeFacets.OcrRequest request = request(
                 "ocr-timeout", "sha256:payload-timeout", new byte[]{9}, Optional.empty(),
                 java.time.Duration.ofMillis(25));
 
-        ProductRuntimeFacets.OcrResult result = adapter.extract(CONTEXT, request)
-                .toCompletableFuture().get(1, TimeUnit.SECONDS);
+        ProductRuntimeFacets.OcrResult result = adapter.extract(CONTEXT, request).toCompletableFuture().join();
 
-        assertThat(result.failureCode()).contains("OCR_TIMEOUT");
+        assertThat(result.failureCode()).contains("NOT_ADMITTED");
         assertThat(result.status()).isEqualTo(ProductRuntimeFacets.TerminalStatus.FAILED);
-        assertThat(queued).hasSize(1);
+        assertThat(queued).isEmpty();
     }
 
     @Test
@@ -146,8 +156,8 @@ class KernelOcrProviderAdapterTest {
         ProductRuntimeFacets.OcrResult status = adapter.status(CONTEXT, "ocr-2").toCompletableFuture().join();
 
         assertThat(result.status()).isEqualTo(ProductRuntimeFacets.TerminalStatus.FAILED);
-        assertThat(result.failureCode()).contains("IMAGE_PAYLOAD_UNAVAILABLE");
-        assertThat(status).isEqualTo(result);
+        assertThat(result.failureCode()).contains("NOT_ADMITTED");
+        assertThat(status.failureCode()).contains("NOT_ADMITTED");
     }
 
     @Test
@@ -163,8 +173,8 @@ class KernelOcrProviderAdapterTest {
         ProductRuntimeFacets.OcrResult crossTenant = adapter.status(
                 context("tenant-b"), "ocr-3").toCompletableFuture().join();
 
-        assertThat(mismatch.failureCode()).contains("IDEMPOTENCY_PAYLOAD_MISMATCH");
-        assertThat(crossTenant.failureCode()).contains("TENANT_SCOPE_MISMATCH");
+        assertThat(mismatch.failureCode()).contains("NOT_ADMITTED");
+        assertThat(crossTenant.failureCode()).contains("NOT_ADMITTED");
     }
 
     @Test
@@ -177,9 +187,10 @@ class KernelOcrProviderAdapterTest {
         ProductRuntimeFacets.OcrResult cancelled = adapter.cancel(CONTEXT, "ocr-4", "idem-ocr-4")
                 .toCompletableFuture().join();
 
-        assertThat(cancelled.status()).isEqualTo(ProductRuntimeFacets.TerminalStatus.CANCELLED);
-        assertThat(cancelled.failureCode()).contains("CANCELLED");
+        assertThat(cancelled.status()).isEqualTo(ProductRuntimeFacets.TerminalStatus.FAILED);
+        assertThat(cancelled.failureCode()).contains("NOT_ADMITTED");
         queued.forEach(Runnable::run);
+        assertThat(queued).isEmpty();
     }
 
     private static KernelOcrProviderAdapter adapter(OcrService.OcrModel model) {
