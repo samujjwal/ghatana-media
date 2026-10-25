@@ -61,7 +61,8 @@ class PersistentSttGrpcServiceTest {
     @DisplayName("transcribe rejects requests without tenant context - UNAUTHENTICATED")
     void transcribeRejectsRequestsWithoutTenantContext() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        service.transcribe(TranscribeRequest.newBuilder().build(), observer);
+        Context.current().withValue(JwtServerInterceptor.CTX_SUBJECT, USER_ID).run(() ->
+                service.transcribe(TranscribeRequest.newBuilder().setAudioData(AUDIO).build(), observer));
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
             .isEqualTo(Status.UNAUTHENTICATED.getCode());
@@ -213,6 +214,27 @@ class PersistentSttGrpcServiceTest {
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
                 .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(persistentSttService);
+        assertThat(MDC.get("tenantId")).isNull();
+        assertThat(MDC.get("userId")).isNull();
+    }
+
+    @Test
+    @DisplayName("transcribe does not treat caller tenant metadata as authenticated tenant-principal binding")
+    void transcribeRejectsUntrustedTenantClaimWithoutServiceWork() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(AUDIO)
+                .setSampleRate(16_000)
+                .setTenantId("tenant-claimed-by-caller")
+                .build();
+
+        runWithTenantContext("tenant-from-authenticated-context", USER_ID,
+                () -> service.transcribe(request, observer));
+
+        assertTranscriptVersionNotAdmitted(observer);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
         verifyNoInteractions(persistentSttService);
         assertThat(MDC.get("tenantId")).isNull();
         assertThat(MDC.get("userId")).isNull();
