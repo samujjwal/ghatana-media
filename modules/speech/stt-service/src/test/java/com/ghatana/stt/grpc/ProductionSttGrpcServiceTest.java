@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.ghatana.media.AudioVideoLibrary;
-import com.ghatana.media.common.EngineStatus;
-import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.SttServiceProto;
@@ -20,7 +18,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.concurrent.atomic.AtomicReference;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -138,54 +135,25 @@ class ProductionSttGrpcServiceTest {
     }
 
     @Test
-    void standardAndApplicationHealthFollowActualProviderStatus() {
+    void healthyLocalEngineDoesNotPromoteUnadmittedProviderReadiness() {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
-        SttEngine engine = mock(SttEngine.class);
-        AtomicReference<EngineStatus> engineStatus = new AtomicReference<>(
-                new EngineStatus(EngineStatus.State.READY, "fixture-model", "fixture-version", 1L, null));
-        when(library.getSttEngine()).thenReturn(engine);
-        when(engine.getStatus()).thenAnswer(ignored -> engineStatus.get());
         ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry());
         AudioVideoHealthService readiness = SttGrpcServer.readinessService(service);
 
         assertThat(readiness.isServing()).isFalse();
-        assertThat(readiness.markReady()).isTrue();
-        assertThat(readiness.isServing()).isTrue();
 
         var standard = new CapturingObserver<io.grpc.health.v1.HealthCheckResponse>();
         readiness.check(io.grpc.health.v1.HealthCheckRequest.getDefaultInstance(), standard);
         assertThat(standard.value.getStatus())
-                .isEqualTo(io.grpc.health.v1.HealthCheckResponse.ServingStatus.SERVING);
+                .isEqualTo(io.grpc.health.v1.HealthCheckResponse.ServingStatus.NOT_SERVING);
 
         var application = new CapturingObserver<com.ghatana.stt.core.grpc.proto.HealthCheckResponse>();
         service.healthCheck(
                 com.ghatana.stt.core.grpc.proto.HealthCheckRequest.getDefaultInstance(), application);
         assertThat(application.value.getStatus())
-                .isEqualTo(com.ghatana.stt.core.grpc.proto.HealthStatus.HEALTH_STATUS_HEALTHY);
-        assertThat(application.value.getMessage()).isEqualTo("STT_READY");
-
-        engineStatus.set(new EngineStatus(EngineStatus.State.ERROR, "fixture-model", "fixture-version", 2L,
-                "must not be exposed"));
-        assertThat(readiness.isServing()).isFalse();
-        var down = new CapturingObserver<io.grpc.health.v1.HealthCheckResponse>();
-        readiness.check(io.grpc.health.v1.HealthCheckRequest.getDefaultInstance(), down);
-        assertThat(down.value.getStatus())
-                .isEqualTo(io.grpc.health.v1.HealthCheckResponse.ServingStatus.NOT_SERVING);
-        var applicationDown = new CapturingObserver<com.ghatana.stt.core.grpc.proto.HealthCheckResponse>();
-        service.healthCheck(
-                com.ghatana.stt.core.grpc.proto.HealthCheckRequest.getDefaultInstance(), applicationDown);
-        assertThat(applicationDown.value.getStatus())
                 .isEqualTo(com.ghatana.stt.core.grpc.proto.HealthStatus.HEALTH_STATUS_UNHEALTHY);
-        assertThat(applicationDown.value.getMessage()).doesNotContain("fixture-model", "must not be exposed");
-
-        engineStatus.set(new EngineStatus(EngineStatus.State.READY, "fixture-model", "fixture-version", 3L, null));
-        readiness.setNotServing();
-        assertThat(readiness.isServing()).isFalse();
-        var drainingApplication = new CapturingObserver<com.ghatana.stt.core.grpc.proto.HealthCheckResponse>();
-        service.healthCheck(
-                com.ghatana.stt.core.grpc.proto.HealthCheckRequest.getDefaultInstance(), drainingApplication);
-        assertThat(drainingApplication.value.getStatus())
-                .isEqualTo(com.ghatana.stt.core.grpc.proto.HealthStatus.HEALTH_STATUS_UNHEALTHY);
+        assertThat(application.value.getMessage()).isEqualTo("STT_NOT_SERVING: provider readiness unavailable");
+        verifyNoInteractions(library);
         readiness.close();
         service.close();
     }

@@ -73,11 +73,10 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
 
     @Override
     protected boolean isProviderReady() {
-        try {
-            return ownedLibrary.getSttEngine().getStatus().isHealthy();
-        } catch (RuntimeException unavailable) {
-            return false;
-        }
+        // Engine health describes the local ONNX runtime only. It cannot establish
+        // provider-profile admission, license, or quality qualification. Until the
+        // trusted admission source is composed here, readiness must remain false.
+        return false;
     }
 
     static SttConfig createConfig(Map<String, String> environment) {
