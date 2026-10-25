@@ -159,25 +159,52 @@ class TtsGrpcServiceTest {
 
     @Test
     void sourceLocaleMatrixFailsWithoutDefaultSubstitution() {
-        for (String language : List.of("en", "ne", "hi", "es", "fr", "de", "ja", "zh",
-                "en-US", "ne-NP", "hi-IN", "es-ES", "fr-FR", "de-DE", "ja-JP", "zh-CN", "bn-BD")) {
-            CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-            service.synthesize(SynthesizeRequest.newBuilder().setText("hello")
-                    .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
-                            .setLanguage(language).build()).build(), observer);
-            assertStatus(observer, Status.Code.UNAVAILABLE);
-            assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
-                    .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
-        }
+        // Exercise the server's production composition, not only the provider-neutral façade.
+        // The injected library stays unused because no exact voice-language-rights profile is
+        // source-admitted for this service cut.
+        try (ProductionTtsGrpcService production = new ProductionTtsGrpcService(library, registry)) {
+            for (String language : List.of("", "en", "ne", "hi", "en-US", "ne-NP", "hi-IN",
+                    "es", "fr", "de", "ja", "zh", "es-ES", "fr-FR", "de-DE", "ja-JP", "zh-CN", "bn-BD")) {
+                CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+                production.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                        .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                                .setLanguage(language).build()).build(), observer);
 
-        CapturingObserver<SynthesizeResponse> explicit = new CapturingObserver<>();
-        service.synthesize(SynthesizeRequest.newBuilder().setText("hello")
-                .setVoiceId("provider-default")
-                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
-                        .setLanguage("hi-IN").build()).build(), explicit);
-        assertStatus(explicit, Status.Code.UNIMPLEMENTED);
-        assertThat(((StatusRuntimeException) explicit.error).getStatus().getDescription())
-                .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+                assertStatus(observer, Status.Code.UNAVAILABLE);
+                assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                        .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
+                assertThat(observer.value).as("language %s must not produce a substituted result", language).isNull();
+                assertThat(observer.completed).as("language %s must not complete successfully", language).isFalse();
+            }
+
+            // An omitted BCP-47 option requests the provider default. It is still unadmitted,
+            // rather than permission to use the configured default voice/language.
+            CapturingObserver<SynthesizeResponse> defaultLanguage = new CapturingObserver<>();
+            production.synthesize(SynthesizeRequest.newBuilder().setText("hello").build(), defaultLanguage);
+            assertStatus(defaultLanguage, Status.Code.UNAVAILABLE);
+            assertThat(defaultLanguage.value).isNull();
+            assertThat(defaultLanguage.completed).isFalse();
+
+            CapturingObserver<SynthesizeResponse> explicitVoice = new CapturingObserver<>();
+            production.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                    .setVoiceId("provider-default")
+                    .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                            .setLanguage("hi-IN").build()).build(), explicitVoice);
+            assertStatus(explicitVoice, Status.Code.UNIMPLEMENTED);
+            assertThat(((StatusRuntimeException) explicitVoice.error).getStatus().getDescription())
+                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+            assertThat(explicitVoice.value).isNull();
+            assertThat(explicitVoice.completed).isFalse();
+
+            CapturingObserver<SynthesizeResponse> profileDefaultLanguage = new CapturingObserver<>();
+            production.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                    .setProfileId("profile-with-ne-default").build(), profileDefaultLanguage);
+            assertStatus(profileDefaultLanguage, Status.Code.UNIMPLEMENTED);
+            assertThat(((StatusRuntimeException) profileDefaultLanguage.error).getStatus().getDescription())
+                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+            assertThat(profileDefaultLanguage.value).isNull();
+            assertThat(profileDefaultLanguage.completed).isFalse();
+        }
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
     }
