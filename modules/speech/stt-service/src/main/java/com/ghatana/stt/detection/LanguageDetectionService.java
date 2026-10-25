@@ -82,10 +82,11 @@ public final class LanguageDetectionService {
         if (textSample.isBlank()) {
             throw new IllegalArgumentException("textSample must not be blank");
         }
-        List<LanguageCandidate> candidates = model.detect(textSample);
+        DetectionResult result = resultFromModel(model.detect(textSample));
         LOG.debug("Language detection: sample_len={} top={}",
-                textSample.length(), candidates.isEmpty() ? "none" : candidates.get(0).languageTag());
-        return new DetectionResult(candidates, confidenceThreshold);
+                textSample.length(), result.candidates().isEmpty()
+                        ? "none" : result.candidates().get(0).languageTag());
+        return result;
     }
 
     /**
@@ -101,9 +102,18 @@ public final class LanguageDetectionService {
         if (audioBytes.length == 0) {
             throw new IllegalArgumentException("audioBytes must not be empty");
         }
-        List<LanguageCandidate> candidates = model.detectFromAudio(audioBytes);
+        DetectionResult result = resultFromModel(model.detectFromAudio(audioBytes));
         LOG.debug("Audio language detection: bytes={} top={}",
-                audioBytes.length, candidates.isEmpty() ? "none" : candidates.get(0).languageTag());
+                audioBytes.length, result.candidates().isEmpty()
+                        ? "none" : result.candidates().get(0).languageTag());
+        return result;
+    }
+
+    private DetectionResult resultFromModel(List<LanguageCandidate> candidates) {
+        if (candidates == null) {
+            throw new IllegalArgumentException(
+                    "STT_LANGUAGE_CANDIDATE_INVALID: model returned a null candidate list");
+        }
         return new DetectionResult(candidates, confidenceThreshold);
     }
 

@@ -16,11 +16,14 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -159,6 +162,129 @@ class VideoAnalysisServiceTest {
         VideoAnalysisResult result = service.analyze(fakeVideo, config, defaultOptions); 
 
         assertThat(result.uniqueTracks()).isEqualTo(0); 
+    }
+
+    @Test
+    void actualPixelCutProducesOnlyAnUncalibratedTimestampedCandidate() throws IOException {
+        Path darkFrame = writeSolidPng("dark.png", 0x000000);
+        Path brightFrame = writeSolidPng("bright.png", 0xffffff);
+        Path video = tempDir.resolve("pixel-cut.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(darkFrame,
+                        SourceMediaTimestamp.fromPts("0", "1/25"), 0),
+                new VideoFrameExtractor.ExtractedFrame(brightFrame,
+                        SourceMediaTimestamp.fromPts("1", "1/25"), 1)));
+        when(detector.detectObjects(any(), any())).thenReturn(List.of());
+
+        VideoAnalysisResult result = service.analyze(video,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        assertThat(result.shotBoundaryStatus()).isEqualTo("HEURISTIC_UNCALIBRATED");
+        assertThat(result.shotBoundaryAssessments()).hasSize(1);
+        var assessment = result.shotBoundaryAssessments().getFirst();
+        assertThat(assessment.disposition()).isEqualTo(ShotBoundaryHeuristic.Disposition.BOUNDARY_CANDIDATE);
+        assertThat(assessment.sourceTimestamp().pts()).isEqualTo(1L);
+        assertThat(assessment.meanAbsoluteLumaDifference()).isEqualTo(1.0);
+        assertThat(assessment.methodStatus()).isEqualTo("HEURISTIC_UNCALIBRATED");
+        assertThat(assessment.uncertaintyDisposition()).isEqualTo("QUALITATIVE");
+    }
+
+    @Test
+    void unchangedFramePixelsDoNotProduceShotBoundaryCandidate() throws IOException {
+        Path firstFrame = writeSolidPng("same-1.png", 0x808080);
+        Path secondFrame = writeSolidPng("same-2.png", 0x808080);
+        Path video = tempDir.resolve("same-pixels.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(firstFrame,
+                        SourceMediaTimestamp.fromPts("0", "1/25"), 0),
+                new VideoFrameExtractor.ExtractedFrame(secondFrame,
+                        SourceMediaTimestamp.fromPts("1", "1/25"), 1)));
+        when(detector.detectObjects(any(), any())).thenReturn(List.of());
+
+        VideoAnalysisResult result = service.analyze(video,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        var assessment = result.shotBoundaryAssessments().getFirst();
+        assertThat(assessment.disposition()).isEqualTo(ShotBoundaryHeuristic.Disposition.NO_BOUNDARY_CANDIDATE);
+        assertThat(assessment.meanAbsoluteLumaDifference()).isEqualTo(0.0);
+    }
+
+    @Test
+    void unknownPtsOrMissingEmittedFrameYieldsUnknownShotBoundaryAssessment() throws IOException {
+        Path firstFrame = writeSolidPng("unknown-1.png", 0x000000);
+        Path secondFrame = writeSolidPng("unknown-2.png", 0xffffff);
+        Path thirdFrame = writeSolidPng("unknown-3.png", 0xffffff);
+        Path video = tempDir.resolve("unknown-cut.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(firstFrame,
+                        SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING"), 0),
+                new VideoFrameExtractor.ExtractedFrame(secondFrame,
+                        SourceMediaTimestamp.fromPts("1", "1/25"), 1),
+                new VideoFrameExtractor.ExtractedFrame(thirdFrame,
+                        SourceMediaTimestamp.fromPts("2", "1/25"), 3)));
+        when(detector.detectObjects(any(), any())).thenReturn(List.of());
+
+        VideoAnalysisResult result = service.analyze(video,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        assertThat(result.shotBoundaryAssessments()).extracting(ShotBoundaryHeuristic.Assessment::disposition)
+                .containsExactly(ShotBoundaryHeuristic.Disposition.UNKNOWN,
+                        ShotBoundaryHeuristic.Disposition.UNKNOWN);
+        assertThat(result.shotBoundaryAssessments().get(0).unknownReason())
+                .isEqualTo(ShotBoundaryHeuristic.UnknownReason.SOURCE_TIMESTAMP_UNKNOWN);
+        assertThat(result.shotBoundaryAssessments().get(1).unknownReason())
+                .isEqualTo(ShotBoundaryHeuristic.UnknownReason.FRAME_GAP);
+        assertThat(result.shotBoundaryAssessments()).allSatisfy(assessment ->
+                assertThat(assessment.meanAbsoluteLumaDifference()).isNull());
+    }
+
+    @Test
+    void malformedFramePixelsYieldUnknownShotBoundaryAssessment() throws IOException {
+        Path validFrame = writeSolidPng("valid-pixels.png", 0x000000);
+        Path malformedFrame = tempDir.resolve("malformed-pixels.jpg");
+        Files.write(malformedFrame, new byte[] {0, 1, 2, 3});
+        Path video = tempDir.resolve("malformed-frame-pixels.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(validFrame,
+                        SourceMediaTimestamp.fromPts("0", "1/25"), 0),
+                new VideoFrameExtractor.ExtractedFrame(malformedFrame,
+                        SourceMediaTimestamp.fromPts("1", "1/25"), 1)));
+        when(detector.detectObjects(any(), any())).thenReturn(List.of());
+
+        VideoAnalysisResult result = service.analyze(video,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        var assessment = result.shotBoundaryAssessments().getFirst();
+        assertThat(assessment.disposition()).isEqualTo(ShotBoundaryHeuristic.Disposition.UNKNOWN);
+        assertThat(assessment.unknownReason()).isEqualTo(ShotBoundaryHeuristic.UnknownReason.FRAME_PIXELS_UNAVAILABLE);
+        assertThat(assessment.meanAbsoluteLumaDifference()).isNull();
+    }
+
+    @Test
+    void reorderedSourcePtsYieldUnknownShotBoundaryAssessment() throws IOException {
+        Path firstFrame = writeSolidPng("reordered-1.png", 0x000000);
+        Path secondFrame = writeSolidPng("reordered-2.png", 0xffffff);
+        Path video = tempDir.resolve("reordered-shot-boundary.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(firstFrame,
+                        SourceMediaTimestamp.fromPts("2", "1/25"), 0),
+                new VideoFrameExtractor.ExtractedFrame(secondFrame,
+                        SourceMediaTimestamp.fromPts("1", "1/25"), 1)));
+        when(detector.detectObjects(any(), any())).thenReturn(List.of());
+
+        VideoAnalysisResult result = service.analyze(video,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        var assessment = result.shotBoundaryAssessments().getFirst();
+        assertThat(assessment.disposition()).isEqualTo(ShotBoundaryHeuristic.Disposition.UNKNOWN);
+        assertThat(assessment.unknownReason())
+                .isEqualTo(ShotBoundaryHeuristic.UnknownReason.SOURCE_TIMESTAMP_NOT_MONOTONIC);
+        assertThat(assessment.meanAbsoluteLumaDifference()).isNull();
     }
 
     @Test
@@ -338,6 +464,19 @@ class VideoAnalysisServiceTest {
     }
 
     // ─── Helpers ───────────────────────────────────────────────────────────────
+
+    private Path writeSolidPng(String name, int rgb) throws IOException {
+        BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) image.setRGB(x, y, rgb);
+        }
+        Path path = tempDir.resolve(name);
+        try (ByteArrayOutputStream encoded = new ByteArrayOutputStream()) {
+            ImageIO.write(image, "png", encoded);
+            Files.write(path, encoded.toByteArray());
+        }
+        return path;
+    }
 
     private DetectedObject buildDetection(String className, double confidence, 
                                            double x, double y, double w, double h) {

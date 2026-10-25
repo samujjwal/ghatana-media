@@ -139,6 +139,28 @@ class LanguageDetectionServiceTest {
                     LanguageDetectionService.LanguageCandidate.of("de", 0.1)))
                     .isInstanceOf(UnsupportedOperationException.class);
         }
+
+        @Test
+        @DisplayName("null model candidate list is rejected with a stable provider-result error")
+        void detect_nullModelResultIsRejected() {
+            LanguageDetectionService.LanguageDetectionModel model = textSample -> null;
+
+            assertThatThrownBy(() -> LanguageDetectionService.of(model).detect("hello world"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_CANDIDATE_INVALID")
+                    .hasMessageContaining("null candidate list");
+        }
+
+        @Test
+        @DisplayName("null first model candidate is validated before diagnostic logging")
+        void detect_nullFirstCandidateIsRejectedBeforeLogging() {
+            LanguageDetectionService.LanguageDetectionModel model = textSample ->
+                    java.util.Arrays.asList((LanguageDetectionService.LanguageCandidate) null);
+
+            assertThatThrownBy(() -> LanguageDetectionService.of(model).detect("hello world"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_CANDIDATE_INVALID");
+        }
     }
 
     // ─── detectFromAudio() ────────────────────────────────────────────────────
@@ -171,6 +193,27 @@ class LanguageDetectionServiceTest {
             LanguageDetectionService service = LanguageDetectionService.of(TEXT_MODEL);
             assertThatIllegalArgumentException()
                     .isThrownBy(() -> service.detectFromAudio(new byte[0]));
+        }
+
+        @Test
+        @DisplayName("null audio model result is rejected with a stable provider-result error")
+        void detectFromAudio_nullModelResultIsRejected() {
+            var model = new LanguageDetectionService.LanguageDetectionModel() {
+                @Override
+                public List<LanguageDetectionService.LanguageCandidate> detect(String textSample) {
+                    return List.of();
+                }
+
+                @Override
+                public List<LanguageDetectionService.LanguageCandidate> detectFromAudio(byte[] audioBytes) {
+                    return null;
+                }
+            };
+
+            assertThatThrownBy(() -> LanguageDetectionService.of(model).detectFromAudio(new byte[] {1}))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_CANDIDATE_INVALID")
+                    .hasMessageContaining("null candidate list");
         }
     }
 

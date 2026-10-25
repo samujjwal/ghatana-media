@@ -801,3 +801,21 @@ Focused verification on this source cut:
 - `git diff --check` — PASS.
 
 The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No live provider, model-quality, formal PDP/gtool, production cutover, deployment, or release claim is made.
+
+### Incremental execution record — 2026-10-25 (sixteenth round)
+
+This round adds provider-result validation for STT language detection and a bounded source-timestamped shot-boundary candidate to the existing Vision Java analysis result. Both remain partial: model quality/corpus evidence, canonical source-version binding, camera-motion estimation, and production gRPC exposure are not established.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| STT-10 | `LanguageDetectionService` validates model output before diagnostic logging; null candidate lists now fail with stable `STT_LANGUAGE_CANDIDATE_INVALID` rather than causing an incidental logging-time exception. Regressions cover null text/audio model lists and a null first candidate. `LanguageDetectionServiceTest` passed 31 tests. | PARTIAL: provider-result shape and ranking checks are locally enforced; language coverage, accuracy distributions, calibration, and fairness still require an admitted model and representative corpus. |
+| VIS-07 | Added `ShotBoundaryHeuristic`, which compares 16×16 decoded-frame luminance signatures and emits only `BOUNDARY_CANDIDATE`/`NO_BOUNDARY_CANDIDATE` with `HEURISTIC_UNCALIBRATED` and qualitative uncertainty. It requires adjacent emitted ordinals and known increasing source PTS; malformed pixels, unknown/nonmonotonic PTS, or frame gaps return `UNKNOWN`. Results are exposed through `VideoAnalysisResult` only; no proto/gRPC field or immutable artifact-version join was added. `VideoAnalysisServiceTest` passed 19 tests, including invalid-pixel and reordered-PTS cases. | PARTIAL: this is a local pixel-change candidate, not calibrated shot-boundary detection; camera-motion estimation, canonical source-version provenance, production RPC reachability, and qualified tracking quality remain outstanding. |
+| STT-06 | Rechecked the provider timing/confidence mapper. It preserves unknown timebase and missing confidence rather than fabricating values; no additional deterministic mapper defect was found. No code change or test rerun. | PARTIAL: source sample-clock/alignment, model alternatives, and calibrated confidence provenance remain unavailable. |
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:modules:speech:stt-service:cleanTest :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.detection.LanguageDetectionServiceTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 31 tests.
+- `./gradlew :services:media:modules:vision:vision-service:cleanTest :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.analysis.VideoAnalysisServiceTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 19 tests, 0 failures/errors/skips. One existing unchecked Mockito varargs warning remains in the tie-association test.
+- Structural Wave 2 suite and `git diff --check` are rerun after this append.
+
+The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No real language or shot-boundary quality, admitted provider/model, canonical runtime source binding, formal PDP/gtool acceptance, production cutover, deployment, or release is claimed.
