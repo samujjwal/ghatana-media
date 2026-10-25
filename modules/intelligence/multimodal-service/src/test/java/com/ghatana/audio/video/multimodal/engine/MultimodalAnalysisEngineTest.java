@@ -149,6 +149,59 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Variable-rate source PTS is preserved while cross-clock sync remains unknown")
+    void variableRateSourcePtsDoesNotInventAudioClockMapping() {
+        AudioResult audio = AudioResult.builder().transcription("audio words")
+                .timedSegments(List.of(new AudioResult.TimedSegment(0, 5_000, "audio words"))).build();
+        List<FrameResult> sourceFrames = List.of(
+                new FrameResult(1, sourcePts(0, 1, 90_000), List.of()),
+                new FrameResult(2, sourcePts(3_003, 1, 90_000), List.of()),
+                new FrameResult(3, sourcePts(9_009, 1, 90_000), List.of()));
+        VisualResult video = VisualResult.builder().frameResults(sourceFrames).build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            assertEquals(List.of(0L, 3_003L, 9_009L), result.getVideoResult().getFrameResults().stream()
+                    .map(frame -> frame.getTimestamp().ticks()).toList());
+            assertTrue(result.getTemporalAlignments().stream().allMatch(alignment ->
+                    alignment.getSyncStatus() == TemporalAlignment.SyncStatus.SYNC_UNDETERMINED
+                            && !alignment.hasSyncMeasurement()
+                            && alignment.getSyncOffsetMs() == 0L
+                            && alignment.getSyncConfidence() == 0.0
+                            && alignment.getSpeechText().isEmpty()));
+        }
+    }
+
+    @Test
+    @DisplayName("Unavailable audio timing never produces measured synchronization")
+    void unavailableAudioTimingLeavesSynchronizationUnknown() {
+        AudioResult audio = AudioResult.builder().error("audio timing unavailable").build();
+        VisualResult video = VisualResult.builder().frameResults(List.of(
+                new FrameResult(1, sourcePts(90_000, 1, 90_000), List.of()))).build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            TemporalAlignment alignment = result.getTemporalAlignments().getFirst();
+            assertEquals(TemporalAlignment.SyncStatus.SYNC_UNDETERMINED, alignment.getSyncStatus());
+            assertTrue(alignment.getSpeechText().isEmpty());
+            assertFalse(alignment.hasSyncMeasurement());
+        }
+    }
+
+    private static MediaClockTimestamp sourcePts(long ticks, long numerator, long denominator) {
+        return new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN, ticks, numerator, denominator,
+                MediaClockTimestamp.ClockDomain.SOURCE, "source-pts", null);
+    }
+
+    @Test
     @DisplayName("Unknown source PTS is preserved and never aligned to fabricated zero")
     void shouldPreserveUnknownSourcePts() {
         AudioResult audio = AudioResult.builder().transcription("hello")
