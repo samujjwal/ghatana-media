@@ -1,8 +1,5 @@
 package com.ghatana.audio.video.multimodal.grpc;
 
-import com.ghatana.audio.video.common.model.FileSystemModelStore;
-import com.ghatana.audio.video.common.model.ModelMetadata;
-import com.ghatana.audio.video.common.model.ModelRegistry;
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.multimodal.engine.AudioVideoProcessingError;
@@ -44,7 +41,6 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final AtomicLong requestCount = new AtomicLong(0);
     private final AtomicLong totalProcessingTime = new AtomicLong(0);
     private final MediaProcessingMetrics mediaMetrics;
-    private final ModelRegistry modelRegistry;
     private final SourceAuthorization sourceAuthorization;
     private volatile BooleanSupplier readinessProbe = () -> false;
 
@@ -60,7 +56,6 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.platformAdapter = new PlatformMultimodalAdapter();
         this.engine = new MultimodalAnalysisEngine(platformAdapter);
         this.mediaMetrics = metrics;
-        this.modelRegistry = new FileSystemModelStore();
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         LOG.info("Multimodal service initialized against platform audio-video library");
     }
@@ -79,7 +74,6 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.engine = engine;
         this.platformAdapter = platformAdapter;
         this.mediaMetrics = metrics;
-        this.modelRegistry = new FileSystemModelStore();
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
     }
 
@@ -530,35 +524,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 .asRuntimeException());
             return;
         }
-        long startTime = System.currentTimeMillis();
-        try {
-            if (modelRegistry.findById(modelId).isEmpty()) {
-                modelRegistry.register(ModelMetadata.builder()
-                    .modelId(modelId).name(modelId)
-                    .type(ModelMetadata.ModelType.MULTIMODAL)
-                    .build());
-            }
-            modelRegistry.load(modelId);
-            long loadTimeMs = System.currentTimeMillis() - startTime;
-
-            LOG.info("Multimodal model loaded: {} in {}ms", modelId, loadTimeMs);
-            responseObserver.onNext(LoadModelResponse.newBuilder()
-                .setSuccess(true)
-                .setMessage("Model loaded: " + modelId)
-                .setModelId(modelId)
-                .setLoadTimeMs(loadTimeMs)
-                .build());
-            responseObserver.onCompleted();
-        } catch (ModelRegistry.ModelRegistryException e) {
-            responseObserver.onError(Status.NOT_FOUND
-                .withDescription("Model not found: " + modelId)
-                .asRuntimeException());
-        } catch (Exception e) {
-            LOG.error("Error loading multimodal model {}: {}", modelId, e.getMessage(), e);
-            responseObserver.onError(Status.INTERNAL
-                .withDescription("Failed to load model: " + e.getMessage())
-                .asRuntimeException());
-        }
+        responseObserver.onError(modelProviderUnavailable());
     }
 
     // ── AV-004.2: unloadModel ──────────────────────────────────────────────
@@ -572,61 +538,20 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 .asRuntimeException());
             return;
         }
-        try {
-            long freed = modelRegistry.unload(modelId);
-            LOG.info("Multimodal model unloaded: {} (freed ~{} bytes)", modelId, freed);
-            responseObserver.onNext(UnloadModelResponse.newBuilder()
-                .setSuccess(true)
-                .setMessage("Model unloaded: " + modelId)
-                .setMemoryFreedBytes(freed)
-                .build());
-            responseObserver.onCompleted();
-        } catch (ModelRegistry.ModelRegistryException e) {
-            responseObserver.onError(Status.NOT_FOUND
-                .withDescription("Model not registered: " + modelId)
-                .asRuntimeException());
-        } catch (Exception e) {
-            LOG.error("Error unloading multimodal model {}: {}", modelId, e.getMessage(), e);
-            responseObserver.onError(Status.INTERNAL
-                .withDescription("Failed to unload model: " + e.getMessage())
-                .asRuntimeException());
-        }
+        responseObserver.onError(modelProviderUnavailable());
     }
 
     // ── AV-004.3: listModels ───────────────────────────────────────────────
 
     @Override
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
-        try {
-            List<ModelMetadata> models = modelRegistry.listModels(ModelMetadata.ModelType.MULTIMODAL);
+        responseObserver.onError(modelProviderUnavailable());
+    }
 
-            ListModelsResponse.Builder builder = ListModelsResponse.newBuilder();
-            int loadedCount = 0;
-            for (ModelMetadata m : models) {
-                if (request.getIncludeLoadedOnly() && !m.loaded()) continue;
-                if (m.loaded()) loadedCount++;
-
-                builder.addModels(MultimodalModelInfo.newBuilder()
-                    .setModelId(m.modelId())
-                    .setName(m.name())
-                    .setVersion(m.version())
-                    .setIsLoaded(m.loaded())
-                    .setSizeBytes(m.sizeBytes())
-                    .addAllModalities(List.of("audio", "video", "image", "text"))
-                    .build());
-            }
-            builder.setTotalCount(builder.getModelsCount());
-            builder.setLoadedCount(loadedCount);
-
-            LOG.debug("Listed {} multimodal models", builder.getTotalCount());
-            responseObserver.onNext(builder.build());
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            LOG.error("Failed to list multimodal models: {}", e.getMessage(), e);
-            responseObserver.onError(Status.INTERNAL
-                .withDescription("Failed to list models: " + e.getMessage())
-                .asRuntimeException());
-        }
+    private static RuntimeException modelProviderUnavailable() {
+        return Status.UNAVAILABLE
+                .withDescription("Qualified multimodal model provider is unavailable")
+                .asRuntimeException();
     }
 
     @Override

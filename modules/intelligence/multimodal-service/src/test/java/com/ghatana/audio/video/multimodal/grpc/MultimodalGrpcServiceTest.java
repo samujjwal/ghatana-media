@@ -545,15 +545,16 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("loadModel: valid modelId → success response")
-    void loadModel_validModelId_returnsSuccess() { 
+    @DisplayName("loadModel: valid modelId without qualified provider → UNAVAILABLE without body")
+    void loadModel_validModelIdWithoutProvider_returnsUnavailable() {
         CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>(); 
         service.loadModel(LoadModelRequest.newBuilder().setModelId("clip-vit-large").build(), observer);
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getSuccess()).isTrue(); 
-        assertThat(observer.getValue().getModelId()).isEqualTo("clip-vit-large");
-        assertThat(observer.getValue().getLoadTimeMs()).isGreaterThanOrEqualTo(0); 
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getDescription())
+                .contains("Qualified multimodal model provider is unavailable");
+        assertThat(observer.getValue()).isNull();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -572,28 +573,14 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("unloadModel: unregistered modelId → NOT_FOUND")
-    void unloadModel_unregisteredModel_returnsNotFound() { 
+    @DisplayName("unloadModel: valid modelId without qualified provider → UNAVAILABLE without body")
+    void unloadModel_validModelIdWithoutProvider_returnsUnavailable() {
         CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>(); 
         service.unloadModel(UnloadModelRequest.newBuilder().setModelId("ghost-model").build(), observer);
 
-        assertThat(observer.hasError()).isTrue(); 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.NOT_FOUND.getCode()); 
-    }
-
-    @Test
-    @DisplayName("unloadModel: loaded model → success response with freed bytes")
-    void unloadModel_loadedModel_returnsSuccess() { 
-        // Load first
-        service.loadModel(LoadModelRequest.newBuilder().setModelId("clip-vit").build(),
-            new CapturingObserver<>()); 
-
-        CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>(); 
-        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("clip-vit").build(), observer);
-
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getSuccess()).isTrue(); 
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(observer.getValue()).isNull();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -601,46 +588,27 @@ class MultimodalGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("listModels: empty registry → zero count")
-    void listModels_emptyRegistry_returnsZeroModels() { 
+    @DisplayName("listModels: without qualified provider → UNAVAILABLE without registry data")
+    void listModelsWithoutProvider_returnsUnavailable() {
         CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>(); 
         service.listModels(ListModelsRequest.getDefaultInstance(), observer); 
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getTotalCount()).isEqualTo(0); 
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(observer.getValue()).isNull();
     }
 
     @Test
-    @DisplayName("listModels: after loadModel → includes loaded model")
-    void listModels_afterLoad_includesModel() { 
-        service.loadModel(LoadModelRequest.newBuilder().setModelId("whisper-large").build(),
-            new CapturingObserver<>()); 
-
-        CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>(); 
-        service.listModels(ListModelsRequest.getDefaultInstance(), observer); 
-
-        assertThat(observer.hasError()).isFalse(); 
-        ListModelsResponse response = observer.getValue(); 
-        assertThat(response.getTotalCount()).isGreaterThanOrEqualTo(1); 
-        assertThat(response.getLoadedCount()).isGreaterThanOrEqualTo(1); 
-    }
-
-    @Test
-    @DisplayName("listModels: loadedOnly filter → unloaded models excluded")
-    void listModels_loadedOnlyFilter_excludesUnloaded() { 
-        // Load then unload a model
+    @DisplayName("listModels: includeLoadedOnly does not expose local model entries")
+    void listModelsLoadedOnlyWithoutProvider_returnsUnavailable() {
         service.loadModel(LoadModelRequest.newBuilder().setModelId("test-model").build(),
-            new CapturingObserver<>()); 
-        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("test-model").build(),
-            new CapturingObserver<>()); 
+                new CapturingObserver<>());
+        CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>();
+        service.listModels(ListModelsRequest.newBuilder().setIncludeLoadedOnly(true).build(), observer);
 
-        CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>(); 
-        service.listModels( 
-            ListModelsRequest.newBuilder().setIncludeLoadedOnly(true).build(), 
-            observer);
-
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getTotalCount()).isEqualTo(0); 
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(observer.getValue()).isNull();
     }
 
     // ─────────────────────────────────────────────────────────────────────────

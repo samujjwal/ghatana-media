@@ -47,7 +47,7 @@ public class PersistentMultimodalService {
     private final VisionEngine visionEngine;
     private final Timer fuseTimer;
     private final AuditService auditService;
-    private final MeterRegistry meterRegistry;
+    private final Timer dataCloudFuseTimer;
 
     /**
      * Convenience constructor — engines not yet wired; audio and visual processing will
@@ -81,9 +81,11 @@ public class PersistentMultimodalService {
         this.sttEngine = sttEngine;   // nullable — checked at call time
         this.visionEngine = visionEngine; // nullable — checked at call time
         this.auditService = auditService;
-        this.meterRegistry = meterRegistry;
         this.fuseTimer = Timer.builder("multimodal.persistent.fuse")
             .description("Multimodal fusion latency with persistence")
+            .register(meterRegistry);
+        this.dataCloudFuseTimer = Timer.builder("multimodal.fuse.duration")
+            .description("Data Cloud multimodal fusion latency")
             .register(meterRegistry);
     }
 
@@ -230,14 +232,8 @@ public class PersistentMultimodalService {
                     dcResult.hasVisualDetections(),
                     elapsedMs);
 
-                // K5: Include trace/request IDs in metrics
-                Timer.Sample sample = Timer.start(meterRegistry);
-                sample.stop(Timer.builder("multimodal.fuse.duration")
-                    .tags("tenant_id", tenantId,
-                          "correlation_id", correlationId,
-                          "request_id", requestId,
-                          "consent_status", consentStatus)
-                    .register(meterRegistry));
+                // Trace and request identifiers stay out of metric labels.
+                dataCloudFuseTimer.record(Duration.ofMillis(elapsedMs));
 
                 return dcResult;
             })
