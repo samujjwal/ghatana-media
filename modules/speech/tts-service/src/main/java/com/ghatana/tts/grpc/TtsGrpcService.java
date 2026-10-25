@@ -7,6 +7,7 @@ import com.ghatana.media.common.CanonicalAudioFormat;
 import com.ghatana.media.common.ValidationError;
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.audiovideo.observability.instrumentation.AudioVideoGrpcInstrumentation;
+import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.api.TtsStreamingSession;
@@ -38,6 +39,10 @@ import com.ghatana.tts.engine.PcmAudioValidator;
 import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
@@ -80,6 +85,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     private final Timer synthesizeTimer;
     private final Timer streamingTimer;
     private final AudioVideoGrpcInstrumentation instrumentation;
+    private final AudioVideoTracingService tracingService;
     private final BooleanSupplier synthesisAdmitted;
     private final BooleanSupplier streamingAdmitted;
     private final Duration streamingTimeoutOverride;
@@ -110,6 +116,18 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             BooleanSupplier synthesisAdmitted,
             BooleanSupplier streamingAdmitted,
             Duration streamingTimeoutOverride) {
+        this(library, metrics, synthesisAdmitted, streamingAdmitted, streamingTimeoutOverride,
+                new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-tts")));
+    }
+
+    /** Package-private tracing seam for bounded in-process observability tests. */
+    TtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            BooleanSupplier synthesisAdmitted,
+            BooleanSupplier streamingAdmitted,
+            Duration streamingTimeoutOverride,
+            AudioVideoTracingService tracingService) {
         this.library = Objects.requireNonNull(library, "library");
         Objects.requireNonNull(metrics, "metrics");
         this.synthesisAdmitted = Objects.requireNonNull(synthesisAdmitted, "synthesisAdmitted");
@@ -119,6 +137,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             throw new IllegalArgumentException("streamingTimeoutOverride must be positive");
         }
         this.streamingTimeoutOverride = streamingTimeoutOverride;
+        this.tracingService = Objects.requireNonNull(tracingService, "tracingService");
         this.instrumentation = new AudioVideoGrpcInstrumentation(null, new MediaWorkflowMetrics(metrics, "tts"));
         this.synthesizeTimer = Timer.builder("tts.synthesize")
                 .description("Synthesis latency")
@@ -136,7 +155,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     public void synthesize(
             SynthesizeRequest request,
             StreamObserver<SynthesizeResponse> responseObserver) {
+        TracingObserver<SynthesizeResponse> trace = startSynthesisTrace(responseObserver);
         long startedAt = System.currentTimeMillis();
+        try (Scope ignored = trace.makeCurrent()) {
         synthesizeTimer.record(() -> {
             try {
                 String text = validateText(request.getText());
@@ -157,29 +178,38 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     }
                 }
 
-                if (isCancelled(responseObserver)) return;
+                if (isCancelled(responseObserver)) {
+                    trace.finishUnknown();
+                    return;
+                }
 
                 long elapsed = System.currentTimeMillis() - startedAt;
                 long durationMs = facts.duration().toMillis();
                 LOG.info("TTS synthesis completed in {}ms", elapsed);
-                responseObserver.onNext(SynthesizeResponse.newBuilder()
+                trace.observer.onNext(SynthesizeResponse.newBuilder()
                         .setAudioData(com.google.protobuf.ByteString.copyFrom(audio.data()))
                         .setSampleRate(audio.sampleRate())
                         .setDurationMs(Math.toIntExact(durationMs))
                         .setProcessingTimeMs((int) elapsed)
                         .setVoiceUsed(options.voiceId() == null ? "" : options.voiceId())
                         .build());
-                responseObserver.onCompleted();
+                trace.observer.onCompleted();
             } catch (RuntimeException exception) {
-                fail(responseObserver, "Synthesis", exception);
+                fail(trace.observer, "Synthesis", exception);
             }
         });
+        } finally {
+            trace.finishUnknown();
+        }
     }
 
     @Override
     public void streamSynthesize(
             SynthesizeRequest request,
             StreamObserver<AudioChunk> responseObserver) {
+        TracingObserver<AudioChunk> trace = startSynthesisTrace(responseObserver);
+        StreamObserver<AudioChunk> tracedObserver = trace.observer;
+        Context operationContext = Context.current().with(trace.span);
         long startedNanos = System.nanoTime();
         AtomicBoolean cancelled = new AtomicBoolean();
         AtomicBoolean sessionCancelled = new AtomicBoolean();
@@ -195,18 +225,26 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         ServerCallStreamObserver<AudioChunk> serverObserver = serverObserver(responseObserver);
 
         if (serverObserver != null) {
-            serverObserver.setOnCancelHandler(() -> {
-                cancelled.set(true);
-                sessionCancelled.set(true);
-                synchronized (readinessLock) { readinessLock.notifyAll(); }
-                TtsStreamingSession running = activeSession.get();
-                if (running != null) running.cancel();
-            });
+            serverObserver.setOnCancelHandler(operationContext.wrap(() -> {
+                boolean cancellationWon = terminal.compareAndSet(false, true);
+                if (cancellationWon) {
+                    cancelled.set(true);
+                    sessionCancelled.set(true);
+                    recordDuration.run();
+                    trace.finishUnknown();
+                }
+                if (cancellationWon) {
+                    synchronized (readinessLock) { readinessLock.notifyAll(); }
+                    TtsStreamingSession running = activeSession.get();
+                    if (running != null) running.cancel();
+                }
+            }));
             // The call may already be cancelled before the handler is installed. Check
             // transport state as well so canceled work does not continue into parsing or
             // capability evaluation merely because the callback was not observed here.
             if (cancelled.get() || serverObserver.isCancelled()) {
                 recordDuration.run();
+                trace.finishUnknown();
                 return;
             }
         }
@@ -218,12 +256,14 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             SynthesisOptions synthesisOptions = options(request);
             if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
                 recordDuration.run();
+                trace.finishUnknown();
                 return;
             }
             requireAdmittedVoiceLanguage(synthesisOptions.voiceId(), synthesisOptions.language());
             requireAdmittedStreamingProvider();
             if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
                 recordDuration.run();
+                trace.finishUnknown();
                 return;
             }
             TtsEngine engine = library.getTtsEngine();
@@ -252,6 +292,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     }
                 }
                 @Override public void onAudioFormat(CanonicalAudioFormat format) {
+                    try (Scope ignored = operationContext.makeCurrent()) {
                     if (format == null) {
                         throw new IllegalStateException("TTS provider did not declare an audio format");
                     }
@@ -265,8 +306,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                         throw new IllegalStateException(
                                 "TTS stream format does not match the mono PCM S16LE response contract");
                     }
+                    }
                 }
                 @Override public void onChunk(com.ghatana.media.common.AudioChunk chunk) {
+                    try (Scope ignored = operationContext.makeCurrent()) {
                     if (terminal.get()) return;
                     try {
                         synchronized (chunkLock) {
@@ -313,48 +356,59 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                                 throw new IllegalStateException("TTS stream interrupted while waiting for downstream readiness", interrupted);
                             }
                             if (!isCancelled()) {
-                                responseObserver.onNext(toGrpcChunk(chunkSnapshot, synthesisOptions, false));
+                                tracedObserver.onNext(toGrpcChunk(chunkSnapshot, synthesisOptions, false));
                             }
                         }
                     } catch (RuntimeException streamFailure) {
                         TtsStreamingSession running = activeSession.get();
                         if (!isCancelled() && terminal.compareAndSet(false, true)) {
                             if (running != null) running.cancel();
-                            fail(responseObserver, "Streaming synthesis", streamFailure);
+                            fail(tracedObserver, "Streaming synthesis", streamFailure);
                             recordDuration.run();
                         } else if (running != null) {
                             running.cancel();
                         }
+                    }
                     }
                 }
             };
             Duration deadline = streamingTimeoutOverride == null
                     ? synthesisOptions.timeout() : streamingTimeoutOverride;
             long timeoutMillis = Math.max(1, deadline.toMillis());
-            CompletableFuture.delayedExecutor(timeoutMillis, TimeUnit.MILLISECONDS).execute(() -> {
+            CompletableFuture.delayedExecutor(timeoutMillis, TimeUnit.MILLISECONDS).execute(operationContext.wrap(() -> {
                 if (!cancelled.get() && (serverObserver == null || !serverObserver.isCancelled())
                         && terminal.compareAndSet(false, true)) {
                     if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
+                        cancelled.set(true);
+                        sessionCancelled.set(true);
                         recordDuration.run();
+                        synchronized (readinessLock) { readinessLock.notifyAll(); }
+                        TtsStreamingSession running = activeSession.get();
+                        if (running != null) running.cancel();
+                        trace.finishUnknown();
                         return;
                     }
                     sessionCancelled.set(true);
                     synchronized (readinessLock) { readinessLock.notifyAll(); }
                     TtsStreamingSession running = activeSession.get();
                     if (running != null) running.cancel();
-                    fail(responseObserver, "Streaming synthesis", new TtsStreamTimeoutException());
+                    fail(tracedObserver, "Streaming synthesis", new TtsStreamTimeoutException());
                     recordDuration.run();
                 }
-            });
-            TtsStreamingSession session = engine.startStreaming(text, synthesisOptions, sink);
+            }));
+            TtsStreamingSession session;
+            try (Scope ignored = operationContext.makeCurrent()) {
+                session = engine.startStreaming(text, synthesisOptions, sink);
+            }
             activeSession.set(session);
             if (terminal.get() || cancelled.get() || serverObserver != null && serverObserver.isCancelled()) session.cancel();
             session.completion().whenComplete((ignored, failure) -> {
-                Thread.startVirtualThread(() -> {
+                Thread.startVirtualThread(operationContext.wrap(() -> {
                     if (terminal.get()) return;
                     if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
                         if (terminal.compareAndSet(false, true)) {
                             recordDuration.run();
+                            trace.finishUnknown();
                         }
                         return;
                     }
@@ -362,13 +416,13 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                         Throwable cause = failure instanceof CompletionException && failure.getCause() != null
                                 ? failure.getCause() : failure;
                         if (terminal.compareAndSet(false, true)) {
-                            fail(responseObserver, "Streaming synthesis", cause instanceof RuntimeException runtime
+                            fail(tracedObserver, "Streaming synthesis", cause instanceof RuntimeException runtime
                                     ? runtime : new IllegalStateException("TTS streaming provider failed", cause));
                             recordDuration.run();
                         }
                     } else if (!finalChunkSeen.get() || pendingFinalChunk.get() == null) {
                         if (terminal.compareAndSet(false, true)) {
-                            fail(responseObserver, "Streaming synthesis",
+                            fail(tracedObserver, "Streaming synthesis",
                                     new IllegalStateException("TTS stream completed without a provider final chunk"));
                             recordDuration.run();
                         }
@@ -376,30 +430,30 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                         try {
                             awaitSinkReady(sink);
                             if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
-                                responseObserver.onNext(toGrpcChunk(pendingFinalChunk.get(), synthesisOptions, true));
-                                responseObserver.onCompleted();
+                                tracedObserver.onNext(toGrpcChunk(pendingFinalChunk.get(), synthesisOptions, true));
+                                tracedObserver.onCompleted();
                             }
                         } catch (InterruptedException interrupted) {
                             Thread.currentThread().interrupt();
                             if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
-                                fail(responseObserver, "Streaming synthesis",
+                                fail(tracedObserver, "Streaming synthesis",
                                         new IllegalStateException("TTS stream interrupted before final delivery", interrupted));
                             }
                         } catch (RuntimeException finalDeliveryFailure) {
                             if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
-                                fail(responseObserver, "Streaming synthesis", finalDeliveryFailure);
+                                fail(tracedObserver, "Streaming synthesis", finalDeliveryFailure);
                             }
                         }
                         recordDuration.run();
                     }
-                });
+                }));
             });
             return;
         } catch (RuntimeException exception) {
             recordDuration.run();
             if (!cancelled.get() && (serverObserver == null || !serverObserver.isCancelled())
                     && terminal.compareAndSet(false, true)) {
-                fail(responseObserver, "Streaming synthesis", exception);
+                fail(tracedObserver, "Streaming synthesis", exception);
             }
         }
     }
@@ -594,6 +648,100 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     private static boolean isCancelled(StreamObserver<?> observer) {
         return observer instanceof ServerCallStreamObserver<?> serverObserver
                 && serverObserver.isCancelled();
+    }
+
+    private <T> TracingObserver<T> startSynthesisTrace(StreamObserver<T> observer) {
+        Span span = tracingService.startSynthesisSpan(null, null);
+        return new TracingObserver<>(span, observer);
+    }
+
+    /** Ends the operation span only when the caller-visible stream reaches a terminal outcome. */
+    private final class TracingObserver<T> {
+        private final Span span;
+        private final StreamObserver<T> delegate;
+        private final long startedNanos = System.nanoTime();
+        private final Object callbackLock = new Object();
+        private boolean finished;
+        private final StreamObserver<T> observer = new StreamObserver<>() {
+            @Override
+            public void onNext(T value) {
+                synchronized (callbackLock) {
+                    if (finished) return;
+                    try (Scope ignored = makeCurrent()) {
+                        try {
+                            delegate.onNext(value);
+                        } catch (RuntimeException | Error callbackFailure) {
+                            finished = true;
+                            finishUnknownWhileCurrent();
+                            throw callbackFailure;
+                        }
+                    }
+                }
+            }
+
+            @Override public void onError(Throwable failure) {
+                synchronized (callbackLock) {
+                    if (finished) return;
+                    finished = true;
+                    try (Scope ignored = makeCurrent()) {
+                        try {
+                            delegate.onError(failure);
+                        } finally {
+                            tracingService.recordError(span,
+                                    failure instanceof Exception exception ? exception : new RuntimeException("TTS operation failed"),
+                                    elapsedMillis());
+                        }
+                    }
+                }
+            }
+
+            @Override public void onCompleted() {
+                synchronized (callbackLock) {
+                    if (finished) return;
+                    finished = true;
+                    try (Scope ignored = makeCurrent()) {
+                        try {
+                            delegate.onCompleted();
+                        } catch (RuntimeException | Error callbackFailure) {
+                            finishUnknownWhileCurrent();
+                            throw callbackFailure;
+                        }
+                        finished = true;
+                        tracingService.recordSuccess(span, elapsedMillis());
+                    }
+                }
+            }
+        };
+
+        private TracingObserver(Span span, StreamObserver<T> delegate) {
+            this.span = Objects.requireNonNull(span, "span");
+            this.delegate = Objects.requireNonNull(delegate, "delegate");
+        }
+
+        private long elapsedMillis() {
+            return Math.max(0L, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos));
+        }
+
+        private Scope makeCurrent() {
+            return tracingService.createScope(span);
+        }
+
+        /** A transport cancellation has no synthesis success/failure disposition. */
+        private void finishUnknown() {
+            synchronized (callbackLock) {
+                if (finished) return;
+                finished = true;
+                try (Scope ignored = makeCurrent()) {
+                    finishUnknownWhileCurrent();
+                }
+            }
+        }
+
+        private void finishUnknownWhileCurrent() {
+            finished = true;
+            span.setAttribute("media.outcome", "unknown");
+            span.end();
+        }
     }
 
     private static String requireText(String value, String field) {

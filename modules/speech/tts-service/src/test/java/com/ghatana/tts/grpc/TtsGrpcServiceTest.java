@@ -8,6 +8,7 @@ import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.CanonicalAudioFormat;
+import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceResponse;
 import com.ghatana.tts.core.grpc.proto.CreateProfileRequest;
@@ -30,6 +31,11 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,12 +52,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -100,6 +110,301 @@ class TtsGrpcServiceTest {
         verify(engine, never()).close();
         assertThat(registry.find("media.modality.boundary.duration")
                 .tag("modality", "tts").tag("boundary", "provider").timer()).isNull();
+    }
+
+    @Test
+    void synthesizeTraceUsesNoContentIdentifiersAndKeepsProviderMetricSingle() {
+        TraceHarness trace = new TraceHarness();
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> false,
+                null, trace.tracing);
+        when(engine.synthesize(anyString(), any())).thenAnswer(invocation -> {
+            trace.assertCurrentOperationSpan();
+            return new AudioData(new byte[44], 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM);
+        });
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+        String protectedText = "private synthesis phrase 103857";
+
+        admitted.synthesize(SynthesizeRequest.newBuilder().setText(protectedText).build(), observer);
+
+        assertThat(observer.error).isNull();
+        assertThat(observer.value).isNotNull();
+        SpanData span = trace.finishedSpan();
+        assertThat(span.getStatus().getStatusCode().name()).isEqualTo("OK");
+        assertNoProtectedMarker(span, protectedText, "protected-voice-8062");
+        Timer providerTimer = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "provider")
+                .tag("execution_class", "model").tag("outcome", "success").timer();
+        assertThat(providerTimer).isNotNull();
+        assertThat(providerTimer.count()).isEqualTo(1);
+    }
+
+    @Test
+    void failClosedSynthesisRecordsTraceErrorWithoutPassingTextOrVoiceId() {
+        TraceHarness trace = new TraceHarness();
+        TtsGrpcService failClosed = new TtsGrpcService(library, registry, () -> false, () -> false,
+                null, trace.tracing);
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        failClosed.synthesize(SynthesizeRequest.newBuilder()
+                .setText("sensitive text 205941")
+                .setVoiceId("protected-voice-8062")
+                .build(), observer);
+
+        assertStatus(observer, Status.Code.UNIMPLEMENTED);
+        SpanData span = trace.finishedSpan();
+        assertThat(span.getStatus().getStatusCode().name()).isEqualTo("ERROR");
+        assertThat(span.getStatus().getDescription()).isEqualTo("Media operation failed");
+        assertThat(span.getAttributes().get(io.opentelemetry.api.common.AttributeKey.stringKey("error.type")))
+                .isEqualTo("StatusRuntimeException");
+        assertNoProtectedMarker(span, "sensitive text 205941", "protected-voice-8062");
+        verify(engine, never()).synthesize(anyString(), any());
+        verify(library, never()).getTtsEngine();
+    }
+
+    @Test
+    void streamingProviderAndResponseCallbacksRunWithOperationSpan() throws Exception {
+        TraceHarness trace = new TraceHarness();
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
+                Duration.ofSeconds(2), trace.tracing);
+        CountDownLatch completed = new CountDownLatch(1);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        String protectedText = "private stream phrase 908173";
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            trace.assertCurrentOperationSpan();
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(new CanonicalAudioFormat(22_050, 1, 16, AudioFormat.PCM));
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(
+                    new byte[]{1, 2, 3, 4}, 0, true, System.currentTimeMillis()));
+            CompletableFuture<Void> done = CompletableFuture.completedFuture(null);
+            return TtsStreamingSession.create(new AtomicBoolean(), done);
+        });
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        when(observer.isReady()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false);
+        doAnswer(invocation -> { cancelHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnCancelHandler(any(Runnable.class));
+        doAnswer(invocation -> {
+            trace.assertCurrentOperationSpan();
+            assertThat(((com.ghatana.tts.core.grpc.proto.AudioChunk) invocation.getArgument(0))
+                    .getAudioData()).isNotEmpty();
+            return null;
+        }).when(observer).onNext(any());
+        doAnswer(invocation -> {
+            trace.assertCurrentOperationSpan();
+            trace.assertNoFinishedSpans();
+            cancelHandler.get().run(); // Reentrant transport cancellation cannot replace the reserved success terminal.
+            completed.countDown();
+            return null;
+        }).when(observer).onCompleted();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText(protectedText).build(), observer);
+
+        assertThat(completed.await(5, TimeUnit.SECONDS)).isTrue();
+        verify(observer, never()).onError(any());
+        cancelHandler.get().run(); // Cancellation after successful terminal delivery must not rewrite success.
+        SpanData span = trace.finishedSpan();
+        assertThat(span.getStatus().getStatusCode().name()).isEqualTo("OK");
+        assertThat(span.getAttributes().get(
+                io.opentelemetry.api.common.AttributeKey.stringKey("media.outcome"))).isNull();
+        assertNoProtectedMarker(span, protectedText);
+    }
+
+    @Test
+    void streamingCancellationEndsSpanWithUnknownOutcome() throws InterruptedException {
+        TraceHarness trace = new TraceHarness();
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
+                Duration.ofMillis(250), trace.tracing);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        CompletableFuture<Void> completion = new CompletableFuture<>();
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        when(observer.isCancelled()).thenReturn(false);
+        doAnswer(invocation -> {
+            cancelHandler.set(invocation.getArgument(0));
+            return null;
+        }).when(observer).setOnCancelHandler(any(Runnable.class));
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            trace.assertCurrentOperationSpan();
+            sinkRef.set(invocation.getArgument(2));
+            return new TtsStreamingSession() {
+                @Override public boolean cancel() { return sessionCancelled.compareAndSet(false, true); }
+                @Override public boolean isCancelled() { return sessionCancelled.get(); }
+                @Override public CompletableFuture<Void> completion() { return completion; }
+            };
+        });
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("private stream input 718204").build(), observer);
+        cancelHandler.get().run();
+        cancelHandler.get().run();
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 1));
+        completion.completeExceptionally(new IllegalStateException("provider-private-error-44019"));
+        Thread.sleep(350); // Let late completion and timeout workers observe the already-won terminal gate.
+
+        assertThat(sessionCancelled).isTrue();
+        Timer streamingTimer = registry.find("tts.synthesize.streaming").timer();
+        assertThat(streamingTimer.count()).isEqualTo(1);
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onError(any());
+        verify(observer, never()).onCompleted();
+        SpanData span = trace.finishedSpan();
+        assertThat(span.getAttributes().get(
+                io.opentelemetry.api.common.AttributeKey.stringKey("media.outcome"))).isEqualTo("unknown");
+        assertNoProtectedMarker(span, "private stream input 718204", "provider-private-error-44019");
+    }
+
+    @Test
+    void timeoutCancellationRaceFinishesUnknownAndCancelsSession() throws Exception {
+        TraceHarness trace = new TraceHarness();
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
+                Duration.ofMillis(250), trace.tracing);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        AtomicReference<TtsStreamingSession> sessionRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        CountDownLatch providerStarted = new CountDownLatch(1);
+        CountDownLatch sessionCancelledLatch = new CountDownLatch(1);
+        AtomicInteger cancellationChecks = new AtomicInteger();
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        when(observer.isCancelled()).thenAnswer(invocation -> {
+            int check = cancellationChecks.incrementAndGet();
+            if (check == 6) {
+                // The timeout has already won the terminal CAS; the transport handler loses it.
+                cancelHandler.get().run();
+                return true;
+            }
+            return false;
+        });
+        doAnswer(invocation -> { cancelHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnCancelHandler(any(Runnable.class));
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            trace.assertCurrentOperationSpan();
+            providerStarted.countDown();
+            TtsStreamingSession session = new TtsStreamingSession() {
+                @Override public boolean cancel() {
+                    boolean won = sessionCancelled.compareAndSet(false, true);
+                    if (won) sessionCancelledLatch.countDown();
+                    return won;
+                }
+                @Override public boolean isCancelled() { return sessionCancelled.get(); }
+                @Override public CompletableFuture<Void> completion() { return new CompletableFuture<>(); }
+            };
+            sessionRef.set(session);
+            return session;
+        });
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("timeout-race-private-55021").build(), observer);
+
+        assertThat(providerStarted.await(2, TimeUnit.SECONDS)).isTrue();
+        assertThat(sessionCancelledLatch.await(3, TimeUnit.SECONDS)).isTrue();
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onError(any());
+        verify(observer, never()).onCompleted();
+        assertThat(sessionRef.get().isCancelled()).isTrue();
+        SpanData span = trace.finishedSpan();
+        assertThat(span.getAttributes().get(
+                io.opentelemetry.api.common.AttributeKey.stringKey("media.outcome"))).isEqualTo("unknown");
+        assertNoProtectedMarker(span, "timeout-race-private-55021");
+    }
+
+    @Test
+    void throwingCompletionCallbackFinishesUnknownAfterCallback() throws Exception {
+        TraceHarness trace = new TraceHarness();
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
+                Duration.ofSeconds(2), trace.tracing);
+        CountDownLatch callbackEntered = new CountDownLatch(1);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(monoPcm16Format());
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 1));
+            return TtsStreamingSession.create(new AtomicBoolean(), CompletableFuture.completedFuture(null));
+        });
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new StreamObserver<>() {
+            @Override public void onNext(com.ghatana.tts.core.grpc.proto.AudioChunk value) {}
+            @Override public void onError(Throwable failure) { throw new AssertionError("unexpected error callback"); }
+            @Override public void onCompleted() {
+                trace.assertCurrentOperationSpan();
+                trace.assertNoFinishedSpans();
+                callbackEntered.countDown();
+                throw new IllegalStateException("downstream-private-marker-61034");
+            }
+        };
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("completion-marker-private-61034").build(), observer);
+
+        assertThat(callbackEntered.await(3, TimeUnit.SECONDS)).isTrue();
+        SpanData span = trace.finishedSpan();
+        assertThat(span.getStatus().getStatusCode().name()).isEqualTo("UNSET");
+        assertThat(span.getAttributes().get(
+                io.opentelemetry.api.common.AttributeKey.stringKey("media.outcome"))).isEqualTo("unknown");
+        assertNoProtectedMarker(span, "completion-marker-private-61034", "downstream-private-marker-61034");
+    }
+
+    @Test
+    void throwingFinalAudioCallbackFinishesUnknownWithoutReportingSuccess() throws Exception {
+        TraceHarness trace = new TraceHarness();
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
+                Duration.ofSeconds(2), trace.tracing);
+        CountDownLatch callbackEntered = new CountDownLatch(1);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(monoPcm16Format());
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 1));
+            return TtsStreamingSession.create(new AtomicBoolean(), CompletableFuture.completedFuture(null));
+        });
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new StreamObserver<>() {
+            @Override public void onNext(com.ghatana.tts.core.grpc.proto.AudioChunk value) {
+                trace.assertCurrentOperationSpan();
+                trace.assertNoFinishedSpans();
+                callbackEntered.countDown();
+                throw new IllegalStateException("downstream-private-audio-88216");
+            }
+            @Override public void onError(Throwable failure) { throw new AssertionError("late error callback"); }
+            @Override public void onCompleted() { throw new AssertionError("false success callback"); }
+        };
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("final-audio-private-88216").build(), observer);
+
+        assertThat(callbackEntered.await(3, TimeUnit.SECONDS)).isTrue();
+        SpanData span = trace.finishedSpan();
+        assertThat(span.getStatus().getStatusCode().name()).isEqualTo("UNSET");
+        assertThat(span.getAttributes().get(
+                io.opentelemetry.api.common.AttributeKey.stringKey("media.outcome"))).isEqualTo("unknown");
+        assertNoProtectedMarker(span, "final-audio-private-88216", "downstream-private-audio-88216");
+    }
+
+    @Test
+    void throwingErrorCallbackStillFinishesOriginalErrorSpan() {
+        TraceHarness trace = new TraceHarness();
+        TtsGrpcService failClosed = new TtsGrpcService(library, registry, () -> false, () -> false,
+                null, trace.tracing);
+        StreamObserver<SynthesizeResponse> observer = new StreamObserver<>() {
+            @Override public void onNext(SynthesizeResponse value) {}
+            @Override public void onError(Throwable failure) {
+                trace.assertCurrentOperationSpan();
+                trace.assertNoFinishedSpans();
+                throw new IllegalStateException("downstream-private-error-callback-77192");
+            }
+            @Override public void onCompleted() {}
+        };
+
+        assertThatThrownBy(() -> failClosed.synthesize(SynthesizeRequest.newBuilder()
+                .setText("error-callback-private-input-77192").build(), observer))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("downstream-private-error-callback-77192");
+
+        SpanData span = trace.finishedSpan();
+        assertThat(span.getStatus().getStatusCode().name()).isEqualTo("ERROR");
+        assertThat(span.getStatus().getDescription()).isEqualTo("Media operation failed");
+        assertThat(span.getAttributes().get(io.opentelemetry.api.common.AttributeKey.stringKey("error.type")))
+                .isEqualTo("StatusRuntimeException");
+        assertNoProtectedMarker(span, "error-callback-private-input-77192", "downstream-private-error-callback-77192");
     }
 
     @Test
@@ -949,6 +1254,44 @@ class TtsGrpcServiceTest {
 
     private static CanonicalAudioFormat monoPcm16Format() {
         return new CanonicalAudioFormat(22_050, 1, 16, AudioFormat.PCM);
+    }
+
+    private static void assertNoProtectedMarker(SpanData span, String... markers) {
+        String exported = span.getName() + span.getAttributes().asMap() + span.getEvents();
+        for (String marker : markers) assertThat(exported).doesNotContain(marker);
+    }
+
+    private static final class TraceHarness {
+        private final InMemorySpanExporter exporter = InMemorySpanExporter.create();
+        private final SdkTracerProvider provider = SdkTracerProvider.builder()
+                .addSpanProcessor(SimpleSpanProcessor.create(exporter)).build();
+        private final AudioVideoTracingService tracing = new AudioVideoTracingService(provider.get("tts-test"));
+        private final AtomicReference<String> operationTraceId = new AtomicReference<>();
+
+        private void assertCurrentOperationSpan() {
+            Span current = Span.current();
+            assertThat(current.getSpanContext().isValid()).isTrue();
+            String traceId = current.getSpanContext().getTraceId();
+            operationTraceId.compareAndSet(null, traceId);
+            assertThat(traceId).isEqualTo(operationTraceId.get());
+        }
+
+        private SpanData finishedSpan() {
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+            while (exporter.getFinishedSpanItems().isEmpty() && System.nanoTime() < deadline) {
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1));
+            }
+            assertThat(exporter.getFinishedSpanItems()).hasSize(1);
+            SpanData span = exporter.getFinishedSpanItems().get(0);
+            if (operationTraceId.get() != null) {
+                assertThat(span.getTraceId()).isEqualTo(operationTraceId.get());
+            }
+            return span;
+        }
+
+        private void assertNoFinishedSpans() {
+            assertThat(exporter.getFinishedSpanItems()).isEmpty();
+        }
     }
 
     private static final class CapturingObserver<T> implements StreamObserver<T> {
