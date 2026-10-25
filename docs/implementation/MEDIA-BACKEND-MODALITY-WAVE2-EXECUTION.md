@@ -1179,3 +1179,25 @@ Focused verification on this source cut:
 - `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.PersistentSttGrpcServiceTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 16 tests, 0 failures/errors/skips.
 - `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.ProductionSttGrpcServiceTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 13 tests, 0 failures/errors/skips.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (thirty-fifth round)
+
+This round verifies the Vision advanced-capability unavailability contract against the full registered intent set and all current RPC routes. Because the plan explicitly accepts exact `NOT_ADMITTED` when no qualified provider exists, this completes the selected local behavior without adding a model, changing the proto, or claiming positive capability execution.
+
+| Task / audit | Evidence and owner disposition | Current disposition |
+| --- | --- | --- |
+| VIS-08 | `VisionCapabilityDisposition` records all 22 registered intents as runtime `NOT_ADMITTED` with no qualified model/version or formats. Registered intent RPC tests assert exact `UNIMPLEMENTED` + intent + `NOT_ADMITTED` before detector dispatch; advanced image intents also prove no YOLO-box or scene-label substitution. The RPC matrix confirms the ten current proto methods and their fail-closed paths. Video RPC requests expose no advanced-capability selector and their result schema cannot express segmentation/depth/pose tensors; their registry association is only a nearest-surface mapping, as documented on the enum. `VisionGrpcServiceTest` and `ProductionVisionGrpcServiceRpcMatrixTest` passed 67 and 4 tests. | LOCALLY_VERIFIED for truthful unsupported behavior and no substitute output; no qualified provider, model quality, or advanced tensor is claimed. |
+| TTS-03 / VIS-09 audits | No code change was warranted. TTS rejects the profile before factory construction or warmup, but source-authorized voice/model rights and a qualified provider are absent; the digest is path-checked before any admitted loader exists. Vision OCR extraction and the Kernel adapter return NOT_ADMITTED before OCR model/executor dispatch; the required Document Intelligence public API, immutable frame/version mapping, rights, and copy/retention authority are not available. | Existing dispositions remain unchanged; fail-closed behavior does not stand in for provider admission or source authority. |
+
+The current exclusive task dispositions are **24 LOCALLY_VERIFIED, 28 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**:
+
+- LOCALLY_VERIFIED: STT-01, STT-02, STT-11; TTS-01, TTS-02, TTS-04, TTS-11; VIS-01, VIS-03, VIS-04, VIS-08, VIS-11; MM-01, MM-04, MM-07, MM-11; OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06, OBS-09, OBS-10.
+- PARTIAL: STT-03 through STT-10; TTS-03, TTS-05, TTS-06, TTS-08, TTS-09, TTS-10; VIS-05, VIS-06, VIS-07, VIS-09, VIS-10; MM-02, MM-03, MM-05, MM-06, MM-08, MM-09, MM-10; OBS-07, OBS-08.
+- EXTERNAL/OWNER: STT-12; TTS-07, TTS-12; VIS-02, VIS-12; MM-12.
+
+The 99 PDP capability memberships, 43 source RPC identities, and five residual handoffs remain unchanged. No live provider qualification, model-quality result, formal PDP acceptance, gtool transition/closure, operational cutover, deployment, or release is claimed.
+
+Focused verification on this source cut:
+
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.grpc.VisionGrpcServiceTest --tests com.ghatana.audio.video.vision.grpc.ProductionVisionGrpcServiceRpcMatrixTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 71 tests, 0 failures/errors/skips.
+- `git diff --check` — PASS.
