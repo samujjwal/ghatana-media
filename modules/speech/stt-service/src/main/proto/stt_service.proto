@@ -73,6 +73,26 @@ message TranscribeResponse {
     repeated WordTiming word_timings = 3;
     int64 processing_time_ms = 4;
     string model_used = 5;
+    repeated AlternativeHypothesis alternatives = 6;
+    string language = 7;
+    TimestampTimebase word_timing_timebase = 8;
+    ConfidenceCalibration confidence_calibration = 9;
+}
+
+message AlternativeHypothesis {
+    string text = 1;
+    float confidence = 2;
+}
+
+enum TimestampTimebase {
+    TIMESTAMP_TIMEBASE_UNKNOWN = 0;
+    TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO = 1;
+}
+
+enum ConfidenceCalibration {
+    CONFIDENCE_CALIBRATION_UNKNOWN = 0;
+    CONFIDENCE_CALIBRATION_UNCALIBRATED = 1;
+    CONFIDENCE_CALIBRATION_CALIBRATED = 2;
 }
 
 message AudioChunk {

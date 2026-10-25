@@ -29,6 +29,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 
 import java.time.Duration;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -41,7 +44,7 @@ class PersistentSttGrpcServiceTest {
 
     private PersistentSttGrpcService service;
 
-    private static final ByteString AUDIO = ByteString.copyFrom(new byte[]{1, 2, 3, 4, 5});
+    private static final ByteString AUDIO = ByteString.copyFrom(validPcmWav());
     private static final String USER_ID = "00000000-0000-0000-0000-000000000001";
 
     @BeforeEach
@@ -179,6 +182,11 @@ class PersistentSttGrpcServiceTest {
         assertThat(observer.value.getConfidence()).isCloseTo(0.97f, org.assertj.core.data.Offset.offset(0.001f));
         assertThat(observer.value.getProcessingTimeMs()).isEqualTo(350L);
         assertThat(observer.value.getModelUsed()).isEqualTo("whisper-medium");
+        assertThat(observer.value.getWordTimingsList()).isEmpty();
+        assertThat(observer.value.getWordTimingTimebase())
+                .isEqualTo(com.ghatana.stt.core.grpc.proto.TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
+        assertThat(observer.value.getConfidenceCalibration())
+                .isEqualTo(com.ghatana.stt.core.grpc.proto.ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED);
     }
 
     @Test
@@ -223,6 +231,25 @@ class PersistentSttGrpcServiceTest {
             .withValue(JwtServerInterceptor.CTX_TENANT, tenantId)
             .withValue(JwtServerInterceptor.CTX_SUBJECT, userId);
         ctx.run(action);
+    }
+
+    private static byte[] validPcmWav() {
+        byte[] wav = new byte[48];
+        ByteBuffer bytes = ByteBuffer.wrap(wav).order(ByteOrder.LITTLE_ENDIAN);
+        putAscii(bytes, 0, "RIFF");
+        bytes.putInt(4, 40);
+        putAscii(bytes, 8, "WAVE");
+        putAscii(bytes, 12, "fmt ");
+        bytes.putInt(16, 16).putShort(20, (short) 1).putShort(22, (short) 1);
+        bytes.putInt(24, 16_000).putInt(28, 32_000).putShort(32, (short) 2).putShort(34, (short) 16);
+        putAscii(bytes, 36, "data");
+        bytes.putInt(40, 4).putShort(44, (short) 10).putShort(46, (short) -10);
+        return wav;
+    }
+
+    private static void putAscii(ByteBuffer bytes, int offset, String value) {
+        byte[] encoded = value.getBytes(StandardCharsets.US_ASCII);
+        for (int index = 0; index < encoded.length; index++) bytes.put(offset + index, encoded[index]);
     }
 
     private static final class CapturingObserver<T> implements StreamObserver<T> {

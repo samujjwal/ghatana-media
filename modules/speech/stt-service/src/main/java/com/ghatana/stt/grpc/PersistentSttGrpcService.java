@@ -7,6 +7,7 @@ import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.stt.core.grpc.proto.*;
 import com.ghatana.stt.service.PersistentSttService;
+import com.ghatana.stt.service.SttAudioInputDecoder;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -81,6 +82,7 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             MDC.put("userId", userIdStr);
             MDC.put("cid", cid);
 
+            SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
             byte[] audioBytes = request.getAudioData().toByteArray();
             if (audioBytes.length == 0) {
                 responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
@@ -90,6 +92,7 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             }
 
             int sampleRate = request.getSampleRate() > 0 ? request.getSampleRate() : 16000;
+            java.time.Duration audioDuration = SttAudioInputDecoder.inspectWavDuration(audioBytes, sampleRate);
             String fileName = "audio.wav";
             String language = request.getLanguage();
 
@@ -98,19 +101,26 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
                 tenantId, userId, audioBytes, fileName,
                 AudioFormat.WAV, language, sampleRate
             ).whenResult(result -> {
-                responseObserver.onNext(TranscribeResponse.newBuilder()
-                    .setText(result.text())
-                    .setConfidence((float) result.confidence())
-                    .setProcessingTimeMs(result.processingTime().toMillis())
-                    .setModelUsed(result.modelId() != null ? result.modelId() : "")
-                    .build());
-                responseObserver.onCompleted();
+                try {
+                    responseObserver.onNext(SttTranscriptionResponseMapper.toProto(result, audioDuration).build());
+                    responseObserver.onCompleted();
+                } catch (SttTranscriptionResponseMapper.InvalidResultException invalidResult) {
+                    responseObserver.onError(io.grpc.Status.INTERNAL
+                            .withDescription(invalidResult.getMessage()).asRuntimeException());
+                }
             }).whenException(e -> {
                 // AV-P1-004: Map exception types to appropriate gRPC status codes
                 io.grpc.Status grpcStatus = toGrpcStatus(cid, e);
                 responseObserver.onError(grpcStatus.asRuntimeException());
             });
 
+        } catch (SttAudioInputDecoder.InputException e) {
+            io.grpc.Status grpcStatus = switch (e.kind()) {
+                case INVALID_ARGUMENT -> io.grpc.Status.INVALID_ARGUMENT;
+                case RESOURCE_EXHAUSTED -> io.grpc.Status.RESOURCE_EXHAUSTED;
+                case NOT_ADMITTED -> io.grpc.Status.FAILED_PRECONDITION;
+            };
+            responseObserver.onError(grpcStatus.withDescription(e.getMessage()).asRuntimeException());
         } catch (IllegalArgumentException e) {
             // AV-P1-004: Validation threw synchronously (before Promise was returned)
             LOG.warn("[{}] Validation error: {}", cid, e.getMessage());

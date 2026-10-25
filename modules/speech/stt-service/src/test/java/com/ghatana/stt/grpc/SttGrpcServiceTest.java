@@ -10,6 +10,8 @@ import com.ghatana.media.stt.api.ModelInfo;
 import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
+import com.ghatana.media.stt.api.Alternative;
+import com.ghatana.media.stt.api.WordTiming;
 import com.ghatana.media.stt.api.UserProfile;
 import com.ghatana.stt.core.grpc.proto.*;
 import com.google.protobuf.ByteString;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
@@ -97,6 +100,60 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getConfidence()).isEqualTo(0.95f); 
         assertThat(observer.getValue().getProcessingTimeMs()).isEqualTo(120L); 
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
+    }
+
+    @Test
+    @DisplayName("transcribe maps bounded provider metadata and marks confidence uncalibrated")
+    void transcribe_mapsWordsAlternativesAndUncalibratedConfidence() throws Exception {
+        byte[] audioBytes = new byte[32_000];
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(new TranscriptionResult(
+                "hello world", 0.82,
+                List.of(new WordTiming("hello", 0.0, 0.5, 0.8),
+                        new WordTiming("world", 0.5, 1.0, 0.84)),
+                List.of(new Alternative("hullo world", 0.12)),
+                Duration.ofMillis(25), "en-US", "fixture-model"));
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(audioBytes)).setSampleRate(16_000)
+                .setLanguage("en-US")
+                .setOptions(com.ghatana.stt.core.grpc.proto.TranscriptionOptions.newBuilder()
+                        .setEnableWordTimings(true).setMaxAlternatives(2).build())
+                .build(), observer);
+
+        assertThat(observer.hasError()).isFalse();
+        assertThat(observer.getValue().getWordTimingsCount()).isEqualTo(2);
+        assertThat(observer.getValue().getWordTimings(1).getStartMs()).isEqualTo(500L);
+        assertThat(observer.getValue().getAlternativesCount()).isEqualTo(1);
+        assertThat(observer.getValue().getLanguage()).isEqualTo("en-US");
+        assertThat(observer.getValue().getWordTimingTimebase())
+                .isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO);
+        assertThat(observer.getValue().getConfidenceCalibration())
+                .isEqualTo(ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED);
+        ArgumentCaptor<TranscriptionOptions> options = ArgumentCaptor.forClass(TranscriptionOptions.class);
+        verify(mockEngine).transcribe(any(), options.capture());
+        assertThat(options.getValue().enableTimestamps()).isTrue();
+        assertThat(options.getValue().maxAlternatives()).isEqualTo(2);
+        assertThat(options.getValue().language().toLanguageTag()).isEqualTo("en-US");
+    }
+
+    @Test
+    @DisplayName("transcribe rejects malformed provider word timing with stable internal error")
+    void transcribe_rejectsOverlappingProviderTimings() throws Exception {
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(new TranscriptionResult(
+                "hello world", 0.82,
+                List.of(new WordTiming("hello", 0.0, 0.7, 0.8),
+                        new WordTiming("world", 0.5, 1.0, 0.84)),
+                List.of(), Duration.ofMillis(25), "en", "fixture-model"));
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[32_000])).setSampleRate(16_000).build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INTERNAL.getCode());
+        assertThat(observer.getError().getMessage()).contains("STT_RESULT_INVALID");
     }
 
     @Test

@@ -110,19 +110,20 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
                 TranscriptionResult result;
                 try (SttEngine stt = library.getSttEngine()) {
-                    result = stt.transcribe(audio, TranscriptionOptions.defaults());
+                    result = stt.transcribe(audio, transcriptionOptions(request));
                 }
 
-                LOG.info("[{}] Transcribed: length={}, confidence={}, elapsed={}ms",
-                    cid, result.text().length(), result.confidence(), result.processingTime().toMillis());
+                TranscribeResponse.Builder mapped = SttTranscriptionResponseMapper.toProto(result, audio.duration());
+                String elapsed = result.processingTime() == null
+                        ? "unknown" : Long.toString(result.processingTime().toMillis());
+                LOG.info("[{}] Transcribed: length={}, confidence={}, elapsed={}",
+                    cid, mapped.getText().length(), result.confidence(), elapsed);
 
-                responseObserver.onNext(TranscribeResponse.newBuilder()
-                    .setText(result.text())
-                    .setConfidence((float) result.confidence())
-                    .setProcessingTimeMs((int) result.processingTime().toMillis())
-                    .setModelUsed(result.modelId() != null ? result.modelId() : "")
-                    .build());
+                responseObserver.onNext(mapped.build());
                 responseObserver.onCompleted();
+            } catch (SttTranscriptionResponseMapper.InvalidResultException e) {
+                responseObserver.onError(io.grpc.Status.INTERNAL
+                        .withDescription(e.getMessage()).asRuntimeException());
             } catch (SttAudioInputDecoder.InputException e) {
                 io.grpc.Status status = switch (e.kind()) {
                     case INVALID_ARGUMENT -> io.grpc.Status.INVALID_ARGUMENT;
@@ -176,6 +177,26 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
             @Override public void onError(Throwable error) { }
             @Override public void onCompleted() { }
         };
+    }
+
+    private static TranscriptionOptions transcriptionOptions(TranscribeRequest request) {
+        TranscriptionOptions.Builder options = TranscriptionOptions.builder();
+        if (request.hasOptions()) {
+            var wireOptions = request.getOptions();
+            if (wireOptions.getMaxAlternatives() > SttTranscriptionResponseMapper.MAX_ALTERNATIVES) {
+                throw new SttAudioInputDecoder.InputException(
+                        SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT,
+                        "STT_OPTIONS_ALTERNATIVE_LIMIT: max_alternatives exceeds the supported limit of "
+                                + SttTranscriptionResponseMapper.MAX_ALTERNATIVES);
+            }
+            options.enablePunctuation(wireOptions.getEnablePunctuation())
+                    .enableTimestamps(wireOptions.getEnableWordTimings())
+                    .maxAlternatives(Math.max(1, wireOptions.getMaxAlternatives()));
+        }
+        if (request.getLanguage() != null && !request.getLanguage().isBlank()) {
+            options.language(Locale.forLanguageTag(request.getLanguage()));
+        }
+        return options.build();
     }
 
     @Override

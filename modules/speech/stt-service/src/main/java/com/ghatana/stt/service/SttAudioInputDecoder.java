@@ -31,6 +31,18 @@ public final class SttAudioInputDecoder {
 
     private SttAudioInputDecoder() { }
 
+    private record PcmWavInfo(
+            int sampleRate, int channels, int bitsPerSample,
+            int dataOffset, int dataSize, Duration duration) { }
+
+    /** Inspect a supported WAV clock without allocating or copying its decoded PCM payload. */
+    public static Duration inspectWavDuration(byte[] wav, int requestedSampleRate) {
+        if (wav == null) throw invalid("Audio data cannot be null");
+        requireInputSize(wav.length);
+        requireSampleRate(requestedSampleRate);
+        return inspectPcmWav(wav, requestedSampleRate).duration();
+    }
+
     /** Checks a declared size before a protobuf or decoded byte array is materialized. */
     public static void requireInputSize(long size) {
         if (size <= 0) {
@@ -85,6 +97,15 @@ public final class SttAudioInputDecoder {
     }
 
     private static AudioData decodePcmWav(byte[] wav, int requestedSampleRate) {
+        PcmWavInfo info = inspectPcmWav(wav, requestedSampleRate);
+        // Allocation happens only after full header, rate, channel, frame and size validation.
+        byte[] pcm = new byte[info.dataSize()];
+        System.arraycopy(wav, info.dataOffset(), pcm, 0, pcm.length);
+        return new AudioData(pcm, info.sampleRate(), info.channels(), info.bitsPerSample(),
+                info.duration(), AudioFormat.PCM);
+    }
+
+    private static PcmWavInfo inspectPcmWav(byte[] wav, int requestedSampleRate) {
         var validation = MediaFormatValidator.validateAudio(wav, "WAV", 0);
         if (!validation.valid || validation.warning) {
             throw invalid("STT_AUDIO_INVALID_WAV: " + validation.errorMessage);
@@ -134,14 +155,9 @@ public final class SttAudioInputDecoder {
         if (dataOffset + dataSize > wav.length || dataSize > Integer.MAX_VALUE) {
             throw invalid("STT_AUDIO_INVALID_WAV: PCM data range is invalid");
         }
-
-        // Allocate only after input, RIFF, channel/frame, and decoded-size checks have passed.
-        byte[] pcm = new byte[(int) dataSize];
-        System.arraycopy(wav, (int) dataOffset, pcm, 0, pcm.length);
-        int channels = validation.channels;
         long frames = dataSize / blockAlign;
-        return new AudioData(pcm, validation.sampleRate, channels, 16,
-                durationForFrames(frames, validation.sampleRate), AudioFormat.PCM);
+        return new PcmWavInfo(validation.sampleRate, validation.channels, 16,
+                (int) dataOffset, (int) dataSize, durationForFrames(frames, validation.sampleRate));
     }
 
     private static void requireDecodedSize(long size) {
