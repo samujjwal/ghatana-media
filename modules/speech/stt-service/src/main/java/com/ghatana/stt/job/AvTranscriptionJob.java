@@ -18,7 +18,7 @@ import java.util.UUID;
  * @param languageCode     target language code for transcription
  * @param status           current job status
  * @param parameters       job-specific parameters (model, diarization, etc.)
- * @param resultId         transcript identifier when completed
+ * @param resultId         immutable transcript version identifier when completed
  * @param errorMessage     human-readable error if failed
  * @param progressPercent  progress 0-100
  * @param createdAt        creation timestamp
@@ -61,6 +61,9 @@ public record AvTranscriptionJob(
         Objects.requireNonNull(languageCode, "languageCode must not be null");
         Objects.requireNonNull(status, "status must not be null");
         Objects.requireNonNull(createdAt, "createdAt must not be null");
+        if (status == JobStatus.COMPLETED && (resultId == null || resultId.isBlank())) {
+            throw new IllegalArgumentException("STT_JOB_RESULT_VERSION_REQUIRED: completed jobs require a transcript version");
+        }
         if (progressPercent < 0 || progressPercent > 100)
             throw new IllegalArgumentException("progressPercent must be between 0 and 100");
         if (retryCount < 0) throw new IllegalArgumentException("retryCount must not be negative");
@@ -100,8 +103,25 @@ public record AvTranscriptionJob(
                 now, null, null, 0, 3, traceId, requestId, processorVersion);
     }
 
-    /** Returns a copy with updated status and timestamps. */
+    /** Returns a copy with a legal local lifecycle transition and updated timestamps. */
     public AvTranscriptionJob withStatus(JobStatus newStatus) {
+        Objects.requireNonNull(newStatus, "newStatus must not be null");
+        if (newStatus == status) return this;
+        if (isTerminal()) {
+            throw new IllegalStateException("STT_JOB_TERMINAL_STATE_IMMUTABLE: terminal job cannot transition");
+        }
+        if (newStatus == JobStatus.RETRY_PENDING || newStatus == JobStatus.RETRYING) {
+            throw new IllegalStateException(
+                    "STT_JOB_RETRY_SCHEDULE_REQUIRED: use scheduleRetry to enforce the retry budget");
+        }
+        if (!transitionAllowed(status, newStatus)) {
+            throw new IllegalStateException("STT_JOB_TRANSITION_INVALID: " + status + " cannot transition to " + newStatus);
+        }
+        if (newStatus == JobStatus.COMPLETED) {
+            throw new IllegalStateException(
+                    "STT_JOB_RESULT_VERSION_REQUIRED: use withCompletedResult with an immutable transcript version");
+        }
+
         Instant now = Instant.now();
         Instant newStartedAt = this.startedAt;
         Instant newCompletedAt = this.completedAt;
@@ -116,6 +136,56 @@ public record AvTranscriptionJob(
                 jobId, artifactId, tenantId, languageCode, newStatus, parameters,
                 resultId, errorMessage, progressPercent, createdAt, newStartedAt, newCompletedAt,
                 retryCount, maxRetries, traceId, requestId, processorVersion);
+    }
+
+    /** Schedules one bounded retry after a failed or reconciled attempt. */
+    public AvTranscriptionJob scheduleRetry() {
+        if (status != JobStatus.PROCESSING && status != JobStatus.RECONCILING) {
+            throw new IllegalStateException("STT_JOB_TRANSITION_INVALID: " + status + " cannot schedule a retry");
+        }
+        if (retryCount >= maxRetries) {
+            throw new IllegalStateException("STT_JOB_RETRY_BUDGET_EXCEEDED: retry budget is exhausted");
+        }
+        return new AvTranscriptionJob(
+                jobId, artifactId, tenantId, languageCode, JobStatus.RETRY_PENDING, parameters,
+                resultId, errorMessage, progressPercent, createdAt, startedAt, completedAt,
+                retryCount + 1, maxRetries, traceId, requestId, processorVersion);
+    }
+
+    /** Completes an active or reconciling job with the immutable transcript version that was persisted. */
+    public AvTranscriptionJob withCompletedResult(String immutableTranscriptVersionId) {
+        if (immutableTranscriptVersionId == null || immutableTranscriptVersionId.isBlank()) {
+            throw new IllegalArgumentException("STT_JOB_RESULT_VERSION_REQUIRED: transcript version must be present");
+        }
+        if (status == JobStatus.COMPLETED) {
+            if (immutableTranscriptVersionId.equals(resultId)) return this;
+            throw new IllegalStateException("STT_JOB_RESULT_VERSION_CONFLICT: completed result version is immutable");
+        }
+        if (isTerminal() || !transitionAllowed(status, JobStatus.COMPLETED)) {
+            throw new IllegalStateException("STT_JOB_TRANSITION_INVALID: " + status + " cannot complete");
+        }
+        Instant now = Instant.now();
+        Instant newStartedAt = startedAt == null ? now : startedAt;
+        return new AvTranscriptionJob(
+                jobId, artifactId, tenantId, languageCode, JobStatus.COMPLETED, parameters,
+                immutableTranscriptVersionId, errorMessage, progressPercent, createdAt,
+                newStartedAt, now, retryCount, maxRetries, traceId, requestId, processorVersion);
+    }
+
+    private static boolean transitionAllowed(JobStatus from, JobStatus to) {
+        return switch (from) {
+            case CREATED -> to == JobStatus.QUEUED || to == JobStatus.PROCESSING
+                    || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
+            case QUEUED -> to == JobStatus.PROCESSING || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
+            case PROCESSING -> to == JobStatus.OUTCOME_UNKNOWN || to == JobStatus.RECONCILING
+                    || to == JobStatus.COMPLETED || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
+            case RETRY_PENDING, RETRYING -> to == JobStatus.PROCESSING
+                    || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
+            case OUTCOME_UNKNOWN -> to == JobStatus.RECONCILING;
+            case RECONCILING -> to == JobStatus.COMPLETED
+                    || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
+            case COMPLETED, FAILED, CANCELLED -> false;
+        };
     }
 
     /** Returns true if the job is in a terminal state. */

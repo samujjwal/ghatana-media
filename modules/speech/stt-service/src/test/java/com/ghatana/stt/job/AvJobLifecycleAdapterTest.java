@@ -43,10 +43,7 @@ class AvJobLifecycleAdapterTest {
     @Test
     @DisplayName("maps completed job to canonical with result")
     void mapsCompletedJobToCanonical() {
-        AvTranscriptionJob job = AvTranscriptionJob.create(
-                "audio-2", "tenant-1", "en",
-                Map.of(), "trace-2", "req-2", "whisper-3");
-        job = job.withStatus(AvTranscriptionJob.JobStatus.COMPLETED);
+        AvTranscriptionJob job = jobAt(AvTranscriptionJob.JobStatus.COMPLETED);
 
         CanonicalJobRecord canonical = AvJobLifecycleAdapter.toCanonical(job);
 
@@ -56,10 +53,7 @@ class AvJobLifecycleAdapterTest {
     @Test
     @DisplayName("maps failed job to canonical")
     void mapsFailedJobToCanonical() {
-        AvTranscriptionJob job = AvTranscriptionJob.create(
-                "audio-3", "tenant-1", "en",
-                Map.of(), "trace-3", "req-3", "whisper-3");
-        job = job.withStatus(AvTranscriptionJob.JobStatus.FAILED);
+        AvTranscriptionJob job = jobAt(AvTranscriptionJob.JobStatus.FAILED);
 
         CanonicalJobRecord canonical = AvJobLifecycleAdapter.toCanonical(job);
 
@@ -88,9 +82,7 @@ class AvJobLifecycleAdapterTest {
         for (AvTranscriptionJob.JobStatus status : java.util.List.of(
                 AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN,
                 AvTranscriptionJob.JobStatus.RECONCILING)) {
-            AvTranscriptionJob job = AvTranscriptionJob.create(
-                    "audio-4", "tenant-1", "en", Map.of(), "trace-4", "req-4", "whisper-3")
-                    .withStatus(status);
+            AvTranscriptionJob job = jobAt(status);
 
             assertThat(assertThrows(IllegalStateException.class, () -> AvJobLifecycleAdapter.toCanonical(job)))
                     .hasMessageStartingWith("STT_JOB_STATUS_NOT_PROJECTABLE:");
@@ -114,9 +106,7 @@ class AvJobLifecycleAdapterTest {
 
         assertThat(expectedSharedStatus).hasSize(AvTranscriptionJob.JobStatus.values().length - 2);
         for (var entry : expectedSharedStatus.entrySet()) {
-            AvTranscriptionJob job = AvTranscriptionJob.create(
-                    "audio-state", "tenant-1", "en", Map.of(), "trace", "request", "processor")
-                    .withStatus(entry.getKey());
+            AvTranscriptionJob job = jobAt(entry.getKey());
 
             CanonicalJobRecord projected = AvJobLifecycleAdapter.toCanonical(job);
 
@@ -161,5 +151,74 @@ class AvJobLifecycleAdapterTest {
         assertThat(AvJobLifecycleAdapter.fromCanonical(malformedSourceState))
                 .as("malformed source-state metadata fails closed instead of falling back to shared state")
                 .isNull();
+    }
+
+    @Test
+    void localTransitionsRequireImmutableResultAndKeepTerminalStateFinal() {
+        AvTranscriptionJob created = jobAt(AvTranscriptionJob.JobStatus.CREATED);
+        assertThat(assertThrows(IllegalStateException.class,
+                () -> created.withStatus(AvTranscriptionJob.JobStatus.COMPLETED)))
+                .hasMessageStartingWith("STT_JOB_TRANSITION_INVALID:");
+
+        AvTranscriptionJob processing = created.withStatus(AvTranscriptionJob.JobStatus.PROCESSING);
+        assertThat(assertThrows(IllegalStateException.class,
+                () -> processing.withStatus(AvTranscriptionJob.JobStatus.RETRY_PENDING)))
+                .hasMessageStartingWith("STT_JOB_RETRY_SCHEDULE_REQUIRED:");
+        assertThat(assertThrows(IllegalArgumentException.class, () -> processing.withCompletedResult(" ")))
+                .hasMessageStartingWith("STT_JOB_RESULT_VERSION_REQUIRED:");
+        AvTranscriptionJob completed = processing.withCompletedResult("transcript-version-1");
+        assertThat(completed.resultId()).isEqualTo("transcript-version-1");
+        assertThat(completed.withCompletedResult("transcript-version-1")).isSameAs(completed);
+        assertThat(assertThrows(IllegalStateException.class,
+                () -> completed.withCompletedResult("transcript-version-2")))
+                .hasMessageStartingWith("STT_JOB_RESULT_VERSION_CONFLICT:");
+        assertThat(assertThrows(IllegalStateException.class,
+                () -> completed.withStatus(AvTranscriptionJob.JobStatus.PROCESSING)))
+                .hasMessageStartingWith("STT_JOB_TERMINAL_STATE_IMMUTABLE:");
+    }
+
+    @Test
+    void retrySchedulingIncrementsAndEnforcesTheDeclaredBudget() {
+        AvTranscriptionJob job = jobAt(AvTranscriptionJob.JobStatus.PROCESSING);
+        for (int attempt = 0; attempt < 3; attempt++) {
+            job = job.scheduleRetry().withStatus(AvTranscriptionJob.JobStatus.PROCESSING);
+        }
+        assertThat(job.retryCount()).isEqualTo(job.maxRetries());
+        assertThat(assertThrows(IllegalStateException.class, job::scheduleRetry))
+                .hasMessageStartingWith("STT_JOB_RETRY_BUDGET_EXCEEDED:");
+    }
+
+    @SuppressWarnings("deprecation")
+    private static AvTranscriptionJob jobAt(AvTranscriptionJob.JobStatus status) {
+        AvTranscriptionJob job = AvTranscriptionJob.create(
+                "audio-state", "tenant-1", "en", Map.of(), "trace", "request", "processor");
+        return switch (status) {
+            case CREATED -> job;
+            case QUEUED -> job.withStatus(AvTranscriptionJob.JobStatus.QUEUED);
+            case PROCESSING -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING);
+            case RETRY_PENDING -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING).scheduleRetry();
+            case RETRYING -> legacyRetrying(job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING).scheduleRetry());
+            case OUTCOME_UNKNOWN -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING)
+                    .withStatus(AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN);
+            case RECONCILING -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING)
+                    .withStatus(AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN)
+                    .withStatus(AvTranscriptionJob.JobStatus.RECONCILING);
+            case COMPLETED -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING)
+                    .withCompletedResult("transcript-version-1");
+            case FAILED -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING)
+                    .withStatus(AvTranscriptionJob.JobStatus.FAILED);
+            case CANCELLED -> job.withStatus(AvTranscriptionJob.JobStatus.CANCELLED);
+        };
+    }
+
+    @SuppressWarnings("deprecation")
+    private static AvTranscriptionJob legacyRetrying(AvTranscriptionJob retryPending) {
+        return new AvTranscriptionJob(
+                retryPending.jobId(), retryPending.artifactId(), retryPending.tenantId(), retryPending.languageCode(),
+                AvTranscriptionJob.JobStatus.RETRYING, retryPending.parameters(), retryPending.resultId(),
+                retryPending.errorMessage(), retryPending.progressPercent(), retryPending.createdAt(),
+                retryPending.startedAt(), retryPending.completedAt(), retryPending.retryCount(),
+                retryPending.maxRetries(), retryPending.traceId(), retryPending.requestId(),
+                retryPending.processorVersion());
     }
 }
