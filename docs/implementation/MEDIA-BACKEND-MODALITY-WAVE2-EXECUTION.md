@@ -470,3 +470,25 @@ The following focused work was completed after the `cd9e758` code cut. Code comm
 
 All changed-code paths passed `git diff --check`. The STT stream validator test does not make its validator reachable from the canonical RPC, and the MM-02 test-only authorization seam does not constitute a rights decision. The 19/18/20/1 task disposition counts and all 12 W2-E scenario dispositions above remain unchanged.
 
+### Incremental execution record — 2026-10-25 (follow-on)
+
+This execution added five local commits on `main`: `f5a0f6d`, `12506d7`, `6993321`, `fc3121e`, and `19ec7da`. They are local and unpushed. The changes advance bounded behavior within four task rows; they do not close a registered surface, complete a W2-E scenario, or change the 58-task denominator or 19/18/20/1 disposition counts.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| VIS-07 | Added same-class, one-frame IoU association with ephemeral within-analysis IDs. Ties create a new ID; unknown, duplicate, decreasing PTS and gaps over twice the configured sampling interval reset association. Source PTS/timebase are preserved and output is labeled `HEURISTIC_UNCALIBRATED`. `VideoAnalysisServiceTest` and `VideoFrameExtractorProcessTest` passed 38 tests. | PARTIAL: the gap cutoff is a conservative assumption; shot-boundary detection, camera-motion estimation and qualified tracking quality remain unimplemented or external. |
+| MM-03 | Transcript-window matching now compares exact rational timestamps on the existing `MEDIA/media-ms` clock rather than rounded milliseconds. Tests cover variable cadence, an exact sub-millisecond boundary, and unresolved SOURCE/SIMULATION/WALL/unrelated MEDIA clocks. Included in the multimodal focused run below. | PARTIAL: source-PTS to audio-sample mapping and measured A/V synchronization remain unavailable; unresolved clocks return no alignment and `SYNC_UNDETERMINED`. |
+| STT-06 | Removed fabricated equal-duration Whisper ONNX word timings and fixed confidence estimates from both Whisper adapters. `TranscriptionResult`/`StreamingTranscription` now carry explicit confidence availability while retaining existing constructor overloads. gRPC marks unavailable confidence UNKNOWN without setting the score field; HTTP and STT/multimodal persistence retain absence as null plus metadata. The mapper keeps timebase UNKNOWN and uses checked decimal duration/rounding. | PARTIAL: model word/phoneme alignment, source-sample clock, alternatives, acoustic language detection and measured confidence remain unsupported or unqualified. The result record component count changed; existing constructors remain, but record reflection/deconstruction consumers may need migration. |
+| OBS-06 | Added a PostgreSQL 16 + LocalStack runtime integration test. It recreates `MediaRuntime`, scrapes durable queue/UNKNOWN/job-lease/outbox metrics and verifies exact values: queue 1, unknown backlog 2, overdue job lease 1, overdue outbox claim 1, and both aggregate-query support flags 1. The immediate fixture remains RUNNING through scrape. | PARTIAL: alert-rule source predicates are checked, but no Prometheus evaluator ran; alert firing and absent-provider evaluation are not claimed. |
+
+Focused verification on this source cut:
+
+- Common STT tests: `SttEngineContractTest`, `SttHttpAdapterConfidenceTest`, and `WhisperOnnxConfidenceTest` passed.
+- STT service tests: `SttTranscriptionResponseMapperTest` and `PersistentSttServiceValidationTest` passed.
+- Multimodal tests: `PersistentMultimodalServiceMetricPrivacyTest`, `MultimodalAnalysisEngineTest`, `MediaClockMappingTest`, and `CrossModalFusionEngineTest` passed: 71 tests, 0 skipped, 0 failures. An initial negative-test run exposed synchronous exception propagation on the ActiveJ event loop; invalid confidence now returns a failed promise before persistence, and the rerun passed.
+- Vision tests: `VideoAnalysisServiceTest` and `VideoFrameExtractorProcessTest` passed: 38 tests.
+- PostgreSQL integration: `MediaRuntimePostgresWorkflowMetricsIT` passed: 1 test, with Docker and cached PostgreSQL/LocalStack images.
+- All focused Gradle commands used `--no-daemon --console=plain`; each affected code set passed `git diff --check`.
+
+No model-quality corpus, licensed provider, biometric consent authority, production writer cutover, Prometheus rule evaluation, formal PDP acceptance, native lifecycle receipt, deployment or release evidence was produced. W2-E01 through W2-E12 remain incomplete. Existing GH-90000 compose skips remain unverified.
+
