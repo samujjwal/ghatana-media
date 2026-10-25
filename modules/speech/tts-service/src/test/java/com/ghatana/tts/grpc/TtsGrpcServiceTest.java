@@ -188,6 +188,42 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void streamAlreadyCancelledBeforeHandlerRegistrationSkipsValidationAndDoesNotRespond() {
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        lenient().when(observer.isCancelled()).thenReturn(true);
+
+        service.streamSynthesize(SynthesizeRequest.getDefaultInstance(), observer);
+
+        verify(observer).setOnCancelHandler(any(Runnable.class));
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).onError(any());
+        verify(observer, never()).isReady();
+        verify(library, never()).getTtsEngine();
+        assertThat(registry.get("tts.synthesize.streaming").timer().count()).isEqualTo(1);
+    }
+
+    @Test
+    void streamSuppressesNotAdmittedErrorWhenTransportCancellationWinsBeforeCatch() {
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        // Active at entry and after request validation; canceled while the NOT_ADMITTED
+        // result is being handled, before the terminal observer callback.
+        lenient().when(observer.isCancelled()).thenReturn(false, false, true);
+
+        service.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        verify(observer, org.mockito.Mockito.times(3)).isCancelled();
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).onError(any());
+        verify(library, never()).getTtsEngine();
+    }
+
+    @Test
     void validationFailuresMapToInvalidArgument() {
         CapturingObserver<SynthesizeResponse> empty = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.getDefaultInstance(), empty);

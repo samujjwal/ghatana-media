@@ -125,6 +125,13 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
 
         if (serverObserver != null) {
             serverObserver.setOnCancelHandler(() -> cancelled.set(true));
+            // The call may already be cancelled before the handler is installed. Check
+            // transport state as well so canceled work does not continue into parsing or
+            // capability evaluation merely because the callback was not observed here.
+            if (cancelled.get() || serverObserver.isCancelled()) {
+                streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
+                return;
+            }
         }
 
         try {
@@ -132,6 +139,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             SynthesisControlPolicy.rejectUnqualifiedSsml(text);
             requireAuthorizedVoiceSelection(request);
             options(request);
+            if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
+                streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
+                return;
+            }
             // No streaming provider has been admitted. Fail before engine lookup/session creation,
             // so a compatibility or synthetic engine cannot emit partial or final audio.
             throw new TtsSynthesisEngine.SynthesisException(
@@ -139,7 +150,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
         } catch (RuntimeException exception) {
             streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
-            if (!cancelled.get()) {
+            if (!cancelled.get() && (serverObserver == null || !serverObserver.isCancelled())) {
                 fail(responseObserver, "Streaming synthesis", exception);
             }
         }
