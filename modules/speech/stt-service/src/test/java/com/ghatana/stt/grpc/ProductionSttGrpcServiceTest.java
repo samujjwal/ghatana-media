@@ -61,7 +61,7 @@ class ProductionSttGrpcServiceTest {
     }
 
     @Test
-    void productionCompositionKeepsUnsupportedRpcPathsExplicitlyUnimplemented() {
+    void productionCompositionKeepsUnsupportedRpcPathsExplicitlyUnavailable() {
         ProductionSttGrpcService service = new ProductionSttGrpcService(
                 mock(AudioVideoLibrary.class), new SimpleMeterRegistry());
 
@@ -69,11 +69,11 @@ class ProductionSttGrpcServiceTest {
                 observer -> service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer));
         ProductionSttGrpcServiceTest.<AdaptResponse>assertUnimplemented(
                 observer -> service.adaptModel(AdaptRequest.getDefaultInstance(), observer));
-        ProductionSttGrpcServiceTest.<ProfileResponse>assertUnimplemented(
+        ProductionSttGrpcServiceTest.<ProfileResponse>assertNotAdmitted(
                 observer -> service.createProfile(CreateProfileRequest.getDefaultInstance(), observer));
-        ProductionSttGrpcServiceTest.<ProfileResponse>assertUnimplemented(
+        ProductionSttGrpcServiceTest.<ProfileResponse>assertNotAdmitted(
                 observer -> service.getProfile(GetProfileRequest.getDefaultInstance(), observer));
-        ProductionSttGrpcServiceTest.<ProfileResponse>assertUnimplemented(
+        ProductionSttGrpcServiceTest.<ProfileResponse>assertNotAdmitted(
                 observer -> service.updateProfile(UpdateProfileRequest.getDefaultInstance(), observer));
         ProductionSttGrpcServiceTest.<CorrectionResponse>assertUnimplemented(
                 observer -> service.submitCorrection(CorrectionRequest.getDefaultInstance(), observer));
@@ -198,6 +198,15 @@ class ProductionSttGrpcServiceTest {
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
                 .isEqualTo(Status.UNIMPLEMENTED.getCode());
+    }
+
+    private static <T> void assertNotAdmitted(java.util.function.Consumer<StreamObserver<T>> invoke) {
+        CapturingObserver<T> observer = new CapturingObserver<>();
+        invoke.accept(observer);
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_SPEAKER_PROFILE_NOT_ADMITTED:");
     }
 
     private static final class CapturingObserver<T> implements StreamObserver<T> {

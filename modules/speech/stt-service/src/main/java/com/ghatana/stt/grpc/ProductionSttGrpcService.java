@@ -303,21 +303,21 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void createProfile(
             CreateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        unimplemented(responseObserver, "STT speaker profiles require embedding and persistence providers");
+        speakerProfileNotAdmitted(responseObserver);
     }
 
     @Override
     public void getProfile(
             GetProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        unimplemented(responseObserver, "STT speaker profiles require embedding and persistence providers");
+        speakerProfileNotAdmitted(responseObserver);
     }
 
     @Override
     public void updateProfile(
             UpdateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        unimplemented(responseObserver, "STT speaker profiles require embedding and persistence providers");
+        speakerProfileNotAdmitted(responseObserver);
     }
 
     @Override
@@ -347,6 +347,12 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
 
     private static <T> void unimplemented(StreamObserver<T> observer, String message) {
         observer.onError(Status.UNIMPLEMENTED.withDescription(message).asRuntimeException());
+    }
+
+    private static void speakerProfileNotAdmitted(StreamObserver<ProfileResponse> observer) {
+        observer.onError(Status.FAILED_PRECONDITION
+                .withDescription("STT_SPEAKER_PROFILE_NOT_ADMITTED: trusted rights, purpose, consent, embedding and tenant-scoped persistence admission are unavailable")
+                .asRuntimeException());
     }
 
     private static int integer(

@@ -37,6 +37,7 @@ class SpeakerDiarizationServiceTest {
     private SpeakerDiarizationService buildService() { 
         return SpeakerDiarizationService.builder() 
                 .embeddingExtractor(STUB_EXTRACTOR) 
+                .admission(() -> true) // test fixture; no production rights authority is wired
                 .maxSpeakers(5) 
                 .similarityThreshold(0.80) 
                 .build(); 
@@ -53,6 +54,21 @@ class SpeakerDiarizationServiceTest {
         void diarize_empty_returnsEmpty() { 
             SpeakerDiarizationService service = buildService(); 
             assertThat(service.diarize(Collections.emptyList())).isEmpty(); 
+        }
+
+        @Test
+        @DisplayName("missing trusted admission fails before calling the embedding provider")
+        void diarize_withoutAdmissionFailsBeforeProvider() {
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            SpeakerDiarizationService service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> { providerCalls.incrementAndGet(); return new float[]{1}; })
+                    .build();
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(List.of(
+                            new SpeakerDiarizationService.AudioSegment(new byte[]{1}, 0, 10, "x"))))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_NOT_ADMITTED:");
+            assertThat(providerCalls).hasValue(0);
         }
 
         @Test
@@ -84,6 +100,20 @@ class SpeakerDiarizationServiceTest {
             assertThat(turns).hasSize(2); 
             assertThat(turns.get(0).speakerId()) 
                     .isNotEqualTo(turns.get(1).speakerId()); 
+        }
+
+        @Test
+        @DisplayName("overlapping speaker fixture retains stable anonymous cluster IDs")
+        void overlappingFixtureUsesStableAnonymousIds() {
+            var service = buildService();
+            var turns = service.diarize(List.of(
+                    new SpeakerDiarizationService.AudioSegment(new byte[3], 0, 1200, "speaker a"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[4], 700, 1500, "speaker b"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[3], 1300, 2000, "speaker a again")));
+
+            assertThat(turns).extracting(SpeakerDiarizationService.SpeakerTurn::speakerId)
+                    .containsExactly("SPEAKER_0", "SPEAKER_1", "SPEAKER_0")
+                    .allMatch(id -> id.startsWith("SPEAKER_"));
         }
 
         @Test
@@ -126,6 +156,7 @@ class SpeakerDiarizationServiceTest {
             // Allow only 2 speakers but send 3 distinct acoustic buckets
             SpeakerDiarizationService service = SpeakerDiarizationService.builder() 
                     .embeddingExtractor(STUB_EXTRACTOR) 
+                    .admission(() -> true) // test fixture; no production rights authority is wired
                     .maxSpeakers(2) 
                     .similarityThreshold(0.80) 
                     .build(); 

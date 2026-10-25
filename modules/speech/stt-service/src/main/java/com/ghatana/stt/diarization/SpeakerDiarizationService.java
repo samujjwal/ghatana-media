@@ -11,22 +11,24 @@ import java.util.Objects;
 /**
  * Speaker diarization service for the STT pipeline (AV-007.1).
  *
- * <p>Partitions a transcript or a sequence of audio segments into speaker-labeled
- * turns. This implementation provides deterministic label assignment based on
- * embedding similarity clustering. It is pluggable: supply a
+ * <p>Partitions audio segments into anonymous speaker-labeled turns. A real
+ * embedding extractor and trusted purpose/rights admission must be supplied by
+ * an admitted composition root. This service never produces person IDs.
+ * It is pluggable: supply a
  * {@link SpeakerEmbeddingExtractor} to switch between ECAPA-TDNN, x-vector,
  * or any other representation.
  *
- * <h3>Acceptance criteria (AV-007.1)</h3>
+ * <h3>Quality objective (not verified by this implementation)</h3>
  * <ul>
  *   <li>Multiple speaker identification and separation.</li>
- *   <li>Speaker accuracy &gt;90% for 2–3 speakers (validated in quality tests).</li>
+ *   <li>Speaker accuracy &gt;90% for 2–3 speakers (requires an admitted model and corpus).</li>
  * </ul>
  *
  * <h3>Usage</h3>
  * <pre>{@code
  * SpeakerDiarizationService diarizer = SpeakerDiarizationService.builder()
  *     .embeddingExtractor(myExtractor)
+ *     .admission(trustedRightsPurposeGate)
  *     .maxSpeakers(4)
  *     .similarityThreshold(0.75)
  *     .build();
@@ -36,7 +38,7 @@ import java.util.Objects;
  * }</pre>
  *
  * @doc.type class
- * @doc.purpose Speaker diarization — identifies who spoke when in an audio stream
+ * @doc.purpose Speaker diarization — assigns anonymous cluster labels to audio turns
  * @doc.layer product
  * @doc.pattern Service
  */
@@ -45,11 +47,13 @@ public final class SpeakerDiarizationService {
     private static final Logger LOG = LoggerFactory.getLogger(SpeakerDiarizationService.class);
 
     private final SpeakerEmbeddingExtractor extractor;
+    private final DiarizationAdmission admission;
     private final int maxSpeakers;
     private final double similarityThreshold;
 
     private SpeakerDiarizationService(Builder builder) {
         this.extractor = builder.extractor;
+        this.admission = builder.admission;
         this.maxSpeakers = builder.maxSpeakers;
         this.similarityThreshold = builder.similarityThreshold;
     }
@@ -74,6 +78,12 @@ public final class SpeakerDiarizationService {
      */
     public List<SpeakerTurn> diarize(List<AudioSegment> segments) {
         Objects.requireNonNull(segments, "segments must not be null");
+        if (!admission.isAdmitted()) {
+            throw new DiarizationException("STT_DIARIZATION_NOT_ADMITTED: trusted rights and purpose admission is unavailable");
+        }
+        if (extractor == null) {
+            throw new DiarizationException("STT_DIARIZATION_NOT_ADMITTED: qualified speaker embedding provider is unavailable");
+        }
         if (segments.isEmpty()) {
             return Collections.emptyList();
         }
@@ -83,6 +93,7 @@ public final class SpeakerDiarizationService {
 
         for (AudioSegment segment : segments) {
             float[] embedding = extractor.extract(segment.audioBytes());
+            validateEmbedding(embedding);
             String speakerId = assignSpeaker(embedding, centroids);
 
             result.add(new SpeakerTurn(speakerId, segment.startMs(), segment.endMs(), segment.text()));
@@ -128,8 +139,9 @@ public final class SpeakerDiarizationService {
     }
 
     private static double cosineSimilarity(float[] a, float[] b) {
+        if (a.length != b.length) throw new IllegalArgumentException("Embedding dimensions differ");
         double dot = 0, normA = 0, normB = 0;
-        for (int i = 0; i < Math.min(a.length, b.length); i++) {
+        for (int i = 0; i < a.length; i++) {
             dot += a[i] * b[i];
             normA += a[i] * a[i];
             normB += b[i] * b[i];
@@ -138,11 +150,23 @@ public final class SpeakerDiarizationService {
         return dot / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
+    private static void validateEmbedding(float[] embedding) {
+        if (embedding == null || embedding.length == 0) {
+            throw new DiarizationException("STT_DIARIZATION_PROVIDER_INVALID: embedding is empty");
+        }
+        for (float value : embedding) {
+            if (!Float.isFinite(value)) {
+                throw new DiarizationException("STT_DIARIZATION_PROVIDER_INVALID: embedding contains a non-finite value");
+            }
+        }
+    }
+
     // ─── Builder ─────────────────────────────────────────────────────────────
 
     /** Builder for {@link SpeakerDiarizationService}. */
     public static final class Builder {
-        private SpeakerEmbeddingExtractor extractor = SpeakerDiarizationService::byteDistributionEmbedding;
+        private SpeakerEmbeddingExtractor extractor;
+        private DiarizationAdmission admission = () -> false;
         private int maxSpeakers = 10;
         private double similarityThreshold = 0.80;
 
@@ -150,6 +174,12 @@ public final class SpeakerDiarizationService {
 
         public Builder embeddingExtractor(SpeakerEmbeddingExtractor extractor) {
             this.extractor = Objects.requireNonNull(extractor, "extractor must not be null");
+            return this;
+        }
+
+        /** Supplies the trusted rights and purpose gate from the owning runtime. */
+        public Builder admission(DiarizationAdmission admission) {
+            this.admission = Objects.requireNonNull(admission, "admission must not be null");
             return this;
         }
 
@@ -186,27 +216,14 @@ public final class SpeakerDiarizationService {
         float[] extract(byte[] audioBytes);
     }
 
-    private static float[] byteDistributionEmbedding(byte[] audioBytes) {
-        Objects.requireNonNull(audioBytes, "audioBytes must not be null");
-        float[] embedding = new float[16];
-        if (audioBytes.length == 0) {
-            return embedding;
-        }
-        for (byte audioByte : audioBytes) {
-            embedding[Byte.toUnsignedInt(audioByte) % embedding.length] += 1.0f;
-        }
-        float norm = 0.0f;
-        for (float value : embedding) {
-            norm += value * value;
-        }
-        if (norm == 0.0f) {
-            return embedding;
-        }
-        float scale = (float) Math.sqrt(norm);
-        for (int i = 0; i < embedding.length; i++) {
-            embedding[i] = embedding[i] / scale;
-        }
-        return embedding;
+    @FunctionalInterface
+    public interface DiarizationAdmission {
+        /** Returns true only when trusted rights and purpose admission succeeded. */
+        boolean isAdmitted();
+    }
+
+    public static final class DiarizationException extends RuntimeException {
+        public DiarizationException(String message) { super(message); }
     }
 
     /**

@@ -14,6 +14,10 @@ import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.core.grpc.proto.Transcription;
+import com.ghatana.stt.core.grpc.proto.CreateProfileRequest;
+import com.ghatana.stt.core.grpc.proto.GetProfileRequest;
+import com.ghatana.stt.core.grpc.proto.ProfileResponse;
+import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
 import com.ghatana.stt.service.PersistentSttService;
 import io.activej.promise.Promise;
 import io.grpc.Context;
@@ -76,6 +80,26 @@ class PersistentSttGrpcServiceTest {
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
                 .isEqualTo(Status.UNIMPLEMENTED.getCode());
+        verifyNoInteractions(persistentSttService);
+    }
+
+    @Test
+    @DisplayName("speaker profile operations fail closed before persistence access")
+    void speakerProfileOperationsRequireTrustedAdmission() {
+        CapturingObserver<ProfileResponse> create = new CapturingObserver<>();
+        CapturingObserver<ProfileResponse> get = new CapturingObserver<>();
+        CapturingObserver<ProfileResponse> update = new CapturingObserver<>();
+
+        service.createProfile(CreateProfileRequest.newBuilder().addEnrollmentAudio(AUDIO).build(), create);
+        service.getProfile(GetProfileRequest.newBuilder().setProfileId("profile").build(), get);
+        service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("profile").build(), update);
+
+        for (CapturingObserver<ProfileResponse> observer : java.util.List.of(create, get, update)) {
+            assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+            StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+            assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+            assertThat(failure.getStatus().getDescription()).startsWith("STT_SPEAKER_PROFILE_NOT_ADMITTED:");
+        }
         verifyNoInteractions(persistentSttService);
     }
 

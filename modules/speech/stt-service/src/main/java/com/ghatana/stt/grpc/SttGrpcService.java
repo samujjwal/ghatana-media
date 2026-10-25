@@ -446,136 +446,27 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void createProfile(CreateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
-        String displayName = request.getDisplayName();
-        if (displayName == null || displayName.isBlank()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                .withDescription("displayName must not be blank")
-                .asRuntimeException());
-            return;
-        }
-        try (SttEngine stt = library.getSttEngine()) {
-            String profileId = UUID.randomUUID().toString();
-
-            // Convert enrollment audio bytes → AudioData for profile creation
-            List<AudioData> enrollmentAudio = new ArrayList<>();
-            for (com.google.protobuf.ByteString sample : request.getEnrollmentAudioList()) {
-                if (!sample.isEmpty()) {
-                    enrollmentAudio.add(new AudioData(sample.toByteArray(), 16000, 1, 16));
-                }
-            }
-
-            UserProfile profile = stt.createProfile(profileId, enrollmentAudio);
-
-            LOG.info("STT profile created: id={}, name={}", profileId, displayName);
-            responseObserver.onNext(ProfileResponse.newBuilder()
-                .setProfileId(profile.profileId())
-                .setDisplayName(displayName)
-                .setStats(ProfileStats.newBuilder()
-                    .setVocabularySize(profile.customVocabulary().size())
-                    .setCreatedAtMs(System.currentTimeMillis())
-                    .setLastUsedAtMs(System.currentTimeMillis())
-                    .build())
-                .setSettings(request.getSettings())
-                .build());
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            LOG.error("Failed to create STT profile '{}': {}", displayName, e.getMessage(), e);
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Profile creation failed: " + e.getMessage())
-                .asRuntimeException());
-        }
+        speakerProfileNotAdmitted(responseObserver);
     }
 
     // ── AV-001.6: getProfile ───────────────────────────────────────────────
 
     @Override
     public void getProfile(GetProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
-        String profileId = request.getProfileId();
-        if (profileId == null || profileId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                .withDescription("profileId must not be blank")
-                .asRuntimeException());
-            return;
-        }
-        try (SttEngine stt = library.getSttEngine()) {
-            Optional<UserProfile> profileOpt = stt.loadProfile(profileId);
-            if (profileOpt.isEmpty()) {
-                responseObserver.onError(io.grpc.Status.NOT_FOUND
-                    .withDescription("Profile not found: " + profileId)
-                    .asRuntimeException());
-                return;
-            }
-            UserProfile profile = profileOpt.get();
-            LOG.debug("STT profile retrieved: id={}", profileId);
-            responseObserver.onNext(ProfileResponse.newBuilder()
-                .setProfileId(profile.profileId())
-                .setDisplayName(profile.displayName())
-                .setStats(ProfileStats.newBuilder()
-                    .setVocabularySize(profile.customVocabulary().size())
-                    .build())
-                .build());
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            LOG.error("Failed to get STT profile {}: {}", profileId, e.getMessage(), e);
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Profile retrieval failed: " + e.getMessage())
-                .asRuntimeException());
-        }
+        speakerProfileNotAdmitted(responseObserver);
     }
 
     // ── AV-001.7: updateProfile ────────────────────────────────────────────
 
     @Override
     public void updateProfile(UpdateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
-        String profileId = request.getProfileId();
-        if (profileId == null || profileId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                .withDescription("profileId must not be blank")
+        speakerProfileNotAdmitted(responseObserver);
+    }
+
+    private static void speakerProfileNotAdmitted(StreamObserver<ProfileResponse> responseObserver) {
+        responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                .withDescription("STT_SPEAKER_PROFILE_NOT_ADMITTED: trusted rights, purpose, consent, embedding and tenant-scoped persistence admission are unavailable")
                 .asRuntimeException());
-            return;
-        }
-        try (SttEngine stt = library.getSttEngine()) {
-            Optional<UserProfile> profileOpt = stt.loadProfile(profileId);
-            if (profileOpt.isEmpty()) {
-                responseObserver.onError(io.grpc.Status.NOT_FOUND
-                    .withDescription("Profile not found: " + profileId)
-                    .asRuntimeException());
-                return;
-            }
-            UserProfile existing = profileOpt.get();
-
-            // Apply settings update: preferred language
-            Locale updatedLanguage = existing.primaryLanguage();
-            if (!request.getSettings().getPreferredLanguage().isBlank()) {
-                updatedLanguage = Locale.forLanguageTag(request.getSettings().getPreferredLanguage());
-            }
-
-            UserProfile updated = new UserProfile(
-                existing.profileId(),
-                existing.displayName(),
-                updatedLanguage,
-                existing.customVocabulary(),
-                existing.speakerEmbedding()
-            );
-            stt.saveProfile(updated);
-
-            LOG.info("STT profile updated: id={}", profileId);
-            responseObserver.onNext(ProfileResponse.newBuilder()
-                .setProfileId(updated.profileId())
-                .setDisplayName(updated.displayName())
-                .setStats(ProfileStats.newBuilder()
-                    .setVocabularySize(updated.customVocabulary().size())
-                    .setLastUsedAtMs(System.currentTimeMillis())
-                    .build())
-                .setSettings(request.getSettings())
-                .build());
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            LOG.error("Failed to update STT profile {}: {}", profileId, e.getMessage(), e);
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Profile update failed: " + e.getMessage())
-                .asRuntimeException());
-        }
     }
 
     @Override

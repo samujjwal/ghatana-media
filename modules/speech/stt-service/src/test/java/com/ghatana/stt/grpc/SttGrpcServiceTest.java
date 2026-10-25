@@ -515,31 +515,30 @@ class SttGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("createProfile: valid name → profile created and returned")
-    void createProfile_validName_returnsProfile() throws Exception { 
-        UserProfile created = new UserProfile("uuid-1", "Alice", Locale.ENGLISH, 
-            List.of(), new byte[0]); 
-        when(mockEngine.createProfile(anyString(), any())).thenReturn(created); 
-
+    @DisplayName("createProfile fails closed without trusted rights and consent admission")
+    void createProfile_notAdmittedBeforeEngineAccess() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
         service.createProfile( 
             CreateProfileRequest.newBuilder().setDisplayName("Alice").build(),
             observer);
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getDisplayName()).isEqualTo("Alice");
-        assertThat(observer.getValue().getProfileId()).isNotBlank(); 
+        assertThat(observer.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getDescription())
+                .startsWith("STT_SPEAKER_PROFILE_NOT_ADMITTED:");
+        verify(mockLibrary, never()).getSttEngine();
     }
 
     @Test
-    @DisplayName("createProfile: blank displayName → INVALID_ARGUMENT")
-    void createProfile_blankName_returnsInvalidArgument() { 
+    @DisplayName("createProfile: blank displayName remains blocked without trusted admission")
+    void createProfile_blankNameNotAdmitted() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
         service.createProfile(CreateProfileRequest.getDefaultInstance(), observer); 
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.INVALID_ARGUMENT.getCode()); 
+            .isEqualTo(Status.FAILED_PRECONDITION.getCode());
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -547,42 +546,37 @@ class SttGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("getProfile: existing profile → profile returned")
-    void getProfile_existing_returnsProfile() throws Exception { 
-        UserProfile profile = new UserProfile("p1", "Bob", Locale.ENGLISH, List.of("word"), new byte[0]);
-        when(mockEngine.loadProfile("p1")).thenReturn(Optional.of(profile));
-
+    @DisplayName("getProfile fails closed without tenant-scoped admission")
+    void getProfile_notAdmittedBeforeStoreAccess() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
         service.getProfile(GetProfileRequest.newBuilder().setProfileId("p1").build(), observer);
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getProfileId()).isEqualTo("p1");
-        assertThat(observer.getValue().getDisplayName()).isEqualTo("Bob");
-        assertThat(observer.getValue().getStats().getVocabularySize()).isEqualTo(1); 
+        assertThat(observer.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        verify(mockLibrary, never()).getSttEngine();
     }
 
     @Test
-    @DisplayName("getProfile: unknown profileId → NOT_FOUND")
-    void getProfile_unknown_returnsNotFound() throws Exception { 
-        when(mockEngine.loadProfile("ghost")).thenReturn(Optional.empty());
-
+    @DisplayName("getProfile: unknown profileId remains blocked without trusted admission")
+    void getProfile_unknown_notAdmitted() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
         service.getProfile(GetProfileRequest.newBuilder().setProfileId("ghost").build(), observer);
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.NOT_FOUND.getCode()); 
+            .isEqualTo(Status.FAILED_PRECONDITION.getCode());
     }
 
     @Test
-    @DisplayName("getProfile: blank profileId → INVALID_ARGUMENT")
-    void getProfile_blankId_returnsInvalidArgument() { 
+    @DisplayName("getProfile: blank profileId is blocked before store access")
+    void getProfile_blankId_notAdmitted() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
         service.getProfile(GetProfileRequest.getDefaultInstance(), observer); 
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.INVALID_ARGUMENT.getCode()); 
+            .isEqualTo(Status.FAILED_PRECONDITION.getCode());
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -590,12 +584,8 @@ class SttGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("updateProfile: existing profile → updated and returned")
-    void updateProfile_existing_updatesProfile() throws Exception { 
-        UserProfile existing = new UserProfile("p1", "Carol", Locale.ENGLISH, List.of(), new byte[0]); 
-        when(mockEngine.loadProfile("p1")).thenReturn(Optional.of(existing));
-        doNothing().when(mockEngine).saveProfile(any()); 
-
+    @DisplayName("updateProfile fails closed without trusted rights and consent admission")
+    void updateProfile_notAdmittedBeforeStoreAccess() {
         UpdateProfileRequest request = UpdateProfileRequest.newBuilder() 
             .setProfileId("p1")
             .setSettings(ProfileSettings.newBuilder().setPreferredLanguage("fr").build())
@@ -603,22 +593,21 @@ class SttGrpcServiceTest {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
         service.updateProfile(request, observer); 
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getProfileId()).isEqualTo("p1");
-        verify(mockEngine).saveProfile(any()); 
+        assertThat(observer.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        verify(mockLibrary, never()).getSttEngine();
     }
 
     @Test
-    @DisplayName("updateProfile: unknown profileId → NOT_FOUND")
-    void updateProfile_unknown_returnsNotFound() throws Exception { 
-        when(mockEngine.loadProfile("ghost")).thenReturn(Optional.empty());
-
+    @DisplayName("updateProfile: unknown profileId remains blocked without trusted admission")
+    void updateProfile_unknown_notAdmitted() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
         service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("ghost").build(), observer);
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.NOT_FOUND.getCode()); 
+            .isEqualTo(Status.FAILED_PRECONDITION.getCode());
     }
 
     // ─────────────────────────────────────────────────────────────

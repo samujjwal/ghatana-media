@@ -31,6 +31,27 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
 
     private final PersistentSttService persistentSttService;
 
+    @Override
+    public void createProfile(CreateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        speakerProfileNotAdmitted(responseObserver);
+    }
+
+    @Override
+    public void getProfile(GetProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        speakerProfileNotAdmitted(responseObserver);
+    }
+
+    @Override
+    public void updateProfile(UpdateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        speakerProfileNotAdmitted(responseObserver);
+    }
+
+    private static void speakerProfileNotAdmitted(StreamObserver<ProfileResponse> responseObserver) {
+        responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                .withDescription("STT_SPEAKER_PROFILE_NOT_ADMITTED: trusted rights, purpose, consent, embedding and tenant-scoped persistence admission are unavailable")
+                .asRuntimeException());
+    }
+
     public PersistentSttGrpcService(
             AudioVideoLibrary library,
             AudioFileService audioFileService,
