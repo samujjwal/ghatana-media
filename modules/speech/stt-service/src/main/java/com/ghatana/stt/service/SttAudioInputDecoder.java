@@ -38,10 +38,19 @@ public final class SttAudioInputDecoder {
 
     /** Inspect a supported WAV clock without allocating or copying its decoded PCM payload. */
     public static Duration inspectWavDuration(byte[] wav, int requestedSampleRate) {
+        return inspectWavDuration(wav, requestedSampleRate, DEFAULT_MAX_AUDIO_LENGTH_SECONDS);
+    }
+
+    /** Inspect a WAV clock and enforce the same duration ceiling as the decoder without copying PCM. */
+    public static Duration inspectWavDuration(
+            byte[] wav, int requestedSampleRate, int maxAudioLengthSeconds) {
         if (wav == null) throw invalid("Audio data cannot be null");
         requireInputSize(wav.length);
         requireSampleRate(requestedSampleRate);
-        return inspectPcmWav(wav, requestedSampleRate).duration();
+        if (maxAudioLengthSeconds < 1) throw new IllegalArgumentException("maxAudioLengthSeconds must be positive");
+        Duration duration = inspectPcmWav(wav, requestedSampleRate).duration();
+        requireDuration(duration, maxAudioLengthSeconds);
+        return duration;
     }
 
     /** Checks a declared size before a protobuf or decoded byte array is materialized. */

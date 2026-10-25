@@ -255,15 +255,17 @@ class SttGrpcServiceTest {
     @Test
     @DisplayName("transcribe rejects sample rates outside supported boundaries")
     void transcribe_outOfRangeSampleRate_returnsInvalidArgument() {
-        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        service.transcribe(TranscribeRequest.newBuilder()
-                .setAudioData(ByteString.copyFrom(new byte[] {0x01, 0x02}))
-                .setSampleRate(48_001)
-                .build(), observer);
+        for (int sampleRate : new int[] {48_001, -1}) {
+            CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+            service.transcribe(TranscribeRequest.newBuilder()
+                    .setAudioData(ByteString.copyFrom(new byte[] {0x01, 0x02}))
+                    .setSampleRate(sampleRate)
+                    .build(), observer);
 
-        assertThat(observer.hasError()).isTrue();
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
-                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+            assertThat(observer.hasError()).isTrue();
+            assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                    .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        }
         verifyNoInteractions(mockEngine);
     }
 

@@ -348,14 +348,18 @@ public class PersistentSttService {
                     "STT_AUDIO_FORMAT_MISMATCH: file extension does not match declared " + format);
         }
         SttAudioInputDecoder.requireSampleRate(sampleRate);
-        if (language != null && !language.isBlank()) {
-            String langCode = language.toLowerCase(Locale.ROOT).split("-")[0];
-            if (!SUPPORTED_LANGUAGES.contains(langCode)) {
-                throw new IllegalArgumentException(
-                        "Unsupported language: " + language + ". Supported: " + SUPPORTED_LANGUAGES);
-            }
+        if (!isSupportedLanguage(language)) {
+            throw new IllegalArgumentException(
+                    "Unsupported language: " + language + ". Supported: " + SUPPORTED_LANGUAGES);
         }
         return SttAudioInputDecoder.decode(audioBytes, format, sampleRate, maxAudioLengthSeconds);
+    }
+
+    /** Shared request-level language validation for the direct service and its gRPC boundary. */
+    public static boolean isSupportedLanguage(String language) {
+        if (language == null || language.isBlank()) return true;
+        String langCode = language.toLowerCase(Locale.ROOT).split("-")[0];
+        return SUPPORTED_LANGUAGES.contains(langCode);
     }
 
     private static String resolveFailureOutcome(Throwable failure) {

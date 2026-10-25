@@ -119,30 +119,29 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             return;
         }
 
-        if (!transcriptVersioningAdmitted()) {
-            // This RPC accepts mutable uploaded bytes, while the admitted transcript store requires
-            // a governed source artifact/version, provider result and rights/consent provenance.
-            // Do not reach the legacy mutable transcription entity until that path is composed.
-            responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
-                    .withDescription("STT_TRANSCRIPT_VERSION_NOT_ADMITTED: governed source artifact, admitted provider, rights provenance and immutable transcript store are unavailable")
-                    .asRuntimeException());
-            return;
-        }
-
         try {
             SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
+            int sampleRate = request.getSampleRate() == 0 ? 16000 : request.getSampleRate();
+            SttAudioInputDecoder.requireSampleRate(sampleRate);
+            String language = request.getLanguage();
+            if (!PersistentSttService.isSupportedLanguage(language)) {
+                throw new IllegalArgumentException("Unsupported language");
+            }
+
             byte[] audioBytes = request.getAudioData().toByteArray();
-            if (audioBytes.length == 0) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withDescription("Audio data cannot be empty")
-                    .asRuntimeException());
+            java.time.Duration audioDuration = SttAudioInputDecoder.inspectWavDuration(audioBytes, sampleRate);
+
+            if (!transcriptVersioningAdmitted()) {
+                // This RPC accepts mutable uploaded bytes, while the admitted transcript store requires
+                // a governed source artifact/version, provider result and rights/consent provenance.
+                // Validate the request contract first, then stop before any persistence or provider work.
+                responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                        .withDescription("STT_TRANSCRIPT_VERSION_NOT_ADMITTED: governed source artifact, admitted provider, rights provenance and immutable transcript store are unavailable")
+                        .asRuntimeException());
                 return;
             }
 
-            int sampleRate = request.getSampleRate() > 0 ? request.getSampleRate() : 16000;
-            java.time.Duration audioDuration = SttAudioInputDecoder.inspectWavDuration(audioBytes, sampleRate);
             String fileName = "audio.wav";
-            String language = request.getLanguage();
 
             // Perform transcription with persistence
             persistentSttService.transcribeAndPersist(

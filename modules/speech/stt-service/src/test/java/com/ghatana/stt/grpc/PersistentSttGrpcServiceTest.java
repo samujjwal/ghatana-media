@@ -138,6 +138,29 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("malformed transcription requests fail validation before provider or source admission")
+    void transcribeValidatesInputBeforeTranscriptVersionAdmission() {
+        TranscribeRequest[] malformedRequests = {
+            TranscribeRequest.getDefaultInstance(),
+            TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("xx").setSampleRate(16_000).build(),
+            TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(7_999).build(),
+            TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(-1).build()
+        };
+
+        for (TranscribeRequest request : malformedRequests) {
+            CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+            runWithTenantContext("tenant-abc", USER_ID, () -> service.transcribe(request, observer));
+
+            assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+            assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                    .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+            assertThat(observer.value).isNull();
+            assertThat(observer.completed).isFalse();
+        }
+        verifyNoInteractions(persistentSttService);
+    }
+
+    @Test
     @DisplayName("transcribe with an artifact identifier still fails until governed version provenance exists")
     void transcribeArtifactIdFailsClosedWithoutVersionProvenance() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();

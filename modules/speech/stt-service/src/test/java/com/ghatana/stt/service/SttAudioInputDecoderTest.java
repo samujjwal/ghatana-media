@@ -81,6 +81,17 @@ class SttAudioInputDecoderTest {
                 });
     }
 
+    @Test
+    void durationInspectionEnforcesTheConfiguredLimitWithoutDecodingOrCopyingSamples() {
+        byte[] over = pcmWav(8_000, 1, 16, new byte[16_002]);
+
+        assertThatThrownBy(() -> SttAudioInputDecoder.inspectWavDuration(over, 8_000, 1))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_DURATION_EXCEEDED");
+                });
+    }
+
     private static void assertMalformedWav(byte[] input) {
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(input, AudioFormat.WAV, 16_000))
                 .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {

@@ -107,7 +107,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                 byte[] audioBytes = request.getAudioData().toByteArray();
 
                     // AV-P1-004: Validate and resolve sample rate
-                    int sampleRate = request.getSampleRate() > 0 ? request.getSampleRate() : 16_000;
+                    int sampleRate = request.getSampleRate() == 0 ? 16_000 : request.getSampleRate();
                     SttAudioInputDecoder.requireSampleRate(sampleRate);
 
                     // AV-P1-004: Validate language if provided
