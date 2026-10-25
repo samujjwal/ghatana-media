@@ -540,6 +540,60 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void admittedStreamRejectsSequenceGapAfterPreservingOnlyPriorPartialChunk() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 0));
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 2, true, 1));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+        @SuppressWarnings("unchecked")
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(StreamObserver.class);
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        doAnswer(invocation -> { error.set(invocation.getArgument(0)); return null; })
+                .when(observer).onError(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk -> !chunk.getIsFinal()
+                && chunk.getAudioData().toByteArray()[0] == 1));
+        verify(observer, org.mockito.Mockito.times(1)).onNext(any());
+        verify(observer, never()).onCompleted();
+        assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.FAILED_PRECONDITION);
+        assertThat(sessionCancelled).isTrue();
+    }
+
+    @Test
+    void admittedPartialStreamFailureDoesNotEmitFalseFinalChunkOrCompleteSuccessfully() throws Exception {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        CountDownLatch errorReceived = new CountDownLatch(1);
+        @SuppressWarnings("unchecked")
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(StreamObserver.class);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            return TtsStreamingSession.create(new AtomicBoolean(), completion);
+        });
+        doAnswer(invocation -> { errorReceived.countDown(); return null; }).when(observer).onError(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 0));
+        completionRef.get().completeExceptionally(new IllegalStateException("controlled provider failure"));
+
+        assertThat(errorReceived.await(1, TimeUnit.SECONDS)).isTrue();
+        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk -> !chunk.getIsFinal()
+                && chunk.getAudioData().toByteArray()[0] == 1));
+        verify(observer, org.mockito.Mockito.times(1)).onNext(any());
+        verify(observer, never()).onCompleted();
+        verify(observer).onError(any());
+    }
+
+    @Test
     void validationFailuresMapToInvalidArgument() {
         CapturingObserver<SynthesizeResponse> empty = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.getDefaultInstance(), empty);
