@@ -1113,3 +1113,23 @@ Focused verification on this source cut:
 - `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.multimodal.engine.CrossModalFusionEngineTest --tests com.ghatana.multimodal.quality.CrossModalHeuristicFusionTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 56 tests, 0 failures/errors/skips.
 - `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (thirty-second round)
+
+This round adds source-bounded streaming, frame-continuity and semantic-projection guards. Each change improves local behavior, but the selected package's full task acceptance remains open; no task disposition changes.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| STT-05 | `SttStreamingLatencyEnhancer` now serializes admission and emission, requires nonnegative strictly increasing accepted sequence numbers and nonnegative nondecreasing timestamps, and does not consume the cursor when validation or byte reservation rejects input. FIFO batch emission remains ordered under concurrent drains. The focused enhancer test passed 15 cases. | PARTIAL: `StreamTranscribe` still fails closed before session creation because trusted purpose/consent and MediaRuntime admission are absent. Positive provider streaming, VAD, partial/final semantics and disconnect/resume remain unverified; the helper is not wired into the RPC. |
+| VIS-07 | `VideoAnalysisService` now starts a new heuristic tracking epoch on an adjacent `BOUNDARY_CANDIDATE`, preventing identical boxes across a possible scene cut from reusing a track ID. The regression verifies distinct IDs and preserved source PTS; 52 focused Vision tests passed. | PARTIAL: tracking/camera-motion remain heuristic and uncalibrated, with canonical source-version provenance and qualified tracking quality open. |
+| MM-10 | `MediaSemanticObservationProjector` now validates candidate fields against the public semantic constructors: bounded exact text, contract tokens, nonempty bounded permitted purposes, 0–100 trust score, and `recordedAt >= observedAt`. Padded opaque IDs reject rather than normalize. Focused projector/adapter tests passed 11 cases. This remains format-only and does not authenticate references or authorize publication. | PARTIAL: trusted artifact/version and rights/consent authority, an active Data Cloud publish path, and end-to-end preservation of a real local result remain unverified. |
+
+Current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. The 99 PDP capability memberships, 43 source RPC identities and five residual handoffs are unchanged. No provider admission, model-quality qualification, formal PDP acceptance, lifecycle transition/closure, operational cutover, deployment or release is claimed.
+
+Focused verification on this source cut:
+
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.streaming.SttStreamingLatencyEnhancerTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 15 tests, 0 failures/errors/skips.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.analysis.VideoAnalysisServiceTest --tests com.ghatana.audio.video.vision.video.SourceMediaTimestampTest --tests com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest --console=plain` — 52 tests, 0 failures/errors/skips.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.datacloud.MediaSemanticObservationProjectorTest --tests com.ghatana.audio.video.multimodal.datacloud.DataCloudMultimodalAdapterTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 11 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
