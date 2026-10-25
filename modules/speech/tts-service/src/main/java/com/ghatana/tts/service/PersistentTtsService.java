@@ -262,6 +262,16 @@ public class PersistentTtsService {
             int channels,
             int bitsPerSample,
             String format) {
+        public SynthesisResult {
+            audioData = audioData == null ? null : audioData.clone();
+        }
+
+        /** Prevent callers from mutating the bytes associated with this result after creation. */
+        @Override
+        public byte[] audioData() {
+            return audioData == null ? null : audioData.clone();
+        }
+
         public SynthesisResult(UUID audioFileId, byte[] audioData, int sampleRate, long processingTimeMs) {
             this(audioFileId, audioData, sampleRate, processingTimeMs, 0L, 0, 0, "UNKNOWN");
         }
