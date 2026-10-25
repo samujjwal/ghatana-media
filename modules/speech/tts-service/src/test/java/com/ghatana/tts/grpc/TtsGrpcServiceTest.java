@@ -38,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Locale;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
@@ -351,10 +352,35 @@ class TtsGrpcServiceTest {
         service.cloneVoice(
                 CloneVoiceRequest.newBuilder()
                         .setVoiceName("Alice")
-                        .addAudioSamples(ByteString.copyFrom(new byte[256]))
+                        // A complete-looking training payload is still not consent or purpose authority.
+                        .addAudioSamples(ByteString.copyFrom(
+                                "private voice sample".getBytes(StandardCharsets.UTF_8)))
+                        .setOptions(com.ghatana.tts.core.grpc.proto.CloneOptions.newBuilder()
+                                .setFineTuneEpochs(1)
+                                .setLearningRate(0.001f))
                         .build(),
                 clone);
         assertStatus(clone, Status.Code.UNIMPLEMENTED);
+        assertThat(clone.value).isNull();
+        assertThat(clone.completed).isFalse();
+        assertThat(((StatusRuntimeException) clone.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "owner consent", "biometric purpose", "retention");
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).cloneVoice(anyString(), any(), any());
+    }
+
+    @Test
+    void cloneVoiceRejectsMissingAuthorityAndDoesNotReturnACloneResult() {
+        CapturingObserver<CloneVoiceResponse> clone = new CapturingObserver<>();
+
+        service.cloneVoice(CloneVoiceRequest.getDefaultInstance(), clone);
+
+        assertStatus(clone, Status.Code.UNIMPLEMENTED);
+        assertThat(clone.value).isNull();
+        assertThat(clone.completed).isFalse();
+        assertThat(((StatusRuntimeException) clone.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "owner consent", "biometric purpose", "retention");
+        verify(library, never()).getTtsEngine();
         verify(engine, never()).cloneVoice(anyString(), any(), any());
     }
 
@@ -414,20 +440,40 @@ class TtsGrpcServiceTest {
     void profileOperationsFailClosedWithoutOwnerScopedConsentStore() {
         CapturingObserver<com.ghatana.tts.core.grpc.proto.ProfileResponse> create = new CapturingObserver<>();
         service.createProfile(
-                CreateProfileRequest.newBuilder().setDisplayName("Alice").build(),
+                CreateProfileRequest.newBuilder()
+                        .setDisplayName("Alice")
+                        // Favorable caller-selected settings cannot substitute for trusted consent/purpose.
+                        .setSettings(com.ghatana.tts.core.grpc.proto.ProfileSettings.newBuilder()
+                                .setPreferredLanguage("en-US")
+                                .setDefaultVoiceId("voice-owner-1")
+                                .setAdaptationMode(com.ghatana.tts.core.grpc.proto.AdaptationMode.ADAPTATION_MODE_CONSERVATIVE)
+                                .setPrivacyLevel(com.ghatana.tts.core.grpc.proto.PrivacyLevel.PRIVACY_LEVEL_HIGH))
+                        .build(),
                 create);
         assertStatus(create, Status.Code.UNIMPLEMENTED);
         assertThat(((StatusRuntimeException) create.error).getStatus().getDescription())
                 .contains("NOT_ADMITTED", "ownership", "consent", "purpose", "retention");
+        assertThat(create.value).isNull();
+        assertThat(create.completed).isFalse();
 
         CapturingObserver<com.ghatana.tts.core.grpc.proto.ProfileResponse> get = new CapturingObserver<>();
         service.getProfile(GetProfileRequest.newBuilder().setProfileId("profile-1").build(), get);
         assertStatus(get, Status.Code.UNIMPLEMENTED);
+        assertThat(get.value).isNull();
+        assertThat(get.completed).isFalse();
 
         CapturingObserver<com.ghatana.tts.core.grpc.proto.ProfileResponse> update = new CapturingObserver<>();
-        service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("profile-1").build(), update);
+        service.updateProfile(UpdateProfileRequest.newBuilder()
+                .setProfileId("profile-1")
+                .setSettings(com.ghatana.tts.core.grpc.proto.ProfileSettings.newBuilder()
+                        .setDefaultVoiceId("voice-owner-1")
+                        .setPrivacyLevel(com.ghatana.tts.core.grpc.proto.PrivacyLevel.PRIVACY_LEVEL_HIGH))
+                .build(), update);
         assertStatus(update, Status.Code.UNIMPLEMENTED);
+        assertThat(update.value).isNull();
+        assertThat(update.completed).isFalse();
 
+        verify(library, never()).getTtsEngine();
         verify(engine, never()).createProfile(anyString(), anyString(), any());
         verify(engine, never()).loadProfile(anyString());
         verify(engine, never()).saveProfile(any());
