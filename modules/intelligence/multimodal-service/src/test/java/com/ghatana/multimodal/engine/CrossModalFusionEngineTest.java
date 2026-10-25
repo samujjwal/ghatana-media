@@ -30,6 +30,57 @@ class CrossModalFusionEngineTest {
     // ── Audio-visual fusion ───────────────────────────────────────────────────
 
     @Test
+    @DisplayName("feature records snapshot constructor and accessor arrays")
+    void featureRecordsDefensivelySnapshotArrays() {
+        double[] audioInput = new double[DIM];
+        double[] visualInput = new double[DIM];
+        audioInput[0] = 0.25; audioInput[1] = 0.75;
+        java.util.Arrays.fill(visualInput, 0.5);
+        double[] boxesInput = {1, 2, 3, 4};
+        double[] textInput = {0.2, 0.8};
+        AudioFeatures audio = new AudioFeatures(audioInput, 0.5, "space");
+        VisualFeatures visual = new VisualFeatures(visualInput, boxesInput, 0.5, "space");
+        TextFeatures text = new TextFeatures(textInput, "caption", 0.5, "space");
+
+        audioInput[0] = 99;
+        visualInput[0] = 99;
+        boxesInput[0] = 99;
+        textInput[0] = 99;
+        assertThat(audio.embeddings()[0]).isEqualTo(0.25);
+        assertThat(audio.embeddings()[1]).isEqualTo(0.75);
+        assertThat(visual.embeddings()).hasSize(DIM).containsOnly(0.5);
+        assertThat(visual.boundingBoxes()).containsExactly(1, 2, 3, 4);
+        assertThat(text.embeddings()).containsExactly(0.2, 0.8);
+
+        audio.embeddings()[0] = 88;
+        visual.embeddings()[0] = 88;
+        visual.boundingBoxes()[0] = 88;
+        text.embeddings()[0] = 88;
+        assertThat(audio.embeddings()[0]).isEqualTo(0.25);
+        assertThat(audio.embeddings()[1]).isEqualTo(0.75);
+        assertThat(visual.embeddings()).hasSize(DIM).containsOnly(0.5);
+        assertThat(visual.boundingBoxes()).containsExactly(1, 2, 3, 4);
+        assertThat(text.embeddings()).containsExactly(0.2, 0.8);
+    }
+
+    @Test
+    @DisplayName("caller mutations cannot alter subsequent fusion")
+    void featureArrayMutationsDoNotAlterFusion() {
+        double[] audioInput = new double[DIM];
+        double[] visualInput = new double[DIM];
+        java.util.Arrays.fill(audioInput, 0.25);
+        java.util.Arrays.fill(visualInput, 0.5);
+        AudioFeatures audio = new AudioFeatures(audioInput, 0.5, "space");
+        VisualFeatures visual = new VisualFeatures(visualInput, new double[0], 0.5, "space");
+        double[] expected = engine.fuseAudioVisual(audio, visual).fusedEmbeddings();
+        audioInput[0] = -10;
+        visualInput[0] = 10;
+        audio.embeddings()[1] = 100;
+        visual.embeddings()[1] = -100;
+        assertThat(engine.fuseAudioVisual(audio, visual).fusedEmbeddings()).containsExactly(expected);
+    }
+
+    @Test
     @DisplayName("fuseAudioVisual returns non-null result for valid inputs")
     void audioVisualFusionReturnsResult() { 
         AudioFeatures audio = makeAudio(DIM, 0.8); 

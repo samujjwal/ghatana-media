@@ -18,6 +18,10 @@ public class CrossModalFusionEngine {
 
     /** Audio feature vector derived from a speech segment. */
     public record AudioFeatures(double[] embeddings, double confidence, String embeddingSpaceId) {
+        public AudioFeatures {
+            embeddings = copy(embeddings);
+        }
+        @Override public double[] embeddings() { return copy(embeddings); }
         /** Compatibility constructor. The coordinate space remains unknown until explicitly supplied. */
         public AudioFeatures(double[] embeddings, double confidence) {
             this(embeddings, confidence, null);
@@ -28,6 +32,12 @@ public class CrossModalFusionEngine {
     /** Visual feature vector derived from a video frame. */
     public record VisualFeatures(
             double[] embeddings, double[] boundingBoxes, double confidence, String embeddingSpaceId) {
+        public VisualFeatures {
+            embeddings = copy(embeddings);
+            boundingBoxes = copy(boundingBoxes);
+        }
+        @Override public double[] embeddings() { return copy(embeddings); }
+        @Override public double[] boundingBoxes() { return copy(boundingBoxes); }
         /** Compatibility constructor. The coordinate space remains unknown until explicitly supplied. */
         public VisualFeatures(double[] embeddings, double[] boundingBoxes, double confidence) {
             this(embeddings, boundingBoxes, confidence, null);
@@ -37,11 +47,19 @@ public class CrossModalFusionEngine {
 
     /** Text feature vector derived from transcript or caption. */
     public record TextFeatures(double[] embeddings, String text, double confidence, String embeddingSpaceId) {
+        public TextFeatures {
+            embeddings = copy(embeddings);
+        }
+        @Override public double[] embeddings() { return copy(embeddings); }
         /** Compatibility constructor. The coordinate space remains unknown until explicitly supplied. */
         public TextFeatures(double[] embeddings, String text, double confidence) {
             this(embeddings, text, confidence, null);
         }
         public boolean isEmpty() { return embeddings == null || embeddings.length == 0; }
+    }
+
+    private static double[] copy(double[] values) {
+        return values == null ? null : values.clone();
     }
 
     /** Fused multimodal representation. */
