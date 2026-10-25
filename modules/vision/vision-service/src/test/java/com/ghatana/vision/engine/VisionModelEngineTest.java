@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.data.Offset.offset;
@@ -119,23 +120,34 @@ class VisionModelEngineTest {
     // ── OCR ───────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("OCR returns non-null result")
-    void ocrReturnsResult() {
-        assertThat(engine.extractText(SAMPLE_IMAGE)).isNotNull();
-    }
+    @DisplayName("legacy OCR fails closed without admitted Document Intelligence")
+    void genericOcrFailsClosedWithoutProviderDispatch() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        VisionDetector detector = new VisionDetector() {
+            @Override
+            public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
+                    byte[] imageData, DetectionOptions options) {
+                return List.of();
+            }
 
-    @Test
-    @DisplayName("OCR extracted text is non-null")
-    void ocrTextIsNonNull() {
-        OcrResult result = engine.extractText(SAMPLE_IMAGE);
-        assertThat(result.text()).isNotNull();
-    }
+            @Override
+            public boolean isInitialized() { return true; }
 
-    @Test
-    @DisplayName("OCR confidence is in [0, 1]")
-    void ocrConfidenceNormalized() {
-        OcrResult result = engine.extractText(SAMPLE_IMAGE);
-        assertThat(result.confidence()).isBetween(0.0, 1.0);
+            @Override
+            public boolean supportsCapability(VisionCapability capability) { return true; }
+
+            @Override
+            public String extractText(byte[] imageData, DetectionOptions options) {
+                providerCalls.incrementAndGet();
+                return "sensitive marker text";
+            }
+        };
+
+        VisionModelEngine genericEngine = new VisionModelEngine("generic-ocr", 0.5, detector);
+        assertThatThrownBy(() -> genericEngine.extractText(SAMPLE_IMAGE))
+                .isInstanceOf(VisionModelEngine.OcrNotAdmittedException.class)
+                .hasMessage("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
+        assertThat(providerCalls).hasValue(0);
     }
 
     // ── Face detection ────────────────────────────────────────────────────────
@@ -254,18 +266,6 @@ class VisionModelEngineTest {
         }
 
         @Test
-        @DisplayName("extractText delegates to detector when OCR capability is declared")
-        void extractTextDelegatesToDetector() {
-            VisionDetector det = fullCapabilityDetector(
-                    List.of(), List.of(), "Hello World from Tesseract");
-
-            VisionModelEngine realEngine = new VisionModelEngine("tesseract", 0.5, det);
-            OcrResult result = realEngine.extractText(SAMPLE_IMAGE);
-
-            assertThat(result.text()).isEqualTo("Hello World from Tesseract");
-        }
-
-        @Test
         @DisplayName("classify fails closed when detector does not support CLASSIFICATION")
         void classifyFailsClosedWhenCapabilityAbsent() {
             // detector only supports OBJECT_DETECTION (default supportsCapability behaviour)
@@ -310,8 +310,8 @@ class VisionModelEngineTest {
                     .isInstanceOf(VisionModelEngine.VisionException.class)
                     .hasMessageContaining("not initialized");
             assertThatThrownBy(() -> realEngine.extractText(SAMPLE_IMAGE))
-                    .isInstanceOf(VisionModelEngine.VisionException.class)
-                    .hasMessageContaining("not initialized");
+                    .isInstanceOf(VisionModelEngine.OcrNotAdmittedException.class)
+                    .hasMessageContaining("NOT_ADMITTED");
         }
     }
 

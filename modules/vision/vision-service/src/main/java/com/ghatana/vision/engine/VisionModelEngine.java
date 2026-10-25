@@ -8,13 +8,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Vision model engine for object detection, classification, OCR, and face detection.
+ * Vision model engine for object detection, classification, and face detection.
  *
- * <p>Integrates YOLO-based detection and ResNet classification as a unified
- * interface for frame-level and image-level vision tasks.
+ * <p>Integrates admitted vision providers as a unified interface for frame-level
+ * and image-level tasks. OCR remains unavailable through this compatibility
+ * engine until the Document Intelligence public API is admitted.
  *
  * @doc.type    class
- * @doc.purpose Vision engine: object detection, classification, OCR, face detection
+ * @doc.purpose Vision engine: object detection, classification, and face detection
  * @doc.layer   product
  * @doc.pattern Engine
  */
@@ -140,17 +141,10 @@ public class VisionModelEngine {
      */
     public OcrResult extractText(byte[] imageData) {
         validateImage(imageData);
-        requireCapability(VisionCapability.OCR, "OCR");
-        DetectionOptions options = DetectionOptions.builder()
-                .confidenceThreshold(confidenceThreshold)
-                .maxDetections(100)
-                .build();
-        try {
-            String text = detector.extractText(imageData, options);
-            return new OcrResult(text, 1.0, List.of());
-        } catch (VisionDetector.DetectionException ex) {
-            throw new VisionException("OCR failed: " + ex.getMessage(), ex);
-        }
+        // OCR ownership moved to Document Intelligence. A generic VisionDetector
+        // capability does not establish an admitted public OCR provider, and this
+        // legacy result type cannot carry source-region provenance or rights data.
+        throw new OcrNotAdmittedException();
     }
 
     /**
@@ -221,5 +215,12 @@ public class VisionModelEngine {
     public static class VisionException extends RuntimeException {
         public VisionException(String message) { super(message); }
         public VisionException(String message, Throwable cause) { super(message, cause); }
+    }
+
+    /** Typed fail-closed result for the legacy Media-owned OCR entry point. */
+    public static final class OcrNotAdmittedException extends VisionException {
+        public OcrNotAdmittedException() {
+            super("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
+        }
     }
 }

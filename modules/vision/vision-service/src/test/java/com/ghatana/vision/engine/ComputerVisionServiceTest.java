@@ -260,50 +260,11 @@ class ComputerVisionServiceTest {
     class OcrTextExtraction {
 
         @Test
-        @DisplayName("OCR returns valid result")
-        void ocrReturnsValidResult() { 
-            VisionModelEngine.OcrResult result = engine.extractText(SAMPLE_IMAGE); 
-
-            assertThat(result).isNotNull(); 
-        }
-
-        @Test
-        @DisplayName("extracted text is non-null")
-        void extractedTextIsNonNull() { 
-            VisionModelEngine.OcrResult result = engine.extractText(SAMPLE_IMAGE); 
-
-            assertThat(result.text()).isNotNull(); 
-        }
-
-        @Test
-        @DisplayName("OCR confidence is in valid range")
-        void ocrConfidenceIsValid() { 
-            VisionModelEngine.OcrResult result = engine.extractText(SAMPLE_IMAGE); 
-
-            assertThat(result.confidence()).isBetween(0.0, 1.0); 
-        }
-
-        @Test
-        @DisplayName("text regions contain valid bounding boxes")
-        void textRegionsContainValidBoundingBoxes() { 
-            VisionModelEngine.OcrResult result = engine.extractText(SAMPLE_IMAGE); 
-
-            result.textRegions().forEach(region -> { 
-                assertThat(region.x()).isBetween(0.0, 1.0); 
-                assertThat(region.y()).isBetween(0.0, 1.0); 
-                assertThat(region.width()).isGreaterThan(0.0).isLessThanOrEqualTo(1.0); 
-                assertThat(region.height()).isGreaterThan(0.0).isLessThanOrEqualTo(1.0); 
-            });
-        }
-
-        @Test
-        @DisplayName("OCR is deterministic for same image")
-        void ocrIsDeterministic() { 
-            VisionModelEngine.OcrResult r1 = engine.extractText(SAMPLE_IMAGE); 
-            VisionModelEngine.OcrResult r2 = engine.extractText(SAMPLE_IMAGE); 
-
-            assertThat(r1.text()).isEqualTo(r2.text()); 
-            assertThat(r1.confidence()).isEqualTo(r2.confidence()); 
+        @DisplayName("generic OCR remains unavailable without Document Intelligence admission")
+        void genericOcrFailsClosed() {
+            assertThatThrownBy(() -> engine.extractText(SAMPLE_IMAGE))
+                    .isInstanceOf(VisionModelEngine.OcrNotAdmittedException.class)
+                    .hasMessageContaining("NOT_ADMITTED");
         }
     }
 

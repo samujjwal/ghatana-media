@@ -238,6 +238,8 @@ public final class KernelOcrProviderAdapter
                         ? ProductRuntimeFacets.TerminalStatus.CANCELLED
                         : ProductRuntimeFacets.TerminalStatus.FAILED,
                 List.of(),
+                // Kernel's current OcrResult contract requires non-empty fullText
+                // even on failure; failureCode/status remain the authoritative outcome.
                 normalized,
                 Optional.empty(),
                 Optional.empty(),

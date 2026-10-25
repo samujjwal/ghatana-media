@@ -101,14 +101,16 @@ public interface VisionDetector {
     }
 
     /**
-     * Extract text regions from the supplied image using OCR.
-     * Returns text content as a single concatenated string.
+     * Legacy generic OCR hook retained for source compatibility.
      *
-     * <p>Only callable when {@code supportsCapability(OCR)} is {@code true}.
+     * <p>Media's production OCR entry point must not dispatch through this method. OCR is
+     * owned by Document Intelligence and requires its admitted public API plus region and
+     * source provenance. A provider's {@code supportsCapability(OCR)} claim alone is not
+     * sufficient admission.
      *
      * @param imageData raw image bytes
      * @param options   detection/inference configuration
-     * @return extracted text (empty string when no text is detected)
+     * @return provider-specific text; this value is not admitted as a Media OCR result
      * @throws UnsupportedOperationException if this backend does not support OCR
      * @throws DetectionException on unrecoverable failure
      */

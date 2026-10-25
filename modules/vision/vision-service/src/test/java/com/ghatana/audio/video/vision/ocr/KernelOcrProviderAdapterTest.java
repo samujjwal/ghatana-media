@@ -55,7 +55,9 @@ class KernelOcrProviderAdapterTest {
 
         assertThat(result.status()).isEqualTo(ProductRuntimeFacets.TerminalStatus.FAILED);
         assertThat(result.failureCode()).contains("NOT_ADMITTED");
+        // The Kernel DTO currently requires non-empty fullText even for failures.
         assertThat(result.fullText()).isEqualTo("NOT_ADMITTED");
+        assertThat(result.regions()).isEmpty();
         assertThat(calls).hasValue(0);
         assertThat(adapter.status(CONTEXT, "ocr-1").toCompletableFuture().join().failureCode())
                 .contains("NOT_ADMITTED");
