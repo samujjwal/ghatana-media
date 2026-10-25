@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -51,5 +52,41 @@ class PlatformMultimodalAdapterTest {
 
         assertThat(actual.getTranscription()).isEqualTo("hello via llm");
         assertThat(actual.getConfidence()).isEqualTo(0.93); 
+    }
+
+    @Test
+    @DisplayName("child STT error is preserved")
+    void transcribePreservesChildProviderError() {
+        AudioResult providerFailure = AudioResult.error("STT provider unavailable");
+        when(sttClientAdapter.transcribe(any())).thenReturn(providerFailure);
+
+        PlatformMultimodalAdapter adapter = new PlatformMultimodalAdapter(
+                AudioVideoRuntimeSettings.defaults(), library, frameExtractor, sttClientAdapter);
+
+        assertThat(adapter.transcribe(new byte[] {1, 2, 3})).isSameAs(providerFailure);
+        assertThat(providerFailure.isError()).isTrue();
+    }
+
+    @Test
+    @DisplayName("missing child result fails explicitly")
+    void transcribeRejectsMissingChildResult() {
+        when(sttClientAdapter.transcribe(any())).thenReturn(null);
+
+        PlatformMultimodalAdapter adapter = new PlatformMultimodalAdapter(
+                AudioVideoRuntimeSettings.defaults(), library, frameExtractor, sttClientAdapter);
+
+        assertThatThrownBy(() -> adapter.transcribe(new byte[] {1, 2, 3}))
+                .isInstanceOf(MultimodalException.class)
+                .hasMessage("Platform STT processing failed")
+                .hasRootCauseMessage("STT provider returned no result");
+    }
+
+    @Test
+    @DisplayName("composition rejects a missing STT provider")
+    void compositionRejectsMissingSttProvider() {
+        assertThatThrownBy(() -> new PlatformMultimodalAdapter(
+                AudioVideoRuntimeSettings.defaults(), library, frameExtractor, null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("sttClientAdapter");
     }
 }

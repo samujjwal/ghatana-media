@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @doc.type class
@@ -73,16 +74,20 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
             AudioVideoLibrary library,
             VideoFrameExtractor frameExtractor,
             SttClientAdapter sttClientAdapter) {
-        this.settings = settings;
-        this.library = library;
-        this.frameExtractor = frameExtractor;
-        this.sttClientAdapter = sttClientAdapter;
+        this.settings = Objects.requireNonNull(settings, "settings");
+        this.library = Objects.requireNonNull(library, "library");
+        this.frameExtractor = Objects.requireNonNull(frameExtractor, "frameExtractor");
+        this.sttClientAdapter = Objects.requireNonNull(sttClientAdapter, "sttClientAdapter");
     }
 
     @Override
     public AudioResult transcribe(byte[] audioData) {
         try {
-            return sttClientAdapter.transcribe(audioData);
+            AudioResult result = sttClientAdapter.transcribe(audioData);
+            if (result == null) {
+                throw new IllegalStateException("STT provider returned no result");
+            }
+            return result;
         } catch (Exception e) {
             throw new MultimodalException("Platform STT processing failed", e);
         }
