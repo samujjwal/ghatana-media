@@ -60,6 +60,7 @@ public class PersistentSttService {
     private final Timer transcribeTimer;
     private final Executor blockingExecutor;
     private final AuditService auditService;
+    private final int maxAudioLengthSeconds;
 
     public PersistentSttService(
             AudioVideoLibrary library,
@@ -75,11 +76,24 @@ public class PersistentSttService {
             TranscriptionService transcriptionService,
             MeterRegistry meterRegistry,
             @Nullable AuditService auditService) {
+        this(library, audioFileService, transcriptionService, meterRegistry, auditService,
+                SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS);
+    }
+
+    public PersistentSttService(
+            AudioVideoLibrary library,
+            AudioFileService audioFileService,
+            TranscriptionService transcriptionService,
+            MeterRegistry meterRegistry,
+            @Nullable AuditService auditService,
+            int maxAudioLengthSeconds) {
         this.library = Objects.requireNonNull(library, "library cannot be null");
         this.audioFileService = Objects.requireNonNull(audioFileService, "audioFileService cannot be null");
         this.transcriptionService = Objects.requireNonNull(
                 transcriptionService, "transcriptionService cannot be null");
         this.auditService = auditService;
+        if (maxAudioLengthSeconds < 1) throw new IllegalArgumentException("maxAudioLengthSeconds must be positive");
+        this.maxAudioLengthSeconds = maxAudioLengthSeconds;
         this.transcribeTimer = Timer.builder("stt.persistent.transcribe")
                 .description("Persistent transcription latency")
                 .register(meterRegistry);
@@ -397,7 +411,7 @@ public class PersistentSttService {
                         "Unsupported language: " + language + ". Supported: " + SUPPORTED_LANGUAGES);
             }
         }
-        return SttAudioInputDecoder.decode(audioBytes, format, sampleRate);
+        return SttAudioInputDecoder.decode(audioBytes, format, sampleRate, maxAudioLengthSeconds);
     }
 
     private static String resolveFailureOutcome(Throwable failure) {

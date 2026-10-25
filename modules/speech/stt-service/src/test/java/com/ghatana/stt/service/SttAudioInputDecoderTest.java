@@ -37,6 +37,59 @@ class SttAudioInputDecoderTest {
     }
 
     @Test
+    void rejectsForgedRiffAndDataLengthsWithStableMalformedStatus() {
+        byte[] forgedRiff = pcmWav(16_000, 1, 16, new byte[] {1, 2});
+        ByteBuffer.wrap(forgedRiff).order(ByteOrder.LITTLE_ENDIAN).putInt(4, Integer.MAX_VALUE);
+        assertMalformedWav(forgedRiff);
+
+        byte[] forgedData = pcmWav(16_000, 1, 16, new byte[] {1, 2});
+        ByteBuffer.wrap(forgedData).order(ByteOrder.LITTLE_ENDIAN).putInt(40, Integer.MAX_VALUE);
+        assertMalformedWav(forgedData);
+    }
+
+    @Test
+    void rejectsTruncatedChunkHeaderAndMissingOddChunkPadding() {
+        byte[] truncatedHeader = pcmWav(16_000, 1, 16, new byte[] {1, 2});
+        byte[] truncated = java.util.Arrays.copyOf(truncatedHeader, 43);
+        assertMalformedWav(truncated);
+
+        byte[] oddJunkChunk = new byte[54];
+        putAscii(oddJunkChunk, 0, "RIFF");
+        ByteBuffer buffer = ByteBuffer.wrap(oddJunkChunk).order(ByteOrder.LITTLE_ENDIAN);
+        buffer.putInt(4, oddJunkChunk.length - 8);
+        putAscii(oddJunkChunk, 8, "WAVE");
+        putAscii(oddJunkChunk, 12, "JUNK");
+        buffer.putInt(16, 1);
+        oddJunkChunk[20] = 7;
+        // Missing the required pad byte shifts the following fmt/data chunk structure.
+        putAscii(oddJunkChunk, 21, "fmt ");
+        buffer.putInt(25, 16);
+        assertMalformedWav(oddJunkChunk);
+    }
+
+    @Test
+    void enforcesConfiguredDurationAtExactBoundaryAndOneFrameOver() {
+        byte[] exact = pcmWav(8_000, 1, 16, new byte[16_000]);
+        assertThat(SttAudioInputDecoder.decode(exact, AudioFormat.WAV, 8_000, 1).duration().getSeconds())
+                .isEqualTo(1);
+
+        byte[] over = pcmWav(8_000, 1, 16, new byte[16_002]);
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(over, AudioFormat.WAV, 8_000, 1))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_DURATION_EXCEEDED");
+                });
+    }
+
+    private static void assertMalformedWav(byte[] input) {
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(input, AudioFormat.WAV, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_WAV");
+                });
+    }
+
+    @Test
     void rejectsUnsupportedFlacInsteadOfPassingContainerBytesAsPcm() {
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
                 new byte[] {'f', 'L', 'a', 'C', 0, 0}, AudioFormat.FLAC, 16_000))

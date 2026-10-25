@@ -15,6 +15,7 @@ public final class SttAudioInputDecoder {
     public static final long MAX_DECODED_PCM_BYTES = 100L * 1024 * 1024;
     public static final int MIN_SAMPLE_RATE = 8_000;
     public static final int MAX_SAMPLE_RATE = 48_000;
+    public static final int DEFAULT_MAX_AUDIO_LENGTH_SECONDS = 300;
 
     public enum FailureKind { INVALID_ARGUMENT, RESOURCE_EXHAUSTED, NOT_ADMITTED }
 
@@ -59,14 +60,21 @@ public final class SttAudioInputDecoder {
      * Compressed formats are recognized and rejected until a decoder is admitted.
      */
     public static AudioData decode(byte[] input, AudioFormat declaredFormat, int requestedSampleRate) {
+        return decode(input, declaredFormat, requestedSampleRate, DEFAULT_MAX_AUDIO_LENGTH_SECONDS);
+    }
+
+    /** Decode supported input while enforcing the configured duration before WAV PCM allocation. */
+    public static AudioData decode(
+            byte[] input, AudioFormat declaredFormat, int requestedSampleRate, int maxAudioLengthSeconds) {
         if (input == null) throw invalid("Audio data cannot be null");
         requireInputSize(input.length);
         requireSampleRate(requestedSampleRate);
+        if (maxAudioLengthSeconds < 1) throw new IllegalArgumentException("maxAudioLengthSeconds must be positive");
 
         String detected = MediaFormatValidator.detectAudioFormat(input);
         if (declaredFormat == AudioFormat.WAV || (declaredFormat == null && "WAV".equals(detected))) {
             if (!"WAV".equals(detected)) throw invalid("STT_AUDIO_INVALID_HEADER: expected a valid RIFF/WAVE container");
-            return decodePcmWav(input, requestedSampleRate);
+            return decodePcmWav(input, requestedSampleRate, maxAudioLengthSeconds);
         }
 
         if (declaredFormat == AudioFormat.PCM || (declaredFormat == null && "UNKNOWN".equals(detected))) {
@@ -76,8 +84,10 @@ public final class SttAudioInputDecoder {
             if ((input.length & 1) != 0) throw invalid("STT_AUDIO_INCOMPLETE_FRAME: PCM S16LE must contain complete samples");
             requireDecodedSize(input.length);
             long frames = input.length / 2L;
+            Duration duration = durationForFrames(frames, requestedSampleRate);
+            requireDuration(duration, maxAudioLengthSeconds);
             return new AudioData(input, requestedSampleRate, 1, 16,
-                    durationForFrames(frames, requestedSampleRate), AudioFormat.PCM);
+                    duration, AudioFormat.PCM);
         }
 
         String format = declaredFormat == null ? detected : declaredFormat.name();
@@ -96,13 +106,20 @@ public final class SttAudioInputDecoder {
         }
     }
 
-    private static AudioData decodePcmWav(byte[] wav, int requestedSampleRate) {
+    private static AudioData decodePcmWav(byte[] wav, int requestedSampleRate, int maxAudioLengthSeconds) {
         PcmWavInfo info = inspectPcmWav(wav, requestedSampleRate);
+        requireDuration(info.duration(), maxAudioLengthSeconds);
         // Allocation happens only after full header, rate, channel, frame and size validation.
         byte[] pcm = new byte[info.dataSize()];
         System.arraycopy(wav, info.dataOffset(), pcm, 0, pcm.length);
         return new AudioData(pcm, info.sampleRate(), info.channels(), info.bitsPerSample(),
                 info.duration(), AudioFormat.PCM);
+    }
+
+    private static void requireDuration(Duration duration, int maxAudioLengthSeconds) {
+        if (duration.compareTo(Duration.ofSeconds(maxAudioLengthSeconds)) > 0) {
+            throw invalid("STT_AUDIO_DURATION_EXCEEDED: audio exceeds the configured duration limit");
+        }
     }
 
     private static PcmWavInfo inspectPcmWav(byte[] wav, int requestedSampleRate) {

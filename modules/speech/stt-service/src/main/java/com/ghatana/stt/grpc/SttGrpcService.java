@@ -38,6 +38,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     private final AudioVideoLibrary library;
     private final Timer transcribeTimer;
+    private final int maxAudioLengthSeconds;
 
     // AV-P1-004: Supported languages and sample-rate bounds (mirrors PersistentSttService constants).
     static final Set<String> SUPPORTED_LANGUAGES = Set.of(
@@ -48,7 +49,12 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
      * Avoids native-library / file-system dependencies during tests.
      */
     SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
+        this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS);
+    }
+
+    private SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, int maxAudioLengthSeconds) {
         this.library = library;
+        this.maxAudioLengthSeconds = maxAudioLengthSeconds;
         this.transcribeTimer = Timer.builder("stt.transcribe")
             .description("Transcription latency")
             .publishPercentiles(0.50, 0.95, 0.99)
@@ -72,6 +78,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
             .build();
 
         this.library = AudioVideoLibrary.builder().withSttConfig(config).build();
+        this.maxAudioLengthSeconds = config.maxAudioLengthSeconds();
         this.transcribeTimer = Timer.builder("stt.transcribe")
             .description("Transcription latency")
             .publishPercentiles(0.50, 0.95, 0.99)
@@ -106,7 +113,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                         }
                     }
 
-                AudioData audio = SttAudioInputDecoder.decode(audioBytes, null, sampleRate);
+                AudioData audio = SttAudioInputDecoder.decode(
+                        audioBytes, null, sampleRate, maxAudioLengthSeconds);
 
                 TranscriptionResult result;
                 try (SttEngine stt = library.getSttEngine()) {
