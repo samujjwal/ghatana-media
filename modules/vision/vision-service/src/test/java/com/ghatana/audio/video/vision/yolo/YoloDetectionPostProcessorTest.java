@@ -47,6 +47,24 @@ class YoloDetectionPostProcessorTest {
                 .containsEntry("bbox.coordinate_space", "exif_oriented_source_raster_pixel_xywh");
     }
 
+    @Test void dropsPaddingOnlyBoxesAndPreservesTheImageEdgeAsPixelZero() {
+        var transform = LetterboxTransform.fit(1920, 1080, 640);
+        assertThat(transform.padTop()).isEqualTo(140);
+
+        var paddingOnly = List.of(new YoloOutputParser.Detection(0, 0.95, 20, 20, 40, 40));
+        assertThat(YoloDetectionPostProcessor.process(paddingOnly, CLASSES, transform, 0.5, 1, MODEL))
+                .isEmpty();
+
+        var touchesTopEdge = List.of(new YoloOutputParser.Detection(0, 0.95, 20, 140, 40, 20));
+        var result = YoloDetectionPostProcessor.process(touchesTopEdge, CLASSES, transform, 0.5, 1, MODEL)
+                .getFirst();
+        assertThat(result.getBoundingBox().getY()).isZero();
+        assertThat(result.getBoundingBox().getHeight()).isGreaterThan(0);
+        assertThat(result.getAttributes().getAdditionalProperties())
+                .containsEntry("confidence.unit", "raw_yolo_score_0_1_uncalibrated")
+                .containsEntry("source.content_version", "NOT_PROVIDED_BY_CONTRACT");
+    }
+
     @Test void suppressesOverlappingBoxesOfTheSameClassButKeepsDifferentClasses() {
         var raw = List.of(
                 new YoloOutputParser.Detection(0, 0.9, 10, 10, 20, 20),
