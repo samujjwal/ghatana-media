@@ -665,6 +665,23 @@ Focused verification commands:
 - `./gradlew :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest' --tests 'com.ghatana.audio.video.vision.image.BoundedImageDecoderTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL, 35 tests, 0 skipped/failures.
 - `git diff --check` — PASS.
 
+### Incremental execution record — 2026-10-25 (twenty-third round)
+
+This round corrects a misleading startup message and records the owner disposition for the public Java visibility review. The default adapter reports `not-admitted`; startup logging now uses that actual adapter identity instead of claiming that the platform audio-video library was initialized.
+
+| Task / review finding | Change and evidence | Current disposition |
+| --- | --- | --- |
+| MM-05 / MM-11 | `MultimodalGrpcService` now logs its actual `platformAdapter.backendName()`, so a default unavailable composition is not reported as an initialized platform library. The focused `PlatformMultimodalAdapterTest` and `MultimodalGrpcServiceTest` selection passed 46 tests, 0 failures/errors/skips. | PARTIAL / LOCALLY_VERIFIED as previously scoped; this corrects operational truth in startup logs and does not change readiness or provider admission. |
+| Multimodal engine Java visibility | Owner disposition: keep `MultimodalAnalysisEngine` as an internal implementation behind the gRPC service contract. The module uses the Gradle `application` plugin without publication configuration, downstream dependencies are `implementation`, and the README identifies gRPC as the supported consumer surface. Keep current cross-package runtime composition; do not create a new public SPI or auth contract. Direct source-composite consumers remain technically possible but are not an established supported API. | No task denominator change. This is a compatibility-boundary disposition, not a new authorization mechanism or security claim. |
+
+The current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. No provider admission, real modality quality, or lifecycle/deployment status is inferred.
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests '*PlatformMultimodalAdapterTest' --tests '*MultimodalGrpcServiceTest'` — BUILD SUCCESSFUL; 46 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
+
 Task dispositions remain **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. VIS-03 was already in the locally verified set; STT-04 remains partial. No admitted model quality, native resource baseline, provider execution, formal PDP/gtool acceptance, deployment, data cutover or release is claimed.
 
 ### Incremental execution record — 2026-10-25 (tenth round)

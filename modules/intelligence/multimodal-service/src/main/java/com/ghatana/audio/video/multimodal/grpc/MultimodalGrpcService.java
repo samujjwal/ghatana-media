@@ -58,7 +58,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.engine = new MultimodalAnalysisEngine(platformAdapter);
         this.mediaMetrics = metrics;
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
-        LOG.info("Multimodal service initialized against platform audio-video library");
+        LOG.info("Multimodal service initialized with backend={}", platformAdapter.backendName());
     }
 
     /**
