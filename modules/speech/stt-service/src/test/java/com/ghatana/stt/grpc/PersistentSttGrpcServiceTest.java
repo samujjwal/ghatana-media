@@ -161,6 +161,43 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("valid FLAC is reported as unsupported before WAV-only inspection")
+    void transcribeReportsValidFlacAsNotAdmitted() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        runWithTenantContext("tenant-abc", USER_ID, () -> service.transcribe(
+                TranscribeRequest.newBuilder().setAudioData(ByteString.copyFrom(validFlacStreamInfoHeader()))
+                        .setLanguage("en").setSampleRate(16_000).build(),
+                observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Audio input is not admitted");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verifyNoInteractions(persistentSttService);
+    }
+
+    @Test
+    @DisplayName("malformed FLAC remains INVALID_ARGUMENT before source admission")
+    void transcribeRejectsMalformedFlacHeader() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        runWithTenantContext("tenant-abc", USER_ID, () -> service.transcribe(
+                TranscribeRequest.newBuilder().setAudioData(ByteString.copyFrom(
+                                new byte[] {'f', 'L', 'a', 'C', 0, 0}))
+                        .setLanguage("en").setSampleRate(16_000).build(),
+                observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Invalid audio input");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verifyNoInteractions(persistentSttService);
+    }
+
+    @Test
     @DisplayName("transcribe with an artifact identifier still fails until governed version provenance exists")
     void transcribeArtifactIdFailsClosedWithoutVersionProvenance() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
@@ -312,6 +349,15 @@ class PersistentSttGrpcServiceTest {
         putAscii(bytes, 36, "data");
         bytes.putInt(40, 4).putShort(44, (short) 10).putShort(46, (short) -10);
         return wav;
+    }
+
+    private static byte[] validFlacStreamInfoHeader() {
+        byte[] flac = new byte[42];
+        byte[] marker = "fLaC".getBytes(StandardCharsets.US_ASCII);
+        System.arraycopy(marker, 0, flac, 0, marker.length);
+        flac[4] = (byte) 0x80; // Last metadata block, type STREAMINFO.
+        flac[7] = 34; // STREAMINFO payload length.
+        return flac;
     }
 
     private static void putAscii(ByteBuffer bytes, int offset, String value) {

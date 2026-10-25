@@ -5,6 +5,7 @@ import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileServi
 import com.ghatana.audio.video.infrastructure.persistence.service.TranscriptionService;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.common.validation.MediaFormatValidator;
 import com.ghatana.stt.core.grpc.proto.*;
 import com.ghatana.stt.service.PersistentSttService;
 import com.ghatana.stt.service.SttAudioInputDecoder;
@@ -129,6 +130,12 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             }
 
             byte[] audioBytes = request.getAudioData().toByteArray();
+            if ("FLAC".equals(MediaFormatValidator.detectAudioFormat(audioBytes))) {
+                // The persistent compatibility path only inspects WAV clocks. Route FLAC
+                // through the canonical decoder's bounded header validation so malformed
+                // FLAC remains INVALID_ARGUMENT while valid FLAC reports NOT_ADMITTED.
+                SttAudioInputDecoder.decode(audioBytes, null, sampleRate);
+            }
             java.time.Duration audioDuration = SttAudioInputDecoder.inspectWavDuration(audioBytes, sampleRate);
 
             if (!transcriptVersioningAdmitted()) {
