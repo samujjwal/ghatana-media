@@ -13,7 +13,7 @@ public record ClassificationCandidate(String label, double confidence) {
         if (label == null || label.isBlank()) {
             throw new IllegalArgumentException("label must not be blank");
         }
-        if (confidence < 0.0 || confidence > 1.0) {
+        if (!Double.isFinite(confidence) || confidence < 0.0 || confidence > 1.0) {
             throw new IllegalArgumentException("confidence must be in [0.0, 1.0]");
         }
     }

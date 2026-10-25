@@ -665,23 +665,6 @@ Focused verification commands:
 - `./gradlew :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest' --tests 'com.ghatana.audio.video.vision.image.BoundedImageDecoderTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL, 35 tests, 0 skipped/failures.
 - `git diff --check` — PASS.
 
-### Incremental execution record — 2026-10-25 (twenty-third round)
-
-This round corrects a misleading startup message and records the owner disposition for the public Java visibility review. The default adapter reports `not-admitted`; startup logging now uses that actual adapter identity instead of claiming that the platform audio-video library was initialized.
-
-| Task / review finding | Change and evidence | Current disposition |
-| --- | --- | --- |
-| MM-05 / MM-11 | `MultimodalGrpcService` now logs its actual `platformAdapter.backendName()`, so a default unavailable composition is not reported as an initialized platform library. The focused `PlatformMultimodalAdapterTest` and `MultimodalGrpcServiceTest` selection passed 46 tests, 0 failures/errors/skips. | PARTIAL / LOCALLY_VERIFIED as previously scoped; this corrects operational truth in startup logs and does not change readiness or provider admission. |
-| Multimodal engine Java visibility | Owner disposition: keep `MultimodalAnalysisEngine` as an internal implementation behind the gRPC service contract. The module uses the Gradle `application` plugin without publication configuration, downstream dependencies are `implementation`, and the README identifies gRPC as the supported consumer surface. Keep current cross-package runtime composition; do not create a new public SPI or auth contract. Direct source-composite consumers remain technically possible but are not an established supported API. | No task denominator change. This is a compatibility-boundary disposition, not a new authorization mechanism or security claim. |
-
-The current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. No provider admission, real modality quality, or lifecycle/deployment status is inferred.
-
-Focused verification on this source cut:
-
-- `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests '*PlatformMultimodalAdapterTest' --tests '*MultimodalGrpcServiceTest'` — BUILD SUCCESSFUL; 46 tests, 0 failures/errors/skips.
-- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
-- `git diff --check` — PASS.
-
 Task dispositions remain **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. VIS-03 was already in the locally verified set; STT-04 remains partial. No admitted model quality, native resource baseline, provider execution, formal PDP/gtool acceptance, deployment, data cutover or release is claimed.
 
 ### Incremental execution record — 2026-10-25 (tenth round)
@@ -951,3 +934,47 @@ Focused verification on this source cut:
 - `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapterTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 6 tests.
 - `./gradlew :services:media:modules:integration-tests:cleanTest :services:media:modules:integration-tests:test --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 39 tests, 0 failures/errors/skips.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (twenty-third round)
+
+This round corrects a misleading startup message and records the owner disposition for the public Java visibility review. The default adapter reports `not-admitted`; startup logging now uses that actual adapter identity instead of claiming that the platform audio-video library was initialized.
+
+| Task / review finding | Change and evidence | Current disposition |
+| --- | --- | --- |
+| MM-05 / MM-11 | `MultimodalGrpcService` now logs its actual `platformAdapter.backendName()`, so a default unavailable composition is not reported as an initialized platform library. The focused `PlatformMultimodalAdapterTest` and `MultimodalGrpcServiceTest` selection passed 46 tests, 0 failures/errors/skips. | MM-05 remains PARTIAL and MM-11 remains LOCALLY_VERIFIED; the local logging correction does not change readiness or provider admission. |
+| Multimodal engine Java visibility | Owner disposition: keep `MultimodalAnalysisEngine` as an internal implementation behind the gRPC service contract. The module uses the Gradle `application` plugin without publication configuration, downstream dependencies are `implementation`, and the README identifies gRPC as the supported consumer surface. Keep current cross-package runtime composition; do not create a new public SPI or auth contract. Direct source-composite consumers remain technically possible but are not an established supported API. | No task denominator change. This is a compatibility-boundary disposition, not a new authorization mechanism or security claim. |
+
+The current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. No provider admission, real modality quality, or lifecycle/deployment status is inferred.
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests '*PlatformMultimodalAdapterTest' --tests '*MultimodalGrpcServiceTest'` — BUILD SUCCESSFUL; 46 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (twenty-fourth round)
+
+This round closes a deterministic input-validation gap in Vision result confidence values. Java range comparisons alone allow `NaN` to pass because both comparisons evaluate false; all affected records now require finite confidence before checking the existing `[0,1]` range.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| VIS-06 | Added `Double.isFinite` guards to `ClassificationCandidate`, `DetectedFace`, `SceneUnderstandingService.SceneLabel`, and `OcrService.TextRegion`. Regressions reject `NaN` and infinities and confirm finite inclusive endpoints 0.0 and 1.0 remain accepted. The focused `ModelConfidenceValidationTest`, `SceneUnderstandingServiceTest`, `OcrServiceTest`, and `VisionModelEngineTest` selection passed 46 tests, 0 failures/errors/skips. | PARTIAL: non-finite confidence can no longer enter these result records; admitted model provenance and licensed-corpus quality/golden metrics remain unavailable. |
+
+The current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. This validation hardening does not qualify a model or claim calibrated confidence.
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:modules:vision:vision-service:test --tests '*ModelConfidenceValidationTest' --tests '*SceneUnderstandingServiceTest' --tests '*OcrServiceTest' --tests '*VisionModelEngineTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 46 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (twenty-fifth round)
+
+This round records a source-contract audit for the Wave 2 provider tasks. It does not add a provider API or change task IDs.
+
+| Task | Owner disposition and evidence | Current disposition |
+| --- | --- | --- |
+| STT-02 | Keep the external `GRPC` provider profile fail-closed. The Media STT proto is the consumer service contract, and the existing Multimodal gRPC client calls that same Media service; neither is an upstream ASR provider contract. AI Inference 1.1.0 exposes LLM, embedding and completion capabilities only. Its media-modality extension is marked `PROPOSED_NOT_ADMITTED`. The safe next input is a versioned upstream ASR descriptor plus request/response, error, finality, replay/idempotency and authentication semantics, then credentials and qualified model profile. | PARTIAL: current provider mode/profile validation remains local; adapter implementation awaits an upstream-owned contract. This does not block unrelated local tasks. |
+| TTS-02 / TTS-07 | Reuse the existing `TtsEngine` SPI and `PiperOnnxEngine`; do not introduce another Media provider interface. The production service routes through that SPI, but its model profile remains `NOT_ADMITTED` pending license, voice rights, hardware and quality evidence. Synthetic fallback remains rejected for production. A test double can verify transport handling but cannot count as real audio or provider quality. | TTS-02 remains LOCALLY_VERIFIED for the no-fake-result boundary; TTS-07 remains EXTERNAL/OWNER until a real profile is admitted and decoded output is verified. |
+
+The 58-task denominator and current exclusive counts are unchanged. These provider decisions preserve truthful unavailability and leave independent code/test work active. No tests were run for this source audit.

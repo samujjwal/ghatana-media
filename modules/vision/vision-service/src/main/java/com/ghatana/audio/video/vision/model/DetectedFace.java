@@ -22,7 +22,7 @@ public record DetectedFace(
 ) {
     public DetectedFace {
         if (boundingBox == null) throw new IllegalArgumentException("boundingBox must not be null");
-        if (confidence < 0.0 || confidence > 1.0) {
+        if (!Double.isFinite(confidence) || confidence < 0.0 || confidence > 1.0) {
             throw new IllegalArgumentException("confidence must be in [0.0, 1.0]");
         }
         landmarks = landmarks == null ? Map.of() : Map.copyOf(landmarks);

@@ -123,7 +123,7 @@ public final class SceneUnderstandingService {
     public record SceneLabel(String label, double confidence) {
         public SceneLabel {
             Objects.requireNonNull(label, "label must not be null");
-            if (confidence < 0 || confidence > 1) {
+            if (!Double.isFinite(confidence) || confidence < 0 || confidence > 1) {
                 throw new IllegalArgumentException("confidence must be in [0, 1]");
             }
         }

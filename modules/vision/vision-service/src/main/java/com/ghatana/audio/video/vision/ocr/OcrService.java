@@ -129,7 +129,7 @@ public final class OcrService {
         public TextRegion {
             Objects.requireNonNull(text, "text must not be null");
             Objects.requireNonNull(boundingBox, "boundingBox must not be null");
-            if (confidence < 0 || confidence > 1) {
+            if (!Double.isFinite(confidence) || confidence < 0 || confidence > 1) {
                 throw new IllegalArgumentException("confidence must be in [0, 1]");
             }
             if (readingOrder < 0) {
