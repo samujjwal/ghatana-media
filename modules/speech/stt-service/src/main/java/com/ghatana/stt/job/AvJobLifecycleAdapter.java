@@ -25,8 +25,8 @@ import java.util.Objects;
  *   <li>{@code CANCELLED} → {@code CANCELLED}</li>
  *   <li>{@code RETRY_PENDING} → {@code RETRYING} with the exact Media state
  *       retained in record metadata for the older shared enum</li>
- *   <li>{@code OUTCOME_UNKNOWN} and {@code RECONCILING} → {@code RUNNING} with
- *       the exact Media state retained in record metadata; neither is terminal</li>
+ *   <li>{@code OUTCOME_UNKNOWN} and {@code RECONCILING} are not projected because the
+ *       canonical enum cannot represent them without falsely claiming {@code RUNNING}</li>
  *   <li>legacy {@code RETRYING} → {@code RETRYING} with the raw spelling retained</li>
  * </ul>
  *
@@ -49,6 +49,11 @@ public final class AvJobLifecycleAdapter {
      */
     public static CanonicalJobRecord toCanonical(AvTranscriptionJob job) {
         Objects.requireNonNull(job, "job must not be null");
+        if (job.status() == AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN
+                || job.status() == AvTranscriptionJob.JobStatus.RECONCILING) {
+            throw new IllegalStateException("STT_JOB_STATUS_NOT_PROJECTABLE: canonical job status cannot represent "
+                    + job.status() + " without falsely projecting it as RUNNING");
+        }
 
         Map<String, Object> input = new HashMap<>();
         if (job.parameters() != null) input.putAll(job.parameters());

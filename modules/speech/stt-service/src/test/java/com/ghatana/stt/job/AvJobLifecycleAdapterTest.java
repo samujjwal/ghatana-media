@@ -83,22 +83,23 @@ class AvJobLifecycleAdapterTest {
     }
 
     @Test
-    @DisplayName("retains canonical unknown and retry states without marking them terminal")
-    void retainsCanonicalIntermediateStates() {
-        AvTranscriptionJob job = AvTranscriptionJob.create(
-                "audio-4", "tenant-1", "en", Map.of(), "trace-4", "req-4", "whisper-3")
-                .withStatus(AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN);
+    @DisplayName("does not project unknown outcome as canonical RUNNING")
+    void doesNotProjectUnknownAsRunning() {
+        for (AvTranscriptionJob.JobStatus status : java.util.List.of(
+                AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN,
+                AvTranscriptionJob.JobStatus.RECONCILING)) {
+            AvTranscriptionJob job = AvTranscriptionJob.create(
+                    "audio-4", "tenant-1", "en", Map.of(), "trace-4", "req-4", "whisper-3")
+                    .withStatus(status);
 
-        CanonicalJobRecord canonical = AvJobLifecycleAdapter.toCanonical(job);
-
-        assertThat(canonical.status()).isEqualTo(CanonicalJobStatus.RUNNING);
-        assertThat(canonical.metadata()).containsEntry("mediaCanonicalState", "OUTCOME_UNKNOWN");
-        assertThat(canonical.isTerminal()).isFalse();
+            assertThat(assertThrows(IllegalStateException.class, () -> AvJobLifecycleAdapter.toCanonical(job)))
+                    .hasMessageStartingWith("STT_JOB_STATUS_NOT_PROJECTABLE:");
+        }
     }
 
     @Test
     @SuppressWarnings("deprecation")
-    @DisplayName("preserves exact Media state across lossy shared-status projection")
+    @DisplayName("projects every status that canonical enum can represent")
     void preservesExactMediaStateAcrossSharedProjection() {
         Map<AvTranscriptionJob.JobStatus, CanonicalJobStatus> expectedSharedStatus =
                 new EnumMap<>(AvTranscriptionJob.JobStatus.class);
@@ -107,13 +108,11 @@ class AvJobLifecycleAdapterTest {
         expectedSharedStatus.put(AvTranscriptionJob.JobStatus.PROCESSING, CanonicalJobStatus.RUNNING);
         expectedSharedStatus.put(AvTranscriptionJob.JobStatus.RETRY_PENDING, CanonicalJobStatus.RETRYING);
         expectedSharedStatus.put(AvTranscriptionJob.JobStatus.RETRYING, CanonicalJobStatus.RETRYING);
-        expectedSharedStatus.put(AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN, CanonicalJobStatus.RUNNING);
-        expectedSharedStatus.put(AvTranscriptionJob.JobStatus.RECONCILING, CanonicalJobStatus.RUNNING);
         expectedSharedStatus.put(AvTranscriptionJob.JobStatus.COMPLETED, CanonicalJobStatus.COMPLETED);
         expectedSharedStatus.put(AvTranscriptionJob.JobStatus.FAILED, CanonicalJobStatus.FAILED);
         expectedSharedStatus.put(AvTranscriptionJob.JobStatus.CANCELLED, CanonicalJobStatus.CANCELLED);
 
-        assertThat(expectedSharedStatus).hasSize(AvTranscriptionJob.JobStatus.values().length);
+        assertThat(expectedSharedStatus).hasSize(AvTranscriptionJob.JobStatus.values().length - 2);
         for (var entry : expectedSharedStatus.entrySet()) {
             AvTranscriptionJob job = AvTranscriptionJob.create(
                     "audio-state", "tenant-1", "en", Map.of(), "trace", "request", "processor")
