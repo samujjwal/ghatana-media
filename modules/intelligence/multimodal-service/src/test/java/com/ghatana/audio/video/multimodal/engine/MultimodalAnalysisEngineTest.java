@@ -498,6 +498,29 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Image and video confidence scores are not collapsed into one visual score")
+    void mergedVisualResultLeavesAggregateConfidenceUnknown() {
+        DetectionResult imageDetection = new DetectionResult("image-object", 0.82, 1, 2, 3, 4);
+        DetectionResult videoDetection = new DetectionResult("video-object", 0.47, 5, 6, 7, 8);
+        VisualResult image = VisualResult.builder().confidence(0.82)
+                .detections(List.of(imageDetection)).build();
+        VisualResult video = VisualResult.builder().confidence(0.47)
+                .detections(List.of(videoDetection)).build();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"), image, video);
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            MultimodalResult result = engine.analyse(MultimodalRequest.builder()
+                    .imageData(new byte[] {1}).videoData(new byte[] {2}).build());
+
+            assertNull(result.getVisualResult().getConfidence());
+            assertEquals(2, result.getVisualResult().getDetections().size());
+            assertEquals(0.82, result.getVisualResult().getDetections().get(0).getConfidence());
+            assertEquals(0.47, result.getVisualResult().getDetections().get(1).getConfidence());
+        }
+    }
+
+    @Test
     @DisplayName("All requested modality failures produce an explicit failed outcome")
     void allRequestedModalityFailuresAreFailed() {
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(

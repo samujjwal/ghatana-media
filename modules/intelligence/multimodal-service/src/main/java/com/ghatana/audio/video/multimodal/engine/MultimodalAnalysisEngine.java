@@ -314,9 +314,6 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                 .sceneDescription(scene)
                 .detections(merged)
                 .frameResults(video.getFrameResults())
-                .confidence(Math.max(
-                        image.getConfidence() != null ? image.getConfidence() : 0.0,
-                        video.getConfidence() != null ? video.getConfidence() : 0.0))
                 .build();
     }
 

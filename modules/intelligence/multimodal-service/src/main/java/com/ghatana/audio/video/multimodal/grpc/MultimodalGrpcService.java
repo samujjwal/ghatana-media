@@ -175,6 +175,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .putMetadata("audio_confidence_source_calibration", result.getAudioResult() == null
                             ? "UNKNOWN" : result.getAudioResult().getConfidenceCalibration().name())
                     .putMetadata("has_visual", String.valueOf(result.getVisualResult() != null))
+                    .putMetadata("visual_confidence_available", String.valueOf(
+                            result.getVisualResult() != null && result.getVisualResult().getConfidence() != null))
                     .putMetadata("has_text", String.valueOf(!request.getText().isEmpty()))
                     .putMetadata("processing_backend", platformAdapter.backendName())
                     .putMetadata("platform_metrics_enabled", String.valueOf(platformAdapter.metricsEnabled()));

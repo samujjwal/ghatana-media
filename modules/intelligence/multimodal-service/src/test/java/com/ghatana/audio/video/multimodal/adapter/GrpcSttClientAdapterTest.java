@@ -10,6 +10,7 @@ import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -165,5 +166,30 @@ class GrpcSttClientAdapterTest {
         AudioResult absent = AudioResult.builder().build();
         assertThat(absent.hasConfidence()).isFalse();
         assertThat(absent.getConfidenceCalibration()).isEqualTo(AudioResult.ConfidenceCalibration.UNKNOWN);
+    }
+
+    @Test
+    @DisplayName("Deadline and cancellation statuses propagate as ambiguous outcomes")
+    void propagatesDeadlineAndCancellation() throws Exception {
+        for (Status status : new Status[] {Status.DEADLINE_EXCEEDED, Status.CANCELLED}) {
+            Server server = ServerBuilder.forPort(0)
+                    .addService(new STTServiceGrpc.STTServiceImplBase() {
+                        @Override
+                        public void transcribe(
+                                com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                                StreamObserver<TranscribeResponse> observer) {
+                            observer.onError(status.asRuntimeException());
+                        }
+                    }).build().start();
+            try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                    "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+                assertThatThrownBy(() -> adapter.transcribe(new byte[] {1}))
+                        .isInstanceOf(io.grpc.StatusRuntimeException.class)
+                        .satisfies(failure -> assertThat(((io.grpc.StatusRuntimeException) failure)
+                                .getStatus().getCode()).isEqualTo(status.getCode()));
+            } finally {
+                server.shutdownNow();
+            }
+        }
     }
 }
