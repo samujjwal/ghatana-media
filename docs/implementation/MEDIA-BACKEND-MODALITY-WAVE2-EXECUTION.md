@@ -686,6 +686,42 @@ Focused verification:
 
 Current exclusive task dispositions are **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. OBS-07 remains PARTIAL: provider readiness/quality signals are fixture-only where the launcher exports no modality gauge, and no deployed alert delivery was tested. W2-E12 remains incomplete because real provider/store dependency qualification and replay/finality conditions exceed this OBS-06 slice. No real STT/Vision provider quality, formal PDP/gtool acceptance, production deployment, cutover or release is claimed.
 
+### Incremental execution record — 2026-10-25 (twelfth round)
+
+Five focused commits follow the eleventh-round source cut: `6e05d77`, `d26c7f3`, `231cccf`, `1c2a996`, and `d84a8fa`. Each closes a bounded implementation or test-correctness gap; none qualifies a provider or advances a formal lifecycle gate.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| STT-07 | Rechecks trusted diarization admission immediately before each embedding dispatch. A mid-batch revocation prevents the next provider call; the regression confirms one call and typed `NOT_ADMITTED`. The focused diarization and log-privacy suites passed 21 tests. | PARTIAL: no admitted diarization provider/corpus or biometric identity authority. |
+| VIS-06 | The detection postprocessor rejects duplicate class labels, matching the existing unique-label invariant and preventing distinct class IDs from collapsing during class-name-based NMS. `YoloDetectionPostProcessorTest` passed 10 tests. | PARTIAL: licensed-corpus mAP/PR and admitted model qualification remain unavailable. |
+| VIS-10 | The legacy `VisionModelEngine.detectFaces` path now returns typed `NOT_ADMITTED` before detector dispatch when trusted biometric rights context is absent. Engine tests assert zero provider calls; service, audit-sink, and gRPC tests preserve denied face-landmark/expression/gaze dispositions. All selected tests passed. | PARTIAL: trusted biometric purpose/consent/retention authority and an admitted provider are unavailable. |
+| MM-05 | `PlatformMultimodalAdapter` preserves child `CancellationException`, gRPC `CANCELLED`, and `DEADLINE_EXCEEDED` outcomes instead of wrapping them as generic processing failures. The adapter suite passed 5 tests. | PARTIAL: real child-provider effects, trusted context propagation, split retries, and durable finality remain unqualified. |
+| OBS-07 | Corrected the watcher shutdown test to accept either a `SERVING` to `NOT_SERVING` transition or an initial `NOT_SERVING` followed by completion. The focused test passed four actual executions, including three forced reruns. Production readiness behavior was unchanged. | PARTIAL: no admitted provider-quality signal or deployed alert delivery. |
+| OBS-08 | The resource harness ran 96 local fixture operations at concurrency 1/16/64 and saved `build/reports/media-resource-profile-obs08.tsv`. This is a no-provider Java 21.0.9/macOS aarch64 profile with 10 reported processors; model and corpus are `NOT_CONFIGURED`. | PARTIAL: this does not establish modality-provider or SLO baselines; GPU/native memory, pool/network use, FFmpeg resource use, model RTF, and frames/s remain `NOT_MEASURED`. |
+
+The reproducible local fixture profile reported:
+
+| Concurrency | p50 / p95 / p99 (ms) | Throughput (ops/s) | Process CPU (ns) | Heap peak (bytes) | Thread peak |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 61.274 / 116.950 / 121.977 | 783.654 | 130,603,000 | 58,720,256 | 11 |
+| 16 | 3.824 / 7.044 / 7.230 | 11,479.192 | 14,759,000 | 62,914,560 | 26 |
+| 64 | 1.636 / 2.009 / 2.101 | 17,769.413 | 18,897,000 | 79,691,776 | 74 |
+
+Other reviewed task boundaries required no source change: STT-03 already rejects missing authenticated tenant/principal before persistence or provider work; TTS-06 has finite bounded control parsing but no provider-observable effects; TTS-09 defensively preserves immutable audio bytes and repeated `NOT_ADMITTED` requests do not persist output; VIS-05 geometry/EXIF transforms pass focused round trips; VIS-08 returns typed `NOT_ADMITTED` without YOLO substitution; VIS-09 remains blocked on a published, qualified Document Intelligence public API and owner-defined security/semantic mappings; MM-06 validates dimensions, finite values and embedding-space identity while marking its score `HEURISTIC_UNCALIBRATED`; MM-10 uses the public Data Cloud `MediaProcessorPort`, keeps indexing unavailable, and redacts backing-service errors. MM-02's public gRPC path requires authenticated tenant/principal and defaults source authorization to `NOT_ADMITTED`; the internal raw-byte persistence helper has no Media production caller. Its future authorization seam still lacks immutable artifact/version and consent-reference inputs, so raw-inline source semantics require owner binding before egress can be enabled.
+
+Focused verification on this round's source cut:
+
+- STT diarization and privacy tests, Vision postprocessor tests, and the multimodal child-outcome adapter test — BUILD SUCCESSFUL; 21, 10, and 5 tests respectively.
+- Vision engine, direct service, biometric audit-sink, and gRPC disposition tests — BUILD SUCCESSFUL; denied biometric calls remain zero-dispatch.
+- STT authenticated-service and persistence validation tests — BUILD SUCCESSFUL; 33 selected tests.
+- TTS SSML, emotion, and mixing control tests — BUILD SUCCESSFUL.
+- OBS-07 focused watcher test — PASS, four actual executions. Prometheus rule checks validated 6 general and 30 audio-video rules; the alert fixture passed.
+- OBS-08 `MediaResourceProfileHarnessTest` — BUILD SUCCESSFUL; the local fixture profile is recorded above and in the ignored build report.
+- MM-10 Data Cloud adapter/projector tests and VIS-09 OCR fail-closed tests — BUILD SUCCESSFUL; no source changes.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks. `git diff --check` — PASS.
+
+The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. The new checks strengthen bounded local behavior but do not establish provider quality, trusted rights/consent, durable cross-service effects, native resource baselines, formal PDP/gtool acceptance, production cutover, deployment, or release.
+
 ### Incremental execution record — 2026-10-25 (eleventh round)
 
 The current selected module source cut passed all four complete modality test tasks after the STT, TTS, Vision and Multimodal boundary changes:
