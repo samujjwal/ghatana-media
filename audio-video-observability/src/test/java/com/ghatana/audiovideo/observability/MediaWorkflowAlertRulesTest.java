@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -136,4 +138,32 @@ class MediaWorkflowAlertRulesTest {
             assertThat(expression).doesNotContain("or", "absent", "NaN", "vector(0)");
         });
     }
+
+    @Test
+    void providerReadinessRuleFixturesOnlyFireForObservedZeroAndExposeNoIdentityLabels() throws IOException {
+        Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
+        String rules = Files.readString(rulesPath);
+        List<ReadinessFixture> fixtures = List.of(
+                new ReadinessFixture("missing", OptionalDouble.empty(), false),
+                new ReadinessFixture("unknown", OptionalDouble.of(Double.NaN), false),
+                new ReadinessFixture("ready", OptionalDouble.of(1.0), false),
+                new ReadinessFixture("not-ready", OptionalDouble.of(0.0), true));
+
+        for (String service : List.of("stt", "tts", "vision", "multimodal")) {
+            String expression = "av_service_readiness{service=\"" + service + "\"} == 0";
+            assertThat(rules).contains(expression);
+            for (ReadinessFixture fixture : fixtures) {
+                assertThat(firesObservedZeroRule(fixture.value()))
+                        .as("%s readiness fixture: %s", service, fixture.name())
+                        .isEqualTo(fixture.shouldFire());
+            }
+        }
+        assertThat(rules).doesNotContain("customer-private-media-marker", "tenant-987", "request-654");
+    }
+
+    private static boolean firesObservedZeroRule(OptionalDouble value) {
+        return value.isPresent() && Double.isFinite(value.getAsDouble()) && value.getAsDouble() == 0.0;
+    }
+
+    private record ReadinessFixture(String name, OptionalDouble value, boolean shouldFire) {}
 }

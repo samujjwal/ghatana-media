@@ -60,7 +60,8 @@ groups:
           component: stt
         annotations:
           summary: "STT service provider readiness is down"
-          description: "The observed STT readiness gauge is zero. Check coarse STT readiness and the STT service's provider configuration; missing or unknown series do not trigger this alert."
+          description: "The observed STT readiness gauge is zero. Check public readiness and lifecycle, then inspect only redacted STT diagnostics and provider configuration. Keep traffic closed until readiness recovers; missing or unknown series do not trigger this alert."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
       - alert: TtsProviderNotReady
         expr: av_service_readiness{service="tts"} == 0
@@ -71,7 +72,8 @@ groups:
           component: tts
         annotations:
           summary: "TTS service provider readiness is down"
-          description: "The observed TTS readiness gauge is zero. Check coarse TTS readiness and the TTS service's provider configuration; missing or unknown series do not trigger this alert."
+          description: "The observed TTS readiness gauge is zero. Check public readiness and lifecycle, then inspect only redacted TTS diagnostics and provider configuration. Keep traffic closed until readiness recovers; missing or unknown series do not trigger this alert."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
       - alert: VisionProviderNotReady
         expr: av_service_readiness{service="vision"} == 0
@@ -82,7 +84,8 @@ groups:
           component: vision
         annotations:
           summary: "Vision service provider readiness is down"
-          description: "The observed Vision readiness gauge is zero. Check coarse Vision readiness and the Vision service's provider configuration; missing or unknown series do not trigger this alert."
+          description: "The observed Vision readiness gauge is zero. Check public readiness and lifecycle, then inspect only redacted Vision diagnostics and provider configuration. Keep traffic closed until readiness recovers; missing or unknown series do not trigger this alert."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
       - alert: MultimodalProviderNotReady
         expr: av_service_readiness{service="multimodal"} == 0
@@ -93,7 +96,8 @@ groups:
           component: multimodal
         annotations:
           summary: "Multimodal service provider readiness is down"
-          description: "The observed Multimodal readiness gauge is zero. Check coarse Multimodal readiness and the Multimodal service's provider configuration; missing or unknown series do not trigger this alert."
+          description: "The observed Multimodal readiness gauge is zero. Check public readiness and lifecycle, then inspect only redacted Multimodal diagnostics and provider configuration. Keep traffic closed until readiness recovers; missing or unknown series do not trigger this alert."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
   # -------------------------------------------------------------------------
   # 2. STT (Speech-to-Text) Performance

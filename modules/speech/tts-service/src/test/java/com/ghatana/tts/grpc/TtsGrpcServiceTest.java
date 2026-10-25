@@ -215,6 +215,38 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void validStreamRequestFailsNotAdmittedWithoutEmittingPartialOrFinalAudio() {
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                new CapturingObserver<>();
+
+        service.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertStatus(observer, Status.Code.UNAVAILABLE);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).synthesize(anyString(), any());
+        assertThat(registry.get("tts.synthesize.streaming").timer().count()).isEqualTo(1);
+    }
+
+    @Test
+    void streamRequestExceedingTextBoundFailsBeforeProviderLookup() {
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                new CapturingObserver<>();
+
+        service.streamSynthesize(
+                SynthesizeRequest.newBuilder().setText("x".repeat(5_001)).build(), observer);
+
+        assertStatus(observer, Status.Code.INVALID_ARGUMENT);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
     void streamFailsUnavailableBeforeProviderLookupWhenDownstreamIsNotReady() {
         @SuppressWarnings("unchecked")
         ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
