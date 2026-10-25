@@ -16,7 +16,12 @@ import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audit.AuditEvent;
 import com.ghatana.audit.AuditService;
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
+import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Scope;
 import io.grpc.Context;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
@@ -68,6 +73,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     private final MediaWorkflowMetrics modalityMetrics;
     private final ModelRegistry modelRegistry;
     private final AuditService auditService;
+    private final AudioVideoTracingService tracingService;
     private volatile boolean degraded = false;
     private volatile String degradationReason = null;
 
@@ -98,6 +104,14 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
                       MediaProcessingMetrics metrics, @Nullable AuditService auditService,
                       ModelRegistry modelRegistry, MeterRegistry providerMetrics) {
+        this(detector, frameExtractor, metrics, auditService, modelRegistry, providerMetrics,
+                new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-vision")));
+    }
+
+    VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
+                      MediaProcessingMetrics metrics, @Nullable AuditService auditService,
+                      ModelRegistry modelRegistry, MeterRegistry providerMetrics,
+                      AudioVideoTracingService tracingService) {
         this.detector = detector;
         this.frameExtractor = frameExtractor;
         this.mediaMetrics = metrics;
@@ -105,6 +119,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 Objects.requireNonNull(providerMetrics, "providerMetrics"), "vision");
         this.auditService = auditService;
         this.modelRegistry = modelRegistry;
+        this.tracingService = Objects.requireNonNull(tracingService, "tracingService");
     }
 
     public VisionGrpcService() {
@@ -146,6 +161,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public void detectObjects(DetectRequest request, StreamObserver<DetectResponse> responseObserver) {
+        Span trace = tracingService.startVisionDetectionSpan(null, resolveTenantId(), request.getConfidenceThreshold());
+        TracedResponse<DetectResponse> traced = tracedResponse("detectObjects", trace, responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(trace)) {
         long startTime = System.currentTimeMillis();
         requestCount.incrementAndGet();
         mediaMetrics.recordStarted("vision.detect");
@@ -210,6 +229,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             List<DetectedObject> detectedObjects = recordProviderExecution(() -> detector.detectObjects(
                 request.getImageData().toByteArray(), options));
+            tracingService.recordVisionDetectionResult(trace, detectedObjects.size(),
+                    detectedObjects.stream().mapToDouble(DetectedObject::getConfidence).max().orElse(Double.NaN));
 
             DetectResponse.Builder responseBuilder = DetectResponse.newBuilder();
 
@@ -284,6 +305,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .withDescription("Internal detection error")
                 .asRuntimeException());
         }
+        }
     }
 
     private List<DetectedObject> recordProviderExecution(Supplier<List<DetectedObject>> invocation) {
@@ -309,6 +331,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public void analyzeImage(AnalyzeRequest request, StreamObserver<AnalyzeResponse> responseObserver) {
+        TracedResponse<AnalyzeResponse> traced = genericTracedResponse("analyzeImage", responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(traced.span)) {
         mediaMetrics.recordStarted("vision.analyze");
         String tenantId = resolveTenantId();
         if (tenantId == null || tenantId.isBlank()) {
@@ -347,12 +372,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
                 .withDescription("Image scene analysis is not admitted; object detections do not establish scene semantics")
                 .asRuntimeException());
+        }
     }
 
     // ── AV-003.5: classifyImage ────────────────────────────────────────────
 
     @Override
     public void classifyImage(ClassifyRequest request, StreamObserver<ClassifyResponse> responseObserver) {
+        TracedResponse<ClassifyResponse> traced = genericTracedResponse("classifyImage", responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(traced.span)) {
         mediaMetrics.recordStarted("vision.classify");
         String tenantId = resolveTenantId();
         if (tenantId == null || tenantId.isBlank()) {
@@ -380,12 +409,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
                 .withDescription("Image classification is not admitted by the active Vision provider")
                 .asRuntimeException());
+        }
     }
 
     // ── AV-003.1: loadModel ────────────────────────────────────────────────
 
     @Override
     public void loadModel(LoadModelRequest request, StreamObserver<LoadModelResponse> responseObserver) {
+        TracedResponse<LoadModelResponse> traced = genericTracedResponse("loadModel", responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(traced.span)) {
         if (!hasTenantContext(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
@@ -397,12 +430,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         responseObserver.onError(io.grpc.Status.UNAVAILABLE
             .withDescription("Model loading requires an admitted Vision provider profile")
             .asRuntimeException());
+        }
     }
 
     // ── AV-003.2: unloadModel ──────────────────────────────────────────────
 
     @Override
     public void unloadModel(UnloadModelRequest request, StreamObserver<UnloadModelResponse> responseObserver) {
+        TracedResponse<UnloadModelResponse> traced = genericTracedResponse("unloadModel", responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(traced.span)) {
         if (!hasTenantContext(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
@@ -414,20 +451,29 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         responseObserver.onError(io.grpc.Status.UNAVAILABLE
             .withDescription("Model unloading requires an admitted Vision provider profile")
             .asRuntimeException());
+        }
     }
 
     // ── AV-003.3: listModels ───────────────────────────────────────────────
 
     @Override
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
+        TracedResponse<ListModelsResponse> traced = genericTracedResponse("listModels", responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(traced.span)) {
         if (!hasTenantContext(responseObserver)) return;
         responseObserver.onError(io.grpc.Status.UNAVAILABLE
             .withDescription("Model listing requires an admitted Vision provider profile")
             .asRuntimeException());
+        }
     }
 
     @Override
     public void analyzeVideoFile(VideoFileRequest request, StreamObserver<VideoFileResponse> responseObserver) {
+        Span trace = tracingService.startVideoProcessingSpan(null, resolveTenantId());
+        TracedResponse<VideoFileResponse> traced = tracedResponse("analyzeVideoFile", trace, responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(trace)) {
         long startTime = System.currentTimeMillis();
         Path tempDir = null;
 
@@ -573,6 +619,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 cleanupTempDirectory(tempDir);
             }
         }
+        }
     }
 
     static VideoFrameDetections.Builder mapSourceTimestamp(VideoFrameExtractor.ExtractedFrame frame) {
@@ -592,19 +639,31 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public StreamObserver<VideoFrameRequest> processVideo(StreamObserver<VideoFrameResponse> responseObserver) {
+        Span trace = tracingService.startGrpcStreamingSpan("ProcessVideo", resolveTenantId());
+        TracedResponse<VideoFrameResponse> traced = tracedResponse("processVideo", trace, responseObserver);
+        StreamObserver<VideoFrameResponse> tracedObserver = traced.observer;
+        java.util.concurrent.atomic.AtomicBoolean terminal = new java.util.concurrent.atomic.AtomicBoolean();
+        if (responseObserver instanceof ServerCallStreamObserver<?> raw) {
+            @SuppressWarnings("unchecked")
+            ServerCallStreamObserver<VideoFrameResponse> serverObserver =
+                    (ServerCallStreamObserver<VideoFrameResponse>) raw;
+            serverObserver.setOnCancelHandler(() -> {
+                terminal.set(true);
+                traced.finishUnknown();
+            });
+        }
         return new StreamObserver<VideoFrameRequest>() {
-            private final java.util.concurrent.atomic.AtomicBoolean terminal =
-                    new java.util.concurrent.atomic.AtomicBoolean();
             private final VideoStreamBudget budget = new VideoStreamBudget();
 
             @Override
             public void onNext(VideoFrameRequest request) {
                 if (terminal.get()) return;
+                try (Scope scope = tracingService.createScope(trace)) {
                 try {
                     String tenantId = resolveTenantId();
                     if (tenantId == null || tenantId.isBlank()) {
                         terminal.set(true);
-                        responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                        tracedObserver.onError(io.grpc.Status.UNAUTHENTICATED
                                 .withDescription("Missing tenant context")
                                 .asRuntimeException());
                         return;
@@ -612,7 +671,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                     // AV-P1-013: Validate frame size
                     if (request.getFrameData().isEmpty()) {
                         terminal.set(true);
-                        responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                        tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                             .withDescription("Frame data cannot be empty")
                             .asRuntimeException());
                         return;
@@ -621,7 +680,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                     int frameSize = request.getFrameData().size();
                     if (frameSize > MAX_IMAGE_BYTES) {
                         terminal.set(true);
-                        responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                        tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                             .withDescription("Frame data exceeds maximum size of " + (MAX_IMAGE_BYTES / 1024 / 1024) + "MB")
                             .asRuntimeException());
                         return;
@@ -629,13 +688,13 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
                     if (!budget.tryAccept(frameSize)) {
                         terminal.set(true);
-                        responseObserver.onError(io.grpc.Status.RESOURCE_EXHAUSTED
+                        tracedObserver.onError(io.grpc.Status.RESOURCE_EXHAUSTED
                             .withDescription("Video frame stream exceeds its cumulative resource budget")
                             .asRuntimeException());
                         return;
                     }
 
-                    if (rejectWhenProviderUnavailable(responseObserver, "Video frame processing")) {
+                    if (rejectWhenProviderUnavailable(tracedObserver, "Video frame processing")) {
                         terminal.set(true);
                         return;
                     }
@@ -671,30 +730,31 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         responseBuilder.addDetections(detection);
                     }
 
-                    responseObserver.onNext(responseBuilder.build());
+                    tracedObserver.onNext(responseBuilder.build());
 
                 } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
                     terminal.set(true);
-                    responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                    tracedObserver.onError(io.grpc.Status.UNIMPLEMENTED
                             .withDescription("Unsupported video frame metadata").asRuntimeException());
                 } catch (Exception e) {
                     terminal.set(true);
                     LOG.error("Video frame processing failed ({})", e.getClass().getSimpleName());
-                    responseObserver.onError(io.grpc.Status.INTERNAL
+                    tracedObserver.onError(io.grpc.Status.INTERNAL
                             .withDescription("Video frame processing failed").asRuntimeException());
+                }
                 }
             }
 
             @Override
             public void onError(Throwable t) {
-                terminal.set(true);
+                if (terminal.compareAndSet(false, true)) traced.finishUnknown();
                 LOG.error("Video processing stream error ({})", t.getClass().getSimpleName());
             }
 
             @Override
             public void onCompleted() {
                 if (!terminal.compareAndSet(false, true)) return;
-                responseObserver.onCompleted();
+                try (Scope scope = tracingService.createScope(trace)) { tracedObserver.onCompleted(); }
                 LOG.info("Video processing stream completed");
             }
         };
@@ -717,6 +777,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public void getStatus(StatusRequest request, StreamObserver<StatusResponse> responseObserver) {
+        TracedResponse<StatusResponse> traced = genericTracedResponse("getStatus", responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(traced.span)) {
         try {
             long count = requestCount.get();
             long totalTime = totalProcessingTime.get();
@@ -742,10 +805,77 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             responseObserver.onError(io.grpc.Status.INTERNAL
                     .withDescription("Failed to get status").asRuntimeException());
         }
+        }
+    }
+
+    private <T> TracedResponse<T> genericTracedResponse(String operation, StreamObserver<T> observer) {
+        Span span = tracingService.startVisionUnarySpan(operation, resolveTenantId());
+        return tracedResponse(operation, span, observer);
+    }
+
+    private <T> TracedResponse<T> tracedResponse(String operation, Span span, StreamObserver<T> observer) {
+        span.setAttribute("media.surface", "vision");
+        span.setAttribute("media.rpc.operation", operation);
+        long startNanos = System.nanoTime();
+        var terminal = new java.util.concurrent.atomic.AtomicBoolean();
+        StreamObserver<T> tracedObserver = new StreamObserver<>() {
+
+            @Override public void onNext(T value) {
+                if (!terminal.get()) {
+                    try (Scope scope = tracingService.createScope(span)) { observer.onNext(value); }
+                }
+            }
+
+            @Override public void onError(Throwable failure) {
+                if (!terminal.compareAndSet(false, true)) return;
+                long elapsedMs = Math.max(0L, java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(
+                        System.nanoTime() - startNanos));
+                try (Scope scope = tracingService.createScope(span)) {
+                    tracingService.recordError(span,
+                            failure instanceof Exception exception ? exception : new RuntimeException("RPC failed"),
+                            elapsedMs);
+                }
+                observer.onError(failure);
+            }
+
+            @Override public void onCompleted() {
+                if (!terminal.compareAndSet(false, true)) return;
+                long elapsedMs = Math.max(0L, java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(
+                        System.nanoTime() - startNanos));
+                try (Scope scope = tracingService.createScope(span)) {
+                    tracingService.recordSuccess(span, elapsedMs);
+                }
+                observer.onCompleted();
+            }
+        };
+        return new TracedResponse<>(span, tracedObserver, terminal);
+    }
+
+    private final class TracedResponse<T> {
+        private final Span span;
+        private final StreamObserver<T> observer;
+        private final java.util.concurrent.atomic.AtomicBoolean terminal;
+
+        private TracedResponse(Span span, StreamObserver<T> observer,
+                               java.util.concurrent.atomic.AtomicBoolean terminal) {
+            this.span = span;
+            this.observer = observer;
+            this.terminal = terminal;
+        }
+
+        /** Client cancellation has no server response terminal callback or measured outcome. */
+        private void finishUnknown() {
+            if (terminal.compareAndSet(false, true)) {
+                try (Scope scope = tracingService.createScope(span)) { span.end(); }
+            }
+        }
     }
 
     @Override
     public void healthCheck(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
+        TracedResponse<HealthCheckResponse> traced = genericTracedResponse("healthCheck", responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(traced.span)) {
         try {
             boolean healthy;
             try {
@@ -769,6 +899,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             LOG.error("Health check failed ({})", e.getClass().getSimpleName());
             responseObserver.onError(io.grpc.Status.UNAVAILABLE
                     .withDescription("Vision readiness is unavailable").asRuntimeException());
+        }
         }
     }
 

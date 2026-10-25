@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:libs:common"))
     implementation(project(":services:media:audio-video-observability"))
+    implementation(libs.opentelemetry.api)
 
     // gRPC
     implementation(libs.grpc.netty.shaded)
@@ -62,6 +63,8 @@ dependencies {
     // Testing
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.grpc.inprocess)
+    testImplementation(libs.opentelemetry.sdk)
+    testImplementation(libs.opentelemetry.sdk.testing)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation("com.ghatana.platform:testing:${providers.gradleProperty("ghatana.shared.version").get()}")
