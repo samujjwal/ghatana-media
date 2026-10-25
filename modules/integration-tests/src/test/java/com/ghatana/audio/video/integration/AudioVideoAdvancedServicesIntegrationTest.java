@@ -1,8 +1,6 @@
 package com.ghatana.audio.video.integration;
 
 import com.ghatana.stt.diarization.SpeakerDiarizationService;
-import com.ghatana.stt.detection.LanguageDetectionService;
-import com.ghatana.stt.vocabulary.CustomVocabularyManager;
 import com.ghatana.tts.ssml.SsmlProcessor;
 import com.ghatana.audio.video.vision.ocr.OcrService;
 import com.ghatana.audio.video.vision.recognition.FacialRecognitionService;
@@ -14,15 +12,17 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Cross-service integration tests for the Audio-Video module (AV-012). 
  *
- * <p>Verifies that the advanced STT, TTS, and Vision services interact correctly
- * when composed in a multi-step media analysis workflow without requiring the
- * underlying native AI libraries (all models are stubbed). 
+ * <p>Verifies fail-closed behavior when rights or provider admission is absent.
+ * Injected provider lambdas are sentinels and must not be called; their outputs
+ * do not establish provider capability or model quality.
  *
  * @doc.type class
  * @doc.purpose Cross-service integration tests for advanced audio-video features
@@ -40,11 +40,11 @@ class AudioVideoAdvancedServicesIntegrationTest {
     class SttAdvancedIntegration {
 
         @Test
-        @DisplayName("diarizer → language detector → vocabulary manager pipeline works end-to-end")
-        void sttPipeline_diarizationToVocabulary_endToEnd() { 
-            // Step 1: Diarize
+        @DisplayName("diarization is NOT_ADMITTED before the injected embedding provider runs")
+        void diarizationWithoutRights_failsBeforeEmbedding() {
+            AtomicInteger extractorCalls = new AtomicInteger();
             SpeakerDiarizationService diarizer = SpeakerDiarizationService.builder() 
-                    .embeddingExtractor(bytes -> new float[]{1.0f, 0.0f}) 
+                    .embeddingExtractor(bytes -> { extractorCalls.incrementAndGet(); return new float[]{1.0f, 0.0f}; })
                     .maxSpeakers(3) 
                     .similarityThreshold(0.80) 
                     .build(); 
@@ -53,28 +53,19 @@ class AudioVideoAdvancedServicesIntegrationTest {
                     new SpeakerDiarizationService.AudioSegment(new byte[]{1, 2}, 0, 500, "Ghatana is awesome"), 
                     new SpeakerDiarizationService.AudioSegment(new byte[]{1, 2}, 500, 1000, "ActiveJ rocks") 
             );
-            List<SpeakerDiarizationService.SpeakerTurn> turns = diarizer.diarize(segments); 
-            assertThat(turns).hasSize(2); 
-            assertThat(turns.get(0).speakerId()).isNotNull(); 
-
-            // Step 2: Language detection
-            LanguageDetectionService langDetector = LanguageDetectionService.of( 
-                    textSample -> List.of(LanguageDetectionService.LanguageCandidate.of("en", 0.98))); 
-            LanguageDetectionService.DetectionResult langResult = langDetector.detect(turns.get(0).text()); 
-            assertThat(langResult.topLanguageTag()).contains("en");
-
-            // Step 3: Vocabulary enhancement
-            CustomVocabularyManager vocab = CustomVocabularyManager.of(List.of("Ghatana", "ActiveJ")); 
-            String enhanced = vocab.apply(turns.get(0).text()); 
-            assertThat(enhanced).isEqualTo("Ghatana is awesome");
-            assertThat(vocab.contains("ghatana")).isTrue();
+            assertThatThrownBy(() -> diarizer.diarize(segments))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageContaining("STT_DIARIZATION_NOT_ADMITTED");
+            assertThat(extractorCalls).hasValue(0);
         }
 
         @Test
-        @DisplayName("multiple speakers with distinct audio signatures are correctly identified")
-        void sttIntegration_multipleSpeakers_isolatedLabels() { 
+        @DisplayName("diarization does not fabricate speaker labels without rights admission")
+        void diarizationWithoutRights_returnsNoSpeakerLabels() {
+            AtomicInteger extractorCalls = new AtomicInteger();
             SpeakerDiarizationService diarizer = SpeakerDiarizationService.builder() 
                     .embeddingExtractor(bytes -> { 
+                        extractorCalls.incrementAndGet();
                         float[] emb = new float[8];
                         emb[bytes.length % 8] = 1.0f;
                         return emb;
@@ -89,12 +80,10 @@ class AudioVideoAdvancedServicesIntegrationTest {
                     new SpeakerDiarizationService.AudioSegment(new byte[3], 2000, 3000, "Back") 
             );
 
-            List<SpeakerDiarizationService.SpeakerTurn> turns = diarizer.diarize(segments); 
-
-            assertThat(turns.get(0).speakerId()) 
-                    .isEqualTo(turns.get(2).speakerId()); // same speaker 
-            assertThat(turns.get(0).speakerId()) 
-                    .isNotEqualTo(turns.get(1).speakerId()); // different speaker 
+            assertThatThrownBy(() -> diarizer.diarize(segments))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageContaining("STT_DIARIZATION_NOT_ADMITTED");
+            assertThat(extractorCalls).hasValue(0);
         }
     }
 
@@ -146,63 +135,64 @@ class AudioVideoAdvancedServicesIntegrationTest {
     class VisionAdvancedIntegration {
 
         @Test
-        @DisplayName("facial recognition and scene understanding run on same image bytes")
-        void visionIntegration_faceAndScene_parallel() { 
-            byte[] imageBytes = new byte[512]; // dummy image
-
-            FacialRecognitionService faceService = FacialRecognitionService.of( 
-                    bytes -> List.of(FacialRecognitionService.FaceDetection.of( 
-                            new FacialRecognitionService.BoundingBox(0.1, 0.1, 0.3, 0.3), 
-                            0.97, new float[]{0.9f, 0.1f})));
-
+        @DisplayName("local scene fixture is independent and makes no provider quality claim")
+        void sceneClassification_localFixtureOnly() {
+            byte[] imageBytes = new byte[512];
             SceneUnderstandingService sceneService = SceneUnderstandingService.of( 
                     bytes -> List.of(new SceneUnderstandingService.SceneLabel("office/meeting-room", 0.91))); 
 
-            var faces = faceService.detect(imageBytes); 
             var scene = sceneService.classify(imageBytes); 
 
-            assertThat(faces).hasSize(1); 
-            assertThat(faces.get(0).confidence()).isGreaterThan(0.90); 
             assertThat(scene.hasTopScene()).isTrue(); 
             assertThat(scene.topSceneLabel()).isEqualTo("office/meeting-room");
         }
 
         @Test
-        @DisplayName("OCR and facial recognition on same image return independent results")
-        void visionIntegration_ocrAndFace_independent() { 
+        @DisplayName("OCR and biometric recognition fail closed before provider and audit effects")
+        void visionIntegration_ocrAndFace_notAdmittedWithoutAuthorities() {
             byte[] imageBytes = new byte[256];
+            AtomicInteger ocrProviderCalls = new AtomicInteger();
+            AtomicInteger biometricProviderCalls = new AtomicInteger();
+            AtomicInteger biometricAuditCalls = new AtomicInteger();
 
-            OcrService ocrService = OcrService.of(bytes -> List.of( 
-                    new OcrService.TextRegion("Meeting Agenda", new OcrService.BoundingBox(0, 0, 1, 0.1), 0.96, 0))); 
+            OcrService ocrService = OcrService.of(bytes -> {
+                ocrProviderCalls.incrementAndGet();
+                return List.of(new OcrService.TextRegion("Meeting Agenda", new OcrService.BoundingBox(0, 0, 1, 0.1), 0.96, 0));
+            });
 
-            FacialRecognitionService faceService = FacialRecognitionService.of( 
-                    bytes -> List.of(FacialRecognitionService.FaceDetection.of( 
-                            new FacialRecognitionService.BoundingBox(0, 0.1, 0.3, 0.3), 
-                            0.95, new float[]{0.8f})));
+            FacialRecognitionService faceService = FacialRecognitionService.of(
+                    bytes -> {
+                        biometricProviderCalls.incrementAndGet();
+                        return List.of(FacialRecognitionService.FaceDetection.of(
+                                new FacialRecognitionService.BoundingBox(0, 0.1, 0.3, 0.3), 0.95, new float[]{0.8f}));
+                    }, 0.85, 0.5, true, event -> biometricAuditCalls.incrementAndGet());
 
-            assertThat(ocrService.extractText(imageBytes)).isEqualTo("Meeting Agenda");
-            assertThat(faceService.detect(imageBytes)).hasSize(1); 
+            assertThatThrownBy(() -> ocrService.extractText(imageBytes))
+                    .isInstanceOf(OcrService.NotAdmittedException.class)
+                    .hasMessageContaining("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
+            assertThatThrownBy(() -> faceService.detect(imageBytes))
+                    .isInstanceOf(FacialRecognitionService.NotAdmittedException.class)
+                    .hasMessageContaining("NOT_ADMITTED: trusted biometric rights authority is unavailable");
+            assertThat(ocrProviderCalls).hasValue(0);
+            assertThat(biometricProviderCalls).hasValue(0);
+            assertThat(biometricAuditCalls).hasValue(0);
         }
 
         @Test
-        @DisplayName("identity identification with enrolled embeddings works for known person")
-        void visionIntegration_identityRecognition_knownPerson() { 
+        @DisplayName("caller-supplied embeddings cannot bypass biometric rights admission")
+        void visionIntegration_identityRecognition_notAdmitted() {
+            AtomicInteger biometricAuditCalls = new AtomicInteger();
             float[] enrolledEmbedding = new float[]{0.7f, 0.7f, 0.0f};
 
-            FacialRecognitionService service = FacialRecognitionService.of( 
-                    bytes -> List.of(FacialRecognitionService.FaceDetection.of( 
-                            new FacialRecognitionService.BoundingBox(0, 0, 1, 1), 
-                            0.99, enrolledEmbedding)));
+            FacialRecognitionService service = FacialRecognitionService.of(
+                    bytes -> {
+                        throw new AssertionError("identity-only path must not call the face provider");
+                    }, 0.85, 0.5, true, event -> biometricAuditCalls.incrementAndGet());
 
-            var faces = service.detect(new byte[]{1}); 
-            assertThat(faces).hasSize(1); 
-
-            var match = service.identify( 
-                    faces.get(0).embedding(), 
-                    Map.of("alice", enrolledEmbedding)); 
-            assertThat(match).isPresent(); 
-            assertThat(match.get().identityId()).isEqualTo("alice");
-            assertThat(match.get().similarity()).isGreaterThan(0.99); 
+            assertThatThrownBy(() -> service.identify(enrolledEmbedding, Map.of("alice", enrolledEmbedding)))
+                    .isInstanceOf(FacialRecognitionService.NotAdmittedException.class)
+                    .hasMessageContaining("NOT_ADMITTED: trusted biometric rights authority is unavailable");
+            assertThat(biometricAuditCalls).hasValue(0);
         }
     }
 }

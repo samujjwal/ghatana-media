@@ -96,28 +96,19 @@ class SttPersistenceE2ETest extends EventloopTestBase {
     }
 
     // -------------------------------------------------------------------------
-    // Happy path: audio bytes flow through persistence and return transcription
+    // Missing governed source/provider/rights admission fails before persistence.
     // -------------------------------------------------------------------------
 
     @Test
     @Order(1)
-    @DisplayName("GIVEN valid audio and JWT WHEN transcribe THEN text and confidence returned and both persistence calls made")
-    void validAudio_transcribesPersistsAndReturnsResult() {
+    @DisplayName("GIVEN valid audio without STT admission WHEN transcribe THEN NOT_ADMITTED and no effects")
+    void validAudioWithoutAdmission_returnsNotAdmittedWithoutEffects() {
         // Given
         UUID audioFileId     = UUID.randomUUID();
         UUID transcriptionId = UUID.randomUUID();
         byte[] audioBytes    = buildMinimalWavBytes();
 
-        AudioFileEntity audioFile = audioFileEntity(audioFileId, TENANT_ID, USER_ID);
-        TranscriptionEntity transcription = transcriptionEntity(transcriptionId, audioFileId, TENANT_ID, "hello world");
-
-        when(audioFileService.save(eq(TENANT_ID), any(AudioFileEntity.class)))
-                .thenReturn(io.activej.promise.Promise.of(audioFile));
-        lenient().when(audioFileService.updateStatus(
-                eq(TENANT_ID), any(UUID.class), any(AudioFileEntity.ProcessingStatus.class), any()))
-                .thenReturn(io.activej.promise.Promise.of(true));
-        when(transcriptionService.save(eq(TENANT_ID), any(TranscriptionEntity.class)))
-                .thenReturn(io.activej.promise.Promise.of(transcription));
+        // Deliberately configure a result that must not be used without admission.
         when(sttEngine.transcribe(any(AudioData.class), any()))
                 .thenReturn(new TranscriptionResult(
                         "hello world", 0.93, List.of(), List.of(),
@@ -130,21 +121,20 @@ class SttPersistenceE2ETest extends EventloopTestBase {
                 .setLanguage("en")
                 .build();
 
-        TranscribeResponse response = blockingStub
+        assertThatThrownBy(() -> blockingStub
                 .withInterceptors(jwtHeaders(TENANT_ID, USER_ID))
-                .transcribe(request);
+                .transcribe(request))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(ex -> {
+                    StatusRuntimeException status = (StatusRuntimeException) ex;
+                    assertThat(status.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
+                    assertThat(status.getStatus().getDescription()).contains("STT_TRANSCRIPT_VERSION_NOT_ADMITTED");
+                });
 
-        // Then
-        assertThat(response.getText()).isEqualTo("hello world");
-        assertThat(response.getConfidence()).isEqualTo(0.93f);
-        assertThat(response.getModelUsed()).isEqualTo("whisper-v3");
-
-        verify(audioFileService).save(eq(TENANT_ID), argThat(e ->
-                e.getTenantId().equals(TENANT_ID) &&
-                e.getUserId().toString().equals(USER_ID)));
-        verify(transcriptionService).save(eq(TENANT_ID), argThat(e ->
-                e.getTenantId().equals(TENANT_ID) &&
-                e.getText().equals("hello world")));
+        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        verify(audioFileService, never()).updateStatus(anyString(), any(UUID.class), any(), any());
+        verify(transcriptionService, never()).save(anyString(), any(TranscriptionEntity.class));
+        verify(sttEngine, never()).transcribe(any(AudioData.class), any());
     }
 
     // -------------------------------------------------------------------------
@@ -245,25 +235,14 @@ class SttPersistenceE2ETest extends EventloopTestBase {
     }
 
     // -------------------------------------------------------------------------
-    // AV-P1-003: Inference failure → persistence is notified and INTERNAL returned
+    // Admission fails before the configured inference failure can run.
     // -------------------------------------------------------------------------
 
     @Test
     @Order(6)
-    @DisplayName("GIVEN persisted audio WHEN inference fails THEN FAILED status is recorded and INTERNAL returned")
-    void inferenceFailure_marksAudioFailedAndReturnsInternal() {
-        UUID audioFileId = UUID.randomUUID();
+    @DisplayName("GIVEN absent STT admission WHEN inference would fail THEN NOT_ADMITTED without effects")
+    void absentAdmission_precedesInferenceFailureWithoutEffects() {
         byte[] audioBytes = buildMinimalWavBytes();
-        AudioFileEntity audioFile = audioFileEntity(audioFileId, TENANT_ID, USER_ID);
-
-        when(audioFileService.save(eq(TENANT_ID), any(AudioFileEntity.class)))
-                .thenReturn(io.activej.promise.Promise.of(audioFile));
-        when(audioFileService.updateStatus(
-                eq(TENANT_ID),
-                eq(audioFileId),
-                eq(AudioFileEntity.ProcessingStatus.FAILED),
-                contains("STT_RUNTIMEEXCEPTION")))
-                .thenReturn(io.activej.promise.Promise.of(true));
         when(sttEngine.transcribe(any(AudioData.class), any()))
                 .thenThrow(new RuntimeException("engine unavailable"));
 
@@ -277,16 +256,16 @@ class SttPersistenceE2ETest extends EventloopTestBase {
                 .withInterceptors(jwtHeaders(TENANT_ID, USER_ID))
                 .transcribe(request))
                 .isInstanceOf(StatusRuntimeException.class)
-                .satisfies(ex -> assertThat(((StatusRuntimeException) ex).getStatus().getCode())
-                        .isEqualTo(io.grpc.Status.Code.INTERNAL));
+                .satisfies(ex -> {
+                    StatusRuntimeException status = (StatusRuntimeException) ex;
+                    assertThat(status.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
+                    assertThat(status.getStatus().getDescription()).contains("STT_TRANSCRIPT_VERSION_NOT_ADMITTED");
+                });
 
-        verify(audioFileService).save(eq(TENANT_ID), any(AudioFileEntity.class));
-        verify(audioFileService, timeout(1000)).updateStatus(
-                eq(TENANT_ID),
-                eq(audioFileId),
-                eq(AudioFileEntity.ProcessingStatus.FAILED),
-                contains("STT_RUNTIMEEXCEPTION"));
+        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        verify(audioFileService, never()).updateStatus(anyString(), any(UUID.class), any(), any());
         verify(transcriptionService, never()).save(anyString(), any(TranscriptionEntity.class));
+        verify(sttEngine, never()).transcribe(any(AudioData.class), any());
     }
 
     // -------------------------------------------------------------------------

@@ -116,8 +116,8 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
 
     @Test
     @Order(1)
-    @DisplayName("GIVEN valid JWT with tenant claim WHEN synthesize THEN tenant/user context propagates to persistence")
-    void validJwtWithTenant_propagatesToPersistence() {
+    @DisplayName("GIVEN selected voice without rights authority WHEN synthesize THEN NOT_ADMITTED with no effects")
+    void selectedVoiceWithoutAdmission_failsClosed() {
         // Given
         String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
         String text = "Hello world";
@@ -146,19 +146,13 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
                 .build())
             .build();
 
-        SynthesizeResponse response = blockingStub.withInterceptors(new TestClientInterceptor(headers))
-            .synthesize(request);
-
-        // Then
-        assertThat(response).isNotNull();
-        assertThat(response.getAudioData().toByteArray()).isEqualTo(audioData);
-        assertThat(response.getSampleRate()).isEqualTo(16000);
-
-        // Verify tenant/user context was propagated to persistence
-        verify(audioFileService).save(eq(TEST_TENANT_ID), argThat(entity ->
-            entity.getTenantId().equals(TEST_TENANT_ID) &&
-            entity.getUserId().toString().equals(TEST_USER_ID)
-        ));
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).synthesize(request));
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNIMPLEMENTED);
+        assertThat(exception.getStatus().getDescription()).contains("Voice/profile selection is NOT_ADMITTED");
+        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        verify(ttsEngine, never()).synthesize(anyString(), any());
     }
 
     @Test
@@ -227,8 +221,8 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
 
     @Test
     @Order(4)
-    @DisplayName("GIVEN JWT with tenant A WHEN synthesize THEN cannot access tenant B data")
-    void crossTenantAccess_denied() {
+    @DisplayName("GIVEN selected voice without rights authority WHEN synthesize THEN NOT_ADMITTED without cross-tenant effects")
+    void selectedVoiceWithoutAdmission_hasNoCrossTenantEffects() {
         // Given
         String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
         String text = "Hello world";
@@ -256,19 +250,19 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
                 .build())
             .build();
 
-        blockingStub.withInterceptors(new TestClientInterceptor(headers)).synthesize(request);
-
-        // Then - verify save was called with JWT tenant, not other tenant
-        verify(audioFileService).save(eq(TEST_TENANT_ID), argThat(entity ->
-            entity.getTenantId().equals(TEST_TENANT_ID) &&
-            !entity.getTenantId().equals(OTHER_TENANT_ID)
-        ));
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).synthesize(request));
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNIMPLEMENTED);
+        assertThat(exception.getStatus().getDescription()).contains("Voice/profile selection is NOT_ADMITTED");
+        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        verify(ttsEngine, never()).synthesize(anyString(), any());
     }
 
     @Test
     @Order(5)
-    @DisplayName("GIVEN valid JWT WHEN streamSynthesize THEN tenant/user context propagates")
-    void validJwt_streamSynthesize_propagatesContext() {
+    @DisplayName("GIVEN valid JWT without admitted streaming provider WHEN streamSynthesize THEN NOT_ADMITTED")
+    void validJwt_streamSynthesize_failsClosedWithoutProvider() {
         // Given
         String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
         String text = "Hello world";
@@ -281,19 +275,16 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
 
         SynthesizeRequest request = SynthesizeRequest.newBuilder()
             .setText(text)
-            .setVoiceId("en-US-Neural2-A")
-            .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
-                .setSpeed(1.0f)
-                .setPitch(1.0f)
-                .setLanguage("en")
-                .build())
             .build();
 
-        // When - streamSynthesize should succeed with valid JWT
-        blockingStub.withInterceptors(new TestClientInterceptor(headers)).streamSynthesize(request);
-
-        // Then - streaming endpoint succeeded (no exception thrown)
-        // Note: streaming may not persist, so we only verify authentication succeeded
+        var audioChunks = blockingStub.withInterceptors(new TestClientInterceptor(headers)).streamSynthesize(request);
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            audioChunks::hasNext);
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAVAILABLE);
+        assertThat(exception.getStatus().getDescription()).contains("TTS_NOT_ADMITTED");
+        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        verify(ttsEngine, never()).synthesize(anyString(), any());
     }
 
     // Helper methods

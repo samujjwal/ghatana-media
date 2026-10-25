@@ -123,11 +123,11 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
 
     @Test
     @Order(1)
-    @DisplayName("GIVEN valid JWT with tenant claim WHEN transcribe THEN tenant/user context propagates to persistence")
-    void validJwtWithTenant_propagatesToPersistence() {
+    @DisplayName("GIVEN valid JWT without STT admission WHEN transcribe THEN NOT_ADMITTED with no persistence")
+    void validJwtWithoutAdmission_failsClosed() {
         // Given
         String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
-        byte[] audioData = "test audio data".getBytes(StandardCharsets.UTF_8);
+        byte[] audioData = buildMinimalWavBytes();
         UUID audioFileId = UUID.randomUUID();
         UUID transcriptionId = UUID.randomUUID();
 
@@ -153,23 +153,15 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
             .setLanguage("en")
             .build();
 
-        TranscribeResponse response = blockingStub.withInterceptors(new TestClientInterceptor(headers))
-            .transcribe(request);
-
-        // Then
-        assertThat(response).isNotNull();
-        assertThat(response.getText()).isEqualTo("test transcription");
-        assertThat(response.getConfidence()).isEqualTo(0.95f);
-
-        // Verify tenant/user context was propagated to persistence
-        verify(audioFileService).save(eq(TEST_TENANT_ID), argThat(entity ->
-            entity.getTenantId().equals(TEST_TENANT_ID) &&
-            entity.getUserId().toString().equals(TEST_USER_ID)
-        ));
-        verify(transcriptionService).save(eq(TEST_TENANT_ID), argThat(entity ->
-            entity.getTenantId().equals(TEST_TENANT_ID) &&
-            entity.getUserId().toString().equals(TEST_USER_ID)
-        ));
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).transcribe(request));
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
+        assertThat(exception.getStatus().getDescription()).contains("STT_TRANSCRIPT_VERSION_NOT_ADMITTED");
+        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        verify(audioFileService, never()).updateStatus(anyString(), any(UUID.class), any(), any());
+        verify(transcriptionService, never()).save(anyString(), any(TranscriptionEntity.class));
+        verify(sttEngine, never()).transcribe(any(AudioData.class), any());
     }
 
     @Test
@@ -228,11 +220,11 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
 
     @Test
     @Order(4)
-    @DisplayName("GIVEN JWT with tenant A WHEN transcribe THEN cannot access tenant B data")
-    void crossTenantAccess_denied() {
+    @DisplayName("GIVEN JWT with tenant A and no STT admission WHEN transcribe THEN NOT_ADMITTED without effects")
+    void crossTenantRequestWithoutAdmission_failsClosed() {
         // Given
         String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
-        byte[] audioData = "test audio data".getBytes(StandardCharsets.UTF_8);
+        byte[] audioData = buildMinimalWavBytes();
         UUID audioFileId = UUID.randomUUID();
 
         AudioFileEntity audioFile = createMockAudioFile(audioFileId, OTHER_TENANT_ID, TEST_USER_ID);
@@ -256,17 +248,30 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
             .setSampleRate(16000)
             .build();
 
-        TranscribeResponse response = blockingStub.withInterceptors(new TestClientInterceptor(headers))
-            .transcribe(request);
-
-        // Then - verify save was called with JWT tenant, not other tenant
-        verify(audioFileService).save(eq(TEST_TENANT_ID), argThat(entity ->
-            entity.getTenantId().equals(TEST_TENANT_ID) &&
-            !entity.getTenantId().equals(OTHER_TENANT_ID)
-        ));
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).transcribe(request));
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
+        assertThat(exception.getStatus().getDescription()).contains("STT_TRANSCRIPT_VERSION_NOT_ADMITTED");
+        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        verify(audioFileService, never()).updateStatus(anyString(), any(UUID.class), any(), any());
+        verify(transcriptionService, never()).save(anyString(), any(TranscriptionEntity.class));
+        verify(sttEngine, never()).transcribe(any(AudioData.class), any());
     }
 
     // Helper methods
+
+    private static byte[] buildMinimalWavBytes() {
+        byte[] data = new byte[108];
+        data[0] = 'R'; data[1] = 'I'; data[2] = 'F'; data[3] = 'F';
+        data[4] = 100; data[8] = 'W'; data[9] = 'A'; data[10] = 'V'; data[11] = 'E';
+        data[12] = 'f'; data[13] = 'm'; data[14] = 't'; data[15] = ' ';
+        data[16] = 16; data[20] = 1; data[22] = 1;
+        data[24] = (byte) 0x80; data[25] = 0x3E;
+        data[28] = 0; data[29] = 0x7D; data[32] = 2; data[34] = 16;
+        data[36] = 'd'; data[37] = 'a'; data[38] = 't'; data[39] = 'a'; data[40] = 64;
+        return data;
+    }
 
     private String generateTestJwt(String tenantId, String userId) {
         // Generate a proper HS256 JWT for testing
