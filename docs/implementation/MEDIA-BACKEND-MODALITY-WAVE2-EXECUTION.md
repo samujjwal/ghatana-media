@@ -398,6 +398,8 @@ The implementer should execute **OBS-01 → STT-01/STT-02 → TTS-01/TTS-02 → 
 
 This append-only record updates execution evidence for the existing 58-task wave. It does not change the plan denominator, source bindings, or the historical initial status above. Implementation is on local main through code cut cd9e758; these commits have not been pushed. No Track B transition, source acceptance, deployment, or release is claimed.
 
+The ready-to-run handoff above is the pre-execution sequence. Current dispositions and remaining work are recorded below.
+
 ### Focused verification
 
 The five selected Gradle test tasks were run with --no-build-cache --no-daemon --rerun-tasks --console=plain:
