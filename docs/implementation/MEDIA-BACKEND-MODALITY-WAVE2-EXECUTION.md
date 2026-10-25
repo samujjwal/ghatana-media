@@ -841,3 +841,21 @@ Focused verification on this source cut:
 - `git diff --check` — PASS.
 
 The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No model/provider quality, biometric or voice-rights admission, formal PDP/gtool acceptance, production cutover, deployment or release is claimed.
+
+### Incremental execution record — 2026-10-25 (eighteenth round)
+
+One focused source/test commit follows the seventeenth-round cut: `9cece39`. This round closes a local mutability defect in MM-06 and rechecks the STT streaming denial and TTS streaming boundaries. The 58-task denominator, exclusive dispositions and provider-admission decision are unchanged.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| MM-06 | `AudioFeatures`, `VisualFeatures` (including `boundingBoxes`) and `TextFeatures` now snapshot array components at construction and return defensive copies from accessors. Regressions mutate constructor arrays and accessor results, then verify captured values and later fusion output stay unchanged. `CrossModalFusionEngineTest` passed 38 tests with 0 failures/errors/skips. | PARTIAL: ownership is immutable at this boundary; calibrated fusion quality, a qualified corpus/provider and biometric-rights authorization remain unavailable. |
+| STT-05 | Audited the canonical stream path and sequence validator. The gRPC handler requires authenticated tenant and UUID principal and then returns `STT_STREAM_CONSENT_NOT_ADMITTED` before session creation; the isolated validator covers sequence, resume, sample-rate, timestamp and duration boundaries. No safe code gap was found without trusted consent and shared session/provider runtime. | PARTIAL: end-to-end consent recheck, reconnect, VAD, transport backpressure, cancellation and terminal finality remain unavailable. The focused command below was reported `UP-TO-DATE`, not freshly executed. |
+| TTS-08 | Full TTS service verification was rerun serially after the prior report-finalization error. All 278 tests passed with 0 failures/errors/skips; no additional local stream defect was found. | PARTIAL: real provider codec/sample-clock qualification, provider cancellation/finality and output-version lineage remain outstanding. |
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:modules:intelligence:multimodal-service:cleanTest :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.multimodal.engine.CrossModalFusionEngineTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 38 tests, 0 failures/errors/skips.
+- `./gradlew :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.grpc.SttStreamSequenceValidatorTest' --tests 'com.ghatana.stt.grpc.SttGrpcStreamingSemanticsTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL, but the task was `UP-TO-DATE`; no fresh test executions are claimed.
+- The serialized TTS module run and six-case Wave 2 structural suite are recorded in the seventeenth-round evidence above; `git diff --check` passed for the MM-06 commit.
+
+The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No measured cross-modal calibration, provider quality, trusted rights/consent authority, formal PDP/gtool acceptance, production cutover, deployment or release is claimed.
