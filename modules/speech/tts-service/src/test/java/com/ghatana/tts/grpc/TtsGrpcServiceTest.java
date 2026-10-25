@@ -574,7 +574,9 @@ class TtsGrpcServiceTest {
                 "<speak><break time=\"250ms\"/>hello</speak>",
                 "<speak><phoneme alphabet=\"ipa\" ph=\"həˈloʊ\">hello</phoneme></speak>",
                 "<speak><sub alias=\"World Wide Web\">WWW</sub></speak>",
-                "<speak><emphasis level=\"strong\">hello</emphasis></speak>")) {
+                "<speak><emphasis level=\"strong\">hello</emphasis></speak>",
+                "<speak><say-as interpret-as=\"characters\">hello</say-as></speak>",
+                "<speak><lang xml:lang=\"ne-NP\">नमस्ते</lang></speak>")) {
             CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
             service.synthesize(SynthesizeRequest.newBuilder().setText(markup).build(), observer);
             assertStatus(observer, Status.Code.UNIMPLEMENTED);
@@ -586,6 +588,18 @@ class TtsGrpcServiceTest {
         service.synthesize(SynthesizeRequest.newBuilder()
                 .setText("<speak><prosody pitch=\"3hz\">hello</prosody></speak>").build(), invalidUnits);
         assertStatus(invalidUnits, Status.Code.INVALID_ARGUMENT);
+
+        for (String malformedControl : List.of(
+                "<speak><prosody rate=\"1e309%\">hello</prosody></speak>",
+                "<speak><prosody pitch=\"-1e309st\">hello</prosody></speak>",
+                "<speak><prosody volume=\"1e309dB\">hello</prosody></speak>",
+                "<speak><phoneme alphabet=\"x-sampa\" ph=\"həˈloʊ\">hello</phoneme></speak>",
+                "<speak><phoneme alphabet=\"ipa\" ph=\" \">hello</phoneme></speak>",
+                "<speak><style name=\"cheerful\">hello</style></speak>")) {
+            CapturingObserver<SynthesizeResponse> malformed = new CapturingObserver<>();
+            service.synthesize(SynthesizeRequest.newBuilder().setText(malformedControl).build(), malformed);
+            assertStatus(malformed, Status.Code.INVALID_ARGUMENT);
+        }
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
     }

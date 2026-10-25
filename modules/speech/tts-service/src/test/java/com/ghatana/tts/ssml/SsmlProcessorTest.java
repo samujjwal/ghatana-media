@@ -287,6 +287,23 @@ class SsmlProcessorTest {
     }
 
     @Test
+    @DisplayName("rejects overflowing prosody values and malformed pronunciation controls")
+    void rejectsOverflowingProsodyAndMalformedPronunciationControls() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><prosody rate=\"1e309%\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><prosody pitch=\"-1e309st\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><prosody volume=\"1e309dB\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><phoneme alphabet=\"x-sampa\" ph=\"həˈloʊ\">hello</phoneme></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><phoneme alphabet=\"ipa\" ph=\" \">hello</phoneme></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><prosody contour=\"(0%,+0st)\">x</prosody></speak>"));
+    }
+
+    @Test
     @DisplayName("accepts finite prosody values at documented bounds without claiming provider effects")
     void acceptsProsodyValuesAtBounds() {
         assertThat(processor.parse("<speak><prosody rate=\"50%\" pitch=\"-12st\" volume=\"-20dB\">x</prosody></speak>"))
