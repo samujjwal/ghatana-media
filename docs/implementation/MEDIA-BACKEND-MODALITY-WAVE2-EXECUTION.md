@@ -978,3 +978,26 @@ This round records a source-contract audit for the Wave 2 provider tasks. It doe
 | TTS-02 / TTS-07 | Reuse the existing `TtsEngine` SPI and `PiperOnnxEngine`; do not introduce another Media provider interface. The production service routes through that SPI, but its model profile remains `NOT_ADMITTED` pending license, voice rights, hardware and quality evidence. Synthetic fallback remains rejected for production. A test double can verify transport handling but cannot count as real audio or provider quality. | TTS-02 remains LOCALLY_VERIFIED for the no-fake-result boundary; TTS-07 remains EXTERNAL/OWNER until a real profile is admitted and decoded output is verified. |
 
 The 58-task denominator and current exclusive counts are unchanged. These provider decisions preserve truthful unavailability and leave independent code/test work active. No tests were run for this source audit.
+
+### Incremental execution record — 2026-10-25 (twenty-sixth round)
+
+This round adds numeric and geometry guards at the remaining local result boundaries. Non-finite values now fail before they can be serialized, scored, or converted into plausible silence. No wire contracts or provider admission states changed.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| STT-06 | `SttHttpAdapter` now validates transcript and word confidence, nonempty strictly ordered nonoverlapping finite word intervals, decoded-audio bounds, millisecond representability, and nonnegative processing time before constructing a successful response. The focused HTTP adapter test passed 7 tests. | PARTIAL: the HTTP projection cannot turn malformed provider timings/scores into success; source-sample clock mapping, admitted model alignment and real quality remain open. |
+| TTS-02 / TTS-07 | `SynthesisOptions` rejects non-finite speed/pitch/volume through both direct construction and builder paths while retaining finite builder clamping. `AudioConverter.floatSamplesToPcm16` rejects NaN and infinities instead of rounding them to valid-looking silence; finite out-of-range samples retain existing clamping. The focused converter/options tests passed 7 tests. | TTS-02 remains LOCALLY_VERIFIED for the no-fake-result boundary. TTS-07 remains EXTERNAL/OWNER until a licensed, rights-approved model is admitted and decoded output is verified. |
+| VIS-06 | Finite confidence and threshold guards now cover Vision result records, OCR/scene/video thresholds, the compatibility engine, and `MapEvaluator`. Metric boxes require four finite values with nonnegative extents, finite bounds/area and defensive array snapshots; negative pixel origins remain compatible with `BoundingBox`. A clean Vision module run passed 363 tests before the final evaluator/geometry extension; the latest focused `MapEvaluatorTest` + `VisionModelEngineTest` rerun passed 43 tests after it. | PARTIAL: malformed numeric outputs/metrics fail locally; signed model provenance and licensed-corpus quality/golden evidence remain unavailable. |
+| MM-03 / MM-05 / MM-06 | `VisualResult`, `DetectionResult`, the Vision SPI adapter and `FusionResult` now reject malformed confidence, box geometry, embeddings, weights and processing time before returning results. `FrameResult` and `TemporalAlignment` add `OptionalLong getRepresentableTimestampMs()` to distinguish known zero from unknown or unrepresentable values; legacy getters and gRPC wire shape remain unchanged. Adapter/fusion tests passed 47 cases; clock/analysis tests passed 43 cases. | PARTIAL: local value boundaries are guarded; source-version authority, admitted child providers, calibrated quality and measured A/V synchronization remain open. |
+
+The current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. These local guards do not qualify providers or model quality.
+
+Focused verification on these source cuts:
+
+- `./gradlew :services:media:libs:java:common:test --tests com.ghatana.media.service.http.SttHttpAdapterConfidenceTest` — 7 tests passed.
+- `./gradlew :services:media:libs:java:common:test --tests com.ghatana.media.common.AudioConverterTest --tests com.ghatana.media.tts.api.SynthesisOptionsTest` — 7 tests passed.
+- `./gradlew :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.eval.MapEvaluatorTest' --tests 'com.ghatana.vision.engine.VisionModelEngineTest'` — 43 tests passed.
+- `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.PlatformVisionClientAdapterTest' --tests 'com.ghatana.multimodal.engine.CrossModalFusionEngineTest'` — 47 tests passed.
+- `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.MediaClockMappingTest' --tests 'com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineTest'` — 43 tests passed.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
