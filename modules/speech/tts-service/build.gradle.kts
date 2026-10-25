@@ -65,6 +65,7 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.assertj.core)
+    testImplementation(libs.grpc.inprocess)
 }
 
 application {
