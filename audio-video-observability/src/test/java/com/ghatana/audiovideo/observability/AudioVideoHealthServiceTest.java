@@ -59,6 +59,7 @@ class AudioVideoHealthServiceTest {
     void shouldReturnServingWhenAllChecksPass() { 
         healthService.registerCheck("channel", () -> true); 
         healthService.registerCheck("model-loaded", () -> true); 
+        assertThat(healthService.markReady()).isTrue();
 
         CapturingObserver observer = new CapturingObserver(); 
         healthService.check(HealthCheckRequest.newBuilder().build(), observer); 
@@ -72,6 +73,7 @@ class AudioVideoHealthServiceTest {
     void shouldReturnNotServingWhenAnyCheckFails() { 
         healthService.registerCheck("channel", () -> true); 
         healthService.registerCheck("model-loaded", () -> false); // failing 
+        assertThat(healthService.markReady()).isTrue();
 
         CapturingObserver observer = new CapturingObserver(); 
         healthService.check(HealthCheckRequest.newBuilder().build(), observer); 
@@ -86,6 +88,7 @@ class AudioVideoHealthServiceTest {
         healthService.registerCheck("crashing-check", () -> { 
             throw new RuntimeException("dependency unavailable");
         });
+        assertThat(healthService.markReady()).isTrue();
 
         CapturingObserver observer = new CapturingObserver(); 
         healthService.check(HealthCheckRequest.newBuilder().build(), observer); 
@@ -98,8 +101,10 @@ class AudioVideoHealthServiceTest {
     @DisplayName("Returns NOT_SERVING after setNotServing() is called")
     void shouldReturnNotServingAfterShutdown() { 
         healthService.registerCheck("all-good", () -> true); 
+        assertThat(healthService.markReady()).isTrue();
 
         healthService.setNotServing(); 
+        assertThat(healthService.markReady()).isFalse();
 
         CapturingObserver observer = new CapturingObserver(); 
         healthService.check(HealthCheckRequest.newBuilder().build(), observer); 
@@ -112,6 +117,7 @@ class AudioVideoHealthServiceTest {
     @DisplayName("Emits metric counter on every Check call")
     void shouldEmitMetricOnEveryCheck() { 
         healthService.registerCheck("ready", () -> true);
+        assertThat(healthService.markReady()).isTrue();
         CapturingObserver observer = new CapturingObserver(); 
         healthService.check(HealthCheckRequest.newBuilder().build(), observer); 
 
@@ -143,6 +149,63 @@ class AudioVideoHealthServiceTest {
 
         assertThat(results).containsEntry("ok-check", true); 
         assertThat(results).containsEntry("fail-check", false); 
+    }
+
+    @Test
+    @DisplayName("Stays NOT_SERVING after checks register until readiness is explicitly marked")
+    void startupRequiresExplicitReadyTransition() {
+        healthService.registerCheck("provider", () -> true);
+
+        CapturingObserver beforeReady = new CapturingObserver();
+        healthService.check(HealthCheckRequest.getDefaultInstance(), beforeReady);
+        assertThat(beforeReady.responses.get(0).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+
+        assertThat(healthService.markReady()).isTrue();
+        CapturingObserver afterReady = new CapturingObserver();
+        healthService.check(HealthCheckRequest.getDefaultInstance(), afterReady);
+        assertThat(afterReady.responses.get(0).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.SERVING);
+    }
+
+    @Test
+    @DisplayName("Required checks must be registered before readiness")
+    void requiredChecksMustBeRegisteredBeforeReady() {
+        AudioVideoHealthService requiredHealth = new AudioVideoHealthService(
+                "stt-service", metricsCollector, java.util.Set.of("provider", "model"));
+        requiredHealth.registerCheck("provider", () -> true);
+
+        assertThat(requiredHealth.markReady()).isFalse();
+        CapturingObserver observer = new CapturingObserver();
+        requiredHealth.check(HealthCheckRequest.getDefaultInstance(), observer);
+        assertThat(observer.responses.get(0).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+
+        requiredHealth.registerCheck("model", () -> true);
+        assertThat(requiredHealth.markReady()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Rejects blank names and null provider checks")
+    void rejectsInvalidCheckRegistration() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> healthService.registerCheck("  ", () -> true))
+                .isInstanceOf(IllegalArgumentException.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> healthService.registerCheck("provider", null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    @DisplayName("Changing checks after readiness returns service to NOT_SERVING")
+    void changingCheckAfterReadyRequiresReadyTransitionAgain() {
+        healthService.registerCheck("provider", () -> true);
+        assertThat(healthService.markReady()).isTrue();
+        healthService.registerCheck("model", () -> true);
+
+        CapturingObserver observer = new CapturingObserver();
+        healthService.check(HealthCheckRequest.getDefaultInstance(), observer);
+        assertThat(observer.responses.get(0).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+        assertThat(healthService.markReady()).isTrue();
     }
 
     // ── helpers ────────────────────────────────────────────────────────────

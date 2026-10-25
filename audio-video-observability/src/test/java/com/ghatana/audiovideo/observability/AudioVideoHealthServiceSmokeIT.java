@@ -78,6 +78,7 @@ class AudioVideoHealthServiceSmokeIT {
     void checkReturnsServingWhenAllHealthy() {
         healthService.registerCheck("channel-ok", () -> true);
         healthService.registerCheck("model-loaded", () -> true);
+        assertThat(healthService.markReady()).isTrue();
 
         HealthCheckResponse response = stub.check(HealthCheckRequest.getDefaultInstance());
 
@@ -90,6 +91,7 @@ class AudioVideoHealthServiceSmokeIT {
     void checkReturnsNotServingOnFailingCheck() {
         healthService.registerCheck("channel-ok", () -> true);
         healthService.registerCheck("model-loaded", () -> false);
+        assertThat(healthService.markReady()).isTrue();
 
         HealthCheckResponse response = stub.check(HealthCheckRequest.getDefaultInstance());
 
@@ -101,6 +103,7 @@ class AudioVideoHealthServiceSmokeIT {
     @DisplayName("Check RPC returns NOT_SERVING when setNotServing() was called")
     void checkReturnsNotServingAfterShutdown() {
         healthService.registerCheck("all-good", () -> true);
+        assertThat(healthService.markReady()).isTrue();
         healthService.setNotServing();
 
         HealthCheckResponse response = stub.check(HealthCheckRequest.getDefaultInstance());
@@ -115,6 +118,7 @@ class AudioVideoHealthServiceSmokeIT {
         healthService.registerCheck("crasher", () -> {
             throw new RuntimeException("dependency unavailable");
         });
+        assertThat(healthService.markReady()).isTrue();
 
         HealthCheckResponse response = stub.check(HealthCheckRequest.getDefaultInstance());
 

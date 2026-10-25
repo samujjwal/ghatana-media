@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 /**
@@ -37,13 +39,27 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoHealthService.class);
 
     private final Map<String, Supplier<Boolean>> checks = new ConcurrentHashMap<>();
-    private final AtomicBoolean acceptingRequests = new AtomicBoolean(true);
+    private final Set<String> requiredChecks;
+    private final AtomicReference<LifecycleState> lifecycle = new AtomicReference<>(LifecycleState.STARTING);
     private final MetricsCollector metricsCollector;
     private final String serviceName;
 
     public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector) {
-        this.serviceName = serviceName;
-        this.metricsCollector = metricsCollector;
+        this(serviceName, metricsCollector, Set.of());
+    }
+
+    /**
+     * Construct health readiness with an explicit set of checks that must be registered before
+     * the service may be marked ready.
+     */
+    public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector,
+                                   Set<String> requiredChecks) {
+        this.serviceName = requireName(serviceName, "serviceName");
+        this.metricsCollector = Objects.requireNonNull(metricsCollector, "metricsCollector");
+        Objects.requireNonNull(requiredChecks, "requiredChecks");
+        this.requiredChecks = requiredChecks.stream()
+                .map(name -> requireName(name, "required check name"))
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -53,8 +69,29 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
      * @param check supplier returning {@code true} when the component is healthy
      */
     public void registerCheck(String name, Supplier<Boolean> check) {
-        checks.put(name, check);
-        LOG.info("Health check registered: service={} check={}", serviceName, name);
+        String validName = requireName(name, "check name");
+        Supplier<Boolean> validCheck = Objects.requireNonNull(check, "check supplier");
+        checks.put(validName, validCheck);
+        if (lifecycle.compareAndSet(LifecycleState.READY, LifecycleState.STARTING)) {
+            LOG.warn("Health check changed after readiness; service returned to NOT_SERVING: {}", serviceName);
+        }
+        LOG.info("Health check registered: service={} check={}", serviceName, validName);
+    }
+
+    /**
+     * Mark startup complete after all required checks have been registered. Provider checks are
+     * still evaluated on every {@code Check}; a failure or exception keeps readiness down.
+     *
+     * @return true when readiness was enabled, false when required checks are missing or shutdown began
+     */
+    public boolean markReady() {
+        LifecycleState state = lifecycle.get();
+        if (state == LifecycleState.DRAINING) return false;
+        if (checks.isEmpty() || !checks.keySet().containsAll(requiredChecks)) return false;
+        if (state == LifecycleState.READY) return true;
+        if (!lifecycle.compareAndSet(LifecycleState.STARTING, LifecycleState.READY)) return false;
+        LOG.info("Service marked ready: {}", serviceName);
+        return true;
     }
 
     /**
@@ -62,7 +99,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
      * {@link HealthCheckResponse.ServingStatus#NOT_SERVING}.
      */
     public void setNotServing() {
-        acceptingRequests.set(false);
+        lifecycle.set(LifecycleState.DRAINING);
         LOG.info("Service marked NOT_SERVING: {}", serviceName);
     }
 
@@ -73,14 +110,9 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
             HealthCheckRequest request,
             StreamObserver<HealthCheckResponse> responseObserver) {
 
-        if (!acceptingRequests.get()) {
-            respond(responseObserver, HealthCheckResponse.ServingStatus.NOT_SERVING);
-            return;
-        }
-
-        // An empty registry means readiness was never configured. Treat it as unavailable
-        // instead of allowing Stream.allMatch's vacuous truth to report SERVING.
-        boolean allHealthy = !checks.isEmpty() && checks.entrySet().stream()
+        boolean allHealthy = lifecycle.get() == LifecycleState.READY
+                && !checks.isEmpty() && checks.keySet().containsAll(requiredChecks)
+                && checks.entrySet().stream()
                 .allMatch(e -> {
                     try {
                         boolean ok = e.getValue().get();
@@ -151,5 +183,14 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
         });
         return results;
     }
+
+    private static String requireName(String value, String field) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(field + " must not be blank");
+        }
+        return value.trim();
+    }
+
+    private enum LifecycleState { STARTING, READY, DRAINING }
 }
 
