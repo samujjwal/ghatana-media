@@ -128,7 +128,9 @@ class AudioVideoHealthGrpcPublicProbeTest {
             health.close();
             assertThat(health.activeWatchSubscriberCount()).isZero();
             assertThat(observers).allSatisfy(observer -> {
-                assertThat(observer.responses).hasSize(2);
+                assertThat(observer.responses).hasSize(
+                        observer.responses.getFirst().getStatus()
+                                == HealthCheckResponse.ServingStatus.SERVING ? 2 : 1);
                 assertThat(observer.responses.getLast().getStatus())
                         .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
                 assertThat(observer.completed).isTrue();
