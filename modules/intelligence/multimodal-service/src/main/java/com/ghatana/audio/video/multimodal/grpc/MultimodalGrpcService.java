@@ -112,12 +112,6 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
-        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()) {
-            responseObserver.onError(Status.UNAVAILABLE
-                    .withDescription("No qualified modality provider can ground a description from context alone")
-                    .asRuntimeException());
-            return;
-        }
         try {
             LOG.debug("Processing multimodal request with {} analysis types",
                     request.getAnalysisTypesList().size());
@@ -180,9 +174,9 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             LOG.info("Multimodal processing completed in {}ms", result.getProcessingTimeMs());
 
         } catch (Exception e) {
-            LOG.error("Multimodal processing failed", e);
+            LOG.warn("Multimodal processing failed ({})", e.getClass().getSimpleName());
             mediaMetrics.recordFailed("multimodal.analyse");
-            responseObserver.onError(toStatus(e, "Multimodal processing failed").asRuntimeException());
+            responseObserver.onError(safeFailureStatus(e, "Multimodal processing failed").asRuntimeException());
         }
     }
 
@@ -296,7 +290,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             LOG.info("Video with audio analysis completed");
 
         } catch (Exception e) {
-            LOG.error("Video with audio analysis failed", e);
+            LOG.warn("Video with audio analysis failed ({})", e.getClass().getSimpleName());
             responseObserver.onError(safeFailureStatus(e, "Video-audio analysis failed").asRuntimeException());
         }
     }
@@ -373,7 +367,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             LOG.info("Description generation completed");
 
         } catch (Exception e) {
-            LOG.error("Description generation failed", e);
+            LOG.warn("Description generation failed ({})", e.getClass().getSimpleName());
             responseObserver.onError(safeFailureStatus(e, "Description generation failed").asRuntimeException());
         }
     }
@@ -455,7 +449,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             responseObserver.onCompleted();
 
         } catch (Exception e) {
-            LOG.error("Cross-modal analysis failed", e);
+            LOG.warn("Cross-modal analysis failed ({})", e.getClass().getSimpleName());
             responseObserver.onError(safeFailureStatus(e, "Cross-modal analysis failed").asRuntimeException());
         }
     }
@@ -486,6 +480,13 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 null, request.getAudioData().size() + request.getImageData().size()
                         + request.getVideoData().size() + utf8Length(request.getText()), "multimodal.insights")) {
             responseObserver.onError(authorityUnavailable());
+            return;
+        }
+        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()
+                && request.getVideoData().isEmpty()) {
+            responseObserver.onError(Status.UNAVAILABLE
+                    .withDescription("No qualified semantic provider is available for text-only insights")
+                    .asRuntimeException());
             return;
         }
         long startTime = System.currentTimeMillis();
@@ -561,9 +562,6 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             builder.addAllTopics(topics)
                 .addAllEntities(entities.stream().distinct().limit(10).toList())
                 .addAllActions(actions)
-                .putConfidenceScores("audio", 0.0)
-                .putConfidenceScores("visual", 0.0)
-                .putConfidenceScores("text", 0.0)
                 .setProcessingTimeMs(System.currentTimeMillis() - startTime);
 
             if (builder.getOverallSentiment().isBlank()) {
@@ -575,7 +573,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             responseObserver.onCompleted();
 
         } catch (Exception e) {
-            LOG.error("Insights extraction failed", e);
+            LOG.warn("Insights extraction failed ({})", e.getClass().getSimpleName());
             responseObserver.onError(safeFailureStatus(e, "Insights extraction failed").asRuntimeException());
         }
     }
@@ -636,8 +634,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             responseObserver.onCompleted();
 
         } catch (Exception e) {
-            LOG.error("Failed to get status", e);
-            responseObserver.onError(e);
+            LOG.warn("Failed to get status ({})", e.getClass().getSimpleName());
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Status could not be retrieved")
+                    .asRuntimeException());
         }
     }
 
@@ -654,8 +654,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .build());
             responseObserver.onCompleted();
         } catch (Exception e) {
-            LOG.error("Health check failed", e);
-            responseObserver.onError(e);
+            LOG.warn("Health check failed ({})", e.getClass().getSimpleName());
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Health status could not be determined")
+                    .asRuntimeException());
         }
     }
 

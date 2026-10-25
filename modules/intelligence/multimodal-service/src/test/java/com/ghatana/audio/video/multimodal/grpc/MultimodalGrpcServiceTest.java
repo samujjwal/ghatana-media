@@ -570,22 +570,47 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("getInsights: text only → text topic included")
-    void getInsights_withTextOnly_includesTextTopic() { 
-        MultimodalResult result = MultimodalResult.builder() 
-            .combinedAnalysis("text only")
-            .processingTimeMs(5L) 
-            .build(); 
-        when(mockEngine.analyse(any())).thenReturn(result); 
-
+    @DisplayName("getInsights: text only is unavailable without qualified semantic provider")
+    void getInsights_withTextOnly_returnsUnavailable() {
         CapturingObserver<InsightsResponse> observer = new CapturingObserver<>(); 
         withContext(TENANT_ID, () -> service.getInsights( 
             InsightsRequest.newBuilder().setText("some context").build(),
             observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getTopicsList()).contains("text");
-        assertThat(observer.getValue().getOverallSentiment()).isEqualTo("neutral");
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: video-only provider error is unavailable")
+    void processMultimodal_videoOnlyProviderErrorIsUnavailable() {
+        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
+                .visualResult(VisualResult.error("provider unavailable"))
+                .combinedAnalysis("fallback").build());
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+    }
+
+    @Test
+    @DisplayName("processMultimodal: text-only abstention omits caller text and confidence claims")
+    void processMultimodal_textOnlyReturnsAbstentionWithoutConfidence() {
+        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
+                .combinedAnalysis("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE").build());
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.newBuilder()
+                .setText("private caller context").build(), observer));
+
+        assertThat(observer.hasError()).isFalse();
+        assertThat(observer.getValue().getCombinedAnalysis())
+                .isEqualTo("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE")
+                .doesNotContain("private caller context");
+        assertThat(observer.getValue().hasAudioAnalysis()).isFalse();
+        assertThat(observer.getValue().hasVisualAnalysis()).isFalse();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
