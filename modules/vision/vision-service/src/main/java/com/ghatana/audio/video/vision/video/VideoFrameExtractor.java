@@ -551,6 +551,12 @@ public class VideoFrameExtractor {
                     }
                 }
             }
+            // A short-lived child can finish and exit after producing more than the budget
+            // between polling intervals. Check once after exit so that fast overflow cannot
+            // be mistaken for a successful bounded extraction.
+            if (finished && monitoredOutput != null && directoryBytes(monitoredOutput) > maxOutputBytes) {
+                outputExceeded = true;
+            }
             if (!finished) {
                 terminateProcessTree(process);
                 process.waitFor(2, TimeUnit.SECONDS);

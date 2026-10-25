@@ -252,6 +252,16 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void detectsOutputBudgetOverflowWhenChildExitsBetweenPollingIntervals() throws Exception {
+        Path output = Files.createDirectory(tempDir.resolve("fast-bounded-output"));
+        var result = VideoFrameExtractor.runProcess(childCommand("write-once", output.toString()),
+                Duration.ofSeconds(5), 128, output, 1024);
+
+        assertThat(result.outputExceeded()).isTrue();
+        assertThat(result.timedOut()).isFalse();
+    }
+
+    @Test
     void rejectsTraversalPathComponents() throws Exception {
         Path file = tempDir.resolve("source.mp4");
         Files.write(file, new byte[] {1});
@@ -298,6 +308,8 @@ class VideoFrameExtractorProcessTest {
                 byte[] block = new byte[4096];
                 while (true) stream.write(block);
             }
+        } else if ("write-once".equals(args[0])) {
+            Files.write(Path.of(args[1]).resolve("frame_0000.jpg"), new byte[2048]);
         } else {
             throw new IllegalArgumentException("unknown child mode");
         }
