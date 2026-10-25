@@ -2,12 +2,15 @@ package com.ghatana.stt.grpc;
 
 import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
+import com.ghatana.audiovideo.observability.AudioVideoHealthService;
+import com.ghatana.observability.MetricsCollectorFactory;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Standalone gRPC server for Speech-to-Text.
@@ -31,12 +34,27 @@ public final class SttGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     SttGrpcServer(int port, TransportSecurity transportSecurity) {
+        this(port, transportSecurity, new ProductionSttGrpcService(new SimpleMeterRegistry()));
+    }
+
+    SttGrpcServer(int port, TransportSecurity transportSecurity, ProductionSttGrpcService service) {
         super(
                 "stt-service",
                 port,
-                new ProductionSttGrpcService(new SimpleMeterRegistry()),
+                service,
                 com.ghatana.audio.video.common.GrpcInterceptorChain.build(),
-                transportSecurity);
+                transportSecurity,
+                readinessService(service));
+    }
+
+    static AudioVideoHealthService readinessService(ProductionSttGrpcService service) {
+        AudioVideoHealthService readiness = new AudioVideoHealthService(
+                "stt-service",
+                MetricsCollectorFactory.create(new SimpleMeterRegistry()),
+                Set.of("provider"));
+        readiness.registerCheck("provider", service::isProviderReady);
+        service.setReadinessProbe(readiness::isServing);
+        return readiness;
     }
 
     public static void main(String[] args) {

@@ -71,6 +71,15 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
         this.ownedLibrary = Objects.requireNonNull(library, "library");
     }
 
+    @Override
+    protected boolean isProviderReady() {
+        try {
+            return ownedLibrary.getSttEngine().getStatus().isHealthy();
+        } catch (RuntimeException unavailable) {
+            return false;
+        }
+    }
+
     static SttConfig createConfig(Map<String, String> environment) {
         Objects.requireNonNull(environment, "environment");
         ProviderProfile providerProfile = resolveProviderProfile(environment);

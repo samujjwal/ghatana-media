@@ -169,7 +169,7 @@ class SttGrpcServiceInProcessIntegrationTest {
             .healthCheck(HealthCheckRequest.getDefaultInstance());
 
         assertThat(response.getStatus()).isEqualTo(HealthStatus.HEALTH_STATUS_UNHEALTHY);
-        assertThat(response.getMessage()).contains("STT_READINESS_NOT_ADMITTED");
+        assertThat(response.getMessage()).isEqualTo("STT_NOT_SERVING: provider readiness unavailable");
     }
 
     @Test

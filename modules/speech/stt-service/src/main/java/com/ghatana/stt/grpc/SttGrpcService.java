@@ -20,9 +20,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 
 /**
  * STT gRPC Service — bridges the proto STTService API to the platform SttEngine.
@@ -39,6 +41,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     private final AudioVideoLibrary library;
     private final Timer transcribeTimer;
     private final int maxAudioLengthSeconds;
+    private volatile BooleanSupplier readinessProbe = this::isProviderReady;
 
     // AV-P1-004: Supported languages and sample-rate bounds (mirrors PersistentSttService constants).
     static final Set<String> SUPPORTED_LANGUAGES = Set.of(
@@ -222,13 +225,21 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void healthCheck(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
-        // An engine status alone does not establish service readiness: the canonical
-        // composition has not wired provider/model checks and shutdown state yet.
+        boolean ready = Boolean.TRUE.equals(readinessProbe.getAsBoolean());
         responseObserver.onNext(HealthCheckResponse.newBuilder()
-            .setStatus(HealthStatus.HEALTH_STATUS_UNHEALTHY)
-            .setMessage("STT_READINESS_NOT_ADMITTED: provider and model readiness checks are not wired")
+            .setStatus(ready ? HealthStatus.HEALTH_STATUS_HEALTHY : HealthStatus.HEALTH_STATUS_UNHEALTHY)
+            .setMessage(ready ? "STT_READY" : "STT_NOT_SERVING: provider readiness unavailable")
             .build());
         responseObserver.onCompleted();
+    }
+
+    /** Provider readiness is false unless a production composition supplies an admitted, healthy engine. */
+    protected boolean isProviderReady() {
+        return false;
+    }
+
+    final void setReadinessProbe(BooleanSupplier readinessProbe) {
+        this.readinessProbe = Objects.requireNonNull(readinessProbe, "readinessProbe");
     }
 
     // ── AV-001.1: loadModel ────────────────────────────────────────────────

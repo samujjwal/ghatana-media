@@ -13,11 +13,13 @@ dependencies {
     // Audio-Video common library — SttEngine, TtsEngine, media types, security interceptors
     implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:libs:common"))
+    implementation(project(":services:media:audio-video-observability"))
 
     // gRPC
     implementation(libs.grpc.netty.shaded)
     implementation(libs.grpc.protobuf)
     implementation(libs.grpc.stub)
+    implementation(libs.grpc.services)
 
     // Multi-tenancy
     implementation("com.ghatana.platform:governance:${providers.gradleProperty("ghatana.shared.version").get()}")
