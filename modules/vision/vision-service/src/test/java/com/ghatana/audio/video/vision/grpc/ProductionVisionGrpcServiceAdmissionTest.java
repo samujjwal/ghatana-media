@@ -15,6 +15,16 @@ import org.junit.jupiter.api.io.TempDir;
 class ProductionVisionGrpcServiceAdmissionTest {
     @TempDir Path modelDirectory;
 
+    @Test void missingModelIsTypedUnavailableBeforeProductionServiceComposition() {
+        Path missingDirectory = modelDirectory.resolve("missing");
+
+        assertThatThrownBy(() -> ProductionVisionGrpcService.compose(Map.of(
+                "VISION_MODEL_PATH", missingDirectory.toString())))
+                .isInstanceOfSatisfying(VisionModelProfile.VisionProviderUnavailableException.class,
+                        failure -> org.assertj.core.api.Assertions.assertThat(failure.reason())
+                                .isEqualTo(VisionModelProfile.UnavailableReason.MODEL_DIRECTORY_UNAVAILABLE));
+    }
+
     @Test void operatorLicenseMetadataAndPinnedModelBytesDoNotAdmitProductionProvider() throws Exception {
         byte[] bytes = "test-only-not-an-onnx-model".getBytes(java.nio.charset.StandardCharsets.UTF_8);
         Files.write(modelDirectory.resolve("model.onnx"), bytes);
