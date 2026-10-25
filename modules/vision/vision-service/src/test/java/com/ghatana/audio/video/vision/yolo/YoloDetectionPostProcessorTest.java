@@ -141,6 +141,19 @@ class YoloDetectionPostProcessorTest {
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("count");
     }
 
+    @Test void boundsWorstCaseNmsComparisonsForManyDisjointDetections() {
+        var transform = LetterboxTransform.fit(100_000, 100_000, 640);
+        List<YoloOutputParser.Detection> disjoint = java.util.stream.IntStream.range(0, 1_500)
+                .mapToObj(index -> new YoloOutputParser.Detection(0, 0.9,
+                        (index % 320) * 2.0, (index / 320) * 2.0, 0.5, 0.5))
+                .toList();
+
+        assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                disjoint, CLASSES, transform, 0.5, 1, MODEL))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("YOLO non-maximum suppression exceeded its comparison budget");
+    }
+
     @Test void outputProvenanceChangesWhenTheAdmittedModelVersionChanges() {
         var raw = List.of(new YoloOutputParser.Detection(0, 0.9, 10, 10, 20, 20));
         var transform = LetterboxTransform.fit(100, 100, 100);

@@ -10,6 +10,8 @@ import java.util.Map;
 /** Pure-Java mapping, clipping, provenance labeling, and class-wise NMS for parsed YOLO outputs. */
 final class YoloDetectionPostProcessor {
     private static final double MAX_ABS_MODEL_COORDINATE = 640.0 * 16.0;
+    /** Bound the quadratic worst case for disjoint detections that all survive NMS. */
+    private static final long MAX_NMS_COMPARISONS = 1_000_000;
 
     private YoloDetectionPostProcessor() { }
 
@@ -100,12 +102,21 @@ final class YoloDetectionPostProcessor {
 
     private static List<DetectedObject> suppress(List<DetectedObject> detections, double threshold) {
         List<DetectedObject> filtered = new ArrayList<>();
+        long comparisons = 0;
         for (DetectedObject candidate : detections.stream()
                 .sorted((left, right) -> Double.compare(right.getConfidence(), left.getConfidence()))
                 .toList()) {
-            boolean keep = filtered.stream().noneMatch(retained ->
-                    candidate.getClassName().equals(retained.getClassName())
-                            && candidate.getBoundingBox().calculateIoU(retained.getBoundingBox()) > threshold);
+            boolean keep = true;
+            for (DetectedObject retained : filtered) {
+                if (!candidate.getClassName().equals(retained.getClassName())) continue;
+                if (++comparisons > MAX_NMS_COMPARISONS) {
+                    throw new IllegalArgumentException("YOLO non-maximum suppression exceeded its comparison budget");
+                }
+                if (candidate.getBoundingBox().calculateIoU(retained.getBoundingBox()) > threshold) {
+                    keep = false;
+                    break;
+                }
+            }
             if (keep) filtered.add(candidate);
         }
         return List.copyOf(filtered);

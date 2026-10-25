@@ -761,3 +761,21 @@ Verification on this source cut:
 - `git diff --check` — PASS.
 
 The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**; STT-05 and VIS-07 remain partial because their positive provider/recovery/quality acceptance is not met. OBS-07 remains partial because no admitted quality signal or deployed alert path exists. No provider/model qualification, GH-90000 compose result, formal PDP/gtool acceptance, production cutover, deployment or release is claimed.
+
+### Incremental execution record — 2026-10-25 (fourteenth round)
+
+Two bounded local fixes advance TTS stream-buffer integrity and Vision NMS resource safety. A VIS-07 contract audit confirms the remaining shot-boundary and camera-motion outputs lack source-grounded semantics and an output contract. The 58-task denominator and exclusive dispositions are unchanged.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| TTS-08 | `TtsGrpcService` snapshots each provider chunk's mutable byte array at callback entry, including deferred final chunks. A regression mutates the provider buffer before asynchronous session completion and verifies the emitted final bytes remain `[1, 2]`. `TtsGrpcServiceTest` passed 36 tests. | PARTIAL: buffer ownership is now bounded at the gRPC callback boundary; real-provider codec, sample-clock, cancellation/finality and output-version qualification remain unavailable. |
+| VIS-06 | `YoloDetectionPostProcessor` now fails closed after 1,000,000 same-class IoU comparisons, bounding quadratic NMS work when many disjoint candidates survive. A 1,500-candidate regression asserts the typed local failure rather than partial results. `YoloDetectionPostProcessorTest` passed 11 tests. | PARTIAL: NMS resource work is bounded locally; licensed-corpus mAP/PR and admitted model qualification remain unavailable. |
+| VIS-07 | Audited the current result contract and tests. Results expose source timestamps, detections and ephemeral track IDs, but no shot-boundary or camera-motion output. Bounding-box deltas cannot distinguish camera motion from object motion; no scene-cut ground-truth fixture or owner-defined threshold/provenance is present. No code change. | PARTIAL: existing missing/reordered/gapped timestamp behavior is tested; shot-boundary and camera-motion semantics need an owner decision and source-grounded output contract before implementation. |
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:modules:speech:tts-service:test --tests 'com.ghatana.tts.grpc.TtsGrpcServiceTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 36 tests.
+- `./gradlew :services:media:modules:vision:vision-service:cleanTest :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.yolo.YoloDetectionPostProcessorTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 11 tests.
+- `git diff --check` — PASS. Structural Wave 2 checks are recorded after the plan update.
+
+The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No TTS provider, Vision model quality, formal PDP/gtool acceptance, production cutover, deployment or release is claimed.

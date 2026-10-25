@@ -275,7 +275,16 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                             if (format == null) {
                                 throw new IllegalStateException("TTS provider emitted audio before declaring its format");
                             }
-                            byte[] chunkData = chunk.data();
+                            // The shared chunk value carries a mutable byte array. Snapshot it at
+                            // the callback boundary because the final chunk is retained until
+                            // asynchronous session completion and providers may reuse buffers.
+                            byte[] chunkData = chunk.data().clone();
+                            com.ghatana.media.common.AudioChunk chunkSnapshot =
+                                    new com.ghatana.media.common.AudioChunk(
+                                            chunkData,
+                                            chunk.sequenceNumber(),
+                                            chunk.isLast(),
+                                            chunk.timestampMs());
                             if (chunkData.length == 0 || chunkData.length > MAX_STREAM_CHUNK_BYTES) {
                                 throw new IllegalStateException("TTS stream chunk exceeds the admitted non-empty 64 KiB bound");
                             }
@@ -288,13 +297,13 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                             if (finalChunkSeen.get()) {
                                 throw new IllegalStateException("TTS provider emitted audio after its final chunk");
                             }
-                            long total = outputBytes.addAndGet(chunk.data().length);
+                            long total = outputBytes.addAndGet(chunkData.length);
                             if (total > MAX_STREAM_OUTPUT_BYTES) {
                                 throw new IllegalStateException("TTS stream output exceeds the 50 MiB bound");
                             }
                             if (chunk.isLast()) {
                                 finalChunkSeen.set(true);
-                                pendingFinalChunk.set(chunk);
+                                pendingFinalChunk.set(chunkSnapshot);
                                 return;
                             }
                             try {
@@ -303,7 +312,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                                 Thread.currentThread().interrupt();
                                 throw new IllegalStateException("TTS stream interrupted while waiting for downstream readiness", interrupted);
                             }
-                            if (!isCancelled()) responseObserver.onNext(toGrpcChunk(chunk, synthesisOptions, false));
+                            if (!isCancelled()) {
+                                responseObserver.onNext(toGrpcChunk(chunkSnapshot, synthesisOptions, false));
+                            }
                         }
                     } catch (RuntimeException streamFailure) {
                         TtsStreamingSession running = activeSession.get();

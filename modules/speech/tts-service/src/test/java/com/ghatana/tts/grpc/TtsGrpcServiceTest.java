@@ -511,12 +511,18 @@ class TtsGrpcServiceTest {
 
         admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
         sinkRef.get().onAudioFormat(monoPcm16Format());
-        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 4));
+        byte[] providerBuffer = {1, 2};
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(providerBuffer, 0, true, 4));
+        // Providers may recycle their backing buffer as soon as the callback returns. The
+        // gRPC boundary must retain the bytes observed at onChunk, including deferred finals.
+        providerBuffer[0] = 9;
+        providerBuffer[1] = 9;
         completionRef.get().complete(null);
         assertThat(completed.await(1, TimeUnit.SECONDS)).isTrue();
         Thread.sleep(350);
 
-        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk -> chunk.getIsFinal()));
+        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk -> chunk.getIsFinal()
+                && chunk.getAudioData().equals(ByteString.copyFrom(new byte[] {1, 2}))));
         verify(observer).onCompleted();
         verify(observer, never()).onError(any());
         assertThat(registry.get("tts.synthesize.streaming").timer().count()).isEqualTo(1);
