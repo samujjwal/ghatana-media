@@ -819,3 +819,21 @@ Focused verification on this source cut:
 - Structural Wave 2 suite and `git diff --check` are rerun after this append.
 
 The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No real language or shot-boundary quality, admitted provider/model, canonical runtime source binding, formal PDP/gtool acceptance, production cutover, deployment, or release is claimed.
+
+### Incremental execution record — 2026-10-25 (seventeenth round)
+
+Two focused local commits follow the sixteenth-round cut: `3381943` and `d01b61e`. The 58-task denominator, source bindings and formal lifecycle boundary are unchanged. This round adds a bounded Vision camera-motion candidate and strengthens the authenticated TTS voice-cloning refusal path; neither change qualifies a model/provider or enables a real clone effect.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| VIS-07 | `CameraMotionHeuristic` estimates adjacent-frame optical-flow translation from downsampled grayscale source frames, with a 320-pixel maximum working side, at most 400 features, at least 12 consensus tracks across 8/16 spatial cells, and 70% support. It returns source-raster pixels per frame with `HEURISTIC_UNCALIBRATED` and qualitative uncertainty. Missing/unknown/nonmonotonic PTS, ordinal or PTS gaps, unavailable pixels/native code, dimension mismatch, small frames, or weak consensus return `UNKNOWN`. The output is available on `VideoAnalysisResult` only; no proto, gRPC, artifact-version or source-content binding was added. `CameraMotionHeuristicTest` passed 4 cases and `VideoAnalysisServiceTest` passed 19, all with 0 failures/errors/skips. | PARTIAL: this is an uncalibrated image-plane candidate, not camera pose or ground truth; coherent foreground motion can still mimic global motion, and qualified tracking quality and canonical source-version provenance remain outstanding. |
+| TTS-05 / TTS-11 / W2-E04 | Added an authenticated, populated `CloneVoice` request regression. The service returns `UNIMPLEMENTED` with `NOT_ADMITTED`, excludes private voice/sample markers from the status, and performs no engine or persistence interaction. `TtsAuthenticatedIntegrationTest` passed 6 cases, 0 failures/errors/skips. | PARTIAL: this proves the current fail-closed boundary only; trusted rights/consent, revocation and authorized positive cloning remain unavailable. |
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:modules:vision:vision-service:cleanTest :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.analysis.VideoAnalysisServiceTest' --tests 'com.ghatana.audio.video.vision.analysis.CameraMotionHeuristicTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 23 tests, 0 failures/errors/skips.
+- `./gradlew :services:media:modules:integration-tests:cleanTest :services:media:modules:integration-tests:test --tests 'com.ghatana.audio.video.integration.TtsAuthenticatedIntegrationTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 6 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks: exact task IDs, dependency order, 99 capability memberships, 43 RPC mappings and separate residual handoffs.
+- `git diff --check` — PASS.
+
+The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No model/provider quality, biometric or voice-rights admission, formal PDP/gtool acceptance, production cutover, deployment or release is claimed.
