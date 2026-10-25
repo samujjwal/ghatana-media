@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
 
 /**
  * @doc.type class
@@ -88,6 +89,7 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
             }
             return result;
         } catch (Exception e) {
+            rethrowOutcomeSignal(e);
             throw new MultimodalException("Platform STT processing failed", e);
         }
     }
@@ -99,6 +101,7 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
             if (result == null) throw new IllegalStateException("Vision provider returned no result");
             return result;
         } catch (Exception e) {
+            rethrowOutcomeSignal(e);
             throw new MultimodalException("Platform vision processing failed", e);
         }
     }
@@ -112,7 +115,19 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
             if (result == null) throw new IllegalStateException("Vision provider returned no result");
             return result;
         } catch (Exception e) {
+            rethrowOutcomeSignal(e);
             throw new MultimodalException("Platform video analysis failed", e);
+        }
+    }
+
+    /** Preserve child cancellation and deadline signals so callers can report uncertain finality. */
+    private static void rethrowOutcomeSignal(Exception failure) {
+        if (failure instanceof CancellationException cancellation) throw cancellation;
+        if (failure instanceof io.grpc.StatusRuntimeException grpcFailure) {
+            io.grpc.Status.Code code = grpcFailure.getStatus().getCode();
+            if (code == io.grpc.Status.Code.CANCELLED || code == io.grpc.Status.Code.DEADLINE_EXCEEDED) {
+                throw grpcFailure;
+            }
         }
     }
 

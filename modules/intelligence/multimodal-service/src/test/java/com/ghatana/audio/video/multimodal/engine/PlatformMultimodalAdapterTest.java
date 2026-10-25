@@ -10,11 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.concurrent.CancellationException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 
 /**
  * @doc.type class
@@ -96,5 +99,25 @@ class PlatformMultimodalAdapterTest {
                 AudioVideoRuntimeSettings.defaults(), library, frameExtractor, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("sttClientAdapter");
+    }
+
+    @Test
+    @DisplayName("child cancellation and deadline signals retain their outcome type")
+    void preservesCancellationAndDeadlineSignals() {
+        PlatformMultimodalAdapter adapter = new PlatformMultimodalAdapter(
+                AudioVideoRuntimeSettings.defaults(), library, frameExtractor, sttClientAdapter);
+        CancellationException cancellation = new CancellationException("child cancelled");
+        when(sttClientAdapter.transcribe(any())).thenThrow(cancellation);
+
+        assertThatThrownBy(() -> adapter.transcribe(new byte[] {1}))
+                .isSameAs(cancellation);
+
+        io.grpc.StatusRuntimeException deadline = io.grpc.Status.DEADLINE_EXCEEDED
+                .withDescription("child deadline")
+                .asRuntimeException();
+        doThrow(deadline).when(sttClientAdapter).transcribe(any());
+
+        assertThatThrownBy(() -> adapter.transcribe(new byte[] {1}))
+                .isSameAs(deadline);
     }
 }
