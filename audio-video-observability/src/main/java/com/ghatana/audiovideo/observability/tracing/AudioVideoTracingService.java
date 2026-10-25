@@ -5,11 +5,15 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
+import io.opentelemetry.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @doc.type class
@@ -41,7 +45,7 @@ public class AudioVideoTracingService {
 
         Span span = tracer.spanBuilder("audiovideo.grpc.streaming")
                 .setSpanKind(SpanKind.INTERNAL)
-                .setAttribute("method.name", methodName)
+                .setAttribute("method.name", safeMethod(methodName))
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("correlation.id", correlationId)
@@ -58,7 +62,7 @@ public class AudioVideoTracingService {
 
         Span span = tracer.spanBuilder("audiovideo.video.processing")
                 .setSpanKind(SpanKind.INTERNAL)
-                .setAttribute("process.id", processId)
+                .setAttribute("process.present", processId != null && !processId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("correlation.id", correlationId)
@@ -75,7 +79,7 @@ public class AudioVideoTracingService {
 
         Span span = tracer.spanBuilder("audiovideo.audio.processing")
                 .setSpanKind(SpanKind.INTERNAL)
-                .setAttribute("process.id", processId)
+                .setAttribute("process.present", processId != null && !processId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("correlation.id", correlationId)
@@ -92,7 +96,7 @@ public class AudioVideoTracingService {
 
         Span span = tracer.spanBuilder("audiovideo.synthesis")
                 .setSpanKind(SpanKind.INTERNAL)
-                .setAttribute("synthesis.id", synthesisId)
+                .setAttribute("synthesis.present", synthesisId != null && !synthesisId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("correlation.id", correlationId)
@@ -144,12 +148,32 @@ public class AudioVideoTracingService {
         return span.makeCurrent();
     }
 
+    /** Capture the current OTel context for work submitted to an executor. */
+    public Runnable propagateRunnable(Runnable task) {
+        return Context.current().wrap(task);
+    }
+
+    /** Capture the current OTel context for asynchronous suppliers. */
+    public <T> Supplier<T> propagateSupplier(Supplier<T> task) {
+        return Context.current().wrapSupplier(task);
+    }
+
+    /** Capture the current OTel context for asynchronous functions. */
+    public <T, R> Function<T, R> propagateFunction(Function<T, R> task) {
+        return Context.current().wrapFunction(task);
+    }
+
+    /** Capture the current OTel context for checked asynchronous work. */
+    public <T> Callable<T> propagateCallable(Callable<T> task) {
+        return Context.current().wrap(task);
+    }
+
     /**
      * Get or create correlation ID
      */
     private String getOrCreateCorrelationId() {
         String correlationId = MDC.get("correlationId");
-        if (correlationId == null) {
+        if (correlationId == null || !correlationId.matches("[A-Za-z0-9_-]{1,64}")) {
             correlationId = UUID.randomUUID().toString();
         }
         return correlationId;
@@ -169,10 +193,10 @@ public class AudioVideoTracingService {
 
         Span span = tracer.spanBuilder("audiovideo.stt.transcribe")
                 .setSpanKind(SpanKind.INTERNAL)
-                .setAttribute("transcription.id", transcriptionId)
+                .setAttribute("transcription.present", transcriptionId != null && !transcriptionId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("stt.language", language != null ? language : "auto")
+                .setAttribute("stt.language", safeLanguage(language))
                 .setAttribute("correlation.id", correlationId)
                 .startSpan();
 
@@ -213,7 +237,7 @@ public class AudioVideoTracingService {
 
         Span span = tracer.spanBuilder("audiovideo.vision.detect")
                 .setSpanKind(SpanKind.INTERNAL)
-                .setAttribute("detection.id", detectionId)
+                .setAttribute("detection.present", detectionId != null && !detectionId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("vision.confidence_threshold", confidenceThreshold)
@@ -247,5 +271,15 @@ public class AudioVideoTracingService {
     public void clearContext() {
         MDC.clear();
         MDC.setContextMap(java.util.Collections.emptyMap());
+    }
+
+    private static String safeMethod(String methodName) {
+        return methodName != null && methodName.matches("[A-Za-z][A-Za-z0-9_.]{0,63}")
+                ? methodName : "unknown";
+    }
+
+    private static String safeLanguage(String language) {
+        return language != null && language.matches("(?i)(auto|[a-z]{2,3}(-[a-z0-9]{2,8}){0,4})")
+                ? language : "auto";
     }
 }
