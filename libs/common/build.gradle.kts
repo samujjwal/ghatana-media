@@ -46,6 +46,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
+    testImplementation(libs.grpc.inprocess)
     testImplementation(libs.opentelemetry.sdk)
     testImplementation(libs.opentelemetry.sdk.testing)
     testImplementation(libs.log4j.core)
