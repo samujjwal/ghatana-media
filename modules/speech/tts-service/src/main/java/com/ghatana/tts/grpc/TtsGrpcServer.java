@@ -2,12 +2,17 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
+import com.ghatana.audiovideo.observability.AudioVideoHealthService;
+import com.ghatana.observability.MetricsCollectorFactory;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 /**
  * Standalone gRPC server for Text-to-Speech.
@@ -31,13 +36,36 @@ public final class TtsGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     TtsGrpcServer(int port, TransportSecurity transportSecurity) {
+        this(port, transportSecurity, createProductionRuntime());
+    }
+
+    private TtsGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
         super(
                 "tts-service",
                 port,
-                new ProductionTtsGrpcService(new SimpleMeterRegistry()),
+                runtime.service(),
                 com.ghatana.audio.video.common.GrpcInterceptorChain.build(),
-                transportSecurity);
+                transportSecurity,
+                runtime.readiness());
     }
+
+    private static ServerRuntime createProductionRuntime() {
+        MeterRegistry metrics = new SimpleMeterRegistry();
+        ProductionTtsGrpcService service = new ProductionTtsGrpcService(metrics);
+        return new ServerRuntime(service, createReadinessLifecycle(metrics, service::isProviderReady));
+    }
+
+    static AudioVideoHealthService createReadinessLifecycle(
+            MeterRegistry metrics, BooleanSupplier providerReadiness) {
+        AudioVideoHealthService readiness = new AudioVideoHealthService(
+                "tts-service", MetricsCollectorFactory.create(metrics), Set.of("provider"));
+        readiness.registerCheck("provider", providerReadiness::getAsBoolean);
+        return readiness;
+    }
+
+    private record ServerRuntime(
+            ProductionTtsGrpcService service,
+            AudioVideoHealthService readiness) {}
 
     public static void main(String[] args) {
         if (Boolean.getBoolean("av.smokeTest")) {

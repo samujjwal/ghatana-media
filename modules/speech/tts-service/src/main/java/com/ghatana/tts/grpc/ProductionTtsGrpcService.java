@@ -47,6 +47,15 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         this.ownedLibrary = Objects.requireNonNull(library, "library");
     }
 
+    /** Readiness derived from the initialized provider state, without exposing model diagnostics. */
+    boolean isProviderReady() {
+        try {
+            return ownedLibrary.getTtsEngine().getStatus().isHealthy();
+        } catch (RuntimeException unavailable) {
+            return false;
+        }
+    }
+
     static TtsConfig createConfig(Map<String, String> environment) {
         Objects.requireNonNull(environment, "environment");
         ProviderProfile provider = resolveProviderProfile(environment);
