@@ -72,10 +72,10 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                                 try (PreparedStatement update = connection.prepareStatement(
                                         "UPDATE media_lifecycle_outbox SET claim_owner=?,claim_token=?,claim_expires_at=?,publication_attempts=? WHERE event_id=?")) {
                                     update.setString(1, ownerId);
-                                    update.setString(2, token.toString());
+                                    update.setObject(2, token);
                                     update.setLong(3, expiresAt.toEpochMilli());
                                     update.setInt(4, attemptNumber);
-                                    update.setString(5, eventId.toString());
+                                    update.setObject(5, eventId);
                                     if (update.executeUpdate() != 1) throw new SQLException("Media outbox claim was lost");
                                 }
                                 // An expired claim without a persisted acknowledgement has an unknown broker outcome.
@@ -83,7 +83,7 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                                 try (PreparedStatement expired = connection.prepareStatement(
                                         "UPDATE media_lifecycle_outbox_delivery_attempts SET status='OUTCOME_UNKNOWN',failure_code='CLAIM_EXPIRED_WITHOUT_ACK' "
                                                 + "WHERE event_id=? AND status='CLAIMED' AND claim_expires_at<=?")) {
-                                    expired.setString(1, eventId.toString());
+                                    expired.setObject(1, eventId);
                                     expired.setLong(2, observedAt.toEpochMilli());
                                     expired.executeUpdate();
                                 }
@@ -91,10 +91,10 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                                         "INSERT INTO media_lifecycle_outbox_delivery_attempts "
                                                 + "(event_id,attempt_number,claim_owner,claim_token,payload_fingerprint,claimed_at,claim_expires_at,status) "
                                                 + "VALUES (?,?,?,?,?,?,?,'CLAIMED')")) {
-                                    attempt.setString(1, eventId.toString());
+                                    attempt.setObject(1, eventId);
                                     attempt.setInt(2, attemptNumber);
                                     attempt.setString(3, ownerId);
-                                    attempt.setString(4, token.toString());
+                                    attempt.setObject(4, token);
                                     attempt.setString(5, fingerprint);
                                     attempt.setLong(6, observedAt.toEpochMilli());
                                     attempt.setLong(7, expiresAt.toEpochMilli());
@@ -113,7 +113,7 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                                 "UPDATE media_lifecycle_outbox_publisher_lease SET claim_owner=?,claim_token=?,claim_expires_at=? "
                                         + "WHERE publisher_key='media-lifecycle'")) {
                             lease.setString(1, ownerId);
-                            lease.setString(2, token.toString());
+                            lease.setObject(2, token);
                             lease.setLong(3, expiresAt.toEpochMilli());
                             if (lease.executeUpdate() != 1) throw new SQLException("Media lifecycle publisher lease was not persisted");
                         }
@@ -141,8 +141,8 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                             "UPDATE media_lifecycle_outbox SET published_at=?,failed_at=NULL,failure_code=NULL,claim_owner=NULL,claim_token=NULL,claim_expires_at=NULL "
                                     + "WHERE event_id=? AND claim_token=? AND published_at IS NULL AND claim_expires_at>?")) {
                         event.setLong(1, publishedAt.toEpochMilli());
-                        event.setString(2, eventId.toString());
-                        event.setString(3, claimToken.toString());
+                        event.setObject(2, eventId);
+                        event.setObject(3, claimToken);
                         event.setLong(4, publishedAt.toEpochMilli());
                         if (event.executeUpdate() != 1) throw new IllegalStateException("Media outbox claim is stale, expired, or event is already final");
                     }
@@ -150,8 +150,8 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                             "UPDATE media_lifecycle_outbox_delivery_attempts SET status='PUBLISHED',broker_accepted_at=?,failure_code=NULL "
                                     + "WHERE event_id=? AND claim_token=? AND status='CLAIMED'")) {
                         attempt.setLong(1, publishedAt.toEpochMilli());
-                        attempt.setString(2, eventId.toString());
-                        attempt.setString(3, claimToken.toString());
+                        attempt.setObject(2, eventId);
+                        attempt.setObject(3, claimToken);
                         if (attempt.executeUpdate() != 1) throw new SQLException("Media outbox delivery attempt acknowledgement was not persisted");
                     }
                     connection.commit();
@@ -179,8 +179,8 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                             "UPDATE media_lifecycle_outbox SET failed_at=?,failure_code=? WHERE event_id=? AND claim_token=? AND published_at IS NULL AND claim_expires_at>?")) {
                         event.setLong(1, observedAt.toEpochMilli());
                         event.setString(2, failureCode);
-                        event.setString(3, eventId.toString());
-                        event.setString(4, claimToken.toString());
+                        event.setObject(3, eventId);
+                        event.setObject(4, claimToken);
                         event.setLong(5, observedAt.toEpochMilli());
                         if (event.executeUpdate() != 1) throw new IllegalStateException("Media outbox claim is stale or expired");
                     }
@@ -188,8 +188,8 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                             "UPDATE media_lifecycle_outbox_delivery_attempts SET status='FAILED',failure_code=? "
                                     + "WHERE event_id=? AND claim_token=? AND status='CLAIMED'")) {
                         attempt.setString(1, failureCode);
-                        attempt.setString(2, eventId.toString());
-                        attempt.setString(3, claimToken.toString());
+                        attempt.setObject(2, eventId);
+                        attempt.setObject(3, claimToken);
                         if (attempt.executeUpdate() != 1) throw new SQLException("Media outbox failure attempt was not persisted");
                     }
                     connection.commit();
@@ -215,20 +215,20 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                     try (PreparedStatement attempts = connection.prepareStatement(
                             "UPDATE media_lifecycle_outbox_delivery_attempts SET status='CLAIM_RELEASED' "
                                     + "WHERE claim_token=? AND status='CLAIMED'")) {
-                        attempts.setString(1, claimToken.toString());
+                        attempts.setObject(1, claimToken);
                         attempts.executeUpdate();
                     }
                     int released;
                     try (PreparedStatement statement = connection.prepareStatement(
                             "UPDATE media_lifecycle_outbox SET claim_owner=NULL,claim_token=NULL,claim_expires_at=NULL "
                                     + "WHERE claim_token=? AND published_at IS NULL")) {
-                        statement.setString(1, claimToken.toString());
+                        statement.setObject(1, claimToken);
                         released = statement.executeUpdate();
                     }
                     try (PreparedStatement lease = connection.prepareStatement(
                             "UPDATE media_lifecycle_outbox_publisher_lease SET claim_owner=NULL,claim_token=NULL,claim_expires_at=NULL "
                                     + "WHERE publisher_key='media-lifecycle' AND claim_token=?")) {
-                        lease.setString(1, claimToken.toString());
+                        lease.setObject(1, claimToken);
                         lease.executeUpdate();
                     }
                     connection.commit();
@@ -248,7 +248,7 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO media_lifecycle_outbox (event_id,tenant_id,subject_id,event_type,payload_json,occurred_at,correlation_id,created_at) "
                         + "VALUES (?,?,?,?,?,?,?,?)")) {
-            statement.setString(1, event.eventId().toString());
+            statement.setObject(1, event.eventId());
             statement.setString(2, event.tenantId());
             statement.setString(3, event.subjectId());
             statement.setString(4, event.eventType());
