@@ -1,0 +1,477 @@
+rule_files:
+- ../alerts/audio-video.yml
+evaluation_interval: 30s
+tests:
+- name: observed-zero-readiness-fires-after-one-minute
+  interval: 30s
+  input_series:
+  - series: av_service_readiness{service="stt"}
+    values: '0x3'
+  - series: av_service_readiness{service="tts"}
+    values: '0x3'
+  - series: av_service_readiness{service="vision"}
+    values: '0x3'
+  - series: av_service_readiness{service="multimodal"}
+    values: '0x3'
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: SttProviderNotReady
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: stt
+        service: stt
+      exp_annotations:
+        summary: STT service provider readiness is down
+        description: The observed STT readiness gauge is zero. Check public readiness
+          and lifecycle, then inspect only redacted STT diagnostics and provider configuration.
+          Keep traffic closed until readiness recovers; missing or unknown series
+          do not trigger this alert.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 1m
+    alertname: TtsProviderNotReady
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: tts
+        service: tts
+      exp_annotations:
+        summary: TTS service provider readiness is down
+        description: The observed TTS readiness gauge is zero. Check public readiness
+          and lifecycle, then inspect only redacted TTS diagnostics and provider configuration.
+          Keep traffic closed until readiness recovers; missing or unknown series
+          do not trigger this alert.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 1m
+    alertname: VisionProviderNotReady
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: vision
+        service: vision
+      exp_annotations:
+        summary: Vision service provider readiness is down
+        description: The observed Vision readiness gauge is zero. Check public readiness
+          and lifecycle, then inspect only redacted Vision diagnostics and provider
+          configuration. Keep traffic closed until readiness recovers; missing or
+          unknown series do not trigger this alert.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 1m
+    alertname: MultimodalProviderNotReady
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: multimodal
+        service: multimodal
+      exp_annotations:
+        summary: Multimodal service provider readiness is down
+        description: The observed Multimodal readiness gauge is zero. Check public
+          readiness and lifecycle, then inspect only redacted Multimodal diagnostics
+          and provider configuration. Keep traffic closed until readiness recovers;
+          missing or unknown series do not trigger this alert.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+- name: readiness-one-does-not-fire
+  interval: 30s
+  input_series:
+  - series: av_service_readiness{service="stt"}
+    values: 1x3
+  - series: av_service_readiness{service="tts"}
+    values: 1x3
+  - series: av_service_readiness{service="vision"}
+    values: 1x3
+  - series: av_service_readiness{service="multimodal"}
+    values: 1x3
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: SttProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: TtsProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: VisionProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: MultimodalProviderNotReady
+    exp_alerts: []
+- name: missing-readiness-is-no-data-not-zero
+  interval: 30s
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: SttProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: TtsProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: VisionProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: MultimodalProviderNotReady
+    exp_alerts: []
+- name: nan-readiness-is-no-data-not-zero
+  interval: 30s
+  input_series:
+  - series: av_service_readiness{service="stt"}
+    values: NaN NaN NaN
+  - series: av_service_readiness{service="tts"}
+    values: NaN NaN NaN
+  - series: av_service_readiness{service="vision"}
+    values: NaN NaN NaN
+  - series: av_service_readiness{service="multimodal"}
+    values: NaN NaN NaN
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: SttProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: TtsProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: VisionProviderNotReady
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: MultimodalProviderNotReady
+    exp_alerts: []
+- name: MediaJobLeaseStuck-support-one
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_lease_overdue{service="stt",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaJobLeaseStuck
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: workflow
+        service: stt
+      exp_annotations:
+        summary: Media job leases overdue without recovery
+        description: 2 durable Media job lease(s) on stt have stayed expired for over
+          10 minutes — a worker may have crashed or job-store recovery may be stalled.
+          Inspect worker health and rerun the restart-reconciliation procedure in
+          docs/OPERATIONS.md.
+  - eval_time: 20m
+    alertname: MediaWorkflowAggregateStoreMetricsUnavailable
+    exp_alerts: []
+- name: MediaJobLeaseStuck-support-zero
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  - series: media_workflow_lease_overdue{service="stt",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaJobLeaseStuck
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaWorkflowAggregateStoreMetricsUnavailable
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: workflow
+        service: stt
+        contract_version: v1
+      exp_annotations:
+        summary: Media job store cannot supply aggregate workflow metrics
+        description: The configured Media job store on stt reports unsupported or
+          failed aggregate queries backing lease/backlog/queue-depth gauges. Initial
+          NaN/unknown state does not trigger this alert; a known unsupported or failed
+          refresh does.
+- name: MediaJobLeaseStuck-missing
+  interval: 1m
+  input_series:
+  - series: media_workflow_lease_overdue{service="stt",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaJobLeaseStuck
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaWorkflowAggregateStoreMetricsUnavailable
+    exp_alerts: []
+- name: MediaJobLeaseStuck-nan
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+      NaN NaN NaN NaN NaN NaN NaN NaN
+  - series: media_workflow_lease_overdue{service="stt",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaJobLeaseStuck
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaWorkflowAggregateStoreMetricsUnavailable
+    exp_alerts: []
+- name: MediaJobLeaseStuck-known-zero
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_lease_overdue{service="stt",contract_version="v1"}
+    values: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaJobLeaseStuck
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaWorkflowAggregateStoreMetricsUnavailable
+    exp_alerts: []
+- name: MediaOutboxClaimLeaseStuck-support-one
+  interval: 1m
+  input_series:
+  - series: media_workflow_outbox_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_outbox_lease_overdue{service="stt",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaOutboxClaimLeaseStuck
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: workflow
+        service: stt
+      exp_annotations:
+        summary: Media lifecycle outbox claim leases remain expired
+        description: 2 durable Media outbox claim lease(s) on stt have remained expired
+          for 10 minutes. Inspect the publisher and reconcile broker acknowledgement
+          before replaying any event; do not infer publication from a local claim.
+  - eval_time: 20m
+    alertname: MediaWorkflowOutboxMetricsUnavailable
+    exp_alerts: []
+- name: MediaOutboxClaimLeaseStuck-support-zero
+  interval: 1m
+  input_series:
+  - series: media_workflow_outbox_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  - series: media_workflow_outbox_lease_overdue{service="stt",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaOutboxClaimLeaseStuck
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaWorkflowOutboxMetricsUnavailable
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: workflow
+        service: stt
+        contract_version: v1
+      exp_annotations:
+        summary: Media outbox cannot supply aggregate lease metrics
+        description: The configured Media outbox on stt reports unsupported or failed
+          expired-claim queries. Initial NaN/unknown state does not trigger this alert;
+          a known unsupported or failed refresh does.
+- name: MediaOutboxClaimLeaseStuck-missing
+  interval: 1m
+  input_series:
+  - series: media_workflow_outbox_lease_overdue{service="stt",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaOutboxClaimLeaseStuck
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaWorkflowOutboxMetricsUnavailable
+    exp_alerts: []
+- name: MediaOutboxClaimLeaseStuck-nan
+  interval: 1m
+  input_series:
+  - series: media_workflow_outbox_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+      NaN NaN NaN NaN NaN NaN NaN NaN
+  - series: media_workflow_outbox_lease_overdue{service="stt",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaOutboxClaimLeaseStuck
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaWorkflowOutboxMetricsUnavailable
+    exp_alerts: []
+- name: MediaOutboxClaimLeaseStuck-known-zero
+  interval: 1m
+  input_series:
+  - series: media_workflow_outbox_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_outbox_lease_overdue{service="stt",contract_version="v1"}
+    values: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaOutboxClaimLeaseStuck
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaWorkflowOutboxMetricsUnavailable
+    exp_alerts: []
+- name: MediaUnknownFinalityBacklog-support-one
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_unknown_backlog{service="stt",contract_version="v1"}
+    values: 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30
+      30 30
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaUnknownFinalityBacklog
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: workflow
+        service: stt
+      exp_annotations:
+        summary: Media jobs with unknown finality are accumulating
+        description: 30 Media job(s) on stt are in OUTCOME_UNKNOWN for over 15 minutes.
+          Provider outcome reconciliation is falling behind — check provider connectivity
+          and the reconciliation pass before resubmitting anything; unknown outcomes
+          must never be blindly retried.
+- name: MediaUnknownFinalityBacklog-missing
+  interval: 1m
+  input_series:
+  - series: media_workflow_unknown_backlog{service="stt",contract_version="v1"}
+    values: 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30
+      30 30
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaUnknownFinalityBacklog
+    exp_alerts: []
+- name: MediaUnknownFinalityBacklog-nan
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+      NaN NaN NaN NaN NaN NaN NaN NaN
+  - series: media_workflow_unknown_backlog{service="stt",contract_version="v1"}
+    values: 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30
+      30 30
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaUnknownFinalityBacklog
+    exp_alerts: []
+- name: MediaUnknownFinalityBacklog-known-zero
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_unknown_backlog{service="stt",contract_version="v1"}
+    values: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaUnknownFinalityBacklog
+    exp_alerts: []
+- name: MediaQueueCapacityHigh-support-one
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_queue_depth{service="stt",contract_version="v1"}
+    values: 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600
+      600 600 600 600 600 600 600 600
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaQueueCapacityHigh
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: workflow
+        service: stt
+      exp_annotations:
+        summary: Media work queue depth above 500
+        description: The Media job dispatch queue on stt has held more than 500 pending
+          items for 10 minutes. Check global and per-tenant concurrency limits, provider
+          latency, and worker availability before increasing capacity.
+- name: MediaQueueCapacityHigh-missing
+  interval: 1m
+  input_series:
+  - series: media_workflow_queue_depth{service="stt",contract_version="v1"}
+    values: 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600
+      600 600 600 600 600 600 600 600
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaQueueCapacityHigh
+    exp_alerts: []
+- name: MediaQueueCapacityHigh-nan
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+      NaN NaN NaN NaN NaN NaN NaN NaN
+  - series: media_workflow_queue_depth{service="stt",contract_version="v1"}
+    values: 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600
+      600 600 600 600 600 600 600 600
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaQueueCapacityHigh
+    exp_alerts: []
+- name: MediaQueueCapacityHigh-known-zero
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="stt",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_queue_depth{service="stt",contract_version="v1"}
+    values: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaQueueCapacityHigh
+    exp_alerts: []
+- name: publication-ambiguity-service-label
+  interval: 1m
+  input_series:
+  - series: media_workflow_events_total{service="stt",contract_version="v1",event="publication_ambiguous"}
+    values: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+  alert_rule_test:
+  - eval_time: 25m
+    alertname: MediaPublicationAmbiguityIncreasing
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: workflow
+        service: stt
+      exp_annotations:
+        summary: Media lifecycle publication outcomes are ambiguous
+        description: The lifecycle outbox on stt is recording ambiguous broker-acknowledgement
+          outcomes. Events may be safely claimed and fenced but publication finality
+          is unconfirmed — verify the event-plane broker and follow the outbox replay/DLQ
+          procedure in docs/OPERATIONS.md.
+- name: policy-denial-service-label
+  interval: 1m
+  input_series:
+  - series: media_workflow_events_total{service="stt",contract_version="v1",event="denied"}
+    values: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+  - series: media_workflow_requests_total{service="stt",contract_version="v1"}
+    values: 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48
+      50
+  alert_rule_test:
+  - eval_time: 25m
+    alertname: MediaPolicyDenialRateHigh
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: workflow
+        service: stt
+      exp_annotations:
+        summary: Media policy/governance denial rate above 20%
+        description: Over 20% of Media workflow requests on stt are being denied by
+          security, consent, or governance checks for 10 minutes. Confirm consent
+          authorities are reachable and that upstream clients are sending authorized
+          requests.

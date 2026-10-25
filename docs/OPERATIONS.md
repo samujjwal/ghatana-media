@@ -134,6 +134,17 @@ Investigate or alert on:
 
 ### Wave 2 signal availability and no-data handling
 
+Validate the checked-in alert rules and readiness/workflow fixtures from the
+repository root with Prometheus `promtool` (v3.15.1):
+
+```sh
+promtool check rules monitoring/prometheus/rules/media.yml infra/monitoring/alerts/audio-video.yml
+promtool test rules infra/monitoring/tests/audio-video.rules.test.yml
+```
+
+The rule test file evaluates local Prometheus expressions only; it does not
+verify alert delivery, deployment, or the Postgres process-restart scenario.
+
 The current Media Runtime Prometheus scrape emits durable workflow metrics from
 `MediaWorkflowMetrics`: request/event counts, workflow-stage durations, queue
 depth, `OUTCOME_UNKNOWN` backlog, overdue job leases, and expired durable
