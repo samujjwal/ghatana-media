@@ -433,7 +433,7 @@ Key local changes at this cut:
 
 ### Integrated effect and failure scenarios
 
-No W2-E scenario is complete. The local work validates slices and boundaries; it does not substitute for the integrated result, persistence, provider, quality, resource, or operational acceptance in each row.
+At the initial scenario baseline below, no W2-E scenario was complete. W2-E09 has since been completed for the local 43-RPC response-disposition matrix, as recorded in the twenty-second round. The other scenarios remain incomplete; local contract coverage does not substitute for integrated results, persistence, provider quality, resource, or operational acceptance.
 
 | Scenario | Current disposition | Remaining evidence |
 | --- | --- | --- |
@@ -445,7 +445,7 @@ No W2-E scenario is complete. The local work validates slices and boundaries; it
 | W2-E06 Vision scene text / biometrics | PARTIAL / EXTERNAL/OWNER | Document Intelligence adapter admission and authoritative biometric rights/consent source. |
 | W2-E07 Real multimodal grounded result | PARTIAL / EXTERNAL/OWNER | Real STT+Vision providers, immutable source evidence and ground-truth offset/quality measurements. |
 | W2-E08 Independent capability outcomes under partial failure | PARTIAL | Exact attempt/provider effect and cancellation/retry proof for each selected capability; no family-level aggregate result. |
-| W2-E09 Full 43-RPC method matrix | PARTIAL | Existing service-local matrices do not yet make one source-bound 43-row request/response/version/error evidence matrix. |
+| W2-E09 Full 43-RPC method matrix | COMPLETE (local contract matrix) | Multimodal request-version coverage is N/A because none of its ten request messages declares `version` or `api_version`; provider quality and deployment remain separate evidence. |
 | W2-E10 Health and telemetry | PARTIAL | Four-server startup/failure/slow-provider and alert evaluation against actual service state remain unverified. |
 | W2-E11 Resource and adversarial inputs | PARTIAL / EXTERNAL/OWNER | Reproducible 1/16/64-client model/native resource baselines and qualified hardware limits. |
 | W2-E12 Restart and dependency qualification | PARTIAL / EXTERNAL/OWNER | Real provider/store restart and replay evidence; image-dependent compose qualification remains blocked by GH-90000. |
@@ -916,3 +916,21 @@ Focused verification on this source cut:
 - `git diff --check` — PASS.
 
 The current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. The local trace fix does not claim alert deployment, provider quality, or full OBS closure.
+
+### Incremental execution record — 2026-10-25 (twenty-second round)
+
+This round makes the default multimodal gRPC composition start without loading placeholder or synthetic models, and adds transport-level response coverage for all ten registered Multimodal RPCs. Provider admission remains unavailable by default.
+
+| Task / scenario | Change and evidence | Current disposition |
+| --- | --- | --- |
+| MM-05 / MM-11 | `PlatformMultimodalAdapter()` now composes explicit STT/Vision `NOT_ADMITTED` adapters without creating an `AudioVideoLibrary`, opening a gRPC provider channel, or attempting model loading. It reports backend `not-admitted`; `MultimodalGrpcService` can start with unavailable authorization and truthful not-ready status. The unused constructor that eagerly built placeholder providers was removed. `PlatformMultimodalAdapterTest` passed 6 tests; the full multimodal module passed 267 tests, 0 failures/errors/skips. | PARTIAL for MM-05; MM-11 remains LOCALLY_VERIFIED for its bounded RPC inventory/status behavior. No provider execution is admitted. |
+| W2-E09 | Added `MultimodalRpcMatrixIntegrationTest`: all ten RPCs are exercised over in-process gRPC with the production JWT interceptor. Tests cover authenticated provider-unavailable outcomes, missing bearer rejection, applicable malformed requests, exact descriptor IDs, `NOT_ADMITTED` status, generic false readiness, and request-version absence. The complete integration module passed 39 tests, 0 failures/errors/skips; the new matrix contributed 3 tests. | COMPLETE for the local 43-RPC request/response/auth/error matrix, combined with the existing 12 STT, 11 TTS, and 10 Vision in-process matrices. No live provider, model quality, or deployment result is inferred. |
+
+Multimodal request-version cases are explicitly N/A: the ten request messages have neither `version` nor `api_version` fields. The W2-E09 completion is limited to local transport dispositions and canonical RPC identity mapping; provider-quality and physical-surface acceptance remain open. The 58-task denominator and exclusive dispositions are unchanged at **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT**.
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:modules:intelligence:multimodal-service:cleanTest :services:media:modules:intelligence:multimodal-service:test --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 267 tests, 0 failures/errors/skips.
+- `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapterTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 6 tests.
+- `./gradlew :services:media:modules:integration-tests:cleanTest :services:media:modules:integration-tests:test --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 39 tests, 0 failures/errors/skips.
+- `git diff --check` — PASS.

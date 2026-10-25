@@ -1,11 +1,7 @@
 package com.ghatana.audio.video.multimodal.engine;
 
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
-import com.ghatana.audio.video.multimodal.adapter.GrpcSttClientAdapter;
 import com.ghatana.media.AudioVideoLibrary;
-import com.ghatana.media.config.SttConfig;
-import com.ghatana.media.config.TtsConfig;
-import com.ghatana.media.config.VisionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,31 +25,19 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
     private final VisionClientAdapter visionClientAdapter;
 
     public PlatformMultimodalAdapter() {
-        this(AudioVideoRuntimeSettings.load());
-    }
+        this(AudioVideoRuntimeSettings.load(), null, new VideoFrameExtractor(),
+                audioData -> AudioResult.error("STT_PROVIDER_NOT_ADMITTED"),
+                new VisionClientAdapter() {
+                    @Override
+                    public VisualResult detectObjects(byte[] imageData) {
+                        return VisualResult.error("VISION_PROVIDER_NOT_ADMITTED");
+                    }
 
-    PlatformMultimodalAdapter(AudioVideoRuntimeSettings settings) {
-        this(
-                settings,
-                AudioVideoLibrary.builder()
-                        .withSttConfig(SttConfig.builder()
-                                .modelId(settings.sttModelId())
-                                .enableTimestamps(true)
-                                .build())
-                        .withTtsConfig(TtsConfig.builder()
-                                .defaultVoiceId(settings.ttsVoiceId())
-                                .build())
-                        .withVisionConfig(VisionConfig.builder()
-                                .modelId(settings.visionModelId())
-                                .defaultConfidenceThreshold(0.5)
-                                .build())
-                        .withMetrics(settings.metricsEnabled())
-                        .build(),
-                new VideoFrameExtractor(),
-                new GrpcSttClientAdapter(
-                        System.getenv().getOrDefault("STT_GRPC_HOST", "localhost"),
-                        Integer.parseInt(System.getenv().getOrDefault("STT_GRPC_PORT", "50051")),
-                        GrpcSttClientAdapter.SttMode.GRPC));
+                    @Override
+                    public VisualResult analyseVideo(byte[] videoData, int sampleFps, int maxFrames) {
+                        return VisualResult.error("VISION_PROVIDER_NOT_ADMITTED");
+                    }
+                });
     }
 
     PlatformMultimodalAdapter(
@@ -74,7 +58,9 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
             SttClientAdapter sttClientAdapter,
             VisionClientAdapter visionClientAdapter) {
         this.settings = Objects.requireNonNull(settings, "settings");
-        this.library = Objects.requireNonNull(library, "library");
+        // A null library is reserved for the no-provider default composition above.
+        // Qualified runtimes use the injected constructor and own a concrete library.
+        this.library = library;
         this.frameExtractor = Objects.requireNonNull(frameExtractor, "frameExtractor");
         this.sttClientAdapter = Objects.requireNonNull(sttClientAdapter, "sttClientAdapter");
         this.visionClientAdapter = Objects.requireNonNull(visionClientAdapter, "visionClientAdapter");
@@ -133,7 +119,7 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
 
     @Override
     public String backendName() {
-        return "platform-audio-video";
+        return library == null ? "not-admitted" : "platform-audio-video";
     }
 
     @Override
@@ -150,7 +136,9 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
                 LOG.debug("Failed to close STT adapter", e);
             }
         }
-        library.close();
+        if (library != null) {
+            library.close();
+        }
     }
 
 }

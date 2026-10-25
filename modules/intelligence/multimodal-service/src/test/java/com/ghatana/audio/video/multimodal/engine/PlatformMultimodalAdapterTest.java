@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 
 /**
  * @doc.type class
@@ -40,7 +41,20 @@ class PlatformMultimodalAdapterTest {
 
     @BeforeEach
     void providePublicVisionSpi() {
-        when(library.getVisionEngine()).thenReturn(mock(VisionEngine.class));
+        lenient().when(library.getVisionEngine()).thenReturn(mock(VisionEngine.class));
+    }
+
+    @Test
+    @DisplayName("default composition starts without loading an unadmitted model and remains unavailable")
+    void defaultCompositionIsNotAdmittedWithoutProviderModels() {
+        PlatformMultimodalAdapter adapter = new PlatformMultimodalAdapter();
+
+        assertThat(adapter.backendName()).isEqualTo("not-admitted");
+        assertThat(adapter.transcribe(new byte[] {1}).isError()).isTrue();
+        assertThat(adapter.analyseImage(new byte[] {1}).isError()).isTrue();
+        assertThat(adapter.analyseVideo(new byte[] {1}, 1, 1).isError()).isTrue();
+
+        adapter.close();
     }
 
     @Test
