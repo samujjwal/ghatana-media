@@ -47,7 +47,11 @@ class KernelOcrProviderAdapterTest {
         AtomicInteger calls = new AtomicInteger();
         KernelOcrProviderAdapter adapter = adapter(image -> {
             calls.incrementAndGet();
-            return List.of();
+            return List.of(new OcrService.TextRegion(
+                    "fabricated account number 1234",
+                    new OcrService.BoundingBox(0.1, 0.2, 0.3, 0.1),
+                    0.99,
+                    0));
         });
         ProductRuntimeFacets.OcrRequest request = request("ocr-1", "sha256:payload-1", new byte[]{1, 2, 3});
 
@@ -57,6 +61,7 @@ class KernelOcrProviderAdapterTest {
         assertThat(result.failureCode()).contains("NOT_ADMITTED");
         // The Kernel DTO currently requires non-empty fullText even for failures.
         assertThat(result.fullText()).isEqualTo("NOT_ADMITTED");
+        assertThat(result.fullText()).doesNotContain("fabricated account number");
         assertThat(result.regions()).isEmpty();
         assertThat(calls).hasValue(0);
         assertThat(adapter.status(CONTEXT, "ocr-1").toCompletableFuture().join().failureCode())
@@ -136,7 +141,15 @@ class KernelOcrProviderAdapterTest {
     @Test
     void doesNotDispatchUnavailableOcrToExecutor() {
         List<Runnable> queued = new ArrayList<>();
-        KernelOcrProviderAdapter adapter = adapter(image -> List.of(), queued::add);
+        AtomicInteger providerCalls = new AtomicInteger();
+        KernelOcrProviderAdapter adapter = adapter(image -> {
+            providerCalls.incrementAndGet();
+            return List.of(new OcrService.TextRegion(
+                    "private scene text",
+                    new OcrService.BoundingBox(0.1, 0.2, 0.3, 0.1),
+                    0.99,
+                    0));
+        }, queued::add);
         ProductRuntimeFacets.OcrRequest request = request(
                 "ocr-timeout", "sha256:payload-timeout", new byte[]{9}, Optional.empty(),
                 java.time.Duration.ofMillis(25));
@@ -145,7 +158,10 @@ class KernelOcrProviderAdapterTest {
 
         assertThat(result.failureCode()).contains("NOT_ADMITTED");
         assertThat(result.status()).isEqualTo(ProductRuntimeFacets.TerminalStatus.FAILED);
+        assertThat(result.fullText()).isEqualTo("NOT_ADMITTED");
+        assertThat(result.fullText()).doesNotContain("private scene text");
         assertThat(queued).isEmpty();
+        assertThat(providerCalls).hasValue(0);
     }
 
     @Test

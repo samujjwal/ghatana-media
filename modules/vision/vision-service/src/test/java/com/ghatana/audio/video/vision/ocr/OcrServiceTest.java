@@ -14,7 +14,11 @@ class OcrServiceTest {
         AtomicInteger calls = new AtomicInteger();
         OcrService service = OcrService.of(image -> {
             calls.incrementAndGet();
-            return List.of();
+            return List.of(new OcrService.TextRegion(
+                    "fabricated invoice text",
+                    new OcrService.BoundingBox(0.1, 0.2, 0.3, 0.1),
+                    0.99,
+                    0));
         });
 
         assertThatThrownBy(() -> service.extract(new byte[]{1}))
@@ -28,7 +32,11 @@ class OcrServiceTest {
         AtomicInteger calls = new AtomicInteger();
         OcrService service = OcrService.of(image -> {
             calls.incrementAndGet();
-            return List.of();
+            return List.of(new OcrService.TextRegion(
+                    "fabricated invoice text",
+                    new OcrService.BoundingBox(0.1, 0.2, 0.3, 0.1),
+                    0.99,
+                    0));
         });
 
         assertThatThrownBy(() -> service.extractText(new byte[]{1}))
