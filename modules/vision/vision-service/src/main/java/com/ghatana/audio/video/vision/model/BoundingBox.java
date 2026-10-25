@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 /**
- * Represents a bounding box for object detection.
+ * Represents an absolute pixel-space bounding box with top-left origin and {@code x,y,width,height}.
+ * Vision detector results use absolute pixels in the EXIF-oriented decoded source raster; they are
+ * not normalized. Images without EXIF orientation use their decoded raster coordinates unchanged.
  *
  * @doc.type model
  * @doc.purpose Bounding box coordinates for detected objects

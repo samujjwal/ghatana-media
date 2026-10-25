@@ -88,64 +88,24 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     }
 
     public VisionGrpcService(MediaProcessingMetrics metrics, @Nullable AuditService auditService) {
-        String modelPath = System.getenv("VISION_MODEL_PATH");
-        if (modelPath == null || modelPath.isEmpty()) {
-            modelPath = System.getProperty("user.home") + "/.ghatana/models/vision";
-        }
+        this(ProductionVisionGrpcService.compose(System.getenv()), metrics, auditService);
+    }
 
-        double confidenceThreshold = Double.parseDouble(
-            System.getenv().getOrDefault("VISION_CONFIDENCE_THRESHOLD", "0.5")
-        );
-        double nmsThreshold = Double.parseDouble(
-            System.getenv().getOrDefault("VISION_NMS_THRESHOLD", "0.4")
-        );
-
-        YoloV8Adapter adapter = new YoloV8Adapter(
-            Paths.get(modelPath),
-            confidenceThreshold,
-            nmsThreshold
-        );
-        this.frameExtractor = new VideoFrameExtractor();
-
-        String modelName = System.getenv().getOrDefault("VISION_MODEL_NAME", "yolov8n");
-        VisionDetector detectorInstance;
-        try {
-            adapter.initialize(modelName);
-            LOG.info("Vision service initialized with model: {}", modelName);
-            detectorInstance = adapter;
-        } catch (Exception e) {
-            // AV-P1-014: Mark service as degraded instead of crashing
-            LOG.error("Failed to initialize Vision service - marking as degraded", e);
-            this.degraded = true;
-            this.degradationReason = "Model initialization failed: " + e.getMessage();
-            // Use a no-op detector that will fail requests cleanly
-            detectorInstance = new VisionDetector() {
-                @Override
-                public List<DetectedObject> detectObjects(byte[] imageData, DetectionOptions options) throws DetectionException {
-                    throw new DetectionException("Vision service is degraded: " + degradationReason);
-                }
-                @Override
-                public boolean isInitialized() {
-                    return false;
-                }
-            };
-        }
-        this.detector = detectorInstance;
-        this.mediaMetrics = metrics;
-        this.auditService = auditService;
-
-        // Register the default model in the registry
-        this.modelRegistry = new FileSystemModelStore();
+    VisionGrpcService(ProductionVisionGrpcService.Composition composition,
+                      MediaProcessingMetrics metrics, @Nullable AuditService auditService) {
+        this(composition.detector(), composition.frameExtractor(), metrics, auditService);
         ModelMetadata defaultModel = ModelMetadata.builder()
-                .modelId(modelName)
-                .name(modelName)
+                .modelId(composition.profile().modelId())
+                .name(composition.profile().modelId())
                 .type(ModelMetadata.ModelType.VISION)
-                .loaded(!degraded)
+                .version(composition.profile().version())
+                .sizeBytes(composition.profile().sizeBytes())
+                .loaded(true)
                 .build();
         try {
             modelRegistry.register(defaultModel);
         } catch (ModelRegistry.ModelRegistryException ignored) {
-            // Already registered on hot-reload
+            // Registry is process-local and may already contain this model during test reuse.
         }
     }
 
@@ -244,6 +204,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                        "processingTimeMs", String.valueOf(processingTime),
                        "imageSizeBytes", String.valueOf(dataSize)));
 
+        } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
+            mediaMetrics.recordFailed("vision.detect");
+            responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                    .withDescription(e.getMessage()).asRuntimeException());
         } catch (VisionDetector.DetectionException e) {
             LOG.error("Object detection engine failure", e);
             mediaMetrics.recordFailed("vision.detect");
@@ -282,190 +246,66 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public void analyzeImage(AnalyzeRequest request, StreamObserver<AnalyzeResponse> responseObserver) {
-        long startTime = System.currentTimeMillis();
         mediaMetrics.recordStarted("vision.analyze");
-        // AV-P1-007: Enforce tenant authentication
-        String analyzetenantId = resolveTenantId();
-        if (analyzetenantId == null || analyzetenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant context")
-                .asRuntimeException());
+        String tenantId = resolveTenantId();
+        if (tenantId == null || tenantId.isBlank()) {
             mediaMetrics.recordFailed("vision.analyze");
+            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("Missing tenant context")
+                    .asRuntimeException());
             return;
         }
-        try {
-            // AV-P1-013: Validate request size
-            if (request.getImageData().isEmpty()) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withDescription("Image data cannot be empty")
-                    .asRuntimeException());
-                mediaMetrics.recordFailed("vision.analyze");
-                return;
-            }
-
-            int dataSize = request.getImageData().size();
-            if (dataSize > MAX_IMAGE_BYTES) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withDescription("Image data exceeds maximum size of " + (MAX_IMAGE_BYTES / 1024 / 1024) + "MB")
-                    .asRuntimeException());
-                mediaMetrics.recordFailed("vision.analyze");
-                return;
-            }
-
-            // AV-P1-012: Log with tenant/user context
-            String tenantId = resolveTenantId();
-            String userId = resolveUserId();
-            LOG.debug("Analyzing image ({} bytes) for tenant={}, user={}", dataSize, tenantId, userId);
-
-            AnalyzeResponse.Builder responseBuilder = AnalyzeResponse.newBuilder();
-
-            Set<String> analysisTypes = new HashSet<>(request.getAnalysisTypesList());
-
-            if (analysisTypes.isEmpty() || analysisTypes.contains("scene")) {
-                DetectionOptions options = DetectionOptions.builder()
-                    .maxDetections(10)
-                    .confidenceThreshold(0.5)
-                    .build();
-
-                List<DetectedObject> objects = detector.detectObjects(
-                    request.getImageData().toByteArray(),
-                    options
-                );
-
-                String sceneDescription = generateSceneDescription(objects);
-                responseBuilder.setSceneDescription(sceneDescription);
-            }
-
-            responseObserver.onNext(responseBuilder.build());
-            responseObserver.onCompleted();
-            mediaMetrics.recordSucceeded("vision.analyze", System.currentTimeMillis() - startTime);
-
-            LOG.info("Image analysis completed");
-
-        } catch (VisionDetector.DetectionException e) {
-            LOG.error("Image analysis engine failure", e);
-            mediaMetrics.recordFailed("vision.analyze");
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Analysis engine error: " + e.getMessage())
-                .asRuntimeException());
-        } catch (IllegalArgumentException e) {
-            LOG.warn("Invalid image analysis request: {}", e.getMessage());
+        if (request.getImageData().isEmpty()) {
             mediaMetrics.recordFailed("vision.analyze");
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                .withDescription(e.getMessage())
-                .asRuntimeException());
-        } catch (Exception e) {
-            LOG.error("Unexpected error during image analysis", e);
-            mediaMetrics.recordFailed("vision.analyze");
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Internal analysis error")
-                .asRuntimeException());
+                    .withDescription("Image data cannot be empty")
+                    .asRuntimeException());
+            return;
         }
+        if (request.getImageData().size() > MAX_IMAGE_BYTES) {
+            mediaMetrics.recordFailed("vision.analyze");
+            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("Image data exceeds maximum size of 50MB")
+                    .asRuntimeException());
+            return;
+        }
+        mediaMetrics.recordFailed("vision.analyze");
+        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                .withDescription("Image scene analysis is not admitted; object detections do not establish scene semantics")
+                .asRuntimeException());
     }
 
     // ── AV-003.5: classifyImage ────────────────────────────────────────────
 
     @Override
     public void classifyImage(ClassifyRequest request, StreamObserver<ClassifyResponse> responseObserver) {
-        long startTime = System.currentTimeMillis();
         mediaMetrics.recordStarted("vision.classify");
-        // AV-P1-007: Enforce tenant authentication
-        String classifyTenantId = resolveTenantId();
-        if (classifyTenantId == null || classifyTenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant context")
-                .asRuntimeException());
+        String tenantId = resolveTenantId();
+        if (tenantId == null || tenantId.isBlank()) {
             mediaMetrics.recordFailed("vision.classify");
+            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("Missing tenant context")
+                    .asRuntimeException());
             return;
         }
-        try {
-            // AV-P1-013: Validate request size
-            if (request.getImageData().isEmpty()) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+        if (request.getImageData().isEmpty()) {
+            mediaMetrics.recordFailed("vision.classify");
+            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Image data cannot be empty")
                     .asRuntimeException());
-                mediaMetrics.recordFailed("vision.classify");
-                return;
-            }
-
-            int dataSize = request.getImageData().size();
-            if (dataSize > MAX_IMAGE_BYTES) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withDescription("Image data exceeds maximum size of " + (MAX_IMAGE_BYTES / 1024 / 1024) + "MB")
-                    .asRuntimeException());
-                mediaMetrics.recordFailed("vision.classify");
-                return;
-            }
-
-            int topK = request.getTopK() > 0 ? request.getTopK() : 5;
-            double confidenceThreshold = request.getConfidenceThreshold() > 0
-                ? request.getConfidenceThreshold() : 0.1;
-
-            // AV-P1-012: Log with tenant/user context
-            String tenantId = resolveTenantId();
-            String userId = resolveUserId();
-            LOG.debug("Classifying image ({} bytes), top-{} for tenant={}, user={}", dataSize, topK, tenantId, userId);
-
-            // Use detection results to infer classification labels
-            DetectionOptions options = DetectionOptions.builder()
-                .maxDetections(topK * 3) // detect more, then reduce to topK
-                .confidenceThreshold(confidenceThreshold)
-                .build();
-
-            List<DetectedObject> detections = detector.detectObjects(
-                request.getImageData().toByteArray(), options);
-
-            // Aggregate by class name (sum confidence scores)
-            Map<String, Double> classScores = new LinkedHashMap<>();
-            for (DetectedObject obj : detections) {
-                classScores.merge(obj.getClassName(), obj.getConfidence(), Double::sum);
-            }
-
-            // Normalize and rank
-            double total = classScores.values().stream().mapToDouble(Double::doubleValue).sum();
-            List<Map.Entry<String, Double>> ranked = new ArrayList<>(classScores.entrySet());
-            ranked.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
-
-            ClassifyResponse.Builder builder = ClassifyResponse.newBuilder();
-            int rank = 1;
-            for (Map.Entry<String, Double> entry : ranked) {
-                if (rank > topK) break;
-                double normalizedConfidence = total > 0 ? entry.getValue() / total : 0.0;
-                if (normalizedConfidence < confidenceThreshold && rank > 1) break;
-
-                builder.addLabels(ClassLabel.newBuilder()
-                    .setLabel(entry.getKey())
-                    .setConfidence(normalizedConfidence)
-                    .setRank(rank++)
-                    .build());
-            }
-
-            long processingTime = System.currentTimeMillis() - startTime;
-            builder.setProcessingTimeMs(processingTime);
-            builder.setModelUsed(
-                modelRegistry.getActiveModel(ModelMetadata.ModelType.VISION)
-                    .map(ModelMetadata::modelId)
-                    .orElse("yolov8n"));
-
-            mediaMetrics.recordSucceeded("vision.classify", processingTime);
-            responseObserver.onNext(builder.build());
-            responseObserver.onCompleted();
-
-            LOG.info("Classified image: {} labels found in {}ms", builder.getLabelsCount(), processingTime);
-
-        } catch (VisionDetector.DetectionException e) {
-            LOG.error("Image classification engine failure", e);
-            mediaMetrics.recordFailed("vision.classify");
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Classification engine error: " + e.getMessage())
-                .asRuntimeException());
-        } catch (Exception e) {
-            LOG.error("Unexpected error during image classification", e);
-            mediaMetrics.recordFailed("vision.classify");
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Internal classification error")
-                .asRuntimeException());
+            return;
         }
+        if (request.getImageData().size() > MAX_IMAGE_BYTES) {
+            mediaMetrics.recordFailed("vision.classify");
+            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("Image data exceeds maximum size of 50MB")
+                    .asRuntimeException());
+            return;
+        }
+        mediaMetrics.recordFailed("vision.classify");
+        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                .withDescription("Image classification is not admitted by the active Vision provider")
+                .asRuntimeException());
     }
 
     // ── AV-003.1: loadModel ────────────────────────────────────────────────
@@ -479,41 +319,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .asRuntimeException());
             return;
         }
-        long startTime = System.currentTimeMillis();
-        try {
-            // Register if not already known
-            if (modelRegistry.findById(modelId).isEmpty()) {
-                ModelMetadata newModel = ModelMetadata.builder()
-                        .modelId(modelId)
-                        .name(modelId)
-                        .type(ModelMetadata.ModelType.VISION)
-                        .build();
-                modelRegistry.register(newModel);
-            }
-
-            ModelMetadata loaded = modelRegistry.load(modelId);
-            long loadTimeMs = System.currentTimeMillis() - startTime;
-
-            LOG.info("Vision model loaded: {} in {}ms", modelId, loadTimeMs);
-            responseObserver.onNext(LoadModelResponse.newBuilder()
-                .setSuccess(true)
-                .setMessage("Vision model loaded: " + modelId)
-                .setModelId(modelId)
-                .setLoadTimeMs(loadTimeMs)
-                .setMemoryUsageBytes(loaded.sizeBytes())
-                .build());
-            responseObserver.onCompleted();
-        } catch (ModelRegistry.ModelRegistryException e) {
-            LOG.warn("Failed to load vision model {}: {}", modelId, e.getMessage());
-            responseObserver.onError(io.grpc.Status.NOT_FOUND
-                .withDescription("Model not found or cannot be loaded: " + e.getMessage())
-                .asRuntimeException());
-        } catch (Exception e) {
-            LOG.error("Error loading vision model {}: {}", modelId, e.getMessage(), e);
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Failed to load model: " + e.getMessage())
-                .asRuntimeException());
-        }
+        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+            .withDescription("Dynamic model loading is not supported; restart with an admitted model profile")
+            .asRuntimeException());
     }
 
     // ── AV-003.2: unloadModel ──────────────────────────────────────────────
@@ -527,25 +335,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .asRuntimeException());
             return;
         }
-        try {
-            long freed = modelRegistry.unload(modelId);
-            LOG.info("Vision model unloaded: {} (freed ~{} bytes)", modelId, freed);
-            responseObserver.onNext(UnloadModelResponse.newBuilder()
-                .setSuccess(true)
-                .setMessage("Model unloaded: " + modelId)
-                .setMemoryFreedBytes(freed)
-                .build());
-            responseObserver.onCompleted();
-        } catch (ModelRegistry.ModelRegistryException e) {
-            responseObserver.onError(io.grpc.Status.NOT_FOUND
-                .withDescription("Model not registered: " + modelId)
-                .asRuntimeException());
-        } catch (Exception e) {
-            LOG.error("Error unloading vision model {}: {}", modelId, e.getMessage(), e);
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Failed to unload model: " + e.getMessage())
-                .asRuntimeException());
-        }
+        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+            .withDescription("Dynamic model unloading is not supported by the active Vision service")
+            .asRuntimeException());
     }
 
     // ── AV-003.3: listModels ───────────────────────────────────────────────
@@ -553,7 +345,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     @Override
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
         try {
-            List<ModelMetadata> models = modelRegistry.listModels(ModelMetadata.ModelType.VISION);
+            List<ModelMetadata> models = modelRegistry.listModels(ModelMetadata.ModelType.VISION)
+                    .stream().filter(ModelMetadata::loaded).toList();
 
             ListModelsResponse.Builder builder = ListModelsResponse.newBuilder();
             int loadedCount = 0;
@@ -567,7 +360,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                     .setVersion(m.version())
                     .setIsLoaded(m.loaded())
                     .setSizeBytes(m.sizeBytes())
-                    .addAllSupportedTasks(List.of("detection", "classification"))
+                    .addSupportedTasks("detection")
                     .build());
             }
             builder.setTotalCount(builder.getModelsCount());
@@ -675,6 +468,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                             .setWidth(obj.getBoundingBox().getWidth())
                             .setHeight(obj.getBoundingBox().getHeight())
                             .build())
+                        .putAllAttributes(convertAttributes(obj.getAttributes()))
                         .build());
                     aggregatedCounts.merge(obj.getClassName(), 1L, Long::sum);
                 }
@@ -697,6 +491,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             LOG.info("Video analysis completed: {} frames, {}ms", frames.size(), processingTime);
 
+        } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
+            responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                .withDescription(e.getMessage()).asRuntimeException());
         } catch (IOException e) {
             LOG.error("Video analysis failed", e);
             responseObserver.onError(io.grpc.Status.INTERNAL
@@ -758,6 +555,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                                 .setWidth(obj.getBoundingBox().getWidth())
                                 .setHeight(obj.getBoundingBox().getHeight())
                                 .build())
+                            .putAllAttributes(convertAttributes(obj.getAttributes()))
                             .build();
 
                         responseBuilder.addDetections(detection);
@@ -765,6 +563,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
                     responseObserver.onNext(responseBuilder.build());
 
+                } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
+                    responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                            .withDescription(e.getMessage()).asRuntimeException());
                 } catch (Exception e) {
                     LOG.error("Video frame processing failed", e);
                     responseObserver.onError(e);
@@ -873,6 +674,13 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         if (attributes != null) {
             if (attributes.getSize() != null) {
                 map.put("size", attributes.getSize());
+            }
+            if (attributes.getOrientation() != null) {
+                map.put("source.orientation", attributes.getOrientation());
+            }
+            if (attributes.getAdditionalProperties() != null) {
+                attributes.getAdditionalProperties().forEach((key, value) ->
+                        map.put(key, value == null ? "UNAVAILABLE" : String.valueOf(value)));
             }
         }
         return map;

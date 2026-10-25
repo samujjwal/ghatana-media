@@ -6,6 +6,7 @@ import com.ghatana.audio.video.vision.grpc.proto.*;
 import com.ghatana.audio.video.vision.model.BoundingBox;
 import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
+import com.ghatana.audio.video.vision.model.ObjectAttributes;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
@@ -81,6 +82,9 @@ class VisionGrpcServiceTest {
             .className("cat")
             .confidence(0.92) 
             .boundingBox(BoundingBox.builder().x(10).y(20).width(100).height(80).build()) 
+            .attributes(ObjectAttributes.builder().orientation("EXIF_ORIENTATION_1_OR_ABSENT")
+                .additionalProperties(java.util.Map.of("bbox.coordinate_space", "exif_oriented_source_raster_pixel_xywh",
+                    "source.content_version", "NOT_PROVIDED_BY_CONTRACT")).build())
             .timestamp(Instant.now()) 
             .build(); 
         fakeDetector.setResults(List.of(cat)); 
@@ -102,6 +106,8 @@ class VisionGrpcServiceTest {
         assertThat(detection.getConfidence()).isEqualTo(0.92); 
         assertThat(detection.getBoundingBox().getX()).isEqualTo(10.0); 
         assertThat(detection.getBoundingBox().getWidth()).isEqualTo(100.0); 
+        assertThat(detection.getAttributes()).containsEntry("bbox.coordinate_space", "exif_oriented_source_raster_pixel_xywh");
+        assertThat(detection.getAttributes()).containsEntry("source.content_version", "NOT_PROVIDED_BY_CONTRACT");
     }
 
     @Test
@@ -146,45 +152,41 @@ class VisionGrpcServiceTest {
         assertThat(ex.getStatus().getDescription()).contains("Detection engine error");
     }
 
+    @Test
+    @DisplayName("detectObjects: unsupported EXIF orientation maps to UNIMPLEMENTED")
+    void detectObjects_unsupportedExif_returnsUnimplemented() {
+        fakeDetector.setThrowOnDetect(new com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException(
+                "EXIF orientation 6 is unsupported; image was not inferred"));
+        DetectRequest request = DetectRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[] {1})).build();
+        CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.detectObjects(request, observer));
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNIMPLEMENTED.getCode());
+    }
+
     // -------------------------------------------------------------------------
     // analyzeImage
     // -------------------------------------------------------------------------
 
     @Test
     @DisplayName("analyzeImage: objects detected → scene description generated")
-    void analyzeImage_withObjects_generatesSceneDescription() { 
-        // GIVEN
-        fakeDetector.setResults(buildDetections("person", "dog")); 
-        AnalyzeRequest request = AnalyzeRequest.newBuilder() 
-            .setImageData(ByteString.copyFrom(new byte[]{0x01})) 
-            .addAnalysisTypes("scene")
-            .build(); 
-        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>(); 
-
-        // WHEN
+    void analyzeImage_withObjects_generatesSceneDescription() {
+        fakeDetector.setResults(buildDetections("person", "dog"));
+        AnalyzeRequest request = AnalyzeRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).addAnalysisTypes("scene").build();
+        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.analyzeImage(request, observer));
-
-        // THEN
-        assertThat(observer.hasError()).isFalse(); 
-        AnalyzeResponse response = observer.getValue(); 
-        assertThat(response.getSceneDescription()).isNotBlank(); 
+        assertUnimplemented(observer);
+        assertThat(fakeDetector.calls).isZero();
     }
 
     @Test
     @DisplayName("analyzeImage: no detections → scene description indicates empty scene")
-    void analyzeImage_noDetections_returnsEmptySceneHint() { 
-        // GIVEN
-        fakeDetector.setResults(Collections.emptyList()); 
-        AnalyzeRequest request = AnalyzeRequest.newBuilder() 
-            .setImageData(ByteString.copyFrom(new byte[]{0x01})) 
-            .build(); 
-        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>(); 
-
-        // WHEN
+    void analyzeImage_noDetections_returnsEmptySceneHint() {
+        AnalyzeRequest request = AnalyzeRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build();
+        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.analyzeImage(request, observer));
-
-        // THEN
-        assertThat(observer.hasError()).isFalse(); 
+        assertUnimplemented(observer);
+        assertThat(fakeDetector.calls).isZero();
     }
 
     @Test
@@ -207,25 +209,26 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("analyzeImage: missing authentication precedes unsupported disposition")
+    void analyzeImage_missingTenant_returnsUnauthenticatedWithoutDetectorCall() {
+        AnalyzeRequest request = AnalyzeRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1})).build();
+        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
+        service.analyzeImage(request, observer);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
     @DisplayName("analyzeImage: DetectionException from detector → INTERNAL gRPC error")
-    void analyzeImage_detectorThrows_mapsToInternal() { 
-        // GIVEN
-        fakeDetector.setThrowOnDetect(new VisionDetector.DetectionException("model error", null)); 
-        AnalyzeRequest request = AnalyzeRequest.newBuilder() 
-            .setImageData(ByteString.copyFrom(new byte[]{0x01})) 
-            .addAnalysisTypes("scene")
-            .build(); 
-        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>(); 
-
-        // WHEN
+    void analyzeImage_detectorThrows_mapsToInternal() {
+        fakeDetector.setThrowOnDetect(new VisionDetector.DetectionException("model error", null));
+        AnalyzeRequest request = AnalyzeRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build();
+        CapturingObserver<AnalyzeResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.analyzeImage(request, observer));
-
-        // THEN — DetectionException must map to INTERNAL with a safe message
-        assertThat(observer.hasError()).isTrue(); 
-        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class); 
-        StatusRuntimeException ex = (StatusRuntimeException) observer.getError(); 
-        assertThat(ex.getStatus().getCode()).isEqualTo(Status.INTERNAL.getCode()); 
-        assertThat(ex.getStatus().getDescription()).contains("Analysis engine error");
+        assertUnimplemented(observer);
+        assertThat(fakeDetector.calls).isZero();
     }
 
     // -------------------------------------------------------------------------
@@ -247,40 +250,37 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("classifyImage: missing authentication precedes unsupported disposition")
+    void classifyImage_missingTenant_returnsUnauthenticatedWithoutDetectorCall() {
+        ClassifyRequest request = ClassifyRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1})).build();
+        CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>();
+        service.classifyImage(request, observer);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
     @DisplayName("classifyImage: detections returned \u2192 labels ranked by confidence")
-    void classifyImage_withDetections_returnsRankedLabels() { 
-        fakeDetector.setResults(buildDetections("cat", "cat", "dog")); 
-        ClassifyRequest request = ClassifyRequest.newBuilder() 
-            .setImageData(ByteString.copyFrom(new byte[]{0x01})) 
-            .setTopK(5) 
-            .build(); 
-        CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>(); 
-
+    void classifyImage_withDetections_returnsRankedLabels() {
+        fakeDetector.setResults(buildDetections("cat", "cat", "dog"));
+        ClassifyRequest request = ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).setTopK(5).build();
+        CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.classifyImage(request, observer));
-
-        assertThat(observer.hasError()).isFalse(); 
-        ClassifyResponse response = observer.getValue(); 
-        assertThat(response.getLabelsList()).isNotEmpty(); 
-        // cat appeared twice so its aggregated score should rank first
-        assertThat(response.getLabels(0).getLabel()).isEqualTo("cat");
-        assertThat(response.getLabels(0).getRank()).isEqualTo(1); 
-        assertThat(response.getProcessingTimeMs()).isGreaterThanOrEqualTo(0); 
+        assertUnimplemented(observer);
+        assertThat(fakeDetector.calls).isZero();
     }
 
     @Test
     @DisplayName("classifyImage: DetectionException → INTERNAL")
-    void classifyImage_detectorThrows_returnsInternal() { 
-        fakeDetector.setThrowOnDetect(new VisionDetector.DetectionException("model error", null)); 
-        ClassifyRequest request = ClassifyRequest.newBuilder() 
-            .setImageData(ByteString.copyFrom(new byte[]{0x01})) 
-            .build(); 
-        CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>(); 
-
+    void classifyImage_detectorThrows_returnsInternal() {
+        fakeDetector.setThrowOnDetect(new VisionDetector.DetectionException("model error", null));
+        ClassifyRequest request = ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build();
+        CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.classifyImage(request, observer));
-
-        assertThat(observer.hasError()).isTrue(); 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.INTERNAL.getCode()); 
+        assertUnimplemented(observer);
+        assertThat(fakeDetector.calls).isZero();
     }
 
     // -------------------------------------------------------------------------
@@ -301,16 +301,13 @@ class VisionGrpcServiceTest {
 
     @Test
     @DisplayName("loadModel: valid modelId → registers and loads successfully")
-    void loadModel_validModelId_loadsSuccessfully() { 
-        CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>(); 
-
+    void loadModel_validModelId_loadsSuccessfully() {
+        CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>();
         service.loadModel(LoadModelRequest.newBuilder().setModelId("yolov8n").build(), observer);
-
-        assertThat(observer.hasError()).isFalse(); 
-        LoadModelResponse response = observer.getValue(); 
-        assertThat(response.getSuccess()).isTrue(); 
-        assertThat(response.getModelId()).isEqualTo("yolov8n");
-        assertThat(response.getLoadTimeMs()).isGreaterThanOrEqualTo(0); 
+        assertUnimplemented(observer);
+        CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
+        service.listModels(ListModelsRequest.getDefaultInstance(), list);
+        assertThat(list.getValue().getTotalCount()).isZero();
     }
 
     // -------------------------------------------------------------------------
@@ -331,29 +328,21 @@ class VisionGrpcServiceTest {
 
     @Test
     @DisplayName("unloadModel: unregistered modelId → NOT_FOUND")
-    void unloadModel_unregisteredModelId_returnsNotFound() { 
-        CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>(); 
-
+    void unloadModel_unregisteredModelId_returnsNotFound() {
+        CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>();
         service.unloadModel(UnloadModelRequest.newBuilder().setModelId("unknown-model").build(), observer);
-
-        assertThat(observer.hasError()).isTrue(); 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.NOT_FOUND.getCode()); 
+        assertUnimplemented(observer);
     }
 
     @Test
     @DisplayName("unloadModel: loaded model → unloads successfully")
-    void unloadModel_loadedModel_returnsSuccess() { 
-        // Load first, then unload
-        CapturingObserver<LoadModelResponse> loadObserver = new CapturingObserver<>(); 
-        service.loadModel(LoadModelRequest.newBuilder().setModelId("yolov8-small").build(), loadObserver);
-        assertThat(loadObserver.hasError()).isFalse(); 
-
-        CapturingObserver<UnloadModelResponse> unloadObserver = new CapturingObserver<>(); 
-        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("yolov8-small").build(), unloadObserver);
-
-        assertThat(unloadObserver.hasError()).isFalse(); 
-        assertThat(unloadObserver.getValue().getSuccess()).isTrue(); 
+    void unloadModel_loadedModel_returnsSuccess() {
+        CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>();
+        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("yolov8n").build(), observer);
+        assertUnimplemented(observer);
+        CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
+        service.listModels(ListModelsRequest.getDefaultInstance(), list);
+        assertThat(list.getValue().getTotalCount()).isZero();
     }
 
     // -------------------------------------------------------------------------
@@ -373,16 +362,11 @@ class VisionGrpcServiceTest {
 
     @Test
     @DisplayName("listModels: after loadModel → includes loaded model")
-    void listModels_afterLoad_includesModel() { 
-        service.loadModel(LoadModelRequest.newBuilder().setModelId("test-model").build(),
-            new CapturingObserver<>()); 
-
-        CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>(); 
-        service.listModels(ListModelsRequest.getDefaultInstance(), observer); 
-
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getTotalCount()).isGreaterThanOrEqualTo(1); 
-        assertThat(observer.getValue().getLoadedCount()).isGreaterThanOrEqualTo(1); 
+    void listModels_afterLoad_includesModel() {
+        service.loadModel(LoadModelRequest.newBuilder().setModelId("test-model").build(), new CapturingObserver<>());
+        CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>();
+        service.listModels(ListModelsRequest.getDefaultInstance(), observer);
+        assertThat(observer.getValue().getTotalCount()).isZero();
     }
 
     // -------------------------------------------------------------------------
@@ -442,6 +426,13 @@ class VisionGrpcServiceTest {
     // Helpers
     // -------------------------------------------------------------------------
 
+    private static void assertUnimplemented(CapturingObserver<?> observer) {
+        assertThat(observer.hasError()).isTrue();
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNIMPLEMENTED.getCode());
+    }
+
     private static List<DetectedObject> buildDetections(String... classNames) { 
         List<DetectedObject> results = new ArrayList<>(); 
         for (String name : classNames) { 
@@ -471,6 +462,7 @@ class VisionGrpcServiceTest {
         private List<DetectedObject> results = Collections.emptyList(); 
         private RuntimeException throwOnDetect = null;
         private boolean initialized = true;
+        private int calls = 0;
 
         void setResults(List<DetectedObject> results) { 
             this.results = results;
