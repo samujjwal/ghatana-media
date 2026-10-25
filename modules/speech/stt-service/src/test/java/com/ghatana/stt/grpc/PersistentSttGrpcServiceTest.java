@@ -127,14 +127,21 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("transcribe fails closed without governed source/version/store admission")
-    void transcribeFailsClosedBeforeMutablePersistence() {
-        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        runWithTenantContext("tenant-abc", USER_ID, () ->
-            service.transcribe(
-                TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
-                observer));
-        assertTranscriptVersionNotAdmitted(observer);
+    @DisplayName("WAV and legacy raw PCM uploads validate then fail closed before provider or persistence")
+    void supportedUploadShapesFailClosedBeforeProviderOrPersistence() {
+        TranscribeRequest[] supportedUploads = {
+            TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16_000).build(),
+            // No encoding field exists: unknown bytes retain canonical mono S16LE PCM semantics.
+            TranscribeRequest.newBuilder().setAudioData(ByteString.copyFrom(new byte[] {1, 2}))
+                    .setLanguage("en").setSampleRate(16_000).build()
+        };
+
+        for (TranscribeRequest request : supportedUploads) {
+            CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+            runWithTenantContext("tenant-abc", USER_ID, () -> service.transcribe(request, observer));
+            assertTranscriptVersionNotAdmitted(observer);
+        }
+        verifyNoInteractions(persistentSttService);
     }
 
     @Test
@@ -142,6 +149,8 @@ class PersistentSttGrpcServiceTest {
     void transcribeValidatesInputBeforeTranscriptVersionAdmission() {
         TranscribeRequest[] malformedRequests = {
             TranscribeRequest.getDefaultInstance(),
+            TranscribeRequest.newBuilder().setAudioData(ByteString.copyFrom(new byte[] {1}))
+                    .setLanguage("en").setSampleRate(16_000).build(),
             TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("xx").setSampleRate(16_000).build(),
             TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(7_999).build(),
             TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(-1).build()

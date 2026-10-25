@@ -53,6 +53,46 @@ public final class SttAudioInputDecoder {
         return duration;
     }
 
+    /**
+     * Validate a currently supported upload shape and return its duration without copying
+     * decoded PCM. Unknown bytes preserve the canonical legacy raw mono S16LE interpretation.
+     */
+    public static Duration inspectDuration(
+            byte[] input, AudioFormat declaredFormat, int requestedSampleRate, int maxAudioLengthSeconds) {
+        if (input == null) throw invalid("Audio data cannot be null");
+        requireInputSize(input.length);
+        requireSampleRate(requestedSampleRate);
+        if (maxAudioLengthSeconds < 1) throw new IllegalArgumentException("maxAudioLengthSeconds must be positive");
+
+        String detected = MediaFormatValidator.detectAudioFormat(input);
+        if (declaredFormat == AudioFormat.WAV || (declaredFormat == null && "WAV".equals(detected))) {
+            if (!"WAV".equals(detected)) throw invalid("STT_AUDIO_INVALID_HEADER: expected a valid RIFF/WAVE container");
+            Duration duration = inspectPcmWav(input, requestedSampleRate).duration();
+            requireDuration(duration, maxAudioLengthSeconds);
+            return duration;
+        }
+
+        if (declaredFormat == AudioFormat.PCM || (declaredFormat == null && "UNKNOWN".equals(detected))) {
+            if (startsWithRiff(input) || !"UNKNOWN".equals(detected)) {
+                throw invalid("STT_AUDIO_INVALID_HEADER: audio container does not match the declared PCM input");
+            }
+            if ((input.length & 1) != 0) {
+                throw invalid("STT_AUDIO_INCOMPLETE_FRAME: PCM S16LE must contain complete samples");
+            }
+            requireDecodedSize(input.length);
+            Duration duration = durationForFrames(input.length / 2L, requestedSampleRate);
+            requireDuration(duration, maxAudioLengthSeconds);
+            return duration;
+        }
+
+        String format = declaredFormat == null ? detected : declaredFormat.name();
+        if ("FLAC".equalsIgnoreCase(format)) validateFlacStreamInfoHeader(input);
+        if ("UNKNOWN".equals(format)) throw invalid("STT_AUDIO_INVALID_HEADER: unable to identify audio container");
+        throw new InputException(FailureKind.NOT_ADMITTED,
+                "STT_AUDIO_FORMAT_NOT_ADMITTED: no qualified decoder is available for "
+                        + format.toUpperCase(Locale.ROOT));
+    }
+
     /** Checks a declared size before a protobuf or decoded byte array is materialized. */
     public static void requireInputSize(long size) {
         if (size <= 0) {

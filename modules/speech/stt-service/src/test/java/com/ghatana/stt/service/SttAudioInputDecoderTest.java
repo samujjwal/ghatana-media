@@ -102,6 +102,32 @@ class SttAudioInputDecoderTest {
                 });
     }
 
+    @Test
+    void canonicalNoCopyInspectionMatchesDecodedDurationForWavAndLegacyRawPcm() {
+        byte[] wav = pcmWav(44_100, 1, 16, new byte[6]);
+        byte[] rawPcm = new byte[6];
+
+        assertThat(SttAudioInputDecoder.inspectDuration(wav, null, 44_100, 300))
+                .isEqualTo(SttAudioInputDecoder.decode(wav, null, 44_100, 300).duration());
+        assertThat(SttAudioInputDecoder.inspectDuration(rawPcm, null, 44_100, 300))
+                .isEqualTo(SttAudioInputDecoder.decode(rawPcm, null, 44_100, 300).duration());
+    }
+
+    @Test
+    void canonicalNoCopyInspectionPreservesRawPcmFrameAndDurationFailures() {
+        assertThatThrownBy(() -> SttAudioInputDecoder.inspectDuration(new byte[] {1}, null, 16_000, 300))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INCOMPLETE_FRAME");
+                });
+
+        assertThatThrownBy(() -> SttAudioInputDecoder.inspectDuration(new byte[16_002], null, 8_000, 1))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_DURATION_EXCEEDED");
+                });
+    }
+
     private static void assertMalformedWav(byte[] input) {
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(input, AudioFormat.WAV, 16_000))
                 .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
