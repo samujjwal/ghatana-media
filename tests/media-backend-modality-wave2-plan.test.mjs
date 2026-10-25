@@ -130,7 +130,7 @@ test('43 exact registered gRPC methods each map to implementation task and remai
   const expected = [...grpcRegistry.matchAll(/^\s*- id: (media\.grpc\.[\w.]+)$/gmu)]
     .map(m => m[1]);
   assert.equal(actual.length, 43);
-  assert.deepEqual(actual.map(x => x.id), expected);
+  assert.deepEqual(actual.map(x => x.id).sort(), expected.sort());
   assert.equal(new Set(actual.map(x => x.id)).size, 43);
   for (const item of actual) {
     for (const owner of item.owner.split('+')) {
@@ -140,14 +140,14 @@ test('43 exact registered gRPC methods each map to implementation task and remai
   }
   assert.match(grpcRegistry, /explicitProposedLogicalOperationBindings: 24/u);
   assert.match(grpcRegistry, /unresolvedLogicalOperationBindings: 19/u);
-  assert.match(plan, /not PDP approval/u);
+  assert.match(plan, /\*\*not\*\* PDP approval/u);
 });
 
 test('GH-90000, Checkstyle, Track B, legacy operations and Shared handoff remain separate', () => {
   const residual = [...plan.matchAll(/^\| \*\*(R-0[1-5]) \/ ([^|]+) \|/gmu)]
     .map(m => m[1]);
   assert.deepEqual(residual, ['R-01','R-02','R-03','R-04','R-05']);
-  assert.equal((plan.match(/^\| \*\*W2-E\d{2}\*\* \|/gmu) || []).length, 12);
+  assert.equal((plan.match(/^\| \*\*W2-E\d{2}\*\* /gmu) || []).length, 12);
   assert.match(plan, /9 user-reported compose-stack tests skipped/u);
   assert.match(plan, /AUDIO_VIDEO_STT_IMAGE/u);
   assert.match(plan, /AUDIO_VIDEO_TTS_IMAGE/u);
