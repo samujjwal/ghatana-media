@@ -1062,3 +1062,31 @@ Focused verification on this source cut:
 - `./gradlew --no-daemon --rerun-tasks :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.PersistentSttGrpcServiceTest --tests com.ghatana.stt.service.PersistentSttServiceValidationTest --tests com.ghatana.stt.grpc.SttGrpcServiceTest --console=plain` with `AV_JWT_SECRET` unset — BUILD SUCCESSFUL; 79 tests, 0 failures/errors/skips.
 - `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (thirtieth round)
+
+This round closes OBS-03 for the currently implemented Media-owned gRPC paths and adds focused boundary evidence in TTS, Vision and STT. Only OBS-03 changes disposition. Local test fixtures establish transport and code behavior; they do not admit real providers or establish model quality.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| OBS-03 | Wired the shared bounded `TracingClientInterceptor` into the production `GrpcSttClientAdapter` channel. The repository has one Media-owned outbound gRPC client; Vision uses its in-process engine adapter, and no outbound Multimodal client exists. The loopback adapter test verifies root→client→server trace IDs and parent IDs, registered RPC attributes, caller-scope restoration and payload/tenant-marker exclusion. `MultimodalAnalysisEngineGrpcTracingTest` exercises the actual async child-future→STT client→server route for generic `UNAVAILABLE` and engine timeout/cancellation, including observed server cancellation, truthful errors, caller-scope restoration and marker absence from spans/events/links. | LOCALLY_VERIFIED for all extant Media-owned outbound gRPC paths and async child-future propagation. Future Vision/Multimodal client paths, separate-process export, deployed telemetry and provider qualification are not claimed. |
+| TTS-08 | Added a per-stream nonnegative, nondecreasing timestamp guard under the existing chunk lock. Negative or decreasing timestamps fail with `FAILED_PRECONDITION`, cancel the stream session and do not emit the malformed final chunk. | PARTIAL: the boundary check is verified; production provider framing, sample-clock mapping, provider cancellation/finality and output-version qualification remain open behind TTS-07. |
+| VIS-05 | Added a deterministic regression for detections wholly in letterbox padding and a box at the image edge; verified padding rejection, source pixel `y=0`, positive height, confidence units and explicit `source.content_version=NOT_PROVIDED_BY_CONTRACT`. Existing tests cover EXIF transforms, pixel-space round trips and repeated preprocessing release cycles. | PARTIAL: source content version is absent from the contract, normalized ROI semantics conflict with the pixel-space `BoundingBox` contract, and a native-memory baseline/Net release API is not established. |
+| STT-04 | Re-audited the existing bounded decoder and service validation. Focused decoder, persistence-validation and gRPC suites passed 74 tests, including empty/oversize/malformed headers, forged lengths, truncated chunks, supported WAV bounds and stable rejection paths. No redundant source change was made. | PARTIAL: FLAC is header-validated but has no admitted decoder; provider/codec admission and identity admission depend on STT-02/03, and durable source-version transcript persistence remains unavailable. |
+
+Current exclusive dispositions for the 58 tasks are **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT**:
+
+- LOCALLY_VERIFIED: STT-01, STT-11; TTS-01, TTS-02, TTS-04, TTS-11; VIS-01, VIS-03, VIS-04, VIS-11; MM-01, MM-04, MM-07, MM-11; OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06, OBS-09, OBS-10.
+- PARTIAL: STT-02 through STT-10; TTS-03, TTS-05, TTS-06, TTS-08, TTS-09, TTS-10; VIS-05 through VIS-10; MM-02, MM-03, MM-05, MM-06, MM-08, MM-09, MM-10; OBS-07, OBS-08.
+- EXTERNAL/OWNER: STT-12; TTS-07, TTS-12; VIS-02, VIS-12; MM-12.
+
+The 58-task denominator, 99 PDP capability memberships, 43 source RPC identities and five residual handoffs are unchanged. No provider admission, model-quality qualification, formal PDP acceptance, gtool transition/closure, operational cutover, deployment or release is claimed.
+
+Focused verification on this source cut:
+
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.adapter.GrpcSttClientAdapterTest --tests com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineGrpcTracingTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 13 tests, 0 failures/errors/skips.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.TtsGrpcServiceTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 44 tests, 0 failures/errors/skips.
+- `./gradlew --no-daemon :services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.yolo.YoloDetectionPostProcessorTest --tests com.ghatana.audio.video.vision.yolo.LetterboxTransformTest --tests com.ghatana.audio.video.vision.yolo.YoloV8AdapterPreprocessingTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 17 tests, 0 failures/errors/skips.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.service.SttAudioInputDecoderTest --tests com.ghatana.stt.service.PersistentSttServiceValidationTest --tests com.ghatana.stt.grpc.SttGrpcServiceTest --console=plain` — BUILD SUCCESSFUL; 74 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
