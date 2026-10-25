@@ -8,6 +8,7 @@ import com.ghatana.media.common.AudioData;
 import com.ghatana.tts.core.grpc.proto.*;
 import com.ghatana.tts.service.PersistentTtsService;
 import com.ghatana.tts.engine.PcmAudioValidator;
+import com.ghatana.tts.engine.TtsSynthesisEngine;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -207,13 +208,19 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
     }
 
     private Status toGrpcStatus(String cid, Throwable e) {
-        if (e instanceof UnsupportedOperationException) {
-            return Status.UNIMPLEMENTED.withDescription(e.getMessage());
+        Throwable cause = e;
+        while (cause.getCause() != null && cause.getCause() != cause) cause = cause.getCause();
+        if (cause instanceof TtsSynthesisEngine.SynthesisException synthesis
+                && synthesis.reason() == TtsSynthesisEngine.FailureReason.NOT_ADMITTED) {
+            return Status.UNAVAILABLE.withDescription(synthesis.getMessage());
         }
-        if (e instanceof IllegalArgumentException) {
-            return Status.INVALID_ARGUMENT.withDescription(e.getMessage());
+        if (cause instanceof UnsupportedOperationException) {
+            return Status.UNIMPLEMENTED.withDescription(cause.getMessage());
         }
-        if (e instanceof TimeoutException) {
+        if (cause instanceof IllegalArgumentException) {
+            return Status.INVALID_ARGUMENT.withDescription(cause.getMessage());
+        }
+        if (cause instanceof TimeoutException) {
             LOG.warn("[{}] TTS synthesis timed out", cid);
             return Status.DEADLINE_EXCEEDED.withDescription("TTS synthesis timed out");
         }

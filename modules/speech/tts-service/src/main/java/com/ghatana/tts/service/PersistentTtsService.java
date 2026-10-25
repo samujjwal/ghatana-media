@@ -8,6 +8,7 @@ import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.tts.engine.PcmAudioValidator;
+import com.ghatana.tts.engine.TtsSynthesisEngine;
 import com.ghatana.audit.AuditEvent;
 import com.ghatana.audit.AuditService;
 import io.activej.promise.Promise;
@@ -91,84 +92,12 @@ public class PersistentTtsService {
         voiceId = voiceId == null ? Optional.empty() : voiceId;
         validateTtsInput(text, voiceId, speed, pitch, language);
 
-        long startTime = System.currentTimeMillis();
-        if (degraded) {
-            LOG.warn("TTS service is in degraded mode tenant={}", tenantId);
-            return Promise.ofException(new IllegalStateException("TTS service is degraded"));
-        }
-
-        Optional<String> selectedVoice = voiceId;
-        return Promise.ofBlocking(blockingExecutor, () -> {
-            try (TtsEngine tts = library.getTtsEngine()) {
-                SynthesisOptions options = SynthesisOptions.builder()
-                        .voiceId(selectedVoice.orElse(null))
-                        .speed(speed)
-                        .pitch(pitch)
-                        .language(language != null ? java.util.Locale.forLanguageTag(language) : null)
-                        .outputFormat(AudioFormat.PCM)
-                        .sampleRate(22_050)
-                        .build();
-                return tts.synthesize(text, options);
-            }
-        }).then(audioData -> {
-            PcmAudioValidator.PcmFacts facts = PcmAudioValidator.validate(audioData, 22_050, 1);
-            String fileName = generateOpaqueFileName();
-            return persistAudioFile(
-                    tenantId,
-                    userId,
-                    fileName,
-                    audioData.data().length,
-                    "pcm",
-                    audioData.sampleRate(),
-                    audioData)
-                    .map(audioFile -> {
-                        long elapsedMs = System.currentTimeMillis() - startTime;
-                        synthesizeTimer.record(Duration.ofMillis(elapsedMs));
-                        LOG.info(
-                                "[tenant={}] TTS synthesis completed: audioId={}, textLength={}, elapsedMs={}",
-                                tenantId, audioFile.getId(), text.length(), elapsedMs);
-                        emitTtsAudit(
-                                tenantId,
-                                userId.toString(),
-                                "tts.synthesize",
-                                "SUCCESS",
-                                Map.of(
-                                        "audioFileId", audioFile.getId().toString(),
-                                        "textLength", String.valueOf(text.length()),
-                                        "voiceSelected", Boolean.toString(selectedVoice.isPresent()),
-                                        "language", language != null ? language : "default",
-                                        "processingTimeMs", String.valueOf(elapsedMs),
-                                        "audioSizeBytes", String.valueOf(audioData.data().length)));
-                        return new SynthesisResult(
-                                audioFile.getId(),
-                                audioData.data(),
-                                audioData.sampleRate(),
-                                elapsedMs,
-                                facts.duration().toMillis(),
-                                audioData.channels(),
-                                audioData.bitsPerSample(),
-                                "PCM_S16LE");
-                    });
-        }).whenException(failure -> {
-            String failureType = failureType(failure);
-            LOG.error("[tenant={}] TTS synthesis failed failureType={}", tenantId, failureType);
-            if (!isNotAdmitted(failure)) {
-                persistFailedAudioFile(
-                        tenantId,
-                        userId,
-                        generateOpaqueFileName(),
-                        text.length(),
-                        failureType);
-            }
-            emitTtsAudit(
-                    tenantId,
-                    userId.toString(),
-                    "tts.synthesize",
-                    "FAILED",
-                    Map.of(
-                            "failureType", failureType,
-                            "textLength", String.valueOf(text.length())));
-        });
+        // This compatibility persistence path has no trusted owner/consent authority, admitted
+        // synthesis provider, or Media artifact/job/outbox integration. Do not dispatch to the
+        // injected legacy engine or register a legacy audio-file record as a completed artifact.
+        return Promise.ofException(new TtsSynthesisEngine.SynthesisException(
+                "Persistent TTS is NOT_ADMITTED: owner/consent, provider, and Media artifact/job/outbox authorities are not wired",
+                TtsSynthesisEngine.FailureReason.NOT_ADMITTED));
     }
 
     private Promise<AudioFileEntity> persistAudioFile(

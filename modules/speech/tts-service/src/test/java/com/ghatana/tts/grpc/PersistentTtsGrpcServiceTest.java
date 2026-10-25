@@ -58,6 +58,9 @@ class PersistentTtsGrpcServiceTest {
     private AudioVideoLibrary library;
 
     @Mock
+    private AudioFileService audioFileService;
+
+    @Mock
     private TtsEngine engine;
 
     // ─── Services ─────────────────────────────────────────────────────────────
@@ -71,7 +74,7 @@ class PersistentTtsGrpcServiceTest {
     @BeforeEach
     void setUp() {
         synthesisService  = new PersistentTtsGrpcService(persistentTtsService);
-        streamingService  = new PersistentTtsGrpcService(library, mock(AudioFileService.class), new SimpleMeterRegistry());
+        streamingService  = new PersistentTtsGrpcService(library, audioFileService, new SimpleMeterRegistry());
         lenient().when(library.getTtsEngine()).thenReturn(engine);
         lenient().when(engine.getActiveVoice()).thenReturn(new VoiceInfo(
                 "test-voice",
@@ -250,6 +253,19 @@ class PersistentTtsGrpcServiceTest {
         assertThat(observer.value).isNull();
         assertThat(observer.completed).isFalse();
         verifyNoInteractions(library, engine);
+    }
+
+    @Test
+    @DisplayName("persistent synthesis is NOT_ADMITTED before provider lookup or artifact persistence")
+    void persistentSynthesisFailsClosedWithoutAuthorityOrArtifacts() {
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, USER_ID, () -> streamingService.synthesize(
+                SynthesizeRequest.newBuilder().setText(TEXT).build(), observer));
+
+        assertThat(statusCode(observer)).isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(observer.value).isNull();
+        verifyNoInteractions(library, engine, audioFileService);
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
