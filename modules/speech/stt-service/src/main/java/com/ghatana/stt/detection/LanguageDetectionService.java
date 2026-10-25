@@ -3,7 +3,6 @@ package com.ghatana.stt.detection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -30,6 +29,7 @@ import java.util.Optional;
 public final class LanguageDetectionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectionService.class);
+    static final int MAX_CANDIDATES = 16;
 
     private final LanguageDetectionModel model;
     private final double confidenceThreshold;
@@ -62,9 +62,7 @@ public final class LanguageDetectionService {
      */
     public static LanguageDetectionService of(LanguageDetectionModel model, double confidenceThreshold) {
         Objects.requireNonNull(model, "model must not be null");
-        if (confidenceThreshold < 0 || confidenceThreshold > 1) {
-            throw new IllegalArgumentException("confidenceThreshold must be in [0, 1]");
-        }
+        requireConfidence(confidenceThreshold, "confidenceThreshold");
         return new LanguageDetectionService(model, confidenceThreshold);
     }
 
@@ -130,7 +128,17 @@ public final class LanguageDetectionService {
     public record DetectionResult(List<LanguageCandidate> candidates, double confidenceThreshold) {
         public DetectionResult {
             Objects.requireNonNull(candidates, "candidates must not be null");
-            candidates = Collections.unmodifiableList(candidates);
+            requireConfidence(confidenceThreshold, "confidenceThreshold");
+            if (candidates.size() > MAX_CANDIDATES) {
+                throw new IllegalArgumentException(
+                        "STT_LANGUAGE_CANDIDATE_LIMIT: candidates cannot exceed " + MAX_CANDIDATES);
+            }
+            if (candidates.stream().anyMatch(Objects::isNull)) {
+                throw new IllegalArgumentException("STT_LANGUAGE_CANDIDATE_INVALID: candidates cannot contain null");
+            }
+            // Provider-owned lists may be mutable. Copy them so a result remains stable after
+            // this boundary and callers cannot mutate its candidate ordering or contents.
+            candidates = List.copyOf(candidates);
         }
 
         /** @return the top-ranked language tag if any candidate exceeds the threshold */
@@ -164,14 +172,18 @@ public final class LanguageDetectionService {
     public record LanguageCandidate(String languageTag, double confidence, Locale locale) {
         public LanguageCandidate {
             Objects.requireNonNull(languageTag, "languageTag must not be null");
-            if (confidence < 0 || confidence > 1) {
-                throw new IllegalArgumentException("confidence must be in [0, 1]");
-            }
+            requireConfidence(confidence, "confidence");
         }
 
         /** Factory: creates a candidate from a language tag and confidence. */
         public static LanguageCandidate of(String tag, double confidence) {
             return new LanguageCandidate(tag, confidence, Locale.forLanguageTag(tag));
+        }
+    }
+
+    private static void requireConfidence(double value, String name) {
+        if (!Double.isFinite(value) || value < 0.0d || value > 1.0d) {
+            throw new IllegalArgumentException(name + " must be finite and in [0, 1]");
         }
     }
 }

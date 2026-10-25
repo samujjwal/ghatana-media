@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +66,15 @@ class LanguageDetectionServiceTest {
     void of_invalidThreshold_throwsIAE() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> LanguageDetectionService.of(TEXT_MODEL, 1.5));
+    }
+
+    @Test
+    @DisplayName("of(model, threshold): non-finite thresholds throw IllegalArgumentException")
+    void of_nonFiniteThreshold_throwsIAE() {
+        for (double threshold : new double[] {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> LanguageDetectionService.of(TEXT_MODEL, threshold));
+        }
     }
 
     // ─── detect() ─────────────────────────────────────────────────────────────
@@ -185,10 +195,72 @@ class LanguageDetectionServiceTest {
         }
 
         @Test
+        @DisplayName("non-finite confidence is rejected")
+        void candidate_nonFiniteConfidence_throwsIAE() {
+            for (double confidence : new double[] {
+                    Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+                assertThatIllegalArgumentException()
+                        .isThrownBy(() -> LanguageDetectionService.LanguageCandidate.of("en", confidence));
+            }
+        }
+
+        @Test
+        @DisplayName("confidence boundaries are accepted")
+        void candidate_confidenceBoundariesAreAccepted() {
+            assertThat(LanguageDetectionService.LanguageCandidate.of("en", 0.0).confidence()).isZero();
+            assertThat(LanguageDetectionService.LanguageCandidate.of("en", 1.0).confidence()).isEqualTo(1.0);
+        }
+
+        @Test
         @DisplayName("null languageTag throws NullPointerException")
         void candidate_nullTag_throwsNPE() {
             assertThatNullPointerException()
                     .isThrownBy(() -> LanguageDetectionService.LanguageCandidate.of(null, 0.9));
+        }
+    }
+
+    @Nested
+    @DisplayName("DetectionResult boundary")
+    class DetectionResultBoundary {
+
+        @Test
+        @DisplayName("candidate list is snapshotted defensively")
+        void candidateListIsSnapshotted() {
+            var original = LanguageDetectionService.LanguageCandidate.of("en", 0.9);
+            var mutableCandidates = new ArrayList<>(List.of(original));
+
+            var result = new LanguageDetectionService.DetectionResult(mutableCandidates, 0.7);
+            mutableCandidates.clear();
+            mutableCandidates.add(LanguageDetectionService.LanguageCandidate.of("fr", 0.95));
+
+            assertThat(result.candidates()).containsExactly(original);
+            assertThatThrownBy(() -> result.candidates().add(
+                    LanguageDetectionService.LanguageCandidate.of("de", 0.1)))
+                    .isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @Test
+        @DisplayName("null and excessive provider candidates are rejected")
+        void invalidCandidateListsAreRejected() {
+            assertThatThrownBy(() -> new LanguageDetectionService.DetectionResult(
+                    java.util.Arrays.asList(LanguageDetectionService.LanguageCandidate.of("en", 0.9), null), 0.7))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_CANDIDATE_INVALID");
+
+            List<LanguageDetectionService.LanguageCandidate> excessive =
+                    java.util.stream.IntStream.range(0, LanguageDetectionService.MAX_CANDIDATES + 1)
+                            .mapToObj(index -> LanguageDetectionService.LanguageCandidate.of("en-" + index, 0.5))
+                            .toList();
+            assertThatThrownBy(() -> new LanguageDetectionService.DetectionResult(excessive, 0.7))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_CANDIDATE_LIMIT");
+        }
+
+        @Test
+        @DisplayName("direct result construction rejects non-finite threshold")
+        void resultRejectsNonFiniteThreshold() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new LanguageDetectionService.DetectionResult(List.of(), Double.NaN));
         }
     }
 }
