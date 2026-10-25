@@ -859,3 +859,27 @@ Focused verification on this source cut:
 - The serialized TTS module run and six-case Wave 2 structural suite are recorded in the seventeenth-round evidence above; `git diff --check` passed for the MM-06 commit.
 
 The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No measured cross-modal calibration, provider quality, trusted rights/consent authority, formal PDP/gtool acceptance, production cutover, deployment or release is claimed.
+
+### Incremental execution record — 2026-10-25 (nineteenth round)
+
+This round runs the five modality/observability test tasks plus the Media in-process integration-test module on the current code cut and audits the remaining open implementation rows. The audits found no further local fix that can be made without inventing provider, license, rights, consent, source-version or owner-defined semantic authority. Existing typed fail-closed behavior remains the correct result for those rows.
+
+| Area | Verification or audit result | Disposition |
+| --- | --- | --- |
+| STT | Full `stt-service:test` report contains 280 tests; 0 failures/errors/skips. The open-task audit found no safe local code gap beyond existing bounded validation and typed unavailable behavior. | Partial rows still require trusted purpose/consent and ownership, governed immutable source versions, shared transcript/job storage, or admitted model/provider/corpus. |
+| TTS | Full `tts-service:test` report contains 278 tests; 0 failures/errors/skips. The clean serialized run is recorded in round 17; the combined run below reused its current successful result. The open-task audit found no additional safe local gap. | Positive synthesis, voice rights, provider controls, durable artifact lineage and real-provider quality/performance remain unqualified. |
+| Vision | Full `vision-service:test` report contains 352 tests; 0 failures/errors/skips. The open-task audit found no additional safe local gap after the bounded VIS-07 candidate. | Model/license/corpus qualification, native leak-rate evidence, canonical source-version binding, admitted advanced providers, Document Intelligence and biometric authority remain outstanding. |
+| Multimodal | Full `multimodal-service:test` report contains 271 tests; 0 failures/errors/skips. MM-06 input-array ownership is fixed in the prior round. | MM-02/03/05/07/09/10 remain bounded or provider/source dependent; MM-08 remains `SOURCE_CONFLICT` under PDP-1's per-capability partiality semantics. |
+| Observability | Full `audio-video-observability:test` report contains 114 tests; 0 failures/errors/skips. | OBS-07 lacks admitted provider-quality signals/deployed alert delivery; OBS-08 lacks real model/native hardware measurements. |
+| In-process integration | Full `modules/integration-tests:test` report contains 36 tests; 0 failures/errors/skips, including the authenticated populated CloneVoice refusal regression. | This verifies local service boundaries only; GH-90000 image-dependent compose tests remain separately unrun, and no cross-process provider effect is inferred. |
+
+Combined module XML totals are **1,331 tests, 0 failures, 0 errors, 0 skips** (five service modules: 1,295; in-process integration module: 36). The five service tasks returned `BUILD SUCCESSFUL` in one Gradle invocation; the integration module returned `BUILD SUCCESSFUL` after a clean test rerun. These are local implementation checks, not real model quality, integrated provider effects or formal closure.
+
+Focused verification:
+
+- `./gradlew :services:media:modules:speech:stt-service:test :services:media:modules:speech:tts-service:test :services:media:modules:vision:vision-service:test :services:media:modules:intelligence:multimodal-service:test :services:media:audio-video-observability:test --no-build-cache --no-daemon --console=plain --parallel` — BUILD SUCCESSFUL; the six module XML totals above include all current reports.
+- `./gradlew :services:media:modules:integration-tests:cleanTest :services:media:modules:integration-tests:test --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 36 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks for task IDs, dependencies, 99 capability memberships, 43 RPC mappings and residual separation.
+- `git diff --check` — PASS before this plan append.
+
+The exclusive dispositions remain **22 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. No admitted provider/model, real modality quality, external rights/consent authority, GH-90000 compose result, Track B acceptance, operational cutover, deployment or release is claimed.
