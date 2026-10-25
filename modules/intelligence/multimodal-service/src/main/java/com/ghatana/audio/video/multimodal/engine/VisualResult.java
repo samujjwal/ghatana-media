@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.multimodal.engine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,8 +25,8 @@ public final class VisualResult {
             throw new IllegalArgumentException("Visual confidence must be finite and in [0, 1]");
         }
         this.sceneDescription = builder.sceneDescription;
-        this.detections = builder.detections;
-        this.frameResults = builder.frameResults;
+        this.detections = immutableSnapshot(builder.detections);
+        this.frameResults = immutableSnapshot(builder.frameResults);
         this.confidence = builder.confidence;
         this.error = builder.error;
     }
@@ -60,6 +61,10 @@ public final class VisualResult {
 
     public String getError() {
         return error;
+    }
+
+    private static <T> List<T> immutableSnapshot(List<T> values) {
+        return values == null ? null : Collections.unmodifiableList(new ArrayList<>(values));
     }
 
     public static class Builder {

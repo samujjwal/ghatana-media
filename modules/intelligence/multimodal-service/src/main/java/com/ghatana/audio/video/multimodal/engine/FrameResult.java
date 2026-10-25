@@ -23,7 +23,7 @@ public class FrameResult {
     public FrameResult(int frameNumber, MediaClockTimestamp timestamp, List<DetectionResult> detections) {
         this.frameNumber = frameNumber;
         this.timestamp = java.util.Objects.requireNonNull(timestamp, "timestamp");
-        this.detections = detections;
+        this.detections = List.copyOf(java.util.Objects.requireNonNull(detections, "detections"));
     }
 
     public int getFrameNumber() { return frameNumber; }

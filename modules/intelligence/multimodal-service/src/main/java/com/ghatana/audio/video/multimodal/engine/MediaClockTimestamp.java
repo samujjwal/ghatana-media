@@ -99,6 +99,23 @@ public record MediaClockTimestamp(
                 && domain == other.domain && clockId.equals(other.clockId);
     }
 
+    /**
+     * Compare exact rational instants only when both timestamps identify the same clock domain.
+     * No conversion between source, media, simulation, or wall clocks is implied.
+     */
+    int compareWithinClock(MediaClockTimestamp other) {
+        if (!sharesClock(other)) {
+            throw new IllegalArgumentException("Timestamps do not share a known clock identity");
+        }
+        BigInteger left = BigInteger.valueOf(ticks)
+                .multiply(BigInteger.valueOf(timeBaseNumerator))
+                .multiply(BigInteger.valueOf(other.timeBaseDenominator));
+        BigInteger right = BigInteger.valueOf(other.ticks)
+                .multiply(BigInteger.valueOf(other.timeBaseNumerator))
+                .multiply(BigInteger.valueOf(timeBaseDenominator));
+        return left.compareTo(right);
+    }
+
     public enum Status { KNOWN, UNKNOWN }
     public enum ClockDomain { SOURCE, MEDIA, SIMULATION, WALL }
 }

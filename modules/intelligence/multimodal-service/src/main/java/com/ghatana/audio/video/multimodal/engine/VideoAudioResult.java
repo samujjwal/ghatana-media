@@ -1,5 +1,7 @@
 package com.ghatana.audio.video.multimodal.engine;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,7 +22,8 @@ public final class VideoAudioResult {
     private VideoAudioResult(Builder builder) {
         this.audioResult = builder.audioResult;
         this.videoResult = builder.videoResult;
-        this.temporalAlignments = builder.temporalAlignments;
+        this.temporalAlignments = builder.temporalAlignments == null
+                ? null : Collections.unmodifiableList(new ArrayList<>(builder.temporalAlignments));
         this.combinedNarrative = builder.combinedNarrative;
         this.processingTimeMs = builder.processingTimeMs;
     }

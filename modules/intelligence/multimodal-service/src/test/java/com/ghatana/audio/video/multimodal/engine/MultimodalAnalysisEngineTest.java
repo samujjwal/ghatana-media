@@ -392,6 +392,41 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Exact rational transcript windows align only on the same source clock")
+    void exactSourceClockWindowsAlignWithoutEstimatingSynchronization() {
+        String sourceClock = "trusted-source-clock-1";
+        AudioResult audio = AudioResult.builder().transcription("speech").timedSegments(List.of(
+                new AudioResult.TimedSegment(
+                        MediaClockTimestamp.audioSamples(4_800, 48_000, sourceClock),
+                        MediaClockTimestamp.audioSamples(14_400, 48_000, sourceClock),
+                        "speech"))).build();
+        VisualResult video = VisualResult.builder().frameResults(List.of(
+                // 18000/90000 is exactly 200ms, despite its distinct rational timebase.
+                new FrameResult(1, clockTime(18_000, 1, 90_000,
+                        MediaClockTimestamp.ClockDomain.SOURCE, sourceClock), List.of()),
+                new FrameResult(2, clockTime(36_000, 1, 90_000,
+                        MediaClockTimestamp.ClockDomain.SOURCE, "different-source-clock"), List.of()),
+                new FrameResult(3, clockTime(45_000, 1, 90_000,
+                        MediaClockTimestamp.ClockDomain.SOURCE, sourceClock), List.of())))
+                .build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            assertEquals(List.of("speech", "", ""), result.getTemporalAlignments().stream()
+                    .map(TemporalAlignment::getSpeechText).toList());
+            assertTrue(result.getTemporalAlignments().stream().allMatch(alignment ->
+                    alignment.getSyncStatus() == TemporalAlignment.SyncStatus.SYNC_UNDETERMINED
+                            && !alignment.hasSyncMeasurement()
+                            && alignment.getSyncOffsetMs() == 0L
+                            && alignment.getSyncConfidence() == 0.0));
+        }
+    }
+
+    @Test
     @DisplayName("Rational media timestamps align to bounded transcript windows without fps extrapolation")
     void rationalVariableRateMediaTimestampsMatchExplicitWindows() {
         AudioResult audio = AudioResult.builder().transcription("first second")

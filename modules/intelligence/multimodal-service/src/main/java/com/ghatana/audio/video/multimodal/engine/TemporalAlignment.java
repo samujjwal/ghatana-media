@@ -73,7 +73,7 @@ public class TemporalAlignment {
         this.timestamp    = java.util.Objects.requireNonNull(timestamp, "timestamp");
         this.frameNumber    = frameNumber;
         this.speechText     = speechText;
-        this.detections     = detections;
+        this.detections     = List.copyOf(java.util.Objects.requireNonNull(detections, "detections"));
         this.syncOffsetMs   = syncOffsetMs;
         this.syncConfidence = syncConfidence;
         this.syncStatus     = syncStatus;
@@ -126,6 +126,20 @@ public class TemporalAlignment {
         }
         return compareToMilliseconds(timestamp, startMs) >= 0
                 && compareToMilliseconds(timestamp, endMs) <= 0;
+    }
+
+    /**
+     * Match a timestamp only against a bounded window on the same identified clock. This compares
+     * rational instants exactly and never maps between source, media, simulation, or wall time.
+     */
+    static boolean isWithinClockWindow(MediaClockTimestamp timestamp,
+                                       MediaClockTimestamp start, MediaClockTimestamp end) {
+        if (timestamp == null || start == null || end == null
+                || !timestamp.sharesClock(start) || !timestamp.sharesClock(end)
+                || start.compareWithinClock(end) > 0) {
+            return false;
+        }
+        return timestamp.compareWithinClock(start) >= 0 && timestamp.compareWithinClock(end) <= 0;
     }
 
     private static int compareToMilliseconds(MediaClockTimestamp timestamp, long millis) {

@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.multimodal.engine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class AudioResult {
         this.transcription = builder.transcription;
         this.confidence = builder.confidence;
         this.confidenceCalibration = builder.confidenceCalibration;
-        this.timedSegments = builder.timedSegments;
+        this.timedSegments = immutableSnapshot(builder.timedSegments);
         this.error = builder.error;
     }
 
@@ -46,6 +47,10 @@ public class AudioResult {
     public List<TimedSegment> getTimedSegments() { return timedSegments; }
     public String getError() { return error; }
 
+    private static <T> List<T> immutableSnapshot(List<T> values) {
+        return values == null ? null : Collections.unmodifiableList(new ArrayList<>(values));
+    }
+
     /**
      * Returns the transcription text active at the given video timestamp.
      * Returns empty when timed segments or a shared clock are unavailable. Use
@@ -61,9 +66,7 @@ public class AudioResult {
             return "";
         }
         for (TimedSegment seg : timedSegments) {
-            if (!timestamp.sharesClock(seg.startTime) || !timestamp.sharesClock(seg.endTime)) return "";
-            Long timestampMs = timestamp.toMilliseconds();
-            if (seg.getStartMs() <= timestampMs && timestampMs <= seg.getEndMs()) {
+            if (TemporalAlignment.isWithinClockWindow(timestamp, seg.startTime, seg.endTime)) {
                 return seg.getText();
             }
         }
@@ -96,12 +99,16 @@ public class AudioResult {
                 throw new IllegalArgumentException("Confidence calibration requires an available score");
             }
             if (timedSegments != null) {
-                long previousEnd = -1;
+                TimedSegment previous = null;
                 for (TimedSegment segment : timedSegments) {
-                    if (segment == null || segment.getStartMs() < previousEnd) {
+                    if (segment == null) {
                         throw new IllegalArgumentException("Timed segments must be non-null and ordered");
                     }
-                    previousEnd = segment.getEndMs();
+                    if (previous != null && (!previous.getEndTime().sharesClock(segment.getStartTime())
+                            || previous.getEndTime().compareWithinClock(segment.getStartTime()) > 0)) {
+                        throw new IllegalArgumentException("Timed segments must use one ordered source clock");
+                    }
+                    previous = segment;
                 }
             }
             return new AudioResult(this);
@@ -122,19 +129,41 @@ public class AudioResult {
         private final MediaClockTimestamp endTime;
 
         public TimedSegment(long startMs, long endMs, String text) {
-            if (startMs < 0 || endMs < startMs) {
-                throw new IllegalArgumentException("Timed segment bounds must be non-negative and ordered");
-            }
+            this(mediaStart(startMs, endMs), MediaClockTimestamp.mediaMilliseconds(endMs), text);
+        }
+
+        /**
+         * A timestamped transcript interval in an explicit clock domain. This constructor keeps
+         * source PTS/sample clocks exact; it does not establish a mapping to any other clock.
+         */
+        public TimedSegment(MediaClockTimestamp startTime, MediaClockTimestamp endTime, String text) {
             if (text == null) throw new NullPointerException("segment text must not be null");
-            this.startMs = startMs;
-            this.endMs = endMs;
+            if (startTime == null || endTime == null || !startTime.sharesClock(endTime)
+                    || startTime.compareWithinClock(endTime) > 0) {
+                throw new IllegalArgumentException("Timed segment requires ordered timestamps on one known clock");
+            }
+            this.startTime = startTime;
+            this.endTime = endTime;
+            try {
+                this.startMs = startTime.toMilliseconds();
+                this.endMs = endTime.toMilliseconds();
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException("Timed segment milliseconds are outside the supported range", overflow);
+            }
             this.text = text;
-            this.startTime = MediaClockTimestamp.mediaMilliseconds(startMs);
-            this.endTime = MediaClockTimestamp.mediaMilliseconds(endMs);
         }
 
         public long getStartMs() { return startMs; }
         public long getEndMs() { return endMs; }
         public String getText() { return text; }
+        public MediaClockTimestamp getStartTime() { return startTime; }
+        public MediaClockTimestamp getEndTime() { return endTime; }
+
+        private static MediaClockTimestamp mediaStart(long startMs, long endMs) {
+            if (startMs < 0 || endMs < startMs) {
+                throw new IllegalArgumentException("Timed segment bounds must be non-negative and ordered");
+            }
+            return MediaClockTimestamp.mediaMilliseconds(startMs);
+        }
     }
 }
