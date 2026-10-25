@@ -475,3 +475,69 @@ tests:
           security, consent, or governance checks for 10 minutes. Confirm consent
           authorities are reachable and that upstream clients are sending authorized
           requests.
+- name: postgres-restart-snapshot-exact-counts-and-alert-disposition
+  interval: 1m
+  input_series:
+  - series: media_workflow_aggregate_store_queries_supported{service="launcher",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_queue_depth{service="launcher",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_unknown_backlog{service="launcher",contract_version="v1"}
+    values: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+  - series: media_workflow_lease_overdue{service="launcher",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_outbox_aggregate_store_queries_supported{service="launcher",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: media_workflow_outbox_lease_overdue{service="launcher",contract_version="v1"}
+    values: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  - series: av_service_readiness{service="vision"}
+    values: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  alert_rule_test:
+  - eval_time: 15m
+    alertname: MediaJobLeaseStuck
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: workflow
+        service: launcher
+      exp_annotations:
+        summary: Media job leases overdue without recovery
+        description: 1 durable Media job lease(s) on launcher have stayed expired
+          for over 10 minutes — a worker may have crashed or job-store recovery may
+          be stalled. Inspect worker health and rerun the restart-reconciliation procedure
+          in docs/OPERATIONS.md.
+  - eval_time: 15m
+    alertname: MediaOutboxClaimLeaseStuck
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: workflow
+        service: launcher
+      exp_annotations:
+        summary: Media lifecycle outbox claim leases remain expired
+        description: 1 durable Media outbox claim lease(s) on launcher have remained
+          expired for 10 minutes. Inspect the publisher and reconcile broker acknowledgement
+          before replaying any event; do not infer publication from a local claim.
+  - eval_time: 15m
+    alertname: MediaUnknownFinalityBacklog
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: MediaQueueCapacityHigh
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: VisionProviderNotReady
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: vision
+        service: vision
+      exp_annotations:
+        summary: Vision service provider readiness is down
+        description: The observed Vision readiness gauge is zero. Check public readiness
+          and lifecycle, then inspect only redacted Vision diagnostics and provider
+          configuration. Keep traffic closed until readiness recovers; missing or
+          unknown series do not trigger this alert.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
