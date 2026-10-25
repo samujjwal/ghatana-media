@@ -4,8 +4,10 @@ import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
+import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.tts.engine.PcmAudioValidator;
 import com.ghatana.audit.AuditEvent;
 import com.ghatana.audit.AuditService;
 import io.activej.promise.Promise;
@@ -103,17 +105,20 @@ public class PersistentTtsService {
                         .speed(speed)
                         .pitch(pitch)
                         .language(language != null ? java.util.Locale.forLanguageTag(language) : null)
+                        .outputFormat(AudioFormat.PCM)
+                        .sampleRate(22_050)
                         .build();
                 return tts.synthesize(text, options);
             }
         }).then(audioData -> {
+            PcmAudioValidator.PcmFacts facts = PcmAudioValidator.validate(audioData, 22_050, 1);
             String fileName = generateOpaqueFileName();
             return persistAudioFile(
                     tenantId,
                     userId,
                     fileName,
                     audioData.data().length,
-                    "wav",
+                    "pcm",
                     audioData.sampleRate(),
                     audioData)
                     .map(audioFile -> {
@@ -138,17 +143,23 @@ public class PersistentTtsService {
                                 audioFile.getId(),
                                 audioData.data(),
                                 audioData.sampleRate(),
-                                elapsedMs);
+                                elapsedMs,
+                                facts.duration().toMillis(),
+                                audioData.channels(),
+                                audioData.bitsPerSample(),
+                                "PCM_S16LE");
                     });
         }).whenException(failure -> {
             String failureType = failureType(failure);
             LOG.error("[tenant={}] TTS synthesis failed failureType={}", tenantId, failureType);
-            persistFailedAudioFile(
-                    tenantId,
-                    userId,
-                    generateOpaqueFileName(),
-                    text.length(),
-                    failureType);
+            if (!isNotAdmitted(failure)) {
+                persistFailedAudioFile(
+                        tenantId,
+                        userId,
+                        generateOpaqueFileName(),
+                        text.length(),
+                        failureType);
+            }
             emitTtsAudit(
                     tenantId,
                     userId.toString(),
@@ -177,11 +188,9 @@ public class PersistentTtsService {
                 format);
         entity.setFileSizeBytes((long) fileSize);
         entity.setSampleRate(sampleRate);
-        if (audioData.duration() != null && !audioData.duration().isZero()) {
-            entity.setDurationSeconds((int) audioData.duration().getSeconds());
-        } else {
-            entity.setDurationSeconds((int) (fileSize / (sampleRate * 2.0)));
-        }
+        long durationSeconds = Math.round(PcmAudioValidator.validate(audioData, 22_050, 1)
+                .duration().toNanos() / 1_000_000_000.0d);
+        entity.setDurationSeconds(Math.toIntExact(durationSeconds));
         entity.setStatus(AudioFileEntity.ProcessingStatus.COMPLETED);
         entity.setCreatedAt(Instant.now());
         entity.setUpdatedAt(Instant.now());
@@ -217,9 +226,9 @@ public class PersistentTtsService {
                         failureType(failure)));
     }
 
-    /** Opaque generated names deliberately contain no source text or voice identifier. */
+    /** Opaque raw-PCM names deliberately contain no source text or voice identifier. */
     private String generateOpaqueFileName() {
-        return "tts_" + UUID.randomUUID() + ".wav";
+        return "tts_" + UUID.randomUUID() + ".pcm";
     }
 
     private void validateTtsInput(
@@ -307,9 +316,25 @@ public class PersistentTtsService {
         return value.replaceAll("[^A-Za-z0-9]", "_").toUpperCase(java.util.Locale.ROOT);
     }
 
+    private static boolean isNotAdmitted(Throwable failure) {
+        for (Throwable current = failure; current != null; current = current.getCause()) {
+            String message = current.getMessage();
+            if (message != null && message.contains("NOT_ADMITTED")) return true;
+        }
+        return false;
+    }
+
     public record SynthesisResult(
             UUID audioFileId,
             byte[] audioData,
             int sampleRate,
-            long processingTimeMs) { }
+            long processingTimeMs,
+            long durationMillis,
+            int channels,
+            int bitsPerSample,
+            String format) {
+        public SynthesisResult(UUID audioFileId, byte[] audioData, int sampleRate, long processingTimeMs) {
+            this(audioFileId, audioData, sampleRate, processingTimeMs, 0L, 0, 0, "UNKNOWN");
+        }
+    }
 }

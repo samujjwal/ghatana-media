@@ -31,6 +31,7 @@ import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
 import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
 import com.ghatana.tts.core.grpc.proto.UpdateProfileRequest;
 import com.ghatana.tts.engine.TtsSynthesisEngine;
+import com.ghatana.tts.engine.PcmAudioValidator;
 import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -100,15 +101,16 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 requireAuthorizedVoiceSelection(request);
                 SynthesisOptions options = options(request);
                 AudioData audio = library.getTtsEngine().synthesize(text, options);
-                validatePcm16Output(audio, options.outputFormat());
+                PcmAudioValidator.PcmFacts facts = validatePcm16Output(
+                        audio, options.outputFormat(), options.sampleRate());
 
                 long elapsed = System.currentTimeMillis() - startedAt;
-                double durationMs = (audio.data().length / 2.0 / audio.sampleRate()) * 1_000;
+                long durationMs = facts.duration().toMillis();
                 LOG.info("[{}] synthesize completed in {}ms", correlationId, elapsed);
                 responseObserver.onNext(SynthesizeResponse.newBuilder()
                         .setAudioData(com.google.protobuf.ByteString.copyFrom(audio.data()))
                         .setSampleRate(audio.sampleRate())
-                        .setDurationMs((int) durationMs)
+                        .setDurationMs(Math.toIntExact(durationMs))
                         .setProcessingTimeMs((int) elapsed)
                         .setVoiceUsed(options.voiceId() == null ? "" : options.voiceId())
                         .build());
@@ -359,16 +361,14 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         }
     }
 
-    private static void validatePcm16Output(AudioData audio, AudioFormat requestedFormat) {
-        if (requestedFormat != AudioFormat.PCM
-                || audio.format() != AudioFormat.PCM
-                || audio.bitsPerSample() != 16) {
+    private static PcmAudioValidator.PcmFacts validatePcm16Output(
+            AudioData audio, AudioFormat requestedFormat, int requestedSampleRate) {
+        if (requestedFormat != AudioFormat.PCM) {
             throw new IllegalStateException(
                     "TTS provider output does not match the admitted PCM S16LE response format");
         }
-        if (audio.data().length % 2 != 0) {
-            throw new IllegalStateException("TTS provider returned a partial PCM S16LE sample");
-        }
+        // Current response has no channel field: only mono S16LE is decodable without ambiguity.
+        return PcmAudioValidator.validate(audio, requestedSampleRate, 1);
     }
 
     private static String validateText(String text) {

@@ -4,8 +4,10 @@ import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.common.AudioData;
 import com.ghatana.tts.core.grpc.proto.*;
 import com.ghatana.tts.service.PersistentTtsService;
+import com.ghatana.tts.engine.PcmAudioValidator;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -104,7 +106,7 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
 
             SynthesisControlPolicy.rejectUnqualifiedSsml(text);
 
-            var controls = SynthesisControlPolicy.resolve(request, AudioFormat.WAV);
+            var controls = SynthesisControlPolicy.resolve(request, AudioFormat.PCM);
             Optional<String> voiceId = request.getVoiceId().isEmpty()
                 ? Optional.empty()
                 : Optional.of(request.getVoiceId());
@@ -119,10 +121,18 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
             persistentTtsService.synthesizeAndPersist(
                 tenantId, userId, text, voiceId, speed, pitch, language
             ).whenResult(result -> {
+                try {
+                    validatePersistentResult(result);
+                } catch (RuntimeException invalidResult) {
+                    responseObserver.onError(Status.FAILED_PRECONDITION
+                            .withDescription("Persistent TTS result failed audio validation")
+                            .asRuntimeException());
+                    return;
+                }
                 responseObserver.onNext(SynthesizeResponse.newBuilder()
                     .setAudioData(com.google.protobuf.ByteString.copyFrom(result.audioData()))
                     .setSampleRate(result.sampleRate())
-                    .setDurationMs(0L)
+                    .setDurationMs(result.durationMillis())
                     .setProcessingTimeMs(result.processingTimeMs())
                     .setVoiceUsed(voiceId.orElse(""))
                     .build());
@@ -148,6 +158,20 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
                 .asRuntimeException());
         } finally {
             MDC.clear();
+        }
+    }
+
+    private static void validatePersistentResult(PersistentTtsService.SynthesisResult result) {
+        if (result == null || !"PCM_S16LE".equals(result.format())
+                || result.durationMillis() <= 0 || result.sampleRate() != 22_050) {
+            throw new IllegalStateException("Persistent TTS result has unsupported format metadata");
+        }
+        var audio = new AudioData(
+                result.audioData(), result.sampleRate(), result.channels(), result.bitsPerSample(),
+                java.time.Duration.ofMillis(result.durationMillis()), AudioFormat.PCM);
+        var facts = PcmAudioValidator.validate(audio, 22_050, 1);
+        if (facts.duration().toMillis() != result.durationMillis()) {
+            throw new IllegalStateException("Persistent TTS result duration does not match its PCM frames");
         }
     }
 

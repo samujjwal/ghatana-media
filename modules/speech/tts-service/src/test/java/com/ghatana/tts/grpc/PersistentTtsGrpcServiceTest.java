@@ -160,9 +160,10 @@ class PersistentTtsGrpcServiceTest {
     @DisplayName("synthesize returns audio data on success")
     void synthesizeOnSuccessReturnsResponse() {
         UUID audioFileId = UUID.randomUUID();
-        byte[] audioBytes = {10, 20, 30};
+        byte[] audioBytes = new byte[44_100];
         PersistentTtsService.SynthesisResult result =
-            new PersistentTtsService.SynthesisResult(audioFileId, audioBytes, 22050, 123L);
+            new PersistentTtsService.SynthesisResult(audioFileId, audioBytes, 22050, 123L,
+                1_000L, 1, 16, "PCM_S16LE");
         when(persistentTtsService.synthesizeAndPersist(any(), any(), eq(TEXT), any(), anyFloat(), anyFloat(), isNull()))
             .thenReturn(Promise.of(result));
 
@@ -172,9 +173,27 @@ class PersistentTtsGrpcServiceTest {
 
         assertThat(observer.error).isNull();
         assertThat(observer.completed).isTrue();
-        assertThat(observer.value.getAudioData().toByteArray()).containsExactly(10, 20, 30);
+        assertThat(observer.value.getAudioData().toByteArray()).hasSize(44_100);
         assertThat(observer.value.getSampleRate()).isEqualTo(22050);
         assertThat(observer.value.getProcessingTimeMs()).isEqualTo(123L);
+        assertThat(observer.value.getDurationMs()).isEqualTo(1_000L);
+    }
+
+    @Test
+    @DisplayName("synthesize rejects persistent result with mismatched PCM duration")
+    void synthesizeRejectsInvalidPersistentAudioResult() {
+        UUID audioFileId = UUID.randomUUID();
+        PersistentTtsService.SynthesisResult result = new PersistentTtsService.SynthesisResult(
+                audioFileId, new byte[44_100], 22_050, 123L, 2_000L, 1, 16, "PCM_S16LE");
+        when(persistentTtsService.synthesizeAndPersist(any(), any(), eq(TEXT), any(), anyFloat(), anyFloat(), isNull()))
+                .thenReturn(Promise.of(result));
+
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, USER_ID, () -> synthesisService.synthesize(
+                SynthesizeRequest.newBuilder().setText(TEXT).build(), observer));
+
+        assertThat(statusCode(observer)).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(observer.value).isNull();
     }
 
     @Test

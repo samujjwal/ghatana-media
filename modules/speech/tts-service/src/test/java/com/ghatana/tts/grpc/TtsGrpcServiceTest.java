@@ -156,6 +156,54 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void providerDurationMismatchDoesNotReturnAudio() {
+        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
+                new byte[44_100], 22_050, 1, 16, Duration.ofSeconds(2), AudioFormat.PCM));
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+    }
+
+    @Test
+    void providerSampleRateMismatchDoesNotReturnAudio() {
+        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
+                new byte[32_000], 16_000, 1, 16, Duration.ofSeconds(1), AudioFormat.PCM));
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+    }
+
+    @Test
+    void providerUnsupportedChannelLayoutDoesNotReturnAudio() {
+        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
+                new byte[44_100], 22_050, 3, 16, Duration.ofMillis(334), AudioFormat.PCM));
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+    }
+
+    @Test
+    void stereoOutputIsRejectedBecauseCurrentWireResponseCannotDescribeChannels() {
+        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
+                new byte[88_200], 22_050, 2, 16, Duration.ofSeconds(1), AudioFormat.PCM));
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        service.synthesize(SynthesizeRequest.newBuilder().setText("Hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+    }
+
+    @Test
     void oddBytePcmProviderOutputDoesNotReturnAudio() {
         when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
                 new byte[3], 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
