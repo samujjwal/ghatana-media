@@ -209,6 +209,40 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void interruptionCancelsChildProcessTree() throws Exception {
+        Path pidFile = tempDir.resolve("cancelled-child.pid");
+        java.util.concurrent.atomic.AtomicReference<Throwable> failure = new java.util.concurrent.atomic.AtomicReference<>();
+        Thread worker = new Thread(() -> {
+            try {
+                VideoFrameExtractor.runProcess(
+                        childCommand("tree", pidFile.toString()), Duration.ofSeconds(30), 128);
+            } catch (Throwable thrown) {
+                failure.set(thrown);
+            }
+        }, "video-process-cancellation-test");
+        worker.start();
+
+        long deadline = System.nanoTime() + Duration.ofSeconds(5).toNanos();
+        while ((!Files.exists(pidFile) || Files.size(pidFile) == 0) && System.nanoTime() < deadline) {
+            Thread.sleep(10);
+        }
+        assertThat(Files.exists(pidFile)).isTrue();
+        assertThat(Files.size(pidFile)).isPositive();
+        long childPid = Long.parseLong(Files.readString(pidFile));
+
+        worker.interrupt();
+        worker.join(3_000);
+
+        assertThat(worker.isAlive()).isFalse();
+        assertThat(failure.get()).isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("interrupted");
+        long childExitDeadline = System.nanoTime() + Duration.ofSeconds(2).toNanos();
+        while (ProcessHandle.of(childPid).map(ProcessHandle::isAlive).orElse(false)
+                && System.nanoTime() < childExitDeadline) Thread.sleep(20);
+        assertThat(ProcessHandle.of(childPid).map(ProcessHandle::isAlive).orElse(false)).isFalse();
+    }
+
+    @Test
     void outputByteBudgetStopsChildAndReportsOverflow() throws Exception {
         Path output = Files.createDirectory(tempDir.resolve("bounded-output"));
         var result = VideoFrameExtractor.runProcess(childCommand("write", output.toString()),
@@ -244,8 +278,8 @@ class VideoFrameExtractorProcessTest {
             byte[] bytes = new byte[64 * 1024];
             java.util.Arrays.fill(bytes, (byte) 'x');
             while (true) {
-                System.out.write(bytes);
-                System.out.flush();
+                System.err.write(bytes);
+                System.err.flush();
             }
         } else if ("sleep".equals(args[0])) {
             System.out.write("waiting".getBytes(StandardCharsets.UTF_8));
