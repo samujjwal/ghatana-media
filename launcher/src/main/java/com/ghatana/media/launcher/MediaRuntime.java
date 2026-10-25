@@ -181,6 +181,22 @@ public final class MediaRuntime implements AutoCloseable {
             MediaLifecycleEventPublisher lifecyclePublisher,
             List<MediaProcessingProvider> processingProviders,
             List<MediaStreamingProvider> streamingProviders) {
+        this(config, artifactStore, jobStore, streamStore, consentAuthority, semanticRedaction, lifecyclePublisher,
+                processingProviders, streamingProviders, loadUnique(MediaLifecycleOutboxSource.class,
+                        source -> source.getClass().getName()));
+    }
+
+    MediaRuntime(
+            MediaRuntimeConfig config,
+            MediaArtifactStore artifactStore,
+            MediaJobStore jobStore,
+            MediaStreamSessionStore streamStore,
+            MediaConsentAuthority consentAuthority,
+            MediaSemanticRedactionRuntime semanticRedaction,
+            MediaLifecycleEventPublisher lifecyclePublisher,
+            List<MediaProcessingProvider> processingProviders,
+            List<MediaStreamingProvider> streamingProviders,
+            List<MediaLifecycleOutboxSource> lifecycleOutboxSources) {
         this.config = java.util.Objects.requireNonNull(config, "config");
         this.artifactStore = java.util.Objects.requireNonNull(artifactStore, "artifactStore");
         this.jobStore = java.util.Objects.requireNonNull(jobStore, "jobStore");
@@ -188,8 +204,7 @@ public final class MediaRuntime implements AutoCloseable {
         this.consentAuthority = consentAuthority;
         this.semanticRedaction = java.util.Objects.requireNonNull(semanticRedaction, "semanticRedaction");
         this.lifecyclePublisher = java.util.Objects.requireNonNull(lifecyclePublisher, "lifecyclePublisher");
-        this.lifecycleOutboxSources = loadUnique(MediaLifecycleOutboxSource.class,
-                source -> source.getClass().getName());
+        this.lifecycleOutboxSources = List.copyOf(lifecycleOutboxSources);
         this.metricsRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         this.workflowMetrics = new MediaWorkflowMetrics(metricsRegistry, "launcher");
         this.processingProviders = List.copyOf(processingProviders);
