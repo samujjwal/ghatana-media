@@ -6,6 +6,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -84,6 +85,7 @@ public class AudioVideoGrpcInstrumentation {
             String tenantId,
             GrpcStreamingTask<T> task) throws Exception {
 
+        Map<String, String> mdcContext = tracingService.captureMdcContext();
         Span span = tracingService.startGrpcStreamingSpan(methodName, tenantId);
         long startTime = System.nanoTime();
 
@@ -102,7 +104,7 @@ public class AudioVideoGrpcInstrumentation {
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
-            tracingService.clearContext();
+            tracingService.restoreMdcContext(mdcContext);
         }
     }
 
@@ -114,6 +116,7 @@ public class AudioVideoGrpcInstrumentation {
             String tenantId,
             VideoProcessingTask<T> task) throws Exception {
 
+        Map<String, String> mdcContext = tracingService.captureMdcContext();
         Span span = tracingService.startVideoProcessingSpan(processId, tenantId);
         long startTime = System.nanoTime();
 
@@ -132,7 +135,7 @@ public class AudioVideoGrpcInstrumentation {
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
-            tracingService.clearContext();
+            tracingService.restoreMdcContext(mdcContext);
         }
     }
 
@@ -144,6 +147,7 @@ public class AudioVideoGrpcInstrumentation {
             String tenantId,
             AudioProcessingTask<T> task) throws Exception {
 
+        Map<String, String> mdcContext = tracingService.captureMdcContext();
         Span span = tracingService.startAudioProcessingSpan(processId, tenantId);
         long startTime = System.nanoTime();
 
@@ -162,7 +166,7 @@ public class AudioVideoGrpcInstrumentation {
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
-            tracingService.clearContext();
+            tracingService.restoreMdcContext(mdcContext);
         }
     }
 
@@ -174,6 +178,7 @@ public class AudioVideoGrpcInstrumentation {
             String tenantId,
             SynthesisTask<T> task) throws Exception {
 
+        Map<String, String> mdcContext = tracingService.captureMdcContext();
         Span span = tracingService.startSynthesisSpan(synthesisId, tenantId);
         long startTime = System.nanoTime();
         MediaWorkflowMetrics.ModalityTimingSample modelSample = startModalityTimer(
@@ -196,7 +201,7 @@ public class AudioVideoGrpcInstrumentation {
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
-            tracingService.clearContext();
+            tracingService.restoreMdcContext(mdcContext);
         }
     }
 
@@ -245,6 +250,7 @@ public class AudioVideoGrpcInstrumentation {
             String language,
             TranscriptionTask<T> task) throws Exception {
 
+        Map<String, String> mdcContext = tracingService.captureMdcContext();
         io.opentelemetry.api.trace.Span span =
                 tracingService.startTranscriptionSpan(transcriptionId, tenantId, language);
         long startTime = System.nanoTime();
@@ -268,7 +274,7 @@ public class AudioVideoGrpcInstrumentation {
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
-            tracingService.clearContext();
+            tracingService.restoreMdcContext(mdcContext);
         }
     }
 
@@ -291,6 +297,7 @@ public class AudioVideoGrpcInstrumentation {
             double confidenceThreshold,
             VisionDetectionTask<T> task) throws Exception {
 
+        Map<String, String> mdcContext = tracingService.captureMdcContext();
         io.opentelemetry.api.trace.Span span =
                 tracingService.startVisionDetectionSpan(detectionId, tenantId, confidenceThreshold);
         long startTime = System.nanoTime();
@@ -314,7 +321,7 @@ public class AudioVideoGrpcInstrumentation {
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
-            tracingService.clearContext();
+            tracingService.restoreMdcContext(mdcContext);
         }
     }
 
@@ -324,6 +331,7 @@ public class AudioVideoGrpcInstrumentation {
             String tenantId,
             MultimodalAnalysisTask<T> task) throws Exception {
 
+        Map<String, String> mdcContext = tracingService.captureMdcContext();
         Span span = tracingService.startMultimodalAnalysisSpan(operationId, tenantId);
         long startTime = System.nanoTime();
         MediaWorkflowMetrics.ModalityTimingSample modelSample = startModalityTimer(
@@ -343,7 +351,7 @@ public class AudioVideoGrpcInstrumentation {
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
-            tracingService.clearContext();
+            tracingService.restoreMdcContext(mdcContext);
         }
     }
 

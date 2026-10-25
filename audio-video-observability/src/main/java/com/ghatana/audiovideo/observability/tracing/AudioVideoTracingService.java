@@ -1,15 +1,16 @@
 package com.ghatana.audiovideo.observability.tracing;
 
+import io.opentelemetry.context.Context;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
@@ -293,6 +294,21 @@ public class AudioVideoTracingService {
     public void clearContext() {
         MDC.clear();
         MDC.setContextMap(java.util.Collections.emptyMap());
+    }
+
+    /** Capture the caller's logging context so synchronous instrumentation can restore it. */
+    public Map<String, String> captureMdcContext() {
+        Map<String, String> context = MDC.getCopyOfContextMap();
+        return context == null ? java.util.Collections.emptyMap() : Map.copyOf(context);
+    }
+
+    /** Restore the logging context that was present before a synchronous instrumented call. */
+    public void restoreMdcContext(Map<String, String> context) {
+        if (context == null || context.isEmpty()) {
+            MDC.clear();
+        } else {
+            MDC.setContextMap(context);
+        }
     }
 
     private static String safeMethod(String methodName) {

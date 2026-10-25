@@ -112,16 +112,40 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
             // Given
             String methodName = "CleanupStream";
             String tenantId = "cleanup-tenant";
+            MDC.put("correlationId", "caller-correlation-marker");
+            MDC.put("caller.context", "preserve-me");
 
             // When
             instrumentation.instrumentGrpcStreaming( 
                     methodName,
                     tenantId,
-                    () -> "result" 
+                    () -> {
+                        MDC.put("operation.context", "temporary-value");
+                        return "result";
+                    }
             );
 
             // Then
-            assertThat(MDC.getCopyOfContextMap()).isEmpty(); 
+            assertThat(MDC.get("correlationId")).isEqualTo("caller-correlation-marker");
+            assertThat(MDC.get("caller.context")).isEqualTo("preserve-me");
+            assertThat(MDC.get("operation.context")).isNull();
+        }
+
+        @Test
+        void shouldRestoreCallerMdcAfterGrpcStreamingFailure() {
+            MDC.put("correlationId", "failure-correlation-marker");
+            MDC.put("caller.context", "preserve-on-failure");
+
+            assertThatThrownBy(() -> instrumentation.instrumentGrpcStreaming(
+                    "FailingStream", "tenant-marker", () -> {
+                        MDC.put("operation.context", "temporary-failure-value");
+                        throw new IOException("failure marker");
+                    }))
+                    .isInstanceOf(IOException.class);
+
+            assertThat(MDC.get("correlationId")).isEqualTo("failure-correlation-marker");
+            assertThat(MDC.get("caller.context")).isEqualTo("preserve-on-failure");
+            assertThat(MDC.get("operation.context")).isNull();
         }
 
         @Test
