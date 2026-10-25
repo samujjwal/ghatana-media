@@ -38,11 +38,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/** Production wrapper transport matrix with an intentionally unadmitted model provider. */
+/**
+ * Production wrapper transport matrix with an intentionally unadmitted model provider.
+ * The VisionService proto has no protocol-version field; version is not represented here.
+ */
 class ProductionVisionGrpcServiceRpcMatrixTest {
     private static final String SECRET = "vision-production-wrapper-test-secret";
     private static final String TENANT = "tenant-vision-rpc-matrix";
     private static final String SUBJECT = "8a328ec0-c319-4caf-b393-f4c81386aa22";
+    private static final int MAX_TEST_INBOUND_BYTES = 51 * 1024 * 1024;
 
     private String previousSecret;
     private Server server;
@@ -74,6 +78,7 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
 
         String name = InProcessServerBuilder.generateName();
         server = InProcessServerBuilder.forName(name).directExecutor()
+                .maxInboundMessageSize(MAX_TEST_INBOUND_BYTES)
                 .addService(service)
                 .addService(publicHealth.getHealthService())
                 .intercept(new JwtServerInterceptor())
@@ -155,6 +160,10 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
                 () -> authenticated.analyzeVideoFile(VideoFileRequest.newBuilder()
                         .setVideoData(ByteString.copyFrom(new byte[] {4}))
                         .setSampleFps(61).build()));
+        assertStatus(Status.Code.INVALID_ARGUMENT, "Video sampling settings exceed supported bounds",
+                () -> authenticated.analyzeVideoFile(VideoFileRequest.newBuilder()
+                        .setVideoData(ByteString.copyFrom(new byte[] {4}))
+                        .setMaxFrames(10_001).build()));
         assertProcessVideoFailure(authenticatedAsync(), VideoFrameRequest.getDefaultInstance(),
                 Status.Code.INVALID_ARGUMENT, "Frame data cannot be empty");
         assertStatus(Status.Code.INVALID_ARGUMENT, "modelId must not be blank",
@@ -167,6 +176,21 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
         verify(frameExtractor, never()).getVideoMetadata(org.mockito.ArgumentMatchers.any());
         verify(frameExtractor, never()).extractFrames(org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void oversizedAnalysisAndClassificationImagesFailBeforeUnadmittedProviderHandling() throws Exception {
+        ByteString oversizedImage = ByteString.copyFrom(new byte[50 * 1024 * 1024 + 1]);
+
+        assertStatus(Status.Code.INVALID_ARGUMENT, "Image data exceeds maximum size of 50MB",
+                () -> authenticated.analyzeImage(AnalyzeRequest.newBuilder()
+                        .setImageData(oversizedImage).build()));
+        assertStatus(Status.Code.INVALID_ARGUMENT, "Image data exceeds maximum size of 50MB",
+                () -> authenticated.classifyImage(ClassifyRequest.newBuilder()
+                        .setImageData(oversizedImage).build()));
+
+        verify(detector, never()).detectObjects(org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any());
     }
 
     @Test
