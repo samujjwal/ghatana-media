@@ -17,6 +17,7 @@ import com.ghatana.stt.core.grpc.proto.*;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -100,6 +101,51 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getConfidence()).isEqualTo(0.95f); 
         assertThat(observer.getValue().getProcessingTimeMs()).isEqualTo(120L); 
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
+        assertProviderBoundary("success");
+    }
+
+    @Test
+    @DisplayName("provider exception records unknown boundary outcome without sensitive labels")
+    void transcribe_providerException_recordsUnknownBoundary() {
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class)))
+                .thenThrow(new IllegalStateException("provider failed"));
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[]{1, 2, 3, 4})).setSampleRate(16_000).build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        assertProviderBoundary("unknown");
+    }
+
+    @Test
+    @DisplayName("cancellation after provider return records unknown boundary outcome")
+    @SuppressWarnings("unchecked")
+    void transcribe_cancelledAfterProviderReturn_recordsUnknownBoundary() {
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(new TranscriptionResult(
+                "fixture transcript", 0.8, Collections.emptyList(), Collections.emptyList(),
+                Duration.ofMillis(2), "en", "fixture-engine"));
+        ServerCallStreamObserver<TranscribeResponse> observer = mock(ServerCallStreamObserver.class);
+        when(observer.isCancelled()).thenReturn(true);
+
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[]{1, 2, 3, 4})).setSampleRate(16_000).build(), observer);
+
+        assertProviderBoundary("unknown");
+    }
+
+    private void assertProviderBoundary(String outcome) {
+        var timer = meterRegistry.get("media.modality.boundary.duration")
+                .tag("modality", "stt")
+                .tag("service", "stt")
+                .tag("boundary", "provider")
+                .tag("execution_class", "model")
+                .tag("outcome", outcome)
+                .tag("contract_version", "v1")
+                .timer();
+        assertThat(timer.count()).isEqualTo(1);
+        assertThat(timer.getId().getTags()).extracting("key")
+                .doesNotContain("tenant", "tenant_id", "content", "request_id");
     }
 
     @Test

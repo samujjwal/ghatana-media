@@ -9,6 +9,8 @@ import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.api.UserProfile;
 import com.ghatana.stt.service.SttAudioInputDecoder;
 import com.ghatana.stt.core.grpc.proto.*;
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
+import com.ghatana.audiovideo.observability.instrumentation.AudioVideoGrpcInstrumentation;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -40,6 +42,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     private final AudioVideoLibrary library;
     private final Timer transcribeTimer;
+    private final AudioVideoGrpcInstrumentation boundaryInstrumentation;
     private final int maxAudioLengthSeconds;
     private volatile BooleanSupplier readinessProbe = this::isProviderReady;
 
@@ -58,6 +61,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     private SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, int maxAudioLengthSeconds) {
         this.library = library;
         this.maxAudioLengthSeconds = maxAudioLengthSeconds;
+        this.boundaryInstrumentation = new AudioVideoGrpcInstrumentation(
+                null, new MediaWorkflowMetrics(metrics, "stt"));
         this.transcribeTimer = Timer.builder("stt.transcribe")
             .description("Transcription latency")
             .publishPercentiles(0.50, 0.95, 0.99)
@@ -82,6 +87,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
         this.library = AudioVideoLibrary.builder().withSttConfig(config).build();
         this.maxAudioLengthSeconds = config.maxAudioLengthSeconds();
+        this.boundaryInstrumentation = new AudioVideoGrpcInstrumentation(
+                null, new MediaWorkflowMetrics(metrics, "stt"));
         this.transcribeTimer = Timer.builder("stt.transcribe")
             .description("Transcription latency")
             .publishPercentiles(0.50, 0.95, 0.99)
@@ -120,7 +127,15 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
                 TranscriptionResult result;
                 try (SttEngine stt = library.getSttEngine()) {
-                    result = stt.transcribe(audio, transcriptionOptions(request));
+                    try (AudioVideoGrpcInstrumentation.BoundaryMeasurement measurement =
+                                 boundaryInstrumentation.beginBoundaryMeasurement(
+                                         MediaWorkflowMetrics.Modality.STT,
+                                         MediaWorkflowMetrics.Boundary.PROVIDER)) {
+                        result = stt.transcribe(audio, transcriptionOptions(request));
+                        if (result != null && !isCancelled(responseObserver)) {
+                            measurement.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                        }
+                    }
                 }
 
                 TranscribeResponse.Builder mapped = SttTranscriptionResponseMapper.toProto(result, audio.duration());
@@ -155,6 +170,11 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                 responseObserver.onError(io.grpc.Status.INTERNAL.withDescription("Internal error").asRuntimeException());
             }
         });
+    }
+
+    private static boolean isCancelled(StreamObserver<?> observer) {
+        return observer instanceof io.grpc.stub.ServerCallStreamObserver<?> serverObserver
+                && serverObserver.isCancelled();
     }
 
     @Override
