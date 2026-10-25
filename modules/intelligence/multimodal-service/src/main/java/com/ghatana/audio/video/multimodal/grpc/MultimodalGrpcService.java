@@ -144,6 +144,11 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
+        if (!hasCanonicalCapabilityBinding()) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
+            mediaMetrics.recordFailed("multimodal.analyse");
+            return;
+        }
         TracedObserver<MultimodalResponse> trace = traceAnalysis("multimodal.analyse", identity.tenantId(), responseObserver);
         responseObserver = trace.observer();
         try {
@@ -264,6 +269,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             responseObserver.onError(authorityUnavailable());
             return;
         }
+        if (!hasCanonicalCapabilityBinding()) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
+            return;
+        }
         TracedObserver<VideoAudioResponse> trace = traceAnalysis(
                 "multimodal.video-audio-analysis", identity.tenantId(), responseObserver);
         responseObserver = trace.observer();
@@ -381,6 +390,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             responseObserver.onError(authorityUnavailable());
             return;
         }
+        if (!hasCanonicalCapabilityBinding()) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
+            return;
+        }
         if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()) {
             responseObserver.onError(Status.UNAVAILABLE
                     .withDescription("No qualified modality provider can ground a description from context alone")
@@ -470,6 +483,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 !request.getVideoData().isEmpty(), false), null,
                 request.getAudioData().size() + request.getVideoData().size(), "multimodal.cross-modal-analysis")) {
             responseObserver.onError(authorityUnavailable());
+            return;
+        }
+        if (!hasCanonicalCapabilityBinding()) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
             return;
         }
         long startTime = System.currentTimeMillis();
@@ -708,6 +725,18 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private static RuntimeException authorityUnavailable() {
         return Status.UNAVAILABLE
                 .withDescription("Trusted artifact rights, purpose, and consent authority is not configured")
+                .asRuntimeException();
+    }
+
+    private static boolean hasCanonicalCapabilityBinding() {
+        // All four public family requests lack canonical operation/version/purpose binding fields.
+        // Keep every family route closed until those contracts provide the required binding.
+        return false;
+    }
+
+    private static RuntimeException multimodalFamilyNotAdmitted() {
+        return Status.FAILED_PRECONDITION
+                .withDescription("MULTIMODAL_FAMILY_NOT_ADMITTED: request/result is not bound to canonical capability operations")
                 .asRuntimeException();
     }
 

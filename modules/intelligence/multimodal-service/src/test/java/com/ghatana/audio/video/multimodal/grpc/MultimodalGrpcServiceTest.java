@@ -5,9 +5,7 @@ import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
 import com.ghatana.audio.video.multimodal.engine.MultimodalMediaGateway;
-import com.ghatana.audio.video.multimodal.engine.MultimodalResult;
 import com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapter;
-import com.ghatana.audio.video.multimodal.engine.VideoAudioResult;
 import com.ghatana.audio.video.multimodal.engine.VisualResult;
 import com.ghatana.audio.video.multimodal.grpc.proto.*;
 import com.google.protobuf.ByteString;
@@ -28,11 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
@@ -186,6 +180,8 @@ class MultimodalGrpcServiceTest {
         assertThat(captured.get().consentReference()).isNull();
         assertThat(captured.get().purpose()).isEqualTo("multimodal.analyse");
         assertThat(captured.get().contentBytes()).isEqualTo(2 + 1 + 2);
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
@@ -308,39 +304,36 @@ class MultimodalGrpcServiceTest {
                 SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.VIDEO));
         assertThat(captured.get().contentBytes()).isEqualTo(video.length);
         assertThat(captured.get().purpose()).isEqualTo("multimodal.video-audio-analysis");
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
-    @DisplayName("processMultimodal: audio + image → fused response returned")
-    void processMultimodal_withAudioAndImage_returnsFusedResponse() { 
-        MultimodalResult result = MultimodalResult.builder() 
-            .audioResult(AudioResult.builder().transcription("hello world").confidence(0.9).build())
-            .visualResult(VisualResult.builder().sceneDescription("A sunny park").confidence(0.8).build())
-            .combinedAnalysis("Speech: hello world; Visual: A sunny park")
-            .processingTimeMs(50L) 
-            .build(); 
-        when(mockEngine.analyse(any())).thenReturn(result); 
+    @DisplayName("processMultimodal: modality-only authorization cannot admit a family response")
+    void processMultimodal_familyTransportNotAdmittedAfterModalityAuthorization() {
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setImageData(ByteString.copyFrom(new byte[] {2})).build(), observer));
 
-        MultimodalRequest request = MultimodalRequest.newBuilder() 
-            .setAudioData(ByteString.copyFrom(new byte[]{1, 2, 3})) 
-            .setImageData(ByteString.copyFrom(new byte[]{4, 5, 6})) 
-            .build(); 
-        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>(); 
-        withContext(TENANT_ID, () -> service.processMultimodal(request, observer)); 
-
-        assertThat(observer.hasError()).isFalse(); 
-        MultimodalResponse response = observer.getValue(); 
-        assertThat(response.getCombinedAnalysis()).contains("Speech: hello world");
-        assertThat(response.getAudioAnalysis().getTranscription()).isEqualTo("hello world");
-        assertThat(response.getVisualAnalysis().getSceneDescription()).isEqualTo("A sunny park");
-        assertThat(response.getProcessingTimeMs()).isGreaterThanOrEqualTo(0); 
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
-    @DisplayName("processMultimodal: engine throws → INTERNAL returned")
-    void processMultimodal_engineThrows_returnsInternal() { 
-        when(mockEngine.analyse(any())).thenThrow(new RuntimeException("engine failure"));
+    @DisplayName("processMultimodal: family transport rejects before engine failure can occur")
+    void processMultimodal_familyTransportRejectsBeforeEngineDispatch() {
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1})).build(), observer));
 
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: audio-only family request remains not admitted")
+    void processMultimodal_audioOnlyFamilyRequestIsNotAdmitted() {
         CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>(); 
         withContext(TENANT_ID, () -> service.processMultimodal( 
             MultimodalRequest.newBuilder() 
@@ -348,30 +341,8 @@ class MultimodalGrpcServiceTest {
                 .build(), 
             observer));
 
-        assertThat(observer.hasError()).isTrue(); 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.INTERNAL.getCode()); 
-    }
-
-    @Test
-    @DisplayName("processMultimodal: audio-only request → no visual analysis in response")
-    void processMultimodal_audioOnly_hasNoVisualAnalysis() { 
-        MultimodalResult result = MultimodalResult.builder() 
-            .audioResult(AudioResult.builder().transcription("test").confidence(0.9).build())
-            .combinedAnalysis("Speech: test")
-            .processingTimeMs(10L) 
-            .build(); 
-        when(mockEngine.analyse(any())).thenReturn(result); 
-
-        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>(); 
-        withContext(TENANT_ID, () -> service.processMultimodal( 
-            MultimodalRequest.newBuilder() 
-                .setAudioData(ByteString.copyFrom(new byte[]{1})) 
-                .build(), 
-            observer));
-
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().hasVisualAnalysis()).isFalse(); 
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -379,15 +350,8 @@ class MultimodalGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("generateDescription: audio + context → description with key elements")
-    void generateDescription_withAudioAndContext_returnsDescription() { 
-        MultimodalResult result = MultimodalResult.builder() 
-            .audioResult(AudioResult.builder().transcription("meeting summary").confidence(0.9).build())
-            .combinedAnalysis("Meeting was productive")
-            .processingTimeMs(20L) 
-            .build(); 
-        when(mockEngine.analyse(any())).thenReturn(result); 
-
+    @DisplayName("generateDescription: modality-only authorization cannot admit a family description")
+    void generateDescription_familyTransportNotAdmittedAfterModalityAuthorization() {
         CapturingObserver<DescriptionResponse> observer = new CapturingObserver<>(); 
         withContext(TENANT_ID, () -> service.generateDescription( 
             DescriptionRequest.newBuilder() 
@@ -396,11 +360,8 @@ class MultimodalGrpcServiceTest {
                 .build(), 
             observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        DescriptionResponse response = observer.getValue(); 
-        assertThat(response.getDescription()).isNotBlank(); 
-        assertThat(response.getKeyElementsList()).contains("speech");
-        assertThat(response.getConfidence()).isZero();
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
@@ -415,28 +376,24 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("generateDescription: requested provider error is unavailable, not a description")
-    void generateDescription_providerErrorDoesNotReturnDescription() {
-        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
-                .audioResult(AudioResult.error("provider unavailable"))
-                .combinedAnalysis("unsupported fallback").build());
+    @DisplayName("generateDescription: modality-only authorization cannot admit a family description")
+    void generateDescription_familyTransportNotAdmittedBeforeProviderDispatch() {
         CapturingObserver<DescriptionResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.generateDescription(DescriptionRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(new byte[] {1})).build(), observer));
 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
-                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
-    @DisplayName("generateDescription: context alone cannot be presented as observed description")
-    void generateDescription_contextOnlyIsUnavailable() {
+    @DisplayName("generateDescription: context-only family request remains not admitted")
+    void generateDescription_contextOnlyFamilyRequestIsNotAdmitted() {
         CapturingObserver<DescriptionResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.generateDescription(DescriptionRequest.newBuilder()
                 .setContext("caller supplied context").build(), observer));
 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
-                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertFamilyTransportNotAdmitted(observer);
         verifyNoInteractions(mockEngine);
     }
 
@@ -445,18 +402,8 @@ class MultimodalGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("analyzeVideoWithAudio: valid video → combined narrative returned")
-    void analyzeVideoWithAudio_valid_returnsCombinedNarrative() { 
-        VideoAudioResult result = VideoAudioResult.builder() 
-            .audioResult(AudioResult.builder().transcription("narrator speaking").confidence(0.85).build())
-            .videoResult(VisualResult.builder().sceneDescription("outdoor scene").confidence(0.9).build())
-            .temporalAlignments(List.of()) 
-            .combinedNarrative("narrator speaking with outdoor scene")
-            .processingTimeMs(30L) 
-            .build(); 
-        when(mockEngine.analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt())) 
-            .thenReturn(result); 
-
+    @DisplayName("analyzeVideoWithAudio: modality-only authorization cannot admit a family narrative")
+    void analyzeVideoWithAudio_familyTransportNotAdmittedAfterModalityAuthorization() {
         CapturingObserver<VideoAudioResponse> observer = new CapturingObserver<>(); 
         withContext(TENANT_ID, () -> service.analyzeVideoWithAudio( 
             VideoAudioRequest.newBuilder() 
@@ -466,11 +413,8 @@ class MultimodalGrpcServiceTest {
                 .build(), 
             observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getCombinedNarrative()).isEqualTo("narrator speaking with outdoor scene");
-        assertThat(observer.getValue().getAudioTranscription()).isEqualTo("narrator speaking");
-        assertThat(observer.getValue().getSynchronizationStatus())
-            .isEqualTo(VideoAudioResponse.SynchronizationStatus.SYNC_UNDETERMINED);
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
@@ -498,42 +442,25 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("analyzeVideoWithAudio: requested provider error is unavailable")
-    void analyzeVideoWithAudio_providerErrorDoesNotReturnNarrative() {
-        when(mockEngine.analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt()))
-                .thenReturn(VideoAudioResult.builder().audioResult(AudioResult.error("no STT"))
-                        .combinedNarrative("unsupported fallback").build());
+    @DisplayName("analyzeVideoWithAudio: modality-only authorization cannot admit a family narrative")
+    void analyzeVideoWithAudio_familyTransportNotAdmittedBeforeProviderDispatch() {
         CapturingObserver<VideoAudioResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
                 .setVideoData(ByteString.copyFrom(new byte[] {1})).setExtractAudio(true).build(), observer));
 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
-                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
-    @DisplayName("analyzeVideoWithAudio: unknown source PTS stays absent on the wire")
-    void analyzeVideoWithAudio_unknownPtsIsNotSerializedAsZero() {
-        VideoAudioResult result = VideoAudioResult.builder()
-                .videoResult(VisualResult.builder().frameResults(List.of(new com.ghatana.audio.video.multimodal.engine
-                        .FrameResult(1, com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp
-                                .unknown("NO_SOURCE_PTS"), List.of()))).build())
-                .temporalAlignments(List.of())
-                .combinedNarrative("frame time unknown")
-                .processingTimeMs(1L)
-                .build();
-        when(mockEngine.analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt())).thenReturn(result);
-
+    @DisplayName("analyzeVideoWithAudio: unknown-Pts family request remains not admitted")
+    void analyzeVideoWithAudio_unknownPtsFamilyRequestIsNotAdmitted() {
         CapturingObserver<VideoAudioResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
                 .setVideoData(ByteString.copyFrom(new byte[] {1})).setAnalyzeFrames(true).build(), observer));
 
-        assertThat(observer.hasError()).isFalse();
-        FrameAnalysis frame = observer.getValue().getFrameAnalyses(0);
-        assertThat(frame.hasTimestampMs()).isFalse();
-        assertThat(frame.getTimestampStatus())
-                .isEqualTo(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_UNKNOWN);
-        assertThat(frame.getTimestampUnknownReason()).isEqualTo("NO_SOURCE_PTS");
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
@@ -564,16 +491,8 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("analyzeCrossModal: missing comparable clock evidence → synchronization undetermined")
-    void analyzeCrossModal_withBothModalities_doesNotClaimAlignment() {
-        MultimodalResult result = MultimodalResult.builder() 
-            .audioResult(AudioResult.builder().transcription("a person running").confidence(0.9).build())
-            .visualResult(VisualResult.builder().sceneDescription("a person running fast").confidence(0.85).build())
-            .combinedAnalysis("aligned")
-            .processingTimeMs(25L) 
-            .build(); 
-        when(mockEngine.analyse(any())).thenReturn(result); 
-
+    @DisplayName("analyzeCrossModal: modality-only authorization cannot admit a family result")
+    void analyzeCrossModal_familyTransportNotAdmittedAfterModalityAuthorization() {
         CapturingObserver<CrossModalResponse> observer = new CapturingObserver<>(); 
         withContext(TENANT_ID, () -> service.analyzeCrossModal( 
             CrossModalRequest.newBuilder() 
@@ -582,13 +501,8 @@ class MultimodalGrpcServiceTest {
                 .build(), 
             observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        CrossModalResponse response = observer.getValue(); 
-        assertThat(response.hasAlignmentScore()).isFalse();
-        assertThat(response.getSynchronizationStatus())
-                .isEqualTo(CrossModalResponse.SynchronizationStatus.SYNC_UNDETERMINED);
-        assertThat(response.getEventsList()).isEmpty();
-        assertThat(response.getSummary()).contains("synchronization undetermined");
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
@@ -607,20 +521,15 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("analyzeCrossModal: requested modality error is unavailable")
-    void analyzeCrossModal_providerErrorIsUnavailable() {
-        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
-                .audioResult(AudioResult.error("no STT")).combinedAnalysis("fallback").build());
+    @DisplayName("analyzeCrossModal: modality-only authorization cannot admit a family result")
+    void analyzeCrossModal_familyTransportNotAdmittedBeforeProviderDispatch() {
         CapturingObserver<CrossModalResponse> observer = new CapturingObserver<>();
-        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
-                .audioResult(AudioResult.error("no STT"))
-                .visualResult(VisualResult.builder().sceneDescription("test").build()).build());
         withContext(TENANT_ID, () -> service.analyzeCrossModal(CrossModalRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(new byte[] {1}))
                 .setVideoData(ByteString.copyFrom(new byte[] {2})).build(), observer));
 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
-                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -656,34 +565,25 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("processMultimodal: video-only provider error is unavailable")
-    void processMultimodal_videoOnlyProviderErrorIsUnavailable() {
-        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
-                .visualResult(VisualResult.error("provider unavailable"))
-                .combinedAnalysis("fallback").build());
+    @DisplayName("processMultimodal: video-only family request remains not admitted")
+    void processMultimodal_videoOnlyFamilyRequestIsNotAdmitted() {
         CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.newBuilder()
                 .setVideoData(ByteString.copyFrom(new byte[] {1})).build(), observer));
 
-        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
-                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
-    @DisplayName("processMultimodal: text-only abstention omits caller text and confidence claims")
-    void processMultimodal_textOnlyReturnsAbstentionWithoutConfidence() {
-        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
-                .combinedAnalysis("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE").build());
+    @DisplayName("processMultimodal: text-only family request remains not admitted")
+    void processMultimodal_textOnlyFamilyRequestIsNotAdmitted() {
         CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.newBuilder()
                 .setText("private caller context").build(), observer));
 
-        assertThat(observer.hasError()).isFalse();
-        assertThat(observer.getValue().getCombinedAnalysis())
-                .isEqualTo("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE")
-                .doesNotContain("private caller context");
-        assertThat(observer.getValue().hasAudioAnalysis()).isFalse();
-        assertThat(observer.getValue().hasVisualAnalysis()).isFalse();
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -814,6 +714,15 @@ class MultimodalGrpcServiceTest {
         T getValue() { return value; } 
         boolean hasError() { return error != null; } 
         Throwable getError() { return error; } 
+    }
+
+    private static void assertFamilyTransportNotAdmitted(CapturingObserver<?> observer) {
+        assertThat(observer.hasError()).isTrue();
+        assertThat(observer.getValue()).isNull();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getDescription())
+                .startsWith("MULTIMODAL_FAMILY_NOT_ADMITTED:");
     }
 
     private static void withContext(String tenantId, Runnable action) {
