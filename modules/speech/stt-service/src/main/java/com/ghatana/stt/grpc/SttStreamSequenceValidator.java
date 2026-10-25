@@ -79,8 +79,10 @@ final class SttStreamSequenceValidator {
             throw new StreamInputException(Failure.NOT_ADMITTED,
                     "STT_STREAM_SEQUENCE_LIMIT: engine chunk sequence limit reached");
         }
+        // Validate against a candidate mode first. Rejected input must not mutate
+        // session state, so a client may correct an invalid first chunk and retry.
+        boolean candidateSequenced = sequenced == null ? hasSequence : sequenced;
         if (sequenced == null) {
-            sequenced = hasSequence;
             if (hasSequence && sequence != 1) {
                 throw new StreamInputException(Failure.NOT_ADMITTED,
                         "STT_STREAM_RESUME_NOT_ADMITTED: sequence must start at 1; durable resume is unavailable");
@@ -89,12 +91,13 @@ final class SttStreamSequenceValidator {
             throw invalid("STT_STREAM_SEQUENCE_MODE_CHANGED: cannot mix sequenced and legacy chunks");
         }
 
-        long next = sequenced ? sequence : lastSequence + 1;
+        long next = candidateSequenced ? sequence : lastSequence + 1;
         if (next != lastSequence + 1) {
             throw invalid(next <= lastSequence
                     ? "STT_STREAM_SEQUENCE_DUPLICATE: sequence was already accepted"
                     : "STT_STREAM_SEQUENCE_GAP: sequence must be contiguous");
         }
+        if (sequenced == null) sequenced = candidateSequenced;
         lastSequence = next;
         acceptedPcmBytes += payloadBytes;
         if (sampleRate == 0) sampleRate = requestedSampleRate;

@@ -28,12 +28,15 @@ class SttStreamSequenceValidatorTest {
 
     @Test
     void rejectsResumeWithoutRuntimeStoreAndIdentityOrClockChanges() {
-        assertThatThrownBy(() -> new SttStreamSequenceValidator("session")
-                .accept("session", 4, 16_000, 0, 2))
+        SttStreamSequenceValidator resumeFence = new SttStreamSequenceValidator("session");
+        assertThatThrownBy(() -> resumeFence.accept("session", 4, 16_000, 0, 2))
                 .isInstanceOfSatisfying(SttStreamSequenceValidator.StreamInputException.class, failure -> {
                     assertThat(failure.failure()).isEqualTo(SttStreamSequenceValidator.Failure.NOT_ADMITTED);
                     assertThat(failure).hasMessageContaining("STT_STREAM_RESUME_NOT_ADMITTED");
                 });
+        // A rejected resume attempt has no state effect; corrected first input is still accepted.
+        assertThat(resumeFence.lastSequence()).isZero();
+        assertThat(resumeFence.accept("session", 1, 16_000, 0, 2)).isEqualTo(1);
 
         SttStreamSequenceValidator validator = new SttStreamSequenceValidator("session");
         validator.accept("session", 1, 16_000, 10, 2);

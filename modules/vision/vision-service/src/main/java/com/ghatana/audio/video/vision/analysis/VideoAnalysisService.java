@@ -113,6 +113,7 @@ public final class VideoAnalysisService {
     private TrackAssignment assignHeuristicTracks(List<ObservedFrame> frames, int samplingFps) {
         Map<Integer, DetectedObject> previous = Map.of();
         SourceMediaTimestamp previousTimestamp = null;
+        Integer previousFrameNumber = null;
         int nextId = 1;
         List<FrameDetections> assignedFrames = new ArrayList<>(frames.size());
         for (int frameIndex = 0; frameIndex < frames.size(); frameIndex++) {
@@ -120,7 +121,11 @@ public final class VideoAnalysisService {
             SourceMediaTimestamp timestamp = frame.sourceTimestamp();
             boolean reset = previousTimestamp == null || !timestamp.isKnown()
                     || !previousTimestamp.isKnown() || comparePts(timestamp, previousTimestamp) <= 0
-                    || exceedsGap(timestamp, previousTimestamp, samplingFps);
+                    || exceedsGap(timestamp, previousTimestamp, samplingFps)
+                    // The extractor preserves emitted sequence ordinals. A hole means one or more
+                    // observations are missing; do not bridge identity across that uncertainty.
+                    || (previousFrameNumber != null
+                        && (long) frame.frameNumber() != (long) previousFrameNumber + 1L);
             if (reset) previous = Map.of();
             List<Integer> ids = new ArrayList<>(frame.detections().size());
             Map<Integer, DetectedObject> current = new java.util.LinkedHashMap<>();
@@ -147,6 +152,7 @@ public final class VideoAnalysisService {
                     frame.detections(), ids));
             previous = current;
             previousTimestamp = timestamp;
+            previousFrameNumber = frame.frameNumber();
         }
         return new TrackAssignment(List.copyOf(assignedFrames), nextId - 1);
     }

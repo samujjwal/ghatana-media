@@ -218,6 +218,27 @@ class VideoAnalysisServiceTest {
     }
 
     @Test
+    void missingEmittedFrameOrdinalBreaksHeuristicTrackEpoch() throws IOException {
+        Path a = tempDir.resolve("missing-a.jpg"), b = tempDir.resolve("missing-b.jpg");
+        Files.write(a, new byte[] {1});
+        Files.write(b, new byte[] {2});
+        Path video = tempDir.resolve("missing-ordinal.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(a, SourceMediaTimestamp.fromPts("0", "1/10"), 4),
+                // PTS gap is within the normal sampling tolerance, but emitted ordinal 5 is absent.
+                new VideoFrameExtractor.ExtractedFrame(b, SourceMediaTimestamp.fromPts("1", "1/10"), 6)));
+        when(detector.detectObjects(any(), any())).thenReturn(
+                List.of(buildDetection("person", .9, 0, 0, 10, 10)));
+
+        var result = service.analyze(video, VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        assertThat(result.frameDetections()).extracting(d -> d.frameNumber()).containsExactly(4, 6);
+        assertThat(result.frameDetections()).extracting(d -> d.trackIds().getFirst()).containsExactly(1, 2);
+        assertThat(result.trackingStatus()).isEqualTo("HEURISTIC_UNCALIBRATED");
+    }
+
+    @Test
     void frameObservationsRequireNonNegativeOrdinalAndSnapshotTheirCollections() {
         var timestamp = SourceMediaTimestamp.fromPts("90000", "1/90000");
         List<DetectedObject> detections = new java.util.ArrayList<>(List.of(
