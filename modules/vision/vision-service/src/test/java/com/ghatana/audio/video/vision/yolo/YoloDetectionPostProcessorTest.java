@@ -26,6 +26,27 @@ class YoloDetectionPostProcessorTest {
                 .containsEntry("confidence.unit", "raw_yolo_score_0_1_uncalibrated");
     }
 
+    @Test void mapsModelPixelBoxesBackToAbsoluteSourceRasterPixelsForLetterboxedInput() {
+        var transform = LetterboxTransform.fit(1920, 1080, 640);
+        var sourceBox = new LetterboxTransform.Box(192, 108, 960, 540);
+        var modelBox = transform.toModelPixels(sourceBox);
+        var raw = List.of(new YoloOutputParser.Detection(0, 0.75, modelBox.x(), modelBox.y(),
+                modelBox.width(), modelBox.height()));
+
+        var result = YoloDetectionPostProcessor.process(raw, CLASSES, transform, 0.5, 1, MODEL).getFirst();
+
+        assertThat(result.getBoundingBox().getX()).isCloseTo(sourceBox.x(),
+                org.assertj.core.data.Offset.offset(1.0));
+        assertThat(result.getBoundingBox().getY()).isCloseTo(sourceBox.y(),
+                org.assertj.core.data.Offset.offset(1.0));
+        assertThat(result.getBoundingBox().getWidth()).isCloseTo(sourceBox.width(),
+                org.assertj.core.data.Offset.offset(1.0));
+        assertThat(result.getBoundingBox().getHeight()).isCloseTo(sourceBox.height(),
+                org.assertj.core.data.Offset.offset(1.0));
+        assertThat(result.getAttributes().getAdditionalProperties())
+                .containsEntry("bbox.coordinate_space", "exif_oriented_source_raster_pixel_xywh");
+    }
+
     @Test void suppressesOverlappingBoxesOfTheSameClassButKeepsDifferentClasses() {
         var raw = List.of(
                 new YoloOutputParser.Detection(0, 0.9, 10, 10, 20, 20),

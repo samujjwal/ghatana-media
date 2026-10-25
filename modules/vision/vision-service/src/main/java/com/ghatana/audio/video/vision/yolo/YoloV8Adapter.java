@@ -283,7 +283,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         }
     }
 
-    private PreprocessedInput preprocessImage(Mat image) {
+    PreprocessedInput preprocessImage(Mat image) {
         LetterboxTransform transform = LetterboxTransform.fit(image.cols(), image.rows(), INPUT_SIZE);
         Mat resized = new Mat();
         Mat letterboxed = new Mat();
@@ -408,6 +408,6 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         if (mat != null) mat.release();
     }
 
-    private record PreprocessedInput(Mat blob, LetterboxTransform transform) { }
+    record PreprocessedInput(Mat blob, LetterboxTransform transform) { }
 
 }
