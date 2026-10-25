@@ -34,20 +34,37 @@ The method names and field numbers remain those in the protobuf authority.
 `IMPLEMENTATION PRESENT` describes code reachability only; it does not mean the
 provider is admitted or quality-qualified.
 
-| RPC | Current implementation disposition |
-| --- | --- |
-| `Transcribe` | Local engine path exists; production startup is `NOT_ADMITTED` |
-| `StreamTranscribe` | Local streaming engine path exists; production startup is `NOT_ADMITTED`; reconnect/finality qualification remains open |
-| `LoadModel` | Calls the local engine model API; no admitted model profile |
-| `UnloadModel` | Production composition returns `UNIMPLEMENTED` |
-| `ListModels` | Reads local engine model catalog; entries are not provider qualification |
-| `AdaptModel` | Production composition returns `UNIMPLEMENTED` |
-| `GetStatus` | Reports local engine status; provider readiness remains `NOT_ADMITTED` |
-| `HealthCheck` | Reports local engine readiness; it cannot promote provider admission |
-| `CreateProfile` | Production composition returns `UNIMPLEMENTED` |
-| `GetProfile` | Production composition returns `UNIMPLEMENTED` |
-| `UpdateProfile` | Production composition returns `UNIMPLEMENTED` |
-| `SubmitCorrection` | Production composition returns `UNIMPLEMENTED` |
+| RPC | Current SPI/handler disposition | Runtime/provider and qualification |
+| --- | --- | --- |
+| `Transcribe` | `SttEngine.transcribe` plus gRPC validation/response mapping are implemented | Production provider `NOT_ADMITTED`; no real-provider or model-quality qualification |
+| `StreamTranscribe` | Streaming SPI exists; handler fails closed with `STT_STREAM_CONSENT_NOT_ADMITTED` before session/provider work | Provider `NOT_ADMITTED`; resume, reconnect, finality, and real-provider qualification open |
+| `LoadModel` | Handler calls `SttEngine.loadModel` | Production provider `NOT_ADMITTED`; no admitted model profile |
+| `UnloadModel` | `SttEngine` has no unload operation; handler returns `UNIMPLEMENTED` | Not implemented; no provider qualification |
+| `ListModels` | Handler reads `SttEngine` model catalog | Catalog data is not provider admission or qualification |
+| `AdaptModel` | Handler returns `STT_ADAPTATION_NOT_ADMITTED` (`FAILED_PRECONDITION`) | Explicitly not admitted; versioned corrections, trusted rights, and provider unavailable |
+| `GetStatus` | Handler reads local engine status/metrics | Provider readiness remains `NOT_ADMITTED` regardless of engine status |
+| `HealthCheck` | Handler reads local engine readiness | Local runtime health only; cannot promote provider admission |
+| `CreateProfile` | Handler returns `STT_SPEAKER_PROFILE_NOT_ADMITTED` (`FAILED_PRECONDITION`) | Explicitly not admitted; trusted rights, consent, embedding, and tenant storage unavailable |
+| `GetProfile` | Handler returns `STT_SPEAKER_PROFILE_NOT_ADMITTED` (`FAILED_PRECONDITION`) | Explicitly not admitted; trusted rights, consent, embedding, and tenant storage unavailable |
+| `UpdateProfile` | Handler returns `STT_SPEAKER_PROFILE_NOT_ADMITTED` (`FAILED_PRECONDITION`) | Explicitly not admitted; trusted rights, consent, embedding, and tenant storage unavailable |
+| `SubmitCorrection` | Handler returns `STT_CORRECTION_NOT_ADMITTED` (`FAILED_PRECONDITION`) | Explicitly not admitted; immutable transcript revisions and expected-version CAS unavailable |
+
+`SttProtoContractTest` pins all 12 generated service method identities, RPC
+streaming shapes, request/response message identities, and the selected
+transcription/streaming field numbers. PDP-3 service-registry entries exist for
+all 12 methods, with `pending-owner-review` experience bindings; this is a
+source mapping, not approval or runtime evidence.
+
+### SPI/provider distinction
+
+The execution SPI is the shared `com.ghatana.media.stt.api.SttEngine` consumed
+through `AudioVideoLibrary`; it provides transcription, streaming sessions,
+profiles, model listing/loading, and status/metrics, but has no model-unload or
+adaptation operation. The production composition has no gRPC provider adapter.
+`config/provider-manifest.json` lists `GRPC`, `LOCAL_ONNX`, and `NOP`, all
+`NOT_ADMITTED`. Local ONNX model metadata and digest checks do not establish
+license or quality admission. No live provider, licensed corpus, or model
+quality qualification is claimed.
 
 ## PDP-0 capability inventory — 16 intents
 
@@ -55,24 +72,24 @@ These are the exact STT intent memberships assigned by the Wave 2 execution
 plan. A proto field, utility class, local engine path, or synthetic fixture is
 not evidence of a qualified provider result.
 
-| Capability intent | Task | Current implementation/provider disposition |
+| Capability intent | Task | Implementation and admission disposition |
 | --- | --- | --- |
-| `media.speech.transcription.file` | STT-04 | Local engine path exists; provider is `NOT_ADMITTED` |
-| `media.speech.transcription.stream` | STT-05 | Local stream path exists; reconnect, ordered finality, and provider qualification remain open |
-| `media.speech.transcription.language.detect` | STT-10 | Utility API exists but is not wired into the production gRPC path |
-| `media.speech.transcription.voice-activity.detect` | STT-05 | No admitted runtime VAD path |
-| `media.speech.transcription.speaker.diarize` | STT-07 | Utility-only implementation; no qualified diarization provider |
-| `media.speech.transcription.speaker.segment` | STT-07 | Utility-only implementation; no qualified diarization provider |
-| `media.speech.transcription.speaker.separate` | STT-07 | No separated-audio provider path |
-| `media.speech.transcription.speaker.identify-authorized` | STT-07 | No admitted biometric/identity path; profile RPCs are `UNIMPLEMENTED` in production |
-| `media.speech.transcription.word-timestamp.create` | STT-06 | Proto result field exists; production transcription response does not emit word timings |
-| `media.speech.transcription.phoneme-timestamp.create` | STT-06 | No runtime implementation |
-| `media.speech.transcription.forced-align` | STT-08 | No admitted alignment provider |
-| `media.speech.transcription.punctuate-capitalize` | STT-06 | Config flag exists; no separately qualified output path |
-| `media.speech.transcription.alternatives.provide` | STT-06 | Proto option exists; production result path does not provide alternatives |
-| `media.speech.transcription.confidence.provide` | STT-06 | Engine confidence is passed through; calibration and model provenance are not qualified |
-| `media.speech.transcription.translate` | STT-08 | No admitted translation provider |
-| `media.speech.transcription.subtitle.generate` | STT-08 | No persisted, source-versioned subtitle output path |
+| `media.speech.transcription.file` | STT-04 | `SttEngine.transcribe` and gRPC path implemented; production provider explicitly `NOT_ADMITTED`; no provider qualification |
+| `media.speech.transcription.stream` | STT-05 | SPI/stream validator present; canonical RPC explicitly `NOT_ADMITTED` pending trusted purpose/consent; resume and finality unimplemented/unqualified |
+| `media.speech.transcription.language.detect` | STT-10 | Utility implementation only; not wired into production gRPC; no qualified detector |
+| `media.speech.transcription.voice-activity.detect` | STT-05 | No runtime VAD implementation or admitted provider |
+| `media.speech.transcription.speaker.diarize` | STT-07 | Utility guarded by `NOT_ADMITTED`; no qualified diarization provider |
+| `media.speech.transcription.speaker.segment` | STT-07 | Utility-only; no qualified diarization/segmentation provider |
+| `media.speech.transcription.speaker.separate` | STT-07 | Not implemented; no separated-audio provider |
+| `media.speech.transcription.speaker.identify-authorized` | STT-07 | Explicitly `NOT_ADMITTED`; no biometric identity path; profile RPCs fail with `FAILED_PRECONDITION` |
+| `media.speech.transcription.word-timestamp.create` | STT-06 | Proto field and mapper support exist; production model result does not currently emit timings; quality unqualified |
+| `media.speech.transcription.phoneme-timestamp.create` | STT-06 | Not implemented; no phoneme alignment provider |
+| `media.speech.transcription.forced-align` | STT-08 | Not implemented and no alignment provider admitted |
+| `media.speech.transcription.punctuate-capitalize` | STT-06 | Config option reaches engine; no separately qualified production output path |
+| `media.speech.transcription.alternatives.provide` | STT-06 | Proto option/result shape and mapper exist; production model path does not provide alternatives; no quality qualification |
+| `media.speech.transcription.confidence.provide` | STT-06 | Engine confidence may pass through with availability metadata; calibration/model provenance remain unqualified |
+| `media.speech.transcription.translate` | STT-08 | Not implemented; no translation provider admitted |
+| `media.speech.transcription.subtitle.generate` | STT-08 | Not implemented; no persisted source-versioned subtitle output path |
 
 ## Identity and privacy boundary
 
@@ -98,6 +115,31 @@ value, so purpose-bound admission remains an explicit unresolved boundary.
 These tests prove local configuration and negative-path behavior, not model
 license, real-model quality, external provider execution, or production
 qualification.
+
+Existing test dispositions by boundary: `ProductionSttGrpcServiceTest` checks
+the production service method set, fail-closed provider profiles, health, and
+explicit unavailable handlers; `SttGrpcServiceTest` covers unary transcription
+validation/mapping, model calls, status/health, correction, and profile
+unavailability; `SttGrpcServiceInProcessIntegrationTest` covers transport
+transcription, invalid audio, unload, health, and authenticated/unauthenticated
+calls. `PersistentSttGrpcServiceTest` verifies authentication and that the
+transcript-version path has no unsafe provider/persistence fallback.
+`SttProtoContractTest` adds descriptor-level identity and field-number checks.
+Existing stream coverage is limited to fail-closed/authentication and validator
+semantics; it does not establish an admitted stream provider, reconnect, or
+durable finality. Tests not run in the current STT-01 worktree are not recorded
+as newly verified.
+
+The source-level RPC-to-test mapping is: `Transcribe` — `SttGrpcServiceTest`,
+`SttGrpcServiceInProcessIntegrationTest`; `StreamTranscribe` —
+`SttGrpcStreamingSemanticsTest`, `SttStreamSequenceValidatorTest`,
+`PersistentSttGrpcServiceTest`; `LoadModel`, `UnloadModel`, `ListModels` —
+`SttGrpcServiceTest` (unload also has in-process coverage); `AdaptModel`,
+`SubmitCorrection`, and profile RPCs — `SttGrpcServiceTest` and
+`ProductionSttGrpcServiceTest` (profile auth also has persistent/in-process
+coverage); `GetStatus`, `HealthCheck` — `SttGrpcServiceTest`, with health also
+covered in production and in-process tests. These existing suites were not
+rerun for STT-01; only the new descriptor test was run.
 
 ## STT-12 fixture transport load
 
