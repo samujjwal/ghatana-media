@@ -5,6 +5,7 @@ import com.ghatana.audio.video.multimodal.engine.SttClientAdapter;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
+import com.ghatana.stt.core.grpc.proto.ConfidenceCalibration;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
@@ -101,7 +102,7 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
             case NOP:
                 currentMode = SttMode.NOP;
                 LOG.debug("STT explicitly disabled (NOP mode)");
-                return AudioResult.builder().transcription("").confidence(0.0).build();
+                return AudioResult.builder().transcription("").build();
             case GRPC:
                 currentMode = SttMode.GRPC;
                 if (audioData.length == 0) {
@@ -110,6 +111,10 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
                 try {
                     return transcribeViaGrpc(audioData);
                 } catch (StatusRuntimeException failure) {
+                    if (failure.getStatus().getCode() == io.grpc.Status.Code.DEADLINE_EXCEEDED
+                            || failure.getStatus().getCode() == io.grpc.Status.Code.CANCELLED) {
+                        throw failure;
+                    }
                     LOG.warn("STT provider unavailable: status={}", failure.getStatus().getCode());
                     return AudioResult.error(
                             "STT provider unavailable: " + failure.getStatus().getCode());
@@ -143,16 +148,29 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
 
         TranscribeResponse response = client.transcribe(request);
         String transcription = response.getText() == null ? "" : response.getText();
-        double confidence = Math.max(0.0, Math.min(1.0, response.getConfidence()));
+        AudioResult.ConfidenceCalibration calibration = switch (response.getConfidenceCalibration()) {
+            case CONFIDENCE_CALIBRATION_UNCALIBRATED -> AudioResult.ConfidenceCalibration.UNCALIBRATED;
+            case CONFIDENCE_CALIBRATION_CALIBRATED -> AudioResult.ConfidenceCalibration.CALIBRATED;
+            case CONFIDENCE_CALIBRATION_UNKNOWN, UNRECOGNIZED -> AudioResult.ConfidenceCalibration.UNKNOWN;
+        };
+        Double confidence = null;
+        if (calibration != AudioResult.ConfidenceCalibration.UNKNOWN) {
+            float supplied = response.getConfidence();
+            if (!Float.isFinite(supplied) || supplied < 0.0f || supplied > 1.0f) {
+                throw new IllegalArgumentException("STT confidence must be finite and in [0, 1]");
+            }
+            confidence = (double) supplied;
+        }
 
         LOG.info(
                 "STT gRPC transcription completed: textLength={}, confidence={}",
                 transcription.length(),
                 confidence);
-        return AudioResult.builder()
+        AudioResult.Builder result = AudioResult.builder()
                 .transcription(transcription)
-                .confidence(confidence)
-                .build();
+                .confidenceCalibration(calibration);
+        if (confidence != null) result.confidence(confidence);
+        return result.build();
     }
 
     private static ManagedChannel buildChannel(

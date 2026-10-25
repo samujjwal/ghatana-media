@@ -152,10 +152,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .setProcessingTimeMs(result.getProcessingTimeMs());
 
             if (result.getAudioResult() != null && !result.getAudioResult().isError()) {
-                responseBuilder.setAudioAnalysis(AudioAnalysis.newBuilder()
-                        .setTranscription(result.getAudioResult().getTranscription())
-                        .setConfidence(result.getAudioResult().getConfidence())
-                        .build());
+                AudioAnalysis.Builder audioAnalysis = AudioAnalysis.newBuilder()
+                        .setTranscription(result.getAudioResult().getTranscription());
+                if (result.getAudioResult().hasConfidence()) {
+                    audioAnalysis.setConfidence(result.getAudioResult().getConfidence());
+                }
+                responseBuilder.setAudioAnalysis(audioAnalysis.build());
             }
 
             if (result.getVisualResult() != null && !result.getVisualResult().isError()) {
@@ -168,6 +170,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             responseBuilder
                     .putMetadata("has_audio", String.valueOf(result.getAudioResult() != null))
+                    .putMetadata("audio_confidence_available", String.valueOf(
+                            result.getAudioResult() != null && result.getAudioResult().hasConfidence()))
+                    .putMetadata("audio_confidence_source_calibration", result.getAudioResult() == null
+                            ? "UNKNOWN" : result.getAudioResult().getConfidenceCalibration().name())
                     .putMetadata("has_visual", String.valueOf(result.getVisualResult() != null))
                     .putMetadata("has_text", String.valueOf(!request.getText().isEmpty()))
                     .putMetadata("processing_backend", platformAdapter.backendName())

@@ -13,13 +13,15 @@ import java.util.List;
 public class AudioResult {
 
     private final String transcription;
-    private final double confidence;
+    private final Double confidence;
+    private final ConfidenceCalibration confidenceCalibration;
     private final List<TimedSegment> timedSegments;
     private final String error;
 
     private AudioResult(Builder builder) {
         this.transcription = builder.transcription;
         this.confidence = builder.confidence;
+        this.confidenceCalibration = builder.confidenceCalibration;
         this.timedSegments = builder.timedSegments;
         this.error = builder.error;
     }
@@ -37,7 +39,10 @@ public class AudioResult {
     }
 
     public String getTranscription() { return transcription; }
-    public double getConfidence() { return confidence; }
+    /** Confidence is null when the upstream result did not provide an available score. */
+    public Double getConfidence() { return confidence; }
+    public boolean hasConfidence() { return confidence != null; }
+    public ConfidenceCalibration getConfidenceCalibration() { return confidenceCalibration; }
     public List<TimedSegment> getTimedSegments() { return timedSegments; }
     public String getError() { return error; }
 
@@ -67,15 +72,29 @@ public class AudioResult {
 
     public static class Builder {
         private String transcription = "";
-        private double confidence = 0.0;
+        private Double confidence;
+        private ConfidenceCalibration confidenceCalibration = ConfidenceCalibration.UNKNOWN;
         private List<TimedSegment> timedSegments = new ArrayList<>();
         private String error;
 
         public Builder transcription(String t) { this.transcription = t; return this; }
-        public Builder confidence(double c) { this.confidence = c; return this; }
+        public Builder confidence(double c) {
+            if (!Double.isFinite(c) || c < 0.0 || c > 1.0) {
+                throw new IllegalArgumentException("Confidence must be finite and in [0, 1]");
+            }
+            this.confidence = c;
+            return this;
+        }
+        public Builder confidenceCalibration(ConfidenceCalibration calibration) {
+            this.confidenceCalibration = java.util.Objects.requireNonNull(calibration, "calibration");
+            return this;
+        }
         public Builder timedSegments(List<TimedSegment> s) { this.timedSegments = s; return this; }
         public Builder error(String e) { this.error = e; return this; }
         public AudioResult build() {
+            if (confidence == null && confidenceCalibration != ConfidenceCalibration.UNKNOWN) {
+                throw new IllegalArgumentException("Confidence calibration requires an available score");
+            }
             if (timedSegments != null) {
                 long previousEnd = -1;
                 for (TimedSegment segment : timedSegments) {
@@ -88,6 +107,12 @@ public class AudioResult {
             return new AudioResult(this);
         }
     }
+
+    /**
+     * Raw upstream declaration only. CALIBRATED does not establish a shared metric or authorize
+     * comparison with another provider's score.
+     */
+    public enum ConfidenceCalibration { UNKNOWN, UNCALIBRATED, CALIBRATED }
 
     public static class TimedSegment {
         private final long startMs;
