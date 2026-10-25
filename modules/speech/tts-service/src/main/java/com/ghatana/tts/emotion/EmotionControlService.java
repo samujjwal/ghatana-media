@@ -57,13 +57,13 @@ public final class EmotionControlService {
         Objects.requireNonNull(emotion, "emotion must not be null");
         return switch (emotion) {
             case HAPPY    -> new ProsodyParameters(emotion, 1.10f, 0.15f, 0.05f,
-                    "<prosody rate=\"fast\" pitch=\"+10%\">", "</prosody>");
+                    "<prosody rate=\"110%\" pitch=\"+0.15st\">", "</prosody>");
             case SAD      -> new ProsodyParameters(emotion, 0.85f, -0.20f, -0.05f,
-                    "<prosody rate=\"slow\" pitch=\"-20%\">", "</prosody>");
+                    "<prosody rate=\"85%\" pitch=\"-0.20st\">", "</prosody>");
             case NEUTRAL  -> new ProsodyParameters(emotion, 1.00f,  0.00f,  0.00f,
                     "", "");
             case EXCITED  -> new ProsodyParameters(emotion, 1.20f, 0.25f, 0.10f,
-                    "<prosody rate=\"x-fast\" pitch=\"+25%\" volume=\"loud\">", "</prosody>");
+                    "<prosody rate=\"120%\" pitch=\"+0.25st\" volume=\"loud\">", "</prosody>");
         };
     }
 
@@ -79,10 +79,14 @@ public final class EmotionControlService {
             throw new IllegalArgumentException("text must not be blank");
         }
         ProsodyParameters params = prosodyFor(emotion);
-        String result = params.ssmlOpenTag() + text + params.ssmlCloseTag();
-        LOG.debug("Applied emotion={} to text (len={}), ssmlOpen='{}'",
+        String result = params.ssmlOpenTag() + escapeXmlText(text) + params.ssmlCloseTag();
+        LOG.debug("Prepared proposed emotion={} SSML (len={}), ssmlOpen='{}'",
                 emotion, text.length(), params.ssmlOpenTag());
         return result;
+    }
+
+    private static String escapeXmlText(String text) {
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     /**

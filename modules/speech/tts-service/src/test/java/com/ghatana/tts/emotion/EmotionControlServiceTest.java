@@ -1,5 +1,6 @@
 package com.ghatana.tts.emotion;
 
+import com.ghatana.tts.ssml.SsmlProcessor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -78,6 +79,24 @@ class EmotionControlServiceTest {
     void applyEmotionSsmlThrowsBlankText() { 
         assertThatThrownBy(() -> service.applyEmotionSsml("  ", EmotionControlService.EmotionType.HAPPY)) 
                 .isInstanceOf(IllegalArgumentException.class); 
+    }
+
+    @Test
+    @DisplayName("all proposed emotion controls use bounded SSML and escape source text")
+    void proposedEmotionSsmlParsesWithoutClaimingProviderEffect() {
+        SsmlProcessor parser = SsmlProcessor.create();
+        for (EmotionControlService.EmotionType emotion : EmotionControlService.EmotionType.values()) {
+            String encoded = service.applyEmotionSsml("A & B <C>", emotion);
+            var segments = parser.parse("<speak>" + encoded + "</speak>");
+            assertThat(segments).extracting(SsmlProcessor.SsmlSegment::text)
+                    .containsExactly("A & B <C>");
+        }
+        assertThat(service.applyEmotionSsml("Hello", EmotionControlService.EmotionType.HAPPY))
+                .contains("rate=\"110%\"", "pitch=\"+0.15st\"");
+        assertThat(service.applyEmotionSsml("Hello", EmotionControlService.EmotionType.SAD))
+                .contains("rate=\"85%\"", "pitch=\"-0.20st\"");
+        assertThat(service.applyEmotionSsml("Hello", EmotionControlService.EmotionType.EXCITED))
+                .contains("rate=\"120%\"", "pitch=\"+0.25st\"");
     }
 
     @Test
