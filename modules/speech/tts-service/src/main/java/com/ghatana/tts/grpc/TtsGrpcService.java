@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -87,7 +86,6 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     public void synthesize(
             SynthesizeRequest request,
             StreamObserver<SynthesizeResponse> responseObserver) {
-        String correlationId = correlationId();
         long startedAt = System.currentTimeMillis();
         synthesizeTimer.record(() -> {
             try {
@@ -102,7 +100,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
 
                 long elapsed = System.currentTimeMillis() - startedAt;
                 long durationMs = facts.duration().toMillis();
-                LOG.info("[{}] synthesize completed in {}ms", correlationId, elapsed);
+                LOG.info("TTS synthesis completed in {}ms", elapsed);
                 responseObserver.onNext(SynthesizeResponse.newBuilder()
                         .setAudioData(com.google.protobuf.ByteString.copyFrom(audio.data()))
                         .setSampleRate(audio.sampleRate())
@@ -112,7 +110,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                         .build());
                 responseObserver.onCompleted();
             } catch (RuntimeException exception) {
-                fail(responseObserver, "Synthesis", correlationId, exception);
+                fail(responseObserver, "Synthesis", exception);
             }
         });
     }
@@ -121,7 +119,6 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     public void streamSynthesize(
             SynthesizeRequest request,
             StreamObserver<AudioChunk> responseObserver) {
-        String correlationId = correlationId();
         long startedNanos = System.nanoTime();
         AtomicBoolean cancelled = new AtomicBoolean();
         ServerCallStreamObserver<AudioChunk> serverObserver = serverObserver(responseObserver);
@@ -143,7 +140,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         } catch (RuntimeException exception) {
             streamingTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
             if (!cancelled.get()) {
-                fail(responseObserver, "Streaming synthesis", correlationId, exception);
+                fail(responseObserver, "Streaming synthesis", exception);
             }
         }
     }
@@ -172,7 +169,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
         } catch (RuntimeException exception) {
-            fail(responseObserver, "Voice listing", correlationId(), exception);
+            fail(responseObserver, "Voice listing", exception);
         }
     }
 
@@ -321,7 +318,6 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     private static <T> void fail(
             StreamObserver<T> responseObserver,
             String operation,
-            String correlationId,
             RuntimeException exception) {
         Status status;
         if (exception instanceof TtsSynthesisEngine.SynthesisException synthesis
@@ -336,25 +332,14 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         } else {
             status = Status.INTERNAL;
         }
-        LOG.error(
-                "[{}] {} failed: {}",
-                correlationId,
-                operation,
-                exception.getMessage(),
-                exception);
-        responseObserver.onError(status
-                .withDescription(operation + " failed: " + safeMessage(exception))
-                .asRuntimeException());
-    }
-
-    private static String safeMessage(RuntimeException exception) {
-        String message = exception.getMessage();
-        return message == null || message.isBlank()
-                ? exception.getClass().getSimpleName()
-                : message;
-    }
-
-    private static String correlationId() {
-        return UUID.randomUUID().toString().substring(0, 8);
+        LOG.error("TTS {} failed (type={})", operation, exception.getClass().getSimpleName());
+        String description = switch (status.getCode()) {
+            case UNAVAILABLE -> "TTS_NOT_ADMITTED: synthesis provider or capability is unavailable";
+            case INVALID_ARGUMENT -> "Invalid TTS synthesis request";
+            case UNIMPLEMENTED -> "TTS_NOT_ADMITTED: requested TTS capability is unsupported";
+            case FAILED_PRECONDITION -> "TTS synthesis preconditions are not met";
+            default -> "TTS synthesis failed";
+        };
+        responseObserver.onError(status.withDescription(description).asRuntimeException());
     }
 }

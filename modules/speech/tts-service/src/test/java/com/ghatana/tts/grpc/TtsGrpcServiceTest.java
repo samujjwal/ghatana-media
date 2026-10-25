@@ -84,7 +84,7 @@ class TtsGrpcServiceTest {
 
         assertStatus(observer, Status.Code.UNAVAILABLE);
         assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
-                .contains("NOT_ADMITTED", "exact admitted voice-language-rights profile", "default", "unspecified");
+                .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
         verify(engine, never()).close();
@@ -100,7 +100,7 @@ class TtsGrpcServiceTest {
                             .setLanguage(language).build()).build(), observer);
             assertStatus(observer, Status.Code.UNAVAILABLE);
             assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
-                    .contains("NOT_ADMITTED", "language=" + language);
+                    .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
         }
 
         CapturingObserver<SynthesizeResponse> explicit = new CapturingObserver<>();
@@ -110,7 +110,7 @@ class TtsGrpcServiceTest {
                         .setLanguage("hi-IN").build()).build(), explicit);
         assertStatus(explicit, Status.Code.UNIMPLEMENTED);
         assertThat(((StatusRuntimeException) explicit.error).getStatus().getDescription())
-                .contains("NOT_ADMITTED", "owner", "consent");
+                .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
     }
@@ -199,7 +199,7 @@ class TtsGrpcServiceTest {
                 providerValidation);
         assertStatus(providerValidation, Status.Code.UNAVAILABLE);
         assertThat(((StatusRuntimeException) providerValidation.error).getStatus().getDescription())
-                .contains("NOT_ADMITTED", "exact admitted voice-language-rights profile");
+                .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
     }
@@ -305,7 +305,7 @@ class TtsGrpcServiceTest {
         service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setVoiceId("custom-voice").build(), voice);
         assertStatus(voice, Status.Code.UNIMPLEMENTED);
         assertThat(((StatusRuntimeException) voice.error).getStatus().getDescription())
-                .contains("NOT_ADMITTED", "owner", "consent");
+                .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
 
         CapturingObserver<SynthesizeResponse> profile = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setProfileId("profile-1").build(), profile);
@@ -343,13 +343,13 @@ class TtsGrpcServiceTest {
             service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setOptions(unsupportedOptions).build(), unsupported);
             assertStatus(unsupported, Status.Code.UNIMPLEMENTED);
             assertThat(((StatusRuntimeException) unsupported.error).getStatus().getDescription())
-                    .contains("NOT_ADMITTED");
+                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
         }
         CapturingObserver<SynthesizeResponse> ssml = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.newBuilder().setText("<speak><prosody rate=\"150%\">hello</prosody></speak>").build(), ssml);
         assertStatus(ssml, Status.Code.UNIMPLEMENTED);
         assertThat(((StatusRuntimeException) ssml.error).getStatus().getDescription())
-                .contains("SSML", "NOT_ADMITTED");
+                .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
 
         CapturingObserver<SynthesizeResponse> malformedSsml = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.newBuilder().setText("<speak><prosody>").build(), malformedSsml);

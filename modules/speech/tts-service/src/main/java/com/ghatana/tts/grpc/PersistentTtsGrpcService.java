@@ -14,7 +14,6 @@ import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -51,7 +50,6 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
 
     @Override
     public void synthesize(SynthesizeRequest request, StreamObserver<SynthesizeResponse> responseObserver) {
-        String cid = cid();
         String tenantId = getTenantId();
         String userIdStr = getUserId();
 
@@ -86,10 +84,6 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
         }
 
         try {
-            MDC.put("tenantId", tenantId);
-            MDC.put("userId", userIdStr);
-            MDC.put("cid", cid);
-
             String text = request.getText();
             if (text == null || text.isEmpty()) {
                 responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
@@ -139,26 +133,24 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
                     .build());
                 responseObserver.onCompleted();
             }).whenException(e -> {
-                LOG.error("[{}] TTS synthesis failed: {}", cid, e.getMessage(), e);
-                responseObserver.onError(toGrpcStatus(cid, e).asRuntimeException());
+                LOG.error("TTS synthesis failed (type={})", rootCause(e).getClass().getSimpleName());
+                responseObserver.onError(toGrpcStatus(e).asRuntimeException());
             });
 
         } catch (IllegalArgumentException e) {
-            LOG.warn("[{}] TTS validation error: {}", cid, e.getMessage());
+            LOG.warn("TTS validation failed (type={})", e.getClass().getSimpleName());
             responseObserver.onError(Status.INVALID_ARGUMENT
-                .withDescription(e.getMessage())
+                .withDescription("Invalid TTS synthesis request")
                 .asRuntimeException());
         } catch (UnsupportedOperationException e) {
             responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription(e.getMessage())
+                .withDescription("Requested TTS capability is not implemented")
                 .asRuntimeException());
         } catch (Exception e) {
-            LOG.error("[{}] Unexpected error: {}", cid, e.getMessage(), e);
+            LOG.error("TTS synthesis failed (type={})", e.getClass().getSimpleName());
             responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Internal error")
+                .withDescription("TTS synthesis failed")
                 .asRuntimeException());
-        } finally {
-            MDC.clear();
         }
     }
 
@@ -186,16 +178,7 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
             return;
         }
 
-        String userIdStr = getUserId();
-        String cid = cid();
-        try {
-            MDC.put("tenantId", tenantId);
-            MDC.put("userId", userIdStr);
-            MDC.put("cid", cid);
-            streamingDelegate.streamSynthesize(request, responseObserver);
-        } finally {
-            MDC.clear();
-        }
+        streamingDelegate.streamSynthesize(request, responseObserver);
     }
 
     private String getTenantId() {
@@ -207,27 +190,28 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
         return JwtServerInterceptor.CTX_SUBJECT.get();
     }
 
-    private Status toGrpcStatus(String cid, Throwable e) {
-        Throwable cause = e;
-        while (cause.getCause() != null && cause.getCause() != cause) cause = cause.getCause();
+    private Status toGrpcStatus(Throwable e) {
+        Throwable cause = rootCause(e);
         if (cause instanceof TtsSynthesisEngine.SynthesisException synthesis
                 && synthesis.reason() == TtsSynthesisEngine.FailureReason.NOT_ADMITTED) {
-            return Status.UNAVAILABLE.withDescription(synthesis.getMessage());
+            return Status.UNAVAILABLE.withDescription("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
         }
         if (cause instanceof UnsupportedOperationException) {
-            return Status.UNIMPLEMENTED.withDescription(cause.getMessage());
+            return Status.UNIMPLEMENTED.withDescription("Requested TTS capability is not implemented");
         }
         if (cause instanceof IllegalArgumentException) {
-            return Status.INVALID_ARGUMENT.withDescription(cause.getMessage());
+            return Status.INVALID_ARGUMENT.withDescription("Invalid TTS synthesis request");
         }
         if (cause instanceof TimeoutException) {
-            LOG.warn("[{}] TTS synthesis timed out", cid);
+            LOG.warn("TTS synthesis timed out");
             return Status.DEADLINE_EXCEEDED.withDescription("TTS synthesis timed out");
         }
         return Status.INTERNAL.withDescription("TTS synthesis failed");
     }
 
-    private String cid() {
-        return UUID.randomUUID().toString().substring(0, 8);
+    private static Throwable rootCause(Throwable error) {
+        Throwable cause = error;
+        while (cause.getCause() != null && cause.getCause() != cause) cause = cause.getCause();
+        return cause;
     }
 }

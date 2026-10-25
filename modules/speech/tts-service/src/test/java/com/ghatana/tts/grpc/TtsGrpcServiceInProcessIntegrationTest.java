@@ -75,7 +75,7 @@ class TtsGrpcServiceInProcessIntegrationTest {
         assertThatThrownBy(() -> stub.synthesize(SynthesizeRequest.newBuilder().setText("hello world").build()))
                 .isInstanceOf(StatusRuntimeException.class)
                 .matches(ex -> ((StatusRuntimeException) ex).getStatus().getCode() == Status.UNAVAILABLE.getCode())
-                .hasMessageContaining("NOT_ADMITTED");
+                .hasMessageContaining("TTS_NOT_ADMITTED");
     }
 
     @Test
@@ -170,7 +170,7 @@ class TtsGrpcServiceInProcessIntegrationTest {
             assertThat(chunks).isEmpty();
             assertThat(failure.get()).isInstanceOf(StatusRuntimeException.class);
             assertThat(Status.fromThrowable(failure.get()).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
-            assertThat(Status.fromThrowable(failure.get()).getDescription()).contains("NOT_ADMITTED");
+            assertThat(Status.fromThrowable(failure.get()).getDescription()).contains("TTS_NOT_ADMITTED");
 
             verifyNoInteractions(guardedLibrary);
         } finally {
