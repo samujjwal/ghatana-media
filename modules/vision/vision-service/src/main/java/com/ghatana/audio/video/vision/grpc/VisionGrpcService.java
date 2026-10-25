@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BooleanSupplier;
 
 /**
  * gRPC service implementation for computer vision object detection.
@@ -55,6 +56,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     private final VideoFrameExtractor frameExtractor;
     private final AtomicLong requestCount = new AtomicLong(0);
     private final AtomicLong totalProcessingTime = new AtomicLong(0);
+    private volatile BooleanSupplier readinessProbe = () -> false;
     private final MediaProcessingMetrics mediaMetrics;
     private final ModelRegistry modelRegistry;
     private final AuditService auditService;
@@ -665,9 +667,15 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     @Override
     public void healthCheck(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
         try {
-            // AV-P1-014: Health check returns degraded instead of failing when model is missing
-            boolean healthy = false;
-            String message = "Vision service NOT_ADMITTED: trusted provider root readiness is unavailable";
+            boolean healthy;
+            try {
+                healthy = Boolean.TRUE.equals(readinessProbe.getAsBoolean());
+            } catch (RuntimeException unavailable) {
+                healthy = false;
+            }
+            String message = healthy
+                    ? "VISION_SERVING"
+                    : "VISION_NOT_SERVING: provider readiness unavailable";
 
             HealthCheckResponse response = HealthCheckResponse.newBuilder()
                 .setHealthy(healthy)
@@ -681,6 +689,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             LOG.error("Health check failed", e);
             responseObserver.onError(e);
         }
+    }
+
+    /** Test compositions and unadmitted providers remain unavailable until production admission wires readiness. */
+    protected boolean isProviderReady() {
+        return false;
+    }
+
+    /** Bind the custom Vision health RPC to the shared gRPC and HTTP readiness lifecycle. */
+    void setReadinessProbe(BooleanSupplier readinessProbe) {
+        this.readinessProbe = Objects.requireNonNull(readinessProbe, "readinessProbe");
     }
 
     // ── Private helpers ────────────────────────────────────────────────────

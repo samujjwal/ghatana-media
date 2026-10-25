@@ -613,7 +613,7 @@ class VisionGrpcServiceTest {
         // THEN
         assertThat(observer.hasError()).isFalse(); 
         assertThat(observer.getValue().getHealthy()).isFalse();
-        assertThat(observer.getValue().getMessage()).contains("NOT_ADMITTED");
+        assertThat(observer.getValue().getMessage()).contains("NOT_SERVING");
     }
 
     // -------------------------------------------------------------------------

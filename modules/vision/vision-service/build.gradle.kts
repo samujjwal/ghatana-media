@@ -18,9 +18,11 @@ dependencies {
     // Audio-Video common (health/metrics server, gRPC interceptor chain, security)
     implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:libs:common"))
+    implementation(project(":services:media:audio-video-observability"))
 
     // gRPC
     implementation(libs.grpc.netty.shaded)
+    implementation(libs.grpc.services)
     implementation(libs.grpc.protobuf)
     implementation(libs.grpc.stub)
 

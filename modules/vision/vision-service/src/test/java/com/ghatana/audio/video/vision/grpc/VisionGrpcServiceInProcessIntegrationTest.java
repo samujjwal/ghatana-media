@@ -146,7 +146,7 @@ class VisionGrpcServiceInProcessIntegrationTest {
 
         var health = stub.healthCheck(HealthCheckRequest.getDefaultInstance());
         assertThat(health.getHealthy()).isFalse();
-        assertThat(health.getMessage()).contains("NOT_ADMITTED");
+        assertThat(health.getMessage()).contains("NOT_SERVING");
         verify(detector, never()).isInitialized();
     }
 

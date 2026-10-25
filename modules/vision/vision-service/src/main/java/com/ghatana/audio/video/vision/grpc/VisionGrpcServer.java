@@ -3,11 +3,17 @@ package com.ghatana.audio.video.vision.grpc;
 import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
+import com.ghatana.audiovideo.observability.AudioVideoHealthService;
+import com.ghatana.observability.MetricsCollectorFactory;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 /**
  * Standalone gRPC server for production object detection.
@@ -31,13 +37,41 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     VisionGrpcServer(int port, TransportSecurity transportSecurity) {
+        this(port, transportSecurity, createProductionRuntime());
+    }
+
+    private VisionGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
         super(
                 "vision-service",
                 port,
-                new ProductionVisionGrpcService(MediaProcessingMetrics.create()),
+                runtime.service(),
                 com.ghatana.audio.video.common.GrpcInterceptorChain.build(),
-                transportSecurity);
+                transportSecurity,
+                runtime.readiness());
     }
+
+    private static ServerRuntime createProductionRuntime() {
+        ProductionVisionGrpcService service = new ProductionVisionGrpcService(MediaProcessingMetrics.create());
+        try {
+            AudioVideoHealthService readiness = createReadinessLifecycle(
+                    new SimpleMeterRegistry(), service::isProviderReady);
+            service.setReadinessProbe(readiness::isServing);
+            return new ServerRuntime(service, readiness);
+        } catch (RuntimeException failure) {
+            service.close();
+            throw failure;
+        }
+    }
+
+    static AudioVideoHealthService createReadinessLifecycle(
+            MeterRegistry metrics, BooleanSupplier providerReadiness) {
+        AudioVideoHealthService readiness = new AudioVideoHealthService(
+                "vision-service", MetricsCollectorFactory.create(metrics), Set.of("provider"));
+        readiness.registerCheck("provider", providerReadiness::getAsBoolean);
+        return readiness;
+    }
+
+    private record ServerRuntime(ProductionVisionGrpcService service, AudioVideoHealthService readiness) { }
 
     public static void main(String[] args) {
         if (Boolean.getBoolean("av.smokeTest")) {
