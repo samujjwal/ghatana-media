@@ -8,7 +8,6 @@ import com.ghatana.media.common.ModelLoadingError;
 import com.ghatana.media.common.ValidationError;
 import com.ghatana.media.stt.api.ModelInfo;
 import com.ghatana.media.stt.api.SttEngine;
-import com.ghatana.media.stt.api.StreamingSession;
 import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.api.UserProfile;
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -33,7 +31,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Nested;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -601,35 +598,16 @@ class SttGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("streamAudio: completion ends stream before closing session")
-    void streamAudio_completionEndsStreamBeforeClosingSession() throws Exception { 
-        StreamingSession streamingSession = mock(StreamingSession.class); 
-        when(mockEngine.createStreamingSession()).thenReturn(streamingSession); 
+    @DisplayName("streamTranscribe: unauthenticated caller is rejected before engine access")
+    void streamTranscribe_rejectsUnauthenticatedCaller() {
+        CapturingObserver<Transcription> observer = new CapturingObserver<>();
 
-        AtomicBoolean completed = new AtomicBoolean(false); 
-        StreamObserver<Transcription> responseObserver = new StreamObserver<>() { 
-            @Override
-            public void onNext(Transcription value) { 
-            }
+        service.streamTranscribe(observer);
 
-            @Override
-            public void onError(Throwable t) { 
-            }
-
-            @Override
-            public void onCompleted() { 
-                completed.set(true); 
-            }
-        };
-
-        StreamObserver<AudioChunk> requestObserver = service.streamTranscribe(responseObserver); 
-
-        requestObserver.onCompleted(); 
-
-        assertThat(completed.get()).isTrue(); 
-        InOrder inOrder = inOrder(streamingSession); 
-        inOrder.verify(streamingSession).endStream(); 
-        inOrder.verify(streamingSession).close(); 
+        assertThat(observer.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+            .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verify(mockLibrary, never()).getSttEngine();
     }
 
     // ─────────────────────────────────────────────────────────────

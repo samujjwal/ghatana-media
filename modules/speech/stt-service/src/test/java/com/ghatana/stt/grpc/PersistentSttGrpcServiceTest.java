@@ -13,6 +13,7 @@ import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
+import com.ghatana.stt.core.grpc.proto.Transcription;
 import com.ghatana.stt.service.PersistentSttService;
 import io.activej.promise.Promise;
 import io.grpc.Context;
@@ -60,6 +61,19 @@ class PersistentSttGrpcServiceTest {
         verifyNoInteractions(persistentSttService);
         assertThat(MDC.get("tenantId")).isNull();
         assertThat(MDC.get("userId")).isNull();
+    }
+
+    @Test
+    @DisplayName("streamTranscribe remains unimplemented until authenticated runtime admission exists")
+    void streamTranscribeDoesNotExposeUnauthenticatedProviderEffect() {
+        CapturingObserver<Transcription> observer = new CapturingObserver<>();
+
+        service.streamTranscribe(observer);
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                .isEqualTo(Status.UNIMPLEMENTED.getCode());
+        verifyNoInteractions(persistentSttService);
     }
 
     @Test

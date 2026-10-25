@@ -16,7 +16,8 @@ service STTService {
     // Synchronous transcription of a complete audio file
     rpc Transcribe(TranscribeRequest) returns (TranscribeResponse);
     
-    // Bidirectional streaming for real-time transcription
+    // Bidirectional streaming for real-time transcription. The current STT composition fails
+    // closed until authenticated MediaRuntime session and trusted consent admission are wired.
     rpc StreamTranscribe(stream AudioChunk) returns (stream Transcription);
     
     // Load a specific model into memory
@@ -79,6 +80,9 @@ message AudioChunk {
     int32 sample_rate = 2;
     int64 timestamp_ms = 3;
     string session_id = 4;
+    // Per-connection monotonic sequence. Zero preserves legacy unsequenced clients;
+    // it does not enable reconnect/resume.
+    int64 sequence = 5;
 }
 
 message Transcription {
@@ -87,6 +91,16 @@ message Transcription {
     float confidence = 3;
     repeated WordTiming word_timings = 4;
     int64 timestamp_ms = 5;
+    // Snapshot of the highest client sequence accepted on this RPC; this is not a client ack.
+    int64 accepted_sequence_snapshot = 6;
+    // Monotonic partial revision within this live RPC.
+    uint32 revision = 7;
+    string session_id = 8;
+    // Always false until the MediaRuntime session store/provider is wired to STT.
+    bool durable_resume_enabled = 9;
+    // No final transcript was observed from the provider before the stream ended.
+    bool outcome_unknown = 10;
+    bool backpressured = 11;
 }
 
 message WordTiming {

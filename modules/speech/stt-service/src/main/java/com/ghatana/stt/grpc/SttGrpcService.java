@@ -144,141 +144,37 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public StreamObserver<AudioChunk> streamTranscribe(StreamObserver<Transcription> responseObserver) {
-        String sessionId = cid();
-
-        final int MAX_BUFFER_CHUNKS = 100;
-        final int HIGH_WATER_MARK = 80;
-        final int LOW_WATER_MARK = 20;
-
-        SttEngine engine = library.getSttEngine();
-        com.ghatana.media.stt.api.StreamingSession session = engine.createStreamingSession();
-
-        final java.util.concurrent.atomic.AtomicBoolean isPaused = new java.util.concurrent.atomic.AtomicBoolean(false);
-        final java.util.concurrent.BlockingQueue<com.ghatana.media.common.AudioChunk> buffer =
-            new java.util.concurrent.LinkedBlockingQueue<>(MAX_BUFFER_CHUNKS);
-        final java.util.concurrent.atomic.AtomicInteger chunkCount = new java.util.concurrent.atomic.AtomicInteger(0);
-        final java.util.concurrent.atomic.AtomicBoolean isCompleted = new java.util.concurrent.atomic.AtomicBoolean(false);
-
-        java.util.concurrent.ExecutorService processor = java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "stt-stream-processor-" + sessionId);
-            t.setDaemon(true);
-            return t;
-        });
-
-        processor.submit(() -> {
-            while (!isCompleted.get() || !buffer.isEmpty()) {
-                try {
-                    com.ghatana.media.common.AudioChunk chunk = buffer.poll(100, java.util.concurrent.TimeUnit.MILLISECONDS);
-                    if (chunk != null) {
-                        session.feedAudio(chunk);
-                        int currentSize = buffer.size();
-                        if (isPaused.get() && currentSize <= LOW_WATER_MARK) {
-                            isPaused.set(false);
-                            LOG.debug("[{}] Resuming - buffer size: {}", sessionId, currentSize);
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                } catch (Exception e) {
-                    LOG.error("[{}] Error processing chunk: {}", sessionId, e.getMessage());
-                }
-            }
-        });
-
-        session.onTranscription(transcript -> {
-            if (!isCompleted.get()) {
-                responseObserver.onNext(Transcription.newBuilder()
-                    .setText(transcript.text())
-                    .setIsFinal(transcript.isFinal())
-                    .setConfidence((float) transcript.confidence())
-                    .build());
-            }
-        });
-
-        session.onError(error -> {
-            if (!isCompleted.get()) {
-                responseObserver.onError(io.grpc.Status.INTERNAL
-                    .withDescription(error.getMessage())
+        String tenantId = com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT.get();
+        String principalId = com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT.get();
+        if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
+            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("STT_STREAM_IDENTITY_REQUIRED: authenticated tenant and subject are required")
                     .asRuntimeException());
-            }
-        });
+            return noOpAudioObserver();
+        }
+        try {
+            UUID.fromString(principalId);
+        } catch (IllegalArgumentException invalidPrincipal) {
+            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("STT_STREAM_IDENTITY_INVALID: authenticated subject is not a supported principal identifier")
+                    .asRuntimeException());
+            return noOpAudioObserver();
+        }
 
+        // Stream-session state is owned by MediaRuntime and requires a trusted consent/purpose
+        // decision. This service has neither runtime injection nor an admission authority, so it
+        // must stop before creating a model session or dispatching audio.
+        responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                .withDescription("STT_STREAM_CONSENT_NOT_ADMITTED: trusted purpose and consent admission are unavailable")
+                .asRuntimeException());
+        return noOpAudioObserver();
+    }
+
+    private static StreamObserver<AudioChunk> noOpAudioObserver() {
         return new StreamObserver<>() {
-            @Override
-            public void onNext(AudioChunk chunk) {
-                if (isCompleted.get()) return;
-
-                int currentCount = chunkCount.incrementAndGet();
-
-                if (buffer.size() >= MAX_BUFFER_CHUNKS) {
-                    LOG.warn("[{}] Buffer full ({} chunks), dropping chunk {}",
-                        sessionId, buffer.size(), currentCount);
-                    responseObserver.onError(io.grpc.Status.RESOURCE_EXHAUSTED
-                        .withDescription("Server buffer full - reduce sending rate")
-                        .asRuntimeException());
-                    isCompleted.set(true);
-                    return;
-                }
-
-                boolean added = buffer.offer(new com.ghatana.media.common.AudioChunk(
-                    chunk.getAudioData().toByteArray(), currentCount, false, chunk.getTimestampMs()));
-
-                if (!added) {
-                    LOG.warn("[{}] Failed to add chunk {} to buffer", sessionId, currentCount);
-                }
-
-                if (!isPaused.get() && buffer.size() >= HIGH_WATER_MARK) {
-                    isPaused.set(true);
-                    LOG.debug("[{}] Pausing - buffer size: {}", sessionId, buffer.size());
-                }
-
-                if (currentCount % 100 == 0) {
-                    LOG.info("[{}] Received {} chunks, buffer size: {}",
-                        sessionId, currentCount, buffer.size());
-                }
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                LOG.error("[{}] Client stream error: {}", sessionId, t.getMessage());
-                isCompleted.set(true);
-                shutdownProcessor();
-                closeSession();
-            }
-
-            @Override
-            public void onCompleted() {
-                LOG.info("[{}] Client stream completed: {} chunks total", sessionId, chunkCount.get());
-                isCompleted.set(true);
-
-                try {
-                    shutdownProcessor();
-                    session.endStream();
-                    responseObserver.onCompleted();
-                } finally {
-                    closeSession();
-                }
-            }
-
-            private void shutdownProcessor() {
-                processor.shutdown();
-                try {
-                    if (!processor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
-                        processor.shutdownNow();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    processor.shutdownNow();
-                }
-            }
-
-            private void closeSession() {
-                try {
-                    session.close();
-                } catch (Exception ignored) {
-                }
-            }
+            @Override public void onNext(AudioChunk value) { }
+            @Override public void onError(Throwable error) { }
+            @Override public void onCompleted() { }
         };
     }
 
