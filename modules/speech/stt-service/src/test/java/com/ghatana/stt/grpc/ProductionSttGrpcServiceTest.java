@@ -12,6 +12,10 @@ import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.grpc.Status;
@@ -59,6 +63,38 @@ class ProductionSttGrpcServiceTest {
         assertThat(transcribeRequest.findFieldByName("audio_data").getNumber()).isEqualTo(1);
         assertThat(transcribeRequest.findFieldByName("tenant_id").getNumber()).isEqualTo(6);
         assertThat(transcribeRequest.findFieldByName("consent_status").getNumber()).isEqualTo(10);
+    }
+
+    @Test
+    void packageCapabilityLedgerMatchesTheSixteenPlanMemberships() throws Exception {
+        Path root = repositoryRoot();
+        String plan = Files.readString(root.resolve(
+                "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md"));
+        String readme = Files.readString(root.resolve("modules/speech/stt-service/README.md"));
+
+        Set<String> planIntents = captureGroup(plan,
+                "(?m)^\\| STT \\| `(media\\.speech\\.transcription\\.[^`]+)` \\|");
+        Set<String> ledgerIntents = captureGroup(readme,
+                "(?m)^\\| `(media\\.speech\\.transcription\\.[^`]+)` \\|");
+
+        assertThat(planIntents).hasSize(16);
+        assertThat(ledgerIntents).hasSize(16).containsExactlyInAnyOrderElementsOf(planIntents);
+    }
+
+    private static Path repositoryRoot() {
+        Path current = Path.of("").toAbsolutePath();
+        while (current != null && !Files.isDirectory(current.resolve(".product-experience"))) {
+            current = current.getParent();
+        }
+        if (current == null) throw new IllegalStateException("Cannot locate Media repository root");
+        return current;
+    }
+
+    private static Set<String> captureGroup(String source, String expression) {
+        Matcher matcher = Pattern.compile(expression).matcher(source);
+        Set<String> values = new LinkedHashSet<>();
+        while (matcher.find()) values.add(matcher.group(1));
+        return values;
     }
 
     @Test
