@@ -11,9 +11,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.LinkOption;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.FileVisitResult;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.Duration;
@@ -189,57 +193,50 @@ public class VideoFrameExtractor {
      * @param outputDir Directory to store extracted frames
      * @param config Extraction configuration
      * @return List of extracted frames
-     * @throws IOException If extraction fails
+     * @throws IOException if extraction or staging cleanup fails. If cleanup fails after frame
+     *         publication, complete output frames may already exist in the private output directory.
      */
     public List<ExtractedFrame> extractFrames(Path videoPath, Path outputDir, ExtractionConfig config)
             throws IOException {
 
+        // `outputDir` is an exclusive per-invocation publication root. Its POSIX mode is
+        // tightened to 0700, and every writable ancestor must be private or a sticky temp root.
+        if (config == null) throw new IllegalArgumentException("Extraction config is required");
         Path canonicalVideo = validateInput(videoPath);
         Path canonicalOutput = prepareOutputDirectory(outputDir);
         VideoMetadata metadata = getVideoMetadata(canonicalVideo);
-
-        List<String> command = buildFFmpegCommand(canonicalVideo, canonicalOutput, config);
-
-        Files.createDirectories(canonicalOutput);
+        Path staging = createIsolatedStagingDirectory(canonicalOutput);
+        List<String> command = buildFFmpegCommand(canonicalVideo, staging, config);
 
         LOG.info("Extracting frames from video with fps={}, maxFrames={}",
             config.getFps(), config.getMaxFrames());
 
-        ProcessResult result;
         int timestampDiagnosticBudget = (int) Math.min(MAX_FRAME_TIMESTAMP_DIAGNOSTIC_BYTES,
                 MAX_DIAGNOSTIC_BYTES + (long) config.getMaxFrames() * 512L);
         try {
-            result = runProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), timestampDiagnosticBudget,
-                    canonicalOutput, MAX_EXTRACTED_BYTES);
+            ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), timestampDiagnosticBudget,
+                    staging, MAX_EXTRACTED_BYTES);
+            if (result.timedOut()) throw new IOException("FFmpeg process timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
+            if (result.outputExceeded()) throw new IOException("FFmpeg exceeded the extracted-output byte limit");
+            if (result.diagnosticExceeded()) throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
+            int exitCode = result.exitCode();
+            if (exitCode != 0) {
+                // Child output is untrusted and may include source paths or attacker-controlled
+                // media metadata. Keep only a bounded diagnostic length and never log it verbatim.
+                LOG.error("FFmpeg frame extraction failed (exitCode={}, diagnosticChars={})",
+                    exitCode, result.output().length());
+                throw new IOException("FFmpeg failed with exit code: " + exitCode);
+            }
+            List<ExtractedFrame> stagedFrames = collectExtractedFrames(
+                    staging, config, metadata.getTimeBase(), result.output());
+            List<ExtractedFrame> publishedFrames = publishStagedFrames(stagedFrames, canonicalOutput);
+            cleanupStagingDirectory(staging);
+            LOG.info("Frame extraction completed successfully");
+            return publishedFrames;
         } catch (IOException | RuntimeException failure) {
-            cleanupFrames(canonicalOutput, config.getFormat());
+            cleanupStagingDirectory(staging, failure);
             throw failure;
         }
-        if (result.timedOut()) {
-            cleanupFrames(canonicalOutput, config.getFormat());
-            throw new IOException("FFmpeg process timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
-        }
-        if (result.outputExceeded()) {
-            cleanupFrames(canonicalOutput, config.getFormat());
-            throw new IOException("FFmpeg exceeded the extracted-output byte limit");
-        }
-        if (result.diagnosticExceeded()) {
-            cleanupFrames(canonicalOutput, config.getFormat());
-            throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
-        }
-        int exitCode = result.exitCode();
-        if (exitCode != 0) {
-            // Child output is untrusted and may include source paths or attacker-controlled
-            // media metadata. Keep only a bounded diagnostic length and never log it verbatim.
-            LOG.error("FFmpeg frame extraction failed (exitCode={}, diagnosticChars={})",
-                exitCode, result.output().length());
-            cleanupFrames(canonicalOutput, config.getFormat());
-            throw new IOException("FFmpeg failed with exit code: " + exitCode);
-        }
-
-        LOG.info("Frame extraction completed successfully");
-
-        return collectExtractedFrames(canonicalOutput, config, metadata.getTimeBase(), result.output());
     }
 
     /**
@@ -247,8 +244,10 @@ public class VideoFrameExtractor {
      *
      * @param videoPath Path to the video file
      * @param timestampMs Timestamp in milliseconds
-     * @param outputPath Output path for the frame
-     * @throws IOException If extraction fails
+     * @param outputPath Output path for the frame; its existing parent must be owner-only/private
+     *                   so another principal cannot read or replace published media
+     * @throws IOException if extraction or staging cleanup fails. If cleanup fails after publication,
+     *         the requested output frame may already exist.
      */
     public void extractFrameAtTimestamp(Path videoPath, long timestampMs, Path outputPath)
             throws IOException {
@@ -266,13 +265,19 @@ public class VideoFrameExtractor {
                 || outputName.startsWith("-") || outputName.contains(":")) {
             throw new IOException("Output image format or name is not allow-listed");
         }
-        if (outputParent == null || Files.isSymbolicLink(requestedOutput) || Files.isSymbolicLink(outputParent)) {
+        if (outputParent == null) {
             throw new IOException("Output frame path is unsafe");
         }
+        rejectSymlinkComponents(requestedOutput, "Output frame path is unsafe");
+        requireSafeWritableAncestors(outputParent);
         Files.createDirectories(outputParent);
         Path realOutputParent = outputParent.toRealPath();
+        requireSafeWritableAncestors(realOutputParent);
+        requireOwnerOnlyDirectory(realOutputParent);
         Path canonicalOutput = realOutputParent.resolve(outputName);
         if (Files.exists(canonicalOutput, LinkOption.NOFOLLOW_LINKS)) throw new IOException("Output frame already exists");
+        Path staging = createIsolatedStagingDirectory(realOutputParent);
+        Path stagedOutput = staging.resolve("frame." + suffix);
         double timestampSec = timestampMs / 1000.0;
 
         List<String> command = List.of(
@@ -286,23 +291,31 @@ public class VideoFrameExtractor {
             "-vf", "scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
             "-q:v", "2",
             "-fs", Long.toString(MAX_SINGLE_FRAME_BYTES),
-            canonicalOutput.toString(),
+            stagedOutput.toString(),
             "-n"
         );
 
         LOG.info("Extracting frame at timestamp {}ms", timestampMs);
 
         try {
-            ProcessResult result = runProcess(command, Duration.ofSeconds(30), MAX_DIAGNOSTIC_BYTES);
+            ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(30), MAX_DIAGNOSTIC_BYTES,
+                    staging, MAX_SINGLE_FRAME_BYTES);
             if (result.timedOut()) throw new IOException("FFmpeg process timed out");
             if (result.diagnosticExceeded()) throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
             if (result.outputExceeded()) throw new IOException("FFmpeg output exceeded its byte budget");
             if (result.exitCode() != 0) throw new IOException("FFmpeg failed with exit code: " + result.exitCode());
-            validateSingleFrameOutput(canonicalOutput, realOutputParent);
+            validateSingleFrameOutput(stagedOutput, staging);
+            Files.move(stagedOutput, canonicalOutput);
+            cleanupStagingDirectory(staging);
         } catch (IOException | RuntimeException failure) {
-            Files.deleteIfExists(canonicalOutput);
+            cleanupStagingDirectory(staging, failure);
             throw failure;
         }
+    }
+
+    ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
+            Path monitoredOutput, long maxOutputBytes) throws IOException {
+        return runProcess(command, timeout, maxDiagnosticBytes, monitoredOutput, maxOutputBytes);
     }
 
     List<String> buildFFmpegCommand(Path videoPath, Path outputDir, ExtractionConfig config) throws IOException {
@@ -379,6 +392,15 @@ public class VideoFrameExtractor {
             return frames;
         }
 
+        // Validate every candidate before sorting. A file inserted into the isolated output
+        // directory with a frame-like but malformed name must fail as an I/O error and must
+        // not escape the failure cleanup path through the comparator.
+        try {
+            for (File file : files) frameSequenceNumber(file.getName());
+        } catch (IllegalArgumentException invalidSequence) {
+            cleanupFrames(outputDir, config.getFormat());
+            throw new IOException("FFmpeg produced an invalid frame sequence number", invalidSequence);
+        }
         // Sort by FFmpeg's numeric sequence so frames 9999 and 10000 remain in emission order.
         java.util.Arrays.sort(files, java.util.Comparator.comparingInt(file ->
                 frameSequenceNumber(file.getName())));
@@ -631,22 +653,211 @@ public class VideoFrameExtractor {
         return absolute.toRealPath(LinkOption.NOFOLLOW_LINKS);
     }
 
-    private static Path prepareOutputDirectory(Path requested) throws IOException {
+    /** Prepare an exclusive per-call batch output root and enforce owner-only POSIX permissions. */
+    static Path prepareOutputDirectory(Path requested) throws IOException {
         if (requested == null) throw new IOException("Output directory is required");
         for (Path component : requested) {
             if (component.toString().equals("..")) throw new IOException("Output traversal is not allowed");
         }
         Path output = requested.toAbsolutePath().normalize();
         rejectSymlinkComponents(output, "Output directory cannot contain symlinks");
+        requireSafeWritableAncestors(output.getParent());
         Files.createDirectories(output);
         Path real = output.toRealPath(LinkOption.NOFOLLOW_LINKS);
         if (!Files.isDirectory(real, LinkOption.NOFOLLOW_LINKS) || Files.isSymbolicLink(real)) {
             throw new IOException("Output directory is unsafe");
         }
+        requireSafeWritableAncestors(real.getParent());
         try (var entries = Files.list(real)) {
             if (entries.findAny().isPresent()) throw new IOException("Output directory must be empty and isolated");
         }
+        enforceOwnerOnlyDirectory(real);
         return real;
+    }
+
+    private static void requireSafeWritableAncestors(Path parent) throws IOException {
+        if (parent == null) throw new IOException("FFmpeg output parent is not a safe directory");
+        Path requested = parent.toAbsolutePath().normalize();
+        Path existing = requested;
+        while (existing != null && !Files.exists(existing, LinkOption.NOFOLLOW_LINKS)) existing = existing.getParent();
+        if (existing == null || !Files.isDirectory(existing)) {
+            throw new IOException("FFmpeg output parent is not a safe directory");
+        }
+        // Symlink aliases have already been checked by rejectSymlinkComponents. Inspect the
+        // canonical chain so platform aliases such as macOS /var -> /private/var are handled
+        // consistently with that allow-list.
+        Path canonical = existing.toRealPath();
+        for (Path ancestor = canonical; ancestor != null; ancestor = ancestor.getParent()) {
+            if (!Files.isDirectory(ancestor, LinkOption.NOFOLLOW_LINKS)) {
+                throw new IOException("FFmpeg output parent is not a safe directory");
+            }
+            int mode = unixMode(ancestor);
+            boolean sharedWritable = (mode & 0022) != 0;
+            boolean sticky = (mode & 01000) != 0;
+            if (sharedWritable && (!sticky || !isTrustedStickyTempRoot(ancestor))) {
+                throw new IOException("FFmpeg output parent is shared-writable without sticky protection");
+            }
+        }
+    }
+
+    private static boolean isTrustedStickyTempRoot(Path path) throws IOException {
+        Path real = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        for (String candidate : List.of("/tmp", "/var/tmp")) {
+            Path root = Path.of(candidate);
+            if (Files.exists(root, LinkOption.NOFOLLOW_LINKS) && real.equals(root.toRealPath())) return true;
+        }
+        return false;
+    }
+
+    private static void requireOwnerOnlyDirectory(Path directory) throws IOException {
+        java.nio.file.attribute.PosixFileAttributeView view = Files.getFileAttributeView(
+                directory, java.nio.file.attribute.PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+        if (view == null) {
+            throw new IOException("Filesystem cannot verify owner-only FFmpeg output directories");
+        }
+        java.util.Set<java.nio.file.attribute.PosixFilePermission> actual;
+        try {
+            actual = view.readAttributes().permissions();
+        } catch (UnsupportedOperationException | SecurityException unsupported) {
+            throw new IOException("Filesystem cannot verify owner-only FFmpeg output directories", unsupported);
+        }
+        if (actual.stream().anyMatch(permission -> switch (permission) {
+            case GROUP_READ, GROUP_WRITE, GROUP_EXECUTE, OTHERS_READ, OTHERS_WRITE, OTHERS_EXECUTE -> true;
+            default -> false;
+        }) || !actual.contains(java.nio.file.attribute.PosixFilePermission.OWNER_WRITE)
+                || !actual.contains(java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE)) {
+            throw new IOException("Single-frame output parent must be owner-only to protect extracted media");
+        }
+    }
+
+    private static void enforceOwnerOnlyDirectory(Path directory) throws IOException {
+        java.nio.file.attribute.PosixFileAttributeView view = Files.getFileAttributeView(
+                directory, java.nio.file.attribute.PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+        if (view == null) {
+            throw new IOException("Filesystem cannot enforce owner-only FFmpeg output directories");
+        }
+        java.util.Set<java.nio.file.attribute.PosixFilePermission> ownerOnly = java.util.EnumSet.of(
+                java.nio.file.attribute.PosixFilePermission.OWNER_READ,
+                java.nio.file.attribute.PosixFilePermission.OWNER_WRITE,
+                java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE);
+        try {
+            view.setPermissions(ownerOnly);
+            java.util.Set<java.nio.file.attribute.PosixFilePermission> actual = view.readAttributes().permissions();
+            if (!ownerOnly.containsAll(actual)
+                    || !actual.contains(java.nio.file.attribute.PosixFilePermission.OWNER_READ)
+                    || !actual.contains(java.nio.file.attribute.PosixFilePermission.OWNER_WRITE)
+                    || !actual.contains(java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE)) {
+                throw new IOException("Filesystem did not enforce owner-only FFmpeg output permissions");
+            }
+        } catch (UnsupportedOperationException | SecurityException unsupported) {
+            throw new IOException("Filesystem cannot enforce owner-only FFmpeg output directories", unsupported);
+        }
+    }
+
+    private static int unixMode(Path path) throws IOException {
+        try {
+            Object value = Files.getAttribute(path, "unix:mode", LinkOption.NOFOLLOW_LINKS);
+            if (value instanceof Integer mode) return mode;
+            throw new IOException("Filesystem returned an invalid Unix permission mode");
+        } catch (UnsupportedOperationException | IllegalArgumentException unsupported) {
+            throw new IOException("Filesystem cannot verify FFmpeg output parent permissions", unsupported);
+        }
+    }
+
+    private static Path createIsolatedStagingDirectory(Path sameFilesystemParent) throws IOException {
+        Path parent = sameFilesystemParent.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        if (!Files.isDirectory(parent, LinkOption.NOFOLLOW_LINKS) || Files.isSymbolicLink(parent)) {
+            throw new IOException("FFmpeg staging parent is unsafe");
+        }
+        Path staging = Files.createTempDirectory(parent, ".media-ffmpeg-");
+        return staging.toRealPath(LinkOption.NOFOLLOW_LINKS);
+    }
+
+    static List<ExtractedFrame> publishStagedFrames(List<ExtractedFrame> stagedFrames, Path outputDirectory)
+            throws IOException {
+        return publishStagedFrames(stagedFrames, outputDirectory, ignored -> { });
+    }
+
+    static List<ExtractedFrame> publishStagedFrames(List<ExtractedFrame> stagedFrames, Path outputDirectory,
+            Consumer<Path> afterPublish) throws IOException {
+        List<PublishedFrame> published = new ArrayList<>();
+        List<ExtractedFrame> result = new ArrayList<>(stagedFrames.size());
+        try {
+            for (ExtractedFrame frame : stagedFrames) {
+                Path destination = outputDirectory.resolve(frame.getPath().getFileName());
+                if (!destination.normalize().getParent().equals(outputDirectory)
+                        || Files.exists(destination, LinkOption.NOFOLLOW_LINKS)) {
+                    throw new IOException("FFmpeg frame destination is unsafe or already exists");
+                }
+                Object stagedIdentity = fileIdentity(frame.getPath());
+                // Plain move preserves the no-replace behavior; ATOMIC_MOVE may replace an
+                // existing target on some providers even without REPLACE_EXISTING.
+                Files.move(frame.getPath(), destination);
+                // Record the staged identity immediately after the move so a failed post-move
+                // identity read still enters the ownership-checked rollback path.
+                published.add(new PublishedFrame(destination, stagedIdentity));
+                Object publishedIdentity = fileIdentity(destination);
+                if (!stagedIdentity.equals(publishedIdentity)) {
+                    throw new IOException("FFmpeg frame destination changed during publication");
+                }
+                result.add(new ExtractedFrame(destination, frame.getSourceTimestamp(), frame.getFrameNumber()));
+                afterPublish.accept(destination);
+            }
+        } catch (IOException | RuntimeException failure) {
+            // Roll back only entries this invocation successfully published.
+            for (PublishedFrame frame : published) {
+                try {
+                    if (Files.exists(frame.path(), LinkOption.NOFOLLOW_LINKS)
+                            && frame.identity().equals(fileIdentity(frame.path()))) {
+                        Files.delete(frame.path());
+                    }
+                } catch (IOException | RuntimeException rollbackFailure) {
+                    failure.addSuppressed(new IOException("Could not safely roll back a published FFmpeg frame", rollbackFailure));
+                }
+            }
+            throw failure;
+        }
+        return result;
+    }
+
+    private record PublishedFrame(Path path, Object identity) { }
+
+    private static Object fileIdentity(Path path) throws IOException {
+        BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+        Object identity = attributes.fileKey();
+        if (!attributes.isRegularFile() || identity == null) {
+            throw new IOException("Filesystem does not provide a safe regular-file identity for FFmpeg output");
+        }
+        return identity;
+    }
+
+    static void cleanupStagingDirectory(Path staging) throws IOException {
+        if (staging == null || !Files.exists(staging, LinkOption.NOFOLLOW_LINKS)) return;
+        if (!Files.isDirectory(staging, LinkOption.NOFOLLOW_LINKS) || Files.isSymbolicLink(staging)) {
+            throw new IOException("FFmpeg staging path changed or is not a private directory");
+        }
+        Files.walkFileTree(staging, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path directory, IOException failure) throws IOException {
+                if (failure != null) throw failure;
+                Files.delete(directory);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    private static void cleanupStagingDirectory(Path staging, Throwable primaryFailure) {
+        try {
+            cleanupStagingDirectory(staging);
+        } catch (IOException | RuntimeException cleanupFailure) {
+            primaryFailure.addSuppressed(new IOException("FFmpeg staging cleanup failed", cleanupFailure));
+        }
     }
 
     /** Reject aliases in any existing component so validation and child-process access share one path. */
@@ -669,8 +880,10 @@ public class VideoFrameExtractor {
     private static void cleanupFrames(Path directory, String format) {
         if (directory == null || !Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)) return;
         try (var paths = Files.list(directory)) {
-            paths.filter(path -> path.getFileName().toString().matches("frame_[0-9]{4,}\\." + java.util.regex.Pattern.quote(format)))
-                    .filter(path -> !Files.isSymbolicLink(path))
+            paths.filter(path -> path.getFileName().toString().matches("frame_[^/]*\\." + java.util.regex.Pattern.quote(format)))
+                    // deleteIfExists removes a symbolic link itself; it does not follow it.
+                    // Clean frame-like links from this isolated output directory so failed
+                    // extraction cannot poison its next use while leaving link targets intact.
                     .forEach(path -> { try { Files.deleteIfExists(path); } catch (IOException ignored) { } });
         } catch (IOException ignored) { }
     }

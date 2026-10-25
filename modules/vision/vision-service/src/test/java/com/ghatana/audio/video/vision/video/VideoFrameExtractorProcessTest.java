@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 class VideoFrameExtractorProcessTest {
     @TempDir Path tempDir;
@@ -163,6 +164,90 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void batchOutputRootIsTightenedToOwnerOnly() throws Exception {
+        Path output = Files.createDirectory(tempDir.resolve("per-call-output-root"));
+        var posix = Files.getFileAttributeView(output,
+                java.nio.file.attribute.PosixFileAttributeView.class, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        Assumptions.assumeTrue(posix != null, "POSIX permissions are required for this test");
+        posix.setPermissions(java.nio.file.attribute.PosixFilePermissions.fromString("rwxr-xr-x"));
+
+        VideoFrameExtractor.prepareOutputDirectory(output);
+
+        assertThat(java.nio.file.attribute.PosixFilePermissions.toString(posix.readAttributes().permissions()))
+                .isEqualTo("rwx------");
+    }
+
+    @Test
+    void rejectsNonStickySharedWritableParentBeforeCreatingOutput() throws Exception {
+        Path parent = Files.createDirectory(tempDir.resolve("unsafe-shared-parent"));
+        var posix = Files.getFileAttributeView(parent,
+                java.nio.file.attribute.PosixFileAttributeView.class, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        Assumptions.assumeTrue(posix != null, "POSIX permissions are required for this test");
+        posix.setPermissions(java.util.EnumSet.allOf(java.nio.file.attribute.PosixFilePermission.class));
+        Path output = parent.resolve("frames");
+
+        assertThatThrownBy(() -> VideoFrameExtractor.prepareOutputDirectory(output))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("shared-writable");
+        assertThat(Files.exists(output)).isFalse();
+        posix.setPermissions(java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));
+    }
+
+    @Test
+    void allowsStickySharedTemporaryParentButKeepsOutputRootPrivate() throws Exception {
+        Path parent = Path.of("/tmp").toRealPath();
+        var posix = Files.getFileAttributeView(parent,
+                java.nio.file.attribute.PosixFileAttributeView.class, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        Assumptions.assumeTrue(posix != null, "POSIX permissions are required for this test");
+        int mode = (Integer) Files.getAttribute(parent, "unix:mode", java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        Assumptions.assumeTrue((mode & 0022) != 0 && (mode & 01000) != 0,
+                "/tmp must be a shared-writable sticky temporary root");
+        Path output = parent.resolve("media-vis04-sticky-" + java.util.UUID.randomUUID());
+
+        try {
+            VideoFrameExtractor.prepareOutputDirectory(output);
+
+            Path realOutput = output.toRealPath(java.nio.file.LinkOption.NOFOLLOW_LINKS);
+            assertThat(java.nio.file.attribute.PosixFilePermissions.toString(
+                    Files.getPosixFilePermissions(realOutput, java.nio.file.LinkOption.NOFOLLOW_LINKS)))
+                    .isEqualTo("rwx------");
+        } finally {
+            Files.deleteIfExists(output);
+        }
+    }
+
+    @Test
+    void singleFrameRejectsNonStickySharedWritableParentBeforeCreatingOutput() throws Exception {
+        Path input = Files.write(tempDir.resolve("single-shared-parent-input.mp4"), new byte[] {1});
+        Path parent = Files.createDirectory(tempDir.resolve("single-unsafe-shared-parent"));
+        var posix = Files.getFileAttributeView(parent,
+                java.nio.file.attribute.PosixFileAttributeView.class, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        Assumptions.assumeTrue(posix != null, "POSIX permissions are required for this test");
+        posix.setPermissions(java.util.EnumSet.allOf(java.nio.file.attribute.PosixFilePermission.class));
+        Path output = parent.resolve("frame.jpg");
+
+        assertThatThrownBy(() -> new VideoFrameExtractor().extractFrameAtTimestamp(input, 0, output))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("shared-writable");
+        assertThat(Files.exists(output)).isFalse();
+        posix.setPermissions(java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));
+    }
+
+    @Test
+    void singleFrameRejectsReadableSharedParentBeforeWritingMedia() throws Exception {
+        Path input = Files.write(tempDir.resolve("single-readable-parent-input.mp4"), new byte[] {1});
+        Path parent = Files.createDirectory(tempDir.resolve("single-readable-parent"));
+        var posix = Files.getFileAttributeView(parent,
+                java.nio.file.attribute.PosixFileAttributeView.class, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        Assumptions.assumeTrue(posix != null, "POSIX permissions are required for this test");
+        posix.setPermissions(java.nio.file.attribute.PosixFilePermissions.fromString("rwxr-xr-x"));
+        Path output = parent.resolve("frame.jpg");
+
+        assertThatThrownBy(() -> new VideoFrameExtractor().extractFrameAtTimestamp(input, 0, output))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("owner-only");
+        assertThat(Files.exists(output)).isFalse();
+        posix.setPermissions(java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));
+    }
+
+    @Test
     void rejectsOutputDirectoryBeneathSymlinkedAncestorBeforeCreatingOutput() throws Exception {
         Path actual = Files.createDirectory(tempDir.resolve("output-target"));
         Path link = tempDir.resolve("output-parent-link");
@@ -194,6 +279,78 @@ class VideoFrameExtractorProcessTest {
         assertThatThrownBy(() -> new VideoFrameExtractor().extractFrameAtTimestamp(
                 input, 0, link.resolve("frame.jpg")))
                 .isInstanceOf(java.io.IOException.class).hasMessageContaining("unsafe");
+    }
+
+    @Test
+    void extractSingleFrameRejectsNestedSymlinkAncestorBeforeCreatingOutput() throws Exception {
+        Path actual = Files.createDirectory(tempDir.resolve("single-nested-target"));
+        Path link = tempDir.resolve("single-nested-link");
+        try {
+            Files.createSymbolicLink(link, actual);
+        } catch (UnsupportedOperationException | java.nio.file.FileSystemException unavailable) {
+            Assumptions.abort("Symlink creation is unavailable on this filesystem");
+        }
+        Path input = Files.write(tempDir.resolve("single-nested-input.mp4"), new byte[] {1});
+        Path requested = link.resolve("nested").resolve("frame.jpg");
+
+        assertThatThrownBy(() -> new VideoFrameExtractor().extractFrameAtTimestamp(input, 0, requested))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("unsafe");
+        assertThat(Files.exists(actual.resolve("nested"))).isFalse();
+    }
+
+    @Test
+    void extractFramesLeavesConcurrentDestinationCollisionUntouched() throws Exception {
+        Path input = Files.write(tempDir.resolve("frames-input.mp4"), new byte[] {1});
+        Path output = Files.createDirectory(tempDir.resolve("frames-collision-output"));
+        Path collision = output.resolve("frame_0001.jpg");
+        VideoFrameExtractor extractor = fakeExtractorThatCreatesCollision(collision);
+
+        assertThatThrownBy(() -> extractor.extractFrames(input, output,
+                VideoFrameExtractor.ExtractionConfig.builder().maxFrames(1).build()))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("already exists");
+
+        assertThat(Files.readAllBytes(collision)).containsExactly(9, 8, 7);
+        try (var entries = Files.list(output)) {
+            assertThat(entries.map(path -> path.getFileName().toString())
+                    .filter(name -> name.startsWith(".media-ffmpeg-")).toList()).isEmpty();
+        }
+    }
+
+    @Test
+    void extractSingleFrameLeavesConcurrentDestinationCollisionUntouched() throws Exception {
+        Path input = Files.write(tempDir.resolve("single-collision-input.mp4"), new byte[] {1});
+        Path output = tempDir.resolve("single-collision-output.jpg");
+        Path collision = output;
+        VideoFrameExtractor extractor = fakeExtractorThatCreatesCollision(collision);
+
+        assertThatThrownBy(() -> extractor.extractFrameAtTimestamp(input, 0, output))
+                .isInstanceOf(java.io.IOException.class);
+
+        assertThat(Files.readAllBytes(collision)).containsExactly(9, 8, 7);
+        try (var entries = Files.list(tempDir)) {
+            assertThat(entries.map(path -> path.getFileName().toString())
+                    .filter(name -> name.startsWith(".media-ffmpeg-")).toList()).isEmpty();
+        }
+    }
+
+    private static VideoFrameExtractor fakeExtractorThatCreatesCollision(Path collision) {
+        return new VideoFrameExtractor() {
+            @Override
+            public VideoMetadata getVideoMetadata(Path videoPath) {
+                return new VideoMetadata(16, 16, 1.0, 1.0, 1, "1/1000");
+            }
+
+            @Override
+            ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
+                    Path monitoredOutput, long maxOutputBytes) throws java.io.IOException {
+                Path requested = Path.of(command.get(command.size() - 2));
+                Path generated = requested.toString().contains("%04d")
+                        ? requested.getParent().resolve("frame_0001.jpg") : requested;
+                Files.write(generated, new byte[] {1, 2, 3});
+                Files.write(collision, new byte[] {9, 8, 7});
+                return new ProcessResult(0, false, "");
+            }
+        };
     }
 
     @Test
@@ -273,6 +430,32 @@ class VideoFrameExtractorProcessTest {
         assertThatThrownBy(() -> new VideoFrameExtractor().collectExtractedFrames(
                 output, VideoFrameExtractor.ExtractionConfig.builder().build(), "1/1000", ""))
                 .isInstanceOf(java.io.IOException.class).hasMessageContaining("sequence number");
+    }
+
+    @Test
+    void malformedFrameLikeFilenameFailsClosedAndIsCleanedUp() throws Exception {
+        Path output = Files.createDirectory(tempDir.resolve("malformed-sequence"));
+        Path malformed = output.resolve("frame_bad.jpg");
+        Files.write(malformed, new byte[] {1});
+
+        assertThatThrownBy(() -> new VideoFrameExtractor().collectExtractedFrames(
+                output, VideoFrameExtractor.ExtractionConfig.builder().build(), "1/1000", ""))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("sequence number");
+        assertThat(Files.exists(malformed)).isFalse();
+    }
+
+    @Test
+    void malformedFrameLikeSymlinkIsUnlinkedWithoutTouchingItsTarget() throws Exception {
+        Path output = Files.createDirectory(tempDir.resolve("malformed-symlink"));
+        Path target = Files.write(tempDir.resolve("outside-target.jpg"), new byte[] {7});
+        Path malformedLink = output.resolve("frame_bad.jpg");
+        Files.createSymbolicLink(malformedLink, target);
+
+        assertThatThrownBy(() -> new VideoFrameExtractor().collectExtractedFrames(
+                output, VideoFrameExtractor.ExtractionConfig.builder().build(), "1/1000", ""))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("sequence number");
+        assertThat(Files.isSymbolicLink(malformedLink)).isFalse();
+        assertThat(Files.readAllBytes(target)).containsExactly((byte) 7);
     }
 
     @Test
@@ -370,6 +553,108 @@ class VideoFrameExtractorProcessTest {
                 Duration.ofSeconds(5), 128, output, 1024);
         assertThat(result.outputExceeded()).isTrue();
         assertThat(result.timedOut()).isFalse();
+    }
+
+    @Test
+    void publishesValidatedStagedFramesAndRemovesPrivateStagingDirectory() throws Exception {
+        Path staging = Files.createDirectory(tempDir.resolve("private-ffmpeg-stage"));
+        Path stagedFrame = Files.write(staging.resolve("frame_0001.jpg"), new byte[] {1, 2, 3});
+        Path output = Files.createDirectory(tempDir.resolve("published-frames"));
+        var frame = new VideoFrameExtractor.ExtractedFrame(
+                stagedFrame, SourceMediaTimestamp.fromPts("0", "1/1000"), 0);
+
+        VideoFrameExtractor.publishStagedFrames(List.of(frame), output);
+        VideoFrameExtractor.cleanupStagingDirectory(staging);
+
+        assertThat(Files.readAllBytes(output.resolve("frame_0001.jpg"))).containsExactly(1, 2, 3);
+        assertThat(Files.exists(staging)).isFalse();
+    }
+
+    @Test
+    void stagedPublishFailureRollsBackOnlyFramesPublishedByThisCall() throws Exception {
+        Path staging = Files.createDirectory(tempDir.resolve("failed-ffmpeg-stage"));
+        Path first = Files.write(staging.resolve("frame_0001.jpg"), new byte[] {1});
+        Path colliding = Files.write(staging.resolve("frame_0002.jpg"), new byte[] {2});
+        Path output = Files.createDirectory(tempDir.resolve("failed-publish"));
+        Files.write(output.resolve("frame_0002.jpg"), new byte[] {9});
+        var frames = List.of(
+                new VideoFrameExtractor.ExtractedFrame(first, SourceMediaTimestamp.fromPts("0", "1/1000"), 0),
+                new VideoFrameExtractor.ExtractedFrame(colliding, SourceMediaTimestamp.fromPts("1", "1/1000"), 1));
+
+        assertThatThrownBy(() -> VideoFrameExtractor.publishStagedFrames(frames, output))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("already exists");
+
+        assertThat(Files.exists(output.resolve("frame_0001.jpg"))).isFalse();
+        assertThat(Files.readAllBytes(output.resolve("frame_0002.jpg"))).containsExactly(9);
+        VideoFrameExtractor.cleanupStagingDirectory(staging);
+        assertThat(Files.exists(staging)).isFalse();
+    }
+
+    @Test
+    void rollbackPreservesConcurrentReplacementAtPreviouslyPublishedPath() throws Exception {
+        Path staging = Files.createDirectory(tempDir.resolve("replacement-ffmpeg-stage"));
+        Path first = Files.write(staging.resolve("frame_0001.jpg"), new byte[] {1});
+        Path second = Files.write(staging.resolve("frame_0002.jpg"), new byte[] {2});
+        Path output = Files.createDirectory(tempDir.resolve("replacement-publish"));
+        Files.write(output.resolve("frame_0002.jpg"), new byte[] {9});
+        var frames = List.of(
+                new VideoFrameExtractor.ExtractedFrame(first, SourceMediaTimestamp.fromPts("0", "1/1000"), 0),
+                new VideoFrameExtractor.ExtractedFrame(second, SourceMediaTimestamp.fromPts("1", "1/1000"), 1));
+        Path replacement = tempDir.resolve("concurrent-frame-replacement.jpg");
+        Files.write(replacement, new byte[] {7, 7});
+
+        assertThatThrownBy(() -> VideoFrameExtractor.publishStagedFrames(frames, output, published -> {
+            try {
+                Files.move(replacement, published, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            } catch (java.io.IOException failure) {
+                throw new java.io.UncheckedIOException(failure);
+            }
+        })).isInstanceOf(java.io.IOException.class).hasMessageContaining("already exists");
+
+        assertThat(Files.readAllBytes(output.resolve("frame_0001.jpg"))).containsExactly(7, 7);
+        assertThat(Files.readAllBytes(output.resolve("frame_0002.jpg"))).containsExactly(9);
+        VideoFrameExtractor.cleanupStagingDirectory(staging);
+    }
+
+    @Test
+    void stagingCleanupRecursesAndSurfacesUnsafeCleanupTarget() throws Exception {
+        Path staging = Files.createDirectories(tempDir.resolve("nested-ffmpeg-stage").resolve("nested"));
+        Files.write(staging.resolve("frame.bin"), new byte[] {1});
+        Path stagingRoot = staging.getParent();
+
+        VideoFrameExtractor.cleanupStagingDirectory(stagingRoot);
+
+        assertThat(Files.exists(stagingRoot)).isFalse();
+        Path notDirectory = Files.write(tempDir.resolve("not-a-stage-directory"), new byte[] {1});
+        assertThatThrownBy(() -> VideoFrameExtractor.cleanupStagingDirectory(notDirectory))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("private directory");
+    }
+
+    @Test
+    void extractionFailureRetainsPrimaryErrorAndReportsStagingCleanupFailure() throws Exception {
+        Path input = Files.write(tempDir.resolve("cleanup-failure-input.mp4"), new byte[] {1});
+        Path output = Files.createDirectory(tempDir.resolve("cleanup-failure-output"));
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            public VideoMetadata getVideoMetadata(Path videoPath) {
+                return new VideoMetadata(16, 16, 1.0, 1.0, 1, "1/1000");
+            }
+
+            @Override
+            ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
+                    Path monitoredOutput, long maxOutputBytes) throws java.io.IOException {
+                Files.delete(monitoredOutput);
+                Files.write(monitoredOutput, new byte[] {4});
+                return new ProcessResult(1, false, "");
+            }
+        };
+
+        Throwable failure = catchThrowable(() -> extractor.extractFrames(input, output,
+                VideoFrameExtractor.ExtractionConfig.builder().maxFrames(1).build()));
+
+        assertThat(failure).isInstanceOf(java.io.IOException.class).hasMessageContaining("exit code: 1");
+        assertThat(failure.getSuppressed()).anySatisfy(suppressed ->
+                assertThat(suppressed).hasMessageContaining("staging cleanup failed"));
     }
 
     @Test
