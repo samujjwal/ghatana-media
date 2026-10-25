@@ -362,4 +362,32 @@ class SsmlProcessorTest {
         assertThat(segments.get(1)).isEqualTo(new SsmlProcessor.SsmlSegment.SubstitutionSegment("WWW", "World Wide Web"));
         assertThat(segments.get(2)).isEqualTo(new SsmlProcessor.SsmlSegment.LanguageSegment("नमस्ते", "ne-NP"));
     }
+
+    @Test
+    @DisplayName("keeps escaped markup as text and rejects markup or attribute injection")
+    void treatsEscapedMarkupAsTextAndRejectsInjection() {
+        var escaped = processor.parse("<speak>&lt;script&gt;alert(1)&lt;/script&gt; &amp; safe</speak>");
+        assertThat(escaped).singleElement()
+                .extracting(SsmlProcessor.SsmlSegment::text)
+                .isEqualTo("<script>alert(1)</script> & safe");
+
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><emphasis level=\"strong\"><script>alert(1)</script></emphasis></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><prosody rate=\"120%\" onload=\"alert(1)\">hello</prosody></speak>"));
+    }
+
+    @Test
+    @DisplayName("normalizes supported segments deterministically across attribute ordering")
+    void normalizesSupportedSegmentsDeterministically() {
+        String first = "<speak><prosody rate=\"120%\" pitch=\"2st\"> Hello </prosody>"
+                + "<break time=\"250ms\"/><emphasis level=\"STRONG\">World</emphasis></speak>";
+        String reordered = "<speak><prosody pitch=\"2st\" rate=\"120%\"> Hello </prosody>"
+                + "<break time=\"250ms\"/><emphasis level=\"strong\">World</emphasis></speak>";
+
+        var expected = processor.parse(first);
+        assertThat(processor.parse(reordered)).isEqualTo(expected);
+        assertThat(((SsmlProcessor.SsmlSegment.ProsodySegment) expected.get(0)).attributes())
+                .isEqualTo("rate=\"120%\" pitch=\"2st\"");
+    }
 }
