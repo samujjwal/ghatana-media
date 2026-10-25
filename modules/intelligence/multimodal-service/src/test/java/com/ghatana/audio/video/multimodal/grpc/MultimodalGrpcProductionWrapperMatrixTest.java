@@ -44,6 +44,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -211,6 +212,42 @@ class MultimodalGrpcProductionWrapperMatrixTest {
         assertUnavailable(() -> authenticated.unloadModel(UnloadModelRequest.newBuilder()
                 .setModelId("unknown-model").build()));
         assertUnavailable(() -> authenticated.listModels(ListModelsRequest.getDefaultInstance()));
+        verifyNoInteractions(engine, adapter);
+    }
+
+    @Test
+    void requestedProviderFailuresReturnUnavailableWithoutPartialSuccess() {
+        when(engine.analyse(any())).thenReturn(MultimodalResult.builder()
+                .audioResult(AudioResult.builder().transcription("fixture transcript").build())
+                .build());
+        when(engine.analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt()))
+                .thenReturn(VideoAudioResult.builder()
+                        .audioResult(AudioResult.builder().transcription("fixture transcript").build())
+                        .combinedNarrative("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE")
+                        .build());
+
+        assertUnavailable(() -> authenticated.processMultimodal(MultimodalRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1})).build()));
+        assertUnavailable(() -> authenticated.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[] {2}))
+                .setExtractAudio(true).setAnalyzeFrames(true).build()));
+        assertUnavailable(() -> authenticated.generateDescription(DescriptionRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {3})).build()));
+        assertUnavailable(() -> authenticated.analyzeCrossModal(CrossModalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {4}))
+                .setVideoData(ByteString.copyFrom(new byte[] {5})).build()));
+
+        verify(engine, org.mockito.Mockito.times(3)).analyse(any());
+        verify(engine).analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt());
+        verifyNoInteractions(adapter);
+    }
+
+    @Test
+    void modelManagementRejectsBlankIdsBeforeUnavailableProviderFallback() {
+        assertCode(() -> authenticated.loadModel(LoadModelRequest.newBuilder().setModelId(" ").build()),
+                Status.Code.INVALID_ARGUMENT);
+        assertCode(() -> authenticated.unloadModel(UnloadModelRequest.newBuilder().setModelId("").build()),
+                Status.Code.INVALID_ARGUMENT);
         verifyNoInteractions(engine, adapter);
     }
 
