@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 /**
  * YOLOv8 ONNX adapter for object detection through OpenCV DNN.
@@ -315,13 +316,25 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         if (active == null || active.empty()) {
             throw new IllegalStateException("YOLOv8 network is unavailable");
         }
-        active.setInput(processedImage);
-        List<Mat> outputs = new ArrayList<>();
-        try {
-            active.forward(outputs, getOutputLayerNames(active));
-            return parseYoloOutput(outputs, requestConfidenceThreshold);
-        } finally {
-            outputs.forEach(YoloV8Adapter::release);
+        // Net is mutable: setInput() and forward() share native network state. A service instance
+        // is called concurrently by gRPC, so keep the input, forward, and output read as one unit.
+        return withNetworkLock(active, () -> {
+            active.setInput(processedImage);
+            List<Mat> outputs = new ArrayList<>();
+            try {
+                active.forward(outputs, getOutputLayerNames(active));
+                return parseYoloOutput(outputs, requestConfidenceThreshold);
+            } finally {
+                outputs.forEach(YoloV8Adapter::release);
+            }
+        });
+    }
+
+    static <T> T withNetworkLock(Object network, Supplier<T> operation) {
+        Objects.requireNonNull(network, "network");
+        Objects.requireNonNull(operation, "operation");
+        synchronized (network) {
+            return operation.get();
         }
     }
 
