@@ -41,13 +41,21 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private VisionGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
+        this(port, transportSecurity, runtime.service(), runtime.readiness());
+    }
+
+    VisionGrpcServer(
+            int port,
+            TransportSecurity transportSecurity,
+            ProductionVisionGrpcService service,
+            AudioVideoHealthService readiness) {
         super(
                 "vision-service",
                 port,
-                runtime.service(),
+                service,
                 com.ghatana.audio.video.common.GrpcInterceptorChain.build(),
                 transportSecurity,
-                runtime.readiness());
+                readiness);
     }
 
     private static ServerRuntime createProductionRuntime() {

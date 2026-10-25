@@ -15,6 +15,7 @@ import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.opentelemetry.api.trace.Tracer;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -68,6 +69,11 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
 
     ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
         super(library, metrics);
+        this.ownedLibrary = Objects.requireNonNull(library, "library");
+    }
+
+    ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, Tracer tracer) {
+        super(library, metrics, tracer);
         this.ownedLibrary = Objects.requireNonNull(library, "library");
     }
 

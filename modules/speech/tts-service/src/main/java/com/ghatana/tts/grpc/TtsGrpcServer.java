@@ -40,13 +40,21 @@ public final class TtsGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private TtsGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
+        this(port, transportSecurity, runtime.service(), runtime.readiness());
+    }
+
+    TtsGrpcServer(
+            int port,
+            TransportSecurity transportSecurity,
+            ProductionTtsGrpcService service,
+            AudioVideoHealthService readiness) {
         super(
                 "tts-service",
                 port,
-                runtime.service(),
+                service,
                 com.ghatana.audio.video.common.GrpcInterceptorChain.build(),
                 transportSecurity,
-                runtime.readiness());
+                readiness);
     }
 
     private static ServerRuntime createProductionRuntime() {

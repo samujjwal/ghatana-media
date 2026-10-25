@@ -665,6 +665,30 @@ Focused verification commands:
 - `./gradlew :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest' --tests 'com.ghatana.audio.video.vision.image.BoundedImageDecoderTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL, 35 tests, 0 skipped/failures.
 - `git diff --check` — PASS.
 
+### Incremental execution record — 2026-10-25 (twenty-eighth round)
+
+This round closes the bounded local production-root composition portion of OBS-09. It supersedes round 27 for the current source cut; the earlier counts and residuals remain historical. The tests exercise real Media gRPC roots with deterministic authorization/provider fixtures and preserve provider admission as `NOT_ADMITTED` outside the explicitly scoped Multimodal child-failure fixture.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| OBS-03 | STT `StreamTranscribe` now creates a bounded span for an authenticated consent-denied attempt, records the registered method and tenant-presence boolean, marks the error and ends the span; no chunk is emitted and the engine is not looked up. The focused STT composition test asserts these properties. | PARTIAL: the rejected attempt is traced; usable streaming, parent/child propagation across service boundaries, cancellation linkage and cross-process trace export remain unverified. |
+| OBS-09 | Added production-root composition tests for STT, TTS, Vision and Multimodal. They cover `NOT_SERVING` health/readiness, bounded health trace metadata, representative authenticated fail-closed RPCs, no unadmitted provider effects, method/status metric deltas, failed-bind cleanup, shutdown/drain and same-port root replacement. The Multimodal suite additionally drives the real analysis engine with a fixture-only authorization decision and a child STT failure, asserting one attempt, a generic `UNAVAILABLE` without a success body, provider-failure and root counters, and truthful `NOT_SERVING`. | LOCALLY_VERIFIED for bounded local composition acceptance. This does not establish real provider readiness/effects, default environment-based provider initialization, deployed telemetry, cross-process linkage or physical-surface closure. |
+
+The focused composition tests currently pass: STT 2, TTS 2, Vision 2 and Multimodal 3, with 0 failures/errors/skips. The final four-root command completed successfully; unchanged STT/TTS/Vision test tasks were `UP-TO-DATE`, and the Multimodal three-test class ran. Separate latest focused runs ran the changed STT class (2/2) and Multimodal class (3/3). Test JWTs use a fixed test-only secret and Gradle is invoked with `AV_JWT_SECRET` unset so host credentials do not enter these tests.
+
+Current exclusive dispositions for the 58 tasks are **21 LOCALLY_VERIFIED, 31 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT**:
+
+- LOCALLY_VERIFIED: STT-01, STT-11; TTS-01, TTS-02, TTS-04, TTS-11; VIS-01, VIS-03, VIS-04, VIS-11; MM-01, MM-04, MM-07, MM-11; OBS-01, OBS-02, OBS-04, OBS-05, OBS-06, OBS-09, OBS-10.
+- PARTIAL: STT-02 through STT-10; TTS-03, TTS-05, TTS-06, TTS-08, TTS-09, TTS-10; VIS-05 through VIS-10; MM-02, MM-03, MM-05, MM-06, MM-08, MM-09, MM-10; OBS-03, OBS-07, OBS-08.
+- EXTERNAL/OWNER: STT-12; TTS-07, TTS-12; VIS-02, VIS-12; MM-12.
+
+The 58-task denominator, 99 PDP capability memberships, 43 source RPC identities, and five residual handoffs are unchanged. No real model/provider output, provider qualification, PDP acceptance, gtool transition/closure, operational cutover, deployment or release is claimed. GH-90000 image-gated assertions, Checkstyle warning cleanup, Track B, legacy-writer cutover and the Shared build-logic handoff remain separate residuals.
+
+Focused verification on this source cut:
+
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.SttGrpcServerCompositionTest :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.TtsGrpcServerCompositionTest :services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.grpc.VisionGrpcServerCompositionTest :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServerCompositionTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; Multimodal class ran 3 tests, other unchanged tasks were `UP-TO-DATE`; latest separate STT and Multimodal runs passed 2 and 3 tests respectively.
+- `git diff --check` — PASS.
+
 Task dispositions remain **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. VIS-03 was already in the locally verified set; STT-04 remains partial. No admitted model quality, native resource baseline, provider execution, formal PDP/gtool acceptance, deployment, data cutover or release is claimed.
 
 ### Incremental execution record — 2026-10-25 (tenth round)

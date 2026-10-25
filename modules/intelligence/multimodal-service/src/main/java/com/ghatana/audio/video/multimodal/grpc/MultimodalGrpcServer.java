@@ -39,13 +39,21 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private MultimodalGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
+        this(port, transportSecurity, runtime.service(), runtime.readiness());
+    }
+
+    MultimodalGrpcServer(
+            int port,
+            TransportSecurity transportSecurity,
+            MultimodalGrpcService service,
+            AudioVideoHealthService readiness) {
         super(
                 "multimodal-service",
                 port,
-                runtime.service(),
+                service,
                 com.ghatana.audio.video.common.GrpcInterceptorChain.build(),
                 transportSecurity,
-                runtime.readiness());
+                readiness);
     }
 
     private static ServerRuntime createRuntime() {
