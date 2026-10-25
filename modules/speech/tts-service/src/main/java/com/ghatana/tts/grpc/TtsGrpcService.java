@@ -4,6 +4,8 @@ import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.ValidationError;
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
+import com.ghatana.audiovideo.observability.instrumentation.AudioVideoGrpcInstrumentation;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.api.VoiceInfo;
@@ -43,6 +45,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
 
 /**
  * TTS gRPC façade over an injected, lifecycle-owned {@link AudioVideoLibrary}.
@@ -65,11 +68,20 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     private final AudioVideoLibrary library;
     private final Timer synthesizeTimer;
     private final Timer streamingTimer;
+    private final AudioVideoGrpcInstrumentation instrumentation;
+    private final BooleanSupplier synthesisAdmitted;
 
     /** Package-private injection constructor for production wrappers, persistence, and tests. */
     TtsGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
+        this(library, metrics, () -> false);
+    }
+
+    /** Package-private admission seam for isolated provider-boundary tests; production defaults fail closed. */
+    TtsGrpcService(AudioVideoLibrary library, MeterRegistry metrics, BooleanSupplier synthesisAdmitted) {
         this.library = Objects.requireNonNull(library, "library");
         Objects.requireNonNull(metrics, "metrics");
+        this.synthesisAdmitted = Objects.requireNonNull(synthesisAdmitted, "synthesisAdmitted");
+        this.instrumentation = new AudioVideoGrpcInstrumentation(null, new MediaWorkflowMetrics(metrics, "tts"));
         this.synthesizeTimer = Timer.builder("tts.synthesize")
                 .description("Synthesis latency")
                 .publishPercentiles(0.50, 0.95, 0.99)
@@ -94,9 +106,20 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 requireAuthorizedVoiceSelection(request);
                 SynthesisOptions options = options(request);
                 requireAdmittedVoiceLanguage(options.voiceId(), options.language());
-                AudioData audio = library.getTtsEngine().synthesize(text, options);
-                PcmAudioValidator.PcmFacts facts = validatePcm16Output(
-                        audio, options.outputFormat(), options.sampleRate());
+                AudioData audio;
+                PcmAudioValidator.PcmFacts facts;
+                try (AudioVideoGrpcInstrumentation.BoundaryMeasurement boundary =
+                             instrumentation.beginBoundaryMeasurement(
+                                     MediaWorkflowMetrics.Modality.TTS,
+                                     MediaWorkflowMetrics.Boundary.PROVIDER)) {
+                    audio = library.getTtsEngine().synthesize(text, options);
+                    facts = validatePcm16Output(audio, options.outputFormat(), options.sampleRate());
+                    if (!isCancelled(responseObserver)) {
+                        boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                    }
+                }
+
+                if (isCancelled(responseObserver)) return;
 
                 long elapsed = System.currentTimeMillis() - startedAt;
                 long durationMs = facts.duration().toMillis();
@@ -284,7 +307,8 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
      * Provider voice listings and configured defaults are informational only, so synthesis must
      * fail before engine lookup instead of allowing a provider to silently select a substitute.
      */
-    private static void requireAdmittedVoiceLanguage(String voiceId, Locale language) {
+    private void requireAdmittedVoiceLanguage(String voiceId, Locale language) {
+        if (synthesisAdmitted.getAsBoolean()) return;
         String requestedVoice = voiceId == null || voiceId.isBlank() ? "default" : "explicit";
         String requestedLanguage = language == null ? "unspecified" : language.toLanguageTag();
         throw new TtsSynthesisEngine.SynthesisException(
@@ -317,6 +341,11 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             StreamObserver<AudioChunk> observer) {
         if (!(observer instanceof ServerCallStreamObserver<?> raw)) return null;
         return (ServerCallStreamObserver<AudioChunk>) raw;
+    }
+
+    private static boolean isCancelled(StreamObserver<?> observer) {
+        return observer instanceof ServerCallStreamObserver<?> serverObserver
+                && serverObserver.isCancelled();
     }
 
     private static String requireText(String value, String field) {

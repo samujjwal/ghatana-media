@@ -3,6 +3,8 @@ package com.ghatana.tts.grpc;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.api.VoiceInfo;
+import com.ghatana.media.common.AudioData;
+import com.ghatana.media.common.AudioFormat;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceResponse;
 import com.ghatana.tts.core.grpc.proto.CreateProfileRequest;
@@ -37,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,6 +91,69 @@ class TtsGrpcServiceTest {
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
         verify(engine, never()).close();
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "provider").timer()).isNull();
+    }
+
+    @Test
+    void admittedFakeEngineRunsThroughRequestPathAndExportsPrivateBoundedProviderMetric() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true);
+        byte[] pcm = new byte[44];
+        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
+                pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        admitted.synthesize(SynthesizeRequest.newBuilder().setText("private test phrase").build(), observer);
+
+        assertThat(observer.error).isNull();
+        assertThat(observer.value).isNotNull();
+        Timer provider = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "provider").tag("execution_class", "model")
+                .tag("outcome", "success").timer();
+        assertThat(provider).isNotNull();
+        assertThat(provider.count()).isEqualTo(1);
+        assertThat(provider.getId().getTags()).extracting("key")
+                .doesNotContain("tenant", "text", "content", "voice", "provider_id");
+    }
+
+    @Test
+    void ambiguousProviderExceptionExportsUnknownAndDoesNotReturnAudio() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true);
+        when(engine.synthesize(anyString(), any())).thenThrow(new IllegalStateException("provider interrupted"));
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        admitted.synthesize(SynthesizeRequest.newBuilder().setText("private test phrase").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        Timer provider = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "provider").tag("outcome", "unknown").timer();
+        assertThat(provider).isNotNull();
+        assertThat(provider.count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "provider").tag("outcome", "success").timer()).isNull();
+    }
+
+    @Test
+    void cancellationAfterProviderReturnRecordsUnknownAndDoesNotEmitAudio() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true);
+        byte[] pcm = new byte[44];
+        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
+                pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<SynthesizeResponse> observer = mock(ServerCallStreamObserver.class);
+        when(observer.isCancelled()).thenReturn(true);
+
+        admitted.synthesize(SynthesizeRequest.newBuilder().setText("private test phrase").build(), observer);
+
+        Timer provider = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "provider").tag("outcome", "unknown").timer();
+        assertThat(provider).isNotNull();
+        assertThat(provider.count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "provider").tag("outcome", "success").timer()).isNull();
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
     }
 
     @Test
