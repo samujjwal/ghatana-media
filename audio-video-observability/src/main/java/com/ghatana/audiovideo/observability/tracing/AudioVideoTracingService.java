@@ -31,6 +31,8 @@ public class AudioVideoTracingService {
     private static final String CONTRACT_VERSION = "v1";
     private static final Set<String> LANGUAGES = Set.of(
             "auto", "en", "es", "fr", "de", "it", "pt", "nl", "ja", "ko", "zh", "ar", "hi", "ne");
+    private static final Set<String> VISION_UNARY_METHODS = Set.of(
+            "analyzeImage", "classifyImage", "loadModel", "unloadModel", "listModels", "getStatus", "healthCheck");
 
     private static final Logger log = LoggerFactory.getLogger(AudioVideoTracingService.class);
 
@@ -55,6 +57,19 @@ public class AudioVideoTracingService {
                 .startSpan();
 
         return span;
+    }
+
+    /** Start a bounded application span for a registered Vision unary RPC. */
+    public Span startVisionUnarySpan(String methodName, String tenantId) {
+        String correlationId = getOrCreateCorrelationId();
+
+        return tracer.spanBuilder("audiovideo.vision.rpc")
+                .setSpanKind(SpanKind.INTERNAL)
+                .setAttribute("vision.rpc.method", safeVisionUnaryMethod(methodName))
+                .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
+                .setAttribute("media.contract.version", CONTRACT_VERSION)
+                .setAttribute("correlation.present", correlationId != null)
+                .startSpan();
     }
 
     /**
@@ -315,6 +330,10 @@ public class AudioVideoTracingService {
         if (methodName == null || !methodName.matches("[A-Za-z][A-Za-z0-9_.]{0,63}")) return "unknown";
         return Set.of("VisionStream", "ProcessVideo", "StreamAudio", "Transcribe", "Synthesize")
                 .contains(methodName) ? methodName : "unknown";
+    }
+
+    private static String safeVisionUnaryMethod(String methodName) {
+        return methodName != null && VISION_UNARY_METHODS.contains(methodName) ? methodName : "unknown";
     }
 
     private static String safeLanguage(String language) {
