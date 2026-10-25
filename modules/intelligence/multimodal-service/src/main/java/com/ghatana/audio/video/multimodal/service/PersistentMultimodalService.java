@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 
 /**
  * @doc.type class
@@ -119,35 +120,40 @@ public class PersistentMultimodalService {
                 LOG.info("Media file persisted");
 
                 // Step 2: Process audio (transcription)
-                Promise<Optional<TranscriptionEntity>> audioPromise =
+                Promise<ModalityExecution<Optional<TranscriptionEntity>>> audioPromise =
                     processAudio(tenantId, userId, mediaFile.getId(), audioData);
 
                 // Step 3: Process visual (scene understanding)
-                Promise<VisualAnalysis> visualPromise =
+                Promise<ModalityExecution<VisualAnalysis>> visualPromise =
                     processVisual(tenantId, mediaFile.getId(), visualData);
 
                 // Step 4: Fuse results
-                return audioPromise.combine(visualPromise, (transcription, visualAnalysis) -> {
+                return audioPromise.combine(visualPromise, (audio, visual) -> {
 
                         long elapsedMs = System.currentTimeMillis() - startTime;
                         fuseTimer.record(Duration.ofMillis(elapsedMs));
+                        Outcome outcome = aggregateOutcome(audio.status(), visual.status());
 
                         LOG.info("Multimodal fusion completed: " +
-                            "hasAudio={}, hasVisual={}, elapsedMs={}",
-                            transcription.isPresent(), visualAnalysis.hasDetections(), elapsedMs);
+                            "audioStatus={}, visualStatus={}, outcome={}, elapsedMs={}",
+                            audio.status(), visual.status(), outcome, elapsedMs);
 
-                        // OBS-P1-002: Emit audit event for successful multimodal processing
-                        emitMultimodalAudit(tenantId, userId.toString(), "multimodal.fuse", "SUCCESS",
-                            Map.of("hasAudio", String.valueOf(transcription.isPresent()),
-                                   "hasVisual", String.valueOf(visualAnalysis.hasDetections()),
+                        // A partial result is explicit in the audited status and each modality
+                        // disposition; it is never recorded as a complete success.
+                        emitMultimodalAudit(tenantId, userId.toString(), "multimodal.fuse", outcome.name(),
+                            Map.of("audioStatus", audio.status().name(),
+                                   "visualStatus", visual.status().name(),
                                    "processingTimeMs", String.valueOf(elapsedMs)));
 
                         return new MultimodalResult(
                             mediaFile.getId(),
-                            transcription.map(TranscriptionEntity::getText).orElse(null),
-                            transcription.map(TranscriptionEntity::getConfidence).orElse(0f),
-                            visualAnalysis,
-                            elapsedMs
+                            audio.value().map(TranscriptionEntity::getText).orElse(null),
+                            audio.value().map(TranscriptionEntity::getConfidence).orElse(0f),
+                            visual.value(),
+                            elapsedMs,
+                            outcome,
+                            audio.status(),
+                            visual.status()
                         );
                     });
             })
@@ -218,10 +224,14 @@ public class PersistentMultimodalService {
                     result.visualAnalysis().hasDetections(),
                     elapsedMs,
                     consentStatus,
-                    retentionPolicy
+                    retentionPolicy,
+                    result.outcome(),
+                    result.audioStatus(),
+                    result.visualStatus()
                 );
 
-                LOG.info("Data Cloud multimodal job completed: hasTranscription={}, hasVisual={}, elapsedMs={}",
+                LOG.info("Data Cloud multimodal job completed: outcome={}, hasTranscription={}, hasVisual={}, elapsedMs={}",
+                    dcResult.outcome(),
                     dcResult.transcriptionText() != null,
                     dcResult.hasVisualDetections(),
                     elapsedMs);
@@ -302,19 +312,18 @@ public class PersistentMultimodalService {
         return audioFileService.save(tenantId, entity);
     }
 
-    private Promise<Optional<TranscriptionEntity>> processAudio(
+    private Promise<ModalityExecution<Optional<TranscriptionEntity>>> processAudio(
             String tenantId,
             UUID userId,
             UUID audioFileId,
             byte[] audioData) {
 
         if (audioData == null || audioData.length == 0) {
-            return Promise.of(Optional.empty());
+            return Promise.of(ModalityExecution.notRequested(Optional.empty()));
         }
 
         if (sttEngine == null) {
-            return Promise.ofException(new UnsupportedOperationException(
-                "Audio transcription provider is unavailable"));
+            return Promise.of(ModalityExecution.unavailable(Optional.empty()));
         }
 
         AudioData audio = new AudioData(audioData, DEFAULT_SAMPLE_RATE_HZ, 1, 16);
@@ -323,7 +332,12 @@ public class PersistentMultimodalService {
             result = sttEngine.transcribe(audio);
         } catch (Exception e) {
             LOG.warn("STT transcription failed failureType={}", failureType(e));
-            return Promise.ofException(new RuntimeException("Audio transcription failed"));
+            if (e instanceof CancellationException) return Promise.ofException(e);
+            return Promise.of(ModalityExecution.unavailable(Optional.empty()));
+        }
+        if (result == null) {
+            LOG.warn("STT transcription returned no result");
+            return Promise.of(ModalityExecution.unavailable(Optional.empty()));
         }
 
         TranscriptionEntity entity = new TranscriptionEntity(
@@ -340,17 +354,17 @@ public class PersistentMultimodalService {
         entity.setUpdatedAt(Instant.now());
 
         return transcriptionService.save(tenantId, entity)
-            .map(Optional::of);
+            .map(saved -> ModalityExecution.succeeded(Optional.of(saved)));
     }
 
-    private Promise<VisualAnalysis> processVisual(String tenantId, UUID mediaFileId, byte[] visualData) {
+    private Promise<ModalityExecution<VisualAnalysis>> processVisual(
+            String tenantId, UUID mediaFileId, byte[] visualData) {
         if (visualData == null || visualData.length == 0) {
-            return Promise.of(new VisualAnalysis(false, 0, java.util.List.of()));
+            return Promise.of(ModalityExecution.notRequested(new VisualAnalysis(false, 0, java.util.List.of())));
         }
 
         if (visionEngine == null) {
-            return Promise.ofException(new UnsupportedOperationException(
-                "Visual analysis provider is unavailable"));
+            return Promise.of(ModalityExecution.unavailable(new VisualAnalysis(false, 0, java.util.List.of())));
         }
 
         // Image dimensions must be known for correct inference; if the caller supplies
@@ -367,16 +381,72 @@ public class PersistentMultimodalService {
             .colorSpace(ColorSpace.RGB)
             .build();
 
-        return visionEngine.detectAsync(image, com.ghatana.media.vision.api.DetectionOptions.defaults())
-            .map(detection -> {
+        Promise<com.ghatana.media.vision.api.DetectionResult> detectionPromise;
+        try {
+            detectionPromise = Objects.requireNonNull(
+                    visionEngine.detectAsync(image, com.ghatana.media.vision.api.DetectionOptions.defaults()),
+                    "vision engine returned no promise");
+        } catch (RuntimeException failure) {
+            LOG.warn("Vision detection failed failureType={}", failureType(failure));
+            if (failure instanceof CancellationException) return Promise.ofException(failure);
+            return Promise.of(ModalityExecution.unavailable(new VisualAnalysis(false, 0, java.util.List.of())));
+        }
+
+        return detectionPromise.toTry().map(detectionTry -> {
+                if (detectionTry.isException()) {
+                    Exception failure = detectionTry.getException();
+                    LOG.warn("Vision detection failed failureType={}", failureType(failure));
+                    if (failure instanceof CancellationException) throw (CancellationException) failure;
+                    return ModalityExecution.unavailable(new VisualAnalysis(false, 0, java.util.List.of()));
+                }
+                com.ghatana.media.vision.api.DetectionResult detection = detectionTry.get();
+                if (detection == null || detection.objects() == null) {
+                    return ModalityExecution.unavailable(new VisualAnalysis(false, 0, java.util.List.of()));
+                }
                 java.util.List<String> labels = detection.objects().stream()
                     .map(com.ghatana.media.vision.api.DetectedObject::className)
                     .toList();
                 LOG.debug("Visual detection completed");
-                return new VisualAnalysis(detection.count() > 0, detection.count(), labels);
-            })
-            .whenException(e -> LOG.warn("Vision detection failed failureType={}", failureType(e)))
-            .mapException(e -> new IllegalStateException("Visual analysis failed"));
+                return ModalityExecution.succeeded(
+                        new VisualAnalysis(detection.count() > 0, detection.count(), labels));
+            });
+    }
+
+    private static Outcome aggregateOutcome(ModalityStatus audio, ModalityStatus visual) {
+        int requested = 0;
+        int succeeded = 0;
+        int failed = 0;
+        int unknown = 0;
+        for (ModalityStatus status : java.util.List.of(audio, visual)) {
+            if (status == ModalityStatus.NOT_REQUESTED) continue;
+            requested++;
+            if (status == ModalityStatus.SUCCEEDED) succeeded++;
+            else if (status == ModalityStatus.OUTCOME_UNKNOWN) unknown++;
+            else failed++;
+        }
+        if (requested == 0) return Outcome.NO_MODALITY;
+        if (unknown > 0) return Outcome.OUTCOME_UNKNOWN;
+        if (failed == 0) return Outcome.COMPLETE;
+        return succeeded == 0 ? Outcome.FAILED : Outcome.PARTIAL;
+    }
+
+    private record ModalityExecution<T>(ModalityStatus status, T value) {
+        private ModalityExecution {
+            Objects.requireNonNull(status, "status");
+            Objects.requireNonNull(value, "value");
+        }
+
+        static <T> ModalityExecution<T> notRequested(T value) {
+            return new ModalityExecution<>(ModalityStatus.NOT_REQUESTED, value);
+        }
+
+        static <T> ModalityExecution<T> succeeded(T value) {
+            return new ModalityExecution<>(ModalityStatus.SUCCEEDED, value);
+        }
+
+        static <T> ModalityExecution<T> unavailable(T value) {
+            return new ModalityExecution<>(ModalityStatus.UNAVAILABLE, value);
+        }
     }
 
     private String getExtension(String fileName) {
@@ -394,8 +464,22 @@ public class PersistentMultimodalService {
         String transcription,
         float transcriptionConfidence,
         VisualAnalysis visualAnalysis,
-        long processingTimeMs
-    ) {}
+        long processingTimeMs,
+        Outcome outcome,
+        ModalityStatus audioStatus,
+        ModalityStatus visualStatus
+    ) {
+        /** Compatibility path for callers that cannot supply modality finality. */
+        public MultimodalResult(UUID mediaFileId, String transcription, float transcriptionConfidence,
+                                VisualAnalysis visualAnalysis, long processingTimeMs) {
+            this(mediaFileId, transcription, transcriptionConfidence, visualAnalysis, processingTimeMs,
+                    Outcome.OUTCOME_UNKNOWN, ModalityStatus.OUTCOME_UNKNOWN, ModalityStatus.OUTCOME_UNKNOWN);
+        }
+    }
+
+    public enum Outcome { COMPLETE, PARTIAL, FAILED, NO_MODALITY, OUTCOME_UNKNOWN }
+
+    public enum ModalityStatus { NOT_REQUESTED, SUCCEEDED, UNAVAILABLE, OUTCOME_UNKNOWN }
 
     /**
      * Visual analysis result.
@@ -432,8 +516,22 @@ public class PersistentMultimodalService {
         boolean hasVisualDetections,
         long processingTimeMs,
         String consentStatus,
-        String retentionPolicy
-    ) {}
+        String retentionPolicy,
+        Outcome outcome,
+        ModalityStatus audioStatus,
+        ModalityStatus visualStatus
+    ) {
+        /** Compatibility path for data without recorded child finality. */
+        public DataCloudMultimodalResult(UUID artifactId, UUID mediaFileId, String correlationId,
+                                         String requestId, String transcriptionText, float confidence,
+                                         boolean hasVisualDetections, long processingTimeMs,
+                                         String consentStatus, String retentionPolicy) {
+            this(artifactId, mediaFileId, correlationId, requestId, transcriptionText, confidence,
+                    hasVisualDetections, processingTimeMs, consentStatus, retentionPolicy,
+                    Outcome.OUTCOME_UNKNOWN, ModalityStatus.OUTCOME_UNKNOWN,
+                    ModalityStatus.OUTCOME_UNKNOWN);
+        }
+    }
 
     /**
      * OBS-P1-002: Emit audit event for multimodal operations.
@@ -457,7 +555,7 @@ public class PersistentMultimodalService {
                 .principal(userId != null ? userId : "system")
                 .resourceType("multimodal")
                 .resourceId("multimodal-operation")
-                .success("SUCCESS".equals(status))
+                .success("SUCCESS".equals(status) || "COMPLETE".equals(status))
                 .detail("status", status)
                 .detail("operation", operation)
                 .details(Map.copyOf(details))

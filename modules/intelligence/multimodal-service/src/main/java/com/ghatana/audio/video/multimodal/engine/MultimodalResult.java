@@ -31,7 +31,28 @@ public final class MultimodalResult {
         this.visualResult = builder.visualResult;
         this.combinedAnalysis = builder.combinedAnalysis;
         this.processingTimeMs = builder.processingTimeMs;
-        this.outcome = builder.outcome;
+        this.outcome = builder.outcome == null
+                ? deriveOutcome(builder.audioResult, builder.visualResult)
+                : builder.outcome;
+    }
+
+    private static Outcome deriveOutcome(AudioResult audio, VisualResult visual) {
+        int requested = 0;
+        int succeeded = 0;
+        int failed = 0;
+        if (audio != null) {
+            requested++;
+            if (audio.isError()) failed++;
+            else succeeded++;
+        }
+        if (visual != null) {
+            requested++;
+            if (visual.isError()) failed++;
+            else succeeded++;
+        }
+        if (requested == 0) return Outcome.NO_MODALITY;
+        if (failed == 0) return Outcome.COMPLETE;
+        return succeeded == 0 ? Outcome.FAILED : Outcome.PARTIAL;
     }
 
     public static Builder builder() {
@@ -63,7 +84,7 @@ public final class MultimodalResult {
         private VisualResult visualResult;
         private String combinedAnalysis = "";
         private long processingTimeMs;
-        private Outcome outcome = Outcome.NO_MODALITY;
+        private Outcome outcome;
 
         public Builder audioResult(AudioResult a) {
             this.audioResult = a;

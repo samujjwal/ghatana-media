@@ -39,6 +39,22 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Result builder derives truthful outcome from returned modalities")
+    void resultBuilderDerivesOutcomeFromModalities() {
+        AudioResult audio = AudioResult.builder().transcription("transcript").build();
+        VisualResult visual = VisualResult.builder().sceneDescription("scene").build();
+
+        assertEquals(MultimodalResult.Outcome.COMPLETE,
+                MultimodalResult.builder().audioResult(audio).visualResult(visual).build().getOutcome());
+        assertEquals(MultimodalResult.Outcome.PARTIAL,
+                MultimodalResult.builder().audioResult(audio).visualResult(VisualResult.error("unavailable"))
+                        .build().getOutcome());
+        assertEquals(MultimodalResult.Outcome.FAILED,
+                MultimodalResult.builder().audioResult(AudioResult.error("unavailable"))
+                        .visualResult(VisualResult.error("unavailable")).build().getOutcome());
+    }
+
+    @Test
     @DisplayName("Should abstain from fusion when source references are unavailable")
     void shouldAbstainFromFusionWithoutSourceReferences() {
         AudioResult audio = AudioResult.builder() 
