@@ -91,14 +91,14 @@ public class PersistentMultimodalService {
     }
 
     /**
-     * Process audio-visual content and persist results.
+     * Legacy aggregate entry point retained for source compatibility.
      *
-     * @param tenantId    the tenant ID
-     * @param userId      the user ID
-     * @param audioData   the audio data
-     * @param visualData  the visual data (video frames or image)
-     * @param fileName    the original file name
-     * @return Promise containing fused multimodal analysis
+     * <p>The canonical Media contract has no family-level multimodal request/result. Callers
+     * must submit one admitted capability operation with its trusted artifact version and
+     * authorization context. This legacy method has no such bindings and must not persist
+     * source bytes or invoke modality providers.
+     *
+     * @return failed promise with {@code MULTIMODAL_FAMILY_NOT_ADMITTED}
      */
     public Promise<MultimodalResult> processAndPersist(
             String tenantId,
@@ -109,62 +109,8 @@ public class PersistentMultimodalService {
 
         Objects.requireNonNull(tenantId, "tenantId cannot be null");
         Objects.requireNonNull(userId, "userId cannot be null");
-
-        long startTime = System.currentTimeMillis();
-
-        // Step 1: Persist the source media file
-        return persistMediaFile(tenantId, userId, fileName,
-            (audioData != null ? audioData.length : 0) +
-            (visualData != null ? visualData.length : 0))
-            .then(mediaFile -> {
-                LOG.info("Media file persisted");
-
-                // Step 2: Process audio (transcription)
-                Promise<ModalityExecution<Optional<TranscriptionEntity>>> audioPromise =
-                    processAudio(tenantId, userId, mediaFile.getId(), audioData);
-
-                // Step 3: Process visual (scene understanding)
-                Promise<ModalityExecution<VisualAnalysis>> visualPromise =
-                    processVisual(tenantId, mediaFile.getId(), visualData);
-
-                // Step 4: Fuse results
-                return audioPromise.combine(visualPromise, (audio, visual) -> {
-
-                        long elapsedMs = System.currentTimeMillis() - startTime;
-                        fuseTimer.record(Duration.ofMillis(elapsedMs));
-                        Outcome outcome = aggregateOutcome(audio.status(), visual.status());
-
-                        LOG.info("Multimodal fusion completed: " +
-                            "audioStatus={}, visualStatus={}, outcome={}, elapsedMs={}",
-                            audio.status(), visual.status(), outcome, elapsedMs);
-
-                        // A partial result is explicit in the audited status and each modality
-                        // disposition; it is never recorded as a complete success.
-                        emitMultimodalAudit(tenantId, userId.toString(), "multimodal.fuse", outcome.name(),
-                            Map.of("audioStatus", audio.status().name(),
-                                   "visualStatus", visual.status().name(),
-                                   "processingTimeMs", String.valueOf(elapsedMs)));
-
-                        return new MultimodalResult(
-                            mediaFile.getId(),
-                            audio.value().map(TranscriptionEntity::getText).orElse(null),
-                            audio.value().map(TranscriptionEntity::getConfidence).orElse(0f),
-                            visual.value(),
-                            elapsedMs,
-                            outcome,
-                            audio.status(),
-                            visual.status()
-                        );
-                    });
-            })
-            .whenException(e -> {
-                LOG.warn("Multimodal processing failed failureType={}", failureType(e));
-
-                // OBS-P1-002: Emit audit event for multimodal processing failure
-                emitMultimodalAudit(tenantId, userId.toString(), "multimodal.fuse", "FAILED",
-                    Map.of("error", "PROCESSING_FAILED"));
-            })
-            .mapException(e -> new IllegalStateException("Multimodal processing failed"));
+        return Promise.ofException(new IllegalStateException(
+                "MULTIMODAL_FAMILY_NOT_ADMITTED: submit one canonical capability operation"));
     }
 
     /**
