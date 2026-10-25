@@ -8,7 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Vision model engine for object detection, classification, and face detection.
+ * Vision model engine for object detection and classification. Face analysis remains
+ * unavailable until a trusted biometric rights authority is integrated.
  *
  * <p>Integrates admitted vision providers as a unified interface for frame-level
  * and image-level tasks. OCR remains unavailable through this compatibility
@@ -148,39 +149,21 @@ public class VisionModelEngine {
     }
 
     /**
-     * Detects faces in the given image.
+     * Attempts face analysis in the given image.
      *
-     * <p>Delegates to the backing {@link VisionDetector} when it supports
-     * {@link VisionCapability#FACE_DETECTION}; otherwise fails closed.
+     * <p>This compatibility API has no trusted purpose, consent, tenant, or retention
+     * context. It therefore fails closed before checking or invoking a detector.
      *
      * @param imageData raw image bytes
-     * @return list of detected faces above the confidence threshold
+     * @throws BiometricNotAdmittedException until trusted rights admission is available
      */
     public List<FaceDetection> detectFaces(byte[] imageData) {
         validateImage(imageData);
-        requireCapability(VisionCapability.FACE_DETECTION, "face detection");
-        DetectionOptions options = DetectionOptions.builder()
-                .confidenceThreshold(confidenceThreshold)
-                .maxDetections(50)
-                .build();
-        try {
-            return detector.detectFaces(imageData, options).stream()
-                    .map(f -> {
-                        Map<String, double[]> lm = new HashMap<>();
-                        f.landmarks().forEach((k, p) -> lm.put(k, new double[]{p.getX(), p.getY()}));
-                        return new FaceDetection(
-                                f.boundingBox().getX(),
-                                f.boundingBox().getY(),
-                                f.boundingBox().getWidth(),
-                                f.boundingBox().getHeight(),
-                                f.confidence(),
-                                lm
-                        );
-                    })
-                    .collect(Collectors.toList());
-        } catch (VisionDetector.DetectionException ex) {
-            throw new VisionException("Face detection failed: " + ex.getMessage(), ex);
-        }
+        // This compatibility API exposes face landmarks and has no trusted
+        // purpose/consent/tenant/retention context. A detector capability flag
+        // is not authority to perform biometric analysis, so fail before model
+        // dispatch until a rights authority is integrated.
+        throw new BiometricNotAdmittedException();
     }
 
     /** @return the model ID this engine was initialized with */
@@ -221,6 +204,13 @@ public class VisionModelEngine {
     public static final class OcrNotAdmittedException extends VisionException {
         public OcrNotAdmittedException() {
             super("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
+        }
+    }
+
+    /** Typed fail-closed result for face analysis without trusted rights admission. */
+    public static final class BiometricNotAdmittedException extends VisionException {
+        public BiometricNotAdmittedException() {
+            super("NOT_ADMITTED: trusted biometric rights authority is unavailable");
         }
     }
 }

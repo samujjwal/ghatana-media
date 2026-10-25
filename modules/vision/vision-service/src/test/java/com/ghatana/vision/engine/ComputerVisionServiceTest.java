@@ -11,6 +11,7 @@ import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.vision.engine.VisionModelEngine.VisionException;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -277,58 +278,45 @@ class ComputerVisionServiceTest {
     class FaceDetection {
 
         @Test
-        @DisplayName("face detection returns non-null list")
-        void faceDetectionReturnsNonNullList() { 
-            List<VisionModelEngine.FaceDetection> faces = engine.detectFaces(SAMPLE_IMAGE); 
+        @DisplayName("face analysis fails closed before detector dispatch without trusted rights")
+        void faceAnalysisFailsClosedBeforeDetectorDispatch() {
+            AtomicInteger providerCalls = new AtomicInteger();
+            VisionDetector detector = new VisionDetector() {
+                @Override
+                public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
+                        byte[] imageData, DetectionOptions options) {
+                    return List.of();
+                }
 
-            assertThat(faces).isNotNull(); 
+                @Override
+                public boolean isInitialized() { return true; }
+
+                @Override
+                public boolean supportsCapability(VisionCapability capability) { return true; }
+
+                @Override
+                public List<DetectedFace> detectFaces(byte[] imageData, DetectionOptions options) {
+                    providerCalls.incrementAndGet();
+                    return List.of(new DetectedFace(
+                            BoundingBox.builder().x(0.2).y(0.25).width(0.2).height(0.25).build(),
+                            0.88));
+                }
+            };
+            VisionModelEngine biometricEngine = new VisionModelEngine("face-model", 0.5, detector);
+
+            assertThatThrownBy(() -> biometricEngine.detectFaces(SAMPLE_IMAGE))
+                    .isInstanceOf(VisionModelEngine.BiometricNotAdmittedException.class)
+                    .hasMessage("NOT_ADMITTED: trusted biometric rights authority is unavailable");
+            assertThat(providerCalls).hasValue(0);
         }
 
         @Test
-        @DisplayName("face detection results have valid bounding boxes")
-        void faceDetectionResultsHaveValidBoundingBoxes() { 
-            List<VisionModelEngine.FaceDetection> faces = engine.detectFaces(SAMPLE_IMAGE); 
-
-            faces.forEach(face -> { 
-                assertThat(face.x()).isBetween(0.0, 1.0); 
-                assertThat(face.y()).isBetween(0.0, 1.0); 
-                assertThat(face.width()).isGreaterThan(0.0).isLessThanOrEqualTo(1.0); 
-                assertThat(face.height()).isGreaterThan(0.0).isLessThanOrEqualTo(1.0); 
-            });
-        }
-
-        @Test
-        @DisplayName("face detection confidence is in valid range")
-        void faceDetectionConfidenceIsValid() { 
-            List<VisionModelEngine.FaceDetection> faces = engine.detectFaces(SAMPLE_IMAGE); 
-
-            faces.forEach(face -> 
-                    assertThat(face.confidence()).isBetween(0.0, 1.0) 
-            );
-        }
-
-        @Test
-        @DisplayName("face landmarks are included in results")
-        void faceLandmarksAreIncluded() { 
-            List<VisionModelEngine.FaceDetection> faces = engine.detectFaces(SAMPLE_IMAGE); 
-
-            if (!faces.isEmpty()) { 
-                faces.forEach(face -> 
-                        assertThat(face.landmarks()).isNotNull() 
-                );
-            }
-        }
-
-        @Test
-        @DisplayName("face detection is deterministic for same image")
-        void faceDetectionIsDeterministic() { 
-            List<VisionModelEngine.FaceDetection> f1 = engine.detectFaces(SAMPLE_IMAGE); 
-            List<VisionModelEngine.FaceDetection> f2 = engine.detectFaces(SAMPLE_IMAGE); 
-
-            assertThat(f1).hasSize(f2.size()); 
-            for (int i = 0; i < f1.size(); i++) { 
-                assertThat(f1.get(i).confidence()).isEqualTo(f2.get(i).confidence()); 
-            }
+        @DisplayName("face bounding geometry contains no identity field")
+        void faceGeometryIsNotAnIdentityAssertion() {
+            assertThat(VisionModelEngine.FaceDetection.class.getRecordComponents())
+                    .extracting(java.lang.reflect.RecordComponent::getName)
+                    .containsExactly("x", "y", "width", "height", "confidence", "landmarks")
+                    .doesNotContain("identityId", "personId");
         }
     }
 

@@ -153,32 +153,36 @@ class VisionModelEngineTest {
     // ── Face detection ────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("detectFaces returns non-null list")
-    void detectFacesReturnsResult() {
-        assertThat(engine.detectFaces(SAMPLE_IMAGE)).isNotNull();
-    }
+    @DisplayName("face analysis fails closed before model dispatch without trusted rights")
+    void faceAnalysisFailsClosedBeforeModelDispatch() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        VisionDetector detector = new VisionDetector() {
+            @Override
+            public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
+                    byte[] imageData, DetectionOptions options) {
+                return List.of();
+            }
 
-    @Test
-    @DisplayName("all detected faces meet confidence threshold")
-    void detectedFacesMeetThreshold() {
-        engine.detectFaces(SAMPLE_IMAGE).forEach(face ->
-                assertThat(face.confidence()).isGreaterThanOrEqualTo(0.5));
-    }
+            @Override
+            public boolean isInitialized() { return true; }
 
-    @Test
-    @DisplayName("detected faces have positive bounding box dimensions")
-    void detectedFacesBoundingBoxPositive() {
-        engine.detectFaces(SAMPLE_IMAGE).forEach(face -> {
-            assertThat(face.width()).isGreaterThan(0.0);
-            assertThat(face.height()).isGreaterThan(0.0);
-        });
-    }
+            @Override
+            public boolean supportsCapability(VisionCapability capability) { return true; }
 
-    @Test
-    @DisplayName("detected faces have non-empty landmark map")
-    void detectedFacesHaveLandmarks() {
-        engine.detectFaces(SAMPLE_IMAGE).forEach(face ->
-                assertThat(face.landmarks()).isNotEmpty());
+            @Override
+            public List<DetectedFace> detectFaces(byte[] imageData, DetectionOptions options) {
+                providerCalls.incrementAndGet();
+                return List.of(new DetectedFace(
+                        BoundingBox.builder().x(0.2).y(0.25).width(0.2).height(0.25).build(),
+                        0.88, Map.of("eye", new Point(0.3, 0.3))));
+            }
+        };
+        VisionModelEngine biometricEngine = new VisionModelEngine("face-model", 0.5, detector);
+
+        assertThatThrownBy(() -> biometricEngine.detectFaces(SAMPLE_IMAGE))
+                .isInstanceOf(VisionModelEngine.BiometricNotAdmittedException.class)
+                .hasMessage("NOT_ADMITTED: trusted biometric rights authority is unavailable");
+        assertThat(providerCalls).hasValue(0);
     }
 
     // ── Real-detector delegation path ─────────────────────────────────────────
@@ -249,20 +253,37 @@ class VisionModelEngineTest {
         }
 
         @Test
-        @DisplayName("detectFaces delegates to detector when FACE_DETECTION capability is declared")
-        void detectFacesDelegatesToDetector() {
-            BoundingBox box = BoundingBox.builder().x(0.1).y(0.2).width(0.3).height(0.4).build();
-            DetectedFace face = new DetectedFace(box, 0.88);
-            VisionDetector det = fullCapabilityDetector(List.of(), List.of(face), "");
+        @DisplayName("detector capability does not authorize biometric analysis")
+        void detectorCapabilityDoesNotAuthorizeBiometricAnalysis() {
+            AtomicInteger providerCalls = new AtomicInteger();
+            VisionDetector det = new VisionDetector() {
+                @Override
+                public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
+                        byte[] imageData, DetectionOptions options) {
+                    return List.of();
+                }
+
+                @Override
+                public boolean isInitialized() { return true; }
+
+                @Override
+                public boolean supportsCapability(VisionCapability capability) { return true; }
+
+                @Override
+                public List<DetectedFace> detectFaces(byte[] imageData, DetectionOptions options) {
+                    providerCalls.incrementAndGet();
+                    return List.of(new DetectedFace(
+                            BoundingBox.builder().x(0.1).y(0.2).width(0.3).height(0.4).build(),
+                            0.88, Map.of("eye", new Point(0.2, 0.3))));
+                }
+            };
 
             VisionModelEngine realEngine = new VisionModelEngine("mediapipe-face", 0.5, det);
-            List<FaceDetection> faces = realEngine.detectFaces(SAMPLE_IMAGE);
 
-            assertThat(faces).hasSize(1);
-            FaceDetection f = faces.get(0);
-            assertThat(f.confidence()).isCloseTo(0.88, offset(0.001));
-            assertThat(f.x()).isCloseTo(0.1, offset(0.001));
-            assertThat(f.y()).isCloseTo(0.2, offset(0.001));
+            assertThatThrownBy(() -> realEngine.detectFaces(SAMPLE_IMAGE))
+                    .isInstanceOf(VisionModelEngine.BiometricNotAdmittedException.class)
+                    .hasMessage("NOT_ADMITTED: trusted biometric rights authority is unavailable");
+            assertThat(providerCalls).hasValue(0);
         }
 
         @Test
@@ -307,8 +328,8 @@ class VisionModelEngineTest {
                     .isInstanceOf(VisionModelEngine.VisionException.class)
                     .hasMessageContaining("not initialized");
             assertThatThrownBy(() -> realEngine.detectFaces(SAMPLE_IMAGE))
-                    .isInstanceOf(VisionModelEngine.VisionException.class)
-                    .hasMessageContaining("not initialized");
+                    .isInstanceOf(VisionModelEngine.BiometricNotAdmittedException.class)
+                    .hasMessageContaining("NOT_ADMITTED");
             assertThatThrownBy(() -> realEngine.extractText(SAMPLE_IMAGE))
                     .isInstanceOf(VisionModelEngine.OcrNotAdmittedException.class)
                     .hasMessageContaining("NOT_ADMITTED");
