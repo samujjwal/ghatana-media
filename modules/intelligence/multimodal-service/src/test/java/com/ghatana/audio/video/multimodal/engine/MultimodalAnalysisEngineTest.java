@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.multimodal.engine;
 
+import com.ghatana.audio.video.multimodal.adapter.GrpcSttClientAdapter;
 import com.ghatana.testing.activej.EventloopTestBase;
 import io.activej.promise.Promise;
 import io.opentelemetry.api.trace.Span;
@@ -112,6 +113,38 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 .tag("modality", "stt").tag("boundary", "provider")
                 .tag("outcome", "unknown").timer();
         assertTrue(unknown != null && unknown.count() == 1);
+        Timer failure = registry.find("media.modality.boundary.duration")
+                .tag("modality", "stt").tag("boundary", "provider")
+                .tag("outcome", "failure").timer();
+        assertTrue(failure != null && failure.count() == 1);
+        registry.close();
+    }
+
+    @Test
+    @DisplayName("NOP transcription remains unavailable and is measured as provider failure")
+    void nopTranscriptionIsNotCountedAsSuccessfulProviderResult() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "multimodal");
+        GrpcSttClientAdapter nop = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", 1, GrpcSttClientAdapter.SttMode.NOP);
+        MultimodalMediaGateway gateway = new FakeMediaGateway(
+                AudioResult.error("unused"), VisualResult.error("unused"), VisualResult.error("unused")) {
+            @Override public AudioResult transcribe(byte[] audioData) { return nop.transcribe(audioData); }
+            @Override public void close() {
+                nop.close();
+            }
+        };
+
+        MultimodalResult result;
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults(), TimeUnit.SECONDS.toNanos(60), metrics)) {
+            result = engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1, 2, 3}).build());
+        }
+
+        assertTrue(result.getAudioResult().isError());
+        assertTrue(registry.find("media.modality.boundary.duration")
+                .tag("modality", "stt").tag("boundary", "provider")
+                .tag("outcome", "success").timers().isEmpty());
         Timer failure = registry.find("media.modality.boundary.duration")
                 .tag("modality", "stt").tag("boundary", "provider")
                 .tag("outcome", "failure").timer();

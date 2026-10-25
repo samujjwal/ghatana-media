@@ -102,7 +102,7 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
             case NOP:
                 currentMode = SttMode.NOP;
                 LOG.debug("STT explicitly disabled (NOP mode)");
-                return AudioResult.builder().transcription("").build();
+                return AudioResult.error("STT transcription unavailable: adapter is configured in NOP mode");
             case GRPC:
                 currentMode = SttMode.GRPC;
                 if (audioData.length == 0) {

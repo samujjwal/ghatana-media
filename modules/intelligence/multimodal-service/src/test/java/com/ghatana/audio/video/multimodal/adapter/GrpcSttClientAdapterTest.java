@@ -16,6 +16,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -35,20 +38,34 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class GrpcSttClientAdapterTest {
 
     @Test
-    @DisplayName("NOP mode returns explicit empty disabled result")
-    void nopModeReturnsEmptyResult() {
-        try (GrpcSttClientAdapter adapter = new GrpcSttClientAdapter(
-                "localhost",
-                50051,
-                GrpcSttClientAdapter.SttMode.NOP)) {
+    @DisplayName("NOP mode returns unavailable and never contacts the gRPC endpoint")
+    void nopModeReturnsUnavailableWithoutNetworkCall() throws Exception {
+        AtomicInteger providerCalls = new AtomicInteger();
+        Server server = ServerBuilder.forPort(0).addService(new STTServiceGrpc.STTServiceImplBase() {
+            @Override
+            public void transcribe(
+                    com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                    StreamObserver<TranscribeResponse> observer) {
+                providerCalls.incrementAndGet();
+                observer.onNext(TranscribeResponse.newBuilder().setText("must-not-be-used").build());
+                observer.onCompleted();
+            }
+        }).build().start();
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.NOP)) {
             AudioResult result = adapter.transcribe(new byte[1024]);
 
             assertThat(result).isNotNull();
-            assertThat(result.isError()).isFalse();
+            assertThat(result.isError()).isTrue();
             assertThat(result.getTranscription()).isEmpty();
+            assertThat(result.getError()).contains("unavailable", "NOP mode");
             assertThat(result.hasConfidence()).isFalse();
             assertThat(result.getConfidenceCalibration()).isEqualTo(AudioResult.ConfidenceCalibration.UNKNOWN);
             assertThat(adapter.getCurrentMode()).isEqualTo(GrpcSttClientAdapter.SttMode.NOP);
+            assertThat(providerCalls).hasValue(0);
+        } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 
