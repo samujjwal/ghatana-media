@@ -167,3 +167,159 @@ flowchart LR
 
 **Initial task denominator: 58** across five physical surfaces (STT=12, TTS=12, Vision=12, Multimodal=12, OBS=10), **0 verified by this planning review**. Each claimed completion must link a source diff, actual command/output and positive/negative/fault/quality evidence. Existing green tests from the latest foundation commit may be reused only for unchanged inputs; re-run affected assertions. The whole 54-surface Media campaign and gtool source closure population are unmodified.
 
+## Exact PDP capability obligations for the five registered surfaces
+
+This is a **generated read-only ownership projection** from the current `.product-experience/surfaces/media-physical-topology.v1.json` (not a new capability definition), covering every PDP-0 capability-intent reference of the five selected surfaces. Multimodal's STT/Vision references deliberately repeat declared dependencies; these are **not duplicate implementation engines**. **99 surface-intent memberships:** STT 16, TTS 17, Vision 22, Multimodal 43, Observability 1. For each row, implementer must attach actual test evidence or an explicit incomplete/provisional disposition. `owner task` means *work ownership*, not evidence of implementation.
+
+| Registered surface | Exact PDP-0 capability intent | Implementation task owner | Meaning |
+| --- | --- | --- | --- |
+| STT | `media.speech.transcription.file` | STT-04 | Local implementation/qualification |
+| STT | `media.speech.transcription.stream` | STT-05 | Local implementation/qualification |
+| STT | `media.speech.transcription.language.detect` | STT-10 | Local implementation/qualification |
+| STT | `media.speech.transcription.voice-activity.detect` | STT-05 | Local implementation/qualification |
+| STT | `media.speech.transcription.speaker.diarize` | STT-07 | Local implementation/qualification |
+| STT | `media.speech.transcription.speaker.segment` | STT-07 | Local implementation/qualification |
+| STT | `media.speech.transcription.speaker.separate` | STT-07 | Local implementation/qualification |
+| STT | `media.speech.transcription.speaker.identify-authorized` | STT-07 | Local implementation/qualification |
+| STT | `media.speech.transcription.word-timestamp.create` | STT-06 | Local implementation/qualification |
+| STT | `media.speech.transcription.phoneme-timestamp.create` | STT-06 | Local implementation/qualification |
+| STT | `media.speech.transcription.forced-align` | STT-08 | Local implementation/qualification |
+| STT | `media.speech.transcription.punctuate-capitalize` | STT-06 | Local implementation/qualification |
+| STT | `media.speech.transcription.alternatives.provide` | STT-06 | Local implementation/qualification |
+| STT | `media.speech.transcription.confidence.provide` | STT-06 | Local implementation/qualification |
+| STT | `media.speech.transcription.translate` | STT-08 | Local implementation/qualification |
+| STT | `media.speech.transcription.subtitle.generate` | STT-08 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.text-to-speech` | TTS-07 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.streaming` | TTS-08 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.multilingual` | TTS-10 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.cross-lingual` | TTS-10 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.expressive` | TTS-06 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.control.prosody` | TTS-06 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.control.rate` | TTS-06 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.control.pitch` | TTS-06 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.control.emotion-style` | TTS-06 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.control.pronunciation` | TTS-06 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.control.phoneme` | TTS-06 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.speaker.condition` | TTS-05 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.speaker.clone-authorized` | TTS-05 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.voice.convert` | TTS-10 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.speech-to-speech` | TTS-10 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.speech.translate` | TTS-10 | Local implementation/qualification |
+| TTS | `media.speech.synthesis.dub` | TTS-10 | Local implementation/qualification |
+| VIS | `media.vision.scene-text.region.track` | VIS-09 | Local implementation/qualification |
+| VIS | `media.vision.scene-text.observation.create` | VIS-09 | Local implementation/qualification |
+| VIS | `media.vision.detect` | VIS-06 | Local implementation/qualification |
+| VIS | `media.vision.classify` | VIS-06 | Local implementation/qualification |
+| VIS | `media.vision.segment.image` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.segment.video` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.track.object` | VIS-07 | Local implementation/qualification |
+| VIS | `media.vision.track.point` | VIS-07 | Local implementation/qualification |
+| VIS | `media.vision.estimate.optical-flow` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.estimate.depth` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.estimate.surface-normals` | VIS-10 | Local implementation/qualification |
+| VIS | `media.vision.estimate.human-pose` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.estimate.hand-pose` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.estimate.face-landmarks` | VIS-10 | Local implementation/qualification |
+| VIS | `media.vision.analyze.expression` | VIS-10 | Local implementation/qualification |
+| VIS | `media.vision.analyze.gaze` | VIS-10 | Local implementation/qualification |
+| VIS | `media.vision.matte.foreground-background` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.segment.motion` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.estimate.saliency` | VIS-08 | Local implementation/qualification |
+| VIS | `media.vision.classify.scene` | VIS-06 | Local implementation/qualification |
+| VIS | `media.vision.detect.shot-boundary` | VIS-07 | Local implementation/qualification |
+| VIS | `media.vision.estimate.camera-motion` | VIS-07 | Local implementation/qualification |
+| MM | `media.speech.transcription.file` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.stream` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.language.detect` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.voice-activity.detect` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.speaker.diarize` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.speaker.segment` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.speaker.separate` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.speaker.identify-authorized` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.word-timestamp.create` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.phoneme-timestamp.create` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.forced-align` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.punctuate-capitalize` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.alternatives.provide` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.confidence.provide` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.translate` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.speech.transcription.subtitle.generate` | MM-05 (reuses STT) | Delegated exact STT contract |
+| MM | `media.vision.detect` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.classify` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.segment.image` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.segment.video` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.track.object` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.track.point` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.estimate.optical-flow` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.estimate.depth` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.estimate.surface-normals` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.estimate.human-pose` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.estimate.hand-pose` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.estimate.face-landmarks` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.analyze.expression` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.analyze.gaze` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.matte.foreground-background` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.segment.motion` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.estimate.saliency` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.classify.scene` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.detect.shot-boundary` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.vision.estimate.camera-motion` | MM-05 (reuses Vision) | Delegated exact Vision contract |
+| MM | `media.multimodal.analyze.cross-modal` | MM-06 | Local implementation/qualification |
+| MM | `media.multimodal.describe` | MM-07 | Local implementation/qualification |
+| MM | `media.multimodal.summarize` | MM-07 | Local implementation/qualification |
+| MM | `media.multimodal.extract.structured` | MM-07 | Local implementation/qualification |
+| MM | `media.multimodal.associate.speaker-face` | MM-06 | Local implementation/qualification |
+| MM | `media.multimodal.relate.scene-audio` | MM-04 | Local implementation/qualification |
+| MM | `media.multimodal.observe.source-grounded` | MM-07 | Local implementation/qualification |
+| OBS | `media.health.readiness.inspect` | OBS-01 | Local implementation/qualification |
+
+## Exact 43-method PDP-3 gRPC registry coverage
+
+This table binds **all source-listed RPC identities** from `.product-experience/pdp-3-product-experience/grpc/service-registry.yaml`, currently **43 observed**, of which **24 proposed logical bindings / 19 unresolved**. A code path returning `UNIMPLEMENTED` or `NOT_ADMITTED` is valid safe behavior but is **not a substitute for realizing a required capability**. Any server must prevent unauthorized request, invalid inputs and unsupported effects. No extra RPC or API owner introduced.
+
+| Exact PDP-3 gRPC ID | Responsible implementation task(s) | Required acceptance record |
+| --- | --- | --- |
+| `media.grpc.STTService.Transcribe` | STT-04 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.StreamTranscribe` | STT-05 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.LoadModel` | STT-02 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.UnloadModel` | STT-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.ListModels` | STT-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.AdaptModel` | STT-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.GetStatus` | STT-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.HealthCheck` | STT-11+OBS-01 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.CreateProfile` | STT-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.GetProfile` | STT-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.UpdateProfile` | STT-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.STTService.SubmitCorrection` | STT-08+STT-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.Synthesize` | TTS-07 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.StreamSynthesize` | TTS-08 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.GetStatus` | TTS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.GetMetrics` | TTS-11+OBS-05 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.GetVoices` | TTS-03+TTS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.LoadVoice` | TTS-03+TTS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.CreateProfile` | TTS-05+TTS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.GetProfile` | TTS-05+TTS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.UpdateProfile` | TTS-05+TTS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.CloneVoice` | TTS-05+TTS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.TTSService.SubmitFeedback` | TTS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.DetectObjects` | VIS-06 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.AnalyzeImage` | VIS-06 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.ClassifyImage` | VIS-08+VIS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.AnalyzeVideoFile` | VIS-07 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.ProcessVideo` | VIS-07 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.LoadModel` | VIS-02+VIS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.UnloadModel` | VIS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.ListModels` | VIS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.GetStatus` | VIS-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.VisionService.HealthCheck` | VIS-11+OBS-01 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.ProcessMultimodal` | MM-05 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.AnalyzeVideoWithAudio` | MM-04 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.GenerateDescription` | MM-07 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.AnalyzeCrossModal` | MM-06 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.GetInsights` | MM-07 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.LoadModel` | MM-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.UnloadModel` | MM-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.ListModels` | MM-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.GetStatus` | MM-11 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+| `media.grpc.MultimodalService.HealthCheck` | MM-11+OBS-01 | Positive effect with real qualified provider **or** exact source-grounded unavailable code; auth/bounds/error/transport wire assertions |
+
