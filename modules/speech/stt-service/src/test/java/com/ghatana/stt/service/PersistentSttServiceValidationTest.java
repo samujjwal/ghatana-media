@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity;
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
@@ -63,6 +64,31 @@ class PersistentSttServiceValidationTest {
     // -----------------------------------------------------------------------
     // Structural guard — empty audio
     // -----------------------------------------------------------------------
+
+    @Test
+    @DisplayName("blank tenant is rejected before persistence or inference")
+    void blankTenantIsRejectedBeforeWork() {
+        assertThatThrownBy(() -> service.transcribeAndPersist(
+                "  ", USER, new byte[] {1}, "sample.wav", AudioFormat.WAV, "en", VALID_RATE))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("tenantId cannot be blank");
+        verifyNoInteractions(audioFileService, transcriptionService, library);
+    }
+
+    @Test
+    @DisplayName("tenant-only transcript read and delete APIs fail closed without a principal")
+    void tenantOnlyReadAndDeleteApisFailClosed() {
+        assertThatThrownBy(() -> service.getTranscription(TENANT, UUID.randomUUID()))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Principal-scoped");
+        assertThatThrownBy(() -> service.getTranscriptions(TENANT))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Principal-scoped");
+        assertThatThrownBy(() -> service.deleteTranscription(TENANT, UUID.randomUUID()))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Principal-scoped");
+        verifyNoInteractions(audioFileService, transcriptionService, library);
+    }
 
     @Test
     @DisplayName("empty audio bytes throw IllegalArgumentException")

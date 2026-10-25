@@ -100,6 +100,9 @@ public class PersistentSttService {
             String language,
             int sampleRate) {
         Objects.requireNonNull(tenantId, "tenantId cannot be null");
+        if (tenantId.isBlank()) {
+            throw new IllegalArgumentException("tenantId cannot be blank");
+        }
         Objects.requireNonNull(userId, "userId cannot be null");
         Objects.requireNonNull(audioBytes, "audioBytes cannot be null");
 
@@ -205,15 +208,20 @@ public class PersistentSttService {
 
     public Promise<Optional<TranscriptionEntity>> getTranscription(
             String tenantId, UUID audioFileId) {
-        return transcriptionService.findByAudioFileId(tenantId, audioFileId);
+        throw unsupportedPrincipalScopedAccess();
     }
 
     public Promise<java.util.List<TranscriptionEntity>> getTranscriptions(String tenantId) {
-        return transcriptionService.findByTenantId(tenantId);
+        throw unsupportedPrincipalScopedAccess();
     }
 
     public Promise<Boolean> deleteTranscription(String tenantId, UUID transcriptionId) {
-        return transcriptionService.softDelete(tenantId, transcriptionId);
+        throw unsupportedPrincipalScopedAccess();
+    }
+
+    private static IllegalStateException unsupportedPrincipalScopedAccess() {
+        return new IllegalStateException(
+                "Principal-scoped transcription access is unavailable in the tenant-only service contract");
     }
 
     /**
@@ -224,6 +232,7 @@ public class PersistentSttService {
             String tenantId,
             String languageCode,
             Map<String, String> parameters) {
+        requireTenantId(tenantId);
         return Promise.ofException(new IllegalStateException(
                 "Artifact-backed STT requires a MediaArtifactRepository-backed adapter; "
                         + "PersistentSttService cannot transcribe artifact IDs without loading artifact bytes"));
@@ -411,6 +420,13 @@ public class PersistentSttService {
         return "FAILED";
     }
 
+    private static void requireTenantId(String tenantId) {
+        Objects.requireNonNull(tenantId, "tenantId cannot be null");
+        if (tenantId.isBlank()) {
+            throw new IllegalArgumentException("tenantId cannot be blank");
+        }
+    }
+
     private static String sha256Hex(byte[] data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -427,11 +443,15 @@ public class PersistentSttService {
             String status,
             Map<String, String> details) {
         if (auditService == null) return;
+        requireTenantId(tenantId);
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("userId cannot be blank for STT audit");
+        }
         try {
             AuditEvent event = AuditEvent.builder()
-                    .tenantId(tenantId != null ? tenantId : "unknown")
+                    .tenantId(tenantId)
                     .eventType(operation)
-                    .principal(userId != null ? userId : "system")
+                    .principal(userId)
                     .resourceType("stt")
                     .resourceId("stt-operation")
                     .success("SUCCESS".equals(status))

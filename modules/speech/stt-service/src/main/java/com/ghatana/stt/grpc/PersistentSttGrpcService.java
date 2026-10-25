@@ -52,14 +52,29 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
         String tenantId = getTenantId();
         String userIdStr = getUserId();
 
-        if (tenantId == null || tenantId.isEmpty()) {
+        if (tenantId == null || tenantId.isBlank()) {
             responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Missing tenant ID")
                 .asRuntimeException());
             return;
         }
 
-        UUID userId = userIdStr != null ? UUID.fromString(userIdStr) : UUID.randomUUID();
+        if (userIdStr == null || userIdStr.isBlank()) {
+            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                .withDescription("Missing authenticated subject")
+                .asRuntimeException());
+            return;
+        }
+
+        final UUID userId;
+        try {
+            userId = UUID.fromString(userIdStr);
+        } catch (IllegalArgumentException invalidSubject) {
+            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                .withDescription("Authenticated subject is not a supported principal identifier")
+                .asRuntimeException());
+            return;
+        }
 
         try {
             MDC.put("tenantId", tenantId);

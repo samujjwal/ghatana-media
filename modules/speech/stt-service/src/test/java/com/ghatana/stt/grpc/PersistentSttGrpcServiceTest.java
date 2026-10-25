@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.protobuf.ByteString;
@@ -56,6 +57,9 @@ class PersistentSttGrpcServiceTest {
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
             .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(persistentSttService);
+        assertThat(MDC.get("tenantId")).isNull();
+        assertThat(MDC.get("userId")).isNull();
     }
 
     @Test
@@ -164,18 +168,9 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("transcribe uses generated userId when no subject context is present")
-    void transcribeUsesGeneratedUserIdWhenNoSubject() {
+    @DisplayName("transcribe rejects missing authenticated subject before any service work")
+    void transcribeRejectsMissingSubjectWithoutServiceWork() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        TranscriptionResult mockResult = mock(TranscriptionResult.class);
-        when(mockResult.text()).thenReturn("Hi");
-        when(mockResult.confidence()).thenReturn(0.9);
-        when(mockResult.processingTime()).thenReturn(Duration.ofMillis(100));
-        when(mockResult.modelId()).thenReturn("base");
-        when(persistentSttService.transcribeAndPersist(
-                anyString(), any(UUID.class), any(byte[].class),
-                anyString(), any(), anyString(), anyInt()))
-            .thenReturn(Promise.of(mockResult));
 
         Context ctx = Context.current().withValue(JwtServerInterceptor.CTX_TENANT, "tenant-xyz");
         ctx.run(() ->
@@ -183,8 +178,30 @@ class PersistentSttGrpcServiceTest {
                 TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
                 observer));
 
-        assertThat(observer.error).isNull();
-        assertThat(observer.completed).isTrue();
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(persistentSttService);
+        assertThat(MDC.get("tenantId")).isNull();
+        assertThat(MDC.get("userId")).isNull();
+    }
+
+    @Test
+    @DisplayName("transcribe rejects unsupported subject identifiers before any service work")
+    void transcribeRejectsInvalidSubjectWithoutServiceWork() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        runWithTenantContext("tenant-xyz", "authenticated-user-42", () ->
+            service.transcribe(
+                TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
+                observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(persistentSttService);
+        assertThat(MDC.get("tenantId")).isNull();
+        assertThat(MDC.get("userId")).isNull();
     }
 
     private static void runWithTenantContext(String tenantId, String userId, Runnable action) {

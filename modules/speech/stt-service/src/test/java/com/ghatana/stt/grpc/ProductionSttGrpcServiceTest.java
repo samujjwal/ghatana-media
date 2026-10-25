@@ -1,0 +1,210 @@
+package com.ghatana.stt.grpc;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import com.ghatana.media.AudioVideoLibrary;
+import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
+import com.ghatana.stt.core.grpc.proto.SttServiceProto;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.HexFormat;
+import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
+import com.ghatana.stt.core.grpc.proto.AdaptRequest;
+import com.ghatana.stt.core.grpc.proto.AdaptResponse;
+import com.ghatana.stt.core.grpc.proto.CorrectionRequest;
+import com.ghatana.stt.core.grpc.proto.CorrectionResponse;
+import com.ghatana.stt.core.grpc.proto.CreateProfileRequest;
+import com.ghatana.stt.core.grpc.proto.GetProfileRequest;
+import com.ghatana.stt.core.grpc.proto.ProfileResponse;
+import com.ghatana.stt.core.grpc.proto.UnloadModelRequest;
+import com.ghatana.stt.core.grpc.proto.UnloadModelResponse;
+import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+
+class ProductionSttGrpcServiceTest {
+
+    @TempDir
+    Path tempDir;
+
+    @Test
+    void providerModeMustBeExplicit() {
+        assertThatThrownBy(() -> ProductionSttGrpcService.resolveProviderProfile(Map.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_PROVIDER_MODE must explicitly select");
+    }
+
+    @Test
+    void protoContractRetainsAllTwelveRpcNamesAndCoreFieldNumbers() {
+        List<String> rpcNames = STTServiceGrpc.getServiceDescriptor().getMethods().stream()
+                .map(method -> method.getBareMethodName())
+                .collect(Collectors.toList());
+        assertThat(rpcNames).containsExactly(
+                "Transcribe", "StreamTranscribe", "LoadModel", "UnloadModel", "ListModels",
+                "AdaptModel", "GetStatus", "HealthCheck", "CreateProfile", "GetProfile",
+                "UpdateProfile", "SubmitCorrection");
+
+        var transcribeRequest = SttServiceProto.getDescriptor().findMessageTypeByName("TranscribeRequest");
+        assertThat(transcribeRequest.findFieldByName("audio_data").getNumber()).isEqualTo(1);
+        assertThat(transcribeRequest.findFieldByName("tenant_id").getNumber()).isEqualTo(6);
+        assertThat(transcribeRequest.findFieldByName("consent_status").getNumber()).isEqualTo(10);
+    }
+
+    @Test
+    void productionCompositionKeepsUnsupportedRpcPathsExplicitlyUnimplemented() {
+        ProductionSttGrpcService service = new ProductionSttGrpcService(
+                mock(AudioVideoLibrary.class), new SimpleMeterRegistry());
+
+        ProductionSttGrpcServiceTest.<UnloadModelResponse>assertUnimplemented(
+                observer -> service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer));
+        ProductionSttGrpcServiceTest.<AdaptResponse>assertUnimplemented(
+                observer -> service.adaptModel(AdaptRequest.getDefaultInstance(), observer));
+        ProductionSttGrpcServiceTest.<ProfileResponse>assertUnimplemented(
+                observer -> service.createProfile(CreateProfileRequest.getDefaultInstance(), observer));
+        ProductionSttGrpcServiceTest.<ProfileResponse>assertUnimplemented(
+                observer -> service.getProfile(GetProfileRequest.getDefaultInstance(), observer));
+        ProductionSttGrpcServiceTest.<ProfileResponse>assertUnimplemented(
+                observer -> service.updateProfile(UpdateProfileRequest.getDefaultInstance(), observer));
+        ProductionSttGrpcServiceTest.<CorrectionResponse>assertUnimplemented(
+                observer -> service.submitCorrection(CorrectionRequest.getDefaultInstance(), observer));
+    }
+
+    @Test
+    void unsupportedProviderModeFailsClosed() {
+        assertThatThrownBy(() -> ProductionSttGrpcService.resolveProviderProfile(
+                Map.of("STT_PROVIDER_MODE", "local-or-grpc")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Unsupported STT_PROVIDER_MODE");
+    }
+
+    @Test
+    void grpcProviderProfileIsNotAdmittedWithoutAnUpstreamAdapter() {
+        ProductionSttGrpcService.ProviderProfile profile =
+                ProductionSttGrpcService.resolveProviderProfile(grpcProfile());
+
+        assertThat(profile.mode()).isEqualTo(ProductionSttGrpcService.ProviderMode.GRPC);
+        assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+        assertThat(profile.modelId()).isEqualTo("whisper-base");
+        assertThat(profile.modelVersion()).isEqualTo("2026.10");
+        assertThat(profile.modelDigest()).isEqualTo("a".repeat(64));
+        assertThat(profile.license()).isEqualTo("UNKNOWN_PENDING_OWNER_REVIEW");
+        assertThat(profile.executionHardware()).isEqualTo("cpu");
+        assertThat(profile.region()).isEqualTo("us-test-1");
+
+        assertThatThrownBy(() -> ProductionSttGrpcService.createConfig(grpcProfile()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageStartingWith("STT_PROVIDER_NOT_ADMITTED:");
+    }
+
+    @Test
+    void grpcModeRejectsLocalModelConfiguration() {
+        assertThatThrownBy(() -> ProductionSttGrpcService.resolveProviderProfile(Map.of(
+                        "STT_PROVIDER_MODE", "GRPC",
+                        "STT_GRPC_HOST", "stt.internal",
+                        "STT_MODEL_ID", "whisper-base")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Local model settings do not match GRPC");
+    }
+
+    @Test
+    void localOnnxProviderVerifiesModelDigestButRemainsNotAdmitted() throws Exception {
+        Path model = tempDir.resolve("model.onnx");
+        byte[] contents = new byte[] {1, 2, 3, 4};
+        Files.write(model, contents);
+        String digest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(contents));
+        Map<String, String> profileValues = Map.of(
+                "STT_PROVIDER_MODE", "LOCAL_ONNX",
+                "STT_MODEL_PATH", model.toString(),
+                "STT_MODEL_ID", "whisper-base",
+                "STT_MODEL_VERSION", "2026.10",
+                "STT_MODEL_SHA256", digest,
+                "STT_MODEL_LICENSE", "UNKNOWN_PENDING_OWNER_REVIEW",
+                "STT_EXECUTION_HARDWARE", "cpu",
+                "STT_MODEL_REGION", "us-test-1");
+
+        ProductionSttGrpcService.ProviderProfile profile =
+                ProductionSttGrpcService.resolveProviderProfile(profileValues);
+        assertThat(profile.mode()).isEqualTo(ProductionSttGrpcService.ProviderMode.LOCAL_ONNX);
+        assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+        assertThat(profile.modelDigest()).isEqualTo(digest);
+        assertThat(profile.reason()).contains("qualification is admitted");
+        assertThatThrownBy(() -> ProductionSttGrpcService.createConfig(profileValues))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageStartingWith("STT_PROVIDER_NOT_ADMITTED:");
+    }
+
+    @Test
+    void localOnnxRejectsDigestMismatch() throws Exception {
+        Path model = tempDir.resolve("model.onnx");
+        Files.write(model, new byte[] {1, 2, 3, 4});
+
+        assertThatThrownBy(() -> ProductionSttGrpcService.resolveProviderProfile(Map.of(
+                        "STT_PROVIDER_MODE", "LOCAL_ONNX",
+                        "STT_MODEL_PATH", model.toString(),
+                        "STT_MODEL_ID", "whisper-base",
+                        "STT_MODEL_VERSION", "2026.10",
+                        "STT_MODEL_SHA256", "0".repeat(64),
+                        "STT_MODEL_LICENSE", "UNKNOWN_PENDING_OWNER_REVIEW",
+                        "STT_EXECUTION_HARDWARE", "cpu",
+                        "STT_MODEL_REGION", "us-test-1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not match");
+    }
+
+    @Test
+    void nopIsExplicitlyUnavailableAndCannotCarryProviderSettings() {
+        ProductionSttGrpcService.ProviderProfile profile =
+                ProductionSttGrpcService.resolveProviderProfile(Map.of("STT_PROVIDER_MODE", "NOP"));
+        assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+        assertThatThrownBy(() -> ProductionSttGrpcService.createConfig(Map.of("STT_PROVIDER_MODE", "NOP")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("NOP intentionally disables transcription");
+
+        assertThatThrownBy(() -> ProductionSttGrpcService.resolveProviderProfile(Map.of(
+                        "STT_PROVIDER_MODE", "NOP",
+                        "STT_GRPC_HOST", "stt.internal")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("do not match NOP mode");
+    }
+
+    private static Map<String, String> grpcProfile() {
+        return Map.of(
+                "STT_PROVIDER_MODE", "GRPC",
+                "STT_GRPC_HOST", "stt.internal",
+                "STT_GRPC_PORT", "50051",
+                "STT_GRPC_TRANSPORT_MODE", "mtls",
+                "STT_GRPC_MODEL_ID", "whisper-base",
+                "STT_GRPC_MODEL_VERSION", "2026.10",
+                "STT_GRPC_MODEL_SHA256", "a".repeat(64),
+                "STT_GRPC_MODEL_LICENSE", "UNKNOWN_PENDING_OWNER_REVIEW",
+                "STT_GRPC_EXECUTION_HARDWARE", "cpu",
+                "STT_GRPC_MODEL_REGION", "us-test-1");
+    }
+
+    private static <T> void assertUnimplemented(java.util.function.Consumer<StreamObserver<T>> invoke) {
+        CapturingObserver<T> observer = new CapturingObserver<>();
+        invoke.accept(observer);
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                .isEqualTo(Status.UNIMPLEMENTED.getCode());
+    }
+
+    private static final class CapturingObserver<T> implements StreamObserver<T> {
+        Throwable error;
+
+        @Override public void onNext(T value) { }
+        @Override public void onError(Throwable failure) { error = failure; }
+        @Override public void onCompleted() { }
+    }
+}

@@ -12,9 +12,9 @@ import java.util.Map;
 /**
  * Standalone gRPC server for Speech-to-Text.
  *
- * <p>The production service composition initializes its model before the server binds. Missing or
- * invalid models therefore fail startup unless synthetic fallback was explicitly enabled for a
- * local/test profile. Production-like transport security is resolved by the shared Media policy.
+ * <p>The production service composition requires an explicit admitted provider profile before the
+ * server binds. The current gRPC and local ONNX profiles are NOT_ADMITTED and therefore fail
+ * startup. Production-like transport security is resolved by the shared Media policy.
  *
  * @doc.type class
  * @doc.purpose Fail-closed STT gRPC server bootstrap, transport security, and lifecycle

@@ -59,6 +59,47 @@
     "imageDigest": null,
     "contentDigest": null
   },
+  "modalityProviderProfiles": {
+    "stt": {
+      "selectionEnvironmentVariable": "STT_PROVIDER_MODE",
+      "status": "NOT_ADMITTED",
+      "profiles": [
+        {
+          "mode": "GRPC",
+          "providerId": "stt-upstream-grpc",
+          "status": "NOT_ADMITTED",
+          "reason": "The STT server composition has no upstream gRPC provider adapter.",
+          "requiredProfileFields": [
+            "modelId",
+            "modelVersion",
+            "modelSha256",
+            "modelLicense",
+            "executionHardware",
+            "region"
+          ],
+          "transport": "TLS_OR_MTLS"
+        },
+        {
+          "mode": "LOCAL_ONNX",
+          "providerId": "stt-local-onnx",
+          "status": "NOT_ADMITTED",
+          "reason": "No source-authorized local STT model license and quality qualification is admitted.",
+          "modelId": null,
+          "modelVersion": null,
+          "modelSha256": null,
+          "modelLicense": null,
+          "executionHardware": null,
+          "region": null
+        },
+        {
+          "mode": "NOP",
+          "providerId": "stt-disabled",
+          "status": "NOT_ADMITTED",
+          "reason": "NOP intentionally disables transcription and cannot satisfy the STT service contract."
+        }
+      ]
+    }
+  },
   "kernelDependencyBindings": [
     {
       "requestId": "KERNEL-DEP-GHATANA-OCR-PROVIDER-001",
