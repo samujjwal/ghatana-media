@@ -491,7 +491,6 @@ Focused verification on this source cut:
 - All focused Gradle commands used `--no-daemon --console=plain`; each affected code set passed `git diff --check`.
 
 No model-quality corpus, licensed provider, biometric consent authority, production writer cutover, Prometheus rule evaluation, formal PDP acceptance, native lifecycle receipt, deployment or release evidence was produced. W2-E01 through W2-E12 remain incomplete. Existing GH-90000 compose skips remain unverified.
-
 ### Incremental execution record — 2026-10-25 (second round)
 
 The following focused checks advanced two existing partial task rows and reclassified one task's bounded abstention behavior after focused tests. The task denominator remains 58: 20 LOCALLY_VERIFIED, 17 PARTIAL, 20 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT. No surface or integrated W2-E scenario is closed.
@@ -526,3 +525,24 @@ Focused commands and results: `./gradlew :services:media:modules:vision:vision-s
 
 No integrated W2-E scenario is complete. No real provider/model quality, native leak-rate baseline, biometric rights authority, cross-process image test, production cutover, formal PDP acceptance, lifecycle receipt, deployment or release was produced. GH-90000 image-dependent compose tests remain NOT RUN.
 
+### Incremental execution record — 2026-10-25 (fourth round)
+
+Five local commits were added after the third-round plan record: `f57baea`, `835ba94`, `c715757`, `d118827`, and `8208b4e`. They are unpushed on `main`. No protocol schema or product source was changed.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| TTS-03 | Production composition now rejects `MEDIA_TTS_ALLOW_SYNTHETIC_FALLBACK=true` in every runtime profile, matching `syntheticFallback: false` in the provider manifest. `ProductionTtsGrpcServiceConfigTest` passed 7 tests. | PARTIAL: no synthetic fallback can be enabled, but model/license/voice/hardware/region admission and a real provider are absent. |
+| TTS-10 | The registered production wrapper is tested for omitted/default language, `en/ne/hi`, region tags, and unsupported locales. Each request fails with an exact typed NOT_ADMITTED outcome before engine lookup and returns no result; explicit voice/profile selection also fails closed. `TtsGrpcServiceTest` passed 24 tests. | PARTIAL: locale rejection and no substitution are verified; real authorized language/voice effects remain unqualified. |
+| MM-05 | `PlatformMultimodalAdapter` rejects missing child dependencies during composition and treats a null STT result as an explicit failure; a non-null child `AudioResult.error` is preserved. The adapter/client focused run passed 10 tests. The full multimodal module rerun passed 249 tests, 0 failures/errors/skips; all 104 actionable tasks executed. | PARTIAL: no null-child success path remains; real STT and Vision child providers, licensed models and cross-service positive effects remain unavailable. |
+| W2-E09 | Source-bound request/response outcomes were exercised for all 43 registered methods in authenticated in-process matrices. See the existing exact 43-ID mapping above and package inventories: STT `README.md`, TTS `WAVE2-RPC-CAPABILITY-MATRIX.md`, Vision `WAVE2-RPC-CAPABILITY-MATRIX.md`, and Multimodal `WAVE2-RPC-CAPABILITY-MATRIX.md`. Current valid requests return an implemented result or their exact fail-closed `UNAVAILABLE`/`UNIMPLEMENTED` behavior; applicable unauthenticated, malformed/bounds, unsupported-provider, and readiness cases are asserted. | COMPLETE for the local 43-method contract matrix at this source cut. It does not qualify real providers or close any physical surface. |
+
+The four in-process verification commands and results were:
+
+- STT: `./gradlew :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.grpc.SttGrpcServiceInProcessIntegrationTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 6 tests exercise all 12 RPC outcomes and unauthenticated calls for all 12.
+- TTS: `./gradlew :services:media:modules:speech:tts-service:test --tests 'com.ghatana.tts.grpc.TtsGrpcServiceInProcessIntegrationTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 7 tests exercise all 11 RPC dispositions, missing credentials, malformed synthesis input, tenant authority and fail-closed streaming.
+- Vision: `./gradlew :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.grpc.ProductionVisionGrpcServiceRpcMatrixTest' --tests 'com.ghatana.audio.video.vision.grpc.VisionGrpcServiceInProcessIntegrationTest'` — BUILD SUCCESSFUL; 8 tests cover all 10 RPC outcomes, missing JWT on protected methods, malformed/bounds cases, and unavailable provider behavior.
+- Multimodal: `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcProductionWrapperMatrixTest' --tests 'com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServiceInProcessIntegrationTest' --no-daemon` — BUILD SUCCESSFUL; 14 tests cover all 10 RPCs, missing credentials, invalid/model bounds, requested-provider failure and no-partial-result behavior.
+
+None of the four request protocols defines a request protocol-version field or version-negotiation RPC; model `version` fields are response metadata only. Version request cases are therefore not applicable to these source contracts. Other integrated scenarios W2-E01..08 and W2-E10..12 remain incomplete; their provider-backed effects, persisted readback, quality, resource, restart, alert-evaluation, and operational requirements are not substituted by the RPC matrix.
+
+Current exclusive task dispositions: **21 LOCALLY_VERIFIED, 22 PARTIAL, 14 EXTERNAL/OWNER, 1 SOURCE_CONFLICT (58 total).** Partial now includes TTS-03 and TTS-10; MM-05 remains partial. STT-01 is LOCALLY_VERIFIED for inventory/wire identity only. No model-quality corpus, provider/license/voice-rights admission, native leak baseline, GH-90000 compose run, formal PDP acceptance, lifecycle receipt, deployment or release was produced.
