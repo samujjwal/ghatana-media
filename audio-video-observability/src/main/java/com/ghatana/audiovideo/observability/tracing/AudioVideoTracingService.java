@@ -124,10 +124,14 @@ public class AudioVideoTracingService {
     public void recordSuccess(Span span, long durationMs) {
         if (span != null) {
             span.setStatus(StatusCode.OK);
-            span.setAttribute("duration.ms", durationMs);
+            if (durationMs >= 0) {
+                span.setAttribute("duration.ms", durationMs);
+                log.debug("Audio-Video operation completed successfully in {}ms", durationMs);
+            } else {
+                log.debug("Audio-Video operation completed successfully with unknown duration");
+            }
 
             span.end();
-            log.debug("Audio-Video operation completed successfully in {}ms", durationMs);
         }
     }
 
@@ -138,13 +142,19 @@ public class AudioVideoTracingService {
         if (span != null) {
             // Exception messages can contain user supplied paths, tokens, or media metadata.
             span.setStatus(StatusCode.ERROR, "Media operation failed");
-            span.setAttribute("duration.ms", durationMs);
+            if (durationMs >= 0) {
+                span.setAttribute("duration.ms", durationMs);
+            }
             span.setAttribute("error", true);
             span.setAttribute("error.type", exception.getClass().getSimpleName());
             span.end();
 
-            log.error("Audio-Video operation failed after {}ms (type={})",
-                    durationMs, exception.getClass().getSimpleName());
+            if (durationMs >= 0) {
+                log.error("Audio-Video operation failed after {}ms (type={})",
+                        durationMs, exception.getClass().getSimpleName());
+            } else {
+                log.error("Audio-Video operation failed (type={})", exception.getClass().getSimpleName());
+            }
         }
     }
 

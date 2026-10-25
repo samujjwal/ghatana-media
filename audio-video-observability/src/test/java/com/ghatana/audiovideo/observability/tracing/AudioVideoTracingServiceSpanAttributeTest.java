@@ -72,6 +72,21 @@ class AudioVideoTracingServiceSpanAttributeTest {
         verify(builder, never()).setAttribute(anyString(), eq(marker));
     }
 
+    @Test
+    @DisplayName("does not export negative durations as measurements")
+    void shouldOmitNegativeDurations() {
+        Span successSpan = mock(Span.class);
+        Span errorSpan = mock(Span.class);
+
+        tracingService.recordSuccess(successSpan, -1);
+        tracingService.recordError(errorSpan, new IllegalStateException("private marker"), -1);
+
+        verify(successSpan, never()).setAttribute(eq("duration.ms"), anyLong());
+        verify(errorSpan, never()).setAttribute(eq("duration.ms"), anyLong());
+        verify(successSpan).end();
+        verify(errorSpan).end();
+    }
+
     // -------------------------------------------------------------------------
     // STT transcription span — do not copy identifiers or content tags into log MDC
     // -------------------------------------------------------------------------

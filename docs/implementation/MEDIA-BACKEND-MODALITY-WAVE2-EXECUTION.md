@@ -901,3 +901,18 @@ Focused verification on this source cut:
 - `./gradlew :services:media:audio-video-observability:test --tests 'com.ghatana.audiovideo.observability.tracing.AudioVideoTracingServiceSpanAttributeTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 19 tests, 0 failures/errors/skips.
 - `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks for task IDs, dependencies, 99 capability memberships, 43 RPC mappings and residual separation.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (twenty-first round)
+
+This round hardens trace duration measurements against invalid negative inputs. Valid operation status remains recorded, but a negative duration is omitted from span attributes and duration-bearing logs rather than emitted as a measurement.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| OBS-03 / OBS-05 | `AudioVideoTracingService.recordSuccess()` and `recordError()` now export `duration.ms` only for nonnegative durations; negative values use duration-free log messages. Added a regression for both success and error spans. The focused `AudioVideoTracingServiceSpanAttributeTest` passed 20 tests, 0 failures/errors/skips. | PARTIAL: invalid duration measurements are excluded locally; named control/model timing, end-to-end async trace linkage, and deployed evidence remain open. |
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:audio-video-observability:test --tests 'com.ghatana.audiovideo.observability.tracing.AudioVideoTracingServiceSpanAttributeTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 20 tests, 0 failures/errors/skips.
+- `git diff --check` — PASS.
+
+The current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. The local trace fix does not claim alert deployment, provider quality, or full OBS closure.
