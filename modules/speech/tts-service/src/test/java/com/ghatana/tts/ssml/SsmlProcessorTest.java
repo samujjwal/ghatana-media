@@ -3,6 +3,7 @@ package com.ghatana.tts.ssml;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.xml.sax.SAXParseException;
 
 import java.util.List;
 
@@ -252,11 +253,13 @@ class SsmlProcessorTest {
     }
 
     @Test
-    @DisplayName("rejects excessive nesting")
+    @DisplayName("rejects excessive nesting in the XML parser before building the SSML tree")
     void rejectsExcessiveNesting() {
         String nested = "<speak>" + "<say-as interpret-as=\"cardinal\">".repeat(SsmlProcessor.MAX_DEPTH)
                 + "x" + "</say-as>".repeat(SsmlProcessor.MAX_DEPTH) + "</speak>";
-        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse(nested));
+        assertThatThrownBy(() -> processor.parse(nested))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasCauseInstanceOf(SAXParseException.class);
     }
 
     @Test

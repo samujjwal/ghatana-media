@@ -39,6 +39,11 @@ public final class SsmlProcessor {
             factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            // Bound parser work before constructing the DOM. The post-parse traversal check
+            // below remains useful for the canonical SSML nesting rules, but cannot protect
+            // the parser from allocating a deeply nested tree on its own.
+            factory.setAttribute("http://www.oracle.com/xml/jaxp/properties/maxElementDepth",
+                    Integer.toString(MAX_DEPTH));
             Document document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(ssml)));
             Element root = document.getDocumentElement();
             if (root == null || !"speak".equals(root.getTagName())) {
