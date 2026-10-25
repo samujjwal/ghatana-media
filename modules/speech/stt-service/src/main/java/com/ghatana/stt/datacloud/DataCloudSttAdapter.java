@@ -43,31 +43,31 @@ public class DataCloudSttAdapter implements MediaProcessorPort {
 
     @Override
     public Promise<String> transcribeAudio(String artifactId, String tenantId, String languageCode, Map<String, String> parameters) {
-        LOG.info("[WS3] Transcribing audio artifactId={} tenantId={} languageCode={}", artifactId, tenantId, languageCode);
+        LOG.info("[WS3] Transcribing audio");
         
         // WS3: Delegate to STT service for transcription
         // The STT service should return a transcript ID that can be stored in Data Cloud
         return sttService.transcribe(artifactId, tenantId, languageCode, parameters)
             .map(transcriptId -> {
-                LOG.info("[WS3] Transcription completed artifactId={} transcriptId={}", artifactId, transcriptId);
+                LOG.info("[WS3] Transcription completed");
                 return transcriptId;
             })
             .whenException(ex -> {
-                LOG.error("[WS3] Transcription failed artifactId={} tenantId={}", artifactId, tenantId, ex);
+                LOG.error("[WS3] Transcription failed failureType={}", ex.getClass().getSimpleName());
             });
     }
 
     @Override
     public Promise<String> analyzeVision(String artifactId, String tenantId, String analysisType, Map<String, String> parameters) {
         // WS3: STT adapter does not support vision analysis
-        LOG.warn("[WS3] Vision analysis not supported by STT adapter artifactId={} tenantId={}", artifactId, tenantId);
+        LOG.warn("[WS3] Vision analysis not supported by STT adapter");
         return Promise.of(null);
     }
 
     @Override
     public Promise<String> indexMultimodal(String artifactId, String tenantId, String indexType, Map<String, String> parameters) {
         // WS3: STT adapter does not support multimodal indexing
-        LOG.warn("[WS3] Multimodal indexing not supported by STT adapter artifactId={} tenantId={}", artifactId, tenantId);
+        LOG.warn("[WS3] Multimodal indexing not supported by STT adapter");
         return Promise.of(null);
     }
 

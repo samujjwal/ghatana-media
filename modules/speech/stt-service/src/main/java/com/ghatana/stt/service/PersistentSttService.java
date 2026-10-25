@@ -139,8 +139,7 @@ public class PersistentSttService {
                 tenantId, userId, fileName, audioBytes.length, format, sampleRate)
                 .then(audioFile -> {
                     LOG.info(
-                            "[tenant={}] Audio file persisted: id={}, sizeBytes={}",
-                            tenantId, audioFile.getId(), audioBytes.length);
+                            "Audio file persisted: sizeBytes={}", audioBytes.length);
                     return performTranscription(decodedAudio, language)
                             .then(transcriptionResult -> persistTranscription(
                                     tenantId,
@@ -153,11 +152,7 @@ public class PersistentSttService {
                                         long elapsedMs = System.currentTimeMillis() - startTime;
                                         transcribeTimer.record(Duration.ofMillis(elapsedMs));
                                         LOG.info(
-                                                "[tenant={} requestId={}] Transcription completed: audioId={}, transcriptionId={}, confidence={}, elapsedMs={}",
-                                                tenantId,
-                                                requestId,
-                                                audioFile.getId(),
-                                                transcription.getId(),
+                                                "Transcription completed: confidence={}, elapsedMs={}",
                                                 transcriptionResult.confidence(),
                                                 elapsedMs);
                                         emitSttAudit(
@@ -174,15 +169,13 @@ public class PersistentSttService {
                                                                 ? transcriptionResult.language()
                                                                 : "unknown",
                                                         "processingTimeMs", String.valueOf(elapsedMs),
-                                                        "audioSizeBytes", String.valueOf(audioBytes.length),
-                                                        "inputHash", inputHash));
+                                                        "audioSizeBytes", String.valueOf(audioBytes.length)));
                                         return transcriptionResult;
                                     }))
                             .whenException(failure -> {
                                 String failureType = failureType(failure);
                                 LOG.error(
-                                        "[tenant={} requestId={}] Transcription failed audioId={} failureType={}",
-                                        tenantId, requestId, audioFile.getId(), failureType);
+                                        "Transcription failed failureType={}", failureType);
                                 updateAudioFileStatus(
                                         tenantId,
                                         audioFile.getId(),
@@ -203,8 +196,7 @@ public class PersistentSttService {
                 .whenException(failure -> {
                     String failureType = failureType(failure);
                     LOG.error(
-                            "[tenant={} requestId={}] STT request failed failureType={}",
-                            tenantId, requestId, failureType);
+                            "STT request failed failureType={}", failureType);
                     emitSttAudit(
                             tenantId,
                             userId.toString(),

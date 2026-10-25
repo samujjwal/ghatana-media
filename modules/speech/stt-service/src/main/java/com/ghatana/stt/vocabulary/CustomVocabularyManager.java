@@ -122,7 +122,7 @@ public final class CustomVocabularyManager {
         // Remove old entry if exists (to update weight)
         terms.removeIf(t -> t.normalised().equals(normalised));
         terms.add(new VocabularyTerm(term, normalised, weight));
-        LOG.debug("Vocabulary term added: '{}' weight={}", normalised, weight);
+        LOG.debug("Vocabulary term added weight={}", weight);
     }
 
     /**
@@ -136,7 +136,7 @@ public final class CustomVocabularyManager {
         Objects.requireNonNull(term, "term must not be null");
         String normalised = term.trim().toLowerCase(Locale.ROOT);
         boolean removed = terms.removeIf(t -> t.normalised().equals(normalised));
-        if (removed) LOG.debug("Vocabulary term removed: '{}'", normalised);
+        if (removed) LOG.debug("Vocabulary term removed");
         return removed;
     }
 

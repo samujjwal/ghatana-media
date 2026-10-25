@@ -13,7 +13,6 @@ import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -93,7 +92,6 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
 
     @Override
     public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> responseObserver) {
-        String cid = cid();
         String tenantId = getTenantId();
         String userIdStr = getUserId();
 
@@ -132,10 +130,6 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
         }
 
         try {
-            MDC.put("tenantId", tenantId);
-            MDC.put("userId", userIdStr);
-            MDC.put("cid", cid);
-
             SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
             byte[] audioBytes = request.getAudioData().toByteArray();
             if (audioBytes.length == 0) {
@@ -160,11 +154,11 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
                     responseObserver.onCompleted();
                 } catch (SttTranscriptionResponseMapper.InvalidResultException invalidResult) {
                     responseObserver.onError(io.grpc.Status.INTERNAL
-                            .withDescription(invalidResult.getMessage()).asRuntimeException());
+                            .withDescription("Invalid transcription result").asRuntimeException());
                 }
             }).whenException(e -> {
                 // AV-P1-004: Map exception types to appropriate gRPC status codes
-                io.grpc.Status grpcStatus = toGrpcStatus(cid, e);
+                io.grpc.Status grpcStatus = toGrpcStatus(e);
                 responseObserver.onError(grpcStatus.asRuntimeException());
             });
 
@@ -174,18 +168,21 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
                 case RESOURCE_EXHAUSTED -> io.grpc.Status.RESOURCE_EXHAUSTED;
                 case NOT_ADMITTED -> io.grpc.Status.FAILED_PRECONDITION;
             };
-            responseObserver.onError(grpcStatus.withDescription(e.getMessage()).asRuntimeException());
+            String description = switch (e.kind()) {
+                case INVALID_ARGUMENT -> "Invalid audio input";
+                case RESOURCE_EXHAUSTED -> "Audio input exceeds the supported limit";
+                case NOT_ADMITTED -> "Audio input is not admitted";
+            };
+            responseObserver.onError(grpcStatus.withDescription(description).asRuntimeException());
         } catch (IllegalArgumentException e) {
             // AV-P1-004: Validation threw synchronously (before Promise was returned)
-            LOG.warn("[{}] Validation error: {}", cid, e.getMessage());
+            LOG.warn("STT transcribe validation failed failureType={}", failureType(e));
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                .withDescription(e.getMessage()).asRuntimeException());
+                .withDescription("Invalid transcription request").asRuntimeException());
         } catch (Exception e) {
-            LOG.error("[{}] Unexpected error: {}", cid, e.getMessage(), e);
+            LOG.error("STT transcribe failed failureType={}", failureType(e));
             responseObserver.onError(io.grpc.Status.INTERNAL
                 .withDescription("Internal error").asRuntimeException());
-        } finally {
-            MDC.clear();
         }
     }
 
@@ -203,32 +200,33 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
         return JwtServerInterceptor.CTX_SUBJECT.get();
     }
 
-    private String cid() {
-        return java.util.UUID.randomUUID().toString().substring(0, 8);
-    }
-
     /**
      * AV-P1-004: Map exception types to canonical gRPC status codes.
      */
-    private io.grpc.Status toGrpcStatus(String cid, Throwable e) {
+    private io.grpc.Status toGrpcStatus(Throwable e) {
         if (e instanceof IllegalArgumentException) {
-            LOG.warn("[{}] Validation error: {}", cid, e.getMessage());
-            return io.grpc.Status.INVALID_ARGUMENT.withDescription(e.getMessage());
+            LOG.warn("STT transcribe validation failed failureType={}", failureType(e));
+            return io.grpc.Status.INVALID_ARGUMENT.withDescription("Invalid transcription request");
         }
         if (e instanceof java.util.concurrent.TimeoutException) {
-            LOG.warn("[{}] Transcription timed out: {}", cid, e.getMessage());
-            return io.grpc.Status.DEADLINE_EXCEEDED.withDescription(e.getMessage());
+            LOG.warn("STT transcribe timed out failureType={}", failureType(e));
+            return io.grpc.Status.DEADLINE_EXCEEDED.withDescription("Transcription timed out");
         }
         if (e instanceof com.ghatana.media.common.InferenceError ie && !ie.isRetryable()) {
-            LOG.error("[{}] Non-retryable inference error: {}", cid, e.getMessage());
-            return io.grpc.Status.INTERNAL.withDescription("Inference failed: " + e.getMessage());
+            LOG.error("STT transcribe non-retryable inference failure failureType={}", failureType(e));
+            return io.grpc.Status.INTERNAL.withDescription("Inference failed");
         }
         if (e instanceof com.ghatana.media.common.InferenceError) {
-            LOG.warn("[{}] Retryable inference error: {}", cid, e.getMessage());
+            LOG.warn("STT transcribe retryable inference failure failureType={}", failureType(e));
             return io.grpc.Status.UNAVAILABLE.withDescription("Transcription temporarily unavailable");
         }
-        LOG.error("[{}] Unexpected async error: {}", cid, e.getMessage(), e);
+        LOG.error("STT transcribe failed failureType={}", failureType(e));
         return io.grpc.Status.INTERNAL.withDescription("Transcription failed");
+    }
+
+    private static String failureType(Throwable failure) {
+        String name = failure.getClass().getSimpleName();
+        return name == null || name.isBlank() ? "UNKNOWN" : name;
     }
 
 }
