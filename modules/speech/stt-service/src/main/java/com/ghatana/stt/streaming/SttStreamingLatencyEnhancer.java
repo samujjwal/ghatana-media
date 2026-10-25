@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -51,6 +52,8 @@ public final class SttStreamingLatencyEnhancer {
     private final Consumer<AudioChunkBatch> emitter;
 
     private final BlockingDeque<TimestampedChunk> buffer;
+    private final Object admissionLock = new Object();
+    private final ReentrantLock emissionLock = new ReentrantLock();
     private final AtomicLong chunksReceived = new AtomicLong(0);
     private final AtomicLong bufferedBytes = new AtomicLong(0);
     private final AtomicLong batchesEmitted = new AtomicLong(0);
@@ -58,6 +61,8 @@ public final class SttStreamingLatencyEnhancer {
     private final AtomicLong latencyViolations = new AtomicLong(0);
 
     private volatile boolean backPressureActive = false;
+    private int lastAcceptedSequence = -1;
+    private long lastAcceptedTimestampMs = -1;
 
     private SttStreamingLatencyEnhancer(Builder builder) {
         this.maxBufferChunks = builder.maxBufferChunks;
@@ -84,22 +89,41 @@ public final class SttStreamingLatencyEnhancer {
         if (audioBytes.length > maxChunkBytes) {
             throw new IllegalArgumentException("STT_STREAM_CHUNK_TOO_LARGE: audio chunk exceeds the configured limit");
         }
-
-        if (!reserveBytes(audioBytes.length)) {
-            backPressureActive = true;
-            return false;
-        }
-
-        boolean reserved = true;
         boolean accepted;
-        try {
-            // The caller owns its input array and may reuse it as soon as ingest returns.
-            TimestampedChunk chunk = new TimestampedChunk(
-                    Arrays.copyOf(audioBytes, audioBytes.length), sequenceNumber, timestampMs, System.nanoTime());
-            accepted = buffer.offer(chunk);
-            if (accepted) reserved = false;
-        } finally {
-            if (reserved) bufferedBytes.addAndGet(-audioBytes.length);
+        synchronized (admissionLock) {
+            if (sequenceNumber < 0) {
+                throw new IllegalArgumentException("STT_STREAM_SEQUENCE_INVALID: sequence cannot be negative");
+            }
+            if (timestampMs < 0) {
+                throw new IllegalArgumentException("STT_STREAM_TIMESTAMP_INVALID: timestamp cannot be negative");
+            }
+            if (lastAcceptedSequence >= 0 && sequenceNumber <= lastAcceptedSequence) {
+                throw new IllegalArgumentException(
+                        "STT_STREAM_SEQUENCE_INVALID: sequence must increase within the stream");
+            }
+            if (lastAcceptedTimestampMs >= 0 && timestampMs < lastAcceptedTimestampMs) {
+                throw new IllegalArgumentException("STT_STREAM_TIMESTAMP_INVALID: timestamps must not move backwards");
+            }
+
+            if (!reserveBytes(audioBytes.length)) {
+                backPressureActive = true;
+                return false;
+            }
+
+            boolean reserved = true;
+            try {
+                // The caller owns its input array and may reuse it as soon as ingest returns.
+                TimestampedChunk chunk = new TimestampedChunk(
+                        Arrays.copyOf(audioBytes, audioBytes.length), sequenceNumber, timestampMs, System.nanoTime());
+                accepted = buffer.offer(chunk);
+                if (accepted) {
+                    lastAcceptedSequence = sequenceNumber;
+                    lastAcceptedTimestampMs = timestampMs;
+                    reserved = false;
+                }
+            } finally {
+                if (reserved) bufferedBytes.addAndGet(-audioBytes.length);
+            }
         }
 
         if (accepted) {
@@ -124,13 +148,17 @@ public final class SttStreamingLatencyEnhancer {
 
     /** Flushes any remaining buffered chunks as a final batch. */
     public void flush() {
-        if (buffer.isEmpty()) return;
-        java.util.List<TimestampedChunk> chunks = new java.util.ArrayList<>();
-        buffer.drainTo(chunks);
-        if (!chunks.isEmpty()) {
-            emit(chunks);
-        } else {
-            refreshBackPressure();
+        emissionLock.lock();
+        try {
+            java.util.List<TimestampedChunk> chunks = new java.util.ArrayList<>();
+            buffer.drainTo(chunks);
+            if (!chunks.isEmpty()) {
+                emit(chunks);
+            } else {
+                refreshBackPressure();
+            }
+        } finally {
+            emissionLock.unlock();
         }
     }
 
@@ -138,12 +166,21 @@ public final class SttStreamingLatencyEnhancer {
 
     private void tryFlush() {
         if (buffer.size() >= Math.max(1, maxBufferChunks / 4) || isOldestChunkExpired()) {
-            java.util.List<TimestampedChunk> chunks = new java.util.ArrayList<>();
-            buffer.drainTo(chunks);
-            if (!chunks.isEmpty()) {
-                emit(chunks);
-            } else {
-                refreshBackPressure();
+            emissionLock.lock();
+            try {
+                // Recheck after acquiring the emission lock; another ingester may
+                // already have drained this batch while this thread was waiting.
+                if (buffer.size() >= Math.max(1, maxBufferChunks / 4) || isOldestChunkExpired()) {
+                    java.util.List<TimestampedChunk> chunks = new java.util.ArrayList<>();
+                    buffer.drainTo(chunks);
+                    if (!chunks.isEmpty()) {
+                        emit(chunks);
+                    } else {
+                        refreshBackPressure();
+                    }
+                }
+            } finally {
+                emissionLock.unlock();
             }
         }
     }

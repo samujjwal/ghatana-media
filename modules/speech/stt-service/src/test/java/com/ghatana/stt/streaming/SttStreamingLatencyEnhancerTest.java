@@ -139,6 +139,42 @@ class SttStreamingLatencyEnhancerTest {
     }
 
     @Test
+    @DisplayName("Rejects repeated sequence and backward timestamps without consuming the next accepted chunk")
+    void ingestRequiresIncreasingSequenceAndNondecreasingTimestamp() {
+        List<SttStreamingLatencyEnhancer.AudioChunkBatch> orderedBatches = new ArrayList<>();
+        SttStreamingLatencyEnhancer ordered = SttStreamingLatencyEnhancer.builder()
+                .maxBufferChunks(20)
+                .emitter(orderedBatches::add)
+                .build();
+
+        assertThat(ordered.ingest(new byte[] {1, 2}, 10, 1_000)).isTrue();
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, -1, 1_010))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_SEQUENCE_INVALID");
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 10, 1_010))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_SEQUENCE_INVALID");
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 9, 1_010))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_SEQUENCE_INVALID");
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 11, 999))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_TIMESTAMP_INVALID");
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 11, -1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_TIMESTAMP_INVALID");
+
+        assertThat(ordered.ingest(new byte[] {3, 4}, 11, 1_000)).isTrue();
+        ordered.flush();
+
+        assertThat(orderedBatches).hasSize(1);
+        assertThat(orderedBatches.getFirst().firstSequenceNumber()).isEqualTo(10);
+        assertThat(orderedBatches.getFirst().firstTimestampMs()).isEqualTo(1_000);
+        assertThat(orderedBatches.getFirst().chunkCount()).isEqualTo(2);
+        assertThat(ordered.stats().chunksReceived()).isEqualTo(2);
+    }
+
+    @Test
     @DisplayName("Bounds aggregate pending bytes and releases the reservation after flush")
     void aggregateBufferByteLimitAndFlushRelease() {
         SttStreamingLatencyEnhancer bounded = SttStreamingLatencyEnhancer.builder()
