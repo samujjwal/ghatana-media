@@ -4,6 +4,7 @@ import com.ghatana.observability.MetricsCollector;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.stub.StreamObserver;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,6 +44,11 @@ class AudioVideoHealthServiceTest {
     void setUp() { 
         healthService = new AudioVideoHealthService("stt-service", metricsCollector); 
         lenient().doNothing().when(metricsCollector).incrementCounter(anyString(), any(String[].class)); 
+    }
+
+    @AfterEach
+    void closeHealthService() {
+        healthService.close();
     }
 
     @Test
@@ -183,6 +192,7 @@ class AudioVideoHealthServiceTest {
 
         requiredHealth.registerCheck("model", () -> true);
         assertThat(requiredHealth.markReady()).isTrue();
+        requiredHealth.close();
     }
 
     @Test
@@ -206,6 +216,55 @@ class AudioVideoHealthServiceTest {
         assertThat(observer.responses.get(0).getStatus())
                 .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
         assertThat(healthService.markReady()).isTrue();
+    }
+
+    @Test
+    @DisplayName("A slow provider check returns NOT_SERVING within the configured probe deadline")
+    void slowProviderCheckTimesOutWithinBound() throws InterruptedException {
+        AudioVideoHealthService bounded = new AudioVideoHealthService(
+                "stt-service", metricsCollector, java.util.Set.of("provider"), Duration.ofMillis(50));
+        CountDownLatch checkStarted = new CountDownLatch(1);
+        CountDownLatch releaseCheck = new CountDownLatch(1);
+        bounded.registerCheck("provider", () -> {
+            checkStarted.countDown();
+            try {
+                releaseCheck.await();
+                return true;
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        });
+        assertThat(bounded.markReady()).isTrue();
+
+        long startedAt = System.nanoTime();
+        CapturingObserver observer = new CapturingObserver();
+        bounded.check(HealthCheckRequest.getDefaultInstance(), observer);
+        long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt);
+
+        assertThat(checkStarted.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(observer.responses.get(0).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+        assertThat(elapsedMs).isLessThan(500L);
+        releaseCheck.countDown();
+        bounded.close();
+    }
+
+    @Test
+    @DisplayName("Health response contains no check names or exception detail")
+    void healthResponseDoesNotExposeSensitiveCheckMarkers() {
+        String marker = "tenant-secret-model-token-marker";
+        healthService.registerCheck(marker, () -> {
+            throw new IllegalStateException(marker);
+        });
+        assertThat(healthService.markReady()).isTrue();
+
+        CapturingObserver observer = new CapturingObserver();
+        healthService.check(HealthCheckRequest.getDefaultInstance(), observer);
+
+        assertThat(observer.responses.get(0).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+        assertThat(observer.responses.get(0).toString()).doesNotContain(marker);
     }
 
     // ── helpers ────────────────────────────────────────────────────────────

@@ -11,7 +11,18 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.time.Duration;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -34,18 +45,22 @@ import java.util.function.Supplier;
  * @doc.layer product
  * @doc.pattern Service
  */
-public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
+public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoHealthService.class);
+    private static final Duration DEFAULT_CHECK_TIMEOUT = Duration.ofMillis(250);
+    private static final Duration MAX_CHECK_TIMEOUT = Duration.ofSeconds(5);
 
     private final Map<String, Supplier<Boolean>> checks = new ConcurrentHashMap<>();
     private final Set<String> requiredChecks;
     private final AtomicReference<LifecycleState> lifecycle = new AtomicReference<>(LifecycleState.STARTING);
+    private final ExecutorService checkExecutor;
+    private final long checkTimeoutNanos;
     private final MetricsCollector metricsCollector;
     private final String serviceName;
 
     public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector) {
-        this(serviceName, metricsCollector, Set.of());
+        this(serviceName, metricsCollector, Set.of(), DEFAULT_CHECK_TIMEOUT);
     }
 
     /**
@@ -54,12 +69,30 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
      */
     public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector,
                                    Set<String> requiredChecks) {
+        this(serviceName, metricsCollector, requiredChecks, DEFAULT_CHECK_TIMEOUT);
+    }
+
+    /** Construct the health service with an explicit maximum duration for the full check set. */
+    public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector,
+                                   Set<String> requiredChecks, Duration checkTimeout) {
         this.serviceName = requireName(serviceName, "serviceName");
         this.metricsCollector = Objects.requireNonNull(metricsCollector, "metricsCollector");
         Objects.requireNonNull(requiredChecks, "requiredChecks");
         this.requiredChecks = requiredChecks.stream()
                 .map(name -> requireName(name, "required check name"))
                 .collect(java.util.stream.Collectors.toUnmodifiableSet());
+        Objects.requireNonNull(checkTimeout, "checkTimeout");
+        if (checkTimeout.isZero() || checkTimeout.isNegative() || checkTimeout.compareTo(MAX_CHECK_TIMEOUT) > 0) {
+            throw new IllegalArgumentException("checkTimeout must be greater than zero and at most 5 seconds");
+        }
+        this.checkTimeoutNanos = checkTimeout.toNanos();
+        ThreadFactory threadFactory = runnable -> {
+            Thread thread = new Thread(runnable, "av-health-check-" + this.serviceName);
+            thread.setDaemon(true);
+            return thread;
+        };
+        this.checkExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new SynchronousQueue<>(), threadFactory, new ThreadPoolExecutor.AbortPolicy());
     }
 
     /**
@@ -112,18 +145,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
 
         boolean allHealthy = lifecycle.get() == LifecycleState.READY
                 && !checks.isEmpty() && checks.keySet().containsAll(requiredChecks)
-                && checks.entrySet().stream()
-                .allMatch(e -> {
-                    try {
-                        boolean ok = e.getValue().get();
-                        if (!ok) LOG.warn("Health check failing: service={} check={}", serviceName, e.getKey());
-                        return ok;
-                    } catch (Exception ex) {
-                        LOG.error("Health check threw exception: service={} check={}: {}",
-                                serviceName, e.getKey(), ex.getMessage());
-                        return false;
-                    }
-                });
+                && evaluateWithinDeadline(this::allChecksHealthy, false);
 
         HealthCheckResponse.ServingStatus status = allHealthy
                 ? HealthCheckResponse.ServingStatus.SERVING
@@ -173,15 +195,66 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase {
      * @return map of check name → healthy
      */
     public Map<String, Boolean> getCheckResults() {
-        Map<String, Boolean> results = new ConcurrentHashMap<>();
-        checks.forEach((name, check) -> {
+        Map<String, Supplier<Boolean>> snapshot = Map.copyOf(checks);
+        return evaluateWithinDeadline(() -> {
+            Map<String, Boolean> results = new ConcurrentHashMap<>();
+            snapshot.forEach((name, check) -> {
+                try {
+                    results.put(name, Boolean.TRUE.equals(check.get()));
+                } catch (RuntimeException failure) {
+                    results.put(name, false);
+                }
+            });
+            return Map.copyOf(results);
+        }, Map.of());
+    }
+
+    @Override
+    public void close() {
+        setNotServing();
+        checkExecutor.shutdownNow();
+    }
+
+    private boolean allChecksHealthy() {
+        Map<String, Supplier<Boolean>> snapshot = Map.copyOf(checks);
+        if (snapshot.isEmpty() || !snapshot.keySet().containsAll(requiredChecks)) return false;
+        for (Supplier<Boolean> check : snapshot.values()) {
             try {
-                results.put(name, check.get());
-            } catch (Exception e) {
-                results.put(name, false);
+                if (!Boolean.TRUE.equals(check.get())) return false;
+            } catch (RuntimeException failure) {
+                LOG.warn("A health dependency check failed for service={} (type={})",
+                        serviceName, failure.getClass().getSimpleName());
+                return false;
             }
-        });
-        return results;
+        }
+        return true;
+    }
+
+    private <T> T evaluateWithinDeadline(Callable<T> task, T failureValue) {
+        Future<T> future;
+        try {
+            future = checkExecutor.submit(task);
+        } catch (RejectedExecutionException overloaded) {
+            LOG.warn("Health check capacity unavailable for service={}", serviceName);
+            return failureValue;
+        }
+        try {
+            return future.get(checkTimeoutNanos, TimeUnit.NANOSECONDS);
+        } catch (TimeoutException timeout) {
+            future.cancel(true);
+            LOG.warn("Health check timed out for service={}", serviceName);
+        } catch (InterruptedException interrupted) {
+            future.cancel(true);
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException failure) {
+            LOG.warn("Health check failed for service={} (type={})", serviceName,
+                    failure.getCause() == null ? "unknown" : failure.getCause().getClass().getSimpleName());
+        }
+        return failureValue;
+    }
+
+    private <T> T evaluateWithinDeadline(Callable<T> task) {
+        return evaluateWithinDeadline(task, null);
     }
 
     private static String requireName(String value, String field) {

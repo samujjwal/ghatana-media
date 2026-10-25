@@ -71,6 +71,7 @@ class AudioVideoHealthServiceSmokeIT {
     void stopServer() throws InterruptedException {
         channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         server.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
+        healthService.close();
     }
 
     @Test
