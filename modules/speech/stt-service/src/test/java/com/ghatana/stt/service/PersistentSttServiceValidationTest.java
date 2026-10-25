@@ -9,10 +9,12 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity;
+import com.ghatana.audio.video.infrastructure.persistence.entity.TranscriptionEntity;
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
 import com.ghatana.audio.video.infrastructure.persistence.service.TranscriptionService;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.audit.AuditService;
 import io.activej.promise.Promise;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 import java.nio.ByteBuffer;
@@ -53,6 +56,32 @@ class PersistentSttServiceValidationTest {
     private static final String TENANT = "tenant-unit";
     private static final UUID USER   = UUID.randomUUID();
     private static final int VALID_RATE = 16_000;
+
+    @Test
+    void unavailableConfidencePersistsAsNullWithJsonMetadataDisposition() throws Exception {
+        TranscriptionEntity entity = new TranscriptionEntity();
+        TranscriptionEntity.TranscriptionMetadata metadata = new TranscriptionEntity.TranscriptionMetadata();
+        TranscriptionResult result = TranscriptionResult.withoutConfidence(
+                "transcript", java.util.List.of(), java.util.List.of(),
+                java.time.Duration.ZERO, "en", "model");
+
+        PersistentSttService.applyConfidenceDisposition(entity, metadata, result);
+
+        assertThat(entity.getConfidence()).isNull();
+        assertThat(metadata.getConfidenceStatus()).isEqualTo("UNAVAILABLE");
+        assertThat(new ObjectMapper().writeValueAsString(metadata))
+                .contains("\"confidenceStatus\":\"UNAVAILABLE\"");
+
+        TranscriptionEntity availableEntity = new TranscriptionEntity();
+        TranscriptionEntity.TranscriptionMetadata availableMetadata =
+                new TranscriptionEntity.TranscriptionMetadata();
+        TranscriptionResult available = new TranscriptionResult(
+                "transcript", 0.75, java.util.List.of(), java.util.List.of(),
+                java.time.Duration.ZERO, "en", "model");
+        PersistentSttService.applyConfidenceDisposition(availableEntity, availableMetadata, available);
+        assertThat(availableEntity.getConfidence()).isEqualTo(0.75f);
+        assertThat(availableMetadata.getConfidenceStatus()).isEqualTo("AVAILABLE");
+    }
 
     @BeforeEach
     void setUp() {

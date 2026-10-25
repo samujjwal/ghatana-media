@@ -68,18 +68,7 @@ public class SttHttpAdapter {
 
                     TranscriptionResult result = stt.transcribe(audio, options);
 
-                    TranscribeResponse response = new TranscribeResponse(
-                        result.getText(),
-                        result.confidence(),
-                        result.words().stream()
-                            .map(w -> new WordTimingJson(
-                                w.word(),
-                                Math.round(w.startSec() * 1_000),
-                                Math.round(w.endSec() * 1_000),
-                                w.confidence()))
-                            .toList(),
-                        result.processingTime().toMillis()
-                    );
+                    TranscribeResponse response = toResponse(result);
 
                     return HttpResponse.ok200()
                         .withJson(mapper.writeValueAsString(response))
@@ -97,6 +86,17 @@ public class SttHttpAdapter {
                     "TRANSCRIPTION_FAILED", "Transcription failed", false);
             }
         });
+    }
+
+    static TranscribeResponse toResponse(TranscriptionResult result) {
+        return new TranscribeResponse(
+                result.getText(),
+                result.hasConfidence() ? result.confidence() : null,
+                result.words().stream()
+                        .map(w -> new WordTimingJson(w.word(), Math.round(w.startSec() * 1_000),
+                                Math.round(w.endSec() * 1_000), w.confidence()))
+                        .toList(),
+                result.processingTime().toMillis());
     }
 
     /**
@@ -158,10 +158,14 @@ public class SttHttpAdapter {
 
     public record TranscribeResponse(
         String text,
-        double confidence,
+        Double confidence,
         List<WordTimingJson> words,
         long latencyMs
-    ) {}
+    ) {
+        public TranscribeResponse(String text, double confidence, List<WordTimingJson> words, long latencyMs) {
+            this(text, Double.valueOf(confidence), words, latencyMs);
+        }
+    }
 
     public record WordTimingJson(
         String word,

@@ -124,6 +124,9 @@ public class TranscriptionEntity implements Serializable {
         /** SHA-256 hex digest of the raw audio bytes used for this transcription. */
         private String inputHashSha256;
 
+        /** Confidence availability/provenance; numeric confidence may be null when unavailable. */
+        private String confidenceStatus;
+
         public TranscriptionMetadata() {}
 
         public Boolean getEnablePunctuation() { return enablePunctuation; }
@@ -138,6 +141,8 @@ public class TranscriptionEntity implements Serializable {
         public void setRequestId(String requestId) { this.requestId = requestId; }
         public String getInputHashSha256() { return inputHashSha256; }
         public void setInputHashSha256(String inputHashSha256) { this.inputHashSha256 = inputHashSha256; }
+        public String getConfidenceStatus() { return confidenceStatus; }
+        public void setConfidenceStatus(String confidenceStatus) { this.confidenceStatus = confidenceStatus; }
     }
 
     // Constructors

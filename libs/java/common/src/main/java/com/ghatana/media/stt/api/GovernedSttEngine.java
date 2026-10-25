@@ -49,7 +49,8 @@ public final class GovernedSttEngine implements SttEngine {
             throw new IllegalStateException(
                     "STT provider returned mismatched model identity: " + result.modelId());
         }
-        if (result.confidence() < 0.0 || result.confidence() > 1.0) {
+        if (result.hasConfidence() && (!Double.isFinite(result.confidence())
+                || result.confidence() < 0.0 || result.confidence() > 1.0)) {
             throw new IllegalStateException("STT provider returned invalid confidence");
         }
         return result;
@@ -69,7 +70,8 @@ public final class GovernedSttEngine implements SttEngine {
                         throw new IllegalStateException(
                                 "STT provider returned mismatched model identity: " + result.modelId());
                     }
-                    if (result.confidence() < 0.0 || result.confidence() > 1.0) {
+                    if (result.hasConfidence() && (!Double.isFinite(result.confidence())
+                            || result.confidence() < 0.0 || result.confidence() > 1.0)) {
                         throw new IllegalStateException("STT provider returned invalid confidence");
                     }
                     return result;

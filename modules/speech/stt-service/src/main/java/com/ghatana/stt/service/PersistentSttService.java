@@ -275,15 +275,14 @@ public class PersistentSttService {
                 userId,
                 result.text(),
                 result.language() != null ? result.language() : "unknown");
-        entity.setConfidence((float) result.confidence());
         entity.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED);
         entity.setModelUsed(result.modelId());
         entity.setProcessingTimeMs(result.processingTime().toMillis());
         entity.setCreatedAt(Instant.now());
         entity.setUpdatedAt(Instant.now());
 
-        TranscriptionEntity.TranscriptionMetadata metadata =
-                new TranscriptionEntity.TranscriptionMetadata();
+        TranscriptionEntity.TranscriptionMetadata metadata = new TranscriptionEntity.TranscriptionMetadata();
+        applyConfidenceDisposition(entity, metadata, result);
         metadata.setRequestId(requestId);
         metadata.setInputHashSha256(inputHashSha256);
         if (result.modelId() != null) metadata.setEngineVersion(result.modelId());
@@ -296,6 +295,20 @@ public class PersistentSttService {
                         AudioFileEntity.ProcessingStatus.COMPLETED,
                         null)
                         .map(ignored -> transcription));
+    }
+
+    static void applyConfidenceDisposition(TranscriptionEntity entity,
+            TranscriptionEntity.TranscriptionMetadata metadata, TranscriptionResult result) {
+        Objects.requireNonNull(entity, "entity");
+        Objects.requireNonNull(metadata, "metadata");
+        Objects.requireNonNull(result, "result");
+        if (result.hasConfidence()) {
+            if (!Double.isFinite(result.confidence()) || result.confidence() < 0.0 || result.confidence() > 1.0) {
+                throw new IllegalArgumentException("STT_RESULT_INVALID: confidence must be finite and in [0, 1]");
+            }
+            entity.setConfidence((float) result.confidence());
+        } else entity.setConfidence(null);
+        metadata.setConfidenceStatus(result.confidenceAvailability().name());
     }
 
     private Promise<Boolean> updateAudioFileStatus(

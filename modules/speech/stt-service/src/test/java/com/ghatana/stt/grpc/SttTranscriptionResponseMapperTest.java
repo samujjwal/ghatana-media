@@ -37,6 +37,38 @@ class SttTranscriptionResponseMapperTest {
     }
 
     @Test
+    void convertsDecimalSecondsToMillisecondsWithBoundedHalfUpRounding() {
+        TranscriptionResult result = result(0.74,
+                List.of(new WordTiming("first", 1.2341, 1.2345, 0.7),
+                        new WordTiming("second", 1.2355, 1.2370, 0.8)), List.of());
+
+        var response = SttTranscriptionResponseMapper.toProto(result, Duration.ofSeconds(2)).build();
+
+        assertThat(response.getWordTimings(0).getStartMs()).isEqualTo(1234L);
+        assertThat(response.getWordTimings(0).getEndMs()).isEqualTo(1235L);
+        assertThat(response.getWordTimings(1).getStartMs()).isEqualTo(1236L);
+        assertThat(response.getWordTimings(1).getEndMs()).isEqualTo(1237L);
+        assertThat(response.getWordTimingTimebase()).isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
+    }
+
+    @Test
+    void rejectsTimingOutsideNanosecondDurationWithoutFloatingPointTolerance() {
+        TranscriptionResult result = result(0.5,
+                List.of(new WordTiming("edge", 0.0, 0.000000002, 0.5)), List.of());
+
+        assertInvalid(result, Duration.ofNanos(1), "exceeds decoded audio duration");
+    }
+
+    @Test
+    void rejectsMillisecondOverflowInsteadOfWrapping() {
+        TranscriptionResult result = result(0.5,
+                List.of(new WordTiming("far", 0.0, 1.0e16, 0.5)), List.of());
+
+        assertInvalid(result, Duration.ofSeconds(2L * 10_000_000_000_000_000L),
+                "exceeds representable millisecond bounds");
+    }
+
+    @Test
     void absentWordTimingIsUnknownAndConfidenceStillExplicitlyUncalibrated() {
         var response = SttTranscriptionResponseMapper.toProto(
                 result(0.0, List.of(), List.of()), Duration.ofSeconds(1)).build();
@@ -45,6 +77,25 @@ class SttTranscriptionResponseMapperTest {
         assertThat(response.getWordTimingTimebase()).isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
         assertThat(response.getConfidenceCalibration())
                 .isEqualTo(ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED);
+    }
+
+    @Test
+    void unavailableConfidenceMapsToUnknownWithoutSettingNumericScore() {
+        TranscriptionResult result = TranscriptionResult.withoutConfidence(
+                "transcript", List.of(), List.of(), Duration.ofMillis(2), "en", "onnx-model");
+
+        var response = SttTranscriptionResponseMapper.toProto(result, Duration.ofSeconds(1)).build();
+
+        assertThat(response.getConfidence()).isZero(); // protobuf scalar default; calibration marks it absent
+        assertThat(response.getConfidenceCalibration())
+                .isEqualTo(ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNKNOWN);
+        assertThat(response.toByteArray()).doesNotContain((byte) 0x15); // field 2 float confidence is unset
+    }
+
+    @Test
+    void availableConfidenceMustBeFinite() {
+        assertInvalid(result(Double.POSITIVE_INFINITY, List.of(), List.of()), Duration.ofSeconds(1), "confidence");
+        assertInvalid(result(Double.NEGATIVE_INFINITY, List.of(), List.of()), Duration.ofSeconds(1), "confidence");
     }
 
     @Test

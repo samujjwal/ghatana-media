@@ -1,6 +1,7 @@
 package com.ghatana.media.stt;
 
 import com.ghatana.media.common.*;
+import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.stt.api.*;
 
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +44,61 @@ import static org.mockito.Mockito.*;
 @DisplayName("SttEngine – service contract")
 @ExtendWith(MockitoExtension.class)
 class SttEngineContractTest {
+
+    @Test
+    void originalTranscriptionResultConstructorDefaultsConfidenceToAvailable() {
+        TranscriptionResult result = new TranscriptionResult(
+                "text", 0.6, List.of(), List.of(), Duration.ZERO, "en", "model");
+
+        assertThat(result.hasConfidence()).isTrue();
+        assertThat(result.confidenceAvailability())
+                .isEqualTo(TranscriptionResult.ConfidenceAvailability.AVAILABLE);
+        assertThat(result.confidence()).isEqualTo(0.6);
+    }
+
+    @Test
+    void unavailableConfidenceFactoryHasNoNumericScoreAssertion() {
+        TranscriptionResult result = TranscriptionResult.withoutConfidence(
+                "text", List.of(), List.of(), Duration.ZERO, "en", "model");
+
+        assertThat(result.hasConfidence()).isFalse();
+        assertThat(result.confidenceAvailability())
+                .isEqualTo(TranscriptionResult.ConfidenceAvailability.UNAVAILABLE);
+        assertThat(result.confidence()).isZero();
+        assertThatThrownBy(() -> new TranscriptionResult("text", 0.2, List.of(), List.of(),
+                Duration.ZERO, "en", "model", TranscriptionResult.ConfidenceAvailability.UNAVAILABLE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must not carry a numeric score");
+    }
+
+    @Test
+    void streamingTranscriptionCanCarryUnavailableConfidenceWithoutChangingLegacyConstructor() {
+        StreamingTranscription legacy = new StreamingTranscription("text", false, 0.4, List.of());
+        StreamingTranscription unavailable = new StreamingTranscription("text", true, 0.0, List.of(),
+                TranscriptionResult.ConfidenceAvailability.UNAVAILABLE);
+
+        assertThat(legacy.hasConfidence()).isTrue();
+        assertThat(unavailable.hasConfidence()).isFalse();
+        assertThat(unavailable.confidenceAvailability())
+                .isEqualTo(TranscriptionResult.ConfidenceAvailability.UNAVAILABLE);
+    }
+
+    @Test
+    void governedEngineAllowsUnavailableButRejectsNonFiniteAvailableConfidence() {
+        SttConfig config = SttConfig.builder().modelId("confidence-model").build();
+        GovernedSttEngine governed = new GovernedSttEngine(engine, config);
+        TranscriptionResult unavailable = TranscriptionResult.withoutConfidence(
+                "text", List.of(), List.of(), Duration.ZERO, "en", "confidence-model");
+        when(engine.transcribe(any(), any())).thenReturn(unavailable);
+
+        assertThat(governed.transcribe(minimalAudio(), TranscriptionOptions.defaults()).hasConfidence()).isFalse();
+
+        when(engine.transcribe(any(), any())).thenReturn(new TranscriptionResult(
+                "text", Double.NaN, List.of(), List.of(), Duration.ZERO, "en", "confidence-model"));
+        assertThatThrownBy(() -> governed.transcribe(minimalAudio(), TranscriptionOptions.defaults()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("invalid confidence");
+    }
 
     @Mock
     private SttEngine engine;

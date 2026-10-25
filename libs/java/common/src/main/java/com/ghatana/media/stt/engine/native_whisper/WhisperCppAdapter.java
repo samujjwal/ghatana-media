@@ -158,9 +158,8 @@ public final class WhisperCppAdapter implements SttEngine {
                     ? extractWordTimings(modelPtr)
                     : List.of();
 
-                return new TranscriptionResult(
+                return TranscriptionResult.withoutConfidence(
                     text,
-                    0.85, // Confidence estimate
                     words,
                     List.of(),
                     java.time.Duration.ofMillis(latency),
@@ -434,7 +433,8 @@ public final class WhisperCppAdapter implements SttEngine {
 
                 var cb = transcriptionCallback.get();
                 if (cb != null) {
-                    cb.accept(new StreamingTranscription(result.getText(), !active.get(), result.confidence(), result.words()));
+                    cb.accept(new StreamingTranscription(result.getText(), !active.get(), result.confidence(),
+                            result.words(), result.confidenceAvailability()));
                 }
             } catch (Exception e) {
                 var cb = errorCallback.get();

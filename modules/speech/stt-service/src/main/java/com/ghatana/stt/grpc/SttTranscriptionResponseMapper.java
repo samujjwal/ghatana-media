@@ -8,6 +8,8 @@ import com.ghatana.stt.core.grpc.proto.ConfidenceCalibration;
 import com.ghatana.stt.core.grpc.proto.TimestampTimebase;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.List;
 
@@ -27,7 +29,9 @@ final class SttTranscriptionResponseMapper {
     static TranscribeResponse.Builder toProto(TranscriptionResult result, Duration audioDuration) {
         if (result == null) throw invalid("provider returned no transcription result");
         if (result.text() == null) throw invalid("provider returned null transcript text");
-        if (!confidence(result.confidence())) throw invalid("transcript confidence must be finite and in [0, 1]");
+        if (result.hasConfidence() && !confidence(result.confidence())) {
+            throw invalid("transcript confidence must be finite and in [0, 1]");
+        }
         if (audioDuration == null || audioDuration.isNegative()) throw invalid("decoded audio duration is unavailable");
 
         // These collections are optional provider metadata; absent values remain absent on the wire.
@@ -42,13 +46,15 @@ final class SttTranscriptionResponseMapper {
 
         TranscribeResponse.Builder response = TranscribeResponse.newBuilder()
                 .setText(result.text())
-                .setConfidence((float) result.confidence())
                 .setModelUsed(result.modelId() == null ? "" : result.modelId())
                 .setLanguage(result.language() == null ? "" : result.language())
                 // TranscriptionResult/WordTiming carry no clock-origin provenance. Numeric
                 // intervals alone cannot establish that timestamps are source-sample-relative.
                 .setWordTimingTimebase(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN)
-                .setConfidenceCalibration(ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED);
+                .setConfidenceCalibration(result.hasConfidence()
+                        ? ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED
+                        : ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNKNOWN);
+        if (result.hasConfidence()) response.setConfidence((float) result.confidence());
         if (result.processingTime() != null) {
             if (result.processingTime().isNegative()) throw invalid("processing time cannot be negative");
             response.setProcessingTimeMs(result.processingTime().toMillis());
@@ -67,7 +73,8 @@ final class SttTranscriptionResponseMapper {
                     .build());
         }
 
-        double durationSeconds = audioDuration.toNanos() / 1_000_000_000.0d;
+        BigDecimal durationSeconds = BigDecimal.valueOf(audioDuration.getSeconds())
+                .add(BigDecimal.valueOf(audioDuration.getNano(), 9));
         double previousStart = -1.0d;
         double previousEnd = 0.0d;
         long previousEndMs = -1;
@@ -83,14 +90,16 @@ final class SttTranscriptionResponseMapper {
             if (start <= previousStart || start < previousEnd) {
                 throw invalid("word timing intervals must be strictly ordered and non-overlapping");
             }
-            if (end > durationSeconds) {
+            BigDecimal startSeconds = BigDecimal.valueOf(start);
+            BigDecimal endSeconds = BigDecimal.valueOf(end);
+            if (endSeconds.compareTo(durationSeconds) > 0) {
                 throw invalid("word timing interval exceeds decoded audio duration");
             }
             if (!confidence(timing.confidence())) {
                 throw invalid("word timing confidence must be finite and in [0, 1]");
             }
-            long startMs = Math.round(start * 1_000.0d);
-            long endMs = Math.round(end * 1_000.0d);
+            long startMs = toMillis(startSeconds);
+            long endMs = toMillis(endSeconds);
             if (endMs <= startMs || startMs < previousEndMs) {
                 throw invalid("word timing interval cannot be represented as ordered millisecond bounds");
             }
@@ -109,6 +118,14 @@ final class SttTranscriptionResponseMapper {
 
     private static boolean confidence(double value) {
         return Double.isFinite(value) && value >= 0.0d && value <= 1.0d;
+    }
+
+    private static long toMillis(BigDecimal seconds) {
+        try {
+            return seconds.movePointRight(3).setScale(0, RoundingMode.HALF_UP).longValueExact();
+        } catch (ArithmeticException overflow) {
+            throw invalid("word timing interval exceeds representable millisecond bounds");
+        }
     }
 
     private static InvalidResultException invalid(String detail) {

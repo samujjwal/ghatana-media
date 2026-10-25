@@ -108,14 +108,12 @@ public final class WhisperOnnxEngine implements SttEngine {
                 long latency = System.currentTimeMillis() - startTime;
                 totalLatency.addAndGet(latency);
 
-                // Generate word timings if requested
-                List<WordTiming> words = options.enableTimestamps()
-                    ? generateWordTimings(text, melSpectrogram.length)
-                    : List.of();
+                // This inference path does not expose provider word alignment. Do not
+                // synthesize equal-duration words and present them as timing observations.
+                List<WordTiming> words = List.of();
 
-                return new TranscriptionResult(
+                return resultWithoutConfidence(
                     text,
-                    0.9, // confidence estimate
                     words,
                     List.of(), // alternatives
                     java.time.Duration.ofMillis(latency),
@@ -134,6 +132,12 @@ public final class WhisperOnnxEngine implements SttEngine {
             errorCount.incrementAndGet();
             throw new InferenceError("Transcription failed", e, false);
         }
+    }
+
+    static TranscriptionResult resultWithoutConfidence(String text, List<WordTiming> words,
+            List<Alternative> alternatives, java.time.Duration processingTime, String language, String modelId) {
+        return TranscriptionResult.withoutConfidence(
+                text, words, alternatives, processingTime, language, modelId);
     }
 
     @Override
@@ -598,26 +602,6 @@ public final class WhisperOnnxEngine implements SttEngine {
             .trim();
     }
 
-    private List<WordTiming> generateWordTimings(String text, int nFrames) {
-        // Simple word-level timing estimation
-        // Real implementation would use attention weights from model
-        List<WordTiming> timings = new ArrayList<>();
-        String[] words = text.split(" ");
-        double duration = (double) nFrames * HOP_LENGTH / SAMPLE_RATE;
-        double wordDuration = duration / words.length;
-
-        for (int i = 0; i < words.length; i++) {
-            timings.add(new WordTiming(
-                words[i],
-                i * wordDuration,
-                (i + 1) * wordDuration,
-                0.9
-            ));
-        }
-
-        return timings;
-    }
-
     // ====================================================================================
     // Streaming Implementation
     // ====================================================================================
@@ -714,7 +698,8 @@ public final class WhisperOnnxEngine implements SttEngine {
                         accumulatedText.toString().trim(),
                         !active.get(), // isFinal when stream ends
                         result.confidence(),
-                        result.words()
+                        result.words(),
+                        result.confidenceAvailability()
                     ));
                 }
             } catch (Exception e) {
