@@ -91,8 +91,9 @@ class TtsGrpcServiceTest {
     }
 
     @Test
-    void enNeHiAndRegionOrVoiceVariantsFailWithoutDefaultSubstitution() {
-        for (String language : List.of("en", "ne", "hi", "en-US", "ne-NP", "hi-IN", "bn-BD")) {
+    void sourceLocaleMatrixFailsWithoutDefaultSubstitution() {
+        for (String language : List.of("en", "ne", "hi", "es", "fr", "de", "ja", "zh",
+                "en-US", "ne-NP", "hi-IN", "es-ES", "fr-FR", "de-DE", "ja-JP", "zh-CN", "bn-BD")) {
             CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
             service.synthesize(SynthesizeRequest.newBuilder().setText("hello")
                     .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()

@@ -268,4 +268,36 @@ class SsmlProcessorTest {
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody volume=\"7dB\">x</prosody></speak>"));
         assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><break time=\"-1ms\"/></speak>"));
     }
+
+    @Test
+    @DisplayName("rejects unknown or injection elements nested in flattened controls")
+    void rejectsUnknownNestedElementsInsideProsodyAndEmphasis() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><prosody rate=\"120%\"><script>unsafe</script></prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><emphasis level=\"strong\"><unknown>unsafe</unknown></emphasis></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><prosody><break time=\"1s\"/></prosody></speak>"));
+    }
+
+    @Test
+    @DisplayName("break elements cannot carry text or child elements")
+    void rejectsNonEmptyBreakContent() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><break time=\"1s\">unexpected</break></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><break time=\"1s\"><emphasis level=\"strong\">x</emphasis></break></speak>"));
+    }
+
+    @Test
+    @DisplayName("phoneme, substitution alias, and language annotations remain typed")
+    void preservesTypedPhonemeSubstitutionAndLanguageInformation() {
+        var segments = processor.parse("<speak><phoneme alphabet=\"ipa\" ph=\"təˈmeɪtoʊ\">tomato</phoneme>"
+                + "<sub alias=\"World Wide Web\">WWW</sub><lang xml:lang=\"ne-NP\">नमस्ते</lang></speak>");
+
+        assertThat(segments).hasSize(3);
+        assertThat(segments.get(0)).isEqualTo(new SsmlProcessor.SsmlSegment.PhonemeSegment("tomato", "ipa", "təˈmeɪtoʊ"));
+        assertThat(segments.get(1)).isEqualTo(new SsmlProcessor.SsmlSegment.SubstitutionSegment("WWW", "World Wide Web"));
+        assertThat(segments.get(2)).isEqualTo(new SsmlProcessor.SsmlSegment.LanguageSegment("नमस्ते", "ne-NP"));
+    }
 }

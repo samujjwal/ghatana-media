@@ -84,9 +84,31 @@ public final class SsmlProcessor {
                     }
                     out.add(SsmlSegment.pause(pause));
                 }
-                case "prosody" -> out.add(SsmlSegment.prosody(element.getTextContent().trim(), canonicalAttributes(element)));
-                case "emphasis" -> out.add(SsmlSegment.emphasis(element.getTextContent().trim(), element.getAttribute("level").toLowerCase(Locale.ROOT)));
-                case "say-as", "phoneme", "voice", "lang", "sub" -> appendChildren(element, out, depth + 1, totalPause);
+                case "prosody" -> {
+                    requireTextOnlyContent(element, tag);
+                    out.add(SsmlSegment.prosody(element.getTextContent().trim(), canonicalAttributes(element)));
+                }
+                case "emphasis" -> {
+                    requireTextOnlyContent(element, tag);
+                    out.add(SsmlSegment.emphasis(element.getTextContent().trim(), element.getAttribute("level").toLowerCase(Locale.ROOT)));
+                }
+                case "phoneme" -> {
+                    requireTextOnlyContent(element, tag);
+                    out.add(SsmlSegment.phoneme(element.getTextContent().trim(),
+                            element.getAttribute("alphabet"), element.getAttribute("ph")));
+                }
+                case "sub" -> {
+                    requireTextOnlyContent(element, tag);
+                    out.add(SsmlSegment.substitution(element.getTextContent().trim(), element.getAttribute("alias")));
+                }
+                case "lang" -> {
+                    requireTextOnlyContent(element, tag);
+                    String language = element.hasAttribute("xml:lang")
+                            ? element.getAttribute("xml:lang") : element.getAttribute("lang");
+                    if (language.isBlank()) throw new IllegalArgumentException("SSML lang requires xml:lang or lang");
+                    out.add(SsmlSegment.language(element.getTextContent().trim(), language));
+                }
+                case "say-as", "voice" -> appendChildren(element, out, depth + 1, totalPause);
                 default -> throw new IllegalArgumentException("Unsupported SSML tag: " + tag);
             }
         }
@@ -102,6 +124,18 @@ public final class SsmlProcessor {
             throw new IllegalArgumentException("Invalid SSML break duration", exception);
         }
         throw new IllegalArgumentException("SSML break time must use ms or s");
+    }
+
+    private static void requireTextOnlyContent(Element element, String tag) {
+        for (Node child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                throw new IllegalArgumentException("Nested SSML elements are unsupported inside <" + tag + ">");
+            }
+            if (tag.equals("break") && (child.getNodeType() == Node.CDATA_SECTION_NODE
+                    || child.getNodeType() == Node.TEXT_NODE && !child.getNodeValue().isBlank())) {
+                throw new IllegalArgumentException("SSML break content must be empty");
+            }
+        }
     }
 
     private static void validateAttributes(Element element, String tag) {
@@ -131,9 +165,16 @@ public final class SsmlProcessor {
         if (tag.equals("phoneme") && (!element.getAttribute("alphabet").equalsIgnoreCase("ipa") || element.getAttribute("ph").isBlank())) {
             throw new IllegalArgumentException("Only phoneme alphabet=ipa with a nonblank ph value is supported");
         }
+        if (tag.equals("sub") && element.getAttribute("alias").isBlank()) {
+            throw new IllegalArgumentException("SSML sub requires a nonblank alias");
+        }
+        if (tag.equals("lang") && element.getAttribute(element.hasAttribute("xml:lang") ? "xml:lang" : "lang").isBlank()) {
+            throw new IllegalArgumentException("SSML lang requires xml:lang or lang");
+        }
         if (tag.equals("break")) {
             long pause = parsePause(element.getAttribute("time"));
             if (pause < 0) throw new IllegalArgumentException("SSML break duration must not be negative");
+            requireTextOnlyContent(element, tag);
         }
         if (tag.equals("prosody")) {
             validateRate(element.getAttribute("rate"));
@@ -194,17 +235,25 @@ public final class SsmlProcessor {
         }
     }
 
-    public sealed interface SsmlSegment permits SsmlSegment.TextSegment, SsmlSegment.PauseSegment, SsmlSegment.ProsodySegment, SsmlSegment.EmphasisSegment {
+    public sealed interface SsmlSegment permits SsmlSegment.TextSegment, SsmlSegment.PauseSegment,
+            SsmlSegment.ProsodySegment, SsmlSegment.EmphasisSegment, SsmlSegment.PhonemeSegment,
+            SsmlSegment.SubstitutionSegment, SsmlSegment.LanguageSegment {
         String text();
         SegmentType type();
-        enum SegmentType { TEXT, PAUSE, PROSODY, EMPHASIS }
+        enum SegmentType { TEXT, PAUSE, PROSODY, EMPHASIS, PHONEME, SUBSTITUTION, LANGUAGE }
         static SsmlSegment text(String content) { return new TextSegment(content); }
         static SsmlSegment pause(long durationMs) { return new PauseSegment(durationMs); }
         static SsmlSegment prosody(String content, String attributes) { return new ProsodySegment(content, attributes); }
         static SsmlSegment emphasis(String content, String level) { return new EmphasisSegment(content, level); }
+        static SsmlSegment phoneme(String content, String alphabet, String phoneme) { return new PhonemeSegment(content, alphabet, phoneme); }
+        static SsmlSegment substitution(String content, String alias) { return new SubstitutionSegment(content, alias); }
+        static SsmlSegment language(String content, String languageTag) { return new LanguageSegment(content, languageTag); }
         record TextSegment(String text) implements SsmlSegment { public SegmentType type() { return SegmentType.TEXT; } }
         record PauseSegment(long durationMs) implements SsmlSegment { public String text() { return ""; } public SegmentType type() { return SegmentType.PAUSE; } }
         record ProsodySegment(String text, String attributes) implements SsmlSegment { public SegmentType type() { return SegmentType.PROSODY; } }
         record EmphasisSegment(String text, String emphasisLevel) implements SsmlSegment { public SegmentType type() { return SegmentType.EMPHASIS; } }
+        record PhonemeSegment(String text, String alphabet, String phoneme) implements SsmlSegment { public SegmentType type() { return SegmentType.PHONEME; } }
+        record SubstitutionSegment(String text, String alias) implements SsmlSegment { public SegmentType type() { return SegmentType.SUBSTITUTION; } }
+        record LanguageSegment(String text, String languageTag) implements SsmlSegment { public SegmentType type() { return SegmentType.LANGUAGE; } }
     }
 }
