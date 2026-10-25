@@ -77,11 +77,18 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     /** Package-private constructor for unit testing with audit service. */
     VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
                       MediaProcessingMetrics metrics, @Nullable AuditService auditService) {
+        this(detector, frameExtractor, metrics, auditService, new FileSystemModelStore());
+    }
+
+    /** Package-private constructor for proving provider-gated model RPCs do not touch the registry. */
+    VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
+                      MediaProcessingMetrics metrics, @Nullable AuditService auditService,
+                      ModelRegistry modelRegistry) {
         this.detector = detector;
         this.frameExtractor = frameExtractor;
         this.mediaMetrics = metrics;
         this.auditService = auditService;
-        this.modelRegistry = new FileSystemModelStore();
+        this.modelRegistry = modelRegistry;
     }
 
     public VisionGrpcService() {
@@ -336,8 +343,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .asRuntimeException());
             return;
         }
-        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
-            .withDescription("Dynamic model loading is not supported; restart with an admitted model profile")
+        responseObserver.onError(io.grpc.Status.UNAVAILABLE
+            .withDescription("Model loading requires an admitted Vision provider profile")
             .asRuntimeException());
     }
 
@@ -353,8 +360,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .asRuntimeException());
             return;
         }
-        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
-            .withDescription("Dynamic model unloading is not supported by the active Vision service")
+        responseObserver.onError(io.grpc.Status.UNAVAILABLE
+            .withDescription("Model unloading requires an admitted Vision provider profile")
             .asRuntimeException());
     }
 
@@ -363,37 +370,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     @Override
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
         if (!hasTenantContext(responseObserver)) return;
-        try {
-            List<ModelMetadata> models = modelRegistry.listModels(ModelMetadata.ModelType.VISION)
-                    .stream().filter(ModelMetadata::loaded).toList();
-
-            ListModelsResponse.Builder builder = ListModelsResponse.newBuilder();
-            int loadedCount = 0;
-            for (ModelMetadata m : models) {
-                if (request.getIncludeLoadedOnly() && !m.loaded()) continue;
-                if (m.loaded()) loadedCount++;
-
-                builder.addModels(VisionModelInfo.newBuilder()
-                    .setModelId(m.modelId())
-                    .setName(m.name())
-                    .setVersion(m.version())
-                    .setIsLoaded(m.loaded())
-                    .setSizeBytes(m.sizeBytes())
-                    .addSupportedTasks("detection")
-                    .build());
-            }
-            builder.setTotalCount(builder.getModelsCount());
-            builder.setLoadedCount(loadedCount);
-
-            LOG.debug("Listed {} vision models", builder.getTotalCount());
-            responseObserver.onNext(builder.build());
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            LOG.error("Failed to list vision models ({})", e.getClass().getSimpleName());
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Failed to list models")
-                .asRuntimeException());
-        }
+        responseObserver.onError(io.grpc.Status.UNAVAILABLE
+            .withDescription("Model listing requires an admitted Vision provider profile")
+            .asRuntimeException());
     }
 
     @Override

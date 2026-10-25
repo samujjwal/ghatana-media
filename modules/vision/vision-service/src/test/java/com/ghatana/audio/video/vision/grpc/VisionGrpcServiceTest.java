@@ -1,5 +1,7 @@
 package com.ghatana.audio.video.vision.grpc;
 
+import com.ghatana.audio.video.common.model.ModelRegistry;
+import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.vision.detection.VisionDetector;
 import com.ghatana.audio.video.vision.grpc.proto.*;
@@ -28,6 +30,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Unit tests for {@link VisionGrpcService}.
@@ -418,15 +421,12 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("loadModel: valid modelId → registers and loads successfully")
-    void loadModel_validModelId_loadsSuccessfully() {
+    @DisplayName("loadModel: valid modelId without provider admission → UNAVAILABLE")
+    void loadModel_validModelId_returnsUnavailableWithoutRegistryMutation() {
         CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.loadModel(
                 LoadModelRequest.newBuilder().setModelId("yolov8n").build(), observer));
-        assertUnimplemented(observer);
-        CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> service.listModels(ListModelsRequest.getDefaultInstance(), list));
-        assertThat(list.getValue().getTotalCount()).isZero();
+        assertStatus(observer, Status.UNAVAILABLE);
     }
 
     // -------------------------------------------------------------------------
@@ -446,24 +446,12 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("unloadModel: unregistered modelId → NOT_FOUND")
-    void unloadModel_unregisteredModelId_returnsNotFound() {
+    @DisplayName("unloadModel: modelId without provider admission → UNAVAILABLE")
+    void unloadModel_modelId_returnsUnavailableWithoutRegistryMutation() {
         CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> service.unloadModel(
                 UnloadModelRequest.newBuilder().setModelId("unknown-model").build(), observer));
-        assertUnimplemented(observer);
-    }
-
-    @Test
-    @DisplayName("unloadModel: loaded model → unloads successfully")
-    void unloadModel_loadedModel_returnsSuccess() {
-        CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> service.unloadModel(
-                UnloadModelRequest.newBuilder().setModelId("yolov8n").build(), observer));
-        assertUnimplemented(observer);
-        CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> service.listModels(ListModelsRequest.getDefaultInstance(), list));
-        assertThat(list.getValue().getTotalCount()).isZero();
+        assertStatus(observer, Status.UNAVAILABLE);
     }
 
     @Test
@@ -480,6 +468,40 @@ class VisionGrpcServiceTest {
         service.listModels(ListModelsRequest.getDefaultInstance(), list);
         assertStatus(list, Status.UNAUTHENTICATED);
         assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void modelManagementAndListingFailClosedBeforeRegistryAccessWithoutProviderAdmission() {
+        ModelRegistry registry = mock(ModelRegistry.class);
+        VisionGrpcService unadmittedService = new VisionGrpcService(
+                fakeDetector, frameExtractor, MediaProcessingMetrics.noop(), null, registry);
+
+        CapturingObserver<LoadModelResponse> blankLoad = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> unadmittedService.loadModel(
+                LoadModelRequest.getDefaultInstance(), blankLoad));
+        assertStatus(blankLoad, Status.INVALID_ARGUMENT);
+
+        CapturingObserver<UnloadModelResponse> blankUnload = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> unadmittedService.unloadModel(
+                UnloadModelRequest.getDefaultInstance(), blankUnload));
+        assertStatus(blankUnload, Status.INVALID_ARGUMENT);
+
+        CapturingObserver<LoadModelResponse> load = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> unadmittedService.loadModel(
+                LoadModelRequest.newBuilder().setModelId("candidate").build(), load));
+        assertStatus(load, Status.UNAVAILABLE);
+
+        CapturingObserver<UnloadModelResponse> unload = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> unadmittedService.unloadModel(
+                UnloadModelRequest.newBuilder().setModelId("candidate").build(), unload));
+        assertStatus(unload, Status.UNAVAILABLE);
+
+        CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> unadmittedService.listModels(
+                ListModelsRequest.getDefaultInstance(), list));
+        assertStatus(list, Status.UNAVAILABLE);
+
+        verifyNoInteractions(registry);
     }
 
     @Test
@@ -540,24 +562,13 @@ class VisionGrpcServiceTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("listModels: empty registry → zero count")
-    void listModels_emptyRegistry_returnsZeroModels() { 
+    @DisplayName("listModels: no admitted provider → UNAVAILABLE")
+    void listModels_withoutProviderAdmission_returnsUnavailable() {
         CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>(); 
 
         withContext(TENANT_ID, () -> service.listModels(ListModelsRequest.getDefaultInstance(), observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getTotalCount()).isEqualTo(0); 
-    }
-
-    @Test
-    @DisplayName("listModels: after loadModel → includes loaded model")
-    void listModels_afterLoad_includesModel() {
-        withContext(TENANT_ID, () -> service.loadModel(
-                LoadModelRequest.newBuilder().setModelId("test-model").build(), new CapturingObserver<>()));
-        CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> service.listModels(ListModelsRequest.getDefaultInstance(), observer));
-        assertThat(observer.getValue().getTotalCount()).isZero();
+        assertStatus(observer, Status.UNAVAILABLE);
     }
 
     // -------------------------------------------------------------------------
