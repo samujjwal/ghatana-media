@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -21,12 +21,15 @@ import java.util.function.Supplier;
  * @doc.layer observability
  * @doc.pattern Service
  *
- * <p>Operation and tenant identifiers stay in spans only; they are never copied into MDC, which
- * structured logging commonly exports. Error messages and exception payloads are also redacted.
+ * <p>Operation and tenant identifiers are reduced to presence flags; they are never copied into
+ * span attributes or MDC, which structured logging commonly exports. Error messages and exception
+ * payloads are also redacted.
  */
 public class AudioVideoTracingService {
 
     private static final String CONTRACT_VERSION = "v1";
+    private static final Set<String> LANGUAGES = Set.of(
+            "auto", "en", "es", "fr", "de", "it", "pt", "nl", "ja", "ko", "zh", "ar", "hi", "ne");
 
     private static final Logger log = LoggerFactory.getLogger(AudioVideoTracingService.class);
 
@@ -48,7 +51,7 @@ public class AudioVideoTracingService {
                 .setAttribute("method.name", safeMethod(methodName))
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.id", correlationId)
+                .setAttribute("correlation.present", correlationId != null)
                 .startSpan();
 
         return span;
@@ -65,7 +68,7 @@ public class AudioVideoTracingService {
                 .setAttribute("process.present", processId != null && !processId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.id", correlationId)
+                .setAttribute("correlation.present", correlationId != null)
                 .startSpan();
 
         return span;
@@ -82,7 +85,7 @@ public class AudioVideoTracingService {
                 .setAttribute("process.present", processId != null && !processId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.id", correlationId)
+                .setAttribute("correlation.present", correlationId != null)
                 .startSpan();
 
         return span;
@@ -99,7 +102,7 @@ public class AudioVideoTracingService {
                 .setAttribute("synthesis.present", synthesisId != null && !synthesisId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.id", correlationId)
+                .setAttribute("correlation.present", correlationId != null)
                 .startSpan();
 
         return span;
@@ -173,9 +176,7 @@ public class AudioVideoTracingService {
      */
     private String getOrCreateCorrelationId() {
         String correlationId = MDC.get("correlationId");
-        if (correlationId == null || !correlationId.matches("[A-Za-z0-9_-]{1,64}")) {
-            correlationId = UUID.randomUUID().toString();
-        }
+        // Only expose whether a caller supplied context; never export the caller-controlled value.
         return correlationId;
     }
 
@@ -197,7 +198,7 @@ public class AudioVideoTracingService {
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("stt.language", safeLanguage(language))
-                .setAttribute("correlation.id", correlationId)
+                .setAttribute("correlation.present", correlationId != null)
                 .startSpan();
 
         return span;
@@ -220,7 +221,7 @@ public class AudioVideoTracingService {
         }
         span.setAttribute("stt.confidence", confidence);
         if (detectedLanguage != null && !detectedLanguage.isBlank()) {
-            span.setAttribute("stt.detected_language", detectedLanguage);
+            span.setAttribute("stt.detected_language", safeLanguage(detectedLanguage));
         }
     }
 
@@ -240,8 +241,8 @@ public class AudioVideoTracingService {
                 .setAttribute("detection.present", detectionId != null && !detectionId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("vision.confidence_threshold", confidenceThreshold)
-                .setAttribute("correlation.id", correlationId)
+                .setAttribute("vision.confidence_threshold_band", confidenceBand(confidenceThreshold))
+                .setAttribute("correlation.present", correlationId != null)
                 .startSpan();
 
         return span;
@@ -274,12 +275,23 @@ public class AudioVideoTracingService {
     }
 
     private static String safeMethod(String methodName) {
-        return methodName != null && methodName.matches("[A-Za-z][A-Za-z0-9_.]{0,63}")
-                ? methodName : "unknown";
+        if (methodName == null || !methodName.matches("[A-Za-z][A-Za-z0-9_.]{0,63}")) return "unknown";
+        return Set.of("VisionStream", "ProcessVideo", "StreamAudio", "Transcribe", "Synthesize")
+                .contains(methodName) ? methodName : "unknown";
     }
 
     private static String safeLanguage(String language) {
-        return language != null && language.matches("(?i)(auto|[a-z]{2,3}(-[a-z0-9]{2,8}){0,4})")
-                ? language : "auto";
+        if (language == null || language.equalsIgnoreCase("auto")) return "auto";
+        if (!language.matches("(?i)[a-z]{2,3}(-[a-z0-9]{2,8})*")) return "other";
+        String primary = language.substring(0, language.indexOf('-') < 0 ? language.length() : language.indexOf('-'))
+                .toLowerCase(java.util.Locale.ROOT);
+        return LANGUAGES.contains(primary) ? primary : "other";
+    }
+
+    private static String confidenceBand(double confidence) {
+        if (!Double.isFinite(confidence) || confidence < 0 || confidence > 1) return "invalid";
+        if (confidence < 0.34) return "low";
+        if (confidence < 0.67) return "medium";
+        return "high";
     }
 }

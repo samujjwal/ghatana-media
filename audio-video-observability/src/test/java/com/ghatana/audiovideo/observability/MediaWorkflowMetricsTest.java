@@ -52,4 +52,21 @@ class MediaWorkflowMetricsTest {
         assertThat(registry.get("media.workflow.unknown.backlog").gauge().value()).isZero();
         assertThat(registry.get("media.workflow.aggregate_store_queries_supported").gauge().value()).isZero();
     }
+
+    @Test
+    void adversarialServiceLabelsCollapseToSingleBoundedVocabularyValue() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        for (int i = 0; i < 500; i++) {
+            new MediaWorkflowMetrics(registry, "tenant-" + i + "-request-secret-" + i).recordRequest();
+        }
+
+        assertThat(registry.get("media.workflow.requests").meters()).hasSize(1);
+        assertThat(registry.get("media.workflow.requests").tag("service", "unknown").counter().count())
+                .isEqualTo(500);
+        assertThat(registry.getMeters().stream()
+                .flatMap(meter -> meter.getId().getTags().stream())
+                .map(tag -> tag.getValue()))
+                .doesNotContainAnyElementsOf(java.util.stream.IntStream.range(0, 500)
+                        .mapToObj(i -> "tenant-" + i + "-request-secret-" + i).toList());
+    }
 }

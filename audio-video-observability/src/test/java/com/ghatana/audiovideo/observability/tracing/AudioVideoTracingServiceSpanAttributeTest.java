@@ -2,6 +2,8 @@ package com.ghatana.audiovideo.observability.tracing;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.SpanBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
 
 /**
  * @doc.type class
@@ -49,6 +56,30 @@ class AudioVideoTracingServiceSpanAttributeTest {
     @Nested
     @DisplayName("startTranscriptionSpan — redacted log context")
     class StartTranscriptionSpanTests {
+
+        @Test
+        @DisplayName("does not export caller-controlled correlation marker to spans")
+        void shouldRedactCorrelationMarkerFromSpanAttributes() {
+            String marker = "tenant_secret_request_123";
+            SpanBuilder builder = mock(SpanBuilder.class);
+            Span span = mock(Span.class);
+            when(tracer.spanBuilder("audiovideo.stt.transcribe")).thenReturn(builder);
+            when(builder.setSpanKind(SpanKind.INTERNAL)).thenReturn(builder);
+            when(builder.setAttribute(org.mockito.ArgumentMatchers.anyString(),
+                    org.mockito.ArgumentMatchers.anyBoolean())).thenReturn(builder);
+            when(builder.setAttribute(org.mockito.ArgumentMatchers.anyString(),
+                    org.mockito.ArgumentMatchers.anyString())).thenReturn(builder);
+            when(builder.startSpan()).thenReturn(span);
+            MDC.put("correlationId", marker);
+            tracingService.startTranscriptionSpan(marker, marker, "en-US");
+
+            verify(builder).setAttribute(eq("correlation.present"), eq(true));
+            verify(builder).setAttribute(eq("stt.language"), eq("en"));
+            verify(builder, never()).setAttribute(eq("correlation.id"), anyString());
+            verify(builder, never()).setAttribute(anyString(), eq(marker));
+            // Caller-owned MDC remains untouched; the sensitive value is excluded from span attributes.
+            assertThat(MDC.get("correlationId")).isEqualTo(marker);
+        }
 
         @Test
         @DisplayName("does not put transcription ID in MDC")
