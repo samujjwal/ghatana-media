@@ -316,7 +316,7 @@ class MultimodalGrpcServiceTest {
         DescriptionResponse response = observer.getValue(); 
         assertThat(response.getDescription()).isNotBlank(); 
         assertThat(response.getKeyElementsList()).contains("speech");
-        assertThat(response.getConfidence()).isGreaterThan(0.0); 
+        assertThat(response.getConfidence()).isZero();
     }
 
     @Test
@@ -327,6 +327,32 @@ class MultimodalGrpcServiceTest {
 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("generateDescription: requested provider error is unavailable, not a description")
+    void generateDescription_providerErrorDoesNotReturnDescription() {
+        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
+                .audioResult(AudioResult.error("provider unavailable"))
+                .combinedAnalysis("unsupported fallback").build());
+        CapturingObserver<DescriptionResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.generateDescription(DescriptionRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+    }
+
+    @Test
+    @DisplayName("generateDescription: context alone cannot be presented as observed description")
+    void generateDescription_contextOnlyIsUnavailable() {
+        CapturingObserver<DescriptionResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.generateDescription(DescriptionRequest.newBuilder()
+                .setContext("caller supplied context").build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
         verifyNoInteractions(mockEngine);
     }
 
@@ -373,6 +399,32 @@ class MultimodalGrpcServiceTest {
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.INVALID_ARGUMENT.getCode());
         verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("analyzeVideoWithAudio: no requested operation is invalid before dispatch")
+    void analyzeVideoWithAudio_noRequestedOperationIsRejected() {
+        CapturingObserver<VideoAudioResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("analyzeVideoWithAudio: requested provider error is unavailable")
+    void analyzeVideoWithAudio_providerErrorDoesNotReturnNarrative() {
+        when(mockEngine.analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt()))
+                .thenReturn(VideoAudioResult.builder().audioResult(AudioResult.error("no STT"))
+                        .combinedNarrative("unsupported fallback").build());
+        CapturingObserver<VideoAudioResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[] {1})).setExtractAudio(true).build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
     }
 
     @Test
@@ -456,15 +508,8 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("analyzeCrossModal: audio only → synchronization remains undetermined")
-    void analyzeCrossModal_audioOnly_returnsUndetermined() {
-        MultimodalResult result = MultimodalResult.builder() 
-            .audioResult(AudioResult.builder().transcription("hello").confidence(0.9).build())
-            .combinedAnalysis("audio only")
-            .processingTimeMs(10L) 
-            .build(); 
-        when(mockEngine.analyse(any())).thenReturn(result); 
-
+    @DisplayName("analyzeCrossModal: one modality is invalid before dispatch")
+    void analyzeCrossModal_audioOnly_returnsInvalidArgument() {
         CapturingObserver<CrossModalResponse> observer = new CapturingObserver<>(); 
         withContext(TENANT_ID, () -> service.analyzeCrossModal( 
             CrossModalRequest.newBuilder() 
@@ -472,12 +517,26 @@ class MultimodalGrpcServiceTest {
                 .build(), 
             observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().hasAlignmentScore()).isFalse();
-        assertThat(observer.getValue().getSynchronizationStatus())
-                .isEqualTo(CrossModalResponse.SynchronizationStatus.SYNC_UNDETERMINED);
-        assertThat(observer.getValue().getEventsList()).isEmpty();
-        assertThat(observer.getValue().getSummary()).contains("synchronization undetermined");
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("analyzeCrossModal: requested modality error is unavailable")
+    void analyzeCrossModal_providerErrorIsUnavailable() {
+        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
+                .audioResult(AudioResult.error("no STT")).combinedAnalysis("fallback").build());
+        CapturingObserver<CrossModalResponse> observer = new CapturingObserver<>();
+        when(mockEngine.analyse(any())).thenReturn(MultimodalResult.builder()
+                .audioResult(AudioResult.error("no STT"))
+                .visualResult(VisualResult.builder().sceneDescription("test").build()).build());
+        withContext(TENANT_ID, () -> service.analyzeCrossModal(CrossModalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setVideoData(ByteString.copyFrom(new byte[] {2})).build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
     }
 
     // ─────────────────────────────────────────────────────────────────────────

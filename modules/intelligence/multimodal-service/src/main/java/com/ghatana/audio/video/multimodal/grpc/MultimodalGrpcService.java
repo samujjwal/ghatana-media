@@ -112,6 +112,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
+        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()) {
+            responseObserver.onError(Status.UNAVAILABLE
+                    .withDescription("No qualified modality provider can ground a description from context alone")
+                    .asRuntimeException());
+            return;
+        }
         try {
             LOG.debug("Processing multimodal request with {} analysis types",
                     request.getAnalysisTypesList().size());
@@ -129,6 +135,16 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                             .build();
 
             MultimodalResult result = engine.analyse(engineRequest);
+
+            if ((!request.getAudioData().isEmpty() && (result.getAudioResult() == null
+                    || result.getAudioResult().isError()))
+                    || ((!request.getImageData().isEmpty() || !request.getVideoData().isEmpty())
+                    && (result.getVisualResult() == null || result.getVisualResult().isError()))) {
+                responseObserver.onError(Status.UNAVAILABLE.withDescription(
+                        "A requested multimodal provider did not produce a result").asRuntimeException());
+                mediaMetrics.recordFailed("multimodal.analyse");
+                return;
+            }
 
             MultimodalResponse.Builder responseBuilder = MultimodalResponse.newBuilder()
                     .setCombinedAnalysis(result.getCombinedAnalysis())
@@ -194,6 +210,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .asRuntimeException());
             return;
         }
+        if (!request.getExtractAudio() && !request.getAnalyzeFrames()) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("At least one of extract_audio or analyze_frames must be enabled")
+                    .asRuntimeException());
+            return;
+        }
         if (!authorized(identity, modalities(request.getExtractAudio(), false, true, false),
                 null, request.getVideoData().size(), "multimodal.video-audio-analysis")) {
             responseObserver.onError(authorityUnavailable());
@@ -207,6 +229,16 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     request.getExtractAudio(),
                     request.getAnalyzeFrames(),
                     request.getFrameSampleRate() > 0 ? request.getFrameSampleRate() : 1);
+
+            if ((request.getExtractAudio() && (result.getAudioResult() == null
+                    || result.getAudioResult().isError()))
+                    || (request.getAnalyzeFrames() && (result.getVideoResult() == null
+                    || result.getVideoResult().isError()))) {
+                responseObserver.onError(Status.UNAVAILABLE
+                        .withDescription("A requested multimodal provider did not produce a result")
+                        .asRuntimeException());
+                return;
+            }
 
             VideoAudioResponse.Builder responseBuilder = VideoAudioResponse.newBuilder()
                     .setCombinedNarrative(result.getCombinedNarrative());
@@ -265,7 +297,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
         } catch (Exception e) {
             LOG.error("Video with audio analysis failed", e);
-            responseObserver.onError(toStatus(e, "Video-audio analysis failed").asRuntimeException());
+            responseObserver.onError(safeFailureStatus(e, "Video-audio analysis failed").asRuntimeException());
         }
     }
 
@@ -297,6 +329,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             responseObserver.onError(authorityUnavailable());
             return;
         }
+        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()) {
+            responseObserver.onError(Status.UNAVAILABLE
+                    .withDescription("No qualified modality provider can ground a description from context alone")
+                    .asRuntimeException());
+            return;
+        }
         try {
             LOG.debug("Generating description with style: {}", request.getStyle());
 
@@ -309,6 +347,16 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             MultimodalResult analysis = engine.analyse(engineRequest);
 
+            if ((!request.getAudioData().isEmpty() && (analysis.getAudioResult() == null
+                    || analysis.getAudioResult().isError()))
+                    || (!request.getImageData().isEmpty() && (analysis.getVisualResult() == null
+                    || analysis.getVisualResult().isError()))) {
+                responseObserver.onError(Status.UNAVAILABLE
+                        .withDescription("A requested multimodal provider did not produce a result")
+                        .asRuntimeException());
+                return;
+            }
+
             List<String> keyElements = new ArrayList<>();
             if (analysis.getAudioResult() != null && !analysis.getAudioResult().isError()) {
                 keyElements.add("speech");
@@ -316,13 +364,9 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             if (analysis.getVisualResult() != null && !analysis.getVisualResult().isError()) {
                 keyElements.add("visual");
             }
-            if (!request.getContext().isEmpty()) {
-                keyElements.add("context");
-            }
-
             responseObserver.onNext(DescriptionResponse.newBuilder()
                     .setDescription(analysis.getCombinedAnalysis())
-                    .setConfidence(keyElements.isEmpty() ? 0.0 : 0.85)
+                    .setConfidence(0.0)
                     .addAllKeyElements(keyElements)
                     .build());
             responseObserver.onCompleted();
@@ -330,7 +374,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
         } catch (Exception e) {
             LOG.error("Description generation failed", e);
-            responseObserver.onError(toStatus(e, "Description generation failed").asRuntimeException());
+            responseObserver.onError(safeFailureStatus(e, "Description generation failed").asRuntimeException());
         }
     }
 
@@ -352,6 +396,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         if (request.getAudioData().isEmpty() && request.getVideoData().isEmpty()) {
             responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription("At least one of audio_data or video_data must be provided")
+                    .asRuntimeException());
+            return;
+        }
+        if (request.getAudioData().isEmpty() || request.getVideoData().isEmpty()) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("Both audio_data and video_data are required for cross-modal analysis")
                     .asRuntimeException());
             return;
         }
@@ -377,6 +427,13 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             boolean hasAudio = result.getAudioResult() != null && !result.getAudioResult().isError();
             boolean hasVisual = result.getVisualResult() != null && !result.getVisualResult().isError();
+            if (( !request.getAudioData().isEmpty() && !hasAudio)
+                    || (!request.getVideoData().isEmpty() && !hasVisual)) {
+                responseObserver.onError(Status.UNAVAILABLE
+                        .withDescription("A requested multimodal provider did not produce a result")
+                        .asRuntimeException());
+                return;
+            }
 
             // The current providers do not expose comparable source clocks or qualified
             // cross-modal features. A numeric heuristic must not masquerade as alignment.
@@ -399,7 +456,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
         } catch (Exception e) {
             LOG.error("Cross-modal analysis failed", e);
-            responseObserver.onError(toStatus(e, "Cross-modal analysis failed").asRuntimeException());
+            responseObserver.onError(safeFailureStatus(e, "Cross-modal analysis failed").asRuntimeException());
         }
     }
 
@@ -442,6 +499,16 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .build();
 
             MultimodalResult result = engine.analyse(engineRequest);
+
+            if ((!request.getAudioData().isEmpty() && (result.getAudioResult() == null
+                    || result.getAudioResult().isError()))
+                    || ((!request.getVideoData().isEmpty() || !request.getImageData().isEmpty())
+                    && (result.getVisualResult() == null || result.getVisualResult().isError()))) {
+                responseObserver.onError(Status.UNAVAILABLE
+                        .withDescription("A requested multimodal provider did not produce a result")
+                        .asRuntimeException());
+                return;
+            }
 
             InsightsResponse.Builder builder = InsightsResponse.newBuilder();
             List<String> topics = new ArrayList<>();
@@ -494,9 +561,9 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             builder.addAllTopics(topics)
                 .addAllEntities(entities.stream().distinct().limit(10).toList())
                 .addAllActions(actions)
-                .putConfidenceScores("audio", result.getAudioResult() != null ? 0.85 : 0.0)
-                .putConfidenceScores("visual", result.getVisualResult() != null ? 0.80 : 0.0)
-                .putConfidenceScores("text", !request.getText().isBlank() ? 0.90 : 0.0)
+                .putConfidenceScores("audio", 0.0)
+                .putConfidenceScores("visual", 0.0)
+                .putConfidenceScores("text", 0.0)
                 .setProcessingTimeMs(System.currentTimeMillis() - startTime);
 
             if (builder.getOverallSentiment().isBlank()) {
@@ -509,7 +576,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
         } catch (Exception e) {
             LOG.error("Insights extraction failed", e);
-            responseObserver.onError(toStatus(e, "Insights extraction failed").asRuntimeException());
+            responseObserver.onError(safeFailureStatus(e, "Insights extraction failed").asRuntimeException());
         }
     }
 
@@ -613,6 +680,14 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             baseStatus = Status.INVALID_ARGUMENT;
         }
         return baseStatus.withDescription(error.code() + ": " + error.message());
+    }
+
+    private Status safeFailureStatus(Exception exception, String context) {
+        Status classified = toStatus(exception, context);
+        String message = exception instanceof IllegalArgumentException
+                ? "Request validation failed"
+                : "Analysis could not be completed";
+        return classified.withDescription(message);
     }
 
     private Identity requireIdentity(StreamObserver<?> observer) {
