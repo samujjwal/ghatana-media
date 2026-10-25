@@ -88,6 +88,20 @@ public final class SpeakerDiarizationService {
             return Collections.emptyList();
         }
 
+        // Overlapping turns are valid (for example, two speakers talking at once), but
+        // the segment list must still be ordered by source start time. Cluster labels are
+        // assigned in encounter order, so accepting a reordered list would make otherwise
+        // identical input produce different anonymous speaker IDs.
+        long previousStartMs = -1;
+        for (AudioSegment segment : segments) {
+            Objects.requireNonNull(segment, "segments must not contain null");
+            if (segment.startMs() < previousStartMs) {
+                throw new DiarizationException(
+                        "STT_DIARIZATION_SEGMENTS_OUT_OF_ORDER: segments must be ordered by source start time");
+            }
+            previousStartMs = segment.startMs();
+        }
+
         List<SpeakerTurn> result = new ArrayList<>(segments.size());
         List<float[]> centroids = new ArrayList<>(); // per-speaker centroid embeddings
 
@@ -237,8 +251,9 @@ public final class SpeakerDiarizationService {
         public AudioSegment {
             Objects.requireNonNull(audioBytes, "audioBytes must not be null");
             Objects.requireNonNull(text, "text must not be null");
+            if (audioBytes.length == 0) throw new IllegalArgumentException("audioBytes must not be empty");
             if (startMs < 0) throw new IllegalArgumentException("startMs must be >= 0");
-            if (endMs < startMs) throw new IllegalArgumentException("endMs must be >= startMs");
+            if (endMs <= startMs) throw new IllegalArgumentException("endMs must be > startMs");
         }
     }
 

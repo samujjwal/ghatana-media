@@ -117,6 +117,23 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("out-of-order source segments fail before embedding extraction")
+        void outOfOrderSegmentsFailBeforeProvider() {
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> { providerCalls.incrementAndGet(); return new float[] {1}; })
+                    .admission(() -> true)
+                    .build();
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(List.of(
+                            new SpeakerDiarizationService.AudioSegment(new byte[] {1}, 100, 200, "later"),
+                            new SpeakerDiarizationService.AudioSegment(new byte[] {2}, 50, 150, "earlier"))))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_SEGMENTS_OUT_OF_ORDER:");
+            assertThat(providerCalls).hasValue(0);
+        }
+
+        @Test
         @DisplayName("acoustically similar segments → same speaker label")
         void diarize_sameSpeaker_sameLabel() { 
             SpeakerDiarizationService service = buildService(); 
@@ -228,6 +245,15 @@ class SpeakerDiarizationServiceTest {
         void audioSegment_endBeforeStart_throwsIAE() { 
             assertThatIllegalArgumentException() 
                     .isThrownBy(() -> new SpeakerDiarizationService.AudioSegment(new byte[1], 500, 100, "t")); 
+        }
+
+        @Test
+        @DisplayName("zero-duration and empty-audio segments are rejected")
+        void audioSegment_rejectsEmptyOrZeroDuration() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new SpeakerDiarizationService.AudioSegment(new byte[1], 100, 100, "t"));
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new SpeakerDiarizationService.AudioSegment(new byte[0], 100, 200, "t"));
         }
     }
 }
