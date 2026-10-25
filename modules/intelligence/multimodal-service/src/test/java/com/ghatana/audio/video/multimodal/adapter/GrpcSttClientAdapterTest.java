@@ -4,6 +4,7 @@
  */
 package com.ghatana.audio.video.multimodal.adapter;
 
+import com.ghatana.audio.video.common.observability.TracingServerInterceptor;
 import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.stt.core.grpc.proto.ConfidenceCalibration;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
@@ -13,12 +14,25 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -243,5 +257,107 @@ class GrpcSttClientAdapterTest {
             server.shutdownNow();
             server.awaitTermination(5, TimeUnit.SECONDS);
         }
+    }
+
+    @Test
+    @DisplayName("Propagates parent trace through the actual asynchronous STT gRPC client")
+    void propagatesParentTraceThroughAsyncGrpcAdapter() throws Exception {
+        InMemorySpanExporter exporter = InMemorySpanExporter.create();
+        SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
+                .addSpanProcessor(SimpleSpanProcessor.create(exporter))
+                .build();
+        OpenTelemetrySdk telemetry = OpenTelemetrySdk.builder()
+                .setTracerProvider(tracerProvider)
+                .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+                .build();
+        GlobalOpenTelemetry.resetForTest();
+        GlobalOpenTelemetry.set(telemetry);
+
+        AtomicInteger providerCalls = new AtomicInteger();
+        Server server = null;
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            server = ServerBuilder.forPort(0)
+                    .addService(new STTServiceGrpc.STTServiceImplBase() {
+                        @Override
+                        public void transcribe(
+                                com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                                StreamObserver<TranscribeResponse> observer) {
+                            providerCalls.incrementAndGet();
+                            observer.onNext(TranscribeResponse.newBuilder()
+                                    .setText("fixture transcript marker")
+                                    .build());
+                            observer.onCompleted();
+                        }
+                    })
+                    .intercept(new TracingServerInterceptor())
+                    .build()
+                    .start();
+
+            try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                    "127.0.0.1", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+                Span root = telemetry.getTracer("media.test").spanBuilder("multimodal.child.parent").startSpan();
+                io.opentelemetry.context.Context parent = io.opentelemetry.context.Context.current().with(root);
+                FutureTask<AudioResult> call = new FutureTask<>(parent.wrap(() -> {
+                    String parentSpanIdBefore = Span.current().getSpanContext().getSpanId();
+                    AudioResult result = adapter.transcribe(new byte[] {7, 11, 13});
+                    assertThat(Span.current().getSpanContext().getSpanId()).isEqualTo(parentSpanIdBefore);
+                    return result;
+                }));
+                executor.execute(call);
+
+                AudioResult result = call.get(5, TimeUnit.SECONDS);
+                assertThat(result.isError()).isFalse();
+                assertThat(result.getTranscription()).isEqualTo("fixture transcript marker");
+                assertThat(providerCalls).hasValue(1);
+                root.end();
+
+                awaitFinishedSpans(exporter, 3);
+                SpanData rootSpan = findSpan(exporter, "multimodal.child.parent", SpanKind.INTERNAL);
+                SpanData clientSpan = findSpan(exporter,
+                        "com.ghatana.audio.video.stt.grpc.STTService/Transcribe", SpanKind.CLIENT);
+                SpanData serverSpan = findSpan(exporter,
+                        "com.ghatana.audio.video.stt.grpc.STTService/Transcribe", SpanKind.SERVER);
+
+                assertThat(clientSpan.getTraceId()).isEqualTo(rootSpan.getTraceId());
+                assertThat(clientSpan.getParentSpanId()).isEqualTo(rootSpan.getSpanId());
+                assertThat(serverSpan.getTraceId()).isEqualTo(clientSpan.getTraceId());
+                assertThat(serverSpan.getParentSpanId()).isEqualTo(clientSpan.getSpanId());
+                assertThat(clientSpan.getAttributes().get(AttributeKey.stringKey("rpc.service")))
+                        .isEqualTo("com.ghatana.audio.video.stt.grpc.STTService");
+                assertThat(clientSpan.getAttributes().get(AttributeKey.stringKey("rpc.method")))
+                        .isEqualTo("Transcribe");
+                assertThat(exporter.getFinishedSpanItems()).allSatisfy(span -> {
+                    assertThat(span.getAttributes().asMap().values())
+                            .doesNotContain("fixture transcript marker", "tenant-private-marker");
+                    assertThat(span.getAttributes().asMap().keySet())
+                            .noneMatch(key -> key.getKey().toLowerCase(java.util.Locale.ROOT).contains("tenant"));
+                });
+            }
+        } finally {
+            executor.shutdownNow();
+            if (server != null) {
+                server.shutdownNow();
+                server.awaitTermination(5, TimeUnit.SECONDS);
+            }
+            tracerProvider.close();
+            exporter.close();
+            GlobalOpenTelemetry.resetForTest();
+        }
+    }
+
+    private static void awaitFinishedSpans(InMemorySpanExporter exporter, int expected) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+        while (exporter.getFinishedSpanItems().size() < expected && System.nanoTime() < deadline) {
+            Thread.sleep(2);
+        }
+        assertThat(exporter.getFinishedSpanItems()).hasSize(expected);
+    }
+
+    private static SpanData findSpan(InMemorySpanExporter exporter, String name, SpanKind kind) {
+        return exporter.getFinishedSpanItems().stream()
+                .filter(span -> span.getName().equals(name) && span.getKind() == kind)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Missing " + kind + " span " + name));
     }
 }

@@ -81,6 +81,8 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.grpc.inprocess)
+    testImplementation(libs.opentelemetry.sdk)
+    testImplementation(libs.opentelemetry.sdk.testing)
     testImplementation("com.ghatana.platform:testing:${providers.gradleProperty("ghatana.shared.version").get()}")
     testImplementation("com.ghatana.platform:testing-activej:${providers.gradleProperty("ghatana.shared.version").get()}")
     testRuntimeOnly(libs.junit.jupiter.engine)

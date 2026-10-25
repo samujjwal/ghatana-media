@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.multimodal.adapter;
 
+import com.ghatana.audio.video.common.observability.TracingClientInterceptor;
 import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.audio.video.multimodal.engine.SttClientAdapter;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
@@ -199,6 +200,7 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
             int port,
             SttGrpcTransportSecurity security) {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
+        builder.intercept(new TracingClientInterceptor());
         try {
             return switch (security.mode()) {
                 case PLAINTEXT -> builder.usePlaintext().build();
