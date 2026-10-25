@@ -132,11 +132,55 @@ Investigate or alert on:
 - metrics scraping assumptions that require series not emitted by the current
   JSON /metrics handler.
 
+### Wave 2 signal availability and no-data handling
+
+The current Media Runtime Prometheus scrape emits the durable workflow metrics
+from `MediaWorkflowMetrics`: request/event counts, workflow-stage durations,
+queue depth, `OUTCOME_UNKNOWN` backlog, overdue leases, and whether the complete
+job-store snapshot is available. The queue/backlog/lease alerts require
+`media_workflow_aggregate_store_queries_supported == 1`; an unavailable query
+clears those gauges to NaN, and the explicit unavailable alert fires only for a
+reported `0`. Initial or missing data is unknown, not a zero backlog and not a
+healthy provider result.
+
+Provider readiness and model quality are not Prometheus sources in this
+checkout. `MediaRuntime.healthSnapshot()` computes provider status internally,
+but the public `/health`, `/health/live`, `/health/ready`, and `/health/startup`
+routes expose only coarse process/readiness states. `GET /api/v1/providers`
+requires tenant and principal headers and returns provider IDs and capability
+profiles; it does not expose the health details. `AudioVideoHealthService` is
+not constructed by the current service roots. No admitted model-quality,
+provider-status, or provider-cost series exists, so no provider-unavailable or
+quality-regression alert is defined. An unadmitted provider or a missing quality
+series is `NOT_ADMITTED` / `NO_DATA`; operators must not turn that into a zero,
+a passing readiness claim, or permission to dispatch.
+
+The gRPC/JVM rules for `stt-service`, `tts-service`, `vision-service`, and
+`multimodal-service` depend on scrape targets and exporters outside the current
+Media Runtime path. `prometheus.audio-video.yml` describes internal diagnostic
+targets and does not admit production monitoring. Before relying on those rules,
+verify the intended targets are deployed and that their gRPC/JVM metric series
+are actually present; absent series are not evidence of a healthy model. The
+latency thresholds in those candidate rules are not approved reference-host
+budgets or model-quality claims.
+
+For privacy-safe triage, use public liveness/readiness only for a yes/no signal.
+Scrape Prometheus text from `/metrics` with an explicit Prometheus `Accept`
+header rather than treating its default JSON response as a metric schema. Use
+the existing authenticated provider metadata route for IDs/capability profiles.
+Do not put tenant, principal, request, media, voice, face, token, model, or
+provider identifiers in alert labels or copy media content into alert
+annotations. If provider or quality detail is needed, keep dispatch closed and
+handoff the missing telemetry source to the service owner; the current routes
+do not expose a private provider-health dashboard.
+
 ## Degradation, recovery, and actionable runbook
 
 1. Check lifecycle. Run liveness, startup, readiness, health, and metrics.
    Record profile, store IDs, provider IDs, active counts, and degradation
    state without copying media bytes or tokens.
+   Treat a missing provider/quality series as `NO_DATA`/`NOT_ADMITTED`; the
+   current public health routes do not provide detailed provider health.
 2. If not ready, verify selected artifact/job/stream stores, PostgreSQL/S3
    credentials and endpoints, provider endpoint/token/region/retention, and
    consent authority readiness. Restore dependencies before reopening traffic.

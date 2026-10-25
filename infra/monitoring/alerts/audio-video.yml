@@ -273,6 +273,10 @@ groups:
   #    Metrics emitted by MediaWorkflowMetrics — bounded cardinality only:
   #    service, stage, event, contract_version. No tenant/request/job/attempt
   #    identity is ever exported as a label.
+#
+# Provider readiness and model-quality alert rules are intentionally absent:
+# current service roots do not export provider-health or qualified-quality
+# Prometheus series. NOT_ADMITTED/no data must not be interpreted as healthy zero.
   # -------------------------------------------------------------------------
   - name: media.workflow
     rules:
