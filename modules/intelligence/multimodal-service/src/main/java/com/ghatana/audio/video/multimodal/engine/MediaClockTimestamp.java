@@ -40,6 +40,24 @@ public record MediaClockTimestamp(
                 ClockDomain.MEDIA, "media-ms", null);
     }
 
+    /**
+     * Preserve an audio stream position as an exact source-clock timestamp.
+     *
+     * <p>The caller must supply the stream's stable clock identity and sample rate. This records
+     * its timebase only; it does not map the samples to a video clock or establish A/V sync.
+     */
+    public static MediaClockTimestamp audioSamples(long sampleIndex, long samplesPerSecond,
+                                                   String sourceClockId) {
+        if (samplesPerSecond <= 0) {
+            throw new IllegalArgumentException("Audio sample rate must be positive");
+        }
+        if (sourceClockId == null || sourceClockId.isBlank()) {
+            throw new IllegalArgumentException("Audio source clock identity must not be blank");
+        }
+        return new MediaClockTimestamp(Status.KNOWN, sampleIndex, 1L, samplesPerSecond,
+                ClockDomain.SOURCE, sourceClockId, null);
+    }
+
     /** Preserve source PTS without claiming a source identity unavailable from the timestamp alone. */
     public static MediaClockTimestamp fromSource(SourceMediaTimestamp source) {
         return fromSource(source, UNSCOPED_SOURCE_CLOCK);

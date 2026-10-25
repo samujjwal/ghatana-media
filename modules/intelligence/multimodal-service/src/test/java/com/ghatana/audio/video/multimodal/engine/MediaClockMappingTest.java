@@ -22,6 +22,32 @@ class MediaClockMappingTest {
     }
 
     @Test
+    void mapsExplicitAudioSampleClockWithoutClaimingSynchronization() {
+        MediaClockMapping mapping = new MediaClockMapping(1, 1, 0, 0);
+        MediaClockTimestamp first = MediaClockTimestamp.audioSamples(48_000, 48_000, "audio-a");
+        MediaClockTimestamp second = MediaClockTimestamp.audioSamples(72_000, 48_000, "audio-a");
+
+        assertThat(first.domain()).isEqualTo(MediaClockTimestamp.ClockDomain.SOURCE);
+        assertThat(first.timeBaseNumerator()).isEqualTo(1L);
+        assertThat(first.timeBaseDenominator()).isEqualTo(48_000L);
+        assertThat(mapping.map(first, null).toMilliseconds()).isEqualTo(1_000L);
+        assertThat(mapping.map(second, first).toMilliseconds()).isEqualTo(1_500L);
+
+        MediaClockTimestamp otherStream = MediaClockTimestamp.audioSamples(96_000, 48_000, "audio-b");
+        MediaClockTimestamp mismatch = mapping.map(otherStream, second);
+        assertThat(mismatch.status()).isEqualTo(MediaClockTimestamp.Status.UNKNOWN);
+        assertThat(mismatch.unknownReason()).isEqualTo("SOURCE_CLOCK_MISMATCH");
+    }
+
+    @Test
+    void rejectsInvalidAudioSampleClockDeclarations() {
+        assertThatThrownBy(() -> MediaClockTimestamp.audioSamples(1, 0, "audio-a"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaClockTimestamp.audioSamples(1, 48_000, " "))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void acceptsEquivalentVariableTimebasesAndAppliesBoundedOffset() {
         MediaClockTimestamp first = MediaClockTimestamp.fromSource(SourceMediaTimestamp.fromPts("25", "1/25"), "video-a");
         MediaClockTimestamp second = MediaClockTimestamp.fromSource(SourceMediaTimestamp.fromPts("2000", "1/2000"), "video-a");
