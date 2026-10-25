@@ -1,5 +1,6 @@
 package com.ghatana.audiovideo.observability.instrumentation;
 
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Scope;
@@ -16,9 +17,18 @@ public class AudioVideoGrpcInstrumentation {
 
     private static final Logger log = LoggerFactory.getLogger(AudioVideoGrpcInstrumentation.class);
     private final AudioVideoTracingService tracingService;
+    private final MediaWorkflowMetrics workflowMetrics;
 
     public AudioVideoGrpcInstrumentation(AudioVideoTracingService tracingService) {
+        this(tracingService, null);
+    }
+
+    /** Build instrumentation with optional bounded modality boundary metrics. */
+    public AudioVideoGrpcInstrumentation(
+            AudioVideoTracingService tracingService,
+            MediaWorkflowMetrics workflowMetrics) {
         this.tracingService = tracingService;
+        this.workflowMetrics = workflowMetrics;
     }
 
     /**
@@ -30,20 +40,20 @@ public class AudioVideoGrpcInstrumentation {
             GrpcStreamingTask<T> task) throws Exception {
 
         Span span = tracingService.startGrpcStreamingSpan(methodName, tenantId);
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
 
         try (Scope scope = tracingService.createScope(span)) {
             log.info("Starting gRPC streaming operation");
 
             T result = task.execute();
 
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
             tracingService.recordSuccess(span, duration);
 
             log.info("gRPC streaming completed in {}ms", duration);
             return result;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
@@ -60,20 +70,20 @@ public class AudioVideoGrpcInstrumentation {
             VideoProcessingTask<T> task) throws Exception {
 
         Span span = tracingService.startVideoProcessingSpan(processId, tenantId);
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
 
         try (Scope scope = tracingService.createScope(span)) {
             log.info("Starting video processing operation");
 
             T result = task.execute();
 
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
             tracingService.recordSuccess(span, duration);
 
             log.info("Video processing completed in {}ms", duration);
             return result;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
@@ -90,20 +100,20 @@ public class AudioVideoGrpcInstrumentation {
             AudioProcessingTask<T> task) throws Exception {
 
         Span span = tracingService.startAudioProcessingSpan(processId, tenantId);
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
 
         try (Scope scope = tracingService.createScope(span)) {
             log.info("Starting audio processing operation");
 
             T result = task.execute();
 
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
             tracingService.recordSuccess(span, duration);
 
             log.info("Audio processing completed in {}ms", duration);
             return result;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
@@ -120,20 +130,24 @@ public class AudioVideoGrpcInstrumentation {
             SynthesisTask<T> task) throws Exception {
 
         Span span = tracingService.startSynthesisSpan(synthesisId, tenantId);
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
+        MediaWorkflowMetrics.ModalityTimingSample modelSample = startModalityTimer(
+                MediaWorkflowMetrics.Modality.TTS, MediaWorkflowMetrics.Boundary.PROVIDER);
 
         try (Scope scope = tracingService.createScope(span)) {
             log.info("Starting synthesis operation");
 
             T result = task.execute();
 
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
+            stopModalityTimer(modelSample, MediaWorkflowMetrics.Outcome.SUCCESS);
             tracingService.recordSuccess(span, duration);
 
             log.info("Synthesis completed in {}ms", duration);
             return result;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
+            stopModalityTimer(modelSample, MediaWorkflowMetrics.Outcome.UNKNOWN);
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
@@ -188,20 +202,24 @@ public class AudioVideoGrpcInstrumentation {
 
         io.opentelemetry.api.trace.Span span =
                 tracingService.startTranscriptionSpan(transcriptionId, tenantId, language);
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
+        MediaWorkflowMetrics.ModalityTimingSample modelSample = startModalityTimer(
+                MediaWorkflowMetrics.Modality.STT, MediaWorkflowMetrics.Boundary.PROVIDER);
 
         try (io.opentelemetry.context.Scope scope = tracingService.createScope(span)) {
             log.info("Starting STT transcription operation");
 
             T result = task.execute(span);
 
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
+            stopModalityTimer(modelSample, MediaWorkflowMetrics.Outcome.SUCCESS);
             tracingService.recordSuccess(span, duration);
 
             log.info("STT transcription completed in {}ms", duration);
             return result;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
+            stopModalityTimer(modelSample, MediaWorkflowMetrics.Outcome.UNKNOWN);
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
@@ -230,20 +248,53 @@ public class AudioVideoGrpcInstrumentation {
 
         io.opentelemetry.api.trace.Span span =
                 tracingService.startVisionDetectionSpan(detectionId, tenantId, confidenceThreshold);
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
+        MediaWorkflowMetrics.ModalityTimingSample modelSample = startModalityTimer(
+                MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.PROVIDER);
 
         try (io.opentelemetry.context.Scope scope = tracingService.createScope(span)) {
             log.info("Starting vision detection operation");
 
             T result = task.execute(span);
 
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
+            stopModalityTimer(modelSample, MediaWorkflowMetrics.Outcome.SUCCESS);
             tracingService.recordSuccess(span, duration);
 
             log.info("Vision detection completed in {}ms", duration);
             return result;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = elapsedMillis(startTime);
+            stopModalityTimer(modelSample, MediaWorkflowMetrics.Outcome.UNKNOWN);
+            tracingService.recordError(span, e, duration);
+            throw e;
+        } finally {
+            tracingService.clearContext();
+        }
+    }
+
+    /** Instrument the real multimodal provider boundary with an aggregate bounded timer. */
+    public <T> T instrumentMultimodalAnalysis(
+            String operationId,
+            String tenantId,
+            MultimodalAnalysisTask<T> task) throws Exception {
+
+        Span span = tracingService.startMultimodalAnalysisSpan(operationId, tenantId);
+        long startTime = System.nanoTime();
+        MediaWorkflowMetrics.ModalityTimingSample modelSample = startModalityTimer(
+                MediaWorkflowMetrics.Modality.MULTIMODAL, MediaWorkflowMetrics.Boundary.PROVIDER);
+
+        try (Scope scope = tracingService.createScope(span)) {
+            log.info("Starting multimodal analysis operation");
+            T result = task.execute(span);
+            long duration = elapsedMillis(startTime);
+            stopModalityTimer(modelSample, MediaWorkflowMetrics.Outcome.SUCCESS);
+            tracingService.recordSuccess(span, duration);
+            log.info("Multimodal analysis completed in {}ms", duration);
+            return result;
+        } catch (Exception e) {
+            long duration = elapsedMillis(startTime);
+            stopModalityTimer(modelSample, MediaWorkflowMetrics.Outcome.UNKNOWN);
             tracingService.recordError(span, e, duration);
             throw e;
         } finally {
@@ -275,5 +326,25 @@ public class AudioVideoGrpcInstrumentation {
     @FunctionalInterface
     public interface VisionDetectionTask<T> {
         T execute(io.opentelemetry.api.trace.Span span) throws Exception;
+    }
+
+    /** Functional interface for multimodal analysis tasks receiving the active span. */
+    @FunctionalInterface
+    public interface MultimodalAnalysisTask<T> {
+        T execute(Span span) throws Exception;
+    }
+
+    private static long elapsedMillis(long startedNanos) {
+        return java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
+    }
+
+    private MediaWorkflowMetrics.ModalityTimingSample startModalityTimer(
+            MediaWorkflowMetrics.Modality modality, MediaWorkflowMetrics.Boundary boundary) {
+        return workflowMetrics == null ? null : workflowMetrics.startModalityTimer(modality, boundary);
+    }
+
+    private void stopModalityTimer(
+            MediaWorkflowMetrics.ModalityTimingSample sample, MediaWorkflowMetrics.Outcome outcome) {
+        if (workflowMetrics != null) workflowMetrics.stopModalityTimer(sample, outcome);
     }
 }

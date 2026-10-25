@@ -49,6 +49,27 @@ class AudioVideoTracingServiceSpanAttributeTest {
         MDC.clear();
     }
 
+    @Test
+    @DisplayName("multimodal spans export only identifier presence flags")
+    void shouldRedactMultimodalOperationAndTenantIdentifiers() {
+        String marker = "tenant_secret_multimodal_operation_123";
+        SpanBuilder builder = mock(SpanBuilder.class);
+        Span span = mock(Span.class);
+        when(tracer.spanBuilder("audiovideo.multimodal.analysis")).thenReturn(builder);
+        when(builder.setSpanKind(SpanKind.INTERNAL)).thenReturn(builder);
+        when(builder.setAttribute(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyBoolean())).thenReturn(builder);
+        when(builder.setAttribute(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString())).thenReturn(builder);
+        when(builder.startSpan()).thenReturn(span);
+
+        tracingService.startMultimodalAnalysisSpan(marker, marker);
+
+        verify(builder).setAttribute(eq("operation.present"), eq(true));
+        verify(builder).setAttribute(eq("tenant.present"), eq(true));
+        verify(builder, never()).setAttribute(anyString(), eq(marker));
+    }
+
     // -------------------------------------------------------------------------
     // STT transcription span — do not copy identifiers or content tags into log MDC
     // -------------------------------------------------------------------------

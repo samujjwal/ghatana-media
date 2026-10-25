@@ -1,6 +1,8 @@
 package com.ghatana.audiovideo.observability.instrumentation;
 
 import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Tracer;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,7 +100,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
             // Given
             String methodName = "DurationStream";
             String tenantId = "duration-tenant";
-            long startTime = System.currentTimeMillis(); 
+            long startTime = System.nanoTime();
 
             // When
             instrumentation.instrumentGrpcStreaming( 
@@ -114,7 +116,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
                     }
             );
 
-            long duration = System.currentTimeMillis() - startTime; 
+            long duration = java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
 
             // Then
             assertThat(duration).isGreaterThanOrEqualTo(50); 
@@ -144,7 +146,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
         }
 
         @Test
-        void shouldValidateVideoProcessingSLA() throws Exception { 
+        void shouldCompleteVideoProcessingAfterDelayedWork() throws Exception {
             // Given
             String processId = "sla-video";
             String tenantId = "sla-tenant";
@@ -155,7 +157,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
                     tenantId,
                     () -> { 
                         try {
-                            Thread.sleep(30); // Within 50ms SLA 
+                            Thread.sleep(30);
                         } catch (InterruptedException e) { 
                             Thread.currentThread().interrupt(); 
                         }
@@ -168,7 +170,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
         }
 
         @Test
-        void shouldWarnWhenVideoProcessingExceedsSLA() throws Exception { 
+        void shouldCompleteVideoProcessingAfterLongerModelWork() throws Exception {
             // Given
             String processId = "slow-video";
             String tenantId = "slow-tenant";
@@ -179,7 +181,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
                     tenantId,
                     () -> { 
                         try {
-                            Thread.sleep(60); // Exceeds 50ms SLA 
+                            Thread.sleep(60);
                         } catch (InterruptedException e) { 
                             Thread.currentThread().interrupt(); 
                         }
@@ -189,7 +191,6 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
 
             // Then
             assertThat(result).isEqualTo("slow-result");
-            // SLA warning would be logged
         }
 
         @Test
@@ -276,7 +277,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
         }
 
         @Test
-        void shouldValidateAudioProcessingSLA() throws Exception { 
+        void shouldCompleteAudioProcessingAfterDelayedWork() throws Exception {
             // Given
             String processId = "sla-audio";
             String tenantId = "audio-sla-tenant";
@@ -287,7 +288,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
                     tenantId,
                     () -> { 
                         try {
-                            Thread.sleep(40); // Within 50ms SLA 
+                            Thread.sleep(40);
                         } catch (InterruptedException e) { 
                             Thread.currentThread().interrupt(); 
                         }
@@ -358,7 +359,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
         }
 
         @Test
-        void shouldValidateSynthesisSLA() throws Exception { 
+        void shouldCompleteSynthesisAfterDelayedWork() throws Exception {
             // Given
             String synthesisId = "sla-synthesis";
             String tenantId = "synthesis-sla-tenant";
@@ -369,7 +370,7 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
                     tenantId,
                     () -> { 
                         try {
-                            Thread.sleep(35); // Within 50ms SLA 
+                            Thread.sleep(35);
                         } catch (InterruptedException e) { 
                             Thread.currentThread().interrupt(); 
                         }
@@ -415,6 +416,61 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
             // Then
             assertThat(MDC.getCopyOfContextMap()).isEmpty(); 
         }
+    }
+
+    @Test
+    void modalityProviderWrappersRecordSuccessAndUnknownOnlyWhenObserved() throws Exception {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        AudioVideoGrpcInstrumentation measured = new AudioVideoGrpcInstrumentation(tracingService, metrics);
+
+        measured.instrumentSynthesis("synthetic-id", "tenant", () -> {
+            Thread.sleep(15);
+            return "audio-result";
+        });
+        assertThat(registry.get("media.modality.boundary.duration")
+                .tag("modality", "tts")
+                .tag("service", "stt")
+                .tag("boundary", "provider")
+                .tag("execution_class", "model")
+                .tag("outcome", "success")
+                .timer().totalTime(java.util.concurrent.TimeUnit.MILLISECONDS))
+                .isGreaterThanOrEqualTo(10);
+
+        measured.instrumentVisionDetection("detection-id", "tenant", 0.5, span -> "detections");
+        assertThat(registry.get("media.modality.boundary.duration")
+                .tag("modality", "vision")
+                .tag("service", "stt")
+                .tag("boundary", "provider")
+                .tag("execution_class", "model")
+                .tag("outcome", "success")
+                .timer().count()).isEqualTo(1);
+
+        measured.instrumentMultimodalAnalysis("analysis-id", "tenant", span -> "analysis-result");
+        assertThat(registry.get("media.modality.boundary.duration")
+                .tag("modality", "multimodal")
+                .tag("service", "stt")
+                .tag("boundary", "provider")
+                .tag("execution_class", "model")
+                .tag("outcome", "success")
+                .timer().count()).isEqualTo(1);
+
+        assertThatThrownBy(() -> measured.instrumentTranscription(
+                "transcription-id", "tenant", "en", span -> {
+                    throw new IOException("provider outcome may be unknown");
+                })).isInstanceOf(IOException.class);
+        assertThat(registry.get("media.modality.boundary.duration")
+                .tag("modality", "stt")
+                .tag("service", "stt")
+                .tag("boundary", "provider")
+                .tag("execution_class", "model")
+                .tag("outcome", "unknown")
+                .timer().count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration").timers()).hasSize(4);
+        assertThat(registry.getMeters().stream()
+                .flatMap(meter -> meter.getId().getTags().stream())
+                .map(tag -> tag.getKey()))
+                .doesNotContain("tenant", "request_id", "provider_id", "model_id");
     }
 
     @Nested

@@ -2,6 +2,7 @@ package com.ghatana.audiovideo.observability.tracing;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,10 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @doc.type class
- * @doc.purpose Integration tests for Audio-Video tracing service with SLA validation
+ * @doc.purpose Integration tests for Audio-Video tracing service duration recording
  * @doc.layer test
  * @doc.pattern IntegrationTest
  */
@@ -232,73 +236,30 @@ class AudioVideoTracingServiceIntegrationTest {
     }
 
     @Nested
-    @DisplayName("SLA Threshold Validation")
-    class SLAThresholdValidationTests {
+    @DisplayName("Duration Recording")
+    class DurationRecordingTests {
 
         @Test
-        void shouldRecordSuccessfulOperationWithinSLA() { 
-            // Given
-            Span span = tracer.spanBuilder("operations.within.sla").startSpan();
-            long durationMs = 30; // Within 50ms SLA
+        void shouldRecordSuccessfulOperationWithoutAnUnqualifiedLatencyTarget() {
+            Span span = mock(Span.class);
 
-            // When
-            tracingService.recordSuccess(span, durationMs); 
+            tracingService.recordSuccess(span, 75);
 
-            // Then
-            // Operation should be recorded without SLA warning
+            verify(span).setStatus(StatusCode.OK);
+            verify(span).setAttribute("duration.ms", 75L);
+            verify(span, never()).setAttribute("sla.warning", true);
+            verify(span).end();
         }
 
         @Test
-        void shouldWarnWhenOperationExceedsSLA() { 
-            // Given
-            Span span = tracer.spanBuilder("operation.exceed.sla").startSpan();
-            long durationMs = 75; // Exceeds 50ms SLA
+        void shouldHandleFormerGenericThresholdAsAnOrdinaryDuration() {
+            Span span = mock(Span.class);
 
-            // When
-            tracingService.recordSuccess(span, durationMs); 
+            tracingService.recordSuccess(span, 50);
 
-            // Then
-            // SLA warning should be logged (verified through log capture in real tests) 
-        }
-
-        @Test
-        void shouldRecordDurationMetric() { 
-            // Given
-            Span span = tracer.spanBuilder("duration.test").startSpan();
-            long durationMs = 45;
-
-            // When
-            tracingService.recordSuccess(span, durationMs); 
-
-            // Then
-            assertThat(durationMs).isLessThan(50); 
-        }
-
-        @Test
-        void shouldHandleVeryShortOperations() { 
-            // Given
-            Span span = tracer.spanBuilder("fast.operation").startSpan();
-            long durationMs = 5;
-
-            // When
-            tracingService.recordSuccess(span, durationMs); 
-
-            // Then
-            assertThat(durationMs).isLessThan(50); 
-        }
-
-        @Test
-        void shouldHandleOperationsAtSLABoundary() { 
-            // Given
-            Span span = tracer.spanBuilder("boundary.operation").startSpan();
-            long durationMs = 50; // Exactly at SLA threshold
-
-            // When
-            tracingService.recordSuccess(span, durationMs); 
-
-            // Then
-            // Should be at threshold (verified through span attributes) 
-            assertThat(durationMs).isEqualTo(50); 
+            verify(span).setAttribute("duration.ms", 50L);
+            verify(span, never()).setAttribute("sla.warning", true);
+            verify(span).end();
         }
     }
 

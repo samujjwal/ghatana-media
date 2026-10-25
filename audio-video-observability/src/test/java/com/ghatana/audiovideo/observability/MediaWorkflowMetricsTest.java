@@ -2,8 +2,11 @@ package com.ghatana.audiovideo.observability;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.TimeUnit;
 
 class MediaWorkflowMetricsTest {
     @Test
@@ -68,5 +71,48 @@ class MediaWorkflowMetricsTest {
                 .map(tag -> tag.getValue()))
                 .doesNotContainAnyElementsOf(java.util.stream.IntStream.range(0, 500)
                         .mapToObj(i -> "tenant-" + i + "-request-secret-" + i).toList());
+    }
+
+    @Test
+    void modalityBoundariesRecordMonotonicDurationsWithBoundedPhaseAndOutcomeTags() throws Exception {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "vision");
+        assertThat(registry.find("media.modality.boundary.duration").timers()).isEmpty();
+
+        var provider = metrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.STT,
+                MediaWorkflowMetrics.Boundary.PROVIDER);
+        assertThat(registry.find("media.modality.boundary.duration").timers()).isEmpty();
+        Thread.sleep(15);
+        metrics.stopModalityTimer(provider, MediaWorkflowMetrics.Outcome.SUCCESS);
+        metrics.stopModalityTimer(provider, MediaWorkflowMetrics.Outcome.FAILURE);
+
+        Timer providerTimer = registry.get("media.modality.boundary.duration")
+                .tag("modality", "stt")
+                .tag("service", "vision")
+                .tag("boundary", "provider")
+                .tag("execution_class", "model")
+                .tag("outcome", "success")
+                .timer();
+        assertThat(providerTimer.count()).isEqualTo(1);
+        assertThat(providerTimer.baseTimeUnit()).isEqualTo(TimeUnit.SECONDS);
+        assertThat(providerTimer.totalTime(TimeUnit.MILLISECONDS)).isGreaterThanOrEqualTo(10);
+
+        var uncertainResponse = metrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.VISION,
+                MediaWorkflowMetrics.Boundary.RESPONSE);
+        metrics.stopModalityTimer(uncertainResponse, MediaWorkflowMetrics.Outcome.UNKNOWN);
+        assertThat(registry.get("media.modality.boundary.duration")
+                .tag("modality", "vision")
+                .tag("service", "vision")
+                .tag("boundary", "response")
+                .tag("execution_class", "control")
+                .tag("outcome", "unknown")
+                .timer().count()).isEqualTo(1);
+        assertThat(registry.getMeters().stream()
+                .filter(meter -> meter.getId().getName().equals("media.modality.boundary.duration"))
+                .flatMap(meter -> meter.getId().getTags().stream())
+                .map(tag -> tag.getKey()))
+                .doesNotContain("tenant", "request_id", "job_id", "provider_id");
     }
 }

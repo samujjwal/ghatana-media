@@ -34,7 +34,6 @@ public class AudioVideoTracingService {
     private static final Logger log = LoggerFactory.getLogger(AudioVideoTracingService.class);
 
     private final Tracer tracer;
-    private static final int SLA_THRESHOLD_MS = 50; // Audio-Video operations should be < 50ms
 
     public AudioVideoTracingService(Tracer tracer) {
         this.tracer = tracer;
@@ -91,6 +90,19 @@ public class AudioVideoTracingService {
         return span;
     }
 
+    /** Start a source-redacted span around the multimodal analysis model boundary. */
+    public Span startMultimodalAnalysisSpan(String operationId, String tenantId) {
+        String correlationId = getOrCreateCorrelationId();
+
+        return tracer.spanBuilder("audiovideo.multimodal.analysis")
+                .setSpanKind(SpanKind.INTERNAL)
+                .setAttribute("operation.present", operationId != null && !operationId.isBlank())
+                .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
+                .setAttribute("media.contract.version", CONTRACT_VERSION)
+                .setAttribute("correlation.present", correlationId != null)
+                .startSpan();
+    }
+
     /**
      * Start a span for synthesis operation
      */
@@ -108,19 +120,11 @@ public class AudioVideoTracingService {
         return span;
     }
 
-    /**
-     * Record successful operation with SLA validation
-     */
+    /** Record successful operation duration without applying an unqualified latency target. */
     public void recordSuccess(Span span, long durationMs) {
         if (span != null) {
             span.setStatus(StatusCode.OK);
             span.setAttribute("duration.ms", durationMs);
-
-            if (durationMs > SLA_THRESHOLD_MS) {
-                span.setAttribute("sla.warning", true);
-                log.warn("Audio-Video operation exceeded SLA threshold: {}ms > {}ms",
-                        durationMs, SLA_THRESHOLD_MS);
-            }
 
             span.end();
             log.debug("Audio-Video operation completed successfully in {}ms", durationMs);
