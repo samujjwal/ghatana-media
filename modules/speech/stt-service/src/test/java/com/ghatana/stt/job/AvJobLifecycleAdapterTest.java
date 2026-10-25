@@ -65,6 +65,23 @@ class AvJobLifecycleAdapterTest {
     }
 
     @Test
+    void redactsFreeFormFailureDiagnosticsFromCanonicalProjection() {
+        AvTranscriptionJob failed = jobAt(AvTranscriptionJob.JobStatus.FAILED);
+        String sensitiveDiagnostic = "private-transcript-marker bearer-token-marker";
+        AvTranscriptionJob withDiagnostic = new AvTranscriptionJob(
+                failed.jobId(), failed.artifactId(), failed.tenantId(), failed.languageCode(), failed.status(),
+                failed.parameters(), failed.resultId(), sensitiveDiagnostic, failed.progressPercent(),
+                failed.createdAt(), failed.startedAt(), failed.completedAt(), failed.retryCount(),
+                failed.maxRetries(), failed.traceId(), failed.requestId(), failed.processorVersion());
+
+        CanonicalJobRecord canonical = AvJobLifecycleAdapter.toCanonical(withDiagnostic);
+
+        assertThat(canonical.failureCode()).isEqualTo("STT_JOB_FAILED");
+        assertThat(canonical.failureMessage()).isEqualTo("Transcription job failed");
+        assertThat(canonical.failureMessage()).doesNotContain("private-transcript-marker", "bearer-token-marker");
+    }
+
+    @Test
     @DisplayName("rejects null job")
     void rejectsNullJob() {
         assertThrows(NullPointerException.class, () -> AvJobLifecycleAdapter.toCanonical(null));

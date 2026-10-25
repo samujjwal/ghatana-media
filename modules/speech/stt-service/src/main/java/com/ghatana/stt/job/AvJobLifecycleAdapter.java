@@ -79,8 +79,8 @@ public final class AvJobLifecycleAdapter {
                 com.ghatana.core.json.StructuredMap.trusted(input),
                 job.resultId(),
                 job.resultId() != null ? "transcript" : null,
-                null,
-                job.errorMessage(),
+                safeFailureCode(job),
+                safeFailureMessage(job),
                 job.retryCount(),
                 job.maxRetries(),
                 java.util.List.of("speech-to-text", "audio"),
@@ -149,5 +149,14 @@ public final class AvJobLifecycleAdapter {
 
     private static String canonicalMediaState(AvTranscriptionJob.JobStatus status) {
         return status.name();
+    }
+
+    /** Never copy arbitrary provider or caller diagnostics into the shared job projection. */
+    private static String safeFailureCode(AvTranscriptionJob job) {
+        return job.status() == AvTranscriptionJob.JobStatus.FAILED ? "STT_JOB_FAILED" : null;
+    }
+
+    private static String safeFailureMessage(AvTranscriptionJob job) {
+        return job.status() == AvTranscriptionJob.JobStatus.FAILED ? "Transcription job failed" : null;
     }
 }
