@@ -11,6 +11,11 @@ import com.ghatana.stt.service.SttAudioInputDecoder;
 import com.ghatana.stt.core.grpc.proto.*;
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.audiovideo.observability.instrumentation.AudioVideoGrpcInstrumentation;
+import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -43,6 +48,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     private final AudioVideoLibrary library;
     private final Timer transcribeTimer;
     private final AudioVideoGrpcInstrumentation boundaryInstrumentation;
+    private final AudioVideoTracingService tracingService;
     private final int maxAudioLengthSeconds;
     private volatile BooleanSupplier readinessProbe = this::isProviderReady;
 
@@ -55,12 +61,19 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
      * Avoids native-library / file-system dependencies during tests.
      */
     SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
-        this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS);
+        this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS,
+                GlobalOpenTelemetry.getTracer("ghatana-media-stt"));
     }
 
-    private SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, int maxAudioLengthSeconds) {
+    SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, Tracer tracer) {
+        this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS, tracer);
+    }
+
+    private SttGrpcService(
+            AudioVideoLibrary library, MeterRegistry metrics, int maxAudioLengthSeconds, Tracer tracer) {
         this.library = library;
         this.maxAudioLengthSeconds = maxAudioLengthSeconds;
+        this.tracingService = new AudioVideoTracingService(Objects.requireNonNull(tracer, "tracer"));
         this.boundaryInstrumentation = new AudioVideoGrpcInstrumentation(
                 null, new MediaWorkflowMetrics(metrics, "stt"));
         this.transcribeTimer = Timer.builder("stt.transcribe")
@@ -87,6 +100,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
         this.library = AudioVideoLibrary.builder().withSttConfig(config).build();
         this.maxAudioLengthSeconds = config.maxAudioLengthSeconds();
+        this.tracingService = new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-stt"));
         this.boundaryInstrumentation = new AudioVideoGrpcInstrumentation(
                 null, new MediaWorkflowMetrics(metrics, "stt"));
         this.transcribeTimer = Timer.builder("stt.transcribe")
@@ -100,6 +114,10 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> responseObserver) {
+        Span span = tracingService.startTranscriptionSpan(null, null, request.getLanguage());
+        TracingObserver<TranscribeResponse> tracedObserver = new TracingObserver<>(
+                responseObserver, tracingService, span);
+        try (Scope ignored = tracingService.createScope(span)) {
         transcribeTimer.record(() -> {
             try {
                 // Inspect the protobuf's declared byte count before creating another byte array.
@@ -115,7 +133,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                     if (language != null && !language.isBlank()) {
                         String langCode = language.toLowerCase(Locale.ROOT).split("-")[0];
                         if (!SUPPORTED_LANGUAGES.contains(langCode)) {
-                            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                            tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                                 .withDescription("Unsupported language")
                                 .asRuntimeException());
                             return;
@@ -138,11 +156,16 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                     }
                 }
 
+                if (isCancelled(responseObserver)) {
+                    tracedObserver.finishUnknown();
+                    return;
+                }
+
                 TranscribeResponse.Builder mapped = SttTranscriptionResponseMapper.toProto(result, audio.duration());
-                responseObserver.onNext(mapped.build());
-                responseObserver.onCompleted();
+                tracedObserver.onNext(mapped.build());
+                tracedObserver.onCompleted();
             } catch (SttTranscriptionResponseMapper.InvalidResultException e) {
-                responseObserver.onError(io.grpc.Status.INTERNAL
+                tracedObserver.onError(io.grpc.Status.INTERNAL
                         .withDescription("Invalid transcription result").asRuntimeException());
             } catch (SttAudioInputDecoder.InputException e) {
                 io.grpc.Status status = switch (e.kind()) {
@@ -155,21 +178,67 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                     case RESOURCE_EXHAUSTED -> "Audio input exceeds the supported limit";
                     case NOT_ADMITTED -> "Audio input format is not admitted";
                 };
-                responseObserver.onError(status.withDescription(description).asRuntimeException());
+                tracedObserver.onError(status.withDescription(description).asRuntimeException());
             } catch (com.ghatana.media.common.ValidationError e) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                         .withDescription("Invalid transcription request").asRuntimeException());
             } catch (com.ghatana.media.common.InferenceError e) {
                 io.grpc.Status status = e.isRetryable() ? io.grpc.Status.UNAVAILABLE : io.grpc.Status.INTERNAL;
                 String description = e.isRetryable()
                         ? "Transcription provider temporarily unavailable"
                         : "Transcription failed";
-                responseObserver.onError(status.withDescription(description).asRuntimeException());
+                tracedObserver.onError(status.withDescription(description).asRuntimeException());
             } catch (Exception e) {
                 LOG.error("STT transcription failed failureType={}", failureType(e));
-                responseObserver.onError(io.grpc.Status.INTERNAL.withDescription("Internal error").asRuntimeException());
+                tracedObserver.onError(io.grpc.Status.INTERNAL.withDescription("Internal error").asRuntimeException());
             }
         });
+        } finally {
+            tracedObserver.finishUnknown();
+        }
+    }
+
+    private static final class TracingObserver<T> implements StreamObserver<T> {
+        private final StreamObserver<T> delegate;
+        private final AudioVideoTracingService tracingService;
+        private final Span span;
+        private final long startedNanos = System.nanoTime();
+        private final java.util.concurrent.atomic.AtomicBoolean terminal = new java.util.concurrent.atomic.AtomicBoolean();
+
+        private TracingObserver(StreamObserver<T> delegate, AudioVideoTracingService tracingService, Span span) {
+            this.delegate = delegate;
+            this.tracingService = tracingService;
+            this.span = span;
+        }
+
+        @Override public void onNext(T value) { delegate.onNext(value); }
+
+        @Override
+        public void onError(Throwable failure) {
+            if (terminal.compareAndSet(false, true)) {
+                Exception safeFailure = failure instanceof Exception exception
+                        ? exception : new IllegalStateException("gRPC call failed");
+                tracingService.recordError(span, safeFailure, elapsedMillis());
+            }
+            delegate.onError(failure);
+        }
+
+        @Override
+        public void onCompleted() {
+            if (terminal.compareAndSet(false, true)) tracingService.recordSuccess(span, elapsedMillis());
+            delegate.onCompleted();
+        }
+
+        private void finishUnknown() {
+            if (terminal.compareAndSet(false, true)) {
+                span.setAttribute("media.outcome", "unknown");
+                span.end();
+            }
+        }
+
+        private long elapsedMillis() {
+            return java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
+        }
     }
 
     private static boolean isCancelled(StreamObserver<?> observer) {
