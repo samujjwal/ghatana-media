@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.math.BigInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +27,8 @@ import java.util.stream.Collectors;
  * per-frame object detection ({@link VisionDetector}) to produce a temporal
  * object-tracking timeline from a video file.
  *
- * <p>Temporal tracking remains NOT_ADMITTED until a qualified tracking provider is wired.
+ * <p>Local box association is explicitly heuristic and uncalibrated. It does not establish
+ * identity, shot boundaries, camera motion, or tracker quality.
  *
  * @doc.type    class
  * @doc.purpose Video frame analysis with temporal object tracking
@@ -88,15 +90,15 @@ public final class VideoAnalysisService {
             }
 
             Duration elapsed = Duration.between(startTime, Instant.now());
-            int uniqueTracks = 0;
+            int uniqueTracks = assignHeuristicTracks(frameDetections, config.getFps());
 
-            LOG.info("Video analysis complete: frames={}, temporalTracking=NOT_ADMITTED, elapsed={}ms",
+            LOG.info("Video analysis complete: frames={}, temporalTracking=HEURISTIC_UNCALIBRATED, elapsed={}ms",
                     frames.size(), elapsed.toMillis());
 
             return new VideoAnalysisResult(
                     videoPath.getFileName().toString(),
                     Instant.now(), frames.size(), uniqueTracks,
-                    frameDetections, elapsed, "NOT_ADMITTED"
+                    frameDetections, elapsed, "HEURISTIC_UNCALIBRATED"
             );
 
         } catch (IOException e) {
@@ -104,6 +106,66 @@ public final class VideoAnalysisService {
         } finally {
             cleanupTempDir(tempDir);
         }
+    }
+
+    /** Greedy, one-frame-memory IoU association. IDs are scoped to this analysis call. */
+    private int assignHeuristicTracks(List<FrameDetections> frames, int samplingFps) {
+        Map<Integer, DetectedObject> previous = Map.of();
+        SourceMediaTimestamp previousTimestamp = null;
+        int nextId = 1;
+        for (int frameIndex = 0; frameIndex < frames.size(); frameIndex++) {
+            FrameDetections frame = frames.get(frameIndex);
+            SourceMediaTimestamp timestamp = frame.sourceTimestamp();
+            boolean reset = previousTimestamp == null || !timestamp.isKnown()
+                    || !previousTimestamp.isKnown() || comparePts(timestamp, previousTimestamp) <= 0
+                    || exceedsGap(timestamp, previousTimestamp, samplingFps);
+            if (reset) previous = Map.of();
+            List<Integer> ids = new ArrayList<>(frame.detections().size());
+            Map<Integer, DetectedObject> current = new java.util.LinkedHashMap<>();
+            java.util.Set<Integer> usedPrevious = new java.util.HashSet<>();
+            for (DetectedObject detection : frame.detections()) {
+                int bestId = -1;
+                double bestIou = iouThreshold;
+                boolean tied = false;
+                if (!reset && detection.getBoundingBox() != null) {
+                    for (Map.Entry<Integer, DetectedObject> candidate : previous.entrySet()) {
+                        if (usedPrevious.contains(candidate.getKey()) || candidate.getValue().getBoundingBox() == null
+                                || !Objects.equals(detection.getClassName(), candidate.getValue().getClassName())) continue;
+                        double iou = detection.getBoundingBox().calculateIoU(candidate.getValue().getBoundingBox());
+                        if (iou > bestIou) { bestIou = iou; bestId = candidate.getKey(); tied = false; }
+                        else if (iou == bestIou && bestId != -1) tied = true;
+                    }
+                }
+                if (bestId == -1 || tied) bestId = nextId++;
+                else usedPrevious.add(bestId);
+                ids.add(bestId);
+                current.put(bestId, detection);
+            }
+            // FrameDetections is immutable, so replace the corresponding timeline entry.
+            frames.set(frameIndex, new FrameDetections(frame.frameNumber(), frame.timestampMs(), timestamp,
+                    frame.detections(), ids));
+            previous = current;
+            previousTimestamp = timestamp;
+        }
+        return nextId - 1;
+    }
+
+    private static int comparePts(SourceMediaTimestamp a, SourceMediaTimestamp b) {
+        BigInteger left = BigInteger.valueOf(a.pts()).multiply(BigInteger.valueOf(a.timeBaseNumerator()))
+                .multiply(BigInteger.valueOf(b.timeBaseDenominator()));
+        BigInteger right = BigInteger.valueOf(b.pts()).multiply(BigInteger.valueOf(b.timeBaseNumerator()))
+                .multiply(BigInteger.valueOf(a.timeBaseDenominator()));
+        return left.compareTo(right);
+    }
+
+    private static boolean exceedsGap(SourceMediaTimestamp current, SourceMediaTimestamp previous, int fps) {
+        BigInteger deltaN = BigInteger.valueOf(current.pts()).multiply(BigInteger.valueOf(current.timeBaseNumerator()))
+                .multiply(BigInteger.valueOf(previous.timeBaseDenominator()))
+                .subtract(BigInteger.valueOf(previous.pts()).multiply(BigInteger.valueOf(previous.timeBaseNumerator()))
+                        .multiply(BigInteger.valueOf(current.timeBaseDenominator())));
+        BigInteger deltaD = BigInteger.valueOf(current.timeBaseDenominator())
+                .multiply(BigInteger.valueOf(previous.timeBaseDenominator()));
+        return deltaN.multiply(BigInteger.valueOf(fps)).compareTo(deltaD.multiply(BigInteger.TWO)) > 0;
     }
 
     private void cleanupTempDir(Path dir) {
@@ -156,10 +218,10 @@ public final class VideoAnalysisService {
      * @param videoName     file name of the analysed video
      * @param analysedAt    when the analysis was performed
      * @param framesAnalysed total number of frames processed
-     * @param uniqueTracks   zero until an admitted tracker is available
+     * @param uniqueTracks   number of ephemeral IDs assigned by local heuristic association
      * @param frameDetections per-frame detection timeline
      * @param processingTime total analysis duration
-     * @param trackingStatus NOT_ADMITTED until a qualified temporal tracker is wired
+     * @param trackingStatus HEURISTIC_UNCALIBRATED for local IoU association; never a quality claim
      */
     public record VideoAnalysisResult(
             String videoName,

@@ -97,8 +97,8 @@ class VideoAnalysisServiceTest {
         assertThat(result.frameDetections()).hasSize(3); 
         assertThat(result.frameDetections().get(1).timestampMs()).isEqualTo(1000L);
         assertThat(result.frameDetections().get(1).sourceTimestamp().pts()).isEqualTo(1000L);
-        assertThat(result.frameDetections().get(1).trackIds()).isEmpty();
-        assertThat(result.trackingStatus()).isEqualTo("NOT_ADMITTED");
+        assertThat(result.frameDetections().get(1).trackIds()).containsExactly(1);
+        assertThat(result.trackingStatus()).isEqualTo("HEURISTIC_UNCALIBRATED");
         assertThat(result.processingTime()).isNotNull(); 
     }
 
@@ -162,7 +162,7 @@ class VideoAnalysisServiceTest {
     }
 
     @Test
-    void unknownSourcePtsPropagatesAsNullMillisAndTrackingRemainsNotAdmitted() throws IOException {
+    void unknownSourcePtsPropagatesAndStartsFreshHeuristicTrackEpoch() throws IOException {
         Path frame = tempDir.resolve("frame_unknown.jpg");
         Files.write(frame, new byte[] {1});
         Path fakeVideo = tempDir.resolve("unknown.mp4");
@@ -178,9 +178,43 @@ class VideoAnalysisServiceTest {
 
         assertThat(result.frameDetections().getFirst().timestampMs()).isNull();
         assertThat(result.frameDetections().getFirst().sourceTimestamp().reason()).isEqualTo("SOURCE_PTS_MISSING");
-        assertThat(result.frameDetections().getFirst().trackIds()).isEmpty();
-        assertThat(result.uniqueTracks()).isZero();
-        assertThat(result.trackingStatus()).isEqualTo("NOT_ADMITTED");
+        assertThat(result.frameDetections().getFirst().trackIds()).containsExactly(1);
+        assertThat(result.uniqueTracks()).isEqualTo(1);
+        assertThat(result.trackingStatus()).isEqualTo("HEURISTIC_UNCALIBRATED");
+    }
+
+    @Test
+    void iouAssociatesSameClassDetectionsAndBreaksTiesConservatively() throws IOException {
+        Path f0 = tempDir.resolve("tie-0.jpg"), f1 = tempDir.resolve("tie-1.jpg");
+        Files.write(f0, new byte[] {1}); Files.write(f1, new byte[] {2});
+        Path video = tempDir.resolve("tie.mp4"); Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(f0, SourceMediaTimestamp.fromPts("0", "1/1"), 0),
+                new VideoFrameExtractor.ExtractedFrame(f1, SourceMediaTimestamp.fromPts("1", "1/1"), 1)));
+        when(detector.detectObjects(any(), any())).thenReturn(
+                List.of(buildDetection("car", .9, 0, 0, 20, 10), buildDetection("car", .8, 10, 0, 20, 10)),
+                List.of(buildDetection("car", .9, 5, 0, 20, 10)));
+
+        var result = service.analyze(video, VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+        assertThat(result.frameDetections().get(0).trackIds()).containsExactly(1, 2);
+        assertThat(result.frameDetections().get(1).trackIds()).containsExactly(3); // equal IoU tie => no identity guess
+    }
+
+    @Test
+    void unknownPtsLargeGapAndReorderedPtsDoNotBridgeTrackIds() throws IOException {
+        Path a = tempDir.resolve("epoch-a.jpg"), b = tempDir.resolve("epoch-b.jpg"), c = tempDir.resolve("epoch-c.jpg");
+        Files.write(a, new byte[] {1}); Files.write(b, new byte[] {2}); Files.write(c, new byte[] {3});
+        Path video = tempDir.resolve("epochs.mp4"); Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(a, SourceMediaTimestamp.fromPts("2", "1/1"), 0),
+                new VideoFrameExtractor.ExtractedFrame(b, SourceMediaTimestamp.fromPts("1", "1/1"), 1),
+                new VideoFrameExtractor.ExtractedFrame(c, SourceMediaTimestamp.fromPts("100", "1/1"), 2)));
+        when(detector.detectObjects(any(), any())).thenReturn(
+                List.of(buildDetection("person", .9, 0, 0, 10, 10)));
+
+        var result = service.analyze(video, VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+        assertThat(result.frameDetections()).extracting(d -> d.sourceTimestamp().pts()).containsExactly(2L, 1L, 100L);
+        assertThat(result.frameDetections()).extracting(d -> d.trackIds().getFirst()).containsExactly(1, 2, 3);
     }
 
     @Test
