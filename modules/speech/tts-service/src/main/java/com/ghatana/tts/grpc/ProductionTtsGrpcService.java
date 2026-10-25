@@ -5,6 +5,10 @@ import com.ghatana.media.config.TtsConfig;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +28,11 @@ import java.util.Objects;
  */
 public final class ProductionTtsGrpcService extends TtsGrpcService implements AutoCloseable {
 
+    record ProviderProfile(
+            String modelId, String modelVersion, String modelDigest, String license,
+            String language, String region, String retention, String hardware,
+            String status, String reason) {}
+
     private final AudioVideoLibrary ownedLibrary;
 
     public ProductionTtsGrpcService(MeterRegistry metrics) {
@@ -39,6 +48,10 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     static TtsConfig createConfig(Map<String, String> environment) {
         Objects.requireNonNull(environment, "environment");
+        ProviderProfile provider = resolveProviderProfile(environment);
+        if (!"ADMITTED".equals(provider.status())) {
+            throw new IllegalStateException("TTS_PROVIDER_NOT_ADMITTED: " + provider.reason());
+        }
         String profile = firstNonBlank(
                 environment.get("MEDIA_RUNTIME_ENVIRONMENT"),
                 environment.get("MEDIA_PROFILE"),
@@ -109,6 +122,51 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             builder.profileStoragePath(Path.of(profilePath));
         }
         return builder.build();
+    }
+
+    static ProviderProfile resolveProviderProfile(Map<String, String> environment) {
+        String mode = environment.getOrDefault("TTS_PROVIDER_MODE", "").trim();
+        if (!mode.equals("LOCAL_ONNX")) {
+            return notAdmitted("TTS_PROVIDER_MODE must explicitly select an admitted LOCAL_ONNX provider");
+        }
+        String modelId = required(environment, "TTS_MODEL_ID");
+        String version = required(environment, "TTS_MODEL_VERSION");
+        String digest = required(environment, "TTS_MODEL_SHA256").toLowerCase(java.util.Locale.ROOT);
+        String license = required(environment, "TTS_MODEL_LICENSE");
+        String language = required(environment, "TTS_MODEL_LANGUAGE");
+        String region = required(environment, "TTS_MODEL_REGION");
+        String retention = required(environment, "TTS_MODEL_RETENTION");
+        String hardware = required(environment, "TTS_MODEL_HARDWARE");
+        String rawPath = required(environment, "TTS_MODEL_PATH");
+        if (!digest.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("TTS_MODEL_SHA256 must be a SHA-256 digest");
+        Path path = Path.of(rawPath);
+        if (!Files.isRegularFile(path) || !Files.isReadable(path) || Files.isSymbolicLink(path)) {
+            return notAdmitted("Configured model file is unavailable or not a regular readable file");
+        }
+        if (!digest.equals(fileDigest(path))) throw new IllegalArgumentException("TTS model digest does not match TTS_MODEL_SHA256");
+        return new ProviderProfile(modelId, version, digest, license, language, region, retention, hardware,
+                "NOT_ADMITTED", "Local TTS model metadata is configured, but license, voice rights, hardware and quality are not source-admitted; readiness is false");
+    }
+
+    private static ProviderProfile notAdmitted(String reason) {
+        return new ProviderProfile(null, null, null, null, null, null, null, null, "NOT_ADMITTED", reason);
+    }
+
+    private static String required(Map<String, String> environment, String name) {
+        String value = environment.get(name);
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " is required");
+        return value.trim();
+    }
+
+    private static String fileDigest(Path path) {
+        try (InputStream input = Files.newInputStream(path)) {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[16_384];
+            for (int count; (count = input.read(buffer)) >= 0;) if (count > 0) digest.update(buffer, 0, count);
+            return HexFormat.of().formatHex(digest.digest());
+        } catch (Exception exception) {
+            throw new IllegalArgumentException("Unable to verify configured TTS model digest", exception);
+        }
     }
 
     private static AudioVideoLibrary createInitializedLibrary(

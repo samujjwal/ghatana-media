@@ -1,9 +1,12 @@
 package com.ghatana.tts.grpc;
 
-import com.ghatana.media.config.TtsConfig;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.Map;
+import java.util.HexFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -17,50 +20,49 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ProductionTtsGrpcServiceConfigTest {
 
     @Test
-    void defaultsToRealModelOnlyAndSyntheticFallbackDisabled() {
-        TtsConfig config = ProductionTtsGrpcService.createConfig(Map.of());
-
-        assertThat(config.voiceModelPath().toString()).isEqualTo("/models/piper-en.onnx");
-        assertThat(config.defaultVoiceId()).isEqualTo("piper-en");
-        assertThat(config.maxConcurrentRequests()).isEqualTo(10);
-        assertThat(config.sampleRate()).isEqualTo(22_050);
-        assertThat(config.allowSyntheticFallback()).isFalse();
+    void requiresExplicitProviderAndFailsClosedWhenNoProfileIsAdmitted() {
+        assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(Map.of()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("TTS_PROVIDER_NOT_ADMITTED");
+        assertThat(ProductionTtsGrpcService.resolveProviderProfile(Map.of()).status())
+                .isEqualTo("NOT_ADMITTED");
     }
 
     @Test
-    void allowsSyntheticFallbackOnlyThroughExplicitBooleanFlag() {
-        TtsConfig config = ProductionTtsGrpcService.createConfig(Map.of(
-                "MEDIA_TTS_ALLOW_SYNTHETIC_FALLBACK", "true",
-                "TTS_DEFAULT_VOICE", "local-test",
-                "TTS_MAX_CONCURRENT", "4",
-                "TTS_SAMPLE_RATE", "16000",
-                "TTS_MAX_TEXT_LENGTH", "2000"));
-
-        assertThat(config.allowSyntheticFallback()).isTrue();
-        assertThat(config.defaultVoiceId()).isEqualTo("local-test");
-        assertThat(config.maxConcurrentRequests()).isEqualTo(4);
-        assertThat(config.sampleRate()).isEqualTo(16_000);
-        assertThat(config.maxTextLength()).isEqualTo(2_000);
+    void completeLocalProfileVerifiesDigestButIsNotProviderAdmission() throws Exception {
+        Path model = Files.createTempFile("tts-model", ".onnx");
+        try {
+            Files.writeString(model, "fixture model bytes");
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            var profile = ProductionTtsGrpcService.resolveProviderProfile(Map.of(
+                    "TTS_PROVIDER_MODE", "LOCAL_ONNX", "TTS_MODEL_PATH", model.toString(),
+                    "TTS_MODEL_ID", "fixture", "TTS_MODEL_VERSION", "1",
+                    "TTS_MODEL_SHA256", digest, "TTS_MODEL_LICENSE", "fixture-license",
+                    "TTS_MODEL_LANGUAGE", "en-US", "TTS_MODEL_REGION", "local",
+                    "TTS_MODEL_RETENTION", "none", "TTS_MODEL_HARDWARE", "cpu"));
+            assertThat(profile.modelId()).isEqualTo("fixture");
+            assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+            assertThat(profile.reason()).contains("not source-admitted");
+            assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(Map.of(
+                    "TTS_PROVIDER_MODE", "LOCAL_ONNX", "TTS_MODEL_PATH", model.toString(),
+                    "TTS_MODEL_ID", "fixture", "TTS_MODEL_VERSION", "1",
+                    "TTS_MODEL_SHA256", digest, "TTS_MODEL_LICENSE", "fixture-license",
+                    "TTS_MODEL_LANGUAGE", "en-US", "TTS_MODEL_REGION", "local",
+                    "TTS_MODEL_RETENTION", "none", "TTS_MODEL_HARDWARE", "cpu")))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("TTS_PROVIDER_NOT_ADMITTED");
+        } finally {
+            Files.deleteIfExists(model);
+        }
     }
 
     @Test
-    void rejectsMalformedAndOutOfRangeConfiguration() {
-        assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(Map.of(
-                "MEDIA_TTS_ALLOW_SYNTHETIC_FALLBACK", "yes")))
+    void rejectsMissingAndMismatchedProviderMetadata() {
+        assertThatThrownBy(() -> ProductionTtsGrpcService.resolveProviderProfile(Map.of(
+                "TTS_PROVIDER_MODE", "LOCAL_ONNX")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("true or false");
-        assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(Map.of(
-                "TTS_MAX_CONCURRENT", "0")))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("between 1 and 1000");
-        assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(Map.of(
-                "TTS_SAMPLE_RATE", "abc")))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("must be an integer");
-        assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(Map.of(
-                "TTS_DEFAULT_VOICE", " ")))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("must not be blank");
+                .hasMessageContaining("TTS_MODEL_ID");
     }
 
     @Test

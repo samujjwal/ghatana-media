@@ -98,6 +98,33 @@
           "reason": "NOP intentionally disables transcription and cannot satisfy the STT service contract."
         }
       ]
+    },
+    "tts": {
+      "selectionEnvironmentVariable": "TTS_PROVIDER_MODE",
+      "status": "NOT_ADMITTED",
+      "profiles": [
+        {
+          "mode": "LOCAL_ONNX",
+          "providerId": "tts-local-onnx",
+          "status": "NOT_ADMITTED",
+          "reason": "Local model metadata and digest can be verified, but license, voice rights, hardware and quality are not source-admitted.",
+          "requiredProfileFields": [
+            "modelId", "modelVersion", "modelSha256", "modelLicense", "language",
+            "region", "retention", "executionHardware"
+          ],
+          "modelId": null,
+          "modelVersion": null,
+          "modelSha256": null,
+          "modelLicense": null,
+          "language": null,
+          "region": null,
+          "retention": null,
+          "executionHardware": null,
+          "readiness": false,
+          "implicitDownload": false,
+          "syntheticFallback": false
+        }
+      ]
     }
   },
   "kernelDependencyBindings": [

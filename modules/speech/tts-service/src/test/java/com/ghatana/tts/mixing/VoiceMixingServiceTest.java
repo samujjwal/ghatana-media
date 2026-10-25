@@ -148,6 +148,17 @@ class VoiceMixingServiceTest {
         }
 
         @Test
+        @DisplayName("non-finite volume and pan fail validation")
+        void audioTrack_nonFiniteControls_throwsIAE() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new VoiceMixingService.AudioTrack(
+                            new byte[]{1}, Double.NaN, 0.0, 0L, 100L, "track"));
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new VoiceMixingService.AudioTrack(
+                            new byte[]{1}, 1.0, Double.POSITIVE_INFINITY, 0L, 100L, "track"));
+        }
+
+        @Test
         @DisplayName("pan < -1.0 throws IllegalArgumentException")
         void audioTrack_invalidPan_throwsIAE() { 
             assertThatIllegalArgumentException() 

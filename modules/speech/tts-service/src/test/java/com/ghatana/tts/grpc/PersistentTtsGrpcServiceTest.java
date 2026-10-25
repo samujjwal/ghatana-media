@@ -39,6 +39,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -177,21 +178,37 @@ class PersistentTtsGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("synthesize uses generated UUID when no subject in context")
-    void synthesizeUsesGeneratedUserIdWhenNoSubject() {
-        UUID audioFileId = UUID.randomUUID();
-        PersistentTtsService.SynthesisResult result =
-            new PersistentTtsService.SynthesisResult(audioFileId, new byte[]{1, 2}, 16000, 50L);
-        when(persistentTtsService.synthesizeAndPersist(any(), any(), eq(TEXT), any(), anyFloat(), anyFloat(), isNull()))
-            .thenReturn(Promise.of(result));
-
+    @DisplayName("synthesize rejects missing subject before persistence")
+    void synthesizeRejectsMissingSubjectBeforePersistence() {
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
         // Provide tenant but no subject
         withContext(TENANT_ID, null, () ->
             synthesisService.synthesize(SynthesizeRequest.newBuilder().setText(TEXT).build(), observer));
 
-        assertThat(observer.error).isNull();
-        assertThat(observer.completed).isTrue();
+        assertThat(statusCode(observer)).isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(persistentTtsService);
+    }
+
+    @Test
+    @DisplayName("synthesize rejects unsupported subject before persistence")
+    void synthesizeRejectsInvalidSubjectBeforePersistence() {
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, "opaque-subject", () ->
+            synthesisService.synthesize(SynthesizeRequest.newBuilder().setText(TEXT).build(), observer));
+
+        assertThat(statusCode(observer)).isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(persistentTtsService);
+    }
+
+    @Test
+    @DisplayName("synthesize rejects caller-selected voice before persistence without rights authority")
+    void synthesizeRejectsUnadmittedVoiceSelectionBeforePersistence() {
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, USER_ID, () -> synthesisService.synthesize(
+                SynthesizeRequest.newBuilder().setText(TEXT).setVoiceId("custom-voice").build(), observer));
+
+        assertThat(statusCode(observer)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        verifyNoInteractions(persistentTtsService);
     }
 
     // ─── streamSynthesize() tests ─────────────────────────────────────────────

@@ -127,6 +127,12 @@ public final class VoiceMixingService {
         public AudioTrack {
             Objects.requireNonNull(audioBytes, "audioBytes must not be null");
             Objects.requireNonNull(label, "label must not be null");
+            if (!Double.isFinite(volume)) {
+                throw new IllegalArgumentException("volume must be finite");
+            }
+            if (!Double.isFinite(pan)) {
+                throw new IllegalArgumentException("pan must be finite");
+            }
             if (volume < MIN_VOLUME || volume > MAX_VOLUME) {
                 throw new IllegalArgumentException("volume must be in [0.0, 1.0]: " + volume);
             }

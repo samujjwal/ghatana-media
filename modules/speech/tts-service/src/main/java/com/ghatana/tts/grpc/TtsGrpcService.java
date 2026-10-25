@@ -4,10 +4,8 @@ import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.ValidationError;
-import com.ghatana.media.tts.api.ProfileSettings;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
-import com.ghatana.media.tts.api.TtsProfile;
 import com.ghatana.media.tts.api.TtsStreamSink;
 import com.ghatana.media.tts.api.TtsStreamingSession;
 import com.ghatana.media.tts.api.VoiceInfo;
@@ -44,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionException;
@@ -99,6 +96,8 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         synthesizeTimer.record(() -> {
             try {
                 String text = validateText(request.getText());
+                SynthesisControlPolicy.rejectUnqualifiedSsml(text);
+                requireAuthorizedVoiceSelection(request);
                 SynthesisOptions options = options(request);
                 AudioData audio = library.getTtsEngine().synthesize(text, options);
                 validatePcm16Output(audio, options.outputFormat());
@@ -150,6 +149,8 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
 
         try {
             String text = validateText(request.getText());
+            SynthesisControlPolicy.rejectUnqualifiedSsml(text);
+            requireAuthorizedVoiceSelection(request);
             SynthesisOptions options = options(request);
             TtsEngine engine = library.getTtsEngine();
             int sampleRate = engine.getActiveVoice().sampleRate();
@@ -294,114 +295,21 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     public void createProfile(
             CreateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        try {
-            String displayName = requireText(request.getDisplayName(), "displayName");
-            ProfileSettings settings = ProfileSettings.builder()
-                    .defaultSpeed(positiveOrDefault(
-                            request.getSettings().getDefaultOptions().getSpeed(),
-                            1.0))
-                    .defaultPitch(positiveOrDefault(
-                            request.getSettings().getDefaultOptions().getPitch(),
-                            1.0))
-                    .defaultVolume(positiveOrDefault(
-                            request.getSettings().getDefaultOptions().getEnergy(),
-                            1.0))
-                    .build();
-            String profileId = UUID.randomUUID().toString();
-            TtsProfile profile = library.getTtsEngine()
-                    .createProfile(profileId, displayName, settings);
-            responseObserver.onNext(ProfileResponse.newBuilder()
-                    .setProfileId(profile.profileId())
-                    .setDisplayName(profile.displayName())
-                    .setSettings(request.getSettings())
-                    .setStats(ProfileStats.newBuilder()
-                            .setCreatedAtMs(System.currentTimeMillis())
-                            .setLastUsedAtMs(System.currentTimeMillis())
-                            .build())
-                    .build());
-            responseObserver.onCompleted();
-        } catch (RuntimeException exception) {
-            fail(responseObserver, "Profile creation", correlationId(), exception);
-        }
+        profileAccessNotAdmitted(responseObserver);
     }
 
     @Override
     public void getProfile(
             GetProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        try {
-            String profileId = requireText(request.getProfileId(), "profileId");
-            Optional<TtsProfile> profile = library.getTtsEngine().loadProfile(profileId);
-            if (profile.isEmpty()) {
-                responseObserver.onError(Status.NOT_FOUND
-                        .withDescription("Profile not found: " + profileId)
-                        .asRuntimeException());
-                return;
-            }
-            TtsProfile value = profile.orElseThrow();
-            responseObserver.onNext(ProfileResponse.newBuilder()
-                    .setProfileId(value.profileId())
-                    .setDisplayName(value.displayName())
-                    .setStats(ProfileStats.newBuilder()
-                            .setTotalCharactersSynthesized(value.recentSyntheses().stream()
-                                    .mapToInt(String::length)
-                                    .sum())
-                            .build())
-                    .build());
-            responseObserver.onCompleted();
-        } catch (RuntimeException exception) {
-            fail(responseObserver, "Profile retrieval", correlationId(), exception);
-        }
+        profileAccessNotAdmitted(responseObserver);
     }
 
     @Override
     public void updateProfile(
             UpdateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        try {
-            String profileId = requireText(request.getProfileId(), "profileId");
-            TtsEngine engine = library.getTtsEngine();
-            Optional<TtsProfile> profile = engine.loadProfile(profileId);
-            if (profile.isEmpty()) {
-                responseObserver.onError(Status.NOT_FOUND
-                        .withDescription("Profile not found: " + profileId)
-                        .asRuntimeException());
-                return;
-            }
-            TtsProfile existing = profile.orElseThrow();
-            String preferredVoice = request.getSettings().getDefaultVoiceId().isBlank()
-                    ? existing.preferredVoiceId()
-                    : request.getSettings().getDefaultVoiceId();
-            ProfileSettings settings = ProfileSettings.builder()
-                    .defaultSpeed(positiveOrDefault(
-                            request.getSettings().getDefaultOptions().getSpeed(),
-                            existing.settings().defaultSpeed()))
-                    .defaultPitch(positiveOrDefault(
-                            request.getSettings().getDefaultOptions().getPitch(),
-                            existing.settings().defaultPitch()))
-                    .defaultVolume(positiveOrDefault(
-                            request.getSettings().getDefaultOptions().getEnergy(),
-                            existing.settings().defaultVolume()))
-                    .build();
-            TtsProfile updated = new TtsProfile(
-                    existing.profileId(),
-                    existing.displayName(),
-                    preferredVoice,
-                    settings,
-                    existing.recentSyntheses());
-            engine.saveProfile(updated);
-            responseObserver.onNext(ProfileResponse.newBuilder()
-                    .setProfileId(updated.profileId())
-                    .setDisplayName(updated.displayName())
-                    .setSettings(request.getSettings())
-                    .setStats(ProfileStats.newBuilder()
-                            .setLastUsedAtMs(System.currentTimeMillis())
-                            .build())
-                    .build());
-            responseObserver.onCompleted();
-        } catch (RuntimeException exception) {
-            fail(responseObserver, "Profile update", correlationId(), exception);
-        }
+        profileAccessNotAdmitted(responseObserver);
     }
 
     @Override
@@ -411,6 +319,12 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         responseObserver.onError(Status.UNIMPLEMENTED
                 .withDescription(
                         "Voice cloning is NOT_ADMITTED until owner consent, biometric purpose, and retention are verified")
+                .asRuntimeException());
+    }
+
+    private static void profileAccessNotAdmitted(StreamObserver<ProfileResponse> responseObserver) {
+        responseObserver.onError(Status.UNIMPLEMENTED
+                .withDescription("TTS profile access is NOT_ADMITTED until tenant/principal ownership, consent, purpose and retention are backed by an authoritative scoped store")
                 .asRuntimeException());
     }
 
@@ -435,16 +349,14 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     "MP3 output is NOT_ADMITTED until an MP3 encoder is admitted");
             case UNRECOGNIZED -> throw new IllegalArgumentException("Unknown TTS output format");
         };
-        return SynthesisOptions.builder()
-                .voiceId(request.getVoiceId().isBlank() ? null : request.getVoiceId())
-                .speed(request.getOptions().getSpeed())
-                .pitch(request.getOptions().getPitch())
-                .volume(request.getOptions().getEnergy())
-                .language(request.getOptions().getLanguage().isBlank()
-                        ? null
-                        : Locale.forLanguageTag(request.getOptions().getLanguage()))
-                .outputFormat(outputFormat)
-                .build();
+        return SynthesisControlPolicy.resolve(request, outputFormat);
+    }
+
+    private static void requireAuthorizedVoiceSelection(SynthesizeRequest request) {
+        if (!request.getVoiceId().isBlank() || !request.getProfileId().isBlank()) {
+            throw new UnsupportedOperationException(
+                    "Voice/profile selection is NOT_ADMITTED without an authoritative owner, rights and consent decision");
+        }
     }
 
     private static void validatePcm16Output(AudioData audio, AudioFormat requestedFormat) {
@@ -488,10 +400,6 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             throw new IllegalArgumentException(field + " must not be blank");
         }
         return value.trim();
-    }
-
-    private static double positiveOrDefault(double configured, double fallback) {
-        return configured > 0 ? configured : fallback;
     }
 
     private static <T> void fail(

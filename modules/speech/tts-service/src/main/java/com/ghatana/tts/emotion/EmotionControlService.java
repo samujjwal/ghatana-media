@@ -7,11 +7,12 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Emotion control service for TTS synthesis (AV-008.2).
+ * Proposed emotion-to-SSML mapping for TTS integration (AV-008.2).
  *
  * <p>Translates a high-level {@link EmotionType} into prosody adjustments
  * (speaking rate, pitch, volume, SSML prosody tags) that the underlying
- * synthesis engine can consume.  Supports the four canonical emotional tones:
+ * synthesis engine could consume. This helper is not wired to an admitted synthesis provider and
+ * therefore does not establish any audible effect. Supports the four canonical emotional tones:
  * {@code HAPPY}, {@code SAD}, {@code NEUTRAL}, and {@code EXCITED}.
  *
  * @doc.type    class
@@ -67,7 +68,7 @@ public final class EmotionControlService {
     }
 
     /**
-     * Applies SSML prosody tags for the given emotion to the provided text.
+     * Builds a proposed SSML wrapper; this does not mean the synthesis provider applies it.
      *
      * @param text    input text to wrap (must not be blank)
      * @param emotion emotion type

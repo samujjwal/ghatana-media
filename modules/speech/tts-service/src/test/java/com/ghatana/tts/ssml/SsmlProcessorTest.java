@@ -222,4 +222,50 @@ class SsmlProcessorTest {
         assertThatThrownBy(() -> segments.add(SsmlProcessor.SsmlSegment.text("extra")))
                 .isInstanceOf(UnsupportedOperationException.class); 
     }
+
+    @Test
+    @DisplayName("normalizes nested supported tags and decodes escaped text")
+    void parse_nestedTagsAndEscapedTextAreNormalized() {
+        var segments = processor.parse("<speak><say-as interpret-as=\"cardinal\"><emphasis level=\"STRONG\">A &amp; B</emphasis></say-as></speak>");
+        assertThat(segments).hasSize(1);
+        assertThat(segments.get(0).type()).isEqualTo(SsmlProcessor.SsmlSegment.SegmentType.EMPHASIS);
+        assertThat(segments.get(0).text()).isEqualTo("A & B");
+        assertThat(((SsmlProcessor.SsmlSegment.EmphasisSegment) segments.get(0)).emphasisLevel()).isEqualTo("strong");
+    }
+
+    @Test
+    @DisplayName("rejects DTD and external entity expansion")
+    void rejectsXxeAndEntityDeclarations() {
+        String xxe = "<!DOCTYPE speak [<!ENTITY x SYSTEM \"file:///etc/passwd\">]><speak>&x;</speak>";
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse(xxe));
+        String bomb = "<!DOCTYPE speak [<!ENTITY a \"1234567890\"><!ENTITY b \"&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;\">]><speak>&b;</speak>";
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse(bomb));
+    }
+
+    @Test
+    @DisplayName("rejects malformed XML, oversized input, excessive pause, and unknown tags")
+    void rejectsMalformedAndUnboundedSsml() {
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><emphasis>broken</speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak>" + "x".repeat(SsmlProcessor.MAX_INPUT_CHARS) + "</speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><break time=\"11s\"/></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><script>unsafe</script></speak>"));
+    }
+
+    @Test
+    @DisplayName("rejects excessive nesting")
+    void rejectsExcessiveNesting() {
+        String nested = "<speak>" + "<say-as interpret-as=\"cardinal\">".repeat(SsmlProcessor.MAX_DEPTH)
+                + "x" + "</say-as>".repeat(SsmlProcessor.MAX_DEPTH) + "</speak>";
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse(nested));
+    }
+
+    @Test
+    @DisplayName("rejects invalid prosody units and ranges and negative pauses")
+    void rejectsInvalidProsodyUnitsAndRanges() {
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody rate=\"NaN%\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody rate=\"201%\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody pitch=\"13st\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><prosody volume=\"7dB\">x</prosody></speak>"));
+        assertThatIllegalArgumentException().isThrownBy(() -> processor.parse("<speak><break time=\"-1ms\"/></speak>"));
+    }
 }

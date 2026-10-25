@@ -233,6 +233,8 @@ public class PersistentTtsService {
             throw new IllegalArgumentException(
                     "Text exceeds maximum length of " + MAX_TEXT_LENGTH + " characters");
         }
+        if (!Float.isFinite(speed)) throw new IllegalArgumentException("Speed must be finite");
+        if (!Float.isFinite(pitch)) throw new IllegalArgumentException("Pitch must be finite");
         if (speed < MIN_SPEED || speed > MAX_SPEED) {
             throw new IllegalArgumentException(
                     "Speed must be between " + MIN_SPEED + " and " + MAX_SPEED + ", got: " + speed);
@@ -240,6 +242,10 @@ public class PersistentTtsService {
         if (pitch < MIN_PITCH || pitch > MAX_PITCH) {
             throw new IllegalArgumentException(
                     "Pitch must be between " + MIN_PITCH + " and " + MAX_PITCH + ", got: " + pitch);
+        }
+        if (speed != 1.0f || pitch != 1.0f) {
+            throw new UnsupportedOperationException(
+                    "NOT_ADMITTED: no qualified provider effect exists for non-neutral speed or pitch");
         }
         if (voiceId != null && voiceId.isPresent() && voiceId.get().length() > 255) {
             throw new IllegalArgumentException("voiceId must not exceed 255 characters");

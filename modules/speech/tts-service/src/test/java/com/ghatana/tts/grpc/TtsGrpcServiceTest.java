@@ -6,9 +6,8 @@ import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.EngineMetrics;
 import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.common.ValidationError;
-import com.ghatana.media.tts.api.ProfileSettings;
 import com.ghatana.media.tts.api.TtsEngine;
-import com.ghatana.media.tts.api.TtsProfile;
+import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceResponse;
@@ -17,10 +16,12 @@ import com.ghatana.tts.core.grpc.proto.FeedbackRequest;
 import com.ghatana.tts.core.grpc.proto.FeedbackResponse;
 import com.ghatana.tts.core.grpc.proto.GetVoicesRequest;
 import com.ghatana.tts.core.grpc.proto.GetVoicesResponse;
+import com.ghatana.tts.core.grpc.proto.GetProfileRequest;
 import com.ghatana.tts.core.grpc.proto.MetricsRequest;
 import com.ghatana.tts.core.grpc.proto.MetricsResponse;
 import com.ghatana.tts.core.grpc.proto.StatusRequest;
 import com.ghatana.tts.core.grpc.proto.StatusResponse;
+import com.ghatana.tts.core.grpc.proto.UpdateProfileRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
 import com.ghatana.tts.engine.TtsSynthesisEngine;
@@ -45,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -95,6 +97,11 @@ class TtsGrpcServiceTest {
         assertThat(observer.completed).isTrue();
         assertThat(observer.value.getSampleRate()).isEqualTo(22_050);
         assertThat(observer.value.getAudioData()).hasSize(44_100);
+        var controls = forClass(SynthesisOptions.class);
+        verify(engine).synthesize(anyString(), controls.capture());
+        assertThat(controls.getValue().speed()).isEqualTo(1.0);
+        assertThat(controls.getValue().pitch()).isEqualTo(1.0);
+        assertThat(controls.getValue().volume()).isEqualTo(1.0);
         verify(engine, never()).close();
     }
 
@@ -192,8 +199,6 @@ class TtsGrpcServiceTest {
 
     @Test
     void unsupportedCapabilitiesMapToUnimplemented() {
-        when(engine.createProfile(anyString(), anyString(), any()))
-                .thenThrow(new UnsupportedOperationException("profiles unavailable"));
         CapturingObserver<com.ghatana.tts.core.grpc.proto.ProfileResponse> profile =
                 new CapturingObserver<>();
         service.createProfile(
@@ -259,23 +264,79 @@ class TtsGrpcServiceTest {
     }
 
     @Test
-    void profileCreationReturnsProviderIdentity() {
-        TtsProfile created = new TtsProfile(
-                "provider-profile-1",
-                "Alice",
-                "voice-1",
-                ProfileSettings.builder().build(),
-                List.of());
-        when(engine.createProfile(anyString(), anyString(), any())).thenReturn(created);
-        CapturingObserver<com.ghatana.tts.core.grpc.proto.ProfileResponse> observer =
-                new CapturingObserver<>();
-
+    void profileOperationsFailClosedWithoutOwnerScopedConsentStore() {
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.ProfileResponse> create = new CapturingObserver<>();
         service.createProfile(
                 CreateProfileRequest.newBuilder().setDisplayName("Alice").build(),
-                observer);
+                create);
+        assertStatus(create, Status.Code.UNIMPLEMENTED);
+        assertThat(((StatusRuntimeException) create.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "ownership", "consent", "purpose", "retention");
 
-        assertThat(observer.error).isNull();
-        assertThat(observer.value.getProfileId()).isEqualTo("provider-profile-1");
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.ProfileResponse> get = new CapturingObserver<>();
+        service.getProfile(GetProfileRequest.newBuilder().setProfileId("profile-1").build(), get);
+        assertStatus(get, Status.Code.UNIMPLEMENTED);
+
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.ProfileResponse> update = new CapturingObserver<>();
+        service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("profile-1").build(), update);
+        assertStatus(update, Status.Code.UNIMPLEMENTED);
+
+        verify(engine, never()).createProfile(anyString(), anyString(), any());
+        verify(engine, never()).loadProfile(anyString());
+        verify(engine, never()).saveProfile(any());
+    }
+
+    @Test
+    void customVoiceAndProfileSelectionsFailBeforeProviderDispatch() {
+        CapturingObserver<SynthesizeResponse> voice = new CapturingObserver<>();
+        service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setVoiceId("custom-voice").build(), voice);
+        assertStatus(voice, Status.Code.UNIMPLEMENTED);
+        assertThat(((StatusRuntimeException) voice.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "owner", "consent");
+
+        CapturingObserver<SynthesizeResponse> profile = new CapturingObserver<>();
+        service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setProfileId("profile-1").build(), profile);
+        assertStatus(profile, Status.Code.UNIMPLEMENTED);
+        verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
+    void prosodyControlsValidateUnitsAndRejectUnqualifiedEffectsBeforeDispatch() {
+        for (var invalidOptions : List.of(
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(Float.NaN).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(Float.POSITIVE_INFINITY).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(2.1f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(13.0f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(Float.NaN).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setEnergy(-0.1f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setEnergy(2.1f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setEmotion("mystery").build())) {
+            CapturingObserver<SynthesizeResponse> invalid = new CapturingObserver<>();
+            service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setOptions(invalidOptions).build(), invalid);
+            assertStatus(invalid, Status.Code.INVALID_ARGUMENT);
+        }
+
+        for (var unsupportedOptions : List.of(
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(1.5f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(3.0f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setEnergy(1.5f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setEmotion("happy").build())) {
+            CapturingObserver<SynthesizeResponse> unsupported = new CapturingObserver<>();
+            service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setOptions(unsupportedOptions).build(), unsupported);
+            assertStatus(unsupported, Status.Code.UNIMPLEMENTED);
+            assertThat(((StatusRuntimeException) unsupported.error).getStatus().getDescription())
+                    .contains("NOT_ADMITTED");
+        }
+        CapturingObserver<SynthesizeResponse> ssml = new CapturingObserver<>();
+        service.synthesize(SynthesizeRequest.newBuilder().setText("<speak><prosody rate=\"150%\">hello</prosody></speak>").build(), ssml);
+        assertStatus(ssml, Status.Code.UNIMPLEMENTED);
+        assertThat(((StatusRuntimeException) ssml.error).getStatus().getDescription())
+                .contains("SSML", "NOT_ADMITTED");
+
+        CapturingObserver<SynthesizeResponse> malformedSsml = new CapturingObserver<>();
+        service.synthesize(SynthesizeRequest.newBuilder().setText("<speak><prosody>").build(), malformedSsml);
+        assertStatus(malformedSsml, Status.Code.INVALID_ARGUMENT);
+        verify(engine, never()).synthesize(anyString(), any());
     }
 
     @Nested

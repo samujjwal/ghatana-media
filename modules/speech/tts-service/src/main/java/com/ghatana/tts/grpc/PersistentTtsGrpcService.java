@@ -3,6 +3,7 @@ package com.ghatana.tts.grpc;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
 import com.ghatana.media.AudioVideoLibrary;
+import com.ghatana.media.common.AudioFormat;
 import com.ghatana.tts.core.grpc.proto.*;
 import com.ghatana.tts.service.PersistentTtsService;
 import io.grpc.Status;
@@ -58,7 +59,28 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
             return;
         }
 
-        UUID userId = parseUserId(userIdStr);
+        if (userIdStr == null || userIdStr.isBlank()) {
+            responseObserver.onError(Status.UNAUTHENTICATED
+                .withDescription("Missing authenticated subject")
+                .asRuntimeException());
+            return;
+        }
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdStr);
+        } catch (IllegalArgumentException exception) {
+            responseObserver.onError(Status.UNAUTHENTICATED
+                .withDescription("Authenticated subject is not a supported principal identifier")
+                .asRuntimeException());
+            return;
+        }
+
+        if (!request.getVoiceId().isBlank() || !request.getProfileId().isBlank()) {
+            responseObserver.onError(Status.UNIMPLEMENTED
+                .withDescription("Voice/profile selection is NOT_ADMITTED without an authoritative owner, rights and consent decision")
+                .asRuntimeException());
+            return;
+        }
 
         try {
             MDC.put("tenantId", tenantId);
@@ -80,12 +102,15 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
                 return;
             }
 
+            SynthesisControlPolicy.rejectUnqualifiedSsml(text);
+
+            var controls = SynthesisControlPolicy.resolve(request, AudioFormat.WAV);
             Optional<String> voiceId = request.getVoiceId().isEmpty()
                 ? Optional.empty()
                 : Optional.of(request.getVoiceId());
 
-            float speed = request.getOptions().getSpeed() > 0 ? request.getOptions().getSpeed() : 1.0f;
-            float pitch = request.getOptions().getPitch() > 0 ? request.getOptions().getPitch() : 1.0f;
+            float speed = (float) controls.speed();
+            float pitch = (float) controls.pitch();
             String language = request.getOptions().getLanguage().isEmpty()
                 ? null
                 : request.getOptions().getLanguage();
@@ -110,6 +135,10 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
         } catch (IllegalArgumentException e) {
             LOG.warn("[{}] TTS validation error: {}", cid, e.getMessage());
             responseObserver.onError(Status.INVALID_ARGUMENT
+                .withDescription(e.getMessage())
+                .asRuntimeException());
+        } catch (UnsupportedOperationException e) {
+            responseObserver.onError(Status.UNIMPLEMENTED
                 .withDescription(e.getMessage())
                 .asRuntimeException());
         } catch (Exception e) {
@@ -153,17 +182,10 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
         return JwtServerInterceptor.CTX_SUBJECT.get();
     }
 
-    private static UUID parseUserId(String userIdStr) {
-        if (userIdStr == null) return UUID.randomUUID();
-        try {
-            return UUID.fromString(userIdStr);
-        } catch (IllegalArgumentException e) {
-            // Subject is not UUID-formatted (e.g. opaque token ID) — generate a stable random UUID.
-            return UUID.randomUUID();
-        }
-    }
-
     private Status toGrpcStatus(String cid, Throwable e) {
+        if (e instanceof UnsupportedOperationException) {
+            return Status.UNIMPLEMENTED.withDescription(e.getMessage());
+        }
         if (e instanceof IllegalArgumentException) {
             return Status.INVALID_ARGUMENT.withDescription(e.getMessage());
         }

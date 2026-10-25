@@ -1,244 +1,210 @@
 package com.ghatana.tts.ssml;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
-/**
- * Speech Synthesis Markup Language (SSML) processor for the TTS pipeline (AV-008.3).
- *
- * <p>Parses a subset of W3C SSML 1.1 and converts it into a sequence of
- * {@link SsmlSegment} objects that downstream TTS engines can consume without
- * needing a full XML parser dependency.
- *
- * <h3>Supported tags</h3>
- * <ul>
- *   <li>{@code <speak>} — root element (required)</li>
- *   <li>{@code <break time="Xms|Xs"/>} — silence pause</li>
- *   <li>{@code <prosody rate="X%" pitch="X%" volume="X%">} — speech property override</li>
- *   <li>{@code <emphasis level="strong|moderate|reduced">} — emphasis</li>
- *   <li>{@code <say-as interpret-as="cardinal|ordinal|date|time">} — format hint</li>
- *   <li>{@code <phoneme alphabet="ipa" ph="...">} — pronunciation hint</li>
- * </ul>
- *
- * <h3>Acceptance criteria (AV-008.3)</h3>
- * <ul>
- *   <li>SSML compliance tests for the above subset.</li>
- * </ul>
- *
- * @doc.type class
- * @doc.purpose SSML markup processor for TTS speech property control
- * @doc.layer product
- * @doc.pattern Service
- */
+/** Bounded, hardened parser for the supported canonical SSML subset. */
 public final class SsmlProcessor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SsmlProcessor.class);
-
-    private static final Pattern SPEAK_TAG = Pattern.compile("<speak[^>]*>(.*?)</speak>",
-            Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-    private static final Pattern BREAK_TAG = Pattern.compile(
-            "<break\\s+time=\"(\\d+)(ms|s)\"\\s*/>", Pattern.CASE_INSENSITIVE);
-    private static final Pattern PROSODY_OPEN = Pattern.compile(
-            "<prosody([^>]*)>", Pattern.CASE_INSENSITIVE);
-    private static final Pattern PROSODY_CLOSE = Pattern.compile(
-            "</prosody>", Pattern.CASE_INSENSITIVE);
-    private static final Pattern EMPHASIS_OPEN = Pattern.compile(
-            "<emphasis\\s+level=\"(strong|moderate|reduced)\"\\s*>", Pattern.CASE_INSENSITIVE);
-    private static final Pattern EMPHASIS_CLOSE = Pattern.compile(
-            "</emphasis>", Pattern.CASE_INSENSITIVE);
-    private static final Pattern ANY_TAG = Pattern.compile("<[^>]+>");
+    public static final int MAX_INPUT_CHARS = 65_536;
+    public static final int MAX_DEPTH = 16;
+    public static final long MAX_PAUSE_MS = 10_000;
+    public static final long MAX_TOTAL_PAUSE_MS = 30_000;
 
     private SsmlProcessor() {}
 
-    /**
-     * @return the singleton processor instance
-     */
-    public static SsmlProcessor create() {
-        return new SsmlProcessor();
-    }
+    public static SsmlProcessor create() { return new SsmlProcessor(); }
 
-    // ─── parse ────────────────────────────────────────────────────────────────
-
-    /**
-     * Parses the given SSML document and returns an ordered list of segments.
-     *
-     * @param ssml the SSML input (must contain a {@code <speak>} root element)
-     * @return a list of {@link SsmlSegment} objects in document order
-     * @throws NullPointerException     if ssml is null
-     * @throws IllegalArgumentException if the input is blank or missing the {@code <speak>} wrapper
-     */
     public List<SsmlSegment> parse(String ssml) {
         Objects.requireNonNull(ssml, "ssml must not be null");
-        if (ssml.isBlank()) {
-            throw new IllegalArgumentException("ssml must not be blank");
+        if (ssml.isBlank()) throw new IllegalArgumentException("ssml must not be blank");
+        if (ssml.length() > MAX_INPUT_CHARS) throw new IllegalArgumentException("SSML input exceeds maximum size");
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(false);
+            factory.setXIncludeAware(false);
+            factory.setExpandEntityReferences(false);
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            Document document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(ssml)));
+            Element root = document.getDocumentElement();
+            if (root == null || !"speak".equals(root.getTagName())) {
+                throw new IllegalArgumentException("SSML document must contain a <speak> root element");
+            }
+            validateAttributes(root, "speak");
+            List<SsmlSegment> segments = new ArrayList<>();
+            long[] totalPause = {0};
+            appendChildren(root, segments, 1, totalPause);
+            return Collections.unmodifiableList(segments);
+        } catch (IllegalArgumentException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalArgumentException("Malformed or unsafe SSML document", exception);
         }
-
-        Matcher speakMatcher = SPEAK_TAG.matcher(ssml);
-        if (!speakMatcher.find()) {
-            throw new IllegalArgumentException(
-                    "SSML document must contain a <speak> root element");
-        }
-
-        String body = speakMatcher.group(1);
-        List<SsmlSegment> segments = new ArrayList<>();
-        processBody(body.trim(), segments);
-
-        LOG.debug("SSML parsed: {} segments", segments.size());
-        return Collections.unmodifiableList(segments);
     }
 
-    /**
-     * Strips all SSML tags from the input and returns plain text.
-     *
-     * @param ssml the SSML input
-     * @return the plain-text content (tags removed)
-     * @throws NullPointerException if ssml is null
-     */
-    public String toPlainText(String ssml) {
-        Objects.requireNonNull(ssml, "ssml must not be null");
-        return ANY_TAG.matcher(ssml).replaceAll("").trim();
+    public String toPlainText(String input) {
+        Objects.requireNonNull(input, "ssml must not be null");
+        if (input.length() > MAX_INPUT_CHARS) throw new IllegalArgumentException("SSML input exceeds maximum size");
+        if (!input.stripLeading().startsWith("<")) return input.trim();
+        return parse(input).stream().map(SsmlSegment::text).filter(s -> !s.isBlank()).reduce((a, b) -> a + " " + b).orElse("").trim();
     }
 
-    // ─── internal ─────────────────────────────────────────────────────────────
-
-    private void processBody(String body, List<SsmlSegment> out) {
-        int pos = 0;
-        while (pos < body.length()) {
-            // Break tag
-            Matcher brk = BREAK_TAG.matcher(body).region(pos, body.length());
-            // Prosody open
-            Matcher prosodyOpen = PROSODY_OPEN.matcher(body).region(pos, body.length());
-            // Emphasis open
-            Matcher emphasisOpen = EMPHASIS_OPEN.matcher(body).region(pos, body.length());
-
-            int breakIdx = findNext(brk, pos);
-            int prosodyIdx = findNext(prosodyOpen, pos);
-            int emphasisIdx = findNext(emphasisOpen, pos);
-
-            int nextTag = minPositive(breakIdx, prosodyIdx, emphasisIdx);
-            if (nextTag < 0 || nextTag == Integer.MAX_VALUE) {
-                // No more tags — rest is plain text
-                String rest = body.substring(pos).trim();
-                if (!rest.isEmpty()) out.add(SsmlSegment.text(rest));
-                break;
+    private static void appendChildren(Element parent, List<SsmlSegment> out, int depth, long[] totalPause) {
+        if (depth > MAX_DEPTH) throw new IllegalArgumentException("SSML nesting exceeds maximum depth");
+        for (Node node = parent.getFirstChild(); node != null; node = node.getNextSibling()) {
+            if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) {
+                String text = node.getNodeValue().trim();
+                if (!text.isEmpty()) out.add(SsmlSegment.text(text));
+                continue;
             }
-
-            // Emit text before the tag
-            if (nextTag > pos) {
-                String before = body.substring(pos, nextTag).trim();
-                if (!before.isEmpty()) out.add(SsmlSegment.text(before));
-            }
-
-            if (nextTag == breakIdx) {
-                Matcher m = BREAK_TAG.matcher(body).region(pos, body.length());
-                if (m.find()) {
-                    long ms = Long.parseLong(m.group(1));
-                    if ("s".equals(m.group(2))) ms *= 1000;
-                    out.add(SsmlSegment.pause(ms));
-                    pos = m.end();
-                } else { pos = nextTag + 1; }
-            } else if (nextTag == prosodyIdx) {
-                Matcher om = PROSODY_OPEN.matcher(body).region(pos, body.length());
-                if (om.find()) {
-                    String attrs = om.group(1);
-                    int closeStart = findTagClose(body, om.end(), "</prosody>");
-                    if (closeStart >= 0) {
-                        String inner = body.substring(om.end(), closeStart).trim();
-                        out.add(SsmlSegment.prosody(inner, attrs));
-                        pos = closeStart + "</prosody>".length();
-                    } else { pos = om.end(); }
-                } else { pos = nextTag + 1; }
-            } else {
-                Matcher em = EMPHASIS_OPEN.matcher(body).region(pos, body.length());
-                if (em.find()) {
-                    String level = em.group(1);
-                    int closeStart = findTagClose(body, em.end(), "</emphasis>");
-                    if (closeStart >= 0) {
-                        String inner = body.substring(em.end(), closeStart).trim();
-                        out.add(SsmlSegment.emphasis(inner, level));
-                        pos = closeStart + "</emphasis>".length();
-                    } else { pos = em.end(); }
-                } else { pos = nextTag + 1; }
+            if (node.getNodeType() != Node.ELEMENT_NODE) continue;
+            Element element = (Element) node;
+            String tag = element.getTagName().toLowerCase(Locale.ROOT);
+            validateAttributes(element, tag);
+            switch (tag) {
+                case "break" -> {
+                    long pause = parsePause(element.getAttribute("time"));
+                    totalPause[0] = Math.addExact(totalPause[0], pause);
+                    if (pause > MAX_PAUSE_MS || totalPause[0] > MAX_TOTAL_PAUSE_MS) {
+                        throw new IllegalArgumentException("SSML pause exceeds configured duration limit");
+                    }
+                    out.add(SsmlSegment.pause(pause));
+                }
+                case "prosody" -> out.add(SsmlSegment.prosody(element.getTextContent().trim(), canonicalAttributes(element)));
+                case "emphasis" -> out.add(SsmlSegment.emphasis(element.getTextContent().trim(), element.getAttribute("level").toLowerCase(Locale.ROOT)));
+                case "say-as", "phoneme", "voice", "lang", "sub" -> appendChildren(element, out, depth + 1, totalPause);
+                default -> throw new IllegalArgumentException("Unsupported SSML tag: " + tag);
             }
         }
     }
 
-    private static int findNext(Matcher m, int from) {
-        Matcher mm = m.reset(); // reuse
-        mm.region(from, mm.regionEnd());
-        return mm.find() ? mm.start() : Integer.MAX_VALUE;
+    private static long parsePause(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("SSML break requires time");
+        String normalized = value.trim().toLowerCase(Locale.ROOT);
+        try {
+            if (normalized.endsWith("ms")) return Long.parseLong(normalized.substring(0, normalized.length() - 2));
+            if (normalized.endsWith("s")) return Math.multiplyExact(Long.parseLong(normalized.substring(0, normalized.length() - 1)), 1000);
+        } catch (ArithmeticException | NumberFormatException exception) {
+            throw new IllegalArgumentException("Invalid SSML break duration", exception);
+        }
+        throw new IllegalArgumentException("SSML break time must use ms or s");
     }
 
-    private static int findTagClose(String body, int from, String closeTag) {
-        return body.toLowerCase().indexOf(closeTag.toLowerCase(), from);
+    private static void validateAttributes(Element element, String tag) {
+        var attrs = element.getAttributes();
+        for (int i = 0; i < attrs.getLength(); i++) {
+            String name = attrs.item(i).getNodeName().toLowerCase(Locale.ROOT);
+            boolean allowed = switch (tag) {
+                case "break" -> name.equals("time");
+                case "prosody" -> List.of("rate", "pitch", "volume").contains(name);
+                case "emphasis" -> name.equals("level");
+                case "say-as" -> name.equals("interpret-as") || name.equals("format");
+                case "phoneme" -> name.equals("alphabet") || name.equals("ph");
+                case "voice" -> name.equals("name");
+                case "lang" -> name.equals("xml:lang") || name.equals("lang");
+                case "sub" -> name.equals("alias");
+                case "speak" -> List.of("version", "xml:lang", "lang").contains(name);
+                default -> false;
+            };
+            if (!allowed) throw new IllegalArgumentException("Unsupported SSML attribute " + name + " on " + tag);
+        }
+        if (tag.equals("emphasis") && !List.of("strong", "moderate", "reduced", "none").contains(element.getAttribute("level").toLowerCase(Locale.ROOT))) {
+            throw new IllegalArgumentException("Unsupported emphasis level");
+        }
+        if (tag.equals("say-as") && !List.of("cardinal", "ordinal", "date", "time", "characters", "spell-out").contains(element.getAttribute("interpret-as").toLowerCase(Locale.ROOT))) {
+            throw new IllegalArgumentException("Unsupported say-as interpretation");
+        }
+        if (tag.equals("phoneme") && (!element.getAttribute("alphabet").equalsIgnoreCase("ipa") || element.getAttribute("ph").isBlank())) {
+            throw new IllegalArgumentException("Only phoneme alphabet=ipa with a nonblank ph value is supported");
+        }
+        if (tag.equals("break")) {
+            long pause = parsePause(element.getAttribute("time"));
+            if (pause < 0) throw new IllegalArgumentException("SSML break duration must not be negative");
+        }
+        if (tag.equals("prosody")) {
+            validateRate(element.getAttribute("rate"));
+            validatePitch(element.getAttribute("pitch"));
+            validateVolume(element.getAttribute("volume"));
+        }
     }
 
-    private static int minPositive(int... values) {
-        int min = Integer.MAX_VALUE;
-        for (int v : values) if (v >= 0 && v < min) min = v;
-        return min;
+    private static String canonicalAttributes(Element element) {
+        List<String> parts = new ArrayList<>();
+        for (String key : List.of("rate", "pitch", "volume")) if (element.hasAttribute(key)) parts.add(key + "=\"" + element.getAttribute(key).trim() + "\"");
+        return String.join(" ", parts);
     }
 
-    // ─── SsmlSegment ─────────────────────────────────────────────────────────
+    private static void validateRate(String value) {
+        if (value.isBlank()) return;
+        String v = value.trim().toLowerCase(Locale.ROOT);
+        if (List.of("x-slow", "slow", "medium", "fast", "x-fast").contains(v)) return;
+        double rate = parseFiniteUnit(v, "%", 1.0, "rate");
+        if (rate < 50.0 || rate > 200.0) throw new IllegalArgumentException("SSML rate must be 50%..200%");
+    }
 
-    /**
-     * A single processable unit extracted from an SSML document.
-     */
-    public sealed interface SsmlSegment
-            permits SsmlSegment.TextSegment, SsmlSegment.PauseSegment,
-                    SsmlSegment.ProsodySegment, SsmlSegment.EmphasisSegment {
+    private static void validatePitch(String value) {
+        if (value.isBlank()) return;
+        String v = value.trim().toLowerCase(Locale.ROOT);
+        double semitones;
+        if (v.endsWith("st")) semitones = parseFiniteUnit(v, "st", 1.0, "pitch");
+        else if (v.endsWith("%")) semitones = parseFiniteUnit(v, "%", 1.0, "pitch");
+        else throw new IllegalArgumentException("SSML pitch requires % or st units");
+        if (semitones < -12.0 || semitones > 12.0) throw new IllegalArgumentException("SSML pitch must be in [-12, 12]");
+    }
 
-        /** @return the plain-text content for this segment */
+    private static void validateVolume(String value) {
+        if (value.isBlank()) return;
+        String v = value.trim().toLowerCase(Locale.ROOT);
+        if (List.of("silent", "x-soft", "soft", "medium", "loud", "x-loud", "default").contains(v)) return;
+        if (v.endsWith("db")) {
+            double db = parseFiniteUnit(v, "db", 1.0, "volume");
+            if (db < -20.0 || db > 6.0) throw new IllegalArgumentException("SSML volume must be in [-20dB, 6dB]");
+            return;
+        }
+        if (v.endsWith("%")) {
+            double percent = parseFiniteUnit(v, "%", 1.0, "volume");
+            if (percent < 0.0 || percent > 200.0) throw new IllegalArgumentException("SSML volume must be in [0%, 200%]");
+            return;
+        }
+        throw new IllegalArgumentException("SSML volume requires a canonical level, % or dB units");
+    }
+
+    private static double parseFiniteUnit(String value, String suffix, double scale, String field) {
+        try {
+            String number = value.substring(0, value.length() - suffix.length()).trim();
+            double parsed = Double.parseDouble(number);
+            if (!Double.isFinite(parsed)) throw new NumberFormatException("not finite");
+            return parsed * scale;
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("Invalid SSML " + field + " value", exception);
+        }
+    }
+
+    public sealed interface SsmlSegment permits SsmlSegment.TextSegment, SsmlSegment.PauseSegment, SsmlSegment.ProsodySegment, SsmlSegment.EmphasisSegment {
         String text();
-
-        /** @return the type of this segment */
         SegmentType type();
-
-        /** Kind of segment. */
         enum SegmentType { TEXT, PAUSE, PROSODY, EMPHASIS }
-
-        static SsmlSegment text(String content) {
-            return new TextSegment(content);
-        }
-
-        static SsmlSegment pause(long durationMs) {
-            return new PauseSegment(durationMs);
-        }
-
-        static SsmlSegment prosody(String content, String attributes) {
-            return new ProsodySegment(content, attributes);
-        }
-
-        static SsmlSegment emphasis(String content, String level) {
-            return new EmphasisSegment(content, level);
-        }
-
-        /** Plain text segment. */
-        record TextSegment(String text) implements SsmlSegment {
-            public SegmentType type() { return SegmentType.TEXT; }
-        }
-
-        /** Silence pause segment. */
-        record PauseSegment(long durationMs) implements SsmlSegment {
-            public String text() { return ""; }
-            public SegmentType type() { return SegmentType.PAUSE; }
-        }
-
-        /** Prosody-controlled speech segment. */
-        record ProsodySegment(String text, String attributes) implements SsmlSegment {
-            public SegmentType type() { return SegmentType.PROSODY; }
-        }
-
-        /** Emphasis segment. */
-        record EmphasisSegment(String text, String emphasisLevel) implements SsmlSegment {
-            public SegmentType type() { return SegmentType.EMPHASIS; }
-        }
+        static SsmlSegment text(String content) { return new TextSegment(content); }
+        static SsmlSegment pause(long durationMs) { return new PauseSegment(durationMs); }
+        static SsmlSegment prosody(String content, String attributes) { return new ProsodySegment(content, attributes); }
+        static SsmlSegment emphasis(String content, String level) { return new EmphasisSegment(content, level); }
+        record TextSegment(String text) implements SsmlSegment { public SegmentType type() { return SegmentType.TEXT; } }
+        record PauseSegment(long durationMs) implements SsmlSegment { public String text() { return ""; } public SegmentType type() { return SegmentType.PAUSE; } }
+        record ProsodySegment(String text, String attributes) implements SsmlSegment { public SegmentType type() { return SegmentType.PROSODY; } }
+        record EmphasisSegment(String text, String emphasisLevel) implements SsmlSegment { public SegmentType type() { return SegmentType.EMPHASIS; } }
     }
 }
