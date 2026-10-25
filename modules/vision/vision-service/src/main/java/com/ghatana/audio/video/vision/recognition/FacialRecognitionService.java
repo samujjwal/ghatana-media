@@ -208,11 +208,25 @@ public final class FacialRecognitionService {
     ) {
         public FaceDetection {
             Objects.requireNonNull(faceId, "faceId must not be null");
+            if (faceId.isBlank()) {
+                throw new IllegalArgumentException("faceId must not be blank");
+            }
             Objects.requireNonNull(boundingBox, "boundingBox must not be null");
             Objects.requireNonNull(embedding, "embedding must not be null");
-            if (confidence < 0 || confidence > 1) {
-                throw new IllegalArgumentException("confidence must be in [0, 1]");
+            if (!Double.isFinite(confidence) || confidence < 0 || confidence > 1) {
+                throw new IllegalArgumentException("confidence must be finite and in [0, 1]");
             }
+            embedding = embedding.clone();
+            for (float value : embedding) {
+                if (!Float.isFinite(value)) {
+                    throw new IllegalArgumentException("embedding values must be finite");
+                }
+            }
+        }
+
+        @Override
+        public float[] embedding() {
+            return embedding.clone();
         }
 
         /** Factory: creates a face detection with a random ID. */
@@ -229,7 +243,16 @@ public final class FacialRecognitionService {
      * @param width  width
      * @param height height
      */
-    public record BoundingBox(double x, double y, double width, double height) {}
+    public record BoundingBox(double x, double y, double width, double height) {
+        public BoundingBox {
+            if (!Double.isFinite(x) || !Double.isFinite(y)
+                    || !Double.isFinite(width) || !Double.isFinite(height)
+                    || x < 0 || y < 0 || width <= 0 || height <= 0
+                    || x + width > 1 || y + height > 1) {
+                throw new IllegalArgumentException("Face bounding box must be a positive normalized box within [0,1]");
+            }
+        }
+    }
 
     /**
      * An identity match result from the identification step.

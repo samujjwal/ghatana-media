@@ -25,6 +25,32 @@ class FacialRecognitionServiceTest {
         org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
                 .isThrownBy(() -> new FacialRecognitionService.FaceDetection(
                         "face-region", new FacialRecognitionService.BoundingBox(0, 0, 1, 1), 1.1, new float[0]));
+        org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+                .isThrownBy(() -> new FacialRecognitionService.FaceDetection(
+                        "face-region", new FacialRecognitionService.BoundingBox(0, 0, 1, 1), Double.NaN, new float[0]));
+        org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+                .isThrownBy(() -> new FacialRecognitionService.BoundingBox(-0.01, 0, 0.5, 0.5));
+        org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+                .isThrownBy(() -> new FacialRecognitionService.BoundingBox(0.75, 0, 0.5, 0.5));
+        org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+                .isThrownBy(() -> new FacialRecognitionService.BoundingBox(0, 0, Double.NaN, 0.5));
+        org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+                .isThrownBy(() -> new FacialRecognitionService.FaceDetection(
+                        "face-region", new FacialRecognitionService.BoundingBox(0, 0, 1, 1), 0.9,
+                        new float[] {Float.POSITIVE_INFINITY}));
+    }
+
+    @Test
+    void faceEmbeddingIsDefensivelyCopiedAtConstructionAndReadback() {
+        float[] supplied = {0.25f, 0.75f};
+        var face = new FacialRecognitionService.FaceDetection("face-region",
+                new FacialRecognitionService.BoundingBox(0.1, 0.1, 0.5, 0.5), 0.9, supplied);
+
+        supplied[0] = 99;
+        float[] readback = face.embedding();
+        readback[1] = 99;
+
+        org.assertj.core.api.Assertions.assertThat(face.embedding()).containsExactly(0.25f, 0.75f);
     }
 
     @Test
