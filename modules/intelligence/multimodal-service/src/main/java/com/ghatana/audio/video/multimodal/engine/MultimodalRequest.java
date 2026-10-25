@@ -8,6 +8,9 @@ package com.ghatana.audio.video.multimodal.engine;
  * @doc.pattern Component
  */
 public final class MultimodalRequest {
+    private static final int MAX_MODALITY_BYTES = 32 * 1024 * 1024;
+    private static final int MAX_TOTAL_INPUT_BYTES = 64 * 1024 * 1024;
+    private static final int MAX_TEXT_CHARS = 64 * 1024;
 
     private final byte[] audioData;
     private final byte[] imageData;
@@ -17,9 +20,10 @@ public final class MultimodalRequest {
     private final int videoMaxFrames;
 
     private MultimodalRequest(Builder builder) {
-        this.audioData = builder.audioData;
-        this.imageData = builder.imageData;
-        this.videoData = builder.videoData;
+        validateInput(builder.audioData, builder.imageData, builder.videoData, builder.text);
+        this.audioData = copy(builder.audioData);
+        this.imageData = copy(builder.imageData);
+        this.videoData = copy(builder.videoData);
         this.text = builder.text;
         this.videoSampleFps = builder.videoSampleFps;
         this.videoMaxFrames = builder.videoMaxFrames;
@@ -42,15 +46,15 @@ public final class MultimodalRequest {
     }
 
     public byte[] getAudioData() {
-        return audioData;
+        return copy(audioData);
     }
 
     public byte[] getImageData() {
-        return imageData;
+        return copy(imageData);
     }
 
     public byte[] getVideoData() {
-        return videoData;
+        return copy(videoData);
     }
 
     public String getText() {
@@ -104,7 +108,22 @@ public final class MultimodalRequest {
         }
 
         public MultimodalRequest build() {
+            if (videoSampleFps < 0 || videoSampleFps > 60 || videoMaxFrames < 0 || videoMaxFrames > 100) {
+                throw new IllegalArgumentException("Video sampling is outside configured limits");
+            }
             return new MultimodalRequest(this);
         }
     }
+
+    private static void validateInput(byte[] audio, byte[] image, byte[] video, String text) {
+        long total = (long) length(audio) + length(image) + length(video);
+        if (length(audio) > MAX_MODALITY_BYTES || length(image) > MAX_MODALITY_BYTES
+                || length(video) > MAX_MODALITY_BYTES || total > MAX_TOTAL_INPUT_BYTES
+                || text != null && text.length() > MAX_TEXT_CHARS) {
+            throw new IllegalArgumentException("Multimodal input exceeds configured limits");
+        }
+    }
+
+    private static int length(byte[] value) { return value == null ? 0 : value.length; }
+    private static byte[] copy(byte[] value) { return value == null ? null : value.clone(); }
 }

@@ -43,23 +43,26 @@ public class AudioResult {
 
     /**
      * Returns the transcription text active at the given video timestamp.
-     * Falls back to the full transcription if no timed segments are available.
+     * Returns empty when timed segments or a shared clock are unavailable. Use
+     * {@link #getTranscription()} for a non-temporal full-transcript read.
      */
     public String getTranscriptionAtTimestamp(long timestampMs) {
+        return getTranscriptionAtTimestamp(MediaClockTimestamp.mediaMilliseconds(timestampMs));
+    }
+
+    public String getTranscriptionAtTimestamp(MediaClockTimestamp timestamp) {
+        if (timestamp == null || !timestamp.isKnown()) return "";
         if (timedSegments == null || timedSegments.isEmpty()) {
-            return transcription;
+            return "";
         }
-        String best = "";
         for (TimedSegment seg : timedSegments) {
+            if (!timestamp.sharesClock(seg.startTime) || !timestamp.sharesClock(seg.endTime)) return "";
+            Long timestampMs = timestamp.toMilliseconds();
             if (seg.getStartMs() <= timestampMs && timestampMs <= seg.getEndMs()) {
                 return seg.getText();
             }
-            // keep the closest prior segment as fallback
-            if (seg.getEndMs() <= timestampMs) {
-                best = seg.getText();
-            }
         }
-        return best;
+        return "";
     }
 
     public static class Builder {
@@ -72,18 +75,37 @@ public class AudioResult {
         public Builder confidence(double c) { this.confidence = c; return this; }
         public Builder timedSegments(List<TimedSegment> s) { this.timedSegments = s; return this; }
         public Builder error(String e) { this.error = e; return this; }
-        public AudioResult build() { return new AudioResult(this); }
+        public AudioResult build() {
+            if (timedSegments != null) {
+                long previousEnd = -1;
+                for (TimedSegment segment : timedSegments) {
+                    if (segment == null || segment.getStartMs() < previousEnd) {
+                        throw new IllegalArgumentException("Timed segments must be non-null and ordered");
+                    }
+                    previousEnd = segment.getEndMs();
+                }
+            }
+            return new AudioResult(this);
+        }
     }
 
     public static class TimedSegment {
         private final long startMs;
         private final long endMs;
         private final String text;
+        private final MediaClockTimestamp startTime;
+        private final MediaClockTimestamp endTime;
 
         public TimedSegment(long startMs, long endMs, String text) {
+            if (startMs < 0 || endMs < startMs) {
+                throw new IllegalArgumentException("Timed segment bounds must be non-negative and ordered");
+            }
+            if (text == null) throw new NullPointerException("segment text must not be null");
             this.startMs = startMs;
             this.endMs = endMs;
             this.text = text;
+            this.startTime = MediaClockTimestamp.mediaMilliseconds(startMs);
+            this.endTime = MediaClockTimestamp.mediaMilliseconds(endMs);
         }
 
         public long getStartMs() { return startMs; }

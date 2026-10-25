@@ -29,6 +29,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(MultimodalAnalysisEngine.class);
 
     private static final int ANALYSIS_TIMEOUT_SECONDS = 60;
+    private static final int MAX_MODALITY_BYTES = 32 * 1024 * 1024;
 
     private final MultimodalMediaGateway mediaGateway;
     private final AudioVideoRuntimeSettings settings;
@@ -56,6 +57,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
      * @return fused multimodal result
      */
     public MultimodalResult analyse(MultimodalRequest request) {
+        java.util.Objects.requireNonNull(request, "request");
         long startMs = System.currentTimeMillis();
 
         // Launch parallel tasks only for modalities that are present
@@ -122,6 +124,10 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
      */
     public VideoAudioResult analyseVideoWithAudio(byte[] videoData, boolean extractAudio,
                                                    boolean analyseFrames, int sampleFps) {
+        validatePayload(videoData);
+        if (sampleFps < 0 || sampleFps > 60) {
+            throw new IllegalArgumentException("sampleFps must be between 0 and 60");
+        }
         long startMs = System.currentTimeMillis();
 
         CompletableFuture<AudioResult> audioFuture = extractAudio
@@ -167,6 +173,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
     private AudioResult transcribeAudio(byte[] audioData) {
         try {
+            validatePayload(audioData);
             LOG.debug("Transcribing {} bytes of audio", audioData.length);
             return mediaGateway.transcribe(audioData);
         } catch (Exception e) {
@@ -177,6 +184,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
     private VisualResult analyseImage(byte[] imageData) {
         try {
+            validatePayload(imageData);
             LOG.debug("Analysing image ({} bytes)", imageData.length);
             return mediaGateway.analyseImage(imageData);
         } catch (Exception e) {
@@ -187,6 +195,10 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
     private VisualResult analyseVideo(byte[] videoData, int sampleFps, int maxFrames) {
         try {
+            validatePayload(videoData);
+            if (sampleFps < 0 || sampleFps > 60 || maxFrames < 0 || maxFrames > 100) {
+                throw new IllegalArgumentException("Video sampling is outside configured limits");
+            }
             LOG.debug("Analysing video ({} bytes, {}fps, max {} frames)",
                     videoData.length, sampleFps, maxFrames);
             return mediaGateway.analyseVideo(videoData, sampleFps, maxFrames);
@@ -259,6 +271,12 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         return String.join(", ", parts);
     }
 
+    private static void validatePayload(byte[] payload) {
+        if (payload != null && payload.length > MAX_MODALITY_BYTES) {
+            throw new IllegalArgumentException("Multimodal modality payload exceeds configured limit");
+        }
+    }
+
     /**
      * Associate frame and transcript content using their source timestamps.
      *
@@ -275,9 +293,9 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         }
 
         for (FrameResult frame : video.getFrameResults()) {
-            String activeText = audio.getTranscriptionAtTimestamp(frame.getTimestampMs());
+            String activeText = audio.getTranscriptionAtTimestamp(frame.getTimestamp());
             alignments.add(new TemporalAlignment(
-                    frame.getTimestampMs(),
+                    frame.getTimestamp(),
                     frame.getFrameNumber(),
                     activeText,
                     frame.getDetections(),
@@ -307,8 +325,12 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                 sb.append("... and ").append(alignments.size() - 5).append(" more moments.");
                 break;
             }
-            long secs = a.getTimestampMs() / 1000;
-            sb.append(String.format("[%ds] ", secs));
+            if (a.hasTimestamp()) {
+                long secs = a.getTimestampMs() / 1000;
+                sb.append(String.format("[%ds] ", secs));
+            } else {
+                sb.append("[time unknown] ");
+            }
             if (a.getSpeechText() != null && !a.getSpeechText().isEmpty()) {
                 sb.append("\"").append(a.getSpeechText()).append("\" ");
             }

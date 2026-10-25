@@ -77,7 +77,8 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         lenient().when(adapter.backendName()).thenReturn("test-backend");
         lenient().when(adapter.metricsEnabled()).thenReturn(false);
 
-        MultimodalGrpcService service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop());
+        MultimodalGrpcService service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
+                request -> SourceAuthorization.Decision.ADMITTED);
 
         server = ServerBuilder.forPort(0)
             .directExecutor()
@@ -127,7 +128,8 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         server = ServerBuilder.forPort(0)
             .directExecutor()
             .intercept(new TenantInjector())
-            .addService(new MultimodalGrpcService(failingEngine, adapter, MediaProcessingMetrics.noop()))
+            .addService(new MultimodalGrpcService(failingEngine, adapter, MediaProcessingMetrics.noop(),
+                    request -> SourceAuthorization.Decision.ADMITTED))
             .build()
             .start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
@@ -164,7 +166,8 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
                     .confidence(0.85)
                     .frameResults(List.of(
                         new com.ghatana.audio.video.multimodal.engine.FrameResult(
-                            1, 100,
+                            1, com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.fromSource(
+                                    com.ghatana.audio.video.vision.video.SourceMediaTimestamp.fromPts("3003", "1/90000")),
                             List.of(
                                 new com.ghatana.audio.video.multimodal.engine.DetectionResult(
                                     "person", 0.95, 0.0, 0.0, 0.0, 0.0)
@@ -188,7 +191,8 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         server = ServerBuilder.forPort(0)
             .directExecutor()
             .intercept(new TenantInjector())
-            .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop()))
+            .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
+                    request -> SourceAuthorization.Decision.ADMITTED))
             .build()
             .start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
@@ -211,6 +215,17 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         assertThat(response.getCombinedNarrative()).contains("Person walking");
         assertThat(response.getAudioTranscription()).isEqualTo("Hello world");
         assertThat(response.getFrameAnalysesCount()).isEqualTo(1);
+        assertThat(response.getFrameAnalyses(0).hasTimestampMs()).isTrue();
+        assertThat(response.getFrameAnalyses(0).getTimestampMs()).isEqualTo(33L);
+        assertThat(response.getFrameAnalyses(0).getTimestampStatus())
+            .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.FrameAnalysis.TimestampStatus
+                .TIMESTAMP_STATUS_KNOWN);
+        assertThat(response.getFrameAnalyses(0).hasSourcePts()).isTrue();
+        assertThat(response.getFrameAnalyses(0).getSourcePts()).isEqualTo(3003L);
+        assertThat(response.getFrameAnalyses(0).getTimeBaseNumerator()).isEqualTo(1L);
+        assertThat(response.getFrameAnalyses(0).getTimeBaseDenominator()).isEqualTo(90000L);
+        assertThat(response.getFrameAnalyses(0).getClockDomain())
+            .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.FrameAnalysis.ClockDomain.SOURCE);
         assertThat(response.getSynchronizationStatus())
             .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.VideoAudioResponse
                 .SynchronizationStatus.SYNC_UNDETERMINED);
@@ -219,8 +234,8 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
     }
 
     @Test
-    @DisplayName("AV-P1-015: analyzeCrossModal computes alignment score")
-    void analyzeCrossModalComputesAlignment() throws Exception {
+    @DisplayName("AV-P1-015: analyzeCrossModal leaves unqualified synchronization undetermined")
+    void analyzeCrossModalLeavesSynchronizationUndetermined() throws Exception {
         MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
         PlatformMultimodalAdapter adapter = mock(PlatformMultimodalAdapter.class);
 
@@ -251,7 +266,8 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         server = ServerBuilder.forPort(0)
             .directExecutor()
             .intercept(new TenantInjector())
-            .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop()))
+            .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
+                    request -> SourceAuthorization.Decision.ADMITTED))
             .build()
             .start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
@@ -269,8 +285,12 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
                     .build()
             );
 
-        assertThat(response.getAlignmentScore()).isGreaterThan(0.5);
-        assertThat(response.getEventsCount()).isGreaterThan(0);
+        assertThat(response.hasAlignmentScore()).isFalse();
+        assertThat(response.getSynchronizationStatus())
+            .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.CrossModalResponse.SynchronizationStatus
+                .SYNC_UNDETERMINED);
+        assertThat(response.getEventsCount()).isZero();
+        assertThat(response.getSummary()).contains("synchronization undetermined");
         assertThat(response.getSummary()).contains("audio=present");
         assertThat(response.getSummary()).contains("visual=present");
     }
@@ -308,7 +328,8 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         server = ServerBuilder.forPort(0)
             .directExecutor()
             .intercept(new TenantInjector())
-            .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop()))
+            .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
+                    request -> SourceAuthorization.Decision.ADMITTED))
             .build()
             .start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
@@ -341,7 +362,8 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
                 ServerCall<ReqT, RespT> call,
                 Metadata headers,
                 ServerCallHandler<ReqT, RespT> next) {
-            Context ctx = Context.current().withValue(JwtServerInterceptor.CTX_TENANT, TEST_TENANT);
+            Context ctx = Context.current().withValue(JwtServerInterceptor.CTX_TENANT, TEST_TENANT)
+                    .withValue(JwtServerInterceptor.CTX_SUBJECT, "d7fe98ce-75d3-4a2a-8a04-bb54e23a2f15");
             return Contexts.interceptCall(ctx, call, headers, next);
         }
     }

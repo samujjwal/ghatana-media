@@ -129,7 +129,8 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
                 ImageData image = toImageData(frameBytes);
                 var detection = library.getVisionEngine().detect(image, DetectionOptions.defaults());
                 List<DetectionResult> detections = detection.objects().stream().map(PlatformMultimodalAdapter::toDetection).toList();
-                frameResults.add(new FrameResult(frame.getFrameNumber(), frame.getTimestampMs(), detections));
+                frameResults.add(new FrameResult(frame.getFrameNumber(),
+                        MediaClockTimestamp.fromSource(frame.getSourceTimestamp()), detections));
                 mergedDetections.addAll(detections);
                 captions.add(library.getVisionEngine().caption(image));
             }

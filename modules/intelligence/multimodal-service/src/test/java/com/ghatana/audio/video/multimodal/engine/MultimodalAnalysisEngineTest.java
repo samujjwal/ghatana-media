@@ -129,8 +129,8 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     @DisplayName("Should keep unavailable synchronization unknown for positive and negative timestamp offsets")
     void shouldKeepUnmeasuredTimestampOffsetsUndetermined() {
         List<AudioResult.TimedSegment> segments = List.of(
-                new AudioResult.TimedSegment(1_000, 1_999, "audio leads"),
-                new AudioResult.TimedSegment(0, 999, "audio lags"));
+                new AudioResult.TimedSegment(0, 999, "audio lags"),
+                new AudioResult.TimedSegment(1_000, 1_999, "audio leads"));
         List<FrameResult> frames = List.of(
                 new FrameResult(1, 500, List.of()),
                 new FrameResult(2, 1_500, List.of()));
@@ -149,6 +149,55 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertTrue(result.getTemporalAlignments().stream().noneMatch(
                     TemporalAlignment::hasSyncMeasurement));
         }
+    }
+
+    @Test
+    @DisplayName("Unknown source PTS is preserved and never aligned to fabricated zero")
+    void shouldPreserveUnknownSourcePts() {
+        AudioResult audio = AudioResult.builder().transcription("hello")
+                .timedSegments(List.of(new AudioResult.TimedSegment(0, 999, "hello"))).build();
+        VisualResult video = VisualResult.builder().frameResults(List.of(new FrameResult(1,
+                MediaClockTimestamp.unknown("NO_SOURCE_PTS"), List.of()))).build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            TemporalAlignment alignment = result.getTemporalAlignments().getFirst();
+            assertFalse(alignment.hasTimestamp());
+            assertEquals("NO_SOURCE_PTS", alignment.getTimestamp().unknownReason());
+            assertEquals("", alignment.getSpeechText());
+            assertFalse(alignment.hasSyncMeasurement());
+        }
+    }
+
+    @Test
+    @DisplayName("Unknown source time does not fall back to full transcript")
+    void unknownSourceTimeDoesNotAssociateUntimedTranscript() {
+        AudioResult audio = AudioResult.builder().transcription("whole transcript").build();
+
+        assertEquals("", audio.getTranscriptionAtTimestamp(MediaClockTimestamp.unknown("NO_PTS")));
+        assertEquals("", audio.getTranscriptionAtTimestamp(MediaClockTimestamp.mediaMilliseconds(500)));
+        assertEquals("whole transcript", audio.getTranscription());
+    }
+
+    @Test
+    @DisplayName("Timestamp lookup does not carry the last segment past its end")
+    void timestampLookupRequiresAnActiveSegment() {
+        AudioResult audio = AudioResult.builder().transcription("hello")
+                .timedSegments(List.of(new AudioResult.TimedSegment(100, 200, "hello"))).build();
+
+        assertEquals("hello", audio.getTranscriptionAtTimestamp(150));
+        assertEquals("", audio.getTranscriptionAtTimestamp(250));
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                () -> new AudioResult.TimedSegment(200, 100, "bad"))
+                .isInstanceOf(IllegalArgumentException.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> AudioResult.builder().timedSegments(List.of(
+                new AudioResult.TimedSegment(100, 200, "first"),
+                new AudioResult.TimedSegment(150, 250, "overlap"))).build())
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static final class FakeMediaGateway implements MultimodalMediaGateway {

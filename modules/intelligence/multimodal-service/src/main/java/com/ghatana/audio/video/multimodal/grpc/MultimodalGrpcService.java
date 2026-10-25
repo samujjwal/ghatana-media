@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
+import java.util.Set;
 
 /**
  * gRPC service implementation for multimodal audio+video analysis.
@@ -30,6 +32,10 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServiceImplBase {
 
+    private static final int MAX_MODALITY_BYTES = 32 * 1024 * 1024;
+    private static final int MAX_TOTAL_INPUT_BYTES = 64 * 1024 * 1024;
+    private static final int MAX_TEXT_CHARS = 64 * 1024;
+
     private static final Logger LOG = LoggerFactory.getLogger(MultimodalGrpcService.class);
 
     private final MultimodalAnalysisEngine engine;
@@ -38,16 +44,22 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final AtomicLong totalProcessingTime = new AtomicLong(0);
     private final MediaProcessingMetrics mediaMetrics;
     private final ModelRegistry modelRegistry;
+    private final SourceAuthorization sourceAuthorization;
 
     public MultimodalGrpcService() {
         this(MediaProcessingMetrics.create());
     }
 
     public MultimodalGrpcService(MediaProcessingMetrics metrics) {
+        this(metrics, SourceAuthorization.unavailable());
+    }
+
+    MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization) {
         this.platformAdapter = new PlatformMultimodalAdapter();
         this.engine = new MultimodalAnalysisEngine(platformAdapter);
         this.mediaMetrics = metrics;
         this.modelRegistry = new FileSystemModelStore();
+        this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         LOG.info("Multimodal service initialized against platform audio-video library");
     }
 
@@ -57,10 +69,16 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
      */
     MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
                           MediaProcessingMetrics metrics) {
+        this(engine, platformAdapter, metrics, SourceAuthorization.unavailable());
+    }
+
+    MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
+                          MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization) {
         this.engine = engine;
         this.platformAdapter = platformAdapter;
         this.mediaMetrics = metrics;
         this.modelRegistry = new FileSystemModelStore();
+        this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
     }
 
     @Override
@@ -70,14 +88,35 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         mediaMetrics.recordStarted("multimodal.analyse");
 
         // AV-P1-008: Enforce tenant authentication
-        String tenantId = resolveTenantId();
-        if (tenantId == null || tenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant context — authenticate before calling Multimodal service")
-                .asRuntimeException());
+        Identity identity = requireIdentity(responseObserver);
+        if (identity == null) {
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
+
+        if (!withinInputBounds(request.getAudioData().size(), request.getImageData().size(),
+                request.getVideoData().size(), request.getText().length())) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Multimodal input exceeds configured limits")
+                    .asRuntimeException());
+            mediaMetrics.recordFailed("multimodal.analyse");
+            return;
+        }
+        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()
+                && request.getVideoData().isEmpty() && request.getText().isEmpty()) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("At least one modality must be provided")
+                    .asRuntimeException());
+            mediaMetrics.recordFailed("multimodal.analyse");
+            return;
+        }
+        if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
+                !request.getImageData().isEmpty(), !request.getVideoData().isEmpty(), !request.getText().isEmpty()),
+                request.getArtifactId(), request.getAudioData().size() + request.getImageData().size()
+                        + request.getVideoData().size())) {
+            responseObserver.onError(authorityUnavailable());
+            mediaMetrics.recordFailed("multimodal.analyse");
+            return;
+        }
+        String tenantId = identity.tenantId().toString();
 
         try {
             LOG.debug("Processing multimodal request with {} analysis types for tenant={}",
@@ -141,13 +180,32 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     public void analyzeVideoWithAudio(VideoAudioRequest request,
                                        StreamObserver<VideoAudioResponse> responseObserver) {
         // AV-P1-008: Enforce tenant authentication
-        String tenantId = resolveTenantId();
-        if (tenantId == null || tenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant context — authenticate before calling Multimodal service")
-                .asRuntimeException());
+        Identity identity = requireIdentity(responseObserver);
+        if (identity == null) {
             return;
         }
+        if (!withinInputBounds(0, 0, request.getVideoData().size(), 0)) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Multimodal input exceeds configured limits")
+                    .asRuntimeException());
+            return;
+        }
+        if (request.getVideoData().isEmpty()) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("video_data must not be empty")
+                    .asRuntimeException());
+            return;
+        }
+        if (request.getFrameSampleRate() < 0 || request.getFrameSampleRate() > 60) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("frame_sample_rate must be between 0 and 60")
+                    .asRuntimeException());
+            return;
+        }
+        if (!authorized(identity, modalities(request.getExtractAudio(), false, request.getAnalyzeFrames(), false),
+                null, request.getVideoData().size())) {
+            responseObserver.onError(authorityUnavailable());
+            return;
+        }
+        String tenantId = identity.tenantId().toString();
         try {
             LOG.debug("Analyzing video with audio extraction: {} for tenant={}",
                     request.getExtractAudio(), tenantId);
@@ -180,9 +238,24 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 for (com.ghatana.audio.video.multimodal.engine.FrameResult fr
                         : result.getVideoResult().getFrameResults()) {
                     FrameAnalysis.Builder fa = FrameAnalysis.newBuilder()
-                            .setTimestampMs(fr.getTimestampMs())
-                            .setDescription("Frame " + fr.getFrameNumber() + " at "
-                                    + fr.getTimestampMs() + "ms");
+                            .setDescription(fr.hasTimestamp()
+                                    ? "Frame " + fr.getFrameNumber() + " at " + fr.getTimestampMs() + "ms"
+                                    : "Frame " + fr.getFrameNumber() + " at unknown source time");
+                    if (fr.hasTimestamp()) {
+                        var timestamp = fr.getTimestamp();
+                        fa.setTimestampMs(fr.getTimestampMs())
+                                .setTimestampStatus(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_KNOWN)
+                                .setTimeBaseNumerator(timestamp.timeBaseNumerator())
+                                .setTimeBaseDenominator(timestamp.timeBaseDenominator())
+                                .setClockDomain(toProtoClockDomain(timestamp.domain()));
+                        if (timestamp.domain() == com.ghatana.audio.video.multimodal.engine
+                                .MediaClockTimestamp.ClockDomain.SOURCE) {
+                            fa.setSourcePts(timestamp.ticks());
+                        }
+                    } else {
+                        fa.setTimestampStatus(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_UNKNOWN)
+                                .setTimestampUnknownReason(fr.getTimestamp().unknownReason());
+                    }
                     for (com.ghatana.audio.video.multimodal.engine.DetectionResult d
                             : fr.getDetections()) {
                         fa.addObjects(Detection.newBuilder()
@@ -208,13 +281,30 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     public void generateDescription(DescriptionRequest request,
                                      StreamObserver<DescriptionResponse> responseObserver) {
         // AV-P1-008: Enforce tenant authentication
-        String tenantId = resolveTenantId();
-        if (tenantId == null || tenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant context — authenticate before calling Multimodal service")
-                .asRuntimeException());
+        Identity identity = requireIdentity(responseObserver);
+        if (identity == null) {
             return;
         }
+        if (!withinInputBounds(request.getAudioData().size(), request.getImageData().size(), 0,
+                request.getContext().length())) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Multimodal input exceeds configured limits")
+                    .asRuntimeException());
+            return;
+        }
+        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()
+                && request.getContext().isEmpty()) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("Audio, image, or context input must be provided")
+                    .asRuntimeException());
+            return;
+        }
+        if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
+                !request.getImageData().isEmpty(), false, !request.getContext().isEmpty()),
+                null, request.getAudioData().size() + request.getImageData().size())) {
+            responseObserver.onError(authorityUnavailable());
+            return;
+        }
+        String tenantId = identity.tenantId().toString();
         try {
             LOG.debug("Generating description with style: {} for tenant={}",
                     request.getStyle(), tenantId);
@@ -259,22 +349,30 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     public void analyzeCrossModal(CrossModalRequest request,
                                    StreamObserver<CrossModalResponse> responseObserver) {
         // AV-P1-008: Enforce tenant authentication
-        String tenantId = resolveTenantId();
-        if (tenantId == null || tenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant context — authenticate before calling Multimodal service")
-                .asRuntimeException());
+        Identity identity = requireIdentity(responseObserver);
+        if (identity == null) {
             return;
         }
-        long startTime = System.currentTimeMillis();
-        try {
-            if (request.getAudioData().isEmpty() && request.getVideoData().isEmpty()) {
-                responseObserver.onError(Status.INVALID_ARGUMENT
+        if (!withinInputBounds(request.getAudioData().size(), 0, request.getVideoData().size(), 0)) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Multimodal input exceeds configured limits")
+                    .asRuntimeException());
+            return;
+        }
+        if (request.getAudioData().isEmpty() && request.getVideoData().isEmpty()) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription("At least one of audio_data or video_data must be provided")
                     .asRuntimeException());
-                return;
-            }
-
+            return;
+        }
+        if (!authorized(identity, modalities(!request.getAudioData().isEmpty(), false,
+                !request.getVideoData().isEmpty(), false), null,
+                request.getAudioData().size() + request.getVideoData().size())) {
+            responseObserver.onError(authorityUnavailable());
+            return;
+        }
+        String tenantId = identity.tenantId().toString();
+        long startTime = System.currentTimeMillis();
+        try {
             LOG.debug("Analyzing cross-modal alignment: audio={}, video={}",
                 !request.getAudioData().isEmpty(), !request.getVideoData().isEmpty());
 
@@ -290,63 +388,22 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             boolean hasAudio = result.getAudioResult() != null && !result.getAudioResult().isError();
             boolean hasVisual = result.getVisualResult() != null && !result.getVisualResult().isError();
 
-            // Compute a simple alignment score: both modalities present and non-empty → high score
-            double alignmentScore = 0.0;
-            List<CrossModalEvent> events = new ArrayList<>();
-
-            if (hasAudio && hasVisual) {
-                // Heuristic alignment: check if audio mentions objects detected visually
-                String transcription = result.getAudioResult().getTranscription().toLowerCase();
-                String sceneDescription = result.getVisualResult().getSceneDescription().toLowerCase();
-
-                // Count overlapping keywords
-                String[] audioWords = transcription.split("\\s+");
-                int matches = 0;
-                for (String word : audioWords) {
-                    if (word.length() > 3 && sceneDescription.contains(word)) {
-                        matches++;
-                    }
-                }
-                alignmentScore = Math.min(1.0, 0.5 + (matches * 0.1));
-
-                events.add(CrossModalEvent.newBuilder()
-                    .setTimestampMs(0)
-                    .setEventType("sync")
-                    .setDescription("Audio and visual streams aligned")
-                    .setConfidence(alignmentScore)
-                    .build());
-            } else if (hasAudio) {
-                alignmentScore = 0.4;
-                events.add(CrossModalEvent.newBuilder()
-                    .setTimestampMs(0)
-                    .setEventType("mismatch")
-                    .setDescription("Only audio stream available")
-                    .setConfidence(0.4)
-                    .build());
-            } else if (hasVisual) {
-                alignmentScore = 0.4;
-                events.add(CrossModalEvent.newBuilder()
-                    .setTimestampMs(0)
-                    .setEventType("mismatch")
-                    .setDescription("Only visual stream available")
-                    .setConfidence(0.4)
-                    .build());
-            }
+            // The current providers do not expose comparable source clocks or qualified
+            // cross-modal features. A numeric heuristic must not masquerade as alignment.
+            List<CrossModalEvent> events = List.of();
 
             long processingTime = System.currentTimeMillis() - startTime;
             String summary = String.format(
-                "Cross-modal analysis: audio=%s, visual=%s, alignment=%.2f",
+                "Cross-modal synchronization undetermined: audio=%s, visual=%s",
                 hasAudio ? "present" : "absent",
-                hasVisual ? "present" : "absent",
-                alignmentScore);
+                hasVisual ? "present" : "absent");
 
-            LOG.info("Cross-modal analysis completed: alignment={}, events={}",
-                alignmentScore, events.size());
+            LOG.info("Cross-modal synchronization remains undetermined: events={}", events.size());
             responseObserver.onNext(CrossModalResponse.newBuilder()
-                .setAlignmentScore(alignmentScore)
                 .addAllEvents(events)
                 .setSummary(summary)
                 .setProcessingTimeMs(processingTime)
+                .setSynchronizationStatus(CrossModalResponse.SynchronizationStatus.SYNC_UNDETERMINED)
                 .build());
             responseObserver.onCompleted();
 
@@ -361,13 +418,30 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     @Override
     public void getInsights(InsightsRequest request, StreamObserver<InsightsResponse> responseObserver) {
         // AV-P1-008: Enforce tenant authentication
-        String tenantId = resolveTenantId();
-        if (tenantId == null || tenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant context — authenticate before calling Multimodal service")
-                .asRuntimeException());
+        Identity identity = requireIdentity(responseObserver);
+        if (identity == null) {
             return;
         }
+        if (!withinInputBounds(request.getAudioData().size(), request.getImageData().size(),
+                request.getVideoData().size(), request.getText().length())) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Multimodal input exceeds configured limits")
+                    .asRuntimeException());
+            return;
+        }
+        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()
+                && request.getVideoData().isEmpty() && request.getText().isEmpty()) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("At least one modality must be provided")
+                    .asRuntimeException());
+            return;
+        }
+        if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
+                !request.getImageData().isEmpty(), !request.getVideoData().isEmpty(), !request.getText().isEmpty()),
+                null, request.getAudioData().size() + request.getImageData().size()
+                        + request.getVideoData().size())) {
+            responseObserver.onError(authorityUnavailable());
+            return;
+        }
+        String tenantId = identity.tenantId().toString();
         long startTime = System.currentTimeMillis();
         try {
             com.ghatana.audio.video.multimodal.engine.MultimodalRequest engineRequest =
@@ -604,12 +678,67 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         return baseStatus.withDescription(error.code() + ": " + error.message());
     }
 
-    // AV-P1-008: Extract tenant from gRPC Context set by JwtServerInterceptor
-    private String resolveTenantId() {
-        String tenantId = JwtServerInterceptor.CTX_TENANT.get();
-        if (tenantId == null || tenantId.isBlank()) {
-            LOG.warn("Tenant ID not found in gRPC Context — request may not be authenticated");
+    private Identity requireIdentity(StreamObserver<?> observer) {
+        String tenant = JwtServerInterceptor.CTX_TENANT.get();
+        String subject = JwtServerInterceptor.CTX_SUBJECT.get();
+        try {
+            if (tenant == null || subject == null || tenant.isBlank() || subject.isBlank()) {
+                throw new IllegalArgumentException("missing identity");
+            }
+            return new Identity(tenant, UUID.fromString(subject));
+        } catch (IllegalArgumentException invalidIdentity) {
+            observer.onError(Status.UNAUTHENTICATED
+                    .withDescription("Authenticated tenant and principal UUID are required")
+                    .asRuntimeException());
+            return null;
         }
-        return tenantId;
     }
+
+    private static boolean withinInputBounds(int audioBytes, int imageBytes, int videoBytes, int textChars) {
+        long total = (long) audioBytes + imageBytes + videoBytes;
+        return audioBytes <= MAX_MODALITY_BYTES && imageBytes <= MAX_MODALITY_BYTES
+                && videoBytes <= MAX_MODALITY_BYTES && total <= MAX_TOTAL_INPUT_BYTES
+                && textChars <= MAX_TEXT_CHARS;
+    }
+
+    private static RuntimeException authorityUnavailable() {
+        return Status.UNAVAILABLE
+                .withDescription("Trusted artifact rights, purpose, and consent authority is not configured")
+                .asRuntimeException();
+    }
+
+    private boolean authorized(Identity identity, Set<SourceAuthorization.Modality> modalities,
+                               String artifactId, long contentBytes) {
+        SourceAuthorization.AuthorizationRequest authorizationRequest =
+                new SourceAuthorization.AuthorizationRequest(identity.tenantId(), identity.principalId(),
+                        modalities, artifactId, null, null, null, contentBytes);
+        try {
+            return sourceAuthorization.authorize(authorizationRequest) == SourceAuthorization.Decision.ADMITTED;
+        } catch (RuntimeException unavailable) {
+            return false;
+        }
+    }
+
+    private static Set<SourceAuthorization.Modality> modalities(boolean audio, boolean image,
+                                                                 boolean video, boolean text) {
+        java.util.EnumSet<SourceAuthorization.Modality> result =
+                java.util.EnumSet.noneOf(SourceAuthorization.Modality.class);
+        if (audio) result.add(SourceAuthorization.Modality.AUDIO);
+        if (image) result.add(SourceAuthorization.Modality.IMAGE);
+        if (video) result.add(SourceAuthorization.Modality.VIDEO);
+        if (text) result.add(SourceAuthorization.Modality.TEXT);
+        return Set.copyOf(result);
+    }
+
+    private static FrameAnalysis.ClockDomain toProtoClockDomain(
+            com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain domain) {
+        return switch (domain) {
+            case SOURCE -> FrameAnalysis.ClockDomain.SOURCE;
+            case MEDIA -> FrameAnalysis.ClockDomain.MEDIA;
+            case SIMULATION -> FrameAnalysis.ClockDomain.SIMULATION;
+            case WALL -> FrameAnalysis.ClockDomain.WALL;
+        };
+    }
+
+    private record Identity(String tenantId, UUID principalId) {}
 }

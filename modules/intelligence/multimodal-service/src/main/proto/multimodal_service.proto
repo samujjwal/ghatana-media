@@ -109,9 +109,26 @@ message VideoAudioResponse {
 }
 
 message FrameAnalysis {
-  int64 timestamp_ms = 1;
+  optional int64 timestamp_ms = 1;
   string description = 2;
   repeated Detection objects = 3;
+  enum TimestampStatus {
+    TIMESTAMP_STATUS_UNKNOWN = 0;
+    TIMESTAMP_STATUS_KNOWN = 1;
+  }
+  enum ClockDomain {
+    CLOCK_DOMAIN_UNSPECIFIED = 0;
+    SOURCE = 1;
+    MEDIA = 2;
+    SIMULATION = 3;
+    WALL = 4;
+  }
+  TimestampStatus timestamp_status = 4;
+  optional sint64 source_pts = 5;
+  optional int64 time_base_numerator = 6;
+  optional int64 time_base_denominator = 7;
+  ClockDomain clock_domain = 8;
+  string timestamp_unknown_reason = 9;
 }
 
 message DescriptionRequest {
@@ -138,10 +155,15 @@ message CrossModalRequest {
 
 message CrossModalResponse {
   // Alignment score [0,1] between audio and visual streams
-  double alignment_score = 1;
+  optional double alignment_score = 1;
   repeated CrossModalEvent events = 2;
   string summary = 3;
   int64 processing_time_ms = 4;
+  enum SynchronizationStatus {
+    SYNC_UNDETERMINED = 0;
+    MEASURED = 1;
+  }
+  SynchronizationStatus synchronization_status = 5;
 }
 
 message CrossModalEvent {

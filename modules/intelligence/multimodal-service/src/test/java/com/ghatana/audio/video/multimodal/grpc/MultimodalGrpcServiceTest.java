@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Unit tests for {@link MultimodalGrpcService}.
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.when;
 class MultimodalGrpcServiceTest {
 
     private static final String TENANT_ID = "tenant-multimodal-test";
+    private static final String SUBJECT_ID = "d7fe98ce-75d3-4a2a-8a04-bb54e23a2f15";
 
     @Mock
     private MultimodalAnalysisEngine mockEngine;
@@ -56,7 +58,8 @@ class MultimodalGrpcServiceTest {
 
     @BeforeEach
     void setUp() { 
-        service = new MultimodalGrpcService(mockEngine, mockAdapter, MediaProcessingMetrics.noop()); 
+        service = new MultimodalGrpcService(mockEngine, mockAdapter, MediaProcessingMetrics.noop(),
+                request -> SourceAuthorization.Decision.ADMITTED);
         lenient().when(mockAdapter.backendName()).thenReturn("test-backend");
         lenient().when(mockAdapter.metricsEnabled()).thenReturn(false); 
     }
@@ -76,6 +79,62 @@ class MultimodalGrpcServiceTest {
         assertThat(observer.hasError()).isTrue();
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
             .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: missing principal is rejected before dispatch")
+    void processMultimodal_missingPrincipal_returnsUnauthenticatedWithoutDispatch() {
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        Context.current().withValue(JwtServerInterceptor.CTX_TENANT, TENANT_ID)
+                .run(() -> service.processMultimodal(MultimodalRequest.newBuilder()
+                        .setAudioData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: malformed principal is rejected before dispatch")
+    void processMultimodal_malformedPrincipal_returnsUnauthenticatedWithoutDispatch() {
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        Context.current().withValue(JwtServerInterceptor.CTX_TENANT, TENANT_ID)
+                .withValue(JwtServerInterceptor.CTX_SUBJECT, "not-a-uuid")
+                .run(() -> service.processMultimodal(MultimodalRequest.newBuilder()
+                        .setAudioData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: empty modality set is invalid even when authority admits")
+    void processMultimodal_emptyInputIsRejectedBeforeDispatch() {
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.getDefaultInstance(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: missing source authority is unavailable before dispatch")
+    void processMultimodal_missingSourceAuthority_returnsUnavailableWithoutDispatch() {
+        MultimodalGrpcService unavailable = new MultimodalGrpcService(
+                mockEngine, mockAdapter, MediaProcessingMetrics.noop(),
+                request -> SourceAuthorization.Decision.NOT_ADMITTED);
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> unavailable.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setTenantId("caller-controlled-tenant")
+                .setConsentStatus("GRANTED").build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
@@ -171,6 +230,17 @@ class MultimodalGrpcServiceTest {
         assertThat(response.getConfidence()).isGreaterThan(0.0); 
     }
 
+    @Test
+    @DisplayName("generateDescription: empty input is invalid before dispatch")
+    void generateDescription_emptyInputIsRejectedWithoutDispatch() {
+        CapturingObserver<DescriptionResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.generateDescription(DescriptionRequest.getDefaultInstance(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // analyzeVideoWithAudio
     // ─────────────────────────────────────────────────────────────────────────
@@ -204,6 +274,54 @@ class MultimodalGrpcServiceTest {
             .isEqualTo(VideoAudioResponse.SynchronizationStatus.SYNC_UNDETERMINED);
     }
 
+    @Test
+    @DisplayName("analyzeVideoWithAudio: empty video is invalid before dispatch")
+    void analyzeVideoWithAudio_emptyVideoIsRejectedWithoutDispatch() {
+        CapturingObserver<VideoAudioResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.analyzeVideoWithAudio(
+                VideoAudioRequest.getDefaultInstance(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("analyzeVideoWithAudio: unknown source PTS stays absent on the wire")
+    void analyzeVideoWithAudio_unknownPtsIsNotSerializedAsZero() {
+        VideoAudioResult result = VideoAudioResult.builder()
+                .videoResult(VisualResult.builder().frameResults(List.of(new com.ghatana.audio.video.multimodal.engine
+                        .FrameResult(1, com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp
+                                .unknown("NO_SOURCE_PTS"), List.of()))).build())
+                .temporalAlignments(List.of())
+                .combinedNarrative("frame time unknown")
+                .processingTimeMs(1L)
+                .build();
+        when(mockEngine.analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt())).thenReturn(result);
+
+        CapturingObserver<VideoAudioResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[] {1})).setAnalyzeFrames(true).build(), observer));
+
+        assertThat(observer.hasError()).isFalse();
+        FrameAnalysis frame = observer.getValue().getFrameAnalyses(0);
+        assertThat(frame.hasTimestampMs()).isFalse();
+        assertThat(frame.getTimestampStatus())
+                .isEqualTo(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_UNKNOWN);
+        assertThat(frame.getTimestampUnknownReason()).isEqualTo("NO_SOURCE_PTS");
+    }
+
+    @Test
+    @DisplayName("getInsights: empty modality set is invalid even when authority admits")
+    void getInsights_emptyInputIsRejectedBeforeDispatch() {
+        CapturingObserver<InsightsResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.getInsights(InsightsRequest.getDefaultInstance(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // analyzeCrossModal (AV-004.4) 
     // ─────────────────────────────────────────────────────────────────────────
@@ -217,11 +335,12 @@ class MultimodalGrpcServiceTest {
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
             .isEqualTo(Status.INVALID_ARGUMENT.getCode()); 
+        verifyNoInteractions(mockEngine);
     }
 
     @Test
-    @DisplayName("analyzeCrossModal: both audio and video → alignment score computed")
-    void analyzeCrossModal_withBothModalities_returnsAlignmentScore() { 
+    @DisplayName("analyzeCrossModal: missing comparable clock evidence → synchronization undetermined")
+    void analyzeCrossModal_withBothModalities_doesNotClaimAlignment() {
         MultimodalResult result = MultimodalResult.builder() 
             .audioResult(AudioResult.builder().transcription("a person running").confidence(0.9).build())
             .visualResult(VisualResult.builder().sceneDescription("a person running fast").confidence(0.85).build())
@@ -240,14 +359,16 @@ class MultimodalGrpcServiceTest {
 
         assertThat(observer.hasError()).isFalse(); 
         CrossModalResponse response = observer.getValue(); 
-        assertThat(response.getAlignmentScore()).isGreaterThan(0.0); 
-        assertThat(response.getEventsList()).isNotEmpty(); 
-        assertThat(response.getSummary()).isNotBlank(); 
+        assertThat(response.hasAlignmentScore()).isFalse();
+        assertThat(response.getSynchronizationStatus())
+                .isEqualTo(CrossModalResponse.SynchronizationStatus.SYNC_UNDETERMINED);
+        assertThat(response.getEventsList()).isEmpty();
+        assertThat(response.getSummary()).contains("synchronization undetermined");
     }
 
     @Test
-    @DisplayName("analyzeCrossModal: audio only → partial alignment score")
-    void analyzeCrossModal_audioOnly_returnsPartialAlignment() { 
+    @DisplayName("analyzeCrossModal: audio only → synchronization remains undetermined")
+    void analyzeCrossModal_audioOnly_returnsUndetermined() {
         MultimodalResult result = MultimodalResult.builder() 
             .audioResult(AudioResult.builder().transcription("hello").confidence(0.9).build())
             .combinedAnalysis("audio only")
@@ -263,8 +384,11 @@ class MultimodalGrpcServiceTest {
             observer));
 
         assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getAlignmentScore()).isEqualTo(0.4); 
-        assertThat(observer.getValue().getEvents(0).getEventType()).isEqualTo("mismatch");
+        assertThat(observer.getValue().hasAlignmentScore()).isFalse();
+        assertThat(observer.getValue().getSynchronizationStatus())
+                .isEqualTo(CrossModalResponse.SynchronizationStatus.SYNC_UNDETERMINED);
+        assertThat(observer.getValue().getEventsList()).isEmpty();
+        assertThat(observer.getValue().getSummary()).contains("synchronization undetermined");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -477,6 +601,7 @@ class MultimodalGrpcServiceTest {
     }
 
     private static void withContext(String tenantId, Runnable action) {
-        Context.current().withValue(JwtServerInterceptor.CTX_TENANT, tenantId).run(action);
+        Context.current().withValue(JwtServerInterceptor.CTX_TENANT, tenantId)
+                .withValue(JwtServerInterceptor.CTX_SUBJECT, SUBJECT_ID).run(action);
     }
 }

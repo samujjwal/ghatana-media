@@ -15,7 +15,7 @@ import java.util.List;
 */
 public class TemporalAlignment {
 
-    private final long   timestampMs;
+    private final MediaClockTimestamp timestamp;
     private final int    frameNumber;
     private final String speechText;
     private final List<DetectionResult> detections;
@@ -44,6 +44,14 @@ public class TemporalAlignment {
                              String speechText, List<DetectionResult> detections,
                              long syncOffsetMs, double syncConfidence,
                              SyncStatus syncStatus) {
+        this(MediaClockTimestamp.mediaMilliseconds(timestampMs), frameNumber, speechText, detections,
+                syncOffsetMs, syncConfidence, syncStatus);
+    }
+
+    public TemporalAlignment(MediaClockTimestamp timestamp, int frameNumber,
+                             String speechText, List<DetectionResult> detections,
+                             long syncOffsetMs, double syncConfidence,
+                             SyncStatus syncStatus) {
         if (syncStatus == null) {
             throw new IllegalArgumentException("syncStatus is required");
         }
@@ -51,11 +59,14 @@ public class TemporalAlignment {
                 && (!Double.isFinite(syncConfidence) || syncConfidence < 0.0 || syncConfidence > 1.0)) {
             throw new IllegalArgumentException("measured synchronization requires finite confidence in [0, 1]");
         }
+        if (syncStatus == SyncStatus.MEASURED && !timestamp.isKnown()) {
+            throw new IllegalArgumentException("measured synchronization requires a known timestamp");
+        }
         if (syncStatus == SyncStatus.SYNC_UNDETERMINED
                 && (syncOffsetMs != 0L || syncConfidence != 0.0)) {
             throw new IllegalArgumentException("undetermined synchronization cannot carry measurement values");
         }
-        this.timestampMs    = timestampMs;
+        this.timestamp    = java.util.Objects.requireNonNull(timestamp, "timestamp");
         this.frameNumber    = frameNumber;
         this.speechText     = speechText;
         this.detections     = detections;
@@ -72,7 +83,9 @@ public class TemporalAlignment {
                 SyncStatus.MEASURED);
     }
 
-    public long   getTimestampMs()    { return timestampMs; }
+    public long   getTimestampMs()    { return timestamp.toMilliseconds() == null ? 0L : timestamp.toMilliseconds(); }
+    public boolean hasTimestamp() { return timestamp.isKnown(); }
+    public MediaClockTimestamp getTimestamp() { return timestamp; }
     public int    getFrameNumber()    { return frameNumber; }
     public String getSpeechText()     { return speechText; }
     public List<DetectionResult> getDetections() { return detections; }
