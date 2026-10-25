@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SttTranscriptionResponseMapperTest {
     @Test
-    void mapsProviderWordsAlternativesLanguageAndSourceSampleZeroClock() {
+    void mapsProviderWordsWithoutClockProvenanceAsUnknown() {
         TranscriptionResult result = result(0.74,
                 List.of(new WordTiming("hello", 0.0, 0.25, 0.70),
                         new WordTiming("world", 0.25, 0.5, 0.80)),
@@ -31,7 +31,7 @@ class SttTranscriptionResponseMapperTest {
         assertThat(response.getAlternatives(0).getText()).isEqualTo("hullo");
         assertThat(response.getLanguage()).isEqualTo("en-US");
         assertThat(response.getWordTimingTimebase())
-                .isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO);
+                .isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
         assertThat(response.getConfidenceCalibration())
                 .isEqualTo(ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED);
     }

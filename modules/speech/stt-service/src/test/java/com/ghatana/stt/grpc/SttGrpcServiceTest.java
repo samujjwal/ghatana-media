@@ -127,7 +127,7 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getAlternativesCount()).isEqualTo(1);
         assertThat(observer.getValue().getLanguage()).isEqualTo("en-US");
         assertThat(observer.getValue().getWordTimingTimebase())
-                .isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO);
+                .isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
         assertThat(observer.getValue().getConfidenceCalibration())
                 .isEqualTo(ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED);
         ArgumentCaptor<TranscriptionOptions> options = ArgumentCaptor.forClass(TranscriptionOptions.class);
@@ -646,7 +646,8 @@ class SttGrpcServiceTest {
 
         assertThat(observer.hasError()).isFalse();
         assertThat(observer.getValue().getStatus()).isEqualTo(HealthStatus.HEALTH_STATUS_UNHEALTHY);
-        assertThat(observer.getValue().getMessage()).contains("STT_READINESS_NOT_ADMITTED");
+        assertThat(observer.getValue().getMessage())
+                .isEqualTo("STT_NOT_SERVING: provider readiness unavailable");
         verify(mockLibrary, never()).getSttEngine();
     }
 

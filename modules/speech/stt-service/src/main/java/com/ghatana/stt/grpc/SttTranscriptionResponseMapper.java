@@ -45,9 +45,9 @@ final class SttTranscriptionResponseMapper {
                 .setConfidence((float) result.confidence())
                 .setModelUsed(result.modelId() == null ? "" : result.modelId())
                 .setLanguage(result.language() == null ? "" : result.language())
-                .setWordTimingTimebase(words.isEmpty()
-                        ? TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN
-                        : TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO)
+                // TranscriptionResult/WordTiming carry no clock-origin provenance. Numeric
+                // intervals alone cannot establish that timestamps are source-sample-relative.
+                .setWordTimingTimebase(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN)
                 .setConfidenceCalibration(ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED);
         if (result.processingTime() != null) {
             if (result.processingTime().isNegative()) throw invalid("processing time cannot be negative");
