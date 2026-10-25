@@ -278,7 +278,11 @@ groups:
     rules:
       - alert: MediaJobLeaseStuck
         expr: |
-          max(media_workflow_lease_overdue{contract_version="v1"}) > 0
+          max by (service) (
+            media_workflow_lease_overdue{contract_version="v1"}
+            and on (service, contract_version)
+            (media_workflow_aggregate_store_queries_supported{contract_version="v1"} == 1)
+          ) > 0
         for: 10m
         labels:
           severity: critical
@@ -290,7 +294,11 @@ groups:
 
       - alert: MediaUnknownFinalityBacklog
         expr: |
-          max(media_workflow_unknown_backlog{contract_version="v1"}) > 25
+          max by (service) (
+            media_workflow_unknown_backlog{contract_version="v1"}
+            and on (service, contract_version)
+            (media_workflow_aggregate_store_queries_supported{contract_version="v1"} == 1)
+          ) > 25
         for: 15m
         labels:
           severity: warning
@@ -330,7 +338,11 @@ groups:
 
       - alert: MediaQueueCapacityHigh
         expr: |
-          max(media_workflow_queue_depth{contract_version="v1"}) > 500
+          max by (service) (
+            media_workflow_queue_depth{contract_version="v1"}
+            and on (service, contract_version)
+            (media_workflow_aggregate_store_queries_supported{contract_version="v1"} == 1)
+          ) > 500
         for: 10m
         labels:
           severity: warning
@@ -342,7 +354,7 @@ groups:
 
       - alert: MediaWorkflowAggregateStoreMetricsUnavailable
         expr: |
-          max(media_workflow_aggregate_store_queries_supported{contract_version="v1"}) == 0
+          media_workflow_aggregate_store_queries_supported{contract_version="v1"} == 0
         for: 15m
         labels:
           severity: warning
@@ -350,4 +362,4 @@ groups:
           component: workflow
         annotations:
           summary: "Media job store cannot supply aggregate workflow metrics"
-          description: "The configured Media job store on {{ $labels.service }} reports it does not support the aggregate queries backing lease/backlog/queue-depth gauges — workflow health signals on this service are degraded, not absent."
+          description: "The configured Media job store on {{ $labels.service }} reports unsupported or failed aggregate queries backing lease/backlog/queue-depth gauges. Initial NaN/unknown state does not trigger this alert; a known unsupported or failed refresh does."

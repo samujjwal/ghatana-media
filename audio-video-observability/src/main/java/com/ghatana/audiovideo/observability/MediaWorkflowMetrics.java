@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Bounded-cardinality metrics for Media job processing and delivery.
@@ -108,10 +108,10 @@ public final class MediaWorkflowMetrics {
     private final Map<Event, Counter> eventCounters = new EnumMap<>(Event.class);
     private final String safeService;
     private final Counter requests;
-    private final AtomicLong queueDepth = new AtomicLong();
-    private final AtomicLong unknownBacklog = new AtomicLong();
-    private final AtomicLong overdueLeases = new AtomicLong();
-    private final AtomicLong aggregateStoreQueriesSupported = new AtomicLong();
+    private final AtomicReference<Double> queueDepth = new AtomicReference<>(Double.NaN);
+    private final AtomicReference<Double> unknownBacklog = new AtomicReference<>(Double.NaN);
+    private final AtomicReference<Double> overdueLeases = new AtomicReference<>(Double.NaN);
+    private final AtomicReference<Double> aggregateStoreQueriesSupported = new AtomicReference<>(Double.NaN);
 
     public MediaWorkflowMetrics(MeterRegistry registry, String service) {
         this.registry = registry;
@@ -138,24 +138,24 @@ public final class MediaWorkflowMetrics {
                 .tag("service", safeService)
                 .tag("contract_version", CONTRACT_VERSION)
                 .register(registry);
-        Gauge.builder("media.workflow.queue.depth", queueDepth, AtomicLong::doubleValue)
-                .description("Current aggregate Media work queue depth")
+        Gauge.builder("media.workflow.queue.depth", queueDepth, AtomicReference::get)
+                .description("Aggregate Media work queue depth; NaN until a complete durable-store refresh")
                 .tag("service", safeService)
                 .tag("contract_version", CONTRACT_VERSION)
                 .register(registry);
-        Gauge.builder("media.workflow.unknown.backlog", unknownBacklog, AtomicLong::doubleValue)
-                .description("Current aggregate Media jobs with unknown finality")
+        Gauge.builder("media.workflow.unknown.backlog", unknownBacklog, AtomicReference::get)
+                .description("Media jobs with unknown finality; NaN until a complete durable-store refresh")
                 .tag("service", safeService)
                 .tag("contract_version", CONTRACT_VERSION)
                 .register(registry);
-        Gauge.builder("media.workflow.lease.overdue", overdueLeases, AtomicLong::doubleValue)
-                .description("Current aggregate count of expired Media job leases")
+        Gauge.builder("media.workflow.lease.overdue", overdueLeases, AtomicReference::get)
+                .description("Expired Media job leases; NaN until a complete durable-store refresh")
                 .tag("service", safeService)
                 .tag("contract_version", CONTRACT_VERSION)
                 .register(registry);
         Gauge.builder("media.workflow.aggregate_store_queries_supported", aggregateStoreQueriesSupported,
-                        AtomicLong::doubleValue)
-                .description("Whether the configured job store supplied all aggregate workflow queries")
+                        AtomicReference::get)
+                .description("1 for a complete durable-store snapshot, 0 for unsupported or failed queries, NaN before refresh")
                 .tag("service", safeService)
                 .tag("contract_version", CONTRACT_VERSION)
                 .register(registry);
@@ -210,18 +210,33 @@ public final class MediaWorkflowMetrics {
     }
 
     public void setQueueDepth(long depth) {
-        queueDepth.set(Math.max(0, depth));
+        queueDepth.set(measuredCount(depth));
     }
 
     public void setUnknownBacklog(long count) {
-        unknownBacklog.set(Math.max(0, count));
+        unknownBacklog.set(measuredCount(count));
     }
 
     public void setOverdueLeases(long count) {
-        overdueLeases.set(Math.max(0, count));
+        overdueLeases.set(measuredCount(count));
     }
 
     public void setAggregateStoreQueriesSupported(boolean supported) {
-        aggregateStoreQueriesSupported.set(supported ? 1 : 0);
+        if (!supported) {
+            aggregateStoreQueriesSupported.set(0.0);
+            queueDepth.set(Double.NaN);
+            unknownBacklog.set(Double.NaN);
+            overdueLeases.set(Double.NaN);
+            return;
+        }
+
+        boolean hasCompleteMeasurements = Double.isFinite(queueDepth.get())
+                && Double.isFinite(unknownBacklog.get())
+                && Double.isFinite(overdueLeases.get());
+        aggregateStoreQueriesSupported.set(hasCompleteMeasurements ? 1.0 : Double.NaN);
+    }
+
+    private static double measuredCount(long count) {
+        return count < 0 ? Double.NaN : count;
     }
 }

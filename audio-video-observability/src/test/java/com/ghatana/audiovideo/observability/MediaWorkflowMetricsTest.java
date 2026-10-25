@@ -49,11 +49,45 @@ class MediaWorkflowMetricsTest {
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "tenant-42");
         metrics.setQueueDepth(-9);
         metrics.setUnknownBacklog(-2);
+        metrics.setOverdueLeases(-1);
+        metrics.setAggregateStoreQueriesSupported(true);
 
         assertThat(registry.get("media.workflow.queue.depth").tag("service", "unknown").gauge().value())
-                .isZero();
-        assertThat(registry.get("media.workflow.unknown.backlog").gauge().value()).isZero();
-        assertThat(registry.get("media.workflow.aggregate_store_queries_supported").gauge().value()).isZero();
+                .isNaN();
+        assertThat(registry.get("media.workflow.unknown.backlog").gauge().value()).isNaN();
+        assertThat(registry.get("media.workflow.lease.overdue").gauge().value()).isNaN();
+        assertThat(registry.get("media.workflow.aggregate_store_queries_supported").gauge().value()).isNaN();
+    }
+
+    @Test
+    void distinguishesMeasuredZeroFromUnknownAndClearsStaleValuesWhenSourceUnavailable() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+        var queueDepth = registry.get("media.workflow.queue.depth").gauge();
+        var unknownBacklog = registry.get("media.workflow.unknown.backlog").gauge();
+        var overdueLeases = registry.get("media.workflow.lease.overdue").gauge();
+        var querySupport = registry.get("media.workflow.aggregate_store_queries_supported").gauge();
+
+        assertThat(queueDepth.value()).isNaN();
+        assertThat(unknownBacklog.value()).isNaN();
+        assertThat(overdueLeases.value()).isNaN();
+        assertThat(querySupport.value()).isNaN();
+
+        metrics.setQueueDepth(0);
+        metrics.setUnknownBacklog(0);
+        metrics.setOverdueLeases(0);
+        metrics.setAggregateStoreQueriesSupported(true);
+
+        assertThat(queueDepth.value()).isZero();
+        assertThat(unknownBacklog.value()).isZero();
+        assertThat(overdueLeases.value()).isZero();
+        assertThat(querySupport.value()).isEqualTo(1.0);
+
+        metrics.setAggregateStoreQueriesSupported(false);
+        assertThat(queueDepth.value()).isNaN();
+        assertThat(unknownBacklog.value()).isNaN();
+        assertThat(overdueLeases.value()).isNaN();
+        assertThat(querySupport.value()).isZero();
     }
 
     @Test
