@@ -12,6 +12,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Production composition for {@link TtsGrpcService}.
@@ -171,9 +172,19 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     private static AudioVideoLibrary createInitializedLibrary(
             Map<String, String> environment) {
-        AudioVideoLibrary library = AudioVideoLibrary.builder()
-                .withTtsConfig(createConfig(environment))
-                .build();
+        return createInitializedLibrary(environment,
+                config -> AudioVideoLibrary.builder().withTtsConfig(config).build());
+    }
+
+    static AudioVideoLibrary createInitializedLibrary(
+            Map<String, String> environment,
+            Function<TtsConfig, AudioVideoLibrary> libraryFactory) {
+        Objects.requireNonNull(environment, "environment");
+        Objects.requireNonNull(libraryFactory, "libraryFactory");
+        // Resolve provider admission before creating a library or model-backed engine.
+        TtsConfig config = createConfig(environment);
+        AudioVideoLibrary library = Objects.requireNonNull(
+                libraryFactory.apply(config), "libraryFactory returned null");
         try {
             library.getTtsEngine().warmup();
             return library;
