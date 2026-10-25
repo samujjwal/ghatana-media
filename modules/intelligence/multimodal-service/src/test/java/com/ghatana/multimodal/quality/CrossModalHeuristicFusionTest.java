@@ -203,26 +203,26 @@ class CrossModalHeuristicFusionTest {
     private static AudioFeatures makeAudio(int dim, double confidence) { 
         double[] emb = new double[dim];
         for (int i = 0; i < dim; i++) emb[i] = (double) i / dim * confidence; 
-        return new AudioFeatures(emb, confidence); 
+        return new AudioFeatures(emb, confidence, "heuristic-test-space");
     }
 
     private static VisualFeatures makeVisual(int dim, double confidence) { 
         double[] emb = new double[dim];
         double[] boxes = new double[4];
         for (int i = 0; i < dim; i++) emb[i] = (1.0 - (double) i / dim) * confidence; 
-        return new VisualFeatures(emb, boxes, confidence); 
+        return new VisualFeatures(emb, boxes, confidence, "heuristic-test-space");
     }
 
     private static TextFeatures makeText(int dim, String text, double confidence) { 
         double[] emb = new double[dim];
         for (int i = 0; i < dim; i++) emb[i] = Math.cos((double) i / dim) * confidence; 
-        return new TextFeatures(emb, text, confidence); 
+        return new TextFeatures(emb, text, confidence, "heuristic-test-space");
     }
 
     private static AudioFeatures makeNoisyAudio(int dim) { 
         double[] emb = new double[dim];
         for (int i = 0; i < dim; i++) emb[i] = (i % 7 == 0) ? Double.MIN_VALUE : (double) i / dim; 
-        return new AudioFeatures(emb, 0.4); 
+        return new AudioFeatures(emb, 0.4, "heuristic-test-space");
     }
 
     private static void assertUncalibrated(FusionResult result) {
@@ -234,7 +234,7 @@ class CrossModalHeuristicFusionTest {
         double[] emb = new double[dim];
         double[] boxes = new double[4];
         for (int i = 0; i < dim; i++) emb[i] = (i % 5 == 0) ? 0.0 : (double) (dim - i) / dim; 
-        return new VisualFeatures(emb, boxes, 0.3); 
+        return new VisualFeatures(emb, boxes, 0.3, "heuristic-test-space");
     }
 
     private static org.assertj.core.data.Offset<Double> within(double d) { 

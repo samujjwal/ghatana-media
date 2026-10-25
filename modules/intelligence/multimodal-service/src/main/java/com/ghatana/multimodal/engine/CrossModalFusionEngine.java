@@ -17,17 +17,30 @@ import java.util.*;
 public class CrossModalFusionEngine {
 
     /** Audio feature vector derived from a speech segment. */
-    public record AudioFeatures(double[] embeddings, double confidence) {
+    public record AudioFeatures(double[] embeddings, double confidence, String embeddingSpaceId) {
+        /** Compatibility constructor. The coordinate space remains unknown until explicitly supplied. */
+        public AudioFeatures(double[] embeddings, double confidence) {
+            this(embeddings, confidence, null);
+        }
         public boolean isEmpty() { return embeddings == null || embeddings.length == 0; }
     }
 
     /** Visual feature vector derived from a video frame. */
-    public record VisualFeatures(double[] embeddings, double[] boundingBoxes, double confidence) {
+    public record VisualFeatures(
+            double[] embeddings, double[] boundingBoxes, double confidence, String embeddingSpaceId) {
+        /** Compatibility constructor. The coordinate space remains unknown until explicitly supplied. */
+        public VisualFeatures(double[] embeddings, double[] boundingBoxes, double confidence) {
+            this(embeddings, boundingBoxes, confidence, null);
+        }
         public boolean isEmpty() { return embeddings == null || embeddings.length == 0; }
     }
 
     /** Text feature vector derived from transcript or caption. */
-    public record TextFeatures(double[] embeddings, String text, double confidence) {
+    public record TextFeatures(double[] embeddings, String text, double confidence, String embeddingSpaceId) {
+        /** Compatibility constructor. The coordinate space remains unknown until explicitly supplied. */
+        public TextFeatures(double[] embeddings, String text, double confidence) {
+            this(embeddings, text, confidence, null);
+        }
         public boolean isEmpty() { return embeddings == null || embeddings.length == 0; }
     }
 
@@ -89,6 +102,10 @@ public class CrossModalFusionEngine {
         if (missingAudio && missingVisual) {
             throw new FusionException("At least one modality must have valid embeddings");
         }
+        if (!missingAudio && !missingVisual) {
+            validateCompatibleEmbeddingSpaces("audio", audio.embeddingSpaceId(),
+                    "visual", visual.embeddingSpaceId());
+        }
 
         long startNs = System.nanoTime();
         double[] fused = fuseVectors(
@@ -129,6 +146,10 @@ public class CrossModalFusionEngine {
 
         if (missingText && missingVisual) {
             throw new FusionException("At least one modality must have valid embeddings");
+        }
+        if (!missingText && !missingVisual) {
+            validateCompatibleEmbeddingSpaces("text", text.embeddingSpaceId(),
+                    "visual", visual.embeddingSpaceId());
         }
 
         long startNs = System.nanoTime();
@@ -191,6 +212,18 @@ public class CrossModalFusionEngine {
             if (!Double.isFinite(component)) {
                 throw new FusionException(modality + " embedding contains a non-finite value");
             }
+        }
+    }
+
+    private void validateCompatibleEmbeddingSpaces(
+            String modalityA, String embeddingSpaceA, String modalityB, String embeddingSpaceB) {
+        if (embeddingSpaceA == null || embeddingSpaceA.isBlank()
+                || embeddingSpaceB == null || embeddingSpaceB.isBlank()) {
+            throw new FusionException("Both non-empty modality embeddings must declare a known embeddingSpaceId");
+        }
+        if (!embeddingSpaceA.equals(embeddingSpaceB)) {
+            throw new FusionException("Cannot fuse " + modalityA + " and " + modalityB
+                    + " embeddings from incompatible coordinate spaces");
         }
     }
 

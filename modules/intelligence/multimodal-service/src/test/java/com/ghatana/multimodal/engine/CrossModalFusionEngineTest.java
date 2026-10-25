@@ -105,7 +105,7 @@ class CrossModalFusionEngineTest {
     @DisplayName("short audio embeddings are rejected instead of zero-padded")
     void shortAudioEmbeddingRejected() {
         assertThatThrownBy(() -> engine.fuseAudioVisual(
-                new AudioFeatures(new double[DIM - 1], 0.5), makeVisual(DIM, 0.5)))
+                new AudioFeatures(new double[DIM - 1], 0.5, "shared-test-space"), makeVisual(DIM, 0.5)))
                 .isInstanceOf(CrossModalFusionEngine.FusionException.class)
                 .hasMessageContaining("dimension");
     }
@@ -114,7 +114,7 @@ class CrossModalFusionEngineTest {
     @DisplayName("long visual embeddings are rejected instead of truncated")
     void longVisualEmbeddingRejected() {
         assertThatThrownBy(() -> engine.fuseAudioVisual(
-                makeAudio(DIM, 0.5), new VisualFeatures(new double[DIM + 1], new double[4], 0.5)))
+                makeAudio(DIM, 0.5), new VisualFeatures(new double[DIM + 1], new double[4], 0.5, "shared-test-space")))
                 .isInstanceOf(CrossModalFusionEngine.FusionException.class)
                 .hasMessageContaining("dimension");
     }
@@ -125,14 +125,14 @@ class CrossModalFusionEngineTest {
         double[] audioValues = new double[DIM];
         audioValues[3] = Double.NaN;
         assertThatThrownBy(() -> engine.fuseAudioVisual(
-                new AudioFeatures(audioValues, 0.5), makeVisual(DIM, 0.5)))
+                new AudioFeatures(audioValues, 0.5, "shared-test-space"), makeVisual(DIM, 0.5)))
                 .isInstanceOf(CrossModalFusionEngine.FusionException.class)
                 .hasMessageContaining("non-finite");
 
         double[] visualValues = new double[DIM];
         visualValues[5] = Double.POSITIVE_INFINITY;
         assertThatThrownBy(() -> engine.fuseTextImage(
-                makeText(DIM, "text", 0.5), new VisualFeatures(visualValues, new double[4], 0.5)))
+                makeText(DIM, "text", 0.5), new VisualFeatures(visualValues, new double[4], 0.5, "shared-test-space")))
                 .isInstanceOf(CrossModalFusionEngine.FusionException.class)
                 .hasMessageContaining("non-finite");
     }
@@ -176,14 +176,66 @@ class CrossModalFusionEngineTest {
         sparseVisual[17] = 1.0;
 
         FusionResult result = engine.fuseAudioVisual(
-                new AudioFeatures(sparseAudio, 0.8),
-                new VisualFeatures(sparseVisual, new double[4], 0.2));
+                new AudioFeatures(sparseAudio, 0.8, "shared-test-space"),
+                new VisualFeatures(sparseVisual, new double[4], 0.2, "shared-test-space"));
 
         assertThat(result.modalityWeights()).containsEntry("audio", 0.8).containsEntry("visual", 0.2);
         assertThat(result.modalityWeights().values().stream().mapToDouble(Double::doubleValue).sum())
                 .isEqualTo(1.0);
         assertThat(result.fusionConfidence()).isEqualTo(0.5);
         assertThat(result.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+    }
+
+    @Test
+    @DisplayName("matching declared embedding spaces permit fusion")
+    void matchingEmbeddingSpacesPermitFusion() {
+        FusionResult result = engine.fuseAudioVisual(
+                new AudioFeatures(new double[DIM], 0.5, "joint-space-v1"),
+                new VisualFeatures(new double[DIM], new double[4], 0.5, "joint-space-v1"));
+        assertThat(result.fusedEmbeddings()).hasSize(DIM);
+        assertThat(result.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+    }
+
+    @Test
+    @DisplayName("mismatched coordinate spaces are rejected")
+    void mismatchedEmbeddingSpacesRejected() {
+        assertThatThrownBy(() -> engine.fuseAudioVisual(
+                new AudioFeatures(new double[DIM], 0.5, "audio-space"),
+                new VisualFeatures(new double[DIM], new double[4], 0.5, "visual-space")))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("incompatible coordinate spaces");
+    }
+
+    @Test
+    @DisplayName("missing or blank coordinate-space provenance is rejected")
+    void missingEmbeddingSpaceRejected() {
+        assertThatThrownBy(() -> engine.fuseAudioVisual(
+                new AudioFeatures(new double[DIM], 0.5),
+                new VisualFeatures(new double[DIM], new double[4], 0.5, "joint-space-v1")))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("known embeddingSpaceId");
+        assertThatThrownBy(() -> engine.fuseTextImage(
+                new TextFeatures(new double[DIM], "caption", 0.5, "  "),
+                new VisualFeatures(new double[DIM], new double[4], 0.5, "joint-space-v1")))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("known embeddingSpaceId");
+    }
+
+    @Test
+    @DisplayName("coordinate-space validation does not replace dimension and finite-value validation")
+    void matchingSpaceStillRequiresDimensionsAndFiniteValues() {
+        assertThatThrownBy(() -> engine.fuseAudioVisual(
+                new AudioFeatures(new double[DIM - 1], 0.5, "joint-space-v1"),
+                new VisualFeatures(new double[DIM], new double[4], 0.5, "joint-space-v1")))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("dimension");
+        double[] nonFinite = new double[DIM];
+        nonFinite[0] = Double.NaN;
+        assertThatThrownBy(() -> engine.fuseTextImage(
+                new TextFeatures(new double[DIM], "caption", 0.5, "joint-space-v1"),
+                new VisualFeatures(nonFinite, new double[4], 0.5, "joint-space-v1")))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("non-finite");
     }
 
     @Test
@@ -322,26 +374,26 @@ class CrossModalFusionEngineTest {
     private AudioFeatures makeAudio(int dim, double confidence) { 
         double[] emb = new double[dim];
         for (int i = 0; i < dim; i++) emb[i] = (double) i / dim; 
-        return new AudioFeatures(emb, confidence); 
+        return new AudioFeatures(emb, confidence, "shared-test-space");
     }
 
     private AudioFeatures makeAudioWithValues(int dim, double confidence, double fillValue) { 
         double[] emb = new double[dim];
         java.util.Arrays.fill(emb, fillValue); 
-        return new AudioFeatures(emb, confidence); 
+        return new AudioFeatures(emb, confidence, "shared-test-space");
     }
 
     private VisualFeatures makeVisual(int dim, double confidence) { 
         double[] emb = new double[dim];
         double[] boxes = new double[4];
         for (int i = 0; i < dim; i++) emb[i] = 1.0 - (double) i / dim; 
-        return new VisualFeatures(emb, boxes, confidence); 
+        return new VisualFeatures(emb, boxes, confidence, "shared-test-space");
     }
 
     private TextFeatures makeText(int dim, String text, double confidence) { 
         double[] emb = new double[dim];
         for (int i = 0; i < dim; i++) emb[i] = Math.sin(i); 
-        return new TextFeatures(emb, text, confidence); 
+        return new TextFeatures(emb, text, confidence, "shared-test-space");
     }
 
     private void assertInvalidAudioConfidence(double confidence) {
