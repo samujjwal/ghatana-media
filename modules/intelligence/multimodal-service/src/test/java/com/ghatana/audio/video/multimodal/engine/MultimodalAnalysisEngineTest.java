@@ -2,6 +2,12 @@ package com.ghatana.audio.video.multimodal.engine;
 
 import com.ghatana.testing.activej.EventloopTestBase;
 import io.activej.promise.Promise;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.TraceFlags;
+import io.opentelemetry.api.trace.TraceState;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -310,6 +317,33 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertTrue(first.get(1, TimeUnit.SECONDS).getAudioResult() != null);
         } finally {
             releaseAudio.countDown();
+        }
+    }
+
+    @Test
+    @DisplayName("child provider calls inherit the caller trace context")
+    void childProviderCallsInheritCallerTraceContext() {
+        Span parent = Span.wrap(SpanContext.create("0123456789abcdef0123456789abcdef",
+                "0123456789abcdef", TraceFlags.getSampled(), TraceState.getDefault()));
+        AtomicReference<SpanContext> observed = new AtomicReference<>();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(
+                AudioResult.builder().transcription("fixture").build(),
+                VisualResult.builder().build(), VisualResult.builder().build()) {
+            @Override public AudioResult transcribe(byte[] input) {
+                observed.set(Span.current().getSpanContext());
+                return AudioResult.builder().transcription("fixture").build();
+            }
+        };
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            try (Scope ignored = Context.current().with(parent).makeCurrent()) {
+                engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1}).build());
+            }
+
+            assertEquals(parent.getSpanContext().getTraceId(), observed.get().getTraceId());
+            assertEquals(parent.getSpanContext().getSpanId(), observed.get().getSpanId());
+            assertFalse(Span.current().getSpanContext().isValid());
         }
     }
 

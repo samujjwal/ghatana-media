@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.multimodal.engine;
 
+import io.opentelemetry.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,7 +281,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
     }
 
     private <T> Future<T> submit(List<Future<?>> children, java.util.concurrent.Callable<T> task) {
-        Future<T> child = executor.submit(task);
+        Future<T> child = executor.submit(Context.current().wrap(task));
         children.add(child);
         return child;
     }
