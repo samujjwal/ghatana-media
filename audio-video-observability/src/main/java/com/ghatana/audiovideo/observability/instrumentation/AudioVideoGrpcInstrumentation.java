@@ -6,6 +6,8 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @doc.type class
@@ -29,6 +31,49 @@ public class AudioVideoGrpcInstrumentation {
             MediaWorkflowMetrics workflowMetrics) {
         this.tracingService = tracingService;
         this.workflowMetrics = workflowMetrics;
+    }
+
+    /**
+     * Start timing one caller-selected modality boundary. The returned scope measures only
+     * the code the caller places inside it; closing without an explicit outcome records
+     * {@code UNKNOWN}, since this wrapper cannot infer finality from an interrupted stage.
+     */
+    public BoundaryMeasurement beginBoundaryMeasurement(
+            MediaWorkflowMetrics.Modality modality,
+            MediaWorkflowMetrics.Boundary boundary) {
+        Objects.requireNonNull(modality, "modality");
+        Objects.requireNonNull(boundary, "boundary");
+        MediaWorkflowMetrics.ModalityTimingSample sample = workflowMetrics == null
+                ? null : workflowMetrics.startModalityTimer(modality, boundary);
+        return new BoundaryMeasurement(workflowMetrics, sample);
+    }
+
+    /** Single-use timing scope for an actual admission, queue, provider, decode, or response boundary. */
+    public static final class BoundaryMeasurement implements AutoCloseable {
+        private final MediaWorkflowMetrics metrics;
+        private final MediaWorkflowMetrics.ModalityTimingSample sample;
+        private final AtomicBoolean completed = new AtomicBoolean();
+
+        private BoundaryMeasurement(
+                MediaWorkflowMetrics metrics,
+                MediaWorkflowMetrics.ModalityTimingSample sample) {
+            this.metrics = metrics;
+            this.sample = sample;
+        }
+
+        /** Complete this measured boundary with its observed bounded outcome. Further calls are ignored. */
+        public void complete(MediaWorkflowMetrics.Outcome outcome) {
+            Objects.requireNonNull(outcome, "outcome");
+            if (completed.compareAndSet(false, true) && metrics != null) {
+                metrics.stopModalityTimer(sample, outcome);
+            }
+        }
+
+        /** A scope leaving without a declared outcome is recorded as unknown. */
+        @Override
+        public void close() {
+            complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+        }
     }
 
     /**

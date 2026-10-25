@@ -14,6 +14,8 @@ import org.slf4j.MDC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.micrometer.core.instrument.Timer;
+
 import java.io.IOException;
 
 /**
@@ -36,6 +38,33 @@ class AudioVideoGrpcInstrumentationIntegrationTest {
         tracingService = new AudioVideoTracingService(tracer); 
         instrumentation = new AudioVideoGrpcInstrumentation(tracingService); 
         MDC.clear(); 
+    }
+
+    @Test
+    void boundaryMeasurementRecordsExplicitSuccessAndDefaultsUnclassifiedExitToUnknown() {
+        var registry = new SimpleMeterRegistry();
+        var metrics = new MediaWorkflowMetrics(registry, "tts");
+        var measured = new AudioVideoGrpcInstrumentation(tracingService, metrics);
+
+        try (var admission = measured.beginBoundaryMeasurement(
+                MediaWorkflowMetrics.Modality.TTS, MediaWorkflowMetrics.Boundary.ADMISSION)) {
+            admission.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+            admission.complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+        }
+        try (var provider = measured.beginBoundaryMeasurement(
+                MediaWorkflowMetrics.Modality.TTS, MediaWorkflowMetrics.Boundary.PROVIDER)) {
+            // No completion disposition: close records UNKNOWN, not an inferred provider success.
+        }
+
+        Timer admission = registry.get("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "admission")
+                .tag("execution_class", "control").tag("outcome", "success").timer();
+        Timer provider = registry.get("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "provider")
+                .tag("execution_class", "model").tag("outcome", "unknown").timer();
+        assertThat(admission.count()).isEqualTo(1);
+        assertThat(provider.count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration").timers()).hasSize(2);
     }
 
     @Nested
