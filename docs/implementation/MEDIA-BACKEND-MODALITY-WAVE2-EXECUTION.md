@@ -1001,3 +1001,21 @@ Focused verification on these source cuts:
 - `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.MediaClockMappingTest' --tests 'com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineTest'` — 43 tests passed.
 - `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (twenty-seventh round)
+
+This round adds bounded tracing to the selected modality service dispatches and corrects the current observability task dispositions. The earlier disposition table is a historical assessment; this round's count supersedes it for the current source cut.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| OBS-03 | Shared observability now supports a bounded registered-method unary server span. STT traces the unary transcription RPC; TTS traces unary and streaming synthesis; Vision traces unary and streaming inference; Multimodal traces its four dispatched analysis RPCs, including async child work under the span context. Attributes remain bounded and omit tenant IDs and content. Focused/module tests passed: observability 120, STT 3, TTS 43, Vision 91, Multimodal service plus tracing 49; all had 0 failures/errors/skips. | PARTIAL: STT streaming is not traced, and cross-service/process trace linkage and full provider-failure coverage remain unverified. |
+| OBS-09 | Service-level trace handling now records terminal success, error or unknown outcomes and closes spans across the tested unary/streaming paths. Changes are in commits `1ec27a2`, `709246d`, `92dae1b`, `65b6035`, `983b8f7`, and `8c31e47`. | PARTIAL: the four production composition roots' startup, restart and provider-readiness integration is not established by these service tests; no deployed traces or metrics are claimed. |
+
+Current exclusive dispositions are **20 LOCALLY_VERIFIED, 32 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. OBS-03 and OBS-09 move from LOCALLY_VERIFIED to PARTIAL because their complete acceptance conditions are not met. The task denominator, 99 PDP capability memberships, 43 RPC identities, and residual handoffs are unchanged. No provider admission, measured modality quality, formal PDP acceptance, production cutover, deployment or release is inferred.
+
+Focused verification on this source cut:
+
+- `./gradlew :services:media:audio-video-observability:test --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 120 tests, 0 failures/errors/skips.
+- `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests '*MultimodalGrpcServiceTracingTest' --tests '*MultimodalGrpcServiceTest' --tests '*MultimodalGrpcServiceInProcessTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL; 49 tests, 0 failures/errors/skips across the matching service and tracing suites.
+- STT, TTS and Vision focused tracing checks are recorded in their commits: 3, 43 and 91 tests respectively, each with 0 failures/errors/skips.
+- `git diff --check` — PASS.
