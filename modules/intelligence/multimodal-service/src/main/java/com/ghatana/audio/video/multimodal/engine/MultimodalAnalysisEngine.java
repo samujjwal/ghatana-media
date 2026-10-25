@@ -430,7 +430,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         }
 
         for (FrameResult frame : video.getFrameResults()) {
-            String activeText = audio.getTranscriptionAtTimestamp(frame.getTimestamp());
+            String activeText = transcriptionAtMediaTimestamp(audio, frame.getTimestamp());
             alignments.add(new TemporalAlignment(
                     frame.getTimestamp(),
                     frame.getFrameNumber(),
@@ -442,6 +442,19 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         }
 
         return alignments;
+    }
+
+    /** Match only within the declared media-millisecond transcript clock and its explicit windows. */
+    private static String transcriptionAtMediaTimestamp(AudioResult audio, MediaClockTimestamp timestamp) {
+        if (audio == null || audio.isError() || timestamp == null || !timestamp.isKnown()) return "";
+        List<AudioResult.TimedSegment> segments = audio.getTimedSegments();
+        if (segments == null || segments.isEmpty()) return "";
+        for (AudioResult.TimedSegment segment : segments) {
+            if (TemporalAlignment.isWithinMediaWindow(timestamp, segment.getStartMs(), segment.getEndMs())) {
+                return segment.getText();
+            }
+        }
+        return "";
     }
 
     private String buildNarrative(AudioResult audio, VisualResult video,

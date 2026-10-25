@@ -293,6 +293,85 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Rational media timestamps align to bounded transcript windows without fps extrapolation")
+    void rationalVariableRateMediaTimestampsMatchExplicitWindows() {
+        AudioResult audio = AudioResult.builder().transcription("first second")
+                .timedSegments(List.of(
+                        new AudioResult.TimedSegment(33, 34, "first"),
+                        new AudioResult.TimedSegment(100, 101, "second")))
+                .build();
+        VisualResult video = VisualResult.builder().frameResults(List.of(
+                new FrameResult(1, mediaTime(1_001, 1, 30_000), List.of()),
+                new FrameResult(2, mediaTime(3_003, 1, 30_000), List.of())))
+                .build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            assertEquals(List.of("first", "second"), result.getTemporalAlignments().stream()
+                    .map(TemporalAlignment::getSpeechText).toList());
+            assertTrue(result.getTemporalAlignments().stream().allMatch(alignment ->
+                    alignment.getSyncStatus() == TemporalAlignment.SyncStatus.SYNC_UNDETERMINED
+                            && !alignment.hasSyncMeasurement()));
+        }
+    }
+
+    @Test
+    @DisplayName("Rational interval boundaries are compared exactly rather than rounded to milliseconds")
+    void rationalMediaTimestampUsesExactInclusiveWindowBounds() {
+        AudioResult audio = AudioResult.builder().transcription("word")
+                .timedSegments(List.of(new AudioResult.TimedSegment(1, 2, "word"))).build();
+        VisualResult video = VisualResult.builder().frameResults(List.of(
+                new FrameResult(1, mediaTime(1_999, 1, 2_000_000), List.of()),
+                new FrameResult(2, mediaTime(2_000, 1, 2_000_000), List.of())))
+                .build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            assertEquals(List.of("", "word"), result.getTemporalAlignments().stream()
+                    .map(TemporalAlignment::getSpeechText).toList());
+        }
+    }
+
+    @Test
+    @DisplayName("Source, simulation, wall, and unrelated media clocks remain unresolved against media windows")
+    void mismatchedClockDomainsAndIdentitiesDoNotAlignTranscriptWindows() {
+        AudioResult audio = AudioResult.builder().transcription("word")
+                .timedSegments(List.of(new AudioResult.TimedSegment(0, 2, "word"))).build();
+        VisualResult video = VisualResult.builder().frameResults(List.of(
+                new FrameResult(1, mediaTime(1, 1, 1000), List.of()),
+                new FrameResult(2, clockTime(1, 1, 1000, MediaClockTimestamp.ClockDomain.SOURCE,
+                        "source-clock"), List.of()),
+                new FrameResult(3, clockTime(1, 1, 1000, MediaClockTimestamp.ClockDomain.SIMULATION,
+                        "simulation-clock"), List.of()),
+                new FrameResult(4, clockTime(1, 1, 1000, MediaClockTimestamp.ClockDomain.WALL,
+                        "wall-clock"), List.of()),
+                new FrameResult(5, clockTime(1, 1, 1000, MediaClockTimestamp.ClockDomain.MEDIA,
+                        "other-media-clock"), List.of())))
+                .build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            assertEquals("word", result.getTemporalAlignments().getFirst().getSpeechText());
+            assertTrue(result.getTemporalAlignments().stream().skip(1)
+                    .allMatch(alignment -> alignment.getSpeechText().isEmpty()
+                            && alignment.getSyncStatus() == TemporalAlignment.SyncStatus.SYNC_UNDETERMINED
+                            && !alignment.hasSyncMeasurement()));
+        }
+    }
+
+    @Test
     @DisplayName("Unavailable audio timing never produces measured synchronization")
     void unavailableAudioTimingLeavesSynchronizationUnknown() {
         AudioResult audio = AudioResult.builder().error("audio timing unavailable").build();
@@ -472,6 +551,16 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     private static MediaClockTimestamp sourcePts(long ticks, long numerator, long denominator) {
         return new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN, ticks, numerator, denominator,
                 MediaClockTimestamp.ClockDomain.SOURCE, "test-video-clock", null);
+    }
+
+    private static MediaClockTimestamp mediaTime(long ticks, long numerator, long denominator) {
+        return clockTime(ticks, numerator, denominator, MediaClockTimestamp.ClockDomain.MEDIA, "media-ms");
+    }
+
+    private static MediaClockTimestamp clockTime(long ticks, long numerator, long denominator,
+                                                   MediaClockTimestamp.ClockDomain domain, String clockId) {
+        return new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN, ticks, numerator, denominator,
+                domain, clockId, null);
     }
 
     @Test

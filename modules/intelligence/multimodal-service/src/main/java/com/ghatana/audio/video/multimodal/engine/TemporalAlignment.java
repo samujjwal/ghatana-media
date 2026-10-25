@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.multimodal.engine;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -14,6 +15,8 @@ import java.util.List;
  * @doc.pattern Component
 */
 public class TemporalAlignment {
+
+    private static final String MEDIA_MILLISECONDS_CLOCK = "media-ms";
 
     private final MediaClockTimestamp timestamp;
     private final int    frameNumber;
@@ -93,4 +96,30 @@ public class TemporalAlignment {
     public double getSyncConfidence() { return syncConfidence; }
     public SyncStatus getSyncStatus() { return syncStatus; }
     public boolean hasSyncMeasurement() { return syncStatus == SyncStatus.MEASURED; }
+
+    /**
+     * Tests whether an exact rational timestamp falls within an existing millisecond media window.
+     *
+     * <p>The compatibility window is defined on the media-millisecond clock. This performs an
+     * exact rational comparison and does not map source, simulation, or wall clocks into it.
+     */
+    static boolean isWithinMediaWindow(MediaClockTimestamp timestamp, long startMs, long endMs) {
+        if (timestamp == null || !timestamp.isKnown() || !timestamp.hasClockIdentity()
+                || timestamp.domain() != MediaClockTimestamp.ClockDomain.MEDIA
+                || !MEDIA_MILLISECONDS_CLOCK.equals(timestamp.clockId())
+                || startMs < 0 || endMs < startMs) {
+            return false;
+        }
+        return compareToMilliseconds(timestamp, startMs) >= 0
+                && compareToMilliseconds(timestamp, endMs) <= 0;
+    }
+
+    private static int compareToMilliseconds(MediaClockTimestamp timestamp, long millis) {
+        BigInteger timestampNumerator = BigInteger.valueOf(timestamp.ticks())
+                .multiply(BigInteger.valueOf(timestamp.timeBaseNumerator()))
+                .multiply(BigInteger.valueOf(1000));
+        BigInteger windowNumerator = BigInteger.valueOf(millis)
+                .multiply(BigInteger.valueOf(timestamp.timeBaseDenominator()));
+        return timestampNumerator.compareTo(windowNumerator);
+    }
 }
