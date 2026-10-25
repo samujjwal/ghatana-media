@@ -373,79 +373,17 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void adaptModel(AdaptRequest request, StreamObserver<AdaptResponse> responseObserver) {
-        String profileId = request.getProfileId();
-        if (profileId == null || profileId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                .withDescription("profileId must not be blank for model adaptation")
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                .withDescription("STT_ADAPTATION_NOT_ADMITTED: versioned transcript correction, trusted rights admission and an admitted adaptation provider are unavailable")
                 .asRuntimeException());
-            return;
-        }
-        if (request.getInteractionsList().isEmpty()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                .withDescription("At least one interaction is required for adaptation")
-                .asRuntimeException());
-            return;
-        }
-        try (SttEngine stt = library.getSttEngine()) {
-            Optional<UserProfile> profileOpt = stt.loadProfile(profileId);
-            if (profileOpt.isEmpty()) {
-                responseObserver.onError(io.grpc.Status.NOT_FOUND
-                    .withDescription("Profile not found: " + profileId)
-                    .asRuntimeException());
-                return;
-            }
-
-            // Process interactions: extract corrected texts as custom vocabulary additions
-            List<String> newVocab = new ArrayList<>(profileOpt.get().customVocabulary());
-            int processedCount = 0;
-            for (Interaction interaction : request.getInteractionsList()) {
-                if (!interaction.getCorrectedTranscript().isBlank()) {
-                    // Add distinctive words from corrections to custom vocabulary
-                    for (String word : interaction.getCorrectedTranscript().split("\\s+")) {
-                        String normalised = word.trim().toLowerCase(Locale.ROOT);
-                        if (normalised.length() > 2 && !newVocab.contains(normalised)) {
-                            newVocab.add(normalised);
-                        }
-                    }
-                    processedCount++;
-                }
-            }
-
-            // Persist updated profile
-            UserProfile updated = new UserProfile(
-                profileOpt.get().profileId(),
-                profileOpt.get().displayName(),
-                profileOpt.get().primaryLanguage(),
-                List.copyOf(newVocab),
-                profileOpt.get().speakerEmbedding()
-            );
-            stt.saveProfile(updated);
-
-            int vocabAdded = newVocab.size() - profileOpt.get().customVocabulary().size();
-            LOG.info("STT adaptation: profile={}, interactions={}, vocabAdded={}",
-                profileId, processedCount, vocabAdded);
-
-            responseObserver.onNext(AdaptResponse.newBuilder()
-                .setSuccess(true)
-                .setMessage("Model adapted with " + processedCount + " interactions")
-                .setStats(AdaptationStats.newBuilder()
-                    .setInteractionsProcessed(processedCount)
-                    .setNewVocabularyTerms(vocabAdded)
-                    .build())
-                .build());
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            LOG.error("STT adaptation failed for profile {}: {}", profileId, e.getMessage(), e);
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                .withDescription("Adaptation failed: " + e.getMessage())
-                .asRuntimeException());
-        }
     }
 
     // ── AV-001.5: createProfile ────────────────────────────────────────────
 
     @Override
     public void createProfile(CreateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -453,6 +391,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void getProfile(GetProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -460,6 +399,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void updateProfile(UpdateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -471,11 +411,30 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void submitCorrection(CorrectionRequest request, StreamObserver<CorrectionResponse> responseObserver) {
-        responseObserver.onNext(CorrectionResponse.newBuilder()
-            .setAccepted(true)
-            .setMessage("Correction accepted")
-            .build());
-        responseObserver.onCompleted();
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                .withDescription("STT_CORRECTION_NOT_ADMITTED: immutable transcript revision store and expected-version CAS are unavailable")
+                .asRuntimeException());
+    }
+
+    protected static boolean requireAuthenticatedTenantPrincipal(StreamObserver<?> observer) {
+        String tenantId = com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT.get();
+        String principalId = com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT.get();
+        if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
+            observer.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("STT_IDENTITY_REQUIRED: authenticated tenant and subject are required")
+                    .asRuntimeException());
+            return false;
+        }
+        try {
+            UUID.fromString(principalId);
+        } catch (IllegalArgumentException invalidPrincipal) {
+            observer.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("STT_IDENTITY_INVALID: authenticated subject is not a supported principal identifier")
+                    .asRuntimeException());
+            return false;
+        }
+        return true;
     }
 
     private static String cid() {

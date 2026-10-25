@@ -33,17 +33,40 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
 
     @Override
     public void createProfile(CreateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
     @Override
     public void getProfile(GetProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
     @Override
     public void updateProfile(UpdateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
+    }
+
+    private static boolean requireAuthenticatedTenantPrincipal(StreamObserver<?> observer) {
+        String tenantId = JwtServerInterceptor.CTX_TENANT.get();
+        String principalId = JwtServerInterceptor.CTX_SUBJECT.get();
+        if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
+            observer.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("STT_IDENTITY_REQUIRED: authenticated tenant and subject are required")
+                    .asRuntimeException());
+            return false;
+        }
+        try {
+            UUID.fromString(principalId);
+        } catch (IllegalArgumentException invalidPrincipal) {
+            observer.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("STT_IDENTITY_INVALID: authenticated subject is not a supported principal identifier")
+                    .asRuntimeException());
+            return false;
+        }
+        return true;
     }
 
     private static void speakerProfileNotAdmitted(StreamObserver<ProfileResponse> responseObserver) {
@@ -95,6 +118,16 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Authenticated subject is not a supported principal identifier")
                 .asRuntimeException());
+            return;
+        }
+
+        if (!transcriptVersioningAdmitted()) {
+            // This RPC accepts mutable uploaded bytes, while the admitted transcript store requires
+            // a governed source artifact/version, provider result and rights/consent provenance.
+            // Do not reach the legacy mutable transcription entity until that path is composed.
+            responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                    .withDescription("STT_TRANSCRIPT_VERSION_NOT_ADMITTED: governed source artifact, admitted provider, rights provenance and immutable transcript store are unavailable")
+                    .asRuntimeException());
             return;
         }
 
@@ -154,6 +187,11 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
         } finally {
             MDC.clear();
         }
+    }
+
+    /** No provider, source-artifact resolver or immutable revision store is wired into this service. */
+    private boolean transcriptVersioningAdmitted() {
+        return false;
     }
 
     private String getTenantId() {

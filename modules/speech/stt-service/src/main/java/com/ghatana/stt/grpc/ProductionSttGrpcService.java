@@ -296,13 +296,17 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void adaptModel(
             AdaptRequest request,
             StreamObserver<AdaptResponse> responseObserver) {
-        unimplemented(responseObserver, "STT adaptation requires a real adaptation provider");
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        responseObserver.onError(Status.FAILED_PRECONDITION
+                .withDescription("STT_ADAPTATION_NOT_ADMITTED: versioned transcript correction, trusted rights admission and an admitted adaptation provider are unavailable")
+                .asRuntimeException());
     }
 
     @Override
     public void createProfile(
             CreateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -310,6 +314,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void getProfile(
             GetProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -317,6 +322,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void updateProfile(
             UpdateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -324,7 +330,10 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void submitCorrection(
             CorrectionRequest request,
             StreamObserver<CorrectionResponse> responseObserver) {
-        unimplemented(responseObserver, "STT correction learning requires an adaptation provider");
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        responseObserver.onError(Status.FAILED_PRECONDITION
+                .withDescription("STT_CORRECTION_NOT_ADMITTED: immutable transcript revision store and expected-version CAS are unavailable")
+                .asRuntimeException());
     }
 
     private static AudioVideoLibrary createInitializedLibrary(Map<String, String> environment) {

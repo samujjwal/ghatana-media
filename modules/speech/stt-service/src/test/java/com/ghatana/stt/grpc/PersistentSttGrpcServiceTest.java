@@ -90,9 +90,12 @@ class PersistentSttGrpcServiceTest {
         CapturingObserver<ProfileResponse> get = new CapturingObserver<>();
         CapturingObserver<ProfileResponse> update = new CapturingObserver<>();
 
-        service.createProfile(CreateProfileRequest.newBuilder().addEnrollmentAudio(AUDIO).build(), create);
-        service.getProfile(GetProfileRequest.newBuilder().setProfileId("profile").build(), get);
-        service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("profile").build(), update);
+        runWithTenantContext("tenant-test", USER_ID, () ->
+                service.createProfile(CreateProfileRequest.newBuilder().addEnrollmentAudio(AUDIO).build(), create));
+        runWithTenantContext("tenant-test", USER_ID, () ->
+                service.getProfile(GetProfileRequest.newBuilder().setProfileId("profile").build(), get));
+        runWithTenantContext("tenant-test", USER_ID, () ->
+                service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("profile").build(), update));
 
         for (CapturingObserver<ProfileResponse> observer : java.util.List.of(create, get, update)) {
             assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
@@ -104,113 +107,78 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("transcribe maps synchronous IllegalArgumentException to INVALID_ARGUMENT")
-    void transcribeMapsSynchronousValidationErrorToInvalidArgument() {
-        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        when(persistentSttService.transcribeAndPersist(
-                anyString(), any(UUID.class), any(byte[].class),
-                anyString(), any(), anyString(), anyInt()))
-            .thenThrow(new IllegalArgumentException("Unsupported audio format: xyz"));
+    @DisplayName("speaker profile RPCs reject missing and invalid identity before admission or storage")
+    void speakerProfileRpcIdentityPrecedesAdmission() {
+        CapturingObserver<ProfileResponse> missing = new CapturingObserver<>();
+        service.createProfile(CreateProfileRequest.getDefaultInstance(), missing);
+        assertThat(missing.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) missing.error).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
 
-        runWithTenantContext("tenant-abc", USER_ID, () ->
-            service.transcribe(
-                TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
-                observer));
-
-        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
-        StatusRuntimeException sre = (StatusRuntimeException) observer.error;
-        assertThat(sre.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode());
-        assertThat(sre.getStatus().getDescription()).contains("Unsupported audio format");
+        CapturingObserver<ProfileResponse> invalid = new CapturingObserver<>();
+        Context.current().withValue(JwtServerInterceptor.CTX_TENANT, "tenant-test")
+                .withValue(JwtServerInterceptor.CTX_SUBJECT, "not-a-uuid")
+                .run(() -> service.updateProfile(UpdateProfileRequest.getDefaultInstance(), invalid));
+        assertThat(invalid.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) invalid.error).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        verifyNoInteractions(persistentSttService);
     }
 
     @Test
-    @DisplayName("transcribe maps async IllegalArgumentException to INVALID_ARGUMENT")
-    void transcribeMapsAsyncValidationErrorToInvalidArgument() {
+    @DisplayName("transcribe fails closed without governed source/version/store admission")
+    void transcribeFailsClosedBeforeMutablePersistence() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        when(persistentSttService.transcribeAndPersist(
-                anyString(), any(UUID.class), any(byte[].class),
-                anyString(), any(), anyString(), anyInt()))
-            .thenReturn(Promise.ofException(new IllegalArgumentException("Unsupported audio format: avi")));
-
         runWithTenantContext("tenant-abc", USER_ID, () ->
             service.transcribe(
                 TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
                 observer));
-
-        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
-        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
-            .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertTranscriptVersionNotAdmitted(observer);
     }
 
     @Test
-    @DisplayName("transcribe maps TimeoutException to DEADLINE_EXCEEDED")
-    void transcribeMapsTimeoutToDeadlineExceeded() {
+    @DisplayName("transcribe with an artifact identifier still fails until governed version provenance exists")
+    void transcribeArtifactIdFailsClosedWithoutVersionProvenance() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        when(persistentSttService.transcribeAndPersist(
-                anyString(), any(UUID.class), any(byte[].class),
-                anyString(), any(), anyString(), anyInt()))
-            .thenReturn(Promise.ofException(new TimeoutException("STT transcription timed out after 30000 ms")));
-
         runWithTenantContext("tenant-abc", USER_ID, () ->
             service.transcribe(
-                TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
+                TranscribeRequest.newBuilder().setArtifactId("artifact-1").setJobId("job-1")
+                        .setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
                 observer));
-
-        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
-        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
-            .isEqualTo(Status.DEADLINE_EXCEEDED.getCode());
+        assertTranscriptVersionNotAdmitted(observer);
     }
 
     @Test
-    @DisplayName("transcribe maps RuntimeException to INTERNAL")
-    void transcribeMapsRuntimeExceptionToInternal() {
+    @DisplayName("transcribe does not invoke provider when source version is unavailable")
+    void transcribeDoesNotInvokeProviderWithoutSourceVersion() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        when(persistentSttService.transcribeAndPersist(
-                anyString(), any(UUID.class), any(byte[].class),
-                anyString(), any(), anyString(), anyInt()))
-            .thenReturn(Promise.ofException(new RuntimeException("Database unavailable")));
-
         runWithTenantContext("tenant-abc", USER_ID, () ->
             service.transcribe(
                 TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
                 observer));
-
-        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
-        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
-            .isEqualTo(Status.INTERNAL.getCode());
+        assertTranscriptVersionNotAdmitted(observer);
     }
 
     @Test
-    @DisplayName("transcribe on success returns TranscribeResponse with text and confidence")
-    void transcribeOnSuccessReturnsResponse() {
+    @DisplayName("transcribe does not claim a transcript revision from the legacy mutable entity")
+    void transcribeDoesNotClaimLegacyTranscriptRevision() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-        TranscriptionResult mockResult = mock(TranscriptionResult.class);
-        when(mockResult.text()).thenReturn("Hello world");
-        when(mockResult.confidence()).thenReturn(0.97);
-        when(mockResult.processingTime()).thenReturn(Duration.ofMillis(350));
-        when(mockResult.modelId()).thenReturn("whisper-medium");
-        when(persistentSttService.transcribeAndPersist(
-                anyString(), any(UUID.class), any(byte[].class),
-                anyString(), any(), anyString(), anyInt()))
-            .thenReturn(Promise.of(mockResult));
-
         runWithTenantContext("tenant-abc", USER_ID, () ->
             service.transcribe(
                 TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
                 observer));
+        assertTranscriptVersionNotAdmitted(observer);
+    }
 
-        assertThat(observer.error).isNull();
-        assertThat(observer.completed).isTrue();
-        assertThat(observer.value).isNotNull();
-        assertThat(observer.value.getText()).isEqualTo("Hello world");
-        assertThat(observer.value.getConfidence()).isCloseTo(0.97f, org.assertj.core.data.Offset.offset(0.001f));
-        assertThat(observer.value.getProcessingTimeMs()).isEqualTo(350L);
-        assertThat(observer.value.getModelUsed()).isEqualTo("whisper-medium");
-        assertThat(observer.value.getWordTimingsList()).isEmpty();
-        assertThat(observer.value.getWordTimingTimebase())
-                .isEqualTo(com.ghatana.stt.core.grpc.proto.TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
-        assertThat(observer.value.getConfidenceCalibration())
-                .isEqualTo(com.ghatana.stt.core.grpc.proto.ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNCALIBRATED);
+    @Test
+    @DisplayName("transcribe has no successful mutable persistence fallback")
+    void transcribeHasNoMutablePersistenceFallback() {
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        runWithTenantContext("tenant-abc", USER_ID, () ->
+            service.transcribe(
+                TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").setSampleRate(16000).build(),
+                observer));
+        assertTranscriptVersionNotAdmitted(observer);
     }
 
     @Test
@@ -255,6 +223,14 @@ class PersistentSttGrpcServiceTest {
             .withValue(JwtServerInterceptor.CTX_TENANT, tenantId)
             .withValue(JwtServerInterceptor.CTX_SUBJECT, userId);
         ctx.run(action);
+    }
+
+    private void assertTranscriptVersionNotAdmitted(CapturingObserver<TranscribeResponse> observer) {
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_TRANSCRIPT_VERSION_NOT_ADMITTED:");
+        verifyNoInteractions(persistentSttService);
     }
 
     private static byte[] validPcmWav() {

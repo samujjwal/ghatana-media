@@ -31,6 +31,7 @@ import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class ProductionSttGrpcServiceTest {
 
@@ -67,16 +68,64 @@ class ProductionSttGrpcServiceTest {
 
         ProductionSttGrpcServiceTest.<UnloadModelResponse>assertUnimplemented(
                 observer -> service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer));
-        ProductionSttGrpcServiceTest.<AdaptResponse>assertUnimplemented(
-                observer -> service.adaptModel(AdaptRequest.getDefaultInstance(), observer));
+        ProductionSttGrpcServiceTest.<AdaptResponse>assertFailedPrecondition(
+                observer -> runWithTenantPrincipal(() -> service.adaptModel(AdaptRequest.getDefaultInstance(), observer)),
+                "STT_ADAPTATION_NOT_ADMITTED:");
         ProductionSttGrpcServiceTest.<ProfileResponse>assertNotAdmitted(
-                observer -> service.createProfile(CreateProfileRequest.getDefaultInstance(), observer));
+                observer -> runWithTenantPrincipal(() -> service.createProfile(CreateProfileRequest.getDefaultInstance(), observer)));
         ProductionSttGrpcServiceTest.<ProfileResponse>assertNotAdmitted(
-                observer -> service.getProfile(GetProfileRequest.getDefaultInstance(), observer));
+                observer -> runWithTenantPrincipal(() -> service.getProfile(GetProfileRequest.getDefaultInstance(), observer)));
         ProductionSttGrpcServiceTest.<ProfileResponse>assertNotAdmitted(
-                observer -> service.updateProfile(UpdateProfileRequest.getDefaultInstance(), observer));
-        ProductionSttGrpcServiceTest.<CorrectionResponse>assertUnimplemented(
-                observer -> service.submitCorrection(CorrectionRequest.getDefaultInstance(), observer));
+                observer -> runWithTenantPrincipal(() -> service.updateProfile(UpdateProfileRequest.getDefaultInstance(), observer)));
+        ProductionSttGrpcServiceTest.<CorrectionResponse>assertFailedPrecondition(
+                observer -> runWithTenantPrincipal(() -> service.submitCorrection(CorrectionRequest.getDefaultInstance(), observer)),
+                "STT_CORRECTION_NOT_ADMITTED:");
+    }
+
+    @Test
+    void sensitiveRpcRejectsMissingOrInvalidIdentityBeforeProviderAccess() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry());
+
+        assertSensitiveRpcIdentityFailure(callSensitiveRpcs(service));
+
+        io.grpc.Context.current()
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT, "bad-subject")
+                .run(() -> assertSensitiveRpcIdentityFailure(callSensitiveRpcs(service)));
+        verifyNoInteractions(library);
+    }
+
+    private static List<CapturingObserver<?>> callSensitiveRpcs(ProductionSttGrpcService service) {
+        var adapt = new CapturingObserver<AdaptResponse>();
+        var create = new CapturingObserver<ProfileResponse>();
+        var get = new CapturingObserver<ProfileResponse>();
+        var update = new CapturingObserver<ProfileResponse>();
+        var correction = new CapturingObserver<CorrectionResponse>();
+        service.adaptModel(AdaptRequest.getDefaultInstance(), adapt);
+        service.createProfile(CreateProfileRequest.getDefaultInstance(), create);
+        service.getProfile(GetProfileRequest.getDefaultInstance(), get);
+        service.updateProfile(UpdateProfileRequest.getDefaultInstance(), update);
+        service.submitCorrection(CorrectionRequest.getDefaultInstance(), correction);
+        return List.of(adapt, create, get, update, correction);
+    }
+
+    private static void assertSensitiveRpcIdentityFailure(List<CapturingObserver<?>> observers) {
+        for (CapturingObserver<?> observer : observers) assertUnauthenticated(observer);
+    }
+
+    private static void runWithTenantPrincipal(Runnable action) {
+        io.grpc.Context.current()
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT,
+                        "00000000-0000-0000-0000-000000000001")
+                .run(action);
+    }
+
+    private static void assertUnauthenticated(CapturingObserver<?> observer) {
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
     }
 
     @Test
@@ -201,12 +250,18 @@ class ProductionSttGrpcServiceTest {
     }
 
     private static <T> void assertNotAdmitted(java.util.function.Consumer<StreamObserver<T>> invoke) {
+        assertFailedPrecondition(invoke, "STT_SPEAKER_PROFILE_NOT_ADMITTED:");
+    }
+
+    private static <T> void assertFailedPrecondition(
+            java.util.function.Consumer<StreamObserver<T>> invoke,
+            String descriptionPrefix) {
         CapturingObserver<T> observer = new CapturingObserver<>();
         invoke.accept(observer);
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         StatusRuntimeException failure = (StatusRuntimeException) observer.error;
         assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
-        assertThat(failure.getStatus().getDescription()).startsWith("STT_SPEAKER_PROFILE_NOT_ADMITTED:");
+        assertThat(failure.getStatus().getDescription()).startsWith(descriptionPrefix);
     }
 
     private static final class CapturingObserver<T> implements StreamObserver<T> {

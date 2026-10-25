@@ -460,13 +460,8 @@ class SttGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("adaptModel: valid profile + interactions → success with vocab count")
-    void adaptModel_validRequest_succeeds() throws Exception { 
-        UserProfile profile = new UserProfile("p1", "Alice", Locale.ENGLISH, 
-            List.of("existing"), new byte[0]);
-        when(mockEngine.loadProfile("p1")).thenReturn(Optional.of(profile));
-        doNothing().when(mockEngine).saveProfile(any()); 
-
+    @DisplayName("adaptModel fails closed without immutable revision and admitted provider")
+    void adaptModel_notAdmittedBeforeEngineAccess() {
         AdaptRequest request = AdaptRequest.newBuilder() 
             .setProfileId("p1")
             .addInteractions(Interaction.newBuilder() 
@@ -474,40 +469,40 @@ class SttGrpcServiceTest {
                 .build()) 
             .build(); 
         CapturingObserver<AdaptResponse> observer = new CapturingObserver<>(); 
-        service.adaptModel(request, observer); 
+        runWithTenantContext(() -> service.adaptModel(request, observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getSuccess()).isTrue(); 
-        assertThat(observer.getValue().getStats().getInteractionsProcessed()).isEqualTo(1); 
-        assertThat(observer.getValue().getStats().getNewVocabularyTerms()).isGreaterThan(0); 
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_ADAPTATION_NOT_ADMITTED:");
+        verify(mockLibrary, never()).getSttEngine();
     }
 
     @Test
-    @DisplayName("adaptModel: blank profileId → INVALID_ARGUMENT")
-    void adaptModel_blankProfileId_returnsInvalidArgument() { 
+    @DisplayName("adaptModel: blank profileId remains unavailable without admission")
+    void adaptModel_blankProfileId_notAdmitted() {
         CapturingObserver<AdaptResponse> observer = new CapturingObserver<>(); 
-        service.adaptModel(AdaptRequest.getDefaultInstance(), observer); 
+        runWithTenantContext(() -> service.adaptModel(AdaptRequest.getDefaultInstance(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.INVALID_ARGUMENT.getCode()); 
+            .isEqualTo(Status.FAILED_PRECONDITION.getCode());
     }
 
     @Test
-    @DisplayName("adaptModel: profile not found → NOT_FOUND")
-    void adaptModel_profileNotFound_returnsNotFound() throws Exception { 
-        when(mockEngine.loadProfile("ghost")).thenReturn(Optional.empty());
-
+    @DisplayName("adaptModel: unknown profile cannot reach mutable legacy state")
+    void adaptModel_unknownProfile_notAdmitted() {
         AdaptRequest request = AdaptRequest.newBuilder() 
             .setProfileId("ghost")
             .addInteractions(Interaction.newBuilder().setCorrectedTranscript("word").build())
             .build(); 
         CapturingObserver<AdaptResponse> observer = new CapturingObserver<>(); 
-        service.adaptModel(request, observer); 
+        runWithTenantContext(() -> service.adaptModel(request, observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
-            .isEqualTo(Status.NOT_FOUND.getCode()); 
+            .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        verify(mockLibrary, never()).getSttEngine();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -518,9 +513,8 @@ class SttGrpcServiceTest {
     @DisplayName("createProfile fails closed without trusted rights and consent admission")
     void createProfile_notAdmittedBeforeEngineAccess() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
-        service.createProfile( 
-            CreateProfileRequest.newBuilder().setDisplayName("Alice").build(),
-            observer);
+        runWithTenantContext(() -> service.createProfile(
+                CreateProfileRequest.newBuilder().setDisplayName("Alice").build(), observer));
 
         assertThat(observer.hasError()).isTrue();
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
@@ -534,7 +528,7 @@ class SttGrpcServiceTest {
     @DisplayName("createProfile: blank displayName remains blocked without trusted admission")
     void createProfile_blankNameNotAdmitted() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
-        service.createProfile(CreateProfileRequest.getDefaultInstance(), observer); 
+        runWithTenantContext(() -> service.createProfile(CreateProfileRequest.getDefaultInstance(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
@@ -549,7 +543,7 @@ class SttGrpcServiceTest {
     @DisplayName("getProfile fails closed without tenant-scoped admission")
     void getProfile_notAdmittedBeforeStoreAccess() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
-        service.getProfile(GetProfileRequest.newBuilder().setProfileId("p1").build(), observer);
+        runWithTenantContext(() -> service.getProfile(GetProfileRequest.newBuilder().setProfileId("p1").build(), observer));
 
         assertThat(observer.hasError()).isTrue();
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
@@ -561,7 +555,7 @@ class SttGrpcServiceTest {
     @DisplayName("getProfile: unknown profileId remains blocked without trusted admission")
     void getProfile_unknown_notAdmitted() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
-        service.getProfile(GetProfileRequest.newBuilder().setProfileId("ghost").build(), observer);
+        runWithTenantContext(() -> service.getProfile(GetProfileRequest.newBuilder().setProfileId("ghost").build(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
@@ -572,7 +566,7 @@ class SttGrpcServiceTest {
     @DisplayName("getProfile: blank profileId is blocked before store access")
     void getProfile_blankId_notAdmitted() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
-        service.getProfile(GetProfileRequest.getDefaultInstance(), observer); 
+        runWithTenantContext(() -> service.getProfile(GetProfileRequest.getDefaultInstance(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
@@ -591,7 +585,7 @@ class SttGrpcServiceTest {
             .setSettings(ProfileSettings.newBuilder().setPreferredLanguage("fr").build())
             .build(); 
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
-        service.updateProfile(request, observer); 
+        runWithTenantContext(() -> service.updateProfile(request, observer));
 
         assertThat(observer.hasError()).isTrue();
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
@@ -603,7 +597,7 @@ class SttGrpcServiceTest {
     @DisplayName("updateProfile: unknown profileId remains blocked without trusted admission")
     void updateProfile_unknown_notAdmitted() {
         CapturingObserver<ProfileResponse> observer = new CapturingObserver<>(); 
-        service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("ghost").build(), observer);
+        runWithTenantContext(() -> service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("ghost").build(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
@@ -634,13 +628,57 @@ class SttGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("submitCorrection: always accepted")
-    void submitCorrection_alwaysAccepted() { 
+    @DisplayName("submitCorrection fails closed without expected-version CAS")
+    void submitCorrection_notAdmittedWithoutVersionCas() {
         CapturingObserver<CorrectionResponse> observer = new CapturingObserver<>(); 
-        service.submitCorrection(CorrectionRequest.getDefaultInstance(), observer); 
+        runWithTenantContext(() -> service.submitCorrection(CorrectionRequest.getDefaultInstance(), observer));
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getAccepted()).isTrue(); 
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_CORRECTION_NOT_ADMITTED:");
+        verify(mockLibrary, never()).getSttEngine();
+    }
+
+    @Test
+    @DisplayName("sensitive write RPCs return UNAUTHENTICATED before admission checks when identity is missing")
+    void sensitiveWritesRequireIdentityBeforeCapabilityAdmission() {
+        assertSensitiveWriteRpcStatus(Status.UNAUTHENTICATED, this::invokeSensitiveWriteRpcs);
+        verify(mockLibrary, never()).getSttEngine();
+    }
+
+    @Test
+    @DisplayName("sensitive write RPCs reject malformed principals before provider access")
+    void sensitiveWritesRejectInvalidPrincipalBeforeProviderAccess() {
+        io.grpc.Context.current()
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT, "not-a-uuid")
+                .run(() -> assertSensitiveWriteRpcStatus(Status.UNAUTHENTICATED, this::invokeSensitiveWriteRpcs));
+        verify(mockLibrary, never()).getSttEngine();
+    }
+
+    private List<CapturingObserver<?>> invokeSensitiveWriteRpcs() {
+        var adapt = new CapturingObserver<AdaptResponse>();
+        var create = new CapturingObserver<ProfileResponse>();
+        var get = new CapturingObserver<ProfileResponse>();
+        var update = new CapturingObserver<ProfileResponse>();
+        var correction = new CapturingObserver<CorrectionResponse>();
+        service.adaptModel(AdaptRequest.getDefaultInstance(), adapt);
+        service.createProfile(CreateProfileRequest.getDefaultInstance(), create);
+        service.getProfile(GetProfileRequest.getDefaultInstance(), get);
+        service.updateProfile(UpdateProfileRequest.getDefaultInstance(), update);
+        service.submitCorrection(CorrectionRequest.getDefaultInstance(), correction);
+        return List.of(adapt, create, get, update, correction);
+    }
+
+    private static void assertSensitiveWriteRpcStatus(
+            Status expected,
+            java.util.function.Supplier<List<CapturingObserver<?>>> call) {
+        for (CapturingObserver<?> observer : call.get()) {
+            assertThat(observer.hasError()).isTrue();
+            assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                    .isEqualTo(expected.getCode());
+        }
     }
 
     @Test
@@ -724,5 +762,12 @@ class SttGrpcServiceTest {
         T getValue() { return value; } 
         boolean hasError() { return error != null; } 
         Throwable getError() { return error; } 
+    }
+    private static void runWithTenantContext(Runnable action) {
+        io.grpc.Context.current()
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_TENANT, "tenant-test")
+                .withValue(com.ghatana.audio.video.common.security.JwtServerInterceptor.CTX_SUBJECT,
+                        "00000000-0000-0000-0000-000000000001")
+                .run(action);
     }
 }
