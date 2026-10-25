@@ -1151,3 +1151,31 @@ Focused verification on this source cut:
 - `./gradlew --no-daemon :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.yolo.YoloDetectionPostProcessorTest' --tests 'com.ghatana.audio.video.vision.yolo.LetterboxTransformTest' --tests 'com.ghatana.audio.video.vision.yolo.YoloV8AdapterPreprocessingTest' --tests 'com.ghatana.audio.video.vision.image.BoundedImageDecoderTest' --tests 'com.ghatana.audio.video.vision.grpc.VisionGrpcServiceTest' --no-build-cache --console=plain` — 94 tests, 0 failures/errors/skips.
 - `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (thirty-fourth round)
+
+This round closes a source-contract mismatch in the STT provider admission boundary, distinguishes unsupported from malformed FLAC on the persistent gRPC path, hardens SSML adversarial coverage, and prevents unbound multimodal family RPCs from returning aggregate results. The task ledger now records one additional locally verified task; no real provider/model admission or lifecycle status is inferred.
+
+| Task / audit | Change and evidence | Current disposition |
+| --- | --- | --- |
+| STT-02 | Owner decision: the README now documents the actual modes instead of an upstream Whisper strategy unsupported by the available contract. GRPC and LOCAL_ONNX remain explicit, fail-closed `NOT_ADMITTED` profiles; the manifest now lists every required runtime profile field for both modes and the STT test parses JSON to check mode/status/transport and exact field-to-environment parity. The profile contract test passed 13 tests. | LOCALLY_VERIFIED for provider selection, manifest/runtime agreement, and truthful pre-start `NOT_ADMITTED`; no upstream ASR client, credentials, model-license admission, or provider quality is claimed. |
+| STT-04 | `PersistentSttGrpcService` now routes detected FLAC through the canonical bounded header validator before the WAV-only clock inspection. A complete but unsupported FLAC reports `FAILED_PRECONDITION`; a truncated FLAC reports `INVALID_ARGUMENT`, and neither calls the transcript service. Focused persistent gRPC tests passed 16 cases. | PARTIAL: no FLAC decoder is admitted; source/version and provider-backed transcript persistence remain open. |
+| TTS-04 | Added regressions proving escaped markup stays text, script and attribute injection reject, and reordered attributes/normalized values produce deterministic canonical segments. The hardened parser suite passed 15 cases. | Remains LOCALLY_VERIFIED; this verifies parser safety and normalization only, not provider-specific prosody effects. |
+| MM-08 | The four legacy family routes (`processMultimodal`, `analyzeVideoWithAudio`, `generateDescription`, `analyzeCrossModal`) now return `FAILED_PRECONDITION` with `MULTIMODAL_FAMILY_NOT_ADMITTED` after modality-only authorization, before engine dispatch or response emission. Tests use an injected ADMITTED authorization fixture and verify no engine interactions. Focused service tests passed 40 cases. | PARTIAL: canonical capability-operation binding and independent per-operation attempt/provider/finality outcomes are not yet present. |
+| STT-03 / STT-09 / TTS-05 / VIS-10 / MM-02 audits | No redundant behavior change was made. Missing STT identity already fails before service work, but purpose/rights and transcript ownership remain open; the shared job SPI owns fencing/restart state, while STT-specific provider/artifact dispatch remains gated; TTS profile/clone effects remain NOT_ADMITTED without consent authority; Vision biometric effects remain NOT_ADMITTED without trusted rights context; and MM identity is JWT-derived while the family route guard prevents dispatch. Existing tests cover these local fail-closed boundaries. | Existing dispositions remain unchanged; these audits do not establish trusted consent/rights, provider effects, or completion of their broader task acceptance. |
+
+The current exclusive task dispositions are **23 LOCALLY_VERIFIED, 29 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**:
+
+- LOCALLY_VERIFIED: STT-01, STT-02, STT-11; TTS-01, TTS-02, TTS-04, TTS-11; VIS-01, VIS-03, VIS-04, VIS-11; MM-01, MM-04, MM-07, MM-11; OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06, OBS-09, OBS-10.
+- PARTIAL: STT-03 through STT-10; TTS-03, TTS-05, TTS-06, TTS-08, TTS-09, TTS-10; VIS-05 through VIS-10; MM-02, MM-03, MM-05, MM-06, MM-08, MM-09, MM-10; OBS-07, OBS-08.
+- EXTERNAL/OWNER: STT-12; TTS-07, TTS-12; VIS-02, VIS-12; MM-12.
+
+The 99 PDP capability memberships, 43 source RPC identities, and five residual handoffs remain unchanged. No live provider qualification, model-quality result, formal PDP acceptance, gtool transition/closure, operational cutover, deployment, or release is claimed.
+
+Focused verification on this source cut:
+
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.ssml.SsmlProcessorTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 15 tests, 0 failures/errors/skips.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServiceTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 40 tests, 0 failures/errors/skips. The first focused run exposed one stale expected status; the expectation was corrected to the new family-level NOT_ADMITTED result and the suite rerun.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.PersistentSttGrpcServiceTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 16 tests, 0 failures/errors/skips.
+- `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.ProductionSttGrpcServiceTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 13 tests, 0 failures/errors/skips.
+- `git diff --check` — PASS.
