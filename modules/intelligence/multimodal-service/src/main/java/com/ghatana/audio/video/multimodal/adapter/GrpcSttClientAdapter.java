@@ -6,6 +6,7 @@ import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.core.grpc.proto.ConfidenceCalibration;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -118,6 +121,8 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
                     LOG.warn("STT provider unavailable: status={}", failure.getStatus().getCode());
                     return AudioResult.error(
                             "STT provider unavailable: " + failure.getStatus().getCode());
+                } catch (CancellationException cancelled) {
+                    throw cancelled;
                 } catch (RuntimeException failure) {
                     LOG.error("STT transcription failed", failure);
                     return AudioResult.error("STT transcription failed");
@@ -136,8 +141,8 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
     }
 
     private AudioResult transcribeViaGrpc(byte[] audioData) {
-        STTServiceGrpc.STTServiceBlockingStub client =
-                STTServiceGrpc.newBlockingStub(channel)
+        STTServiceGrpc.STTServiceFutureStub client =
+                STTServiceGrpc.newFutureStub(channel)
                         .withDeadlineAfter(CALL_DEADLINE_SECONDS, TimeUnit.SECONDS);
 
         TranscribeRequest request = TranscribeRequest.newBuilder()
@@ -146,7 +151,23 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
                 .setLanguage("")
                 .build();
 
-        TranscribeResponse response = client.transcribe(request);
+        ListenableFuture<TranscribeResponse> call = client.transcribe(request);
+        TranscribeResponse response;
+        try {
+            response = call.get();
+        } catch (InterruptedException interrupted) {
+            // Future.cancel propagates cancellation to the underlying gRPC ClientCall. This
+            // matters when the parent multimodal deadline cancels its worker thread.
+            call.cancel(true);
+            Thread.currentThread().interrupt();
+            CancellationException cancelled = new CancellationException("STT call cancelled");
+            cancelled.initCause(interrupted);
+            throw cancelled;
+        } catch (ExecutionException failed) {
+            Throwable cause = failed.getCause();
+            if (cause instanceof StatusRuntimeException statusFailure) throw statusFailure;
+            throw new IllegalStateException("STT gRPC call failed", cause);
+        }
         String transcription = response.getText() == null ? "" : response.getText();
         AudioResult.ConfidenceCalibration calibration = switch (response.getConfidenceCalibration()) {
             case CONFIDENCE_CALIBRATION_UNCALIBRATED -> AudioResult.ConfidenceCalibration.UNCALIBRATED;

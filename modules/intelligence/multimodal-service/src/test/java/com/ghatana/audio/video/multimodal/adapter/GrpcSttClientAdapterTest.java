@@ -8,6 +8,7 @@ import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.stt.core.grpc.proto.ConfidenceCalibration;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
+import io.grpc.Context;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.Status;
@@ -16,6 +17,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -207,6 +211,37 @@ class GrpcSttClientAdapterTest {
             } finally {
                 server.shutdownNow();
             }
+        }
+    }
+
+    @Test
+    @DisplayName("Interrupting a parent worker cancels the in-flight STT RPC")
+    void parentInterruptionCancelsRpc() throws Exception {
+        CountDownLatch callStarted = new CountDownLatch(1);
+        CountDownLatch callCancelled = new CountDownLatch(1);
+        Server server = ServerBuilder.forPort(0).addService(new STTServiceGrpc.STTServiceImplBase() {
+            @Override
+            public void transcribe(
+                    com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                    StreamObserver<TranscribeResponse> observer) {
+                Context.current().addListener(ignored -> callCancelled.countDown(), Runnable::run);
+                callStarted.countDown();
+            }
+        }).build().start();
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+            FutureTask<AudioResult> call = new FutureTask<>(() -> adapter.transcribe(new byte[] {1}));
+            Thread worker = new Thread(call, "test-stt-parent-worker");
+            worker.start();
+            assertThat(callStarted.await(2, TimeUnit.SECONDS)).isTrue();
+            worker.interrupt();
+            assertThatThrownBy(call::get)
+                    .isInstanceOf(java.util.concurrent.ExecutionException.class)
+                    .cause().isInstanceOf(CancellationException.class);
+            assertThat(callCancelled.await(2, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 }
