@@ -60,6 +60,22 @@ class SttTranscriptionResponseMapperTest {
     }
 
     @Test
+    void acceptsAdjacentMillisecondBoundsEndingAtAudioBoundary() {
+        TranscriptionResult result = result(0.5,
+                List.of(new WordTiming("first", 0.0, 0.001, 0.5),
+                        new WordTiming("last", 0.001, 0.002, 0.5)), List.of());
+
+        var response = SttTranscriptionResponseMapper.toProto(result, Duration.ofMillis(2)).build();
+
+        assertThat(response.getWordTimings(0).getStartMs()).isZero();
+        assertThat(response.getWordTimings(0).getEndMs()).isEqualTo(1L);
+        assertThat(response.getWordTimings(1).getStartMs()).isEqualTo(1L);
+        assertThat(response.getWordTimings(1).getEndMs()).isEqualTo(2L);
+        assertThat(response.getWordTimingTimebase())
+                .isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
+    }
+
+    @Test
     void rejectsMillisecondOverflowInsteadOfWrapping() {
         TranscriptionResult result = result(0.5,
                 List.of(new WordTiming("far", 0.0, 1.0e16, 0.5)), List.of());
@@ -138,6 +154,14 @@ class SttTranscriptionResponseMapperTest {
                 Duration.ofSeconds(1), "finite");
         assertInvalid(result(0.5, List.of(new WordTiming("tiny", 0.0001, 0.0002, 0.5)), List.of()),
                 Duration.ofSeconds(1), "millisecond bounds");
+    }
+
+    @Test
+    void rejectsOutOfOrderNonOverlappingIntervals() {
+        assertInvalid(result(0.5,
+                List.of(new WordTiming("later", 0.6, 0.8, 0.5),
+                        new WordTiming("earlier", 0.1, 0.2, 0.5)), List.of()),
+                Duration.ofSeconds(1), "strictly ordered");
     }
 
     private static TranscriptionResult result(
