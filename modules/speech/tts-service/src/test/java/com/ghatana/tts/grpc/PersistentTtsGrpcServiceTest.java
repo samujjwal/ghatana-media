@@ -8,9 +8,12 @@ import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.tts.core.grpc.proto.AudioChunk;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceResponse;
+import com.ghatana.tts.core.grpc.proto.CloneOptions;
 import com.ghatana.tts.core.grpc.proto.CreateProfileRequest;
 import com.ghatana.tts.core.grpc.proto.GetProfileRequest;
+import com.ghatana.tts.core.grpc.proto.PrivacyLevel;
 import com.ghatana.tts.core.grpc.proto.ProfileResponse;
+import com.ghatana.tts.core.grpc.proto.ProfileSettings;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
 import com.ghatana.tts.core.grpc.proto.UpdateProfileRequest;
@@ -270,6 +273,61 @@ class PersistentTtsGrpcServiceTest {
         verifyNoInteractions(persistentTtsService, library, audioFileService, engine);
     }
 
+    @Test
+    @DisplayName("profile and clone payload claims never substitute for trusted tenant, owner, consent, or purpose authority")
+    void profileAndCloneClaimsNeverDispatchAcrossAuthorityContexts() {
+        List<String[]> contexts = List.of(
+                new String[] {null, null},
+                new String[] {TENANT_ID, null},
+                new String[] {TENANT_ID, "not-a-principal"},
+                new String[] {TENANT_ID, USER_ID});
+
+        for (String[] auth : contexts) {
+            CapturingObserver<ProfileResponse> create = new CapturingObserver<>();
+            runWithAuthorityContext(auth[0], auth[1], () -> streamingService.createProfile(
+                    CreateProfileRequest.newBuilder().setDisplayName("owner-consented-profile")
+                            .setSettings(ProfileSettings.newBuilder().setDefaultVoiceId("voice-owner-1")
+                                    .setPrivacyLevel(PrivacyLevel.PRIVACY_LEVEL_HIGH))
+                            .build(), create));
+            assertNotAdmittedProfile(create);
+
+            CapturingObserver<ProfileResponse> get = new CapturingObserver<>();
+            runWithAuthorityContext(auth[0], auth[1], () -> streamingService.getProfile(
+                    GetProfileRequest.newBuilder().setProfileId("other-tenant-private-profile").build(), get));
+            assertNotAdmittedProfile(get);
+
+            CapturingObserver<ProfileResponse> update = new CapturingObserver<>();
+            runWithAuthorityContext(auth[0], auth[1], () -> streamingService.updateProfile(
+                    UpdateProfileRequest.newBuilder().setProfileId("other-tenant-private-profile")
+                            .setSettings(ProfileSettings.newBuilder().setDefaultVoiceId("voice-owner-1")
+                                    .setPrivacyLevel(PrivacyLevel.PRIVACY_LEVEL_HIGH))
+                            .build(), update));
+            assertNotAdmittedProfile(update);
+
+            CapturingObserver<CloneVoiceResponse> clone = new CapturingObserver<>();
+            runWithAuthorityContext(auth[0], auth[1], () -> streamingService.cloneVoice(
+                    CloneVoiceRequest.newBuilder().setVoiceName("owner-consented-voice")
+                            .addAudioSamples(com.google.protobuf.ByteString.copyFrom(new byte[256]))
+                            .setOptions(CloneOptions.newBuilder().setFineTuneEpochs(1).setLearningRate(0.001f))
+                            .build(), clone));
+            assertThat(statusCode(clone)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+            assertThat(description(clone)).contains("NOT_ADMITTED", "owner consent", "biometric purpose", "retention");
+            assertThat(clone.values).isEmpty();
+            assertThat(clone.completed).isFalse();
+        }
+
+        // Profile/clone protobufs cannot carry authoritative owner, consent, purpose, or tenant
+        // bindings. Caller-selected settings and uploaded samples therefore remain untrusted.
+        verifyNoInteractions(persistentTtsService, library, audioFileService, engine);
+    }
+
+    private static void assertNotAdmittedProfile(CapturingObserver<ProfileResponse> observer) {
+        assertThat(statusCode(observer)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(description(observer)).contains("NOT_ADMITTED", "tenant/principal ownership", "consent", "purpose", "retention");
+        assertThat(observer.values).isEmpty();
+        assertThat(observer.completed).isFalse();
+    }
+
     // ─── streamSynthesize() tests ─────────────────────────────────────────────
 
     @Test
@@ -363,6 +421,18 @@ class PersistentTtsGrpcServiceTest {
             ctx = ctx.withValue(JwtServerInterceptor.CTX_SUBJECT, subject);
         }
         ctx.run(action);
+    }
+
+    private static void runWithAuthorityContext(String tenantId, String subject, Runnable action) {
+        Context ctx = Context.ROOT;
+        if (tenantId != null) ctx = ctx.withValue(JwtServerInterceptor.CTX_TENANT, tenantId);
+        if (subject != null) ctx = ctx.withValue(JwtServerInterceptor.CTX_SUBJECT, subject);
+        Context previous = ctx.attach();
+        try {
+            action.run();
+        } finally {
+            ctx.detach(previous);
+        }
     }
 
     private static final class CapturingObserver<T> implements StreamObserver<T> {
