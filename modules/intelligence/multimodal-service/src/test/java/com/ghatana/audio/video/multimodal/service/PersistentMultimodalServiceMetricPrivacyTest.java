@@ -190,28 +190,29 @@ class PersistentMultimodalServiceMetricPrivacyTest extends EventloopTestBase {
     }
 
     @Test
-    void dataCloudJobDoesNotExportTenantCorrelationOrRequestIdsAsMetricTags() {
+    void callerSuppliedConsentStatusCannotAuthorizeDataCloudDispatchOrPersistence() {
         AudioFileService audioFileService = mock(AudioFileService.class);
         TranscriptionService transcriptionService = mock(TranscriptionService.class);
+        SttEngine sttEngine = mock(SttEngine.class);
+        VisionEngine visionEngine = mock(VisionEngine.class);
+        AuditService auditService = mock(AuditService.class);
         SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
-        when(audioFileService.save(anyString(), any(AudioFileEntity.class)))
-                .thenAnswer(invocation -> Promise.of(invocation.getArgument(1)));
         PersistentMultimodalService service = new PersistentMultimodalService(
-                audioFileService, transcriptionService, null, null, meterRegistry);
-        String tenantMarker = "tenant-marker-private";
-        String correlationMarker = "correlation-marker-private";
-        String requestMarker = "request-marker-private";
+                audioFileService, transcriptionService, sttEngine, visionEngine, meterRegistry, auditService);
 
-        PersistentMultimodalService.DataCloudMultimodalResult result = runPromise(() ->
-                service.processDataCloudJob(tenantMarker, UUID.randomUUID(),
-                        correlationMarker, requestMarker, "GRANTED", "30-days", null, null));
+        for (String callerSuppliedStatus : List.of("GRANTED", "AUTO_APPROVED")) {
+            assertThatThrownBy(() -> runPromise(() -> service.processDataCloudJob(
+                    "tenant", UUID.randomUUID(), "correlation", "request", callerSuppliedStatus,
+                    "30-days", new byte[] {1}, new byte[] {2})))
+                    .hasMessageStartingWith("DATACLOUD_MULTIMODAL_NOT_ADMITTED:");
+        }
 
-        assertThat(result.outcome()).isEqualTo(PersistentMultimodalService.Outcome.NO_MODALITY);
-        var timer = meterRegistry.find("multimodal.fuse.duration").timer();
-        assertThat(timer).isNotNull();
-        assertThat(timer.getId().getTags()).isEmpty();
-        assertThat(timer.getId().getTags().toString())
-                .doesNotContain(tenantMarker, correlationMarker, requestMarker);
+        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        verify(transcriptionService, never()).save(anyString(), any(TranscriptionEntity.class));
+        verify(sttEngine, never()).transcribe(any(AudioData.class));
+        verify(visionEngine, never()).detectAsync(any(), any());
+        verify(auditService, never()).record(any(AuditEvent.class));
+        assertThat(meterRegistry.find("multimodal.fuse.duration").timer().count()).isZero();
     }
 
     private static final class LogCapture extends AbstractAppender implements AutoCloseable {

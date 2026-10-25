@@ -168,16 +168,15 @@ public class PersistentMultimodalService {
     }
 
     /**
-     * K5: Accept Data Cloud media processing jobs.
-     *
-     * Processes media artifacts from Data Cloud. Trace/request IDs are returned as references
-     * and are not included in ordinary logs or metric labels.
+     * Data Cloud processing remains unavailable until trusted consent and immutable artifact
+     * version authorities are wired. A caller-supplied consent status is descriptive metadata,
+     * not permission to persist or dispatch media.
      *
      * @param tenantId       the tenant ID from Data Cloud
      * @param artifactId     the artifact ID from Data Cloud
      * @param correlationId  the correlation ID for traceability
      * @param requestId      the request ID for tracking
-     * @param consentStatus  the consent status for the processing
+     * @param consentStatus  caller-supplied consent metadata; never an authority decision
      * @param retentionPolicy the retention policy for the results
      * @param audioData      the audio data (optional)
      * @param visualData     the visual data (optional)
@@ -198,57 +197,8 @@ public class PersistentMultimodalService {
         Objects.requireNonNull(correlationId, "correlationId cannot be null");
         Objects.requireNonNull(requestId, "requestId cannot be null");
 
-        long startTime = System.currentTimeMillis();
-
-        LOG.info("Processing Data Cloud multimodal job");
-
-        // K5: Validate consent before processing
-        if (!"GRANTED".equals(consentStatus) && !"AUTO_APPROVED".equals(consentStatus)) {
-            LOG.warn("Data Cloud multimodal job rejected by consent policy");
-            return Promise.ofException(new IllegalArgumentException("Consent status not granted"));
-        }
-
-        // K5: Process and emit result references only (not raw media content)
-        return processAndPersist(tenantId, UUID.randomUUID(), audioData, visualData, "data-cloud-artifact")
-            .map(result -> {
-                long elapsedMs = System.currentTimeMillis() - startTime;
-
-                // K5: Emit processing result references, not raw sensitive media content
-                DataCloudMultimodalResult dcResult = new DataCloudMultimodalResult(
-                    artifactId,
-                    result.mediaFileId(),
-                    correlationId,
-                    requestId,
-                    result.transcription(),
-                    result.transcriptionConfidence(),
-                    result.visualAnalysis().hasDetections(),
-                    elapsedMs,
-                    consentStatus,
-                    retentionPolicy,
-                    result.outcome(),
-                    result.audioStatus(),
-                    result.visualStatus()
-                );
-
-                LOG.info("Data Cloud multimodal job completed: outcome={}, hasTranscription={}, hasVisual={}, elapsedMs={}",
-                    dcResult.outcome(),
-                    dcResult.transcriptionText() != null,
-                    dcResult.hasVisualDetections(),
-                    elapsedMs);
-
-                // Trace and request identifiers stay out of metric labels.
-                dataCloudFuseTimer.record(Duration.ofMillis(elapsedMs));
-
-                return dcResult;
-            })
-            .whenException(e -> {
-                LOG.warn("Data Cloud multimodal job failed failureType={}", failureType(e));
-
-                // K5: Emit audit event for Data Cloud job failure
-                emitMultimodalAudit(tenantId, artifactId.toString(), "datacloud.multimodal", "FAILED",
-                    Map.of("error", "PROCESSING_FAILED"));
-            })
-            .mapException(e -> new IllegalStateException("Data Cloud multimodal job failed"));
+        return Promise.ofException(new IllegalStateException(
+                "DATACLOUD_MULTIMODAL_NOT_ADMITTED: trusted consent and immutable artifact/version authorities are unavailable"));
     }
 
     /**
