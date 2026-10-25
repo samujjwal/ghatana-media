@@ -12,6 +12,23 @@ public record SourceMediaTimestamp(Status status, Long pts, Long timeBaseNumerat
                 || timestampMs == null || timeBaseNumerator <= 0 || timeBaseDenominator <= 0)) {
             throw new IllegalArgumentException("Known media timestamps require PTS, rational timebase, and millis");
         }
+        if (status == Status.KNOWN) {
+            // The canonical record constructor must enforce the same timebase bounds as the
+            // parser factory; callers may construct this public value directly.
+            new RationalTimeBase(timeBaseNumerator, timeBaseDenominator);
+            if (reason != null) {
+                throw new IllegalArgumentException("Known media timestamps must not have an unknown reason");
+            }
+            long expectedMillis;
+            try {
+                expectedMillis = toTimestampMillis(pts, timeBaseNumerator, timeBaseDenominator);
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException("Known media timestamp millis are outside the supported range", overflow);
+            }
+            if (timestampMs != expectedMillis) {
+                throw new IllegalArgumentException("Known media timestamp millis must match PTS and timebase");
+            }
+        }
         if (status == Status.UNKNOWN && (pts != null || timeBaseNumerator != null
                 || timeBaseDenominator != null || timestampMs != null || reason == null || reason.isBlank())) {
             throw new IllegalArgumentException("Unknown timestamps require a reason and no fabricated values");
@@ -22,17 +39,8 @@ public record SourceMediaTimestamp(Status status, Long pts, Long timeBaseNumerat
         try {
             long pts = Long.parseLong(rawPts.trim());
             RationalTimeBase timeBase = RationalTimeBase.parse(rawTimeBase);
-            BigInteger numerator = BigInteger.valueOf(pts)
-                    .multiply(BigInteger.valueOf(timeBase.numerator()))
-                    .multiply(BigInteger.valueOf(1000));
-            BigInteger denominator = BigInteger.valueOf(timeBase.denominator());
-            BigInteger[] division = numerator.divideAndRemainder(denominator);
-            BigInteger millis = division[0];
-            if (division[1].abs().shiftLeft(1).compareTo(denominator) >= 0) {
-                millis = millis.add(BigInteger.valueOf(numerator.signum()));
-            }
             return new SourceMediaTimestamp(Status.KNOWN, pts, timeBase.numerator(), timeBase.denominator(),
-                    millis.longValueExact(), null);
+                    toTimestampMillis(pts, timeBase.numerator(), timeBase.denominator()), null);
         } catch (RuntimeException invalid) {
             return unknown(invalid instanceof ArithmeticException ? "TIMESTAMP_OUT_OF_RANGE" : "INVALID_PTS_OR_TIMEBASE");
         }
@@ -46,6 +54,19 @@ public record SourceMediaTimestamp(Status status, Long pts, Long timeBaseNumerat
 
     public static RationalTimeBase parseTimeBase(String value) {
         return RationalTimeBase.parse(value);
+    }
+
+    private static long toTimestampMillis(long pts, long timeBaseNumerator, long timeBaseDenominator) {
+        BigInteger numerator = BigInteger.valueOf(pts)
+                .multiply(BigInteger.valueOf(timeBaseNumerator))
+                .multiply(BigInteger.valueOf(1000));
+        BigInteger denominator = BigInteger.valueOf(timeBaseDenominator);
+        BigInteger[] division = numerator.divideAndRemainder(denominator);
+        BigInteger millis = division[0];
+        if (division[1].abs().shiftLeft(1).compareTo(denominator) >= 0) {
+            millis = millis.add(BigInteger.valueOf(numerator.signum()));
+        }
+        return millis.longValueExact();
     }
 
     public enum Status { KNOWN, UNKNOWN }
