@@ -1133,3 +1133,21 @@ Focused verification on this source cut:
 - `env -u AV_JWT_SECRET ./gradlew --no-daemon :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.datacloud.MediaSemanticObservationProjectorTest --tests com.ghatana.audio.video.multimodal.datacloud.DataCloudMultimodalAdapterTest --no-build-cache --console=plain` — BUILD SUCCESSFUL; 11 tests, 0 failures/errors/skips.
 - `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
 - `git diff --check` — PASS.
+
+### Incremental execution record — 2026-10-25 (thirty-third round)
+
+This round tightens the STT time-boundary check and audits VIS-05 against the current public geometry contract. The existing Vision pixel-space path passed its focused suites; no additional Vision source change was needed. Neither selected task meets full logical acceptance yet.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| STT-06 | The gRPC response mapper now bounds word timings against decoded `AudioData` sample count/rate using a rational duration rounded up by less than 1 ns, avoiding false rejection of the final sample at rates such as 44.1 kHz. The source sample clock is used only as a bound; the response retains `TIMESTAMP_TIMEBASE_UNKNOWN` because provider timing origin is not typed. Mapper and gRPC service suites passed 13 and 42 tests. | PARTIAL: source PTS/sample-origin binding, real word/phoneme alignment, calibrated model confidence and gold-corpus quality remain unavailable. |
+| VIS-05 | Owner disposition: retain the existing public output coordinates as absolute pixel `xywh` on the EXIF-oriented decoded source raster; the current proto exposes no ROI field, so no normalized ROI API or conversion was invented. The focused postprocessor/letterbox/preprocessing/EXIF/gRPC suites passed 94 tests, covering orientations 1–8, ≤1 px round trips, edges/padding, wire mapping and 64 preprocessing iterations with returned Mat blobs released. | PARTIAL: PDP-1 ROI coordinate conventions remain an explicit source handoff, content version is `NOT_PROVIDED_BY_CONTRACT`, native leak-rate measurement is absent, and OpenCV 4.9 exposes no deterministic `Net` release API. |
+
+Current exclusive dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 0 SOURCE_CONFLICT (58 total)**. The 99 PDP capability memberships, 43 source RPC identities and five residual handoffs are unchanged. No provider admission, model-quality qualification, formal PDP acceptance, lifecycle transition/closure, operational cutover, deployment or release is claimed.
+
+Focused verification on this source cut:
+
+- `env -u AV_JWT_SECRET ./gradlew :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.SttTranscriptionResponseMapperTest --tests com.ghatana.stt.grpc.SttGrpcServiceTest --console=plain` — 55 tests, 0 failures/errors/skips.
+- `./gradlew --no-daemon :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.yolo.YoloDetectionPostProcessorTest' --tests 'com.ghatana.audio.video.vision.yolo.LetterboxTransformTest' --tests 'com.ghatana.audio.video.vision.yolo.YoloV8AdapterPreprocessingTest' --tests 'com.ghatana.audio.video.vision.image.BoundedImageDecoderTest' --tests 'com.ghatana.audio.video.vision.grpc.VisionGrpcServiceTest' --no-build-cache --console=plain` — 94 tests, 0 failures/errors/skips.
+- `pnpm test:backend-modality-wave2-plan` — PASS, 6/6 structural checks.
+- `git diff --check` — PASS.
