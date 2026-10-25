@@ -86,6 +86,15 @@
           "providerId": "stt-local-onnx",
           "status": "NOT_ADMITTED",
           "reason": "No source-authorized local STT model license and quality qualification is admitted.",
+          "requiredProfileFields": [
+            "modelPath",
+            "modelId",
+            "modelVersion",
+            "modelSha256",
+            "modelLicense",
+            "executionHardware",
+            "region"
+          ],
           "modelId": null,
           "modelVersion": null,
           "modelSha256": null,

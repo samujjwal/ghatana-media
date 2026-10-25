@@ -32,6 +32,8 @@ import com.ghatana.stt.core.grpc.proto.ProfileResponse;
 import com.ghatana.stt.core.grpc.proto.UnloadModelRequest;
 import com.ghatana.stt.core.grpc.proto.UnloadModelResponse;
 import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -228,24 +230,83 @@ class ProductionSttGrpcServiceTest {
     }
 
     @Test
-    void grpcModeRequiresAnEndpointAndManifestDeclaresItsRuntimeProfileFields() throws Exception {
+    void providerManifestDeclaresRuntimeParityAndGrpcRequiresAnEndpoint() throws Exception {
         Map<String, String> profile = new java.util.HashMap<>(grpcProfile());
         profile.remove("STT_GRPC_HOST");
         assertThatThrownBy(() -> ProductionSttGrpcService.resolveProviderProfile(profile))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("STT_GRPC_HOST is required");
 
+        JsonNode stt = readSttProviderManifest();
+        assertThat(stt.path("status").asString()).isEqualTo("NOT_ADMITTED");
+        assertThat(stt.path("selectionEnvironmentVariable").asString()).isEqualTo("STT_PROVIDER_MODE");
+
+        Map<String, JsonNode> profiles = profilesByMode(stt.path("profiles"));
+        assertThat(profiles.keySet()).containsExactlyInAnyOrder("GRPC", "LOCAL_ONNX", "NOP");
+        profiles.values().forEach(profileNode ->
+                assertThat(profileNode.path("status").asString()).isEqualTo("NOT_ADMITTED"));
+
+        JsonNode grpc = profiles.get("GRPC");
+        assertThat(grpc.path("providerId").asString()).isEqualTo("stt-upstream-grpc");
+        assertThat(grpc.path("transport").asString()).isEqualTo("TLS_OR_MTLS");
+        assertRuntimeFieldParity(grpc, Map.of(
+                "host", "STT_GRPC_HOST",
+                "port", "STT_GRPC_PORT",
+                "modelId", "STT_GRPC_MODEL_ID",
+                "modelVersion", "STT_GRPC_MODEL_VERSION",
+                "modelSha256", "STT_GRPC_MODEL_SHA256",
+                "modelLicense", "STT_GRPC_MODEL_LICENSE",
+                "executionHardware", "STT_GRPC_EXECUTION_HARDWARE",
+                "region", "STT_GRPC_MODEL_REGION"), grpcProfile(), Set.of("STT_GRPC_TRANSPORT_MODE"));
+
+        JsonNode local = profiles.get("LOCAL_ONNX");
+        assertThat(local.path("providerId").asString()).isEqualTo("stt-local-onnx");
+        assertRuntimeFieldParity(local, Map.of(
+                "modelPath", "STT_MODEL_PATH",
+                "modelId", "STT_MODEL_ID",
+                "modelVersion", "STT_MODEL_VERSION",
+                "modelSha256", "STT_MODEL_SHA256",
+                "modelLicense", "STT_MODEL_LICENSE",
+                "executionHardware", "STT_EXECUTION_HARDWARE",
+                "region", "STT_MODEL_REGION"), localOnnxProfileValues(
+                        tempDir.resolve("manifest-model.onnx"), "a".repeat(64)), Set.of());
+
+        JsonNode nop = profiles.get("NOP");
+        assertThat(nop.path("providerId").asString()).isEqualTo("stt-disabled");
+        assertThat(textValues(nop.path("requiredProfileFields"))).isEmpty();
+    }
+
+    private static JsonNode readSttProviderManifest() throws Exception {
         Path root = repositoryRoot();
-        String manifest = Files.readString(root.resolve("config/provider-manifest.json"));
-        Matcher grpcProfileMatcher = Pattern.compile(
-                "(?s)\\\"mode\\\": \\\"GRPC\\\".*?\\\"requiredProfileFields\\\": \\[(.*?)\\]")
-                .matcher(manifest);
-        assertThat(grpcProfileMatcher.find()).isTrue();
-        assertThat(grpcProfileMatcher.group(1))
-                .contains("\"host\"")
-                .contains("\"port\"")
-                .contains("\"modelId\"")
-                .contains("\"region\"");
+        String source = Files.readString(root.resolve("config/provider-manifest.json"));
+        JsonNode manifest = new ObjectMapper().readTree(source);
+        return manifest.path("modalityProviderProfiles").path("stt");
+    }
+
+    private static Map<String, JsonNode> profilesByMode(JsonNode profiles) {
+        Map<String, JsonNode> values = new java.util.HashMap<>();
+        profiles.forEach(profile -> values.put(profile.path("mode").asString(), profile));
+        return values;
+    }
+
+    private static void assertRuntimeFieldParity(
+            JsonNode profile,
+            Map<String, String> fieldToEnvironment,
+            Map<String, String> runtimeEnvironment,
+            Set<String> optionalRuntimeFields) {
+        assertThat(textValues(profile.path("requiredProfileFields")))
+                .containsExactlyInAnyOrderElementsOf(fieldToEnvironment.keySet());
+        Set<String> actualRequiredRuntimeFields = new LinkedHashSet<>(runtimeEnvironment.keySet());
+        actualRequiredRuntimeFields.remove("STT_PROVIDER_MODE");
+        actualRequiredRuntimeFields.removeAll(optionalRuntimeFields);
+        assertThat(new LinkedHashSet<>(fieldToEnvironment.values()))
+                .containsExactlyInAnyOrderElementsOf(actualRequiredRuntimeFields);
+    }
+
+    private static Set<String> textValues(JsonNode values) {
+        Set<String> strings = new LinkedHashSet<>();
+        values.forEach(value -> strings.add(value.asString()));
+        return strings;
     }
 
     @Test
@@ -255,15 +316,7 @@ class ProductionSttGrpcServiceTest {
         Files.write(model, contents);
         String digest = HexFormat.of().formatHex(
                 MessageDigest.getInstance("SHA-256").digest(contents));
-        Map<String, String> profileValues = Map.of(
-                "STT_PROVIDER_MODE", "LOCAL_ONNX",
-                "STT_MODEL_PATH", model.toString(),
-                "STT_MODEL_ID", "whisper-base",
-                "STT_MODEL_VERSION", "2026.10",
-                "STT_MODEL_SHA256", digest,
-                "STT_MODEL_LICENSE", "UNKNOWN_PENDING_OWNER_REVIEW",
-                "STT_EXECUTION_HARDWARE", "cpu",
-                "STT_MODEL_REGION", "us-test-1");
+        Map<String, String> profileValues = localOnnxProfileValues(model, digest);
 
         ProductionSttGrpcService.ProviderProfile profile =
                 ProductionSttGrpcService.resolveProviderProfile(profileValues);
@@ -274,6 +327,18 @@ class ProductionSttGrpcServiceTest {
         assertThatThrownBy(() -> ProductionSttGrpcService.createConfig(profileValues))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageStartingWith("STT_PROVIDER_NOT_ADMITTED:");
+    }
+
+    private static Map<String, String> localOnnxProfileValues(Path model, String digest) {
+        return Map.of(
+                "STT_PROVIDER_MODE", "LOCAL_ONNX",
+                "STT_MODEL_PATH", model.toString(),
+                "STT_MODEL_ID", "whisper-base",
+                "STT_MODEL_VERSION", "2026.10",
+                "STT_MODEL_SHA256", digest,
+                "STT_MODEL_LICENSE", "UNKNOWN_PENDING_OWNER_REVIEW",
+                "STT_EXECUTION_HARDWARE", "cpu",
+                "STT_MODEL_REGION", "us-test-1");
     }
 
     @Test
