@@ -33,6 +33,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private static final int MAX_MODALITY_BYTES = 32 * 1024 * 1024;
     private static final int MAX_TOTAL_INPUT_BYTES = 64 * 1024 * 1024;
     private static final int MAX_TEXT_CHARS = 64 * 1024;
+    private static final int MAX_ARTIFACT_REF_BYTES = 256;
 
     private static final Logger LOG = LoggerFactory.getLogger(MultimodalGrpcService.class);
 
@@ -100,6 +101,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()
                 && request.getVideoData().isEmpty() && request.getText().isEmpty()) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("At least one modality must be provided")
+                    .asRuntimeException());
+            mediaMetrics.recordFailed("multimodal.analyse");
+            return;
+        }
+        if (utf8Length(request.getArtifactId()) > MAX_ARTIFACT_REF_BYTES) {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Artifact reference exceeds configured limit")
                     .asRuntimeException());
             mediaMetrics.recordFailed("multimodal.analyse");
             return;

@@ -189,6 +189,29 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("processMultimodal: oversized artifact references are rejected before authorization or dispatch")
+    void processMultimodal_oversizedArtifactReferenceIsRejectedBeforeAuthorization() {
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        MultimodalGrpcService bounded = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> {
+                    authorizationCalls.incrementAndGet();
+                    return SourceAuthorization.Decision.ADMITTED; // Test fixture only.
+                });
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        String oversizedReference = "r".repeat(257);
+
+        withContext(TENANT_ID, () -> bounded.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setArtifactId(oversizedReference)
+                .build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(authorizationCalls).hasValue(0);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
     @DisplayName("processMultimodal: revoked or unavailable source authority denies before engine dispatch")
     void processMultimodal_revokedAndUnavailableAuthorityDenyBeforeDispatch() {
         for (SourceAuthorization authorization : List.<SourceAuthorization>of(
