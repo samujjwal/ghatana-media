@@ -326,6 +326,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public void loadModel(LoadModelRequest request, StreamObserver<LoadModelResponse> responseObserver) {
+        if (!hasTenantContext(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
@@ -342,6 +343,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public void unloadModel(UnloadModelRequest request, StreamObserver<UnloadModelResponse> responseObserver) {
+        if (!hasTenantContext(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
@@ -358,6 +360,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
+        if (!hasTenantContext(responseObserver)) return;
         try {
             List<ModelMetadata> models = modelRegistry.listModels(ModelMetadata.ModelType.VISION)
                     .stream().filter(ModelMetadata::loaded).toList();
@@ -537,11 +540,24 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     @Override
     public StreamObserver<VideoFrameRequest> processVideo(StreamObserver<VideoFrameResponse> responseObserver) {
         return new StreamObserver<VideoFrameRequest>() {
+            private final java.util.concurrent.atomic.AtomicBoolean terminal =
+                    new java.util.concurrent.atomic.AtomicBoolean();
+
             @Override
             public void onNext(VideoFrameRequest request) {
+                if (terminal.get()) return;
                 try {
+                    String tenantId = resolveTenantId();
+                    if (tenantId == null || tenantId.isBlank()) {
+                        terminal.set(true);
+                        responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                                .withDescription("Missing tenant context")
+                                .asRuntimeException());
+                        return;
+                    }
                     // AV-P1-013: Validate frame size
                     if (request.getFrameData().isEmpty()) {
+                        terminal.set(true);
                         responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                             .withDescription("Frame data cannot be empty")
                             .asRuntimeException());
@@ -550,6 +566,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
                     int frameSize = request.getFrameData().size();
                     if (frameSize > MAX_IMAGE_BYTES) {
+                        terminal.set(true);
                         responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                             .withDescription("Frame data exceeds maximum size of " + (MAX_IMAGE_BYTES / 1024 / 1024) + "MB")
                             .asRuntimeException());
@@ -592,9 +609,11 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                     responseObserver.onNext(responseBuilder.build());
 
                 } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
+                    terminal.set(true);
                     responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
                             .withDescription(e.getMessage()).asRuntimeException());
                 } catch (Exception e) {
+                    terminal.set(true);
                     LOG.error("Video frame processing failed", e);
                     responseObserver.onError(e);
                 }
@@ -602,11 +621,13 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             @Override
             public void onError(Throwable t) {
+                terminal.set(true);
                 LOG.error("Video processing stream error", t);
             }
 
             @Override
             public void onCompleted() {
+                if (!terminal.compareAndSet(false, true)) return;
                 responseObserver.onCompleted();
                 LOG.info("Video processing stream completed");
             }
@@ -620,25 +641,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             long totalTime = totalProcessingTime.get();
             double avgTime = count > 0 ? (double) totalTime / count : 0.0;
 
-            String activeModel = modelRegistry.getActiveModel(ModelMetadata.ModelType.VISION)
-                    .map(ModelMetadata::modelId).orElse("YOLOv8");
-
             // AV-P1-014: Report degraded status when model is unavailable
-            String status;
-            if (degraded) {
-                status = "degraded";
-            } else if (detector.isInitialized()) {
-                status = "healthy";
-            } else {
-                status = "not_initialized";
-            }
+            // Detector initialization alone is not trusted provider/root admission.
+            String status = "not_admitted";
 
             StatusResponse response = StatusResponse.newBuilder()
                 .setStatus(status)
-                .setModelName(activeModel)
+                .setModelName("UNAVAILABLE")
                 .setTotalRequests(count)
                 .setAvgProcessingTimeMs(avgTime)
-                .setDegradedReason(degraded ? degradationReason : "")
+                .setDegradedReason("PROVIDER_NOT_ADMITTED")
                 .build();
 
             responseObserver.onNext(response);
@@ -654,15 +666,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     public void healthCheck(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
         try {
             // AV-P1-014: Health check returns degraded instead of failing when model is missing
-            boolean healthy = !degraded && detector.isInitialized();
-            String message;
-            if (degraded) {
-                message = "Vision service is degraded: " + degradationReason;
-            } else if (healthy) {
-                message = "Vision service is healthy";
-            } else {
-                message = "Vision service not initialized";
-            }
+            boolean healthy = false;
+            String message = "Vision service NOT_ADMITTED: trusted provider root readiness is unavailable";
 
             HealthCheckResponse response = HealthCheckResponse.newBuilder()
                 .setHealthy(healthy)
@@ -687,6 +692,15 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             LOG.warn("Tenant ID not found in gRPC Context - request may not be authenticated");
         }
         return tenantId;
+    }
+
+    private boolean hasTenantContext(StreamObserver<?> responseObserver) {
+        String tenantId = resolveTenantId();
+        if (tenantId != null && !tenantId.isBlank()) return true;
+        responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                .withDescription("Missing tenant context")
+                .asRuntimeException());
+        return false;
     }
 
     private String resolveUserId() {

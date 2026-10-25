@@ -346,6 +346,61 @@ class VisionGrpcServiceTest {
         assertThat(fakeDetector.calls).isZero();
     }
 
+    @Test
+    void analyzeVideoFile_missingTenantRejectsBeforeTemporaryStorageOrProvider() {
+        CapturingObserver<VideoFileResponse> observer = new CapturingObserver<>();
+        service.analyzeVideoFile(VideoFileRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[]{1, 2, 3})).build(), observer);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void analyzeVideoFile_emptyPayloadRejectsBeforeTemporaryStorageOrProvider() {
+        CapturingObserver<VideoFileResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.analyzeVideoFile(
+                VideoFileRequest.getDefaultInstance(), observer));
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void processVideo_missingTenantRejectsFrameBeforeProvider() {
+        CapturingObserver<VideoFrameResponse> observer = new CapturingObserver<>();
+        var stream = service.processVideo(observer);
+        stream.onNext(VideoFrameRequest.newBuilder()
+                .setFrameData(ByteString.copyFrom(new byte[]{1})).build());
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void processVideoUnauthenticatedFailureIsTerminalForTheStream() {
+        CapturingObserver<VideoFrameResponse> observer = new CapturingObserver<>();
+        var stream = service.processVideo(observer);
+        stream.onNext(VideoFrameRequest.newBuilder()
+                .setFrameData(ByteString.copyFrom(new byte[]{1})).build());
+        withContext(TENANT_ID, () -> stream.onNext(VideoFrameRequest.newBuilder()
+                .setFrameData(ByteString.copyFrom(new byte[]{2})).build()));
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(observer.getValue()).isNull();
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void processVideo_emptyFrameRejectsBeforeProvider() {
+        CapturingObserver<VideoFrameResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.processVideo(observer)
+                .onNext(VideoFrameRequest.getDefaultInstance()));
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
     // -------------------------------------------------------------------------
     // loadModel (AV-003.1) 
     // -------------------------------------------------------------------------
@@ -355,7 +410,7 @@ class VisionGrpcServiceTest {
     void loadModel_blankModelId_returnsInvalidArgument() { 
         CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>(); 
 
-        service.loadModel(LoadModelRequest.getDefaultInstance(), observer); 
+        withContext(TENANT_ID, () -> service.loadModel(LoadModelRequest.getDefaultInstance(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
@@ -366,10 +421,11 @@ class VisionGrpcServiceTest {
     @DisplayName("loadModel: valid modelId → registers and loads successfully")
     void loadModel_validModelId_loadsSuccessfully() {
         CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>();
-        service.loadModel(LoadModelRequest.newBuilder().setModelId("yolov8n").build(), observer);
+        withContext(TENANT_ID, () -> service.loadModel(
+                LoadModelRequest.newBuilder().setModelId("yolov8n").build(), observer));
         assertUnimplemented(observer);
         CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
-        service.listModels(ListModelsRequest.getDefaultInstance(), list);
+        withContext(TENANT_ID, () -> service.listModels(ListModelsRequest.getDefaultInstance(), list));
         assertThat(list.getValue().getTotalCount()).isZero();
     }
 
@@ -382,7 +438,7 @@ class VisionGrpcServiceTest {
     void unloadModel_blankModelId_returnsInvalidArgument() { 
         CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>(); 
 
-        service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer); 
+        withContext(TENANT_ID, () -> service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
@@ -393,7 +449,8 @@ class VisionGrpcServiceTest {
     @DisplayName("unloadModel: unregistered modelId → NOT_FOUND")
     void unloadModel_unregisteredModelId_returnsNotFound() {
         CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>();
-        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("unknown-model").build(), observer);
+        withContext(TENANT_ID, () -> service.unloadModel(
+                UnloadModelRequest.newBuilder().setModelId("unknown-model").build(), observer));
         assertUnimplemented(observer);
     }
 
@@ -401,11 +458,81 @@ class VisionGrpcServiceTest {
     @DisplayName("unloadModel: loaded model → unloads successfully")
     void unloadModel_loadedModel_returnsSuccess() {
         CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>();
-        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("yolov8n").build(), observer);
+        withContext(TENANT_ID, () -> service.unloadModel(
+                UnloadModelRequest.newBuilder().setModelId("yolov8n").build(), observer));
         assertUnimplemented(observer);
         CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
-        service.listModels(ListModelsRequest.getDefaultInstance(), list);
+        withContext(TENANT_ID, () -> service.listModels(ListModelsRequest.getDefaultInstance(), list));
         assertThat(list.getValue().getTotalCount()).isZero();
+    }
+
+    @Test
+    void modelManagementAndListingRequireTenantBeforeModelEffects() {
+        CapturingObserver<LoadModelResponse> load = new CapturingObserver<>();
+        service.loadModel(LoadModelRequest.newBuilder().setModelId("candidate").build(), load);
+        assertStatus(load, Status.UNAUTHENTICATED);
+
+        CapturingObserver<UnloadModelResponse> unload = new CapturingObserver<>();
+        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("candidate").build(), unload);
+        assertStatus(unload, Status.UNAUTHENTICATED);
+
+        CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
+        service.listModels(ListModelsRequest.getDefaultInstance(), list);
+        assertStatus(list, Status.UNAUTHENTICATED);
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void declaredTenRpcDispositionMatrix() {
+        // Each declared RPC has an executable unauthenticated or availability
+        // disposition; no positive fake-provider response is treated as real qualification.
+        CapturingObserver<DetectResponse> detect = new CapturingObserver<>();
+        service.detectObjects(DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[]{1})).build(), detect);
+        assertStatus(detect, Status.UNAUTHENTICATED);
+
+        CapturingObserver<AnalyzeResponse> analyze = new CapturingObserver<>();
+        service.analyzeImage(AnalyzeRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[]{1})).build(), analyze);
+        assertStatus(analyze, Status.UNAUTHENTICATED);
+
+        CapturingObserver<ClassifyResponse> classify = new CapturingObserver<>();
+        service.classifyImage(ClassifyRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[]{1})).build(), classify);
+        assertStatus(classify, Status.UNAUTHENTICATED);
+
+        CapturingObserver<VideoFileResponse> video = new CapturingObserver<>();
+        service.analyzeVideoFile(VideoFileRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[]{1})).build(), video);
+        assertStatus(video, Status.UNAUTHENTICATED);
+
+        CapturingObserver<VideoFrameResponse> streamResponse = new CapturingObserver<>();
+        var process = service.processVideo(streamResponse);
+        process.onNext(VideoFrameRequest.newBuilder()
+                .setFrameData(ByteString.copyFrom(new byte[]{1})).build());
+        assertStatus(streamResponse, Status.UNAUTHENTICATED);
+
+        CapturingObserver<LoadModelResponse> load = new CapturingObserver<>();
+        service.loadModel(LoadModelRequest.newBuilder().setModelId("unknown").build(), load);
+        assertStatus(load, Status.UNAUTHENTICATED);
+
+        CapturingObserver<UnloadModelResponse> unload = new CapturingObserver<>();
+        service.unloadModel(UnloadModelRequest.newBuilder().setModelId("unknown").build(), unload);
+        assertStatus(unload, Status.UNAUTHENTICATED);
+
+        CapturingObserver<ListModelsResponse> list = new CapturingObserver<>();
+        service.listModels(ListModelsRequest.getDefaultInstance(), list);
+        assertStatus(list, Status.UNAUTHENTICATED);
+
+        CapturingObserver<StatusResponse> status = new CapturingObserver<>();
+        service.getStatus(StatusRequest.getDefaultInstance(), status);
+        assertThat(status.getValue().getStatus()).isEqualTo("not_admitted");
+        assertThat(status.getValue().getModelName()).isEqualTo("UNAVAILABLE");
+
+        CapturingObserver<HealthCheckResponse> health = new CapturingObserver<>();
+        service.healthCheck(HealthCheckRequest.getDefaultInstance(), health);
+        assertThat(health.getValue().getHealthy()).isFalse();
+        assertThat(fakeDetector.calls).isZero();
     }
 
     // -------------------------------------------------------------------------
@@ -417,7 +544,7 @@ class VisionGrpcServiceTest {
     void listModels_emptyRegistry_returnsZeroModels() { 
         CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>(); 
 
-        service.listModels(ListModelsRequest.getDefaultInstance(), observer); 
+        withContext(TENANT_ID, () -> service.listModels(ListModelsRequest.getDefaultInstance(), observer));
 
         assertThat(observer.hasError()).isFalse(); 
         assertThat(observer.getValue().getTotalCount()).isEqualTo(0); 
@@ -426,9 +553,10 @@ class VisionGrpcServiceTest {
     @Test
     @DisplayName("listModels: after loadModel → includes loaded model")
     void listModels_afterLoad_includesModel() {
-        service.loadModel(LoadModelRequest.newBuilder().setModelId("test-model").build(), new CapturingObserver<>());
+        withContext(TENANT_ID, () -> service.loadModel(
+                LoadModelRequest.newBuilder().setModelId("test-model").build(), new CapturingObserver<>()));
         CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>();
-        service.listModels(ListModelsRequest.getDefaultInstance(), observer);
+        withContext(TENANT_ID, () -> service.listModels(ListModelsRequest.getDefaultInstance(), observer));
         assertThat(observer.getValue().getTotalCount()).isZero();
     }
 
@@ -437,8 +565,8 @@ class VisionGrpcServiceTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("getStatus: initialized detector → status healthy")
-    void getStatus_initialized_healthy() { 
+    @DisplayName("getStatus: initialized detector remains not admitted without trusted root readiness")
+    void getStatus_initialized_notAdmitted() {
         // GIVEN
         fakeDetector.setInitialized(true); 
         CapturingObserver<StatusResponse> observer = new CapturingObserver<>(); 
@@ -448,7 +576,9 @@ class VisionGrpcServiceTest {
 
         // THEN
         assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getStatus()).isEqualTo("healthy");
+        assertThat(observer.getValue().getStatus()).isEqualTo("not_admitted");
+        assertThat(observer.getValue().getModelName()).isEqualTo("UNAVAILABLE");
+        assertThat(observer.getValue().getDegradedReason()).isEqualTo("PROVIDER_NOT_ADMITTED");
     }
 
     @Test
@@ -463,7 +593,7 @@ class VisionGrpcServiceTest {
 
         // THEN
         assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getStatus()).isEqualTo("not_initialized");
+        assertThat(observer.getValue().getStatus()).isEqualTo("not_admitted");
     }
 
     // -------------------------------------------------------------------------
@@ -471,8 +601,8 @@ class VisionGrpcServiceTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("healthCheck: initialized → healthy = true")
-    void healthCheck_initialized_returnsHealthy() { 
+    @DisplayName("healthCheck: detector initialization alone does not establish readiness")
+    void healthCheck_initialized_returnsNotAdmitted() {
         // GIVEN
         fakeDetector.setInitialized(true); 
         CapturingObserver<HealthCheckResponse> observer = new CapturingObserver<>(); 
@@ -482,7 +612,8 @@ class VisionGrpcServiceTest {
 
         // THEN
         assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getHealthy()).isTrue(); 
+        assertThat(observer.getValue().getHealthy()).isFalse();
+        assertThat(observer.getValue().getMessage()).contains("NOT_ADMITTED");
     }
 
     // -------------------------------------------------------------------------
@@ -494,6 +625,13 @@ class VisionGrpcServiceTest {
         assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.UNIMPLEMENTED.getCode());
+    }
+
+    private static void assertStatus(CapturingObserver<?> observer, Status expected) {
+        assertThat(observer.hasError()).isTrue();
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(expected.getCode());
     }
 
     private static List<DetectedObject> buildDetections(String... classNames) { 
@@ -541,6 +679,7 @@ class VisionGrpcServiceTest {
 
         @Override
         public List<DetectedObject> detectObjects(byte[] imageData, DetectionOptions options) { 
+            calls++;
             if (throwOnDetect != null) { 
                 throw throwOnDetect;
             }
