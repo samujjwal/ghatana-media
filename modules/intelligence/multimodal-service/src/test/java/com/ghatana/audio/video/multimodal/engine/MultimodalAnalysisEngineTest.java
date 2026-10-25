@@ -33,6 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class MultimodalAnalysisEngineTest extends EventloopTestBase {
 
     @Test
+    @DisplayName("Unconfigured result does not imply successful modality execution")
+    void unconfiguredResultDefaultsToNoModality() {
+        assertEquals(MultimodalResult.Outcome.NO_MODALITY, MultimodalResult.builder().build().getOutcome());
+    }
+
+    @Test
     @DisplayName("Should abstain from fusion when source references are unavailable")
     void shouldAbstainFromFusionWithoutSourceReferences() {
         AudioResult audio = AudioResult.builder() 
@@ -223,6 +229,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertEquals("Audio transcription unavailable", result.getAudioResult().getError());
             assertEquals("qualified fixture result", result.getVisualResult().getSceneDescription());
             assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
+            assertEquals(MultimodalResult.Outcome.PARTIAL, result.getOutcome());
         }
     }
 
@@ -244,6 +251,22 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertTrue(result.getVisualResult().isError());
             assertEquals("Visual analysis unavailable", result.getVisualResult().getError());
             assertEquals("", result.getVisualResult().getSceneDescription());
+            assertEquals(MultimodalResult.Outcome.PARTIAL, result.getOutcome());
+        }
+    }
+
+    @Test
+    @DisplayName("All requested modality failures produce an explicit failed outcome")
+    void allRequestedModalityFailuresAreFailed() {
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                new FakeMediaGateway(AudioResult.error("unused"), VisualResult.error("unused"),
+                        VisualResult.error("unused")), AudioVideoRuntimeSettings.defaults())) {
+            MultimodalResult result = engine.analyse(MultimodalRequest.builder()
+                    .audioData(new byte[] {1}).imageData(new byte[] {2}).build());
+
+            assertEquals(MultimodalResult.Outcome.FAILED, result.getOutcome());
+            assertTrue(result.getAudioResult().isError());
+            assertTrue(result.getVisualResult().isError());
         }
     }
 

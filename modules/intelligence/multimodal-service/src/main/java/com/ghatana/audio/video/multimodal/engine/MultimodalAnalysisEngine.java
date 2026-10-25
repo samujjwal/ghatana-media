@@ -100,6 +100,10 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
             // Merge image + video visual results
             VisualResult visual = mergeVisualResults(image, video);
+            MultimodalResult.Outcome outcome = modalityOutcome(
+                    request.hasAudio(), audio,
+                    request.hasImage(), image,
+                    request.hasVideo(), video);
 
             String combined = fuse(audio, visual, request.getText());
             long elapsed = System.currentTimeMillis() - startMs;
@@ -114,6 +118,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                     .visualResult(visual)
                     .combinedAnalysis(combined)
                     .processingTimeMs(elapsed)
+                    .outcome(outcome)
                     .build();
 
         } catch (InterruptedException e) {
@@ -272,6 +277,33 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                         image.getConfidence() != null ? image.getConfidence() : 0.0,
                         video.getConfidence() != null ? video.getConfidence() : 0.0))
                 .build();
+    }
+
+    private static MultimodalResult.Outcome modalityOutcome(
+            boolean audioRequested, AudioResult audio,
+            boolean imageRequested, VisualResult image,
+            boolean videoRequested, VisualResult video) {
+        int requested = 0;
+        int succeeded = 0;
+        int failed = 0;
+        if (audioRequested) {
+            requested++;
+            if (audio == null || audio.isError()) failed++;
+            else succeeded++;
+        }
+        if (imageRequested) {
+            requested++;
+            if (image == null || image.isError()) failed++;
+            else succeeded++;
+        }
+        if (videoRequested) {
+            requested++;
+            if (video == null || video.isError()) failed++;
+            else succeeded++;
+        }
+        if (requested == 0) return MultimodalResult.Outcome.NO_MODALITY;
+        if (failed == 0) return MultimodalResult.Outcome.COMPLETE;
+        return succeeded == 0 ? MultimodalResult.Outcome.FAILED : MultimodalResult.Outcome.PARTIAL;
     }
 
     private void acquireAdmission() {
