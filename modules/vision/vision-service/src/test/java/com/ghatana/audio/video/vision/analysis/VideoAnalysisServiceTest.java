@@ -191,6 +191,34 @@ class VideoAnalysisServiceTest {
     }
 
     @Test
+    void shotBoundaryCandidateBreaksHeuristicTrackIdentityAcrossTheCut() throws IOException {
+        Path darkFrame = writeSolidPng("track-cut-dark.png", 0x000000);
+        Path brightFrame = writeSolidPng("track-cut-bright.png", 0xffffff);
+        Path video = tempDir.resolve("track-cut.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(darkFrame,
+                        SourceMediaTimestamp.fromPts("0", "1/25"), 0),
+                new VideoFrameExtractor.ExtractedFrame(brightFrame,
+                        SourceMediaTimestamp.fromPts("1", "1/25"), 1)));
+        DetectedObject sameBox = buildDetection("person", 0.9, 10, 10, 20, 30);
+        when(detector.detectObjects(any(), any())).thenReturn(List.of(sameBox), List.of(sameBox));
+
+        VideoAnalysisResult result = service.analyze(video,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        assertThat(result.shotBoundaryAssessments().getFirst().disposition())
+                .isEqualTo(ShotBoundaryHeuristic.Disposition.BOUNDARY_CANDIDATE);
+        assertThat(result.frameDetections()).extracting(frame -> frame.sourceTimestamp().pts())
+                .containsExactly(0L, 1L);
+        // The pixel-change result is an uncalibrated candidate; conservatively do not carry
+        // a local heuristic ID across that uncertain boundary as if identity were established.
+        assertThat(result.frameDetections()).extracting(frame -> frame.trackIds().getFirst())
+                .containsExactly(1, 2);
+        assertThat(result.trackingStatus()).isEqualTo("HEURISTIC_UNCALIBRATED");
+    }
+
+    @Test
     void unchangedFramePixelsDoNotProduceShotBoundaryCandidate() throws IOException {
         Path firstFrame = writeSolidPng("same-1.png", 0x808080);
         Path secondFrame = writeSolidPng("same-2.png", 0x808080);

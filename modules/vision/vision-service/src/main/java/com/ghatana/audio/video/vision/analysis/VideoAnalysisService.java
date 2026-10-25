@@ -112,7 +112,8 @@ public final class VideoAnalysisService {
             }
 
             Duration elapsed = Duration.between(startTime, Instant.now());
-            TrackAssignment assignments = assignHeuristicTracks(observedFrames, config.getFps());
+            TrackAssignment assignments = assignHeuristicTracks(
+                    observedFrames, shotBoundaryAssessments, config.getFps());
             List<FrameDetections> frameDetections = assignments.frames();
 
             LOG.info("Video analysis complete: frames={}, temporalTracking=HEURISTIC_UNCALIBRATED, elapsed={}ms",
@@ -134,7 +135,10 @@ public final class VideoAnalysisService {
     }
 
     /** Greedy, one-frame-memory IoU association. IDs are scoped to this analysis call. */
-    private TrackAssignment assignHeuristicTracks(List<ObservedFrame> frames, int samplingFps) {
+    private TrackAssignment assignHeuristicTracks(
+            List<ObservedFrame> frames,
+            List<ShotBoundaryHeuristic.Assessment> shotBoundaries,
+            int samplingFps) {
         Map<Integer, DetectedObject> previous = Map.of();
         SourceMediaTimestamp previousTimestamp = null;
         Integer previousFrameNumber = null;
@@ -143,9 +147,15 @@ public final class VideoAnalysisService {
         for (int frameIndex = 0; frameIndex < frames.size(); frameIndex++) {
             ObservedFrame frame = frames.get(frameIndex);
             SourceMediaTimestamp timestamp = frame.sourceTimestamp();
+            boolean shotBoundaryCandidate = frameIndex > 0
+                    && shotBoundaries.get(frameIndex - 1).disposition()
+                    == ShotBoundaryHeuristic.Disposition.BOUNDARY_CANDIDATE;
             boolean reset = previousTimestamp == null || !timestamp.isKnown()
                     || !previousTimestamp.isKnown() || comparePts(timestamp, previousTimestamp) <= 0
                     || exceedsGap(timestamp, previousTimestamp, samplingFps)
+                    // A candidate is deliberately uncalibrated; do not carry a local track
+                    // identity across a possible cut as if continuity were established.
+                    || shotBoundaryCandidate
                     // The extractor preserves emitted sequence ordinals. A hole means one or more
                     // observations are missing; do not bridge identity across that uncertainty.
                     || (previousFrameNumber != null
