@@ -649,3 +649,20 @@ Three focused commits follow the seventh-round record: `6c59b54`, `e3cfb8a`, and
 | OBS-06 / OBS-07 | The existing Postgres + LocalStack integration test recreated `MediaRuntime` and asserted queue 1, unknown backlog 2, overdue job lease 1, overdue outbox claim 1, and both aggregate-query support gauges 1. It passed via `:services:media:integration-tests:test --tests 'com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT'`. Added a Prometheus fixture scenario with those exact counts: overdue job/outbox lease alerts fire, queue/backlog threshold alerts stay quiet, and observed zero Vision readiness fires its provider alert. `promtool` v3.15.1 check passed for 6 + 30 rules; all 25 fixture scenarios and 51 alert assertions passed. | PARTIAL: `MediaRuntime` was recreated in one JVM; a separate OS-process restart and deployed Alertmanager delivery were not performed. |
 
 `git diff --check` passed before the focused commits. Task dispositions remain **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**: TTS-04 was already within the locally verified set, while TTS-05 and OBS-06/07 remain partial. W2-E12 restart/replay and deployment evidence remain incomplete. No formal PDP acceptance, lifecycle receipt, production provider qualification, deployment, cutover or release is claimed.
+
+### Incremental execution record — 2026-10-25 (ninth round)
+
+Two focused code commits follow the eighth-round record: `0f7db03` and `ac9f98f`. They add rational-clock/input-boundary tests for STT and harden Vision path and image resource boundaries. The 58-task denominator, PDP meanings and formal lifecycle boundary remain unchanged.
+
+| Task | Change and evidence | Current disposition |
+| --- | --- | --- |
+| STT-04 | Verified existing pre-copy size checks, RIFF/WAV validation, mono/S16LE/sample-rate/frame/duration/decoded-size bounds, and typed `NOT_ADMITTED` for unsupported compressed formats. Added a 44.1 kHz fractional-frame duration test and rejection of a WAV whose declared byte-rate disagrees with its sample clock. Focused `SttAudioInputDecoderTest` and `SttGrpcServiceTest` passed. | PARTIAL: bounded WAV/PCM upload is implemented; FLAC is signature-checked then remains `NOT_ADMITTED` because no decoder is qualified. A governed artifact/version input path is also not wired. |
+| VIS-03 | `VideoFrameExtractor` now checks every existing input/output path component for symlinks, allowing only a symlink whose canonical target is an ancestor of the canonical configured temp root (preserves macOS `/var` aliasing). Added input/output symlink-ancestor tests that abort rather than pass when symlink creation is unsupported. Added a one-second-bounded tiny PNG header test rejecting an 8192x8192 advertised raster before allocation. Focused `VideoFrameExtractorProcessTest` and `BoundedImageDecoderTest` passed 35 tests, 0 skipped/failures. | LOCALLY_VERIFIED for the bounded path and image-input acceptance described here. Malicious real-codec corpus/fuzzing and native FFmpeg/OpenCV memory/load qualification remain unverified. |
+
+Focused verification commands:
+
+- `./gradlew :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.service.SttAudioInputDecoderTest --tests com.ghatana.stt.grpc.SttGrpcServiceTest` — BUILD SUCCESSFUL.
+- `./gradlew :services:media:modules:vision:vision-service:test --tests 'com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest' --tests 'com.ghatana.audio.video.vision.image.BoundedImageDecoderTest' --no-build-cache --no-daemon --console=plain` — BUILD SUCCESSFUL, 35 tests, 0 skipped/failures.
+- `git diff --check` — PASS.
+
+Task dispositions remain **21 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, and 1 SOURCE_CONFLICT (58 total)**. VIS-03 was already in the locally verified set; STT-04 remains partial. No admitted model quality, native resource baseline, provider execution, formal PDP/gtool acceptance, deployment, data cutover or release is claimed.
