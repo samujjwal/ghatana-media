@@ -162,7 +162,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 builder.addVoices(com.ghatana.tts.core.grpc.proto.VoiceInfo.newBuilder()
                         .setVoiceId(voice.voiceId())
                         .setName(voice.name())
+                        .setDescription(voice.description() == null ? "" : voice.description())
                         .addLanguages(voice.language().toLanguageTag())
+                        .setGender(voice.gender() == null ? "" : voice.gender().name())
                         .setIsCloned(voice.isCloned())
                         .setSizeBytes(voice.modelSizeBytes())
                         .build());
@@ -178,49 +180,27 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     public void getStatus(
             StatusRequest request,
             StreamObserver<StatusResponse> responseObserver) {
-        try {
-            com.ghatana.media.common.EngineStatus status = library.getTtsEngine().getStatus();
-            responseObserver.onNext(StatusResponse.newBuilder()
-                    .setActiveVoice(status.modelId() == null ? "" : status.modelId())
-                    .build());
-            responseObserver.onCompleted();
-        } catch (RuntimeException exception) {
-            fail(responseObserver, "Status", correlationId(), exception);
-        }
+        responseObserver.onError(Status.UNIMPLEMENTED
+                .withDescription("GetStatus is NOT_ADMITTED: required active_sessions has no source metric; raw provider diagnostics are not exposed")
+                .asRuntimeException());
     }
 
     @Override
     public void getMetrics(
             MetricsRequest request,
             StreamObserver<MetricsResponse> responseObserver) {
-        try {
-            com.ghatana.media.common.EngineMetrics metrics = library.getTtsEngine().getMetrics();
-            responseObserver.onNext(MetricsResponse.newBuilder()
-                    .setTotalSyntheses(Math.toIntExact(Math.min(Integer.MAX_VALUE, metrics.requestCount())))
-                    .setAverageLatencyMs((float) metrics.avgLatencyMs())
-                    .setMemoryUsageBytes(metrics.memoryUsageBytes())
-                    .build());
-            responseObserver.onCompleted();
-        } catch (RuntimeException exception) {
-            fail(responseObserver, "Metrics", correlationId(), exception);
-        }
+        responseObserver.onError(Status.UNIMPLEMENTED
+                .withDescription("GetMetrics is NOT_ADMITTED: required real_time_factor and active_sessions are unavailable, and requestCount is not a successful synthesis count")
+                .asRuntimeException());
     }
 
     @Override
     public void loadVoice(
             LoadVoiceRequest request,
             StreamObserver<LoadVoiceResponse> responseObserver) {
-        try {
-            String voiceId = requireText(request.getVoiceId(), "voiceId");
-            VoiceInfo voice = library.getTtsEngine().loadVoice(voiceId);
-            responseObserver.onNext(LoadVoiceResponse.newBuilder()
-                    .setSuccess(true)
-                    .setMessage("Voice loaded: " + voice.voiceId())
-                    .build());
-            responseObserver.onCompleted();
-        } catch (RuntimeException exception) {
-            fail(responseObserver, "Voice loading", correlationId(), exception);
-        }
+        responseObserver.onError(Status.UNIMPLEMENTED
+                .withDescription("Voice loading is NOT_ADMITTED without an authoritative model, license, owner-rights and consent profile")
+                .asRuntimeException());
     }
 
     @Override

@@ -12,10 +12,10 @@ The gRPC façade is backed by an injected shared `TtsEngine`, but synthesis curr
 | --- | --- | --- |
 | `Synthesize` | EXPLICITLY_NOT_ADMITTED | Rejects before engine lookup because no exact admitted voice-language-rights profile exists; provider defaults are not substituted. |
 | `StreamSynthesize` | EXPLICITLY_NOT_ADMITTED | Rejects before engine lookup; no streaming provider is admitted at this gRPC boundary. |
-| `GetStatus` | IMPLEMENTED | Projects the configured engine status; it does not itself establish model quality or readiness policy. |
-| `GetMetrics` | IMPLEMENTED | Projects configured engine metrics. |
+| `GetStatus` | EXPLICITLY_NOT_ADMITTED | The proto requires `active_sessions`, but the engine status contract has no session count; fails before engine lookup instead of serializing unknown as zero. Provider diagnostics are not exposed. |
+| `GetMetrics` | EXPLICITLY_NOT_ADMITTED | Proto3 has no presence for `real_time_factor` or `active_sessions`; engine `requestCount` is not a successful-synthesis count, so no misleading default zero or unlike metric is returned. |
 | `GetVoices` | PROVIDER_DEPENDENT | Lists engine-reported voices; a listed/configured voice is not proof of rights or provider readiness. |
-| `LoadVoice` | PROVIDER_DEPENDENT | Delegates model/voice loading to the configured engine. |
+| `LoadVoice` | EXPLICITLY_NOT_ADMITTED | Rejects before engine lookup until an authoritative model, license, owner-rights and consent profile is admitted. |
 | `CreateProfile` | EXPLICITLY_NOT_ADMITTED | Returns `UNIMPLEMENTED` before engine/storage access; no tenant/principal-scoped profile store or consent authority is wired. |
 | `GetProfile` | EXPLICITLY_NOT_ADMITTED | Returns `UNIMPLEMENTED` before engine/storage access; profile ownership cannot be established. |
 | `UpdateProfile` | EXPLICITLY_NOT_ADMITTED | Returns `UNIMPLEMENTED` before engine/storage access; profile ownership cannot be established. |
@@ -44,9 +44,9 @@ The gRPC controls are checked for finite values, documented units and bounds: sp
 
 | PDP-0 capability | Current disposition | Work owner |
 | --- | --- | --- |
-| `media.speech.synthesis.text-to-speech` | PROVIDER_DEPENDENT | TTS-07 |
+| `media.speech.synthesis.text-to-speech` | EXPLICITLY_NOT_ADMITTED | Synthesize rejects before engine lookup because no exact admitted voice-language-rights profile exists. |
 | `media.speech.synthesis.streaming` | PROVIDER_DEPENDENT | TTS-08 |
-| `media.speech.synthesis.multilingual` | PROVIDER_DEPENDENT | TTS-10 |
+| `media.speech.synthesis.multilingual` | EXPLICITLY_NOT_ADMITTED | No exact voice-language-rights profile is admitted for a speech effect; GetVoices remains informational only. |
 | `media.speech.synthesis.cross-lingual` | NOT_IMPLEMENTED | TTS-10 |
 | `media.speech.synthesis.expressive` | EXPLICITLY_NOT_ADMITTED | TTS-06 |
 | `media.speech.synthesis.control.prosody` | EXPLICITLY_NOT_ADMITTED | TTS-06 |
@@ -62,7 +62,7 @@ The gRPC controls are checked for finite values, documented units and bounds: sp
 | `media.speech.synthesis.speech.translate` | NOT_IMPLEMENTED | TTS-10 |
 | `media.speech.synthesis.dub` | NOT_IMPLEMENTED | TTS-10 |
 
-`PROVIDER_DEPENDENT` means the API can delegate to an engine but this module has not established a qualified positive effect. It is not a claim of logical completion.
+`PROVIDER_DEPENDENT` means the API can delegate to an engine but this module has not established a qualified positive effect. It is not a claim of logical completion. `GetVoices` remains an informational provider catalog; it does not make synthesis or multilingual speech effects available.
 
 ### TTS-10 locale and voice boundary
 

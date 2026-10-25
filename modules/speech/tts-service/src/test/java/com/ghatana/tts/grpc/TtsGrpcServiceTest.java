@@ -1,8 +1,6 @@
 package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
-import com.ghatana.media.common.EngineMetrics;
-import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.api.VoiceInfo;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
@@ -13,6 +11,8 @@ import com.ghatana.tts.core.grpc.proto.FeedbackResponse;
 import com.ghatana.tts.core.grpc.proto.GetVoicesRequest;
 import com.ghatana.tts.core.grpc.proto.GetVoicesResponse;
 import com.ghatana.tts.core.grpc.proto.GetProfileRequest;
+import com.ghatana.tts.core.grpc.proto.LoadVoiceRequest;
+import com.ghatana.tts.core.grpc.proto.LoadVoiceResponse;
 import com.ghatana.tts.core.grpc.proto.MetricsRequest;
 import com.ghatana.tts.core.grpc.proto.MetricsResponse;
 import com.ghatana.tts.core.grpc.proto.StatusRequest;
@@ -136,6 +136,19 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void loadVoiceIsNotAdmittedBeforeEngineLookupWithoutRightsProfile() {
+        CapturingObserver<LoadVoiceResponse> observer = new CapturingObserver<>();
+
+        service.loadVoice(LoadVoiceRequest.newBuilder().setVoiceId("voice-1").build(), observer);
+
+        assertStatus(observer, Status.Code.UNIMPLEMENTED);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "model", "license", "owner-rights", "consent");
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).loadVoice(anyString());
+    }
+
+    @Test
     void streamFailsUnavailableBeforeProviderLookupWhenDownstreamIsNotReady() {
         @SuppressWarnings("unchecked")
         ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
@@ -222,7 +235,7 @@ class TtsGrpcServiceTest {
     }
 
     @Test
-    void voiceStatusAndMetricsUseProviderValuesWithoutClosingEngine() {
+    void getVoicesReturnsCatalogMetadataWithoutAuthorizingVoiceUse() {
         VoiceInfo voice = new VoiceInfo(
                 "voice-1",
                 "Voice One",
@@ -234,27 +247,33 @@ class TtsGrpcServiceTest {
                 1024,
                 0.9f);
         when(engine.getAvailableVoices()).thenReturn(List.of(voice));
-        when(engine.getStatus()).thenReturn(new EngineStatus(
-                EngineStatus.State.READY,
-                "voice-1",
-                "v1",
-                1000,
-                "ready"));
-        when(engine.getMetrics()).thenReturn(new EngineMetrics(12, 1, 5.5, 0, 2048));
 
         CapturingObserver<GetVoicesResponse> voices = new CapturingObserver<>();
         service.getVoices(GetVoicesRequest.getDefaultInstance(), voices);
         assertThat(voices.value.getVoices(0).getVoiceId()).isEqualTo("voice-1");
+        assertThat(voices.value.getVoices(0).getDescription()).isEqualTo("provider voice");
+        assertThat(voices.value.getVoices(0).getGender()).isEqualTo("NEUTRAL");
+        verify(library).getTtsEngine();
+        verify(engine, never()).loadVoice(anyString());
+        verify(engine, never()).synthesize(anyString(), any());
+    }
 
+    @Test
+    void statusAndMetricsAreUnavailableWhenRequiredWireValuesCannotBeRepresentedTruthfully() {
         CapturingObserver<StatusResponse> status = new CapturingObserver<>();
         service.getStatus(StatusRequest.getDefaultInstance(), status);
-        assertThat(status.value.getActiveVoice()).isEqualTo("voice-1");
+        assertStatus(status, Status.Code.UNIMPLEMENTED);
+        assertThat(((StatusRuntimeException) status.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "active_sessions", "no source metric", "provider diagnostics are not exposed");
 
         CapturingObserver<MetricsResponse> metrics = new CapturingObserver<>();
         service.getMetrics(MetricsRequest.getDefaultInstance(), metrics);
-        assertThat(metrics.value.getTotalSyntheses()).isEqualTo(12);
-        assertThat(metrics.value.getMemoryUsageBytes()).isEqualTo(2048);
-        verify(engine, never()).close();
+        assertStatus(metrics, Status.Code.UNIMPLEMENTED);
+        assertThat(((StatusRuntimeException) metrics.error).getStatus().getDescription())
+                .contains("NOT_ADMITTED", "real_time_factor", "active_sessions", "requestCount is not a successful synthesis count");
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).getStatus();
+        verify(engine, never()).getMetrics();
     }
 
     @Test

@@ -1,11 +1,8 @@
 package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
-import com.ghatana.media.common.AudioData;
-import com.ghatana.media.common.AudioFormat;
-import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
-import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
 import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -19,14 +16,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @doc.type class
@@ -53,12 +45,6 @@ class TtsGrpcServiceInProcessIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
-        TtsEngine engine = mock(TtsEngine.class);
-
-        when(library.getTtsEngine()).thenReturn(engine);
-        when(engine.synthesize(anyString(), any())).thenReturn(
-            new AudioData(new byte[]{0x01, 0x02, 0x03, 0x04}, 22050, 1, 16, Duration.ofMillis(100), AudioFormat.PCM)
-        );
 
         TtsGrpcService service = new TtsGrpcService(library, new SimpleMeterRegistry());
 
@@ -75,17 +61,14 @@ class TtsGrpcServiceInProcessIntegrationTest {
     }
 
     @Test
-    @DisplayName("synthesize returns audio payload over gRPC transport")
-    void synthesizeOverGrpc() {
+    @DisplayName("synthesize reports NOT_ADMITTED over gRPC without an exact voice-rights profile")
+    void synthesizeNotAdmittedOverGrpc() {
         TTSServiceGrpc.TTSServiceBlockingStub stub = TTSServiceGrpc.newBlockingStub(channel);
 
-        SynthesizeResponse response = stub.synthesize(
-            SynthesizeRequest.newBuilder().setText("hello world").build()
-        );
-
-        assertThat(response.getAudioData().size()).isGreaterThan(0);
-        assertThat(response.getSampleRate()).isEqualTo(22050);
-        assertThat(response.getProcessingTimeMs()).isGreaterThanOrEqualTo(0);
+        assertThatThrownBy(() -> stub.synthesize(SynthesizeRequest.newBuilder().setText("hello world").build()))
+                .isInstanceOf(StatusRuntimeException.class)
+                .matches(ex -> ((StatusRuntimeException) ex).getStatus().getCode() == Status.UNAVAILABLE.getCode())
+                .hasMessageContaining("NOT_ADMITTED");
     }
 
     @Test
@@ -96,5 +79,41 @@ class TtsGrpcServiceInProcessIntegrationTest {
         assertThatThrownBy(() -> stub.synthesize(SynthesizeRequest.newBuilder().setText("").build()))
             .isInstanceOf(StatusRuntimeException.class)
             .matches(ex -> ((StatusRuntimeException) ex).getStatus().getCode() == Status.INVALID_ARGUMENT.getCode());
+    }
+
+    @Test
+    @DisplayName("server JWT interceptor rejects missing credentials before TTS dispatch")
+    void missingBearerCredentialIsRejectedBeforeServiceDispatch() throws Exception {
+        String previousSecret = System.getProperty("AV_JWT_SECRET");
+        System.setProperty("AV_JWT_SECRET", "tts-test-secret-for-unsigned-request-check");
+        AudioVideoLibrary guardedLibrary = mock(AudioVideoLibrary.class);
+        TtsGrpcService guardedService = new TtsGrpcService(guardedLibrary, new SimpleMeterRegistry());
+        Server guardedServer = null;
+        ManagedChannel guardedChannel = null;
+        try {
+            guardedServer = ServerBuilder.forPort(0)
+                    .directExecutor()
+                    .intercept(new JwtServerInterceptor())
+                    .addService(guardedService)
+                    .build()
+                    .start();
+            guardedChannel = ManagedChannelBuilder.forAddress("localhost", guardedServer.getPort())
+                    .usePlaintext()
+                    .directExecutor()
+                    .build();
+            ManagedChannel requestChannel = guardedChannel;
+
+            assertThatThrownBy(() -> TTSServiceGrpc.newBlockingStub(requestChannel)
+                    .getVoices(com.ghatana.tts.core.grpc.proto.GetVoicesRequest.getDefaultInstance()))
+                    .isInstanceOf(StatusRuntimeException.class)
+                    .matches(ex -> ((StatusRuntimeException) ex).getStatus().getCode()
+                            == Status.UNAUTHENTICATED.getCode());
+            verifyNoInteractions(guardedLibrary);
+        } finally {
+            if (guardedChannel != null) guardedChannel.shutdownNow();
+            if (guardedServer != null) guardedServer.shutdownNow();
+            if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
+            else System.setProperty("AV_JWT_SECRET", previousSecret);
+        }
     }
 }

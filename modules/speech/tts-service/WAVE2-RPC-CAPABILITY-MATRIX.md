@@ -8,10 +8,10 @@ This package-local inventory is a non-authoritative projection of the current gR
 |---|---|---|
 | Synthesize | EXPLICITLY_NOT_ADMITTED | The gRPC route rejects before engine lookup because no exact admitted voice-language-rights profile exists; no default voice/language substitution is permitted. |
 | StreamSynthesize | EXPLICITLY_NOT_ADMITTED | Handler rejects before engine lookup/session creation; no streaming provider is admitted at this gRPC boundary. |
-| GetStatus | IMPLEMENTED | Projects shared engine status; response does not establish model readiness or quality. |
-| GetMetrics | IMPLEMENTED | Projects shared engine counters/latency/memory observations. |
+| GetStatus | EXPLICITLY_NOT_ADMITTED | The proto requires `active_sessions`, but the engine status contract has no session count; the route fails before engine lookup rather than serialize an unknown value as zero. Provider diagnostics are not exposed. |
+| GetMetrics | EXPLICITLY_NOT_ADMITTED | Proto3 has no presence for required `real_time_factor` and `active_sessions`; engine `requestCount` is not a successful-synthesis count. The route fails before engine lookup rather than imply zero or map unlike metrics. |
 | GetVoices | PROVIDER_DEPENDENT | Lists engine-reported voice metadata; availability is not rights or qualification. |
-| LoadVoice | PROVIDER_DEPENDENT | Delegates to engine; no model/voice profile or rights admission is established here. |
+| LoadVoice | EXPLICITLY_NOT_ADMITTED | Rejects before engine lookup until an authoritative model, license, owner-rights and consent profile is admitted. |
 | CreateProfile | EXPLICITLY_NOT_ADMITTED | UNIMPLEMENTED until tenant/principal ownership, consent, purpose and retention are backed by an authoritative scoped store. |
 | GetProfile | EXPLICITLY_NOT_ADMITTED | UNIMPLEMENTED until authoritative profile ownership and retention checks exist. |
 | UpdateProfile | EXPLICITLY_NOT_ADMITTED | UNIMPLEMENTED until authoritative profile ownership and retention checks exist. |
@@ -26,9 +26,9 @@ The shared `TtsEngine` API supports synthesis, a callback streaming interface, v
 
 | Capability | Current disposition | Boundary |
 |---|---|---|
-| `media.speech.synthesis.text-to-speech` | PROVIDER_DEPENDENT | Shared engine dispatch exists; admitted real speech output is unqualified. |
+| `media.speech.synthesis.text-to-speech` | EXPLICITLY_NOT_ADMITTED | Synthesize rejects before engine lookup because no exact admitted voice-language-rights profile exists. |
 | `media.speech.synthesis.streaming` | EXPLICITLY_NOT_ADMITTED | gRPC stream is denied before engine/session access. |
-| `media.speech.synthesis.multilingual` | PROVIDER_DEPENDENT | Language-filtered voice listing exists; language coverage/output need provider evidence. |
+| `media.speech.synthesis.multilingual` | EXPLICITLY_NOT_ADMITTED | No exact voice-language-rights profile is admitted for a speech effect; GetVoices remains informational only. |
 | `media.speech.synthesis.cross-lingual` | NOT_IMPLEMENTED | No translation-plus-synthesis operation is wired. |
 | `media.speech.synthesis.expressive` | EXPLICITLY_NOT_ADMITTED | No qualified expressive effect is established. |
 | `media.speech.synthesis.control.prosody` | EXPLICITLY_NOT_ADMITTED | SSML parsing/control validation is not audible provider-effect proof. |
@@ -46,4 +46,6 @@ The shared `TtsEngine` API supports synthesis, a callback streaming interface, v
 
 `PROVIDER_DEPENDENT` indicates a delegation/read path whose real provider result and rights remain unqualified. `EXPLICITLY_NOT_ADMITTED` indicates an intentional fail-closed boundary. Neither is a positive provider qualification.
 
-For TTS-10, requested `en`, `ne`, `hi`, region-tagged variants, and default-language requests all fail `NOT_ADMITTED` before engine lookup: this source cut has no exact admitted voice-language-rights profile. `PersistentTtsService`'s accepted language codes are input-validation bounds only. Engine voice listings cannot establish a qualification pair or rights decision. The source-declared multilingual intent remains provider-dependent only as a catalog/listing capability; there is no admitted locale-specific synthesis effect. Cross-lingual, voice conversion, speech-to-speech, speech translation, and dubbing remain `NOT_IMPLEMENTED` because no corresponding RPC or provider path exists.
+For TTS-10, requested `en`, `ne`, `hi`, region-tagged variants, and default-language requests all fail `NOT_ADMITTED` before engine lookup: this source cut has no exact admitted voice-language-rights profile. `PersistentTtsService`'s accepted language codes are input-validation bounds only. Engine voice listings cannot establish a qualification pair or rights decision; GetVoices is informational and does not make the multilingual speech effect provider-dependent. Cross-lingual, voice conversion, speech-to-speech, speech translation, and dubbing remain `NOT_IMPLEMENTED` because no corresponding RPC or provider path exists.
+
+TTS-11 coverage keeps the wire RPC census at 11. The TTS proto has no application-level protocol-version field or negotiation RPC. `TtsGrpcServer` installs the shared JWT/RBAC/tenant context chain and production-like transport policy; package tests cover missing bearer credentials, persistent-service missing tenant/principal, and production TLS configuration failure. These transport tests do not qualify synthesis or rights.

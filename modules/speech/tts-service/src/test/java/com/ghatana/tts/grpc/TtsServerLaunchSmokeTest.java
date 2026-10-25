@@ -4,9 +4,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Smoke test: verifies the TTS server launch class is on the classpath and has a
@@ -54,5 +56,13 @@ class TtsServerLaunchSmokeTest {
     void mainClassLoadsCleanly() {
         assertThatCode(() -> Class.forName(EXPECTED_MAIN_CLASS))
             .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("production transport refuses to start without TLS material")
+    void productionTransportRequiresTlsMaterial() {
+        assertThatThrownBy(() -> TtsGrpcServer.transportSecurity(Map.of("TTS_ENVIRONMENT", "production")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("requires TLS certificate chain and private key");
     }
 }

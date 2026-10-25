@@ -31,10 +31,10 @@ class TtsWave2InventoryTest {
     private static final Map<String, Entry> RPCS = Map.ofEntries(
             Map.entry("Synthesize", new Entry("EXPLICITLY_NOT_ADMITTED", "The gRPC route rejects before engine lookup because no exact admitted voice-language-rights profile exists; no default substitution is permitted.")),
             Map.entry("StreamSynthesize", new Entry("EXPLICITLY_NOT_ADMITTED", "The gRPC handler rejects before engine lookup because no streaming provider is admitted.")),
-            Map.entry("GetStatus", new Entry("IMPLEMENTED", "Projects engine status; does not establish readiness or quality.")),
-            Map.entry("GetMetrics", new Entry("IMPLEMENTED", "Projects engine metrics.")),
+            Map.entry("GetStatus", new Entry("EXPLICITLY_NOT_ADMITTED", "Proto requires active_sessions absent from EngineStatus; route refuses before lookup and does not expose provider diagnostics.")),
+            Map.entry("GetMetrics", new Entry("EXPLICITLY_NOT_ADMITTED", "Proto requires real_time_factor and active_sessions absent from EngineMetrics; requestCount is not a successful-synthesis count.")),
             Map.entry("GetVoices", new Entry("PROVIDER_DEPENDENT", "Lists engine-reported voices; list membership proves no rights or qualification.")),
-            Map.entry("LoadVoice", new Entry("PROVIDER_DEPENDENT", "Delegates loading to shared engine; profile and rights remain unqualified.")),
+            Map.entry("LoadVoice", new Entry("EXPLICITLY_NOT_ADMITTED", "Rejects before engine lookup until an authoritative model, license, owner-rights and consent profile is admitted.")),
             Map.entry("CreateProfile", new Entry("EXPLICITLY_NOT_ADMITTED", "UNIMPLEMENTED pending tenant/principal-scoped store, consent, purpose and retention authority.")),
             Map.entry("GetProfile", new Entry("EXPLICITLY_NOT_ADMITTED", "UNIMPLEMENTED pending authoritative profile ownership.")),
             Map.entry("UpdateProfile", new Entry("EXPLICITLY_NOT_ADMITTED", "UNIMPLEMENTED pending authoritative profile ownership.")),
@@ -42,9 +42,9 @@ class TtsWave2InventoryTest {
             Map.entry("SubmitFeedback", new Entry("NOT_IMPLEMENTED", "UNIMPLEMENTED; no persistence or learning provider is wired.")));
 
     private static final Map<String, Entry> CAPABILITIES = Map.ofEntries(
-            Map.entry("media.speech.synthesis.text-to-speech", new Entry("PROVIDER_DEPENDENT", "Shared-engine dispatch exists; admitted provider result is unqualified.")),
+            Map.entry("media.speech.synthesis.text-to-speech", new Entry("EXPLICITLY_NOT_ADMITTED", "Synthesize rejects before engine lookup because no exact admitted voice-language-rights profile exists.")),
             Map.entry("media.speech.synthesis.streaming", new Entry("EXPLICITLY_NOT_ADMITTED", "gRPC streaming refuses before engine access; no admitted streaming provider.")),
-            Map.entry("media.speech.synthesis.multilingual", new Entry("PROVIDER_DEPENDENT", "Language-aware voice listing exists; language coverage and output are provider-dependent.")),
+            Map.entry("media.speech.synthesis.multilingual", new Entry("EXPLICITLY_NOT_ADMITTED", "No exact voice-language-rights profile is admitted for speech; GetVoices is informational only.")),
             Map.entry("media.speech.synthesis.cross-lingual", new Entry("NOT_IMPLEMENTED", "No translation-plus-synthesis operation is wired.")),
             Map.entry("media.speech.synthesis.expressive", new Entry("EXPLICITLY_NOT_ADMITTED", "No qualified expressive effect is established.")),
             Map.entry("media.speech.synthesis.control.prosody", new Entry("EXPLICITLY_NOT_ADMITTED", "SSML/control parsing does not establish audible provider effects.")),
@@ -70,6 +70,8 @@ class TtsWave2InventoryTest {
         String grpc = read("src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java");
         assertThat(grpc).contains("throw new TtsSynthesisEngine.SynthesisException(\n                    \"TTS streaming is NOT_ADMITTED");
         assertThat(grpc).contains("profileAccessNotAdmitted(responseObserver)")
+                .contains("Voice loading is NOT_ADMITTED")
+                .contains("GetStatus is NOT_ADMITTED", "GetMetrics is NOT_ADMITTED")
                 .contains("Voice cloning is NOT_ADMITTED")
                 .contains("TTS feedback requires");
         assertThat(RPCS).containsKeys(declared.toArray(String[]::new));
