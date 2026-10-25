@@ -131,6 +131,10 @@ public final class VoiceMixingService {
         public AudioTrack {
             Objects.requireNonNull(audioBytes, "audioBytes must not be null");
             Objects.requireNonNull(label, "label must not be null");
+            // Track PCM is an input to an asynchronous/pluggable mixer. Keep the
+            // timeline and audio immutable together so caller mutation cannot
+            // change the samples after volume/offset validation.
+            audioBytes = audioBytes.clone();
             if (!Double.isFinite(volume)) {
                 throw new IllegalArgumentException("volume must be finite");
             }
@@ -145,6 +149,12 @@ public final class VoiceMixingService {
             }
             if (offsetMs < 0) throw new IllegalArgumentException("offsetMs must be >= 0");
             if (durationMs < 0) throw new IllegalArgumentException("durationMs must be >= 0");
+        }
+
+        /** Returns a copy so a mixer or caller cannot mutate this track's PCM. */
+        @Override
+        public byte[] audioBytes() {
+            return audioBytes.clone();
         }
 
         /** Factory: creates a track at full volume, centred, starting at offset 0. */
@@ -163,6 +173,13 @@ public final class VoiceMixingService {
     public record MixedAudio(byte[] audioBytes, int trackCount, long totalDurationMs) {
         public MixedAudio {
             Objects.requireNonNull(audioBytes, "audioBytes must not be null");
+            audioBytes = audioBytes.clone();
+        }
+
+        /** Returns a copy so consumers cannot alter the completed mix value. */
+        @Override
+        public byte[] audioBytes() {
+            return audioBytes.clone();
         }
 
         /** @return true if the mix produced a non-empty audio output */

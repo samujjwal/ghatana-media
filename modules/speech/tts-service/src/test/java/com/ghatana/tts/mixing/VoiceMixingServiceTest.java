@@ -120,6 +120,27 @@ class VoiceMixingServiceTest {
             var track = VoiceMixingService.AudioTrack.of(new byte[]{1}, 100L, "v"); 
             assertThat(service.mix(List.of(track)).hasAudio()).isTrue(); 
         }
+
+        @Test
+        @DisplayName("mix input and output PCM cannot be changed through retained array references")
+        void mixPcmIsDefensivelyCopied() {
+            byte[] source = {1, 2};
+            var track = VoiceMixingService.AudioTrack.of(source, 100L, "voice");
+            source[0] = 9;
+
+            VoiceMixingService service = VoiceMixingService.of(tracks -> {
+                byte[] mixerView = tracks.get(0).audioBytes();
+                mixerView[1] = 8;
+                return mixerView;
+            });
+            var result = service.mix(List.of(track));
+
+            assertThat(track.audioBytes()).containsExactly(1, 2);
+            assertThat(result.audioBytes()).containsExactly(1, 8);
+            byte[] consumerView = result.audioBytes();
+            consumerView[0] = 7;
+            assertThat(result.audioBytes()).containsExactly(1, 8);
+        }
     }
 
     // ─── session ──────────────────────────────────────────────────────────────
