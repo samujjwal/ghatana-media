@@ -18,7 +18,7 @@ class OcrServiceTest {
         });
 
         assertThatThrownBy(() -> service.extract(new byte[]{1}))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(OcrService.NotAdmittedException.class)
                 .hasMessage("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
         org.assertj.core.api.Assertions.assertThat(calls).hasValue(0);
     }
@@ -32,7 +32,7 @@ class OcrServiceTest {
         });
 
         assertThatThrownBy(() -> service.extractText(new byte[]{1}))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(OcrService.NotAdmittedException.class)
                 .hasMessage("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
         org.assertj.core.api.Assertions.assertThat(calls).hasValue(0);
     }

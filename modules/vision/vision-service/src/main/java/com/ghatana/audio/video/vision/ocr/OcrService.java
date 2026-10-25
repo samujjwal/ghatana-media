@@ -80,7 +80,7 @@ public final class OcrService {
             throw new IllegalArgumentException("imageBytes must not be empty");
         }
 
-        throw new IllegalStateException("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
+        throw new NotAdmittedException();
     }
 
     /**
@@ -108,6 +108,13 @@ public final class OcrService {
          * @return list of detected text regions (unfiltered)
          */
         List<TextRegion> extractRegions(byte[] imageBytes);
+    }
+
+    /** Typed fail-closed outcome while no admitted Document Intelligence client is available. */
+    public static final class NotAdmittedException extends IllegalStateException {
+        public NotAdmittedException() {
+            super("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
+        }
     }
 
     /**
