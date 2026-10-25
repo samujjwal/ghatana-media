@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.UUID;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 /**
  * gRPC service implementation for multimodal audio+video analysis.
@@ -45,6 +46,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final MediaProcessingMetrics mediaMetrics;
     private final ModelRegistry modelRegistry;
     private final SourceAuthorization sourceAuthorization;
+    private volatile BooleanSupplier readinessProbe = () -> false;
 
     public MultimodalGrpcService() {
         this(MediaProcessingMetrics.create());
@@ -642,7 +644,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             double avgTime = count > 0 ? (double) totalTime / count : 0.0;
 
             responseObserver.onNext(StatusResponse.newBuilder()
-                    .setStatus("healthy:" + platformAdapter.backendName())
+                    .setStatus("NOT_ADMITTED")
                     .setTotalRequests(count)
                     .setAvgProcessingTimeMs(avgTime)
                     .build());
@@ -658,15 +660,32 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     public void healthCheck(HealthCheckRequest request,
                              StreamObserver<HealthCheckResponse> responseObserver) {
         try {
+            boolean ready = Boolean.TRUE.equals(readinessProbe.getAsBoolean());
             responseObserver.onNext(HealthCheckResponse.newBuilder()
-                    .setHealthy(true)
-                    .setMessage("Multimodal service is healthy")
+                    .setHealthy(ready)
+                    .setMessage(ready
+                            ? "MULTIMODAL_READY"
+                            : "MULTIMODAL_NOT_SERVING: qualified child provider readiness unavailable")
                     .build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Health check failed", e);
             responseObserver.onError(e);
         }
+    }
+
+    /** The modality adapters have no qualified STT provider readiness source yet. */
+    boolean isSttProviderReady() {
+        return false;
+    }
+
+    /** The modality adapters have no qualified Vision provider readiness source yet. */
+    boolean isVisionProviderReady() {
+        return false;
+    }
+
+    void setReadinessProbe(BooleanSupplier readinessProbe) {
+        this.readinessProbe = java.util.Objects.requireNonNull(readinessProbe, "readinessProbe");
     }
 
     private Status toStatus(Exception exception, String context) {

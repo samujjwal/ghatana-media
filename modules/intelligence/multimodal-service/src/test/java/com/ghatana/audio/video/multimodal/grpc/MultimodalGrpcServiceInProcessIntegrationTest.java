@@ -2,6 +2,7 @@ package com.ghatana.audio.video.multimodal.grpc;
 
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
 import com.ghatana.audio.video.multimodal.engine.MultimodalResult;
@@ -24,10 +25,14 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.health.v1.HealthCheckResponse;
+import io.grpc.health.v1.HealthGrpc;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,9 +56,17 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
 
     private Server server;
     private ManagedChannel channel;
+    private MultimodalGrpcService service;
+    private AudioVideoHealthService readiness;
+    private AtomicBoolean sttProviderReady;
+    private AtomicBoolean visionProviderReady;
 
     @AfterEach
     void tearDown() {
+        if (readiness != null) {
+            readiness.setNotServing();
+            readiness.close();
+        }
         if (channel != null) {
             channel.shutdownNow();
         }
@@ -77,15 +90,21 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         lenient().when(adapter.backendName()).thenReturn("test-backend");
         lenient().when(adapter.metricsEnabled()).thenReturn(false);
 
-        MultimodalGrpcService service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
+        service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
                 request -> SourceAuthorization.Decision.ADMITTED);
+        sttProviderReady = new AtomicBoolean(false);
+        visionProviderReady = new AtomicBoolean(false);
+        readiness = MultimodalGrpcServer.readinessService(
+                service, sttProviderReady::get, visionProviderReady::get);
 
         server = ServerBuilder.forPort(0)
             .directExecutor()
             .intercept(new TenantInjector())
             .addService(service)
+            .addService(readiness)
             .build()
             .start();
+        assertThat(readiness.markReady()).isTrue();
 
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
             .usePlaintext()
@@ -107,6 +126,56 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
         assertThat(response.getCombinedAnalysis()).contains("audio analysis");
         assertThat(response.getAudioAnalysis().getTranscription()).isEqualTo("hello");
         assertThat(response.getProcessingTimeMs()).isEqualTo(25L);
+    }
+
+    @Test
+    @DisplayName("standard and application health stay down without qualified child providers")
+    void healthChecksRemainNotServingWithoutChildProviders() {
+        HealthCheckResponse standard = HealthGrpc.newBlockingStub(channel)
+                .check(io.grpc.health.v1.HealthCheckRequest.getDefaultInstance());
+        com.ghatana.audio.video.multimodal.grpc.proto.HealthCheckResponse application =
+                MultimodalServiceGrpc.newBlockingStub(channel)
+                        .healthCheck(com.ghatana.audio.video.multimodal.grpc.proto.HealthCheckRequest
+                                .getDefaultInstance());
+        var status = MultimodalServiceGrpc.newBlockingStub(channel)
+                .getStatus(com.ghatana.audio.video.multimodal.grpc.proto.StatusRequest.getDefaultInstance());
+
+        assertThat(standard.getStatus()).isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+        assertThat(application.getHealthy()).isFalse();
+        assertThat(application.getMessage()).contains("qualified child provider readiness unavailable");
+        assertThat(status.getStatus()).isEqualTo("NOT_ADMITTED");
+        assertThat(status.getStatus()).doesNotContain("healthy", "test-backend");
+    }
+
+    @Test
+    @DisplayName("standard and application health follow child failure and drain")
+    void healthChecksFollowChildFailureAndDrain() {
+        // Mutable readiness signals are test fixtures only; they do not dispatch either modality.
+        sttProviderReady.set(true);
+        visionProviderReady.set(true);
+        assertThat(HealthGrpc.newBlockingStub(channel)
+                .check(io.grpc.health.v1.HealthCheckRequest.getDefaultInstance()).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.SERVING);
+        assertThat(MultimodalServiceGrpc.newBlockingStub(channel)
+                .healthCheck(com.ghatana.audio.video.multimodal.grpc.proto.HealthCheckRequest
+                        .getDefaultInstance()).getHealthy()).isTrue();
+
+        visionProviderReady.set(false);
+        assertThat(HealthGrpc.newBlockingStub(channel)
+                .check(io.grpc.health.v1.HealthCheckRequest.getDefaultInstance()).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+        assertThat(MultimodalServiceGrpc.newBlockingStub(channel)
+                .healthCheck(com.ghatana.audio.video.multimodal.grpc.proto.HealthCheckRequest
+                        .getDefaultInstance()).getHealthy()).isFalse();
+
+        visionProviderReady.set(true);
+        readiness.setNotServing();
+        assertThat(HealthGrpc.newBlockingStub(channel)
+                .check(io.grpc.health.v1.HealthCheckRequest.getDefaultInstance()).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+        assertThat(MultimodalServiceGrpc.newBlockingStub(channel)
+                .healthCheck(com.ghatana.audio.video.multimodal.grpc.proto.HealthCheckRequest
+                        .getDefaultInstance()).getHealthy()).isFalse();
     }
 
     @Test

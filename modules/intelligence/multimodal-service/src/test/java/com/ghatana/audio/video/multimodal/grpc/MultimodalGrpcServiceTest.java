@@ -559,13 +559,14 @@ class MultimodalGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("getStatus: returns healthy status with backend name")
+    @DisplayName("getStatus: does not promote a generic adapter backend to provider readiness")
     void getStatus_returnsStatus() { 
         CapturingObserver<StatusResponse> observer = new CapturingObserver<>(); 
         service.getStatus(StatusRequest.getDefaultInstance(), observer); 
 
         assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getStatus()).contains("healthy");
+        assertThat(observer.getValue().getStatus()).isEqualTo("NOT_ADMITTED");
+        assertThat(observer.getValue().getStatus()).doesNotContain("test-backend", "healthy");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -573,14 +574,15 @@ class MultimodalGrpcServiceTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("healthCheck: always returns healthy = true")
-    void healthCheck_returnsHealthy() { 
-        CapturingObserver<HealthCheckResponse> observer = new CapturingObserver<>(); 
-        service.healthCheck(HealthCheckRequest.getDefaultInstance(), observer); 
+    @DisplayName("healthCheck: missing qualified child providers returns not healthy")
+    void healthCheck_returnsNotServingWithoutQualifiedProviders() {
+        CapturingObserver<HealthCheckResponse> observer = new CapturingObserver<>();
+        service.healthCheck(HealthCheckRequest.getDefaultInstance(), observer);
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getHealthy()).isTrue(); 
-        assertThat(observer.getValue().getMessage()).isNotBlank(); 
+        assertThat(observer.hasError()).isFalse();
+        assertThat(observer.getValue().getHealthy()).isFalse();
+        assertThat(observer.getValue().getMessage())
+                .isEqualTo("MULTIMODAL_NOT_SERVING: qualified child provider readiness unavailable");
     }
 
     // ─────────────────────────────────────────────────────────────────────────

@@ -13,6 +13,7 @@ dependencies {
     // Audio-Video common library (shared AI inference client, health/metrics, gRPC interceptors)
     implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:libs:common"))
+    implementation(project(":services:media:audio-video-observability"))
     // Direct consumer dependency: the agent sources use the canonical
     // ToolExecutor SPI rather than relying on transitive exposure by common.
     implementation("com.ghatana.platform:tool-runtime:${providers.gradleProperty("ghatana.tools.version").get()}")
@@ -32,6 +33,7 @@ dependencies {
 
     // gRPC
     implementation(libs.grpc.netty.shaded)
+    implementation(libs.grpc.services)
     implementation(libs.grpc.protobuf)
     implementation(libs.grpc.stub)
 

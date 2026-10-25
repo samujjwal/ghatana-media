@@ -3,11 +3,16 @@ package com.ghatana.audio.video.multimodal.grpc;
 import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
+import com.ghatana.audiovideo.observability.AudioVideoHealthService;
+import com.ghatana.observability.MetricsCollectorFactory;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 /**
  * Standalone gRPC server for the Multimodal analysis service.
@@ -30,13 +35,45 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     MultimodalGrpcServer(int port, TransportSecurity transportSecurity) {
+        this(port, transportSecurity, createRuntime());
+    }
+
+    private MultimodalGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
         super(
                 "multimodal-service",
                 port,
-                new MultimodalGrpcService(MediaProcessingMetrics.create()),
+                runtime.service(),
                 com.ghatana.audio.video.common.GrpcInterceptorChain.build(),
-                transportSecurity);
+                transportSecurity,
+                runtime.readiness());
     }
+
+    private static ServerRuntime createRuntime() {
+        MultimodalGrpcService service = new MultimodalGrpcService(MediaProcessingMetrics.create());
+        return new ServerRuntime(service, readinessService(service));
+    }
+
+    static AudioVideoHealthService readinessService(MultimodalGrpcService service) {
+        return readinessService(service, service::isSttProviderReady, service::isVisionProviderReady);
+    }
+
+    static AudioVideoHealthService readinessService(
+            MultimodalGrpcService service,
+            BooleanSupplier sttProviderReady,
+            BooleanSupplier visionProviderReady) {
+        AudioVideoHealthService readiness = new AudioVideoHealthService(
+                "multimodal-service",
+                MetricsCollectorFactory.create(new SimpleMeterRegistry()),
+                Set.of("stt-provider", "vision-provider"));
+        readiness.registerCheck("stt-provider", sttProviderReady::getAsBoolean);
+        readiness.registerCheck("vision-provider", visionProviderReady::getAsBoolean);
+        service.setReadinessProbe(readiness::isServing);
+        return readiness;
+    }
+
+    private record ServerRuntime(
+            MultimodalGrpcService service,
+            AudioVideoHealthService readiness) {}
 
     public static void main(String[] args) {
         if (Boolean.getBoolean("av.smokeTest")) {
