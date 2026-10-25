@@ -5,6 +5,8 @@ import com.ghatana.audio.video.vision.model.VisionModelProfile;
 import com.ghatana.audio.video.vision.model.VisionProviderAdmission;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audio.video.vision.yolo.YoloV8Adapter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,11 +17,20 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
     private final AtomicBoolean closed = new AtomicBoolean();
 
     public ProductionVisionGrpcService(MediaProcessingMetrics metrics) {
-        this(compose(System.getenv()), metrics);
+        this(metrics, Metrics.globalRegistry);
+    }
+
+    ProductionVisionGrpcService(MediaProcessingMetrics metrics, MeterRegistry providerMetrics) {
+        this(compose(System.getenv()), metrics, providerMetrics);
     }
 
     ProductionVisionGrpcService(Composition composition, MediaProcessingMetrics metrics) {
-        super(composition, metrics, null);
+        this(composition, metrics, Metrics.globalRegistry);
+    }
+
+    ProductionVisionGrpcService(Composition composition, MediaProcessingMetrics metrics,
+                                MeterRegistry providerMetrics) {
+        super(composition, metrics, null, providerMetrics);
         this.detector = composition.detector();
     }
 

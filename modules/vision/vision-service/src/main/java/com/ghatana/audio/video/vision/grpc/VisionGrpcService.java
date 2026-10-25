@@ -15,8 +15,11 @@ import com.ghatana.audio.video.vision.yolo.YoloV8Adapter;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audit.AuditEvent;
 import com.ghatana.audit.AuditService;
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 /**
  * gRPC service implementation for computer vision object detection.
@@ -61,6 +65,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     private final AtomicLong totalProcessingTime = new AtomicLong(0);
     private volatile BooleanSupplier readinessProbe = () -> false;
     private final MediaProcessingMetrics mediaMetrics;
+    private final MediaWorkflowMetrics modalityMetrics;
     private final ModelRegistry modelRegistry;
     private final AuditService auditService;
     private volatile boolean degraded = false;
@@ -87,9 +92,17 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
                       MediaProcessingMetrics metrics, @Nullable AuditService auditService,
                       ModelRegistry modelRegistry) {
+        this(detector, frameExtractor, metrics, auditService, modelRegistry, Metrics.globalRegistry);
+    }
+
+    VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
+                      MediaProcessingMetrics metrics, @Nullable AuditService auditService,
+                      ModelRegistry modelRegistry, MeterRegistry providerMetrics) {
         this.detector = detector;
         this.frameExtractor = frameExtractor;
         this.mediaMetrics = metrics;
+        this.modalityMetrics = new MediaWorkflowMetrics(
+                Objects.requireNonNull(providerMetrics, "providerMetrics"), "vision");
         this.auditService = auditService;
         this.modelRegistry = modelRegistry;
     }
@@ -108,7 +121,14 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     VisionGrpcService(ProductionVisionGrpcService.Composition composition,
                       MediaProcessingMetrics metrics, @Nullable AuditService auditService) {
-        this(composition.detector(), composition.frameExtractor(), metrics, auditService);
+        this(composition, metrics, auditService, Metrics.globalRegistry);
+    }
+
+    VisionGrpcService(ProductionVisionGrpcService.Composition composition,
+                      MediaProcessingMetrics metrics, @Nullable AuditService auditService,
+                      MeterRegistry providerMetrics) {
+        this(composition.detector(), composition.frameExtractor(), metrics, auditService,
+                new FileSystemModelStore(), providerMetrics);
         ModelMetadata defaultModel = ModelMetadata.builder()
                 .modelId(composition.profile().modelId())
                 .name(composition.profile().modelId())
@@ -188,10 +208,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             }
             DetectionOptions options = optionsBuilder.build();
 
-            List<DetectedObject> detectedObjects = detector.detectObjects(
-                request.getImageData().toByteArray(),
-                options
-            );
+            List<DetectedObject> detectedObjects = recordProviderExecution(() -> detector.detectObjects(
+                request.getImageData().toByteArray(), options));
 
             DetectResponse.Builder responseBuilder = DetectResponse.newBuilder();
 
@@ -265,6 +283,27 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             responseObserver.onError(io.grpc.Status.INTERNAL
                 .withDescription("Internal detection error")
                 .asRuntimeException());
+        }
+    }
+
+    private List<DetectedObject> recordProviderExecution(Supplier<List<DetectedObject>> invocation) {
+        MediaWorkflowMetrics.ModalityTimingSample sample = modalityMetrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.PROVIDER);
+        MediaWorkflowMetrics.Outcome outcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+        try {
+            List<DetectedObject> result = invocation.get();
+            Objects.requireNonNull(result, "provider result");
+            for (DetectedObject detection : result) {
+                if (detection == null || detection.getClassName() == null || detection.getClassName().isBlank()
+                        || !Double.isFinite(detection.getConfidence()) || detection.getConfidence() < 0
+                        || detection.getConfidence() > 1 || detection.getBoundingBox() == null) {
+                    throw new IllegalStateException("Provider returned an invalid detection result");
+                }
+            }
+            if (!Context.current().isCancelled()) outcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+            return result;
+        } finally {
+            modalityMetrics.stopModalityTimer(sample, outcome);
         }
     }
 
@@ -477,7 +516,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             for (VideoFrameExtractor.ExtractedFrame frame : frames) {
                 byte[] frameBytes = Files.readAllBytes(frame.getPath());
-                List<DetectedObject> detections = detector.detectObjects(frameBytes, detectionOptions);
+                List<DetectedObject> detections = recordProviderExecution(
+                        () -> detector.detectObjects(frameBytes, detectionOptions));
 
                 VideoFrameDetections.Builder frameResult = mapSourceTimestamp(frame);
 
@@ -519,6 +559,11 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
                 .withDescription("Unsupported video metadata").asRuntimeException());
         } catch (IOException e) {
+            LOG.error("Video analysis failed ({})", e.getClass().getSimpleName());
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                .withDescription("Video analysis failed")
+                .asRuntimeException());
+        } catch (Exception e) {
             LOG.error("Video analysis failed ({})", e.getClass().getSimpleName());
             responseObserver.onError(io.grpc.Status.INTERNAL
                 .withDescription("Video analysis failed")
@@ -603,10 +648,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         .confidenceThreshold(0.6)
                         .build();
 
-                    List<DetectedObject> detectedObjects = detector.detectObjects(
-                        request.getFrameData().toByteArray(),
-                        options
-                    );
+                    List<DetectedObject> detectedObjects = recordProviderExecution(() -> detector.detectObjects(
+                            request.getFrameData().toByteArray(), options));
 
                     VideoFrameResponse.Builder responseBuilder = VideoFrameResponse.newBuilder()
                         .setTimestampMs(request.getTimestampMs())

@@ -61,6 +61,17 @@ class BoundedImageDecoderTest {
                 .isEqualTo(new ExifOrientationTransform.Box(1, 5, 1, 2));
     }
 
+    @Test void exifBoxRejectsNonFiniteOrOverflowingGeometryBeforeTransform() {
+        assertThatThrownBy(() -> new ExifOrientationTransform.Box(Double.NaN, 0, 1, 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ExifOrientationTransform.Box(0, 0, Double.POSITIVE_INFINITY, 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ExifOrientationTransform.Box(Double.MAX_VALUE, 0, Double.MAX_VALUE, 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ExifOrientationTransform.Box(0, 0, -1, 1))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
     @Test void pixelTransformRoundTripsAllEightOrientations() {
         for (int orientation = 1; orientation <= 8; orientation++) {
             var transform = new ExifOrientationTransform(orientation, 8, 6);

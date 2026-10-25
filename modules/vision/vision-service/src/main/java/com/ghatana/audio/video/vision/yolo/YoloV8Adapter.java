@@ -287,10 +287,13 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
 
     PreprocessedInput preprocessImage(Mat image) {
         LetterboxTransform transform = LetterboxTransform.fit(image.cols(), image.rows(), INPUT_SIZE);
-        Mat resized = new Mat();
-        Mat letterboxed = new Mat();
-        Mat normalized = new Mat();
+        Mat resized = null;
+        Mat letterboxed = null;
+        Mat normalized = null;
         try {
+            resized = new Mat();
+            letterboxed = new Mat();
+            normalized = new Mat();
             Imgproc.resize(image, resized, new Size(transform.resizedWidth(), transform.resizedHeight()));
             int right = INPUT_SIZE - transform.resizedWidth() - transform.padLeft();
             int bottom = INPUT_SIZE - transform.resizedHeight() - transform.padTop();

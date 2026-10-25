@@ -40,6 +40,16 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void ffprobeRejectsValidLookingMetadataWhenDiagnosticBudgetWasExceeded() {
+        String plausibleMetadata = "width=640\nheight=480\nduration=1.0\nnb_frames=1\nr_frame_rate=1/1\ntime_base=1/1000\n";
+        var result = new VideoFrameExtractor.ProcessResult(0, false, plausibleMetadata, false, true);
+
+        assertThatThrownBy(() -> VideoFrameExtractor.parseProbeResult(result))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("diagnostic output exceeded");
+    }
+
+    @Test
     void enforcesTimeoutEvenWhenChildKeepsItsOutputPipeOpen() throws Exception {
         long startedAt = System.nanoTime();
         var result = VideoFrameExtractor.runProcess(childCommand("sleep"), Duration.ofMillis(100), 128);

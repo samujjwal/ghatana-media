@@ -498,8 +498,14 @@ public class VideoFrameExtractor {
         );
 
         ProcessResult result = runProcess(command, Duration.ofSeconds(10), MAX_DIAGNOSTIC_BYTES);
-        if (result.timedOut()) {
-            throw new IOException("FFprobe process timed out");
+        return parseProbeResult(result);
+    }
+
+    static VideoMetadata parseProbeResult(ProcessResult result) throws IOException {
+        if (result.timedOut()) throw new IOException("FFprobe process timed out");
+        if (result.outputExceeded()) throw new IOException("FFprobe output exceeded its byte budget");
+        if (result.diagnosticExceeded()) {
+            throw new IOException("FFprobe diagnostic output exceeded its byte budget");
         }
         if (result.exitCode() != 0) throw new IOException("FFprobe failed with exit code: " + result.exitCode());
         VideoMetadata metadata = parseVideoMetadata(result.output());

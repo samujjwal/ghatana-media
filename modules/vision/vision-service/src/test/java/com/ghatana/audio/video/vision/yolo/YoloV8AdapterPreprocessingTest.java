@@ -38,4 +38,25 @@ class YoloV8AdapterPreprocessingTest {
             source.release();
         }
     }
+
+    @Test
+    void repeatedPreprocessingReleasesEachReturnedBlobAndRetainsCallerOwnedSource() {
+        Mat source = new Mat(32, 24, CvType.CV_8UC3, new Scalar(20, 40, 60));
+        try {
+            YoloV8Adapter adapter = new YoloV8Adapter(Path.of("unused"), 0.5, 0.4);
+            for (int iteration = 0; iteration < 64; iteration++) {
+                Mat blob = adapter.preprocessImage(source).blob();
+                try {
+                    assertThat(blob.empty()).isFalse();
+                    assertThat(blob.size(2)).isEqualTo(640);
+                    assertThat(blob.size(3)).isEqualTo(640);
+                } finally {
+                    blob.release();
+                }
+                assertThat(source.empty()).isFalse();
+            }
+        } finally {
+            source.release();
+        }
+    }
 }

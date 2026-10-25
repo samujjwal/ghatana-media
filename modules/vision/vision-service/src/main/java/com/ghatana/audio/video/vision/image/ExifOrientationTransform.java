@@ -72,5 +72,14 @@ public record ExifOrientationTransform(int orientation, int sourceWidth, int sou
     }
 
     public record Pixel(int x, int y) { }
-    public record Box(double x, double y, double width, double height) { }
+    public record Box(double x, double y, double width, double height) {
+        public Box {
+            if (!Double.isFinite(x) || !Double.isFinite(y)
+                    || !Double.isFinite(width) || !Double.isFinite(height)
+                    || width < 0 || height < 0
+                    || !Double.isFinite(x + width) || !Double.isFinite(y + height)) {
+                throw new IllegalArgumentException("EXIF box geometry must be finite with non-negative extents");
+            }
+        }
+    }
 }

@@ -51,10 +51,12 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private static ServerRuntime createProductionRuntime() {
-        ProductionVisionGrpcService service = new ProductionVisionGrpcService(MediaProcessingMetrics.create());
+        MeterRegistry providerMetrics = new SimpleMeterRegistry();
+        ProductionVisionGrpcService service = new ProductionVisionGrpcService(
+                MediaProcessingMetrics.create(), providerMetrics);
         try {
             AudioVideoHealthService readiness = createReadinessLifecycle(
-                    new SimpleMeterRegistry(), service::isProviderReady);
+                    providerMetrics, service::isProviderReady);
             service.setReadinessProbe(readiness::isServing);
             return new ServerRuntime(service, readiness);
         } catch (RuntimeException failure) {
