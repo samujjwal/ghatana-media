@@ -1026,10 +1026,11 @@ public final class MediaRuntime implements AutoCloseable {
     }
 
     private void refreshWorkflowGauges() {
+        Instant observedAt = Instant.now();
         try {
             long queueDepth = jobStore.countByStatus(JobStatus.ACCEPTED);
             long unknownBacklog = jobStore.countByStatus(JobStatus.OUTCOME_UNKNOWN);
-            long overdueLeases = jobStore.countOverdueLeases(Instant.now());
+            long overdueLeases = jobStore.countOverdueLeases(observedAt);
             workflowMetrics.setQueueDepth(queueDepth);
             workflowMetrics.setUnknownBacklog(unknownBacklog);
             workflowMetrics.setOverdueLeases(overdueLeases);
@@ -1039,6 +1040,28 @@ public final class MediaRuntime implements AutoCloseable {
         } catch (RuntimeException storeFailure) {
             workflowMetrics.setAggregateStoreQueriesSupported(false);
             log.warn("Media workflow metrics gauge refresh failed (type={})",
+                    storeFailure.getClass().getSimpleName());
+        }
+
+        refreshWorkflowOutboxGauge(observedAt);
+    }
+
+    private void refreshWorkflowOutboxGauge(Instant observedAt) {
+        try {
+            if (lifecycleOutboxSources.isEmpty()) {
+                throw new UnsupportedOperationException("No durable outbox metric source is configured");
+            }
+            long overdueClaims = 0;
+            for (MediaLifecycleOutboxSource source : lifecycleOutboxSources) {
+                overdueClaims = Math.addExact(overdueClaims, source.countOverdueClaims(observedAt));
+            }
+            workflowMetrics.setOverdueOutboxClaims(overdueClaims);
+            workflowMetrics.setOutboxStoreQueriesSupported(true);
+        } catch (UnsupportedOperationException unsupported) {
+            workflowMetrics.setOutboxStoreQueriesSupported(false);
+        } catch (RuntimeException storeFailure) {
+            workflowMetrics.setOutboxStoreQueriesSupported(false);
+            log.warn("Media workflow outbox metrics gauge refresh failed (type={})",
                     storeFailure.getClass().getSimpleName());
         }
     }

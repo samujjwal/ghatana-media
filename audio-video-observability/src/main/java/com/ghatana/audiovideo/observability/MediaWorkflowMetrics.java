@@ -112,6 +112,8 @@ public final class MediaWorkflowMetrics {
     private final AtomicReference<Double> unknownBacklog = new AtomicReference<>(Double.NaN);
     private final AtomicReference<Double> overdueLeases = new AtomicReference<>(Double.NaN);
     private final AtomicReference<Double> aggregateStoreQueriesSupported = new AtomicReference<>(Double.NaN);
+    private final AtomicReference<Double> overdueOutboxClaims = new AtomicReference<>(Double.NaN);
+    private final AtomicReference<Double> outboxStoreQueriesSupported = new AtomicReference<>(Double.NaN);
 
     public MediaWorkflowMetrics(MeterRegistry registry, String service) {
         this.registry = registry;
@@ -156,6 +158,17 @@ public final class MediaWorkflowMetrics {
         Gauge.builder("media.workflow.aggregate_store_queries_supported", aggregateStoreQueriesSupported,
                         AtomicReference::get)
                 .description("1 for a complete durable-store snapshot, 0 for unsupported or failed queries, NaN before refresh")
+                .tag("service", safeService)
+                .tag("contract_version", CONTRACT_VERSION)
+                .register(registry);
+        Gauge.builder("media.workflow.outbox.lease.overdue", overdueOutboxClaims, AtomicReference::get)
+                .description("Expired durable Media outbox claim leases; NaN until a complete outbox refresh")
+                .tag("service", safeService)
+                .tag("contract_version", CONTRACT_VERSION)
+                .register(registry);
+        Gauge.builder("media.workflow.outbox.aggregate_store_queries_supported", outboxStoreQueriesSupported,
+                        AtomicReference::get)
+                .description("1 for complete durable outbox lease counts, 0 for unsupported or failed queries, NaN before refresh")
                 .tag("service", safeService)
                 .tag("contract_version", CONTRACT_VERSION)
                 .register(registry);
@@ -219,6 +232,20 @@ public final class MediaWorkflowMetrics {
 
     public void setOverdueLeases(long count) {
         overdueLeases.set(measuredCount(count));
+    }
+
+    public void setOverdueOutboxClaims(long count) {
+        overdueOutboxClaims.set(measuredCount(count));
+    }
+
+    public void setOutboxStoreQueriesSupported(boolean supported) {
+        if (!supported) {
+            outboxStoreQueriesSupported.set(0.0);
+            overdueOutboxClaims.set(Double.NaN);
+            return;
+        }
+
+        outboxStoreQueriesSupported.set(Double.isFinite(overdueOutboxClaims.get()) ? 1.0 : Double.NaN);
     }
 
     public void setAggregateStoreQueriesSupported(boolean supported) {

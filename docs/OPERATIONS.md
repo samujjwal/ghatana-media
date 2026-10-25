@@ -134,14 +134,17 @@ Investigate or alert on:
 
 ### Wave 2 signal availability and no-data handling
 
-The current Media Runtime Prometheus scrape emits the durable workflow metrics
-from `MediaWorkflowMetrics`: request/event counts, workflow-stage durations,
-queue depth, `OUTCOME_UNKNOWN` backlog, overdue leases, and whether the complete
-job-store snapshot is available. The queue/backlog/lease alerts require
-`media_workflow_aggregate_store_queries_supported == 1`; an unavailable query
-clears those gauges to NaN, and the explicit unavailable alert fires only for a
-reported `0`. Initial or missing data is unknown, not a zero backlog and not a
-healthy provider result.
+The current Media Runtime Prometheus scrape emits durable workflow metrics from
+`MediaWorkflowMetrics`: request/event counts, workflow-stage durations, queue
+depth, `OUTCOME_UNKNOWN` backlog, overdue job leases, and expired durable
+outbox claim leases. Job-store queue/backlog/lease alerts require
+`media_workflow_aggregate_store_queries_supported == 1`; the outbox claim alert
+requires `media_workflow_outbox_aggregate_store_queries_supported == 1`. An
+unavailable query clears only its own gauges to NaN, and its explicit
+unavailable alert fires only for a reported `0`. Initial or missing data is
+unknown, not a zero backlog and not a healthy provider result. The outbox gauge
+counts unacknowledged, non-dead-lettered claims whose stored lease has expired;
+it does not estimate total pending-event age or provider health.
 
 Provider readiness and model quality are not Prometheus sources in this
 checkout. `MediaRuntime.healthSnapshot()` computes provider status internally,

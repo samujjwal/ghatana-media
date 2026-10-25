@@ -91,6 +91,26 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void distinguishesMeasuredOutboxLeaseZeroFromUnsupportedSource() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+        var overdueClaims = registry.get("media.workflow.outbox.lease.overdue").gauge();
+        var querySupport = registry.get("media.workflow.outbox.aggregate_store_queries_supported").gauge();
+
+        assertThat(overdueClaims.value()).isNaN();
+        assertThat(querySupport.value()).isNaN();
+
+        metrics.setOverdueOutboxClaims(0);
+        metrics.setOutboxStoreQueriesSupported(true);
+        assertThat(overdueClaims.value()).isZero();
+        assertThat(querySupport.value()).isEqualTo(1.0);
+
+        metrics.setOutboxStoreQueriesSupported(false);
+        assertThat(overdueClaims.value()).isNaN();
+        assertThat(querySupport.value()).isZero();
+    }
+
+    @Test
     void adversarialServiceLabelsCollapseToSingleBoundedVocabularyValue() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         for (int i = 0; i < 500; i++) {

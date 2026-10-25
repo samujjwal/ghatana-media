@@ -296,6 +296,22 @@ groups:
           summary: "Media job leases overdue without recovery"
           description: "{{ $value }} durable Media job lease(s) on {{ $labels.service }} have stayed expired for over 10 minutes — a worker may have crashed or job-store recovery may be stalled. Inspect worker health and rerun the restart-reconciliation procedure in docs/OPERATIONS.md."
 
+      - alert: MediaOutboxClaimLeaseStuck
+        expr: |
+          max by (service) (
+            media_workflow_outbox_lease_overdue{contract_version="v1"}
+            and on (service, contract_version)
+            (media_workflow_outbox_aggregate_store_queries_supported{contract_version="v1"} == 1)
+          ) > 0
+        for: 10m
+        labels:
+          severity: critical
+          product: audio-video
+          component: workflow
+        annotations:
+          summary: "Media lifecycle outbox claim leases remain expired"
+          description: "{{ $value }} durable Media outbox claim lease(s) on {{ $labels.service }} have remained expired for 10 minutes. Inspect the publisher and reconcile broker acknowledgement before replaying any event; do not infer publication from a local claim."
+
       - alert: MediaUnknownFinalityBacklog
         expr: |
           max by (service) (
@@ -367,3 +383,15 @@ groups:
         annotations:
           summary: "Media job store cannot supply aggregate workflow metrics"
           description: "The configured Media job store on {{ $labels.service }} reports unsupported or failed aggregate queries backing lease/backlog/queue-depth gauges. Initial NaN/unknown state does not trigger this alert; a known unsupported or failed refresh does."
+
+      - alert: MediaWorkflowOutboxMetricsUnavailable
+        expr: |
+          media_workflow_outbox_aggregate_store_queries_supported{contract_version="v1"} == 0
+        for: 15m
+        labels:
+          severity: warning
+          product: audio-video
+          component: workflow
+        annotations:
+          summary: "Media outbox cannot supply aggregate lease metrics"
+          description: "The configured Media outbox on {{ $labels.service }} reports unsupported or failed expired-claim queries. Initial NaN/unknown state does not trigger this alert; a known unsupported or failed refresh does."

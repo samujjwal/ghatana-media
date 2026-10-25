@@ -78,6 +78,25 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
         return publishPending(publisher, limit).published();
     }
 
+    @Override
+    public long countOverdueClaims(Instant now) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(now, "now");
+        try (Connection connection = state.connection();
+             PreparedStatement query = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM media_processing_lifecycle_outbox "
+                             + "WHERE published_at IS NULL AND dead_lettered_at IS NULL "
+                             + "AND claim_owner IS NOT NULL AND claim_expires_at IS NOT NULL "
+                             + "AND claim_expires_at<=?")) {
+            query.setLong(1, now.toEpochMilli());
+            try (ResultSet rows = query.executeQuery()) {
+                return rows.next() ? rows.getLong(1) : 0L;
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException("Unable to count overdue Media outbox claims", failure);
+        }
+    }
+
     private List<String> eligibleIds(int limit) {
         long now = System.currentTimeMillis();
         try (Connection connection = state.connection();
@@ -218,6 +237,10 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
     private static Duration positive(Duration value, String field) {
         if (value == null || value.isNegative() || value.isZero()) throw new IllegalArgumentException(field + " must be positive");
         return value;
+    }
+
+    private void ensureOpen() {
+        if (closed.get()) throw new IllegalStateException("Media lifecycle outbox source is closed");
     }
 
     private static void rollback(Connection connection, Throwable original) {

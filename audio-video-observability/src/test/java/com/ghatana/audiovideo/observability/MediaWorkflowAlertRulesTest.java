@@ -23,12 +23,16 @@ class MediaWorkflowAlertRulesTest {
                 "MediaPolicyDenialRateHigh",
                 "MediaQueueCapacityHigh",
                 "MediaWorkflowAggregateStoreMetricsUnavailable",
+                "MediaOutboxClaimLeaseStuck",
+                "MediaWorkflowOutboxMetricsUnavailable",
                 "media_workflow_lease_overdue",
+                "media_workflow_outbox_lease_overdue",
                 "media_workflow_unknown_backlog",
                 "media_workflow_events_total",
                 "media_workflow_requests_total",
                 "media_workflow_queue_depth",
                 "media_workflow_aggregate_store_queries_supported",
+                "media_workflow_outbox_aggregate_store_queries_supported",
                 "contract_version=\"v1\"");
         assertThat(rules).doesNotContain(
                 "tenant_id", "principal_id", "request_id", "job_id", "attempt_id",
@@ -48,8 +52,14 @@ class MediaWorkflowAlertRulesTest {
                 "media_workflow_queue_depth{contract_version=\"v1\"}\n            " + knownAvailable,
                 "media_workflow_aggregate_store_queries_supported{contract_version=\"v1\"} == 0",
                 "Initial NaN/unknown state does not trigger this alert");
+        assertThat(rules).contains(
+                "media_workflow_outbox_lease_overdue{contract_version=\"v1\"}\n            "
+                        + "and on (service, contract_version)\n"
+                        + "            (media_workflow_outbox_aggregate_store_queries_supported{contract_version=\"v1\"} == 1)",
+                "media_workflow_outbox_aggregate_store_queries_supported{contract_version=\"v1\"} == 0");
         assertThat(rules).doesNotContain(
                 "max(media_workflow_lease_overdue{contract_version=\"v1\"})",
+                "max(media_workflow_outbox_lease_overdue{contract_version=\"v1\"})",
                 "max(media_workflow_unknown_backlog{contract_version=\"v1\"})",
                 "max(media_workflow_queue_depth{contract_version=\"v1\"})");
     }
