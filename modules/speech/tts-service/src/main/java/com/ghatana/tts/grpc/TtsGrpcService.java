@@ -270,6 +270,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             AtomicInteger expectedSequence = new AtomicInteger();
             AtomicBoolean finalChunkSeen = new AtomicBoolean();
             AtomicLong outputBytes = new AtomicLong();
+            AtomicLong lastTimestampMs = new AtomicLong(-1);
             AtomicReference<CanonicalAudioFormat> declaredStreamFormat = new AtomicReference<>();
             AtomicReference<com.ghatana.media.common.AudioChunk> pendingFinalChunk = new AtomicReference<>();
             Object chunkLock = new Object();
@@ -337,6 +338,11 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                             if (chunk.sequenceNumber() != expectedSequence.getAndIncrement()) {
                                 throw new IllegalStateException("TTS provider returned a non-contiguous chunk sequence");
                             }
+                            if (chunk.timestampMs() < 0 || chunk.timestampMs() < lastTimestampMs.get()) {
+                                throw new IllegalStateException(
+                                        "TTS provider returned a negative or non-monotonic chunk timestamp");
+                            }
+                            lastTimestampMs.set(chunk.timestampMs());
                             if (finalChunkSeen.get()) {
                                 throw new IllegalStateException("TTS provider emitted audio after its final chunk");
                             }

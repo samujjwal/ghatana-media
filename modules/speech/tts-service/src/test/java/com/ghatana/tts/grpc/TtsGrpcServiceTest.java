@@ -882,6 +882,36 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void admittedStreamRejectsNegativeOrDecreasingChunkTimestamps() {
+        for (long invalidTimestamp : List.of(-1L, 4L)) {
+            TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+            AtomicBoolean sessionCancelled = new AtomicBoolean();
+            when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+                TtsStreamSink sink = invocation.getArgument(2);
+                sink.onAudioFormat(monoPcm16Format());
+                sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 5));
+                sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 1, true, invalidTimestamp));
+                return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+            });
+            @SuppressWarnings("unchecked")
+            StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(StreamObserver.class);
+            AtomicReference<Throwable> error = new AtomicReference<>();
+            doAnswer(invocation -> { error.set(invocation.getArgument(0)); return null; })
+                    .when(observer).onError(any());
+
+            admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+            verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk -> !chunk.getIsFinal()
+                    && chunk.getTimestampMs() == 5));
+            verify(observer, org.mockito.Mockito.times(1)).onNext(any());
+            verify(observer, never()).onCompleted();
+            assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.FAILED_PRECONDITION);
+            assertThat(sessionCancelled).isTrue();
+            org.mockito.Mockito.reset(engine);
+        }
+    }
+
+    @Test
     void admittedPartialStreamFailureDoesNotEmitFalseFinalChunkOrCompleteSuccessfully() throws Exception {
         TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
         AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
