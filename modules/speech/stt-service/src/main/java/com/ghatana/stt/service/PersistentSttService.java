@@ -100,7 +100,10 @@ public class PersistentSttService {
         this.blockingExecutor = ForkJoinPool.commonPool();
     }
 
-    /** Transcribe audio and persist the governed audio/transcription records. */
+    /**
+     * Validates an uploaded-audio request and fails closed until governed source/version
+     * resolution and immutable transcript persistence are available.
+     */
     public Promise<TranscriptionResult> transcribeAndPersist(
             String tenantId,
             UUID userId,
@@ -116,9 +119,8 @@ public class PersistentSttService {
         Objects.requireNonNull(userId, "userId cannot be null");
         Objects.requireNonNull(audioBytes, "audioBytes cannot be null");
 
-        AudioData decodedAudio;
         try {
-            decodedAudio = validateSttInput(audioBytes, fileName, format, sampleRate, language);
+            validateSttInput(audioBytes, fileName, format, sampleRate, language);
         } catch (IllegalArgumentException failure) {
             emitSttAudit(
                     tenantId,
@@ -131,82 +133,19 @@ public class PersistentSttService {
             throw failure;
         }
 
-        String inputHash = sha256Hex(audioBytes);
-        String requestId = UUID.randomUUID().toString();
-        long startTime = System.currentTimeMillis();
+        // This compatibility service can validate uploaded bytes, but it has no admitted
+        // governed source artifact/version or immutable transcript revision store. Keep the
+        // direct upload path from creating mutable AudioFile/Transcription rows that could be
+        // mistaken for versioned, source-grounded output.
+        return Promise.ofException(new TranscriptVersionNotAdmittedException());
+    }
 
-        return persistAudioFile(
-                tenantId, userId, fileName, audioBytes.length, format, sampleRate)
-                .then(audioFile -> {
-                    LOG.info(
-                            "Audio file persisted: sizeBytes={}", audioBytes.length);
-                    return performTranscription(decodedAudio, language)
-                            .then(transcriptionResult -> persistTranscription(
-                                    tenantId,
-                                    userId,
-                                    audioFile.getId(),
-                                    transcriptionResult,
-                                    requestId,
-                                    inputHash)
-                                    .map(transcription -> {
-                                        long elapsedMs = System.currentTimeMillis() - startTime;
-                                        transcribeTimer.record(Duration.ofMillis(elapsedMs));
-                                        LOG.info(
-                                                "Transcription completed: confidence={}, elapsedMs={}",
-                                                transcriptionResult.confidence(),
-                                                elapsedMs);
-                                        emitSttAudit(
-                                                tenantId,
-                                                userId.toString(),
-                                                "stt.transcribe",
-                                                "SUCCESS",
-                                                Map.of(
-                                                        "requestId", requestId,
-                                                        "audioFileId", audioFile.getId().toString(),
-                                                        "transcriptionId", transcription.getId().toString(),
-                                                        "confidence", String.valueOf(transcriptionResult.confidence()),
-                                                        "language", transcriptionResult.language() != null
-                                                                ? transcriptionResult.language()
-                                                                : "unknown",
-                                                        "processingTimeMs", String.valueOf(elapsedMs),
-                                                        "audioSizeBytes", String.valueOf(audioBytes.length)));
-                                        return transcriptionResult;
-                                    }))
-                            .whenException(failure -> {
-                                String failureType = failureType(failure);
-                                LOG.error(
-                                        "Transcription failed failureType={}", failureType);
-                                updateAudioFileStatus(
-                                        tenantId,
-                                        audioFile.getId(),
-                                        AudioFileEntity.ProcessingStatus.FAILED,
-                                        "STT_" + failureType);
-                                emitSttAudit(
-                                        tenantId,
-                                        userId.toString(),
-                                        "stt.transcribe",
-                                        resolveFailureOutcome(failure),
-                                        Map.of(
-                                                "requestId", requestId,
-                                                "audioFileId", audioFile.getId().toString(),
-                                                "failureType", failureType,
-                                                "audioSizeBytes", String.valueOf(audioBytes.length)));
-                            });
-                })
-                .whenException(failure -> {
-                    String failureType = failureType(failure);
-                    LOG.error(
-                            "STT request failed failureType={}", failureType);
-                    emitSttAudit(
-                            tenantId,
-                            userId.toString(),
-                            "stt.transcribe",
-                            resolveFailureOutcome(failure),
-                            Map.of(
-                                    "requestId", requestId,
-                                    "failureType", failureType,
-                                    "audioSizeBytes", String.valueOf(audioBytes.length)));
-                });
+    /** Typed failure for transcription requests without governed source/version persistence. */
+    public static final class TranscriptVersionNotAdmittedException extends IllegalStateException {
+        public TranscriptVersionNotAdmittedException() {
+            super("STT_TRANSCRIPT_VERSION_NOT_ADMITTED: governed source artifact/version, admitted provider, "
+                    + "rights provenance and immutable transcript store are unavailable");
+        }
     }
 
     public Promise<Optional<TranscriptionEntity>> getTranscription(

@@ -1,7 +1,7 @@
 package com.ghatana.stt.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -135,10 +135,8 @@ class PersistentSttServiceValidationTest {
     @DisplayName("wav extension is accepted without exception")
     void wavExtensionAccepted() {
         byte[] audio = pcmWav(VALID_RATE, 4);
-        // Validation passes; persistence will be attempted — let the Promise propagate normally.
-        assertThatCode(() -> service.transcribeAndPersist(
-                TENANT, USER, audio, "clip.wav", AudioFormat.WAV, "en", VALID_RATE))
-            .doesNotThrowAnyException();
+        assertVersionNotAdmitted(service.transcribeAndPersist(
+                TENANT, USER, audio, "clip.wav", AudioFormat.WAV, "en", VALID_RATE));
     }
 
     @Test
@@ -177,12 +175,10 @@ class PersistentSttServiceValidationTest {
     @Test
     @DisplayName("boundary sample rates 8000 and 48000 are accepted")
     void boundarySampleRatesAccepted() {
-        assertThatCode(() -> service.transcribeAndPersist(
-                TENANT, USER, pcmWav(8_000, 4), "sample.wav", AudioFormat.WAV, "en", 8_000))
-            .doesNotThrowAnyException();
-        assertThatCode(() -> service.transcribeAndPersist(
-                TENANT, USER, pcmWav(48_000, 4), "sample.wav", AudioFormat.WAV, "en", 48_000))
-            .doesNotThrowAnyException();
+        assertVersionNotAdmitted(service.transcribeAndPersist(
+                TENANT, USER, pcmWav(8_000, 4), "sample.wav", AudioFormat.WAV, "en", 8_000));
+        assertVersionNotAdmitted(service.transcribeAndPersist(
+                TENANT, USER, pcmWav(48_000, 4), "sample.wav", AudioFormat.WAV, "en", 48_000));
     }
 
     // -----------------------------------------------------------------------
@@ -203,18 +199,16 @@ class PersistentSttServiceValidationTest {
     @DisplayName("null language is accepted (no language hint)")
     void nullLanguageAccepted() {
         byte[] audio = pcmWav(VALID_RATE, 4);
-        assertThatCode(() -> service.transcribeAndPersist(
-                TENANT, USER, audio, "sample.wav", AudioFormat.WAV, null, VALID_RATE))
-            .doesNotThrowAnyException();
+        assertVersionNotAdmitted(service.transcribeAndPersist(
+                TENANT, USER, audio, "sample.wav", AudioFormat.WAV, null, VALID_RATE));
     }
 
     @Test
     @DisplayName("BCP-47 tag with region (en-US) resolves to supported base language")
     void bcp47TagWithRegionAccepted() {
         byte[] audio = pcmWav(VALID_RATE, 4);
-        assertThatCode(() -> service.transcribeAndPersist(
-                TENANT, USER, audio, "sample.wav", AudioFormat.WAV, "en-US", VALID_RATE))
-            .doesNotThrowAnyException();
+        assertVersionNotAdmitted(service.transcribeAndPersist(
+                TENANT, USER, audio, "sample.wav", AudioFormat.WAV, "en-US", VALID_RATE));
     }
 
     @Test
@@ -277,5 +271,13 @@ class PersistentSttServiceValidationTest {
         service.setDegradedMode(true, "temporary");
         service.setDegradedMode(false, null);
         org.assertj.core.api.Assertions.assertThat(service.isDegraded()).isFalse();
+    }
+
+    private static void assertVersionNotAdmitted(Promise<?> promise) {
+        java.util.concurrent.atomic.AtomicReference<Throwable> failure = new java.util.concurrent.atomic.AtomicReference<>();
+        promise.whenException(failure::set);
+        assertThat(failure.get())
+                .isInstanceOf(PersistentSttService.TranscriptVersionNotAdmittedException.class)
+                .hasMessageStartingWith("STT_TRANSCRIPT_VERSION_NOT_ADMITTED:");
     }
 }
