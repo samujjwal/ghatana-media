@@ -34,11 +34,28 @@ public class CrossModalFusionEngine {
     /** Fused multimodal representation. */
     public record FusionResult(
             double[] fusedEmbeddings,
+            /** Arithmetic input score only; it is not calibrated confidence or alignment quality. */
             double fusionConfidence,
             Map<String, Double> modalityWeights,
             Duration processingTime,
             boolean hadMissingModality
-    ) {}
+    ) {
+        public FusionResult {
+            fusedEmbeddings = fusedEmbeddings.clone();
+            modalityWeights = Map.copyOf(modalityWeights);
+        }
+
+        @Override
+        public double[] fusedEmbeddings() {
+            return fusedEmbeddings.clone();
+        }
+
+        public ConfidenceDisposition confidenceDisposition() {
+            return ConfidenceDisposition.HEURISTIC_UNCALIBRATED;
+        }
+    }
+
+    public enum ConfidenceDisposition { HEURISTIC_UNCALIBRATED }
 
     private final String modelId;
     private final int embeddingDim;
@@ -64,14 +81,19 @@ public class CrossModalFusionEngine {
         boolean missingAudio = audio.isEmpty();
         boolean missingVisual = visual.isEmpty();
 
+        validateConfidence("audio", audio.confidence());
+        validateConfidence("visual", visual.confidence());
+        if (!missingAudio) validateEmbedding("audio", audio.embeddings());
+        if (!missingVisual) validateEmbedding("visual", visual.embeddings());
+
         if (missingAudio && missingVisual) {
             throw new FusionException("At least one modality must have valid embeddings");
         }
 
         long startNs = System.nanoTime();
         double[] fused = fuseVectors(
-                missingAudio ? new double[embeddingDim] : pad(audio.embeddings(), embeddingDim),
-                missingVisual ? new double[embeddingDim] : pad(visual.embeddings(), embeddingDim),
+                missingAudio ? new double[embeddingDim] : audio.embeddings(),
+                missingVisual ? new double[embeddingDim] : visual.embeddings(),
                 missingAudio ? 0.0 : audio.confidence(),
                 missingVisual ? 0.0 : visual.confidence()
         );
@@ -99,14 +121,19 @@ public class CrossModalFusionEngine {
         boolean missingText = text.isEmpty();
         boolean missingVisual = visual.isEmpty();
 
+        validateConfidence("text", text.confidence());
+        validateConfidence("visual", visual.confidence());
+        if (!missingText) validateEmbedding("text", text.embeddings());
+        if (!missingVisual) validateEmbedding("visual", visual.embeddings());
+
         if (missingText && missingVisual) {
             throw new FusionException("At least one modality must have valid embeddings");
         }
 
         long startNs = System.nanoTime();
         double[] fused = fuseVectors(
-                missingText ? new double[embeddingDim] : pad(text.embeddings(), embeddingDim),
-                missingVisual ? new double[embeddingDim] : pad(visual.embeddings(), embeddingDim),
+                missingText ? new double[embeddingDim] : text.embeddings(),
+                missingVisual ? new double[embeddingDim] : visual.embeddings(),
                 missingText ? 0.0 : text.confidence(),
                 missingVisual ? 0.0 : visual.confidence()
         );
@@ -135,13 +162,28 @@ public class CrossModalFusionEngine {
         double[] result = new double[embeddingDim];
         for (int i = 0; i < embeddingDim; i++) {
             result[i] = wa * a[i] + wb * b[i];
+            if (!Double.isFinite(result[i])) {
+                throw new FusionException("Fused embedding contains a non-finite value");
+            }
         }
         return result;
     }
 
-    private double[] pad(double[] v, int targetLen) {
-        if (v.length >= targetLen) return Arrays.copyOf(v, targetLen);
-        return Arrays.copyOf(v, targetLen);  // zero-pads automatically
+    private void validateEmbedding(String modality, double[] embedding) {
+        if (embedding.length != embeddingDim) {
+            throw new FusionException(modality + " embedding dimension must equal " + embeddingDim);
+        }
+        for (double component : embedding) {
+            if (!Double.isFinite(component)) {
+                throw new FusionException(modality + " embedding contains a non-finite value");
+            }
+        }
+    }
+
+    private void validateConfidence(String modality, double confidence) {
+        if (!Double.isFinite(confidence) || confidence < 0.0 || confidence > 1.0) {
+            throw new FusionException(modality + " confidence must be finite and in [0, 1]");
+        }
     }
 
     /** Thrown when fusion cannot be performed. */

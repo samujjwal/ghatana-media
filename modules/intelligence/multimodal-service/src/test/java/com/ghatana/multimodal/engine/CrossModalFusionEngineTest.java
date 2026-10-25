@@ -54,6 +54,8 @@ class CrossModalFusionEngineTest {
         VisualFeatures visual = makeVisual(DIM, 0.75); 
         FusionResult result = engine.fuseAudioVisual(audio, visual); 
         assertThat(result.fusionConfidence()).isBetween(0.0, 1.0); 
+        assertThat(result.confidenceDisposition())
+                .isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
     }
 
     @Test
@@ -90,6 +92,72 @@ class CrossModalFusionEngineTest {
         VisualFeatures emptyVisual = new VisualFeatures(new double[0], new double[0], 0.0); 
         FusionResult result = engine.fuseAudioVisual(audio, emptyVisual); 
         assertThat(result.hadMissingModality()).isTrue(); 
+    }
+
+    @Test
+    @DisplayName("short audio embeddings are rejected instead of zero-padded")
+    void shortAudioEmbeddingRejected() {
+        assertThatThrownBy(() -> engine.fuseAudioVisual(
+                new AudioFeatures(new double[DIM - 1], 0.5), makeVisual(DIM, 0.5)))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("dimension");
+    }
+
+    @Test
+    @DisplayName("long visual embeddings are rejected instead of truncated")
+    void longVisualEmbeddingRejected() {
+        assertThatThrownBy(() -> engine.fuseAudioVisual(
+                makeAudio(DIM, 0.5), new VisualFeatures(new double[DIM + 1], new double[4], 0.5)))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("dimension");
+    }
+
+    @Test
+    @DisplayName("non-finite audio and visual components are rejected")
+    void nonFiniteEmbeddingComponentRejected() {
+        double[] audioValues = new double[DIM];
+        audioValues[3] = Double.NaN;
+        assertThatThrownBy(() -> engine.fuseAudioVisual(
+                new AudioFeatures(audioValues, 0.5), makeVisual(DIM, 0.5)))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("non-finite");
+
+        double[] visualValues = new double[DIM];
+        visualValues[5] = Double.POSITIVE_INFINITY;
+        assertThatThrownBy(() -> engine.fuseTextImage(
+                makeText(DIM, "text", 0.5), new VisualFeatures(visualValues, new double[4], 0.5)))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("non-finite");
+    }
+
+    @Test
+    @DisplayName("non-finite and out-of-range confidences are rejected")
+    void invalidConfidencesRejected() {
+        assertInvalidAudioConfidence(Double.NaN);
+        assertInvalidAudioConfidence(Double.POSITIVE_INFINITY);
+        assertInvalidAudioConfidence(-0.01);
+        assertInvalidAudioConfidence(1.01);
+        assertThatThrownBy(() -> engine.fuseTextImage(
+                makeText(DIM, "text", 0.5),
+                new VisualFeatures(new double[0], new double[4], Double.NaN)))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("confidence");
+    }
+
+    @Test
+    @DisplayName("confidence boundaries are accepted and result exposes finite defensive values")
+    void confidenceBoundariesAndResultValuesAreSafe() {
+        FusionResult result = engine.fuseAudioVisual(makeAudio(DIM, 0.0), makeVisual(DIM, 1.0));
+        assertThat(result.fusionConfidence()).isBetween(0.0, 1.0);
+        assertThat(result.modalityWeights()).containsEntry("audio", 0.0).containsEntry("visual", 1.0);
+        assertThat(java.util.Arrays.stream(result.fusedEmbeddings()).allMatch(Double::isFinite)).isTrue();
+        assertThat(result.modalityWeights().values()).allMatch(Double::isFinite);
+        double[] returned = result.fusedEmbeddings();
+        returned[0] = Double.NaN;
+        assertThat(result.fusedEmbeddings()[0]).isFinite();
+        assertThatThrownBy(() -> result.modalityWeights().put("extra", 0.5))
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThat(result.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
     }
 
     @Test
@@ -248,5 +316,12 @@ class CrossModalFusionEngineTest {
         double[] emb = new double[dim];
         for (int i = 0; i < dim; i++) emb[i] = Math.sin(i); 
         return new TextFeatures(emb, text, confidence); 
+    }
+
+    private void assertInvalidAudioConfidence(double confidence) {
+        assertThatThrownBy(() -> engine.fuseAudioVisual(
+                makeAudio(DIM, confidence), makeVisual(DIM, 0.5)))
+                .isInstanceOf(CrossModalFusionEngine.FusionException.class)
+                .hasMessageContaining("confidence");
     }
 }

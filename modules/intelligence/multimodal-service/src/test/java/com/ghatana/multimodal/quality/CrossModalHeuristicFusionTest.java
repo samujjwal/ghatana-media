@@ -9,46 +9,49 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.assertj.core.api.Assertions.*;
 
 /**
- * Cross-modal accuracy regression tests for {@link CrossModalFusionEngine}.
+ * Deterministic heuristic-shape regression tests for {@link CrossModalFusionEngine}.
  *
- * <p>Validates fusion accuracy under benchmark conditions, including missing modality
- * degradation, noise tolerance, and temporal alignment properties.
+ * <p>Uses synthetic vectors to check deterministic arithmetic behavior, missing-modality
+ * handling, and finite output shape. These fixtures do not measure model quality or alignment.
  *
  * @doc.type    class
- * @doc.purpose Cross-modal accuracy: benchmark dataset, missing modality, noise robustness
+ * @doc.purpose Cross-modal heuristic-shape regression coverage with synthetic vectors
  * @doc.layer   product
  * @doc.pattern Test
  */
-@DisplayName("CrossModalAccuracyTest")
-class CrossModalAccuracyTest {
+@DisplayName("CrossModalHeuristicFusionTest")
+class CrossModalHeuristicFusionTest {
 
     private static final int DIM = 128;
     private CrossModalFusionEngine engine;
 
     @BeforeEach
     void setUp() { 
-        engine = new CrossModalFusionEngine("crossmodal-accuracy-v1", DIM); 
+        engine = new CrossModalFusionEngine("crossmodal-heuristic-test-v1", DIM); 
     }
 
-    // ── Benchmark dataset fixtures ────────────────────────────────────────────
+    // ── Synthetic vector fixtures ──────────────────────────────────────────────
 
     @Test
-    @DisplayName("high-quality benchmark fusion returns high confidence")
-    void highQualityBenchmarkHighConfidence() { 
+    @DisplayName("large synthetic inputs produce a larger heuristic score")
+    void largerSyntheticInputsProduceLargerHeuristicScore() { 
         AudioFeatures audio = makeAudio(DIM, 0.95); 
         VisualFeatures visual = makeVisual(DIM, 0.92); 
         FusionResult result = engine.fuseAudioVisual(audio, visual); 
-        // With both modalities > 0.9, fusion confidence should be > 0.5
+        // The arithmetic score describes input values only; it is not calibrated confidence.
         assertThat(result.fusionConfidence()).isGreaterThan(0.5); 
+        assertUncalibrated(result);
     }
 
     @Test
-    @DisplayName("low-quality audio reduces fusion confidence compared to high-quality")
-    void lowQualityAudioReducesConfidence() { 
+    @DisplayName("lower synthetic audio score does not increase the heuristic score")
+    void lowerAudioScoreDoesNotIncreaseHeuristicScore() { 
         VisualFeatures visual = makeVisual(DIM, 0.9); 
         FusionResult highAudio = engine.fuseAudioVisual(makeAudio(DIM, 0.95), visual); 
         FusionResult lowAudio = engine.fuseAudioVisual(makeAudio(DIM, 0.2), visual); 
         assertThat(lowAudio.fusionConfidence()).isLessThanOrEqualTo(highAudio.fusionConfidence()); 
+        assertUncalibrated(highAudio);
+        assertUncalibrated(lowAudio);
     }
 
     @Test
@@ -58,6 +61,7 @@ class CrossModalAccuracyTest {
         AudioFeatures audio = makeAudio(DIM, conf); 
         VisualFeatures visual = makeVisual(DIM, conf); 
         FusionResult result = engine.fuseAudioVisual(audio, visual); 
+        assertUncalibrated(result);
         double audioW = result.modalityWeights().get("audio");
         double visualW = result.modalityWeights().get("visual");
         assertThat(audioW).isCloseTo(visualW, within(0.01)); 
@@ -66,8 +70,8 @@ class CrossModalAccuracyTest {
     // ── Missing modality degradation ──────────────────────────────────────────
 
     @Test
-    @DisplayName("missing audio produces lower confidence than full audio-visual fusion")
-    void missingAudioReducesConfidenceVsFullFusion() { 
+    @DisplayName("missing audio preserves the utility's arithmetic missing-input behavior")
+    void missingAudioPreservesHeuristicMissingInputBehavior() { 
         VisualFeatures visual = makeVisual(DIM, 0.8); 
         AudioFeatures fullAudio = makeAudio(DIM, 0.8); 
         AudioFeatures emptyAudio = new AudioFeatures(new double[0], 0.0); 
@@ -75,6 +79,8 @@ class CrossModalAccuracyTest {
         FusionResult degradedResult = engine.fuseAudioVisual(emptyAudio, visual); 
         assertThat(degradedResult.fusionConfidence()) 
                 .isLessThanOrEqualTo(fullResult.fusionConfidence()); 
+        assertUncalibrated(fullResult);
+        assertUncalibrated(degradedResult);
     }
 
     @Test
@@ -97,7 +103,7 @@ class CrossModalAccuracyTest {
         assertThat(result.hadMissingModality()).isTrue(); 
     }
 
-    // ── Noise robustness ──────────────────────────────────────────────────────
+    // ── Deterministic synthetic input-shape coverage ───────────────────────────
 
     @Test
     @DisplayName("noisy audio embeddings produce a valid fusion result")
@@ -107,6 +113,7 @@ class CrossModalAccuracyTest {
         FusionResult result = engine.fuseAudioVisual(noisy, visual); 
         assertThat(result.fusedEmbeddings()).hasSize(DIM); 
         assertThat(result.fusionConfidence()).isBetween(0.0, 1.0); 
+        assertUncalibrated(result);
     }
 
     @Test
@@ -127,7 +134,7 @@ class CrossModalAccuracyTest {
                 .doesNotThrowAnyException(); 
     }
 
-    // ── Temporal alignment accuracy ───────────────────────────────────────────
+    // ── Deterministic output regression ───────────────────────────────────────
 
     @Test
     @DisplayName("audio-visual fusion is deterministic for identical inputs")
@@ -140,7 +147,7 @@ class CrossModalAccuracyTest {
     }
 
     @Test
-    @DisplayName("audio-visual fusion is commutative in terms of output dimension")
+    @DisplayName("audio-visual fusion keeps output dimension across synthetic inputs")
     void fusionOutputDimensionStable() { 
         for (int trial = 0; trial < 5; trial++) { 
             AudioFeatures audio = makeAudio(DIM, 0.7 + trial * 0.05); 
@@ -154,23 +161,25 @@ class CrossModalAccuracyTest {
 
     @ParameterizedTest(name = "dim={0}") 
     @ValueSource(ints = {16, 64, 128, 256}) 
-    @DisplayName("accuracy tests scale correctly across embedding dimensions")
+    @DisplayName("heuristic output shape is stable across configured dimensions")
     void dimensionScaling(int dim) { 
-        CrossModalFusionEngine e = new CrossModalFusionEngine("crossmodal-accuracy-v1", dim); 
+        CrossModalFusionEngine e = new CrossModalFusionEngine("crossmodal-heuristic-test-v1", dim); 
         FusionResult result = e.fuseAudioVisual(makeAudio(dim, 0.85), makeVisual(dim, 0.75)); 
         assertThat(result.fusedEmbeddings()).hasSize(dim); 
         assertThat(result.fusionConfidence()).isBetween(0.0, 1.0); 
+        assertUncalibrated(result);
     }
 
-    // ── Text-image accuracy ───────────────────────────────────────────────────
+    // ── Text-image heuristic shape ────────────────────────────────────────────
 
     @Test
-    @DisplayName("high-confidence text-image fusion has confidence > 0.5")
-    void highConfidenceTextImageFusion() { 
+    @DisplayName("larger text-image input values produce a larger heuristic score")
+    void largerTextImageValuesProduceLargerHeuristicScore() { 
         TextFeatures text = makeText(DIM, "caption text", 0.92); 
         VisualFeatures visual = makeVisual(DIM, 0.88); 
         FusionResult result = engine.fuseTextImage(text, visual); 
         assertThat(result.fusionConfidence()).isGreaterThan(0.5); 
+        assertUncalibrated(result);
     }
 
     @Test
@@ -179,8 +188,12 @@ class CrossModalAccuracyTest {
         TextFeatures text = makeText(DIM, "image caption", 0.9); 
         VisualFeatures visual = makeVisual(DIM, 0.8); 
         AudioFeatures audio = makeAudio(DIM, 0.9); 
-        double[] textImageFused = engine.fuseTextImage(text, visual).fusedEmbeddings(); 
-        double[] audioVisualFused = engine.fuseAudioVisual(audio, visual).fusedEmbeddings(); 
+        FusionResult textImage = engine.fuseTextImage(text, visual);
+        FusionResult audioVisual = engine.fuseAudioVisual(audio, visual);
+        double[] textImageFused = textImage.fusedEmbeddings();
+        double[] audioVisualFused = audioVisual.fusedEmbeddings();
+        assertUncalibrated(textImage);
+        assertUncalibrated(audioVisual);
         // Different input types should produce different outputs
         assertThat(textImageFused).isNotEqualTo(audioVisualFused); 
     }
@@ -210,6 +223,11 @@ class CrossModalAccuracyTest {
         double[] emb = new double[dim];
         for (int i = 0; i < dim; i++) emb[i] = (i % 7 == 0) ? Double.MIN_VALUE : (double) i / dim; 
         return new AudioFeatures(emb, 0.4); 
+    }
+
+    private static void assertUncalibrated(FusionResult result) {
+        assertThat(result.confidenceDisposition())
+                .isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
     }
 
     private static VisualFeatures makeNoisyVisual(int dim) { 
