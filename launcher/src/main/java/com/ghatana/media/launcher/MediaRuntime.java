@@ -899,7 +899,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             throw new IllegalStateException("Media stream frame processing was cancelled", failure);
         } catch (RuntimeException failure) {
             markStreamOutcomeUnknown(reserved, failure);
-            throw new IllegalStateException("Media stream frame acknowledgement could not be committed", failure);
+            throw failure;
         }
     }
 

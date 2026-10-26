@@ -882,7 +882,7 @@ public final class MediaRuntimeContracts {
                     || (inFlightSequence == null) != inFlightAttemptId.isEmpty()
                     || inFlightSequence != null && (inFlightSequence < 0
                             || lastSequence == Long.MAX_VALUE || inFlightSequence != lastSequence + 1
-                            || finality != StreamFinality.NONE
+                            || finality == StreamFinality.FINAL_ACKNOWLEDGED
                             || inFlightAttemptId.length() > 128
                             || inFlightAttemptId.chars().anyMatch(Character::isISOControl))) {
                 throw new IllegalArgumentException("stream acknowledgement fields exceed bounds");
