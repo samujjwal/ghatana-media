@@ -17,9 +17,11 @@ import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -98,6 +100,67 @@ class SttGrpcStreamingSemanticsTest {
         assertThat(response.error.getMessage()).contains("STT_STREAM_SESSION_NOT_ADMITTED");
         assertThat(response.values).isEmpty();
         verifyNoInteractions(library);
+    }
+
+    @Test
+    void responseBoundaryRecordsTypedNotAdmittedStreamFailure() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        RecordingObserver<Transcription> response = new RecordingObserver<>();
+        SttGrpcService service = new SttGrpcService(library, registry,
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
+
+        withIdentity("tenant-a", "00000000-0000-0000-0000-000000000001",
+                () -> service.streamTranscribe(response));
+
+        assertStatus(response, Status.FAILED_PRECONDITION);
+        assertBoundaryCount(registry, "failure", 1);
+        assertBoundaryCount(registry, "success", 0);
+        assertBoundaryCount(registry, "unknown", 0);
+        registry.close();
+    }
+
+    @Test
+    void responseBoundaryRecordsUnknownForCancellationAndAmbiguousDelivery() {
+        SimpleMeterRegistry cancelledRegistry = new SimpleMeterRegistry();
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<Transcription> cancelled = mock(ServerCallStreamObserver.class);
+        when(cancelled.isCancelled()).thenReturn(true);
+        SttGrpcService cancelledService = new SttGrpcService(library, cancelledRegistry,
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
+        withIdentity("tenant-a", "00000000-0000-0000-0000-000000000001",
+                () -> cancelledService.streamTranscribe(cancelled));
+        verify(cancelled, never()).onError(any());
+        assertBoundaryCount(cancelledRegistry, "unknown", 1);
+        assertBoundaryCount(cancelledRegistry, "success", 0);
+        cancelledRegistry.close();
+
+        SimpleMeterRegistry ambiguousRegistry = new SimpleMeterRegistry();
+        StreamObserver<Transcription> ambiguous = new StreamObserver<>() {
+            @Override public void onNext(Transcription value) { }
+            @Override public void onError(Throwable error) { throw new IllegalStateException("delivery uncertain"); }
+            @Override public void onCompleted() { }
+        };
+        SttGrpcService ambiguousService = new SttGrpcService(library, ambiguousRegistry,
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> withIdentity("tenant-a",
+                "00000000-0000-0000-0000-000000000001", () -> ambiguousService.streamTranscribe(ambiguous)))
+                .isInstanceOf(IllegalStateException.class);
+        assertBoundaryCount(ambiguousRegistry, "unknown", 1);
+        assertBoundaryCount(ambiguousRegistry, "success", 0);
+        ambiguousRegistry.close();
+    }
+
+    private static void assertBoundaryCount(SimpleMeterRegistry registry, String outcome, long expected) {
+        Timer timer = registry.find("media.modality.boundary.duration")
+                .tag("service", "stt").tag("modality", "stt")
+                .tag("boundary", "response").tag("outcome", outcome).timer();
+        assertThat(timer == null ? 0 : timer.count()).isEqualTo(expected);
+        if (timer != null) {
+            assertThat(timer.getId().getTags()).noneMatch(tag ->
+                    List.of("tenant", "subject", "request_id", "content", "text").contains(tag.getKey()));
+        }
     }
 
     @Test

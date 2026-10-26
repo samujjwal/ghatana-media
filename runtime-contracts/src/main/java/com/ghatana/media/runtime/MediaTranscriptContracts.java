@@ -46,9 +46,61 @@ public final class MediaTranscriptContracts {
         }
     }
 
+    /** A transcript revision changed after the writer's expected latest revision was observed. */
+    public static final class TranscriptRevisionConflictException extends IllegalStateException {
+        private static final long serialVersionUID = 1L;
+        private final int expectedLatestRevision;
+        private final int actualLatestRevision;
+
+        public TranscriptRevisionConflictException(int expectedLatestRevision, int actualLatestRevision) {
+            super("Transcript revision conflict: expected latest " + expectedLatestRevision
+                    + " but found " + actualLatestRevision);
+            if (expectedLatestRevision < 0 || actualLatestRevision < 0) {
+                throw new IllegalArgumentException("transcript revisions cannot be negative");
+            }
+            this.expectedLatestRevision = expectedLatestRevision;
+            this.actualLatestRevision = actualLatestRevision;
+        }
+
+        public int expectedLatestRevision() { return expectedLatestRevision; }
+        public int actualLatestRevision() { return actualLatestRevision; }
+    }
+
+    /** A transcript identifier is already owned by another principal in the tenant. */
+    public static final class TranscriptPrincipalConflictException extends SecurityException {
+        private static final long serialVersionUID = 1L;
+
+        public TranscriptPrincipalConflictException() {
+            super("Transcript identifier is already bound to another principal");
+        }
+    }
+
     public interface MediaTranscriptStore extends AutoCloseable {
+        /**
+         * Append using the legacy contract. Implementations should permit creation and exact
+         * idempotent retry only; a changed existing transcript requires the expected-revision API.
+         */
         TranscriptRevision append(TranscriptDraft draft);
+
+        /**
+         * Append against the caller's observed latest revision (zero means no revision exists).
+         * Repeating the exact latest draft is idempotent; a changed draft requires an exact CAS pin.
+         */
+        default TranscriptRevision append(TranscriptDraft draft, int expectedLatestRevision) {
+            throw new UnsupportedOperationException("Expected-revision append is not supported by this store");
+        }
+
+        /** Existing implementations retain their original tenant/transcript read contract. */
         List<TranscriptRevision> revisions(String tenantId, String transcriptId);
+
+        /**
+         * Principal-scoped readback is required for safe transcript access. The compatibility
+         * default fails closed until an implementation can enforce the extra owner key.
+         */
+        default List<TranscriptRevision> revisions(String tenantId, String principalId, String transcriptId) {
+            throw new UnsupportedOperationException("Principal-scoped transcript readback is not supported by this store");
+        }
+
         boolean productionEligible();
         @Override void close();
     }

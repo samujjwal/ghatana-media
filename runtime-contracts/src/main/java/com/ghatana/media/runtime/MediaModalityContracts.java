@@ -141,7 +141,10 @@ public final class MediaModalityContracts {
             }
         }
 
-        /** Compatibility constructor for providers that have not supplied the optional projections. */
+        /**
+         * Compatibility constructor for providers that have not supplied observed health.
+         * Its profile remains inspectable, but cannot qualify a production provider.
+         */
         public CapabilityProfile(
                 String providerId,
                 String providerVersion,
@@ -161,10 +164,10 @@ public final class MediaModalityContracts {
                     maximumWidth, maximumHeight, modelVersions, regions, processingBoundary,
                     timingAvailable, confidenceAvailable, biometricDerivativesAvailable,
                     new ProviderHealth(providerId, providerVersion,
-                            ProviderHealthStatus.HEALTHY,
+                            ProviderHealthStatus.UNAVAILABLE,
                             processingBoundary == ProcessingBoundary.LOCAL
                                     ? DegradationPolicy.LOCAL_DIAGNOSTIC_ONLY : DegradationPolicy.FAIL_CLOSED,
-                            "", Instant.now()),
+                            "capability health was not observed", Instant.now()),
                     processingBoundary == ProcessingBoundary.LOCAL
                             ? DegradationPolicy.LOCAL_DIAGNOSTIC_ONLY : DegradationPolicy.FAIL_CLOSED,
                     ExecutionBounds.defaults());

@@ -84,9 +84,59 @@ class TtsRequestAuthorizationTest {
     }
 
     @Test
-    void genericUnselectedVoiceDoesNotInventADefaultSelection() {
-        TtsRequestAuthorization.requireAdmission(TtsRequestAuthorization.unavailable(), null,
-                TtsRequestAuthorization.Operation.SYNTHESIZE, null, null);
+    void missingVoiceAndProfileWithoutConfiguredDefaultFailsNotAdmitted() {
+        AtomicReference<TtsRequestAuthorization.Request> observed = new AtomicReference<>();
+        TtsRequestAuthorization resolver = request -> {
+            observed.set(request);
+            return TtsRequestAuthorization.Decision.ADMITTED;
+        };
+
+        assertThatThrownBy(() -> TtsRequestAuthorization.requireAdmission(resolver, IDENTITY,
+                TtsRequestAuthorization.Operation.SYNTHESIZE, null, "  "))
+                .isInstanceOf(TtsRequestAuthorization.AuthorizationException.class)
+                .satisfies(failure -> {
+                    var authorization = (TtsRequestAuthorization.AuthorizationException) failure;
+                    assertThat(authorization.status().getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                    assertThat(authorization.getMessage()).contains("VOICE_SELECTION_NOT_ADMITTED");
+                });
+        assertThat(observed).hasValue(null);
+    }
+
+    @Test
+    void explicitProfileIsAnAuthorizedSelectionAndStillRequiresResolverDecision() {
+        AtomicReference<TtsRequestAuthorization.Request> observed = new AtomicReference<>();
+        TtsRequestAuthorization resolver = request -> {
+            observed.set(request);
+            return TtsRequestAuthorization.Decision.ADMITTED;
+        };
+
+        TtsRequestAuthorization.requireAdmission(resolver, IDENTITY,
+                TtsRequestAuthorization.Operation.SYNTHESIZE, null, "profile-1");
+        assertThat(observed.get()).isEqualTo(new TtsRequestAuthorization.Request(
+                IDENTITY, TtsRequestAuthorization.Operation.SYNTHESIZE, null, "profile-1"));
+    }
+
+    @Test
+    void resolverReceivesExactConfiguredDefaultVoiceAndControlsAdmission() {
+        AtomicReference<TtsRequestAuthorization.Request> observed = new AtomicReference<>();
+        TtsRequestAuthorization resolver = new TtsRequestAuthorization() {
+            @Override public Decision authorize(Request request) {
+                observed.set(request);
+                return Decision.DENIED;
+            }
+            @Override public String configuredDefaultVoiceId() { return "configured-test-voice"; }
+        };
+
+        assertThatThrownBy(() -> TtsRequestAuthorization.requireAdmission(resolver, IDENTITY,
+                TtsRequestAuthorization.Operation.SYNTHESIZE, null, null))
+                .isInstanceOf(TtsRequestAuthorization.AuthorizationException.class)
+                .satisfies(failure -> assertThat(
+                        ((TtsRequestAuthorization.AuthorizationException) failure).status().getCode())
+                        .isEqualTo(Status.Code.PERMISSION_DENIED));
+
+        assertThat(observed.get()).isEqualTo(new TtsRequestAuthorization.Request(
+                IDENTITY, TtsRequestAuthorization.Operation.SYNTHESIZE,
+                "configured-test-voice", null));
     }
 
     @Test

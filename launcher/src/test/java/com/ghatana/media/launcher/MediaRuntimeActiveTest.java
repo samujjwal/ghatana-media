@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** @doc.type class @doc.purpose Verify active artifact, job, and stream lifecycle journeys */
@@ -98,6 +99,35 @@ class MediaRuntimeActiveTest {
                 publisher,
                 List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
                 List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+    }
+
+    @Test
+    void localDiagnosticProviderRemainsReadyAndInspectableWithoutSyntheticProfiles() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-diagnostic-profile-");
+        var diagnostic = new LocalMediaRuntimeSupport.DiagnosticProcessor();
+
+        assertThat(diagnostic.ready()).isTrue();
+        assertThat(diagnostic.productionEligible()).isFalse();
+        assertThat(diagnostic.capabilityProfiles()).isEmpty();
+        assertThatCode(diagnostic::verifyReady).doesNotThrowAnyException();
+
+        MediaRuntime runtime = MediaRuntime.compose(localEnvironment(root));
+        try {
+            assertThat(runtime.providerIds()).contains("local-diagnostic");
+            assertThat(runtime.capabilityProfiles()).isEmpty();
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> components = (Map<String, Object>) runtime.readinessSnapshot().get("components");
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> providers = (List<Map<String, Object>>) components.get("processingProviders");
+            assertThat(providers).anySatisfy(provider -> assertThat(provider)
+                    .containsEntry("providerId", "local-diagnostic")
+                    .containsEntry("ready", true)
+                    .containsEntry("usable", true)
+                    .containsEntry("productionEligible", false));
+        } finally {
+            runtime.close();
+        }
     }
 
     @Test

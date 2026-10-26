@@ -1102,43 +1102,24 @@ public final class MediaRuntimeContracts {
         default java.util.Optional<MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
             return java.util.Optional.empty();
         }
+        /**
+         * Optional observed capability projections. Declaring a job type is not evidence of
+         * codec, timing, confidence, biometric, or model support; providers must override this
+         * method with source-backed facts before production admission.
+         */
         default List<MediaModalityContracts.CapabilityProfile> capabilityProfiles() {
-            return capabilities().stream().sorted().map(modality -> switch (modality) {
-                case SPEECH_TO_TEXT, TEXT_TO_SPEECH -> new MediaModalityContracts.CapabilityProfile(
-                        providerId(), providerVersion(), modality,
-                        Set.of("pcm_s16le"), Set.of("wav"), Set.of(16_000, 48_000),
-                        0, 0, Set.of(modelVersion(modality)),
-                        Set.of(processingRegion()),
-                        processingBoundary(), modality == JobType.SPEECH_TO_TEXT,
-                        modality == JobType.SPEECH_TO_TEXT, false,
-                        health(), degradationPolicy(modality), executionBounds());
-                case VISION, MULTIMODAL -> new MediaModalityContracts.CapabilityProfile(
-                        providerId(), providerVersion(), modality,
-                        Set.of("raw"), Set.of("jpeg", "png", "mp4"), Set.of(),
-                        8_192, 8_192, Set.of(modelVersion(modality)),
-                        Set.of(processingRegion()),
-                        processingBoundary(), false, true, modality == JobType.VISION,
-                        health(), degradationPolicy(modality), executionBounds());
-                case TRANSCODE -> new MediaModalityContracts.CapabilityProfile(
-                        providerId(), providerVersion(), modality,
-                        Set.of("h264", "h265", "aac", "opus"), Set.of("mp4", "webm", "wav"),
-                        Set.of(16_000, 44_100, 48_000), 8_192, 8_192,
-                        Set.of(modelVersion(modality)),
-                        Set.of(processingRegion()),
-                        processingBoundary(),
-                        false, false, false,
-                        health(), degradationPolicy(modality), executionBounds());
-            }).toList();
+            return List.of();
         }
         default MediaModalityContracts.ProviderHealth health() {
             return new MediaModalityContracts.ProviderHealth(
                     providerId(), providerVersion(),
-                    ready() ? MediaModalityContracts.ProviderHealthStatus.HEALTHY
+                    ready() ? MediaModalityContracts.ProviderHealthStatus.DEGRADED
                             : MediaModalityContracts.ProviderHealthStatus.UNAVAILABLE,
                     processingBoundary() == ProcessingBoundary.LOCAL
                             ? MediaModalityContracts.DegradationPolicy.LOCAL_DIAGNOSTIC_ONLY
                             : MediaModalityContracts.DegradationPolicy.FAIL_CLOSED,
-                    ready() ? "" : "provider is not ready", java.time.Instant.now());
+                    ready() ? "provider readiness is not an observed modality health report"
+                            : "provider is not ready", java.time.Instant.now());
         }
         default MediaModalityContracts.DegradationPolicy degradationPolicy(JobType modality) {
             return processingBoundary() == ProcessingBoundary.LOCAL
@@ -1195,10 +1176,28 @@ public final class MediaRuntimeContracts {
                 throw new IllegalStateException(
                         "Production Media provider version must be explicit: " + providerId());
             }
-            Set<JobType> profiled = capabilityProfiles().stream()
+            List<MediaModalityContracts.CapabilityProfile> profiles = capabilityProfiles();
+            if (profiles.stream().anyMatch(profile ->
+                    !providerId().equals(profile.providerId())
+                            || !providerVersion().equals(profile.providerVersion()))) {
+                throw new IllegalStateException(
+                        "Media provider capability profile identity does not match provider identity: " + providerId());
+            }
+            Set<JobType> profiled = profiles.stream()
                     .map(MediaModalityContracts.CapabilityProfile::modality)
                     .collect(java.util.stream.Collectors.toUnmodifiableSet());
-            if (!profiled.equals(Set.copyOf(capabilities()))) {
+            if (productionEligible() && profiles.isEmpty()) {
+                throw new IllegalStateException(
+                        "Production Media provider must supply explicit observed capability profiles: "
+                                + providerId());
+            }
+            if (productionEligible() && profiles.stream().anyMatch(profile ->
+                    profile.health().status() != MediaModalityContracts.ProviderHealthStatus.HEALTHY)) {
+                throw new IllegalStateException(
+                        "Production Media provider capability health must be explicitly healthy: " + providerId());
+            }
+            if (!profiles.isEmpty()
+                    && (profiles.size() != profiled.size() || !profiled.equals(Set.copyOf(capabilities())))) {
                 throw new IllegalStateException(
                         "Media provider capability profiles do not exactly match declared modalities: " + providerId());
             }

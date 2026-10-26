@@ -71,6 +71,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     private volatile BooleanSupplier readinessProbe = () -> false;
     private final MediaProcessingMetrics mediaMetrics;
     private final MediaWorkflowMetrics modalityMetrics;
+    private final ThreadLocal<Boolean> responseBoundaryFailurePending = ThreadLocal.withInitial(() -> false);
     private final ModelRegistry modelRegistry;
     private final AuditService auditService;
     private final AudioVideoTracingService tracingService;
@@ -172,7 +173,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         // AV-P1-007: Enforce tenant authentication
         String tenantId = resolveTenantId();
         if (tenantId == null || tenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+            recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Missing tenant context — authenticate before calling Vision service")
                 .asRuntimeException());
             mediaMetrics.recordFailed("vision.detect");
@@ -184,7 +185,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         try {
             // AV-P1-013: Validate request size
             if (request.getImageData().isEmpty()) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Image data cannot be empty")
                     .asRuntimeException());
                 mediaMetrics.recordFailed("vision.detect");
@@ -193,7 +194,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             dataSize = request.getImageData().size();
             if (dataSize > MAX_IMAGE_BYTES) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Image data exceeds maximum size of " + (MAX_IMAGE_BYTES / 1024 / 1024) + "MB")
                     .asRuntimeException());
                 mediaMetrics.recordFailed("vision.detect");
@@ -203,7 +204,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             // AV-P1-013: Validate max detections
             int maxDetections = request.getMaxDetections() > 0 ? request.getMaxDetections() : DEFAULT_MAX_DETECTIONS;
             if (maxDetections > DEFAULT_MAX_DETECTIONS) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("maxDetections cannot exceed " + DEFAULT_MAX_DETECTIONS)
                     .asRuntimeException());
                 mediaMetrics.recordFailed("vision.detect");
@@ -264,7 +265,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
         } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
             mediaMetrics.recordFailed("vision.detect");
-            responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+            recordResponseFailure(responseObserver, io.grpc.Status.UNIMPLEMENTED
                     .withDescription("Unsupported image metadata").asRuntimeException());
         } catch (VisionDetector.DetectionException e) {
             LOG.error("Object detection engine failure ({})", e.getClass().getSimpleName());
@@ -274,7 +275,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             emitVisionAudit(tenantId, userId, "vision.detect", "FAILED",
                 Map.of("errorCode", "DETECTION_FAILED", "imageSizeBytes", String.valueOf(dataSize)));
             
-            responseObserver.onError(io.grpc.Status.INTERNAL
+            recordResponseFailure(responseObserver, io.grpc.Status.INTERNAL
                 .withDescription("Detection engine error")
                 .asRuntimeException());
         } catch (IllegalArgumentException e) {
@@ -285,7 +286,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             emitVisionAudit(tenantId, userId, "vision.detect", "INVALID",
                 Map.of("errorCode", "INVALID_REQUEST", "imageSizeBytes", String.valueOf(dataSize)));
             
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                 .withDescription("Invalid detection request")
                 .asRuntimeException());
         } catch (Exception e) {
@@ -296,7 +297,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             emitVisionAudit(tenantId, userId, "vision.detect", "ERROR",
                 Map.of("errorCode", "INTERNAL_ERROR", "imageSizeBytes", String.valueOf(dataSize)));
             
-            responseObserver.onError(io.grpc.Status.INTERNAL
+            recordResponseFailure(responseObserver, io.grpc.Status.INTERNAL
                 .withDescription("Internal detection error")
                 .asRuntimeException());
         }
@@ -335,14 +336,22 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 response = responseMapping.get();
             } catch (InvalidProviderMappingException invalidMapping) {
                 outcome = MediaWorkflowMetrics.Outcome.FAILURE;
+                responseBoundaryFailurePending.set(true);
                 throw invalidMapping;
             } catch (RuntimeException mappingFailure) {
                 outcome = MediaWorkflowMetrics.Outcome.FAILURE;
+                responseBoundaryFailurePending.set(true);
                 throw mappingFailure;
             }
-            if (Context.current().isCancelled()) return;
-            observer.onNext(response);
-            observer.onCompleted();
+            try {
+                observer.onNext(response);
+                observer.onCompleted();
+            } catch (RuntimeException | Error ambiguousDelivery) {
+                // The original response sample will record UNKNOWN. The enclosing RPC catch still
+                // delivers its gRPC error callback, but that callback is part of this same response.
+                responseBoundaryFailurePending.set(true);
+                throw ambiguousDelivery;
+            }
             if (!Context.current().isCancelled()) outcome = MediaWorkflowMetrics.Outcome.SUCCESS;
         } finally {
             modalityMetrics.stopModalityTimer(sample, outcome);
@@ -355,6 +364,30 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         }
     }
 
+    /** Measures a unary failure callback without changing its gRPC status or delivery behavior. */
+    private void recordResponseFailure(StreamObserver<?> observer, Throwable failure) {
+        if (responseBoundaryFailurePending.get()) {
+            responseBoundaryFailurePending.remove();
+            observer.onError(failure);
+            return;
+        }
+        MediaWorkflowMetrics.ModalityTimingSample sample = modalityMetrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.RESPONSE);
+        MediaWorkflowMetrics.Outcome outcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+        try {
+            observer.onError(failure);
+            if (!Context.current().isCancelled()) outcome = MediaWorkflowMetrics.Outcome.FAILURE;
+        } finally {
+            modalityMetrics.stopModalityTimer(sample, outcome);
+        }
+    }
+
+    private void finishResponseBoundary(MediaWorkflowMetrics.ModalityTimingSample sample,
+                                        java.util.concurrent.atomic.AtomicBoolean recorded,
+                                        MediaWorkflowMetrics.Outcome outcome) {
+        if (recorded.compareAndSet(false, true)) modalityMetrics.stopModalityTimer(sample, outcome);
+    }
+
     @Override
     public void analyzeImage(AnalyzeRequest request, StreamObserver<AnalyzeResponse> responseObserver) {
         TracedResponse<AnalyzeResponse> traced = genericTracedResponse("analyzeImage", responseObserver);
@@ -364,21 +397,21 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         String tenantId = resolveTenantId();
         if (tenantId == null || tenantId.isBlank()) {
             mediaMetrics.recordFailed("vision.analyze");
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+            recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                     .withDescription("Missing tenant context")
                     .asRuntimeException());
             return;
         }
         if (request.getImageData().isEmpty()) {
             mediaMetrics.recordFailed("vision.analyze");
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Image data cannot be empty")
                     .asRuntimeException());
             return;
         }
         if (request.getImageData().size() > MAX_IMAGE_BYTES) {
             mediaMetrics.recordFailed("vision.analyze");
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Image data exceeds maximum size of 50MB")
                     .asRuntimeException());
             return;
@@ -387,7 +420,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             var disposition = VisionCapabilityDisposition.forIntentId(requestedIntent);
             if (disposition.isPresent()) {
                 mediaMetrics.recordFailed("vision.analyze");
-                responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                recordResponseFailure(responseObserver, io.grpc.Status.UNIMPLEMENTED
                         .withDescription("Vision capability " + disposition.get().intentId() + " is "
                                 + disposition.get().status())
                         .asRuntimeException());
@@ -395,7 +428,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             }
         }
         mediaMetrics.recordFailed("vision.analyze");
-        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+        recordResponseFailure(responseObserver, io.grpc.Status.UNIMPLEMENTED
                 .withDescription("Image scene analysis is not admitted; object detections do not establish scene semantics")
                 .asRuntimeException());
         }
@@ -412,27 +445,27 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         String tenantId = resolveTenantId();
         if (tenantId == null || tenantId.isBlank()) {
             mediaMetrics.recordFailed("vision.classify");
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+            recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                     .withDescription("Missing tenant context")
                     .asRuntimeException());
             return;
         }
         if (request.getImageData().isEmpty()) {
             mediaMetrics.recordFailed("vision.classify");
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Image data cannot be empty")
                     .asRuntimeException());
             return;
         }
         if (request.getImageData().size() > MAX_IMAGE_BYTES) {
             mediaMetrics.recordFailed("vision.classify");
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Image data exceeds maximum size of 50MB")
                     .asRuntimeException());
             return;
         }
         mediaMetrics.recordFailed("vision.classify");
-        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+        recordResponseFailure(responseObserver, io.grpc.Status.UNIMPLEMENTED
                 .withDescription("Image classification is not admitted by the active Vision provider")
                 .asRuntimeException());
         }
@@ -448,12 +481,12 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         if (!hasTenantContext(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                 .withDescription("modelId must not be blank")
                 .asRuntimeException());
             return;
         }
-        responseObserver.onError(io.grpc.Status.UNAVAILABLE
+        recordResponseFailure(responseObserver, io.grpc.Status.UNAVAILABLE
             .withDescription("Model loading requires an admitted Vision provider profile")
             .asRuntimeException());
         }
@@ -469,12 +502,12 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         if (!hasTenantContext(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                 .withDescription("modelId must not be blank")
                 .asRuntimeException());
             return;
         }
-        responseObserver.onError(io.grpc.Status.UNAVAILABLE
+        recordResponseFailure(responseObserver, io.grpc.Status.UNAVAILABLE
             .withDescription("Model unloading requires an admitted Vision provider profile")
             .asRuntimeException());
         }
@@ -488,7 +521,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         responseObserver = traced.observer;
         try (Scope scope = tracingService.createScope(traced.span)) {
         if (!hasTenantContext(responseObserver)) return;
-        responseObserver.onError(io.grpc.Status.UNAVAILABLE
+        recordResponseFailure(responseObserver, io.grpc.Status.UNAVAILABLE
             .withDescription("Model listing requires an admitted Vision provider profile")
             .asRuntimeException());
         }
@@ -506,7 +539,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         // AV-P1-007: Enforce tenant authentication
         String videoTenantId = resolveTenantId();
         if (videoTenantId == null || videoTenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+            recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Missing tenant context")
                 .asRuntimeException());
             mediaMetrics.recordFailed("vision.analyzeVideo");
@@ -516,7 +549,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         try {
             // AV-P1-013: Validate request size
             if (request.getVideoData().isEmpty()) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Video data cannot be empty")
                     .asRuntimeException());
                 mediaMetrics.recordFailed("vision.analyzeVideo");
@@ -525,7 +558,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             int dataSize = request.getVideoData().size();
             if (dataSize > MAX_VIDEO_BYTES) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Video data exceeds maximum size of " + (MAX_VIDEO_BYTES / 1024 / 1024) + "MB")
                     .asRuntimeException());
                 mediaMetrics.recordFailed("vision.analyzeVideo");
@@ -536,7 +569,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             int maxFrames = request.getMaxFrames();
             if (sampleFps < 0 || sampleFps > MAX_VIDEO_SAMPLE_FPS
                     || maxFrames < 0 || maxFrames > MAX_VIDEO_ANALYSIS_FRAMES) {
-                responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
                     .withDescription("Video sampling settings exceed supported bounds")
                     .asRuntimeException());
                 mediaMetrics.recordFailed("vision.analyzeVideo");
@@ -641,16 +674,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             LOG.info("Video analysis completed: {} frames, {}ms", frames.size(), processingTime);
 
         } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
-            responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+            recordResponseFailure(responseObserver, io.grpc.Status.UNIMPLEMENTED
                 .withDescription("Unsupported video metadata").asRuntimeException());
         } catch (IOException e) {
             LOG.error("Video analysis failed ({})", e.getClass().getSimpleName());
-            responseObserver.onError(io.grpc.Status.INTERNAL
+            recordResponseFailure(responseObserver, io.grpc.Status.INTERNAL
                 .withDescription("Video analysis failed")
                 .asRuntimeException());
         } catch (Exception e) {
             LOG.error("Video analysis failed ({})", e.getClass().getSimpleName());
-            responseObserver.onError(io.grpc.Status.INTERNAL
+            recordResponseFailure(responseObserver, io.grpc.Status.INTERNAL
                 .withDescription("Video analysis failed")
                 .asRuntimeException());
         } finally {
@@ -682,6 +715,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         TracedResponse<VideoFrameResponse> traced = tracedResponse("processVideo", trace, responseObserver);
         StreamObserver<VideoFrameResponse> tracedObserver = traced.observer;
         java.util.concurrent.atomic.AtomicBoolean terminal = new java.util.concurrent.atomic.AtomicBoolean();
+        MediaWorkflowMetrics.ModalityTimingSample responseSample = modalityMetrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.RESPONSE);
+        java.util.concurrent.atomic.AtomicBoolean responseBoundaryRecorded = new java.util.concurrent.atomic.AtomicBoolean();
+        java.util.concurrent.atomic.AtomicBoolean responseDeliveryAmbiguous = new java.util.concurrent.atomic.AtomicBoolean();
         if (responseObserver instanceof ServerCallStreamObserver<?> raw) {
             @SuppressWarnings("unchecked")
             ServerCallStreamObserver<VideoFrameResponse> serverObserver =
@@ -689,10 +726,25 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             serverObserver.setOnCancelHandler(() -> {
                 terminal.set(true);
                 traced.finishUnknown();
+                finishResponseBoundary(responseSample, responseBoundaryRecorded, MediaWorkflowMetrics.Outcome.UNKNOWN);
             });
         }
         return new StreamObserver<VideoFrameRequest>() {
             private final VideoStreamBudget budget = new VideoStreamBudget();
+
+            private void sendFailure(Throwable failure) {
+                terminal.set(true);
+                try {
+                    tracedObserver.onError(failure);
+                    MediaWorkflowMetrics.Outcome outcome = responseDeliveryAmbiguous.get()
+                            || Context.current().isCancelled()
+                            ? MediaWorkflowMetrics.Outcome.UNKNOWN : MediaWorkflowMetrics.Outcome.FAILURE;
+                    finishResponseBoundary(responseSample, responseBoundaryRecorded, outcome);
+                } catch (RuntimeException | Error callbackFailure) {
+                    finishResponseBoundary(responseSample, responseBoundaryRecorded, MediaWorkflowMetrics.Outcome.UNKNOWN);
+                    throw callbackFailure;
+                }
+            }
 
             @Override
             public void onNext(VideoFrameRequest request) {
@@ -701,16 +753,14 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 try {
                     String tenantId = resolveTenantId();
                     if (tenantId == null || tenantId.isBlank()) {
-                        terminal.set(true);
-                        tracedObserver.onError(io.grpc.Status.UNAUTHENTICATED
+                        sendFailure(io.grpc.Status.UNAUTHENTICATED
                                 .withDescription("Missing tenant context")
                                 .asRuntimeException());
                         return;
                     }
                     // AV-P1-013: Validate frame size
                     if (request.getFrameData().isEmpty()) {
-                        terminal.set(true);
-                        tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                        sendFailure(io.grpc.Status.INVALID_ARGUMENT
                             .withDescription("Frame data cannot be empty")
                             .asRuntimeException());
                         return;
@@ -718,23 +768,23 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
                     int frameSize = request.getFrameData().size();
                     if (frameSize > MAX_IMAGE_BYTES) {
-                        terminal.set(true);
-                        tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                        sendFailure(io.grpc.Status.INVALID_ARGUMENT
                             .withDescription("Frame data exceeds maximum size of " + (MAX_IMAGE_BYTES / 1024 / 1024) + "MB")
                             .asRuntimeException());
                         return;
                     }
 
                     if (!budget.tryAccept(frameSize)) {
-                        terminal.set(true);
-                        tracedObserver.onError(io.grpc.Status.RESOURCE_EXHAUSTED
+                        sendFailure(io.grpc.Status.RESOURCE_EXHAUSTED
                             .withDescription("Video frame stream exceeds its cumulative resource budget")
                             .asRuntimeException());
                         return;
                     }
 
-                    if (rejectWhenProviderUnavailable(tracedObserver, "Video frame processing")) {
-                        terminal.set(true);
+                    if (!isInferenceProviderAdmitted()) {
+                        sendFailure(io.grpc.Status.UNAVAILABLE
+                                .withDescription("Video frame processing is unavailable: PROVIDER_NOT_ADMITTED")
+                                .asRuntimeException());
                         return;
                     }
 
@@ -769,16 +819,21 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         responseBuilder.addDetections(detection);
                     }
 
-                    tracedObserver.onNext(responseBuilder.build());
+                    try {
+                        tracedObserver.onNext(responseBuilder.build());
+                    } catch (RuntimeException | Error observerFailure) {
+                        responseDeliveryAmbiguous.set(true);
+                        finishResponseBoundary(responseSample, responseBoundaryRecorded,
+                                MediaWorkflowMetrics.Outcome.UNKNOWN);
+                        throw observerFailure;
+                    }
 
                 } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
-                    terminal.set(true);
-                    tracedObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                    sendFailure(io.grpc.Status.UNIMPLEMENTED
                             .withDescription("Unsupported video frame metadata").asRuntimeException());
                 } catch (Exception e) {
-                    terminal.set(true);
                     LOG.error("Video frame processing failed ({})", e.getClass().getSimpleName());
-                    tracedObserver.onError(io.grpc.Status.INTERNAL
+                    sendFailure(io.grpc.Status.INTERNAL
                             .withDescription("Video frame processing failed").asRuntimeException());
                 }
                 }
@@ -786,14 +841,27 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             @Override
             public void onError(Throwable t) {
-                if (terminal.compareAndSet(false, true)) traced.finishUnknown();
+                if (terminal.compareAndSet(false, true)) {
+                    traced.finishUnknown();
+                    finishResponseBoundary(responseSample, responseBoundaryRecorded,
+                            MediaWorkflowMetrics.Outcome.UNKNOWN);
+                }
                 LOG.error("Video processing stream error ({})", t.getClass().getSimpleName());
             }
 
             @Override
             public void onCompleted() {
                 if (!terminal.compareAndSet(false, true)) return;
-                try (Scope scope = tracingService.createScope(trace)) { tracedObserver.onCompleted(); }
+                try (Scope scope = tracingService.createScope(trace)) {
+                    tracedObserver.onCompleted();
+                    MediaWorkflowMetrics.Outcome outcome = responseDeliveryAmbiguous.get()
+                            || Context.current().isCancelled()
+                            ? MediaWorkflowMetrics.Outcome.UNKNOWN : MediaWorkflowMetrics.Outcome.SUCCESS;
+                    finishResponseBoundary(responseSample, responseBoundaryRecorded, outcome);
+                } catch (RuntimeException | Error callbackFailure) {
+                    finishResponseBoundary(responseSample, responseBoundaryRecorded, MediaWorkflowMetrics.Outcome.UNKNOWN);
+                    throw callbackFailure;
+                }
                 LOG.info("Video processing stream completed");
             }
         };
@@ -828,20 +896,17 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             // Detector initialization alone is not trusted provider/root admission.
             String status = "not_admitted";
 
-            StatusResponse response = StatusResponse.newBuilder()
+            recordResponseBoundary(() -> StatusResponse.newBuilder()
                 .setStatus(status)
                 .setModelName("UNAVAILABLE")
                 .setTotalRequests(count)
                 .setAvgProcessingTimeMs(avgTime)
                 .setDegradedReason("PROVIDER_NOT_ADMITTED")
-                .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
+                .build(), responseObserver);
 
         } catch (Exception e) {
             LOG.error("Failed to get status ({})", e.getClass().getSimpleName());
-            responseObserver.onError(io.grpc.Status.INTERNAL
+            recordResponseFailure(responseObserver, io.grpc.Status.INTERNAL
                     .withDescription("Failed to get status").asRuntimeException());
         }
         }
@@ -925,18 +990,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             String message = healthy
                     ? "VISION_SERVING"
                     : "VISION_NOT_SERVING: provider readiness unavailable";
+            HealthCheckResponse healthResponse = HealthCheckResponse.newBuilder()
+                    .setHealthy(healthy)
+                    .setMessage(message)
+                    .build();
 
-            HealthCheckResponse response = HealthCheckResponse.newBuilder()
-                .setHealthy(healthy)
-                .setMessage(message)
-                .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
+            recordResponseBoundary(() -> healthResponse, responseObserver);
 
         } catch (Exception e) {
             LOG.error("Health check failed ({})", e.getClass().getSimpleName());
-            responseObserver.onError(io.grpc.Status.UNAVAILABLE
+            recordResponseFailure(responseObserver, io.grpc.Status.UNAVAILABLE
                     .withDescription("Vision readiness is unavailable").asRuntimeException());
         }
         }
@@ -954,7 +1017,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     private boolean rejectWhenProviderUnavailable(StreamObserver<?> responseObserver, String operation) {
         if (isInferenceProviderAdmitted()) return false;
-        responseObserver.onError(io.grpc.Status.UNAVAILABLE
+        recordResponseFailure(responseObserver, io.grpc.Status.UNAVAILABLE
                 .withDescription(operation + " is unavailable: PROVIDER_NOT_ADMITTED")
                 .asRuntimeException());
         return true;
@@ -979,7 +1042,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     private boolean hasTenantContext(StreamObserver<?> responseObserver) {
         String tenantId = resolveTenantId();
         if (tenantId != null && !tenantId.isBlank()) return true;
-        responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
+        recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Missing tenant context")
                 .asRuntimeException());
         return false;

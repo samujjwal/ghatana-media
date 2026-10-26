@@ -1,6 +1,7 @@
 package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.api.TtsStreamSink;
 import com.ghatana.media.tts.api.TtsStreamingSession;
@@ -29,6 +30,7 @@ import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.api.trace.Span;
@@ -56,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
+import java.lang.reflect.Field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -78,6 +81,12 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TtsGrpcServiceTest {
 
+    private static final TtsRequestAuthorization TEST_ADMITTED_AUTHORIZATION =
+            new TtsRequestAuthorization() {
+                @Override public Decision authorize(Request request) { return Decision.ADMITTED; }
+                @Override public String configuredDefaultVoiceId() { return "test-only-configured-voice"; }
+            };
+
     @Mock
     private AudioVideoLibrary library;
 
@@ -86,12 +95,53 @@ class TtsGrpcServiceTest {
 
     private SimpleMeterRegistry registry;
     private TtsGrpcService service;
+    private Context testIdentityContext;
+    private Context previousContext;
 
     @BeforeEach
-    void setUp() {
+    @SuppressWarnings("unchecked")
+    void setUp() throws ReflectiveOperationException {
+        Field identityKeyField = JwtServerInterceptor.class.getDeclaredField("VERIFIED_IDENTITY");
+        identityKeyField.setAccessible(true);
+        Context.Key<JwtServerInterceptor.VerifiedIdentity> identityKey =
+                (Context.Key<JwtServerInterceptor.VerifiedIdentity>) identityKeyField.get(null);
+        testIdentityContext = Context.current().withValue(identityKey,
+                new JwtServerInterceptor.VerifiedIdentity("test-subject", "test-tenant"));
+        previousContext = testIdentityContext.attach();
         registry = new SimpleMeterRegistry();
         service = new TtsGrpcService(library, registry);
         lenient().when(library.getTtsEngine()).thenReturn(engine);
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void restoreContext() {
+        testIdentityContext.detach(previousContext);
+    }
+
+    private TtsGrpcService admittedService(
+            java.util.function.BooleanSupplier synthesisAdmitted,
+            java.util.function.BooleanSupplier streamingAdmitted) {
+        return new TtsGrpcService(library, registry, synthesisAdmitted, streamingAdmitted,
+                null, TEST_ADMITTED_AUTHORIZATION,
+                (voiceId, language) -> synthesisAdmitted.getAsBoolean());
+    }
+
+    private TtsGrpcService admittedService(
+            java.util.function.BooleanSupplier synthesisAdmitted,
+            java.util.function.BooleanSupplier streamingAdmitted,
+            Duration timeout) {
+        return new TtsGrpcService(library, registry, synthesisAdmitted, streamingAdmitted,
+                timeout, TEST_ADMITTED_AUTHORIZATION,
+                (voiceId, language) -> synthesisAdmitted.getAsBoolean());
+    }
+
+    private TtsGrpcService admittedService(
+            java.util.function.BooleanSupplier synthesisAdmitted,
+            java.util.function.BooleanSupplier streamingAdmitted,
+            Duration timeout,
+            AudioVideoTracingService tracing) {
+        return new TtsGrpcService(library, registry, synthesisAdmitted, streamingAdmitted,
+                timeout, tracing, TEST_ADMITTED_AUTHORIZATION);
     }
 
     @Test
@@ -129,7 +179,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void synthesisRejectsEncodedAudioLabeledAsPcmBeforeResponse() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> false);
         when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
                 new byte[44], 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.MP3));
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
@@ -145,8 +195,7 @@ class TtsGrpcServiceTest {
     @Test
     void synthesizeTraceUsesNoContentIdentifiersAndKeepsProviderMetricSingle() {
         TraceHarness trace = new TraceHarness();
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> false,
-                null, trace.tracing);
+        TtsGrpcService admitted = admittedService(() -> true, () -> false, null, trace.tracing);
         when(engine.synthesize(anyString(), any())).thenAnswer(invocation -> {
             trace.assertCurrentOperationSpan();
             return new AudioData(new byte[44], 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM);
@@ -194,8 +243,7 @@ class TtsGrpcServiceTest {
     @Test
     void streamingProviderAndResponseCallbacksRunWithOperationSpan() throws Exception {
         TraceHarness trace = new TraceHarness();
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
-                Duration.ofSeconds(2), trace.tracing);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofSeconds(2), trace.tracing);
         CountDownLatch completed = new CountDownLatch(1);
         AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
         String protectedText = "private stream phrase 908173";
@@ -234,6 +282,18 @@ class TtsGrpcServiceTest {
         assertThat(completed.await(5, TimeUnit.SECONDS)).isTrue();
         verify(observer, never()).onError(any());
         cancelHandler.get().run(); // Cancellation after successful terminal delivery must not rewrite success.
+        Timer responseSuccess = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "success").timer();
+        assertThat(responseSuccess).isNotNull();
+        assertThat(responseSuccess.count()).isEqualTo(1);
+        assertThat(responseSuccess.getId().getTags()).extracting("key")
+                .doesNotContain("tenant", "subject", "request", "text", "content");
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "unknown").timer()).isNull();
         SpanData span = trace.finishedSpan();
         assertThat(span.getStatus().getStatusCode().name()).isEqualTo("OK");
         assertThat(span.getAttributes().get(
@@ -244,8 +304,7 @@ class TtsGrpcServiceTest {
     @Test
     void streamingCancellationEndsSpanWithUnknownOutcome() throws InterruptedException {
         TraceHarness trace = new TraceHarness();
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
-                Duration.ofMillis(250), trace.tracing);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofMillis(250), trace.tracing);
         AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
         AtomicBoolean sessionCancelled = new AtomicBoolean();
         AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
@@ -291,8 +350,7 @@ class TtsGrpcServiceTest {
     @Test
     void timeoutCancellationRaceFinishesUnknownAndCancelsSession() throws Exception {
         TraceHarness trace = new TraceHarness();
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
-                Duration.ofMillis(250), trace.tracing);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofMillis(250), trace.tracing);
         AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
         AtomicReference<TtsStreamingSession> sessionRef = new AtomicReference<>();
         AtomicBoolean sessionCancelled = new AtomicBoolean();
@@ -346,8 +404,7 @@ class TtsGrpcServiceTest {
     @Test
     void throwingCompletionCallbackFinishesUnknownAfterCallback() throws Exception {
         TraceHarness trace = new TraceHarness();
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
-                Duration.ofSeconds(2), trace.tracing);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofSeconds(2), trace.tracing);
         CountDownLatch callbackEntered = new CountDownLatch(1);
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
@@ -379,8 +436,7 @@ class TtsGrpcServiceTest {
     @Test
     void throwingFinalAudioCallbackFinishesUnknownWithoutReportingSuccess() throws Exception {
         TraceHarness trace = new TraceHarness();
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true,
-                Duration.ofSeconds(2), trace.tracing);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofSeconds(2), trace.tracing);
         CountDownLatch callbackEntered = new CountDownLatch(1);
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
@@ -439,7 +495,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedFakeEngineRunsThroughRequestPathAndExportsPrivateBoundedProviderMetric() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> false);
         byte[] pcm = new byte[44];
         when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
                 pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
@@ -469,7 +525,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void ambiguousProviderExceptionExportsUnknownAndDoesNotReturnAudio() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> false);
         when(engine.synthesize(anyString(), any())).thenThrow(new IllegalStateException("provider interrupted"));
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
 
@@ -486,7 +542,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void cancellationAfterProviderReturnRecordsUnknownAndDoesNotEmitAudio() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> false);
         byte[] pcm = new byte[44];
         when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
                 pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
@@ -610,6 +666,39 @@ class TtsGrpcServiceTest {
         verify(library, never()).getTtsEngine();
         verify(engine, never()).synthesize(anyString(), any());
         assertThat(registry.get("tts.synthesize.streaming").timer().count()).isEqualTo(1);
+        Timer responseFailure = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "failure").timer();
+        assertThat(responseFailure).isNotNull();
+        assertThat(responseFailure.count()).isEqualTo(1);
+    }
+
+    @Test
+    void streamObserverErrorCallbackExceptionRecordsResponseUnknown() {
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new StreamObserver<>() {
+            @Override public void onNext(com.ghatana.tts.core.grpc.proto.AudioChunk value) {}
+            @Override public void onError(Throwable error) {
+                throw new IllegalStateException("ambiguous stream error callback");
+            }
+            @Override public void onCompleted() {}
+        };
+
+        assertThatThrownBy(() -> service.streamSynthesize(
+                SynthesizeRequest.newBuilder().setText("hello").build(), observer))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("ambiguous stream error callback");
+
+        Timer responseUnknown = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "unknown").timer();
+        assertThat(responseUnknown).isNotNull();
+        assertThat(responseUnknown.count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "failure").timer()).isNull();
     }
 
     @Test
@@ -664,6 +753,12 @@ class TtsGrpcServiceTest {
         verify(observer, never()).onCompleted();
         verify(observer, never()).onError(any());
         verify(library, never()).getTtsEngine();
+        Timer responseUnknown = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "unknown").timer();
+        assertThat(responseUnknown).isNotNull();
+        assertThat(responseUnknown.count()).isEqualTo(1);
     }
 
     @Test
@@ -704,7 +799,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedStreamWaitsForObserverReadinessAndPreservesProviderFinalChunk() throws Exception {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         @SuppressWarnings("unchecked")
         ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
         AtomicReference<Runnable> readyHandler = new AtomicReference<>();
@@ -748,7 +843,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedStreamCancellationCancelsSessionAndSuppressesFurtherChunks() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         @SuppressWarnings("unchecked")
         ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
         AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
@@ -786,7 +881,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedStreamStartFailureReturnsTerminalError() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         when(engine.startStreaming(anyString(), any(), any()))
                 .thenThrow(new IllegalStateException("controlled start failure"));
         CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
@@ -800,8 +895,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void blockedStartTimesOutAndCancelsSessionWhenFactoryEventuallyReturns() throws Exception {
-        TtsGrpcService admitted = new TtsGrpcService(
-                library, registry, () -> true, () -> true, Duration.ofMillis(100));
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofMillis(100));
         CountDownLatch startEntered = new CountDownLatch(1);
         CountDownLatch releaseStart = new CountDownLatch(1);
         CountDownLatch errorReceived = new CountDownLatch(1);
@@ -822,8 +916,15 @@ class TtsGrpcServiceTest {
             return null;
         }).when(observer).onError(any());
 
-        Thread request = Thread.startVirtualThread(() ->
-                admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer));
+        Thread request = Thread.startVirtualThread(() -> {
+            Context previous = testIdentityContext.attach();
+            try {
+                admitted.streamSynthesize(
+                        SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+            } finally {
+                testIdentityContext.detach(previous);
+            }
+        });
         assertThat(startEntered.await(1, TimeUnit.SECONDS)).isTrue();
         assertThat(errorReceived.await(1, TimeUnit.SECONDS)).isTrue();
         assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
@@ -837,8 +938,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void successfulSessionCompletionWinsDeadlineAndIsNotTimedOutLater() throws Exception {
-        TtsGrpcService admitted = new TtsGrpcService(
-                library, registry, () -> true, () -> true, Duration.ofMillis(250));
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofMillis(250));
         AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
         AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
         CountDownLatch completed = new CountDownLatch(1);
@@ -877,7 +977,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedStreamChunkValidationFailureReturnsTerminalErrorAndCancelsSession() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         AtomicBoolean sessionCancelled = new AtomicBoolean();
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
@@ -898,7 +998,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void oversizedFinalChunkFailsBeforeItCanBeHeldAsPendingFinalAudio() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         AtomicBoolean sessionCancelled = new AtomicBoolean();
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
@@ -919,7 +1019,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedStreamRejectsSequenceGapAfterPreservingOnlyPriorPartialChunk() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         AtomicBoolean sessionCancelled = new AtomicBoolean();
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
@@ -947,7 +1047,7 @@ class TtsGrpcServiceTest {
     @Test
     void admittedStreamRejectsNegativeOrDecreasingChunkTimestamps() {
         for (long invalidTimestamp : List.of(-1L, 4L)) {
-            TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+            TtsGrpcService admitted = admittedService(() -> true, () -> true);
             AtomicBoolean sessionCancelled = new AtomicBoolean();
             when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
                 TtsStreamSink sink = invocation.getArgument(2);
@@ -976,7 +1076,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedPartialStreamFailureDoesNotEmitFalseFinalChunkOrCompleteSuccessfully() throws Exception {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
         AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
         CountDownLatch errorReceived = new CountDownLatch(1);
@@ -1005,7 +1105,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedStreamRejectsAudioBeforeFormatDeclaration() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
             sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 0));
@@ -1022,7 +1122,7 @@ class TtsGrpcServiceTest {
 
     @Test
     void admittedStreamRejectsDuplicateAudioFormatDeclarationBeforeBytes() {
-        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             TtsStreamSink sink = invocation.getArgument(2);
             sink.onAudioFormat(monoPcm16Format());
@@ -1047,7 +1147,7 @@ class TtsGrpcServiceTest {
                 new CanonicalAudioFormat(22_050, 1, 16, AudioFormat.WAV));
 
         for (CanonicalAudioFormat unsupported : unsupportedFormats) {
-            TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+            TtsGrpcService admitted = admittedService(() -> true, () -> true);
             when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
                 TtsStreamSink sink = invocation.getArgument(2);
                 sink.onAudioFormat(unsupported);

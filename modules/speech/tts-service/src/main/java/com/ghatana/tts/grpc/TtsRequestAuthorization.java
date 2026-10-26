@@ -64,11 +64,17 @@ interface TtsRequestAuthorization {
             String voiceId,
             String profileId) {
         Objects.requireNonNull(authorization, "authorization");
-        boolean selected = voiceId != null && !voiceId.isBlank()
-                || profileId != null && !profileId.isBlank()
-                || authorization.configuredDefaultVoiceId() != null
-                && !authorization.configuredDefaultVoiceId().isBlank();
-        if (!selected) return;
+        String configuredDefaultVoiceId = authorization.configuredDefaultVoiceId();
+        if (configuredDefaultVoiceId != null && configuredDefaultVoiceId.isBlank()) {
+            configuredDefaultVoiceId = null;
+        }
+        String effectiveVoiceId = voiceId == null || voiceId.isBlank()
+                ? configuredDefaultVoiceId : voiceId;
+        boolean selected = effectiveVoiceId != null || profileId != null && !profileId.isBlank();
+        if (!selected) {
+            throw new AuthorizationException(Status.UNAVAILABLE,
+                    "TTS_VOICE_SELECTION_NOT_ADMITTED: explicit voice/profile or configured default is required");
+        }
         if (identity == null || identity.subject() == null || identity.subject().isBlank()
                 || identity.tenantId() == null || identity.tenantId().isBlank()) {
             throw new AuthorizationException(Status.UNAUTHENTICATED,
@@ -81,7 +87,7 @@ interface TtsRequestAuthorization {
 
         Decision decision;
         try {
-            decision = authorization.authorize(new Request(identity, operation, voiceId, profileId));
+            decision = authorization.authorize(new Request(identity, operation, effectiveVoiceId, profileId));
         } catch (RuntimeException unavailable) {
             decision = Decision.UNAVAILABLE;
         }

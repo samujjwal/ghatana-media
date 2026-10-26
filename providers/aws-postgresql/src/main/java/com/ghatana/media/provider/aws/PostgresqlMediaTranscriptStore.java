@@ -2,6 +2,8 @@ package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptPrincipalConflictException;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevisionConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision;
 
 import java.sql.Connection;
@@ -19,8 +21,16 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
 
     @Override
     public TranscriptRevision append(TranscriptDraft draft) {
+        return append(draft, 0);
+    }
+
+    @Override
+    public TranscriptRevision append(TranscriptDraft draft, int expectedLatestRevision) {
         ensureOpen();
         java.util.Objects.requireNonNull(draft, "draft");
+        if (expectedLatestRevision < 0) {
+            throw new IllegalArgumentException("expectedLatestRevision cannot be negative");
+        }
         // There is no authoritative rights/profile lookup in this checkout. Never write production output.
         if (state.productionEligible()) {
             throw new UnsupportedOperationException("Transcript rights and profile admission is pending");
@@ -34,7 +44,14 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                     connection.commit();
                     return latest;
                 }
-                int revision = latest == null ? 1 : latest.revision() + 1;
+                if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
+                    throw new TranscriptPrincipalConflictException();
+                }
+                int actualLatestRevision = latest == null ? 0 : latest.revision();
+                if (expectedLatestRevision != actualLatestRevision) {
+                    throw new TranscriptRevisionConflictException(expectedLatestRevision, actualLatestRevision);
+                }
+                int revision = actualLatestRevision + 1;
                 long now = System.currentTimeMillis();
                 try (PreparedStatement insert = connection.prepareStatement("""
                         INSERT INTO media_transcript_revisions
@@ -52,6 +69,9 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             } catch (RuntimeException | SQLException failure) {
                 rollback(connection, failure);
                 if (failure instanceof RuntimeException runtime) throw runtime;
+                if (isUniqueViolation((SQLException) failure)) {
+                    return resolveConcurrentAppend(draft, expectedLatestRevision, (SQLException) failure);
+                }
                 throw dbFailure("append transcript revision", (SQLException) failure);
             }
         } catch (SQLException failure) {
@@ -98,13 +118,17 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
     }
 
     @Override
-    public List<TranscriptRevision> revisions(String tenantId, String transcriptId) {
+    public List<TranscriptRevision> revisions(String tenantId, String principalId, String transcriptId) {
         ensureOpen();
+        requireNonBlank(tenantId, "tenantId");
+        requireNonBlank(principalId, "principalId");
+        requireNonBlank(transcriptId, "transcriptId");
         List<TranscriptRevision> values = new ArrayList<>();
         try (Connection connection = state.connection(); PreparedStatement query = connection.prepareStatement("""
-                SELECT * FROM media_transcript_revisions WHERE tenant_id=? AND transcript_id=? ORDER BY revision
+                SELECT * FROM media_transcript_revisions
+                 WHERE tenant_id=? AND principal_id=? AND transcript_id=? ORDER BY revision
                 """)) {
-            query.setString(1, tenantId); query.setString(2, transcriptId);
+            query.setString(1, tenantId); query.setString(2, principalId); query.setString(3, transcriptId);
             try (ResultSet rows = query.executeQuery()) {
                 while (rows.next()) values.add(read(rows));
             }
@@ -112,6 +136,36 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         } catch (SQLException failure) {
             throw dbFailure("read transcript revisions", failure);
         }
+    }
+
+    /** Tenant-only readback is retained for source compatibility and fails closed. */
+    @Override
+    @Deprecated
+    public List<TranscriptRevision> revisions(String tenantId, String transcriptId) {
+        throw new UnsupportedOperationException("Principal-scoped transcript readback is required");
+    }
+
+    private TranscriptRevision resolveConcurrentAppend(
+            TranscriptDraft draft, int expectedLatestRevision, SQLException insertFailure) {
+        try (Connection connection = state.connection()) {
+            TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), false);
+            if (latest == null) throw dbFailure("resolve concurrent transcript append", insertFailure);
+            if (!latest.draft().principalId().equals(draft.principalId())) {
+                throw new TranscriptPrincipalConflictException();
+            }
+            if (sameDraft(latest.draft(), draft)) return latest;
+            throw new TranscriptRevisionConflictException(expectedLatestRevision, latest.revision());
+        } catch (SQLException readFailure) {
+            readFailure.addSuppressed(insertFailure);
+            throw dbFailure("resolve concurrent transcript append", readFailure);
+        }
+    }
+
+    private static boolean isUniqueViolation(SQLException failure) {
+        for (SQLException current = failure; current != null; current = current.getNextException()) {
+            if ("23505".equals(current.getSQLState())) return true;
+        }
+        return false;
     }
 
     private static TranscriptRevision latest(Connection connection, String tenant, String transcript, boolean lock)
@@ -137,6 +191,10 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
 
     private static boolean sameDraft(TranscriptDraft a, TranscriptDraft b) {
         return a.equals(b);
+    }
+
+    private static void requireNonBlank(String value, String name) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " is required");
     }
 
     private static void bind(PreparedStatement s, TranscriptDraft d, int revision, long now) throws SQLException {

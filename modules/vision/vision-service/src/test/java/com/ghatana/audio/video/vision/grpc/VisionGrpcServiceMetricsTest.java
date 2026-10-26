@@ -15,6 +15,7 @@ import com.ghatana.audio.video.vision.model.ObjectAttributes;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -29,9 +30,11 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -157,6 +160,41 @@ class VisionGrpcServiceMetricsTest {
         assertThat(observer.value).isNotNull();
         assertThat(observer.error).isNull();
         assertResponseTimer("unknown", 1);
+        assertResponseTimer("failure", 0);
+    }
+
+    @Test
+    @DisplayName("remaining unary Vision RPCs record bounded response outcomes")
+    void remainingUnaryRpcs_recordResponseBoundary() {
+        SimpleObserver<AnalyzeResponse> analyze = new SimpleObserver<>();
+        SimpleObserver<ClassifyResponse> classify = new SimpleObserver<>();
+        SimpleObserver<LoadModelResponse> load = new SimpleObserver<>();
+        SimpleObserver<UnloadModelResponse> unload = new SimpleObserver<>();
+        SimpleObserver<ListModelsResponse> list = new SimpleObserver<>();
+        SimpleObserver<StatusResponse> status = new SimpleObserver<>();
+        SimpleObserver<HealthCheckResponse> health = new SimpleObserver<>();
+
+        withContext("tenant-metrics-test", () -> {
+            service.analyzeImage(AnalyzeRequest.newBuilder()
+                    .setImageData(ByteString.copyFrom(new byte[]{1})).build(), analyze);
+            service.classifyImage(ClassifyRequest.newBuilder()
+                    .setImageData(ByteString.copyFrom(new byte[]{1})).build(), classify);
+            service.loadModel(LoadModelRequest.newBuilder().setModelId("fixture-model").build(), load);
+            service.unloadModel(UnloadModelRequest.newBuilder().setModelId("fixture-model").build(), unload);
+            service.listModels(ListModelsRequest.getDefaultInstance(), list);
+            service.getStatus(StatusRequest.getDefaultInstance(), status);
+            service.healthCheck(HealthCheckRequest.getDefaultInstance(), health);
+        });
+
+        assertThat(analyze.error).isNotNull();
+        assertThat(classify.error).isNotNull();
+        assertThat(load.error).isNotNull();
+        assertThat(unload.error).isNotNull();
+        assertThat(list.error).isNotNull();
+        assertThat(status.error).isNull();
+        assertThat(health.error).isNull();
+        assertResponseTimer("failure", 5);
+        assertResponseTimer("success", 2);
     }
 
     @Test
@@ -263,11 +301,16 @@ class VisionGrpcServiceMetricsTest {
         fakeDetector.results = validDetections();
         SimpleObserver<VideoFrameResponse> observer = new SimpleObserver<>();
 
-        withContext("tenant-video-fixture", () -> service.processVideo(observer).onNext(
-                VideoFrameRequest.newBuilder().setFrameData(ByteString.copyFrom(new byte[]{1})).build()));
+        withContext("tenant-video-fixture", () -> {
+            StreamObserver<VideoFrameRequest> requests = service.processVideo(observer);
+            requests.onNext(VideoFrameRequest.newBuilder()
+                    .setFrameData(ByteString.copyFrom(new byte[]{1})).build());
+            requests.onCompleted();
+        });
 
         assertThat(observer.error).isNull();
         assertProviderTimer("success", 1);
+        assertResponseTimer("success", 1);
     }
 
     @Test
@@ -281,6 +324,46 @@ class VisionGrpcServiceMetricsTest {
 
         assertThat(observer.error).isNotNull();
         assertProviderTimer("unknown", 1);
+        assertResponseTimer("failure", 1);
+    }
+
+    @Test
+    @DisplayName("processVideo client cancellation records one response UNKNOWN")
+    @SuppressWarnings("unchecked")
+    void processVideo_clientCancellationRecordsResponseUnknown() {
+        ServerCallStreamObserver<VideoFrameResponse> observer = mock(ServerCallStreamObserver.class);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        doAnswer(invocation -> {
+            cancelHandler.set(invocation.getArgument(0));
+            return null;
+        }).when(observer).setOnCancelHandler(any(Runnable.class));
+
+        withContext("tenant-video-fixture", () -> service.processVideo(observer));
+        assertThat(cancelHandler.get()).isNotNull();
+        cancelHandler.get().run();
+
+        assertResponseTimer("unknown", 1);
+    }
+
+    @Test
+    @DisplayName("processVideo ambiguous frame delivery stays UNKNOWN when followed by onError")
+    void processVideo_ambiguousFrameDeliveryDoesNotDoubleCount() {
+        fakeDetector.results = validDetections();
+        SimpleObserver<VideoFrameResponse> observer = new SimpleObserver<>() {
+            @Override public void onNext(VideoFrameResponse value) {
+                throw new IllegalStateException("ambiguous frame delivery");
+            }
+        };
+
+        withContext("tenant-video-fixture", () -> service.processVideo(observer).onNext(
+                VideoFrameRequest.newBuilder().setFrameData(ByteString.copyFrom(new byte[]{1})).build()));
+
+        assertThat(observer.error).isNotNull();
+        assertResponseTimer("unknown", 1);
+        assertThat(meterRegistry.find("media.modality.boundary.duration")
+                .tags("modality", "vision", "service", "vision", "boundary", "response",
+                        "execution_class", "control", "outcome", "failure", "contract_version", "v1")
+                .timer()).isNull();
     }
 
     private void assertProviderTimer(String outcome, long expectedCount) {
@@ -321,8 +404,8 @@ class VisionGrpcServiceMetricsTest {
         Timer timer = meterRegistry.find("media.modality.boundary.duration")
                 .tags("modality", "vision", "service", "vision", "boundary", "response",
                         "execution_class", "control", "outcome", outcome, "contract_version", "v1").timer();
-        assertThat(timer).isNotNull();
-        assertThat(timer.count()).isEqualTo(expectedCount);
+        assertThat(timer == null ? 0 : timer.count()).isEqualTo(expectedCount);
+        if (timer == null) return;
         assertThat(timer.getId().getTags()).extracting("key")
                 .containsExactlyInAnyOrder("modality", "service", "boundary", "execution_class",
                         "outcome", "contract_version");

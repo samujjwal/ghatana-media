@@ -317,15 +317,20 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
         // No durable session store/provider session is wired to this service. Do not accept chunks
         // or imply ACK, reconnect, resume, or cancellation finality without that authority.
-        try {
-            if (isCancelled(responseObserver)) return noOpAudioObserver();
-            try {
-                responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
-                        .withDescription("STT_STREAM_SESSION_NOT_ADMITTED: durable session store, ACK/resume epoch, and provider session are unavailable")
-                        .asRuntimeException());
-            } catch (IllegalStateException cancelledCall) {
-                if (!isCancelled(responseObserver)) throw cancelledCall;
+        try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
+                     boundaryInstrumentation.beginBoundaryMeasurement(
+                             MediaWorkflowMetrics.Modality.STT, MediaWorkflowMetrics.Boundary.RESPONSE)) {
+            if (isCancelled(responseObserver)) {
+                responseBoundary.complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                return noOpAudioObserver();
             }
+            responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                    .withDescription("STT_STREAM_SESSION_NOT_ADMITTED: durable session store, ACK/resume epoch, and provider session are unavailable")
+                    .asRuntimeException());
+            // The stream has no success response path until a durable session is admitted.
+            responseBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+        } catch (IllegalStateException cancelledCall) {
+            if (!isCancelled(responseObserver)) throw cancelledCall;
         } finally {
             if (isCancelled(responseObserver)) {
                 span.setAttribute("media.outcome", "unknown");
