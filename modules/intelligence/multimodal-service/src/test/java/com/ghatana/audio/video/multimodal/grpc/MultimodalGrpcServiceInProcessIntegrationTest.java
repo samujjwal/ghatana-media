@@ -3,14 +3,10 @@ package com.ghatana.audio.video.multimodal.grpc;
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
-import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
-import com.ghatana.audio.video.multimodal.engine.MultimodalResult;
 import com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapter;
 
-import java.util.List;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalRequest;
-import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalResponse;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceGrpc;
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
@@ -33,16 +29,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @doc.type class
@@ -58,9 +50,12 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
     private Server server;
     private ManagedChannel channel;
     private MultimodalGrpcService service;
+    private MultimodalAnalysisEngine engine;
+    private PlatformMultimodalAdapter adapter;
     private AudioVideoHealthService readiness;
     private AtomicBoolean sttProviderReady;
     private AtomicBoolean visionProviderReady;
+    private AtomicInteger authorizationCalls;
 
     @AfterEach
     void tearDown() {
@@ -78,18 +73,9 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
-        PlatformMultimodalAdapter adapter = mock(PlatformMultimodalAdapter.class);
-
-        when(engine.analyse(any())).thenReturn(
-            MultimodalResult.builder()
-                .audioResult(AudioResult.builder().transcription("hello").confidence(0.9).build())
-                .combinedAnalysis("audio analysis ready")
-                .processingTimeMs(25L)
-                .build()
-        );
-        lenient().when(adapter.backendName()).thenReturn("test-backend");
-        lenient().when(adapter.metricsEnabled()).thenReturn(false);
+        engine = mock(MultimodalAnalysisEngine.class);
+        adapter = mock(PlatformMultimodalAdapter.class);
+        authorizationCalls = new AtomicInteger();
 
         service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
                 admitTestFixtureOnly());
@@ -114,19 +100,15 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
     }
 
     @Test
-    @DisplayName("processMultimodal returns fused response over gRPC transport")
-    void processMultimodalOverGrpc() {
+    @DisplayName("processMultimodal fails closed before engine dispatch without canonical operation binding")
+    void processMultimodalWithoutOperationBindingFailsClosed() {
         MultimodalServiceGrpc.MultimodalServiceBlockingStub stub = MultimodalServiceGrpc.newBlockingStub(channel);
 
-        MultimodalResponse response = stub.processMultimodal(
-            MultimodalRequest.newBuilder()
-                .setAudioData(ByteString.copyFrom(new byte[]{0x01}))
-                .build()
-        );
-
-        assertThat(response.getCombinedAnalysis()).contains("audio analysis");
-        assertThat(response.getAudioAnalysis().getTranscription()).isEqualTo("hello");
-        assertThat(response.getProcessingTimeMs()).isEqualTo(25L);
+        assertFamilyOperationNotAdmitted(() -> stub.processMultimodal(
+                MultimodalRequest.newBuilder()
+                        .setAudioData(ByteString.copyFrom(new byte[] {0x01}))
+                        .build()));
+        verifyNoInteractions(engine, adapter);
     }
 
     @Test
@@ -180,13 +162,10 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
     }
 
     @Test
-    @DisplayName("processMultimodal engine failure is mapped to INTERNAL")
-    void processMultimodalEngineFailureReturnsInternal() throws Exception {
+    @DisplayName("processMultimodal does not expose provider failure before operation admission")
+    void processMultimodalAdmissionPrecedesEngineDispatch() throws Exception {
         MultimodalAnalysisEngine failingEngine = mock(MultimodalAnalysisEngine.class);
         PlatformMultimodalAdapter adapter = mock(PlatformMultimodalAdapter.class);
-        when(failingEngine.analyse(any())).thenThrow(new RuntimeException("boom"));
-        lenient().when(adapter.backendName()).thenReturn("test-backend");
-        lenient().when(adapter.metricsEnabled()).thenReturn(false);
 
         if (channel != null) {
             channel.shutdownNow();
@@ -209,47 +188,18 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
 
         MultimodalServiceGrpc.MultimodalServiceBlockingStub stub = MultimodalServiceGrpc.newBlockingStub(channel);
 
-        assertThatThrownBy(() -> stub.processMultimodal(
-            MultimodalRequest.newBuilder().setAudioData(ByteString.copyFrom(new byte[]{0x01})).build()
-        ))
-            .isInstanceOf(StatusRuntimeException.class)
-            .matches(ex -> ((StatusRuntimeException) ex).getStatus().getCode() == Status.INTERNAL.getCode());
+        assertFamilyOperationNotAdmitted(() -> stub.processMultimodal(
+                MultimodalRequest.newBuilder().setAudioData(ByteString.copyFrom(new byte[] {0x01})).build()));
+        verifyNoInteractions(failingEngine, adapter);
     }
 
     // AV-P1-015: E2E test for multimodal orchestration
 
     @Test
-    @DisplayName("AV-P1-015: analyzeVideoWithAudio orchestrates STT and Vision fusion")
-    void analyzeVideoWithAudioOrchestratesFusion() throws Exception {
+    @DisplayName("analyzeVideoWithAudio fails closed before unbound child-provider dispatch")
+    void analyzeVideoWithAudioWithoutOperationBindingFailsClosed() throws Exception {
         MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
         PlatformMultimodalAdapter adapter = mock(PlatformMultimodalAdapter.class);
-
-        com.ghatana.audio.video.multimodal.engine.VideoAudioResult videoAudioResult =
-            com.ghatana.audio.video.multimodal.engine.VideoAudioResult.builder()
-                .combinedNarrative("Person walking while speaking")
-                .audioResult(AudioResult.builder()
-                    .transcription("Hello world")
-                    .confidence(0.9)
-                    .build())
-                .videoResult(com.ghatana.audio.video.multimodal.engine.VisualResult.builder()
-                    .sceneDescription("A person walking")
-                    .confidence(0.85)
-                    .frameResults(List.of(
-                        new com.ghatana.audio.video.multimodal.engine.FrameResult(
-                            1, com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.fromSource(
-                                    com.ghatana.audio.video.vision.video.SourceMediaTimestamp.fromPts("3003", "1/90000")),
-                            List.of(
-                                new com.ghatana.audio.video.multimodal.engine.DetectionResult(
-                                    "person", 0.95, 0.0, 0.0, 0.0, 0.0)
-                            ))
-                    ))
-                    .build())
-                .build();
-
-        when(engine.analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt()))
-            .thenReturn(videoAudioResult);
-        lenient().when(adapter.backendName()).thenReturn("test-backend");
-        lenient().when(adapter.metricsEnabled()).thenReturn(false);
 
         if (channel != null) {
             channel.shutdownNow();
@@ -272,59 +222,21 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
 
         MultimodalServiceGrpc.MultimodalServiceBlockingStub stub = MultimodalServiceGrpc.newBlockingStub(channel);
 
-        com.ghatana.audio.video.multimodal.grpc.proto.VideoAudioResponse response =
-            stub.analyzeVideoWithAudio(
+        assertFamilyOperationNotAdmitted(() -> stub.analyzeVideoWithAudio(
                 com.ghatana.audio.video.multimodal.grpc.proto.VideoAudioRequest.newBuilder()
-                    .setVideoData(ByteString.copyFrom(new byte[]{0x01, 0x02, 0x03}))
-                    .setExtractAudio(true)
-                    .setAnalyzeFrames(true)
-                    .setFrameSampleRate(1)
-                    .build()
-            );
-
-        assertThat(response.getCombinedNarrative()).contains("Person walking");
-        assertThat(response.getAudioTranscription()).isEqualTo("Hello world");
-        assertThat(response.getFrameAnalysesCount()).isEqualTo(1);
-        assertThat(response.getFrameAnalyses(0).hasTimestampMs()).isTrue();
-        assertThat(response.getFrameAnalyses(0).getTimestampMs()).isEqualTo(33L);
-        assertThat(response.getFrameAnalyses(0).getTimestampStatus())
-            .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.FrameAnalysis.TimestampStatus
-                .TIMESTAMP_STATUS_KNOWN);
-        assertThat(response.getFrameAnalyses(0).hasSourcePts()).isTrue();
-        assertThat(response.getFrameAnalyses(0).getSourcePts()).isEqualTo(3003L);
-        assertThat(response.getFrameAnalyses(0).getTimeBaseNumerator()).isEqualTo(1L);
-        assertThat(response.getFrameAnalyses(0).getTimeBaseDenominator()).isEqualTo(90000L);
-        assertThat(response.getFrameAnalyses(0).getClockDomain())
-            .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.FrameAnalysis.ClockDomain.SOURCE);
-        assertThat(response.getSynchronizationStatus())
-            .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.VideoAudioResponse
-                .SynchronizationStatus.SYNC_UNDETERMINED);
-        assertThat(response.getFrameAnalyses(0).getObjectsCount()).isEqualTo(1);
-        assertThat(response.getFrameAnalyses(0).getObjects(0).getClassName()).isEqualTo("person");
+                        .setVideoData(ByteString.copyFrom(new byte[] {0x01, 0x02, 0x03}))
+                        .setExtractAudio(true)
+                        .setAnalyzeFrames(true)
+                        .setFrameSampleRate(1)
+                        .build()));
+        verifyNoInteractions(engine, adapter);
     }
 
     @Test
-    @DisplayName("AV-P1-015: analyzeCrossModal leaves unqualified synchronization undetermined")
-    void analyzeCrossModalLeavesSynchronizationUndetermined() throws Exception {
+    @DisplayName("analyzeCrossModal fails closed before unbound synchronization analysis")
+    void analyzeCrossModalWithoutOperationBindingFailsClosed() throws Exception {
         MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
         PlatformMultimodalAdapter adapter = mock(PlatformMultimodalAdapter.class);
-
-        MultimodalResult result = MultimodalResult.builder()
-            .audioResult(AudioResult.builder()
-                .transcription("A person is walking")
-                .confidence(0.9)
-                .build())
-            .visualResult(com.ghatana.audio.video.multimodal.engine.VisualResult.builder()
-                .sceneDescription("A person walking in the park")
-                .confidence(0.85)
-                .build())
-            .combinedAnalysis("Cross-modal analysis complete")
-            .processingTimeMs(50L)
-            .build();
-
-        when(engine.analyse(any())).thenReturn(result);
-        lenient().when(adapter.backendName()).thenReturn("test-backend");
-        lenient().when(adapter.metricsEnabled()).thenReturn(false);
 
         if (channel != null) {
             channel.shutdownNow();
@@ -347,22 +259,39 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
 
         MultimodalServiceGrpc.MultimodalServiceBlockingStub stub = MultimodalServiceGrpc.newBlockingStub(channel);
 
-        com.ghatana.audio.video.multimodal.grpc.proto.CrossModalResponse response =
-            stub.analyzeCrossModal(
+        assertFamilyOperationNotAdmitted(() -> stub.analyzeCrossModal(
                 com.ghatana.audio.video.multimodal.grpc.proto.CrossModalRequest.newBuilder()
-                    .setAudioData(ByteString.copyFrom(new byte[]{0x01}))
-                    .setVideoData(ByteString.copyFrom(new byte[]{0x02}))
-                    .build()
-            );
+                        .setAudioData(ByteString.copyFrom(new byte[] {0x01}))
+                        .setVideoData(ByteString.copyFrom(new byte[] {0x02}))
+                        .build()));
+        verifyNoInteractions(engine, adapter);
+    }
 
-        assertThat(response.hasAlignmentScore()).isFalse();
-        assertThat(response.getSynchronizationStatus())
-            .isEqualTo(com.ghatana.audio.video.multimodal.grpc.proto.CrossModalResponse.SynchronizationStatus
-                .SYNC_UNDETERMINED);
-        assertThat(response.getEventsCount()).isZero();
-        assertThat(response.getSummary()).contains("synchronization undetermined");
-        assertThat(response.getSummary()).contains("audio=present");
-        assertThat(response.getSummary()).contains("visual=present");
+    @Test
+    @DisplayName("generateDescription fails closed before unbound semantic provider dispatch")
+    void generateDescriptionWithoutOperationBindingFailsClosed() throws Exception {
+        MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
+        PlatformMultimodalAdapter adapter = mock(PlatformMultimodalAdapter.class);
+
+        if (channel != null) channel.shutdownNow();
+        if (server != null) server.shutdownNow();
+        server = ServerBuilder.forPort(0)
+                .directExecutor()
+                .intercept(new TenantInjector())
+                .addService(new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
+                        admitTestFixtureOnly()))
+                .build()
+                .start();
+        channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
+                .usePlaintext()
+                .directExecutor()
+                .build();
+
+        assertFamilyOperationNotAdmitted(() -> MultimodalServiceGrpc.newBlockingStub(channel).generateDescription(
+                com.ghatana.audio.video.multimodal.grpc.proto.DescriptionRequest.newBuilder()
+                        .setImageData(ByteString.copyFrom(new byte[] {0x01}))
+                        .build()));
+        verifyNoInteractions(engine, adapter);
     }
 
     @Test
@@ -410,8 +339,24 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
     // ── TenantInjector: injects tenant into gRPC context server-side ──────────
 
     /** Explicit local fixture admission; never used by production construction. */
-    private static SourceAuthorization admitTestFixtureOnly() {
-        return request -> SourceAuthorization.Decision.ADMITTED;
+    private SourceAuthorization admitTestFixtureOnly() {
+        return request -> {
+            authorizationCalls.incrementAndGet();
+            return SourceAuthorization.Decision.ADMITTED;
+        };
+    }
+
+    private void assertFamilyOperationNotAdmitted(Runnable rpc) {
+        int callsBefore = authorizationCalls.get();
+        assertThatThrownBy(rpc::run)
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(error -> {
+                    StatusRuntimeException status = (StatusRuntimeException) error;
+                    assertThat(status.getStatus().getCode()).isEqualTo(Status.Code.FAILED_PRECONDITION);
+                    assertThat(status.getStatus().getDescription())
+                            .startsWith("MULTIMODAL_FAMILY_NOT_ADMITTED:");
+                });
+        assertThat(authorizationCalls).hasValue(callsBefore + 1);
     }
 
     private static final class TenantInjector implements ServerInterceptor {

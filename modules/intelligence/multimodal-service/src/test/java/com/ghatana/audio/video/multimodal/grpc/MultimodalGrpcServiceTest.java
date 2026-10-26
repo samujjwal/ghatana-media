@@ -63,6 +63,89 @@ class MultimodalGrpcServiceTest {
         lenient().when(mockAdapter.metricsEnabled()).thenReturn(false); 
     }
 
+    @Test
+    @DisplayName("frame serialization preserves known source PTS when milliseconds cannot be represented")
+    void frameTimestampSerializationHandlesUnrepresentableMilliseconds() {
+        var timestamp = new com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp(
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.Status.KNOWN,
+                Long.MAX_VALUE,
+                Long.MAX_VALUE,
+                1L,
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE,
+                "video-clock-1",
+                null);
+        var frame = new com.ghatana.audio.video.multimodal.engine.FrameResult(7, timestamp, List.of());
+
+        FrameAnalysis serialized = MultimodalGrpcService.toFrameAnalysis(frame);
+
+        assertThat(serialized.getTimestampStatus()).isEqualTo(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_KNOWN);
+        assertThat(serialized.hasTimestampMs()).isFalse();
+        assertThat(serialized.hasSourcePts()).isTrue();
+        assertThat(serialized.getSourcePts()).isEqualTo(Long.MAX_VALUE);
+        assertThat(serialized.getTimeBaseNumerator()).isEqualTo(Long.MAX_VALUE);
+        assertThat(serialized.getTimeBaseDenominator()).isEqualTo(1L);
+        assertThat(serialized.getDescription()).contains("millisecond projection unavailable");
+    }
+
+    @Test
+    @DisplayName("frame serialization preserves negative source PTS when milliseconds overflow")
+    void frameTimestampSerializationHandlesNegativeMillisecondOverflow() {
+        var timestamp = new com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp(
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.Status.KNOWN,
+                Long.MIN_VALUE,
+                Long.MAX_VALUE,
+                1L,
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE,
+                "video-clock-1",
+                null);
+        var frame = new com.ghatana.audio.video.multimodal.engine.FrameResult(8, timestamp, List.of());
+
+        FrameAnalysis serialized = MultimodalGrpcService.toFrameAnalysis(frame);
+
+        assertThat(serialized.getTimestampStatus()).isEqualTo(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_KNOWN);
+        assertThat(serialized.hasTimestampMs()).isFalse();
+        assertThat(serialized.hasSourcePts()).isTrue();
+        assertThat(serialized.getSourcePts()).isEqualTo(Long.MIN_VALUE);
+        assertThat(serialized.getTimeBaseNumerator()).isEqualTo(Long.MAX_VALUE);
+        assertThat(serialized.getTimeBaseDenominator()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("frame serialization omits source PTS for a known media clock")
+    void frameTimestampSerializationPreservesNonSourceClockDomain() {
+        var frame = new com.ghatana.audio.video.multimodal.engine.FrameResult(
+                9,
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.mediaMilliseconds(125L),
+                List.of());
+
+        FrameAnalysis serialized = MultimodalGrpcService.toFrameAnalysis(frame);
+
+        assertThat(serialized.getTimestampStatus()).isEqualTo(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_KNOWN);
+        assertThat(serialized.hasTimestampMs()).isTrue();
+        assertThat(serialized.getTimestampMs()).isEqualTo(125L);
+        assertThat(serialized.hasSourcePts()).isFalse();
+        assertThat(serialized.getClockDomain()).isEqualTo(FrameAnalysis.ClockDomain.MEDIA);
+    }
+
+    @Test
+    @DisplayName("frame serialization preserves unknown reason without invented clock fields")
+    void frameTimestampSerializationPreservesUnknownTimestampReason() {
+        var frame = new com.ghatana.audio.video.multimodal.engine.FrameResult(
+                10,
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.unknown("source PTS missing"),
+                List.of());
+
+        FrameAnalysis serialized = MultimodalGrpcService.toFrameAnalysis(frame);
+
+        assertThat(serialized.getTimestampStatus()).isEqualTo(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_UNKNOWN);
+        assertThat(serialized.getTimestampUnknownReason()).isEqualTo("source PTS missing");
+        assertThat(serialized.hasTimestampMs()).isFalse();
+        assertThat(serialized.hasSourcePts()).isFalse();
+        assertThat(serialized.hasTimeBaseNumerator()).isFalse();
+        assertThat(serialized.hasTimeBaseDenominator()).isFalse();
+        assertThat(serialized.getClockDomain()).isEqualTo(FrameAnalysis.ClockDomain.CLOCK_DOMAIN_UNSPECIFIED);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // processMultimodal (AV-004) 
     // ─────────────────────────────────────────────────────────────────────────

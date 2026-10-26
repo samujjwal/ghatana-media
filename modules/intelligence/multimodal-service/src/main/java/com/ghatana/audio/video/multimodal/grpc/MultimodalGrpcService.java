@@ -323,33 +323,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             if (result.getVideoResult() != null && result.getVideoResult().getFrameResults() != null) {
                 for (com.ghatana.audio.video.multimodal.engine.FrameResult fr
                         : result.getVideoResult().getFrameResults()) {
-                    FrameAnalysis.Builder fa = FrameAnalysis.newBuilder()
-                            .setDescription(fr.hasTimestamp()
-                                    ? "Frame " + fr.getFrameNumber() + " at " + fr.getTimestampMs() + "ms"
-                                    : "Frame " + fr.getFrameNumber() + " at unknown source time");
-                    if (fr.hasTimestamp()) {
-                        var timestamp = fr.getTimestamp();
-                        fa.setTimestampMs(fr.getTimestampMs())
-                                .setTimestampStatus(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_KNOWN)
-                                .setTimeBaseNumerator(timestamp.timeBaseNumerator())
-                                .setTimeBaseDenominator(timestamp.timeBaseDenominator())
-                                .setClockDomain(toProtoClockDomain(timestamp.domain()));
-                        if (timestamp.domain() == com.ghatana.audio.video.multimodal.engine
-                                .MediaClockTimestamp.ClockDomain.SOURCE) {
-                            fa.setSourcePts(timestamp.ticks());
-                        }
-                    } else {
-                        fa.setTimestampStatus(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_UNKNOWN)
-                                .setTimestampUnknownReason(fr.getTimestamp().unknownReason());
-                    }
-                    for (com.ghatana.audio.video.multimodal.engine.DetectionResult d
-                            : fr.getDetections()) {
-                        fa.addObjects(Detection.newBuilder()
-                                .setClassName(d.getClassName())
-                                .setConfidence(d.getConfidence())
-                                .build());
-                    }
-                    responseBuilder.addFrameAnalyses(fa.build());
+                    responseBuilder.addFrameAnalyses(toFrameAnalysis(fr));
                 }
             }
 
@@ -950,6 +924,42 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         if (video) result.add(SourceAuthorization.Modality.VIDEO);
         if (text) result.add(SourceAuthorization.Modality.TEXT);
         return Set.copyOf(result);
+    }
+
+    /** Serialize a frame timestamp without overflowing its optional millisecond projection. */
+    static FrameAnalysis toFrameAnalysis(com.ghatana.audio.video.multimodal.engine.FrameResult frame) {
+        var timestamp = frame.getTimestamp();
+        var timestampMs = frame.getRepresentableTimestampMs();
+        String description = frame.hasTimestamp()
+                ? timestampMs.isPresent()
+                        ? "Frame " + frame.getFrameNumber() + " at " + timestampMs.getAsLong() + "ms"
+                        : "Frame " + frame.getFrameNumber()
+                                + " at a known timestamp (millisecond projection unavailable)"
+                : "Frame " + frame.getFrameNumber() + " at unknown source time";
+        FrameAnalysis.Builder result = FrameAnalysis.newBuilder().setDescription(description);
+
+        if (frame.hasTimestamp()) {
+            result.setTimestampStatus(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_KNOWN)
+                    .setTimeBaseNumerator(timestamp.timeBaseNumerator())
+                    .setTimeBaseDenominator(timestamp.timeBaseDenominator())
+                    .setClockDomain(toProtoClockDomain(timestamp.domain()));
+            if (timestampMs.isPresent()) result.setTimestampMs(timestampMs.getAsLong());
+            if (timestamp.domain() == com.ghatana.audio.video.multimodal.engine
+                    .MediaClockTimestamp.ClockDomain.SOURCE) {
+                result.setSourcePts(timestamp.ticks());
+            }
+        } else {
+            result.setTimestampStatus(FrameAnalysis.TimestampStatus.TIMESTAMP_STATUS_UNKNOWN)
+                    .setTimestampUnknownReason(timestamp.unknownReason());
+        }
+
+        for (com.ghatana.audio.video.multimodal.engine.DetectionResult detection : frame.getDetections()) {
+            result.addObjects(Detection.newBuilder()
+                    .setClassName(detection.getClassName())
+                    .setConfidence(detection.getConfidence())
+                    .build());
+        }
+        return result.build();
     }
 
     private static FrameAnalysis.ClockDomain toProtoClockDomain(
