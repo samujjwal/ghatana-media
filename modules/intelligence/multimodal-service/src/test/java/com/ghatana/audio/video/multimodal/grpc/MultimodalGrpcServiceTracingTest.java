@@ -23,6 +23,9 @@ import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Scope;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,6 +47,34 @@ class MultimodalGrpcServiceTracingTest {
     private static final String TENANT = "tenant-private-multimodal-7401";
     private static final String SUBJECT = "d7fe98ce-75d3-4a2a-8a04-bb54e23a2f15";
     private static final String CONTENT = "content-private-multimodal-8832";
+
+    @Test
+    void responseBoundaryRecordsOnlyDeliveredResultWithBoundedTags() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        Metrics.globalRegistry.add(registry);
+        try {
+            TraceFixture tracing = new TraceFixture();
+            MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
+            when(engine.analyse(any())).thenReturn(success());
+            MultimodalGrpcService service = service(engine, tracing);
+            Observer<MultimodalResponse> observer = new Observer<>();
+
+            withTenant(() -> service.processMultimodal(audioRequest(), observer));
+
+            Timer delivered = registry.find("media.modality.boundary.duration")
+                    .tag("service", "multimodal").tag("modality", "multimodal")
+                    .tag("boundary", "response").tag("outcome", "success").timer();
+            assertThat(observer.completed).isTrue();
+            assertThat(delivered).isNotNull();
+            assertThat(delivered.count()).isEqualTo(1);
+            assertThat(delivered.getId().getTags()).noneMatch(tag ->
+                    java.util.List.of("tenant", "subject", "request_id", "content", "text")
+                            .contains(tag.getKey()));
+        } finally {
+            Metrics.globalRegistry.remove(registry);
+            registry.close();
+        }
+    }
 
     @Test
     void dispatchSpanIsCurrentForEngineAndEndsOnSuccessWithoutExportingIdentityOrContent() {
@@ -89,6 +120,71 @@ class MultimodalGrpcServiceTracingTest {
         verify(tracing.span).setAttribute("error.type", "StatusRuntimeException");
         verify(tracing.span).end();
         verify(tracing.span, never()).setAttribute(eq("provider.error"), anyString());
+    }
+
+    @Test
+    void ambiguousExecutorFailureIsUnknownAndDoesNotBlindlyRetryAnotherBinding() {
+        TraceFixture tracing = new TraceFixture();
+        MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
+        when(engine.analyse(any())).thenReturn(success());
+        java.util.List<String> requestIds = new java.util.ArrayList<>();
+        CanonicalOperationExecutor executor = new CanonicalOperationExecutor() {
+            @Override
+            public <T> T execute(com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding binding,
+                                 String operationRef, java.util.concurrent.Callable<T> action) throws Exception {
+                requestIds.add(binding.getRequestId());
+                if (binding.getRequestId().equals("request-ambiguous")) {
+                    throw new java.io.IOException("executor response lost");
+                }
+                return action.call();
+            }
+        };
+        MultimodalGrpcService service = service(engine, tracing, MediaProcessingMetrics.noop(), executor);
+        Observer<MultimodalResponse> ambiguous = new Observer<>();
+        Observer<MultimodalResponse> independent = new Observer<>();
+
+        withTenant(() -> service.processMultimodal(audioRequest("request-ambiguous"), ambiguous));
+        assertThat(ambiguous.error).isInstanceOf(io.grpc.StatusRuntimeException.class);
+        assertThat(((io.grpc.StatusRuntimeException) ambiguous.error).getStatus().getCode())
+                .isEqualTo(io.grpc.Status.Code.UNKNOWN);
+        assertThat(((io.grpc.StatusRuntimeException) ambiguous.error).getStatus().getDescription())
+                .contains("do not resubmit without authoritative operation status");
+        assertThat(requestIds).containsExactly("request-ambiguous");
+        verify(tracing.span).setAttribute("media.outcome", "unknown");
+
+        withTenant(() -> service.processMultimodal(audioRequest("request-independent"), independent));
+
+        assertThat(independent.completed).isTrue();
+        assertThat(requestIds).containsExactly("request-ambiguous", "request-independent");
+        verify(engine).analyse(any());
+    }
+
+    @Test
+    void interruptedExecutorRestoresInterruptAndReportsUnknown() {
+        TraceFixture tracing = new TraceFixture();
+        MultimodalAnalysisEngine engine = mock(MultimodalAnalysisEngine.class);
+        CanonicalOperationExecutor executor = new CanonicalOperationExecutor() {
+            @Override
+            public <T> T execute(com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding binding,
+                                 String operationRef, java.util.concurrent.Callable<T> action)
+                    throws InterruptedException {
+                throw new InterruptedException("executor interrupted after handoff");
+            }
+        };
+        MultimodalGrpcService service = service(engine, tracing, MediaProcessingMetrics.noop(), executor);
+        Observer<MultimodalResponse> observer = new Observer<>();
+
+        try {
+            withTenant(() -> service.processMultimodal(audioRequest(), observer));
+
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            assertThat(observer.error).isInstanceOf(io.grpc.StatusRuntimeException.class);
+            assertThat(((io.grpc.StatusRuntimeException) observer.error).getStatus().getCode())
+                    .isEqualTo(io.grpc.Status.Code.UNKNOWN);
+            verify(engine, never()).analyse(any());
+        } finally {
+            Thread.interrupted();
+        }
     }
 
     @Test
@@ -274,12 +370,18 @@ class MultimodalGrpcServiceTracingTest {
 
     private static MultimodalGrpcService service(MultimodalAnalysisEngine engine, TraceFixture tracing,
                                                   MediaProcessingMetrics metrics) {
+        return service(engine, tracing, metrics, fixtureExecutor());
+    }
+
+    private static MultimodalGrpcService service(MultimodalAnalysisEngine engine, TraceFixture tracing,
+                                                  MediaProcessingMetrics metrics,
+                                                  CanonicalOperationExecutor executor) {
         PlatformMultimodalAdapter adapter = mock(PlatformMultimodalAdapter.class);
         when(adapter.backendName()).thenReturn("test-backend");
         when(adapter.metricsEnabled()).thenReturn(false);
         return new MultimodalGrpcService(engine, adapter,
                 metrics, request -> SourceAuthorization.Decision.ADMITTED,
-                new AudioVideoTracingService(tracing.tracer), fixtureExecutor());
+                new AudioVideoTracingService(tracing.tracer), executor);
     }
 
     private static MultimodalRequest audioRequest() {
@@ -295,6 +397,12 @@ class MultimodalGrpcServiceTracingTest {
                         .setPurpose("trace fixture")
                         .build())
                 .build();
+    }
+
+    private static MultimodalRequest audioRequest(String requestId) {
+        MultimodalRequest original = audioRequest();
+        return original.toBuilder().setOperationBinding(original.getOperationBinding().toBuilder()
+                .setRequestId(requestId)).build();
     }
 
     private static CanonicalOperationExecutor fixtureExecutor() {

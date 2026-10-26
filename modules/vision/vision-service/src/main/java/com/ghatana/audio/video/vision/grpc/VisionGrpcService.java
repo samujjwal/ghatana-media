@@ -232,32 +232,27 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             tracingService.recordVisionDetectionResult(trace, detectedObjects.size(),
                     detectedObjects.stream().mapToDouble(DetectedObject::getConfidence).max().orElse(Double.NaN));
 
-            DetectResponse.Builder responseBuilder = DetectResponse.newBuilder();
-
-            for (DetectedObject obj : detectedObjects) {
-                Detection detection = Detection.newBuilder()
-                    .setClassName(obj.getClassName())
-                    .setConfidence(obj.getConfidence())
-                    .setBoundingBox(com.ghatana.audio.video.vision.grpc.proto.BoundingBox.newBuilder()
-                        .setX(obj.getBoundingBox().getX())
-                        .setY(obj.getBoundingBox().getY())
-                        .setWidth(obj.getBoundingBox().getWidth())
-                        .setHeight(obj.getBoundingBox().getHeight())
-                        .build())
-                    .putAllAttributes(convertAttributes(obj.getAttributes()))
-                    .build();
-
-                responseBuilder.addDetections(detection);
-            }
-
             long processingTime = System.currentTimeMillis() - startTime;
             totalProcessingTime.addAndGet(processingTime);
             mediaMetrics.recordSucceeded("vision.detect", processingTime);
-
-            responseBuilder.setProcessingTimeMs(processingTime);
-
-            responseObserver.onNext(responseBuilder.build());
-            responseObserver.onCompleted();
+            recordResponseBoundary(() -> {
+                DetectResponse.Builder responseBuilder = DetectResponse.newBuilder();
+                for (DetectedObject obj : detectedObjects) {
+                    Detection detection = Detection.newBuilder()
+                        .setClassName(obj.getClassName())
+                        .setConfidence(obj.getConfidence())
+                        .setBoundingBox(com.ghatana.audio.video.vision.grpc.proto.BoundingBox.newBuilder()
+                            .setX(obj.getBoundingBox().getX())
+                            .setY(obj.getBoundingBox().getY())
+                            .setWidth(obj.getBoundingBox().getWidth())
+                            .setHeight(obj.getBoundingBox().getHeight())
+                            .build())
+                        .putAllAttributes(convertAttributes(obj.getAttributes()))
+                        .build();
+                    responseBuilder.addDetections(detection);
+                }
+                return responseBuilder.setProcessingTimeMs(processingTime).build();
+            }, responseObserver);
 
             LOG.info("Detected {} objects in {}ms", detectedObjects.size(), processingTime);
 
@@ -326,6 +321,37 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             return result;
         } finally {
             modalityMetrics.stopModalityTimer(sample, outcome);
+        }
+    }
+
+    /** Measures response mapping and observer delivery, keeping ambiguous transport failures UNKNOWN. */
+    private <T> void recordResponseBoundary(Supplier<T> responseMapping, StreamObserver<T> observer) {
+        MediaWorkflowMetrics.ModalityTimingSample sample = modalityMetrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.RESPONSE);
+        MediaWorkflowMetrics.Outcome outcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+        try {
+            T response;
+            try {
+                response = responseMapping.get();
+            } catch (InvalidProviderMappingException invalidMapping) {
+                outcome = MediaWorkflowMetrics.Outcome.FAILURE;
+                throw invalidMapping;
+            } catch (RuntimeException mappingFailure) {
+                outcome = MediaWorkflowMetrics.Outcome.FAILURE;
+                throw mappingFailure;
+            }
+            if (Context.current().isCancelled()) return;
+            observer.onNext(response);
+            observer.onCompleted();
+            if (!Context.current().isCancelled()) outcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+        } finally {
+            modalityMetrics.stopModalityTimer(sample, outcome);
+        }
+    }
+
+    private static final class InvalidProviderMappingException extends RuntimeException {
+        private InvalidProviderMappingException() {
+            super("Provider attributes cannot be mapped to the Vision response contract");
         }
     }
 
@@ -610,8 +636,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .setSummary(generateVideoSummary(aggregatedCounts, frames.size(),
                     metadata.getDurationSeconds()));
 
-            responseObserver.onNext(responseBuilder.build());
-            responseObserver.onCompleted();
+            recordResponseBoundary(responseBuilder::build, responseObserver);
 
             LOG.info("Video analysis completed: {} frames, {}ms", frames.size(), processingTime);
 
@@ -978,8 +1003,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 map.put("source.orientation", attributes.getOrientation());
             }
             if (attributes.getAdditionalProperties() != null) {
-                attributes.getAdditionalProperties().forEach((key, value) ->
-                        map.put(key, value == null ? "UNAVAILABLE" : String.valueOf(value)));
+                attributes.getAdditionalProperties().forEach((key, value) -> {
+                    if (key == null) throw new InvalidProviderMappingException();
+                    map.put(key, value == null ? "UNAVAILABLE" : String.valueOf(value));
+                });
             }
         }
         return map;

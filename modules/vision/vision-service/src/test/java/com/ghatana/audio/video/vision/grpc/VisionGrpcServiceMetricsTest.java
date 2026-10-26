@@ -11,6 +11,7 @@ import com.ghatana.audio.video.vision.grpc.proto.*;
 import com.ghatana.audio.video.vision.model.BoundingBox;
 import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
+import com.ghatana.audio.video.vision.model.ObjectAttributes;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
@@ -26,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -120,6 +122,41 @@ class VisionGrpcServiceMetricsTest {
 
         assertThat(observer.error).isNull();
         assertProviderTimer("success", 1);
+        assertResponseTimer("success", 1);
+    }
+
+    @Test
+    @DisplayName("detectObjects invalid provider response mapping records response failure")
+    void detectObjects_invalidProviderMappingRecordsResponseFailure() {
+        MapWithNullKey attributes = new MapWithNullKey();
+        fakeDetector.results = List.of(DetectedObject.builder()
+                .className("car").confidence(0.9)
+                .boundingBox(BoundingBox.builder().x(0).y(0).width(10).height(10).build())
+                .attributes(ObjectAttributes.builder().additionalProperties(attributes.map).build())
+                .build());
+        SimpleObserver<DetectResponse> observer = new SimpleObserver<>();
+
+        withContext("tenant-metrics-test", () -> service.detectObjects(
+                DetectRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build(), observer));
+
+        assertThat(observer.error).isNotNull();
+        assertResponseTimer("failure", 1);
+    }
+
+    @Test
+    @DisplayName("detectObjects ambiguous observer completion records response UNKNOWN")
+    void detectObjects_observerCompletionThrowsRecordsResponseUnknown() {
+        fakeDetector.results = validDetections();
+        SimpleObserver<DetectResponse> observer = new SimpleObserver<>() {
+            @Override public void onCompleted() { throw new IllegalStateException("ambiguous delivery"); }
+        };
+
+        withContext("tenant-metrics-test", () -> service.detectObjects(
+                DetectRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build(), observer));
+
+        assertThat(observer.value).isNotNull();
+        assertThat(observer.error).isNull();
+        assertResponseTimer("unknown", 1);
     }
 
     @Test
@@ -151,6 +188,7 @@ class VisionGrpcServiceMetricsTest {
                 DetectRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[]{1})).build(), observer));
 
         assertProviderTimer("unknown", 1);
+        assertResponseTimer("unknown", 1);
     }
 
     @Test
@@ -166,6 +204,7 @@ class VisionGrpcServiceMetricsTest {
         assertThat(observer.error).isNull();
         assertDecodeBoundary("success");
         assertProviderTimer("success", 1);
+        assertResponseTimer("success", 1);
     }
 
     @Test
@@ -278,6 +317,22 @@ class VisionGrpcServiceMetricsTest {
         });
     }
 
+    private void assertResponseTimer(String outcome, long expectedCount) {
+        Timer timer = meterRegistry.find("media.modality.boundary.duration")
+                .tags("modality", "vision", "service", "vision", "boundary", "response",
+                        "execution_class", "control", "outcome", outcome, "contract_version", "v1").timer();
+        assertThat(timer).isNotNull();
+        assertThat(timer.count()).isEqualTo(expectedCount);
+        assertThat(timer.getId().getTags()).extracting("key")
+                .containsExactlyInAnyOrder("modality", "service", "boundary", "execution_class",
+                        "outcome", "contract_version");
+        assertThat(meterRegistry.getMeters()).allSatisfy(meter -> {
+            assertThat(meter.getId().getTag("tenant")).isNull();
+            assertThat(meter.getId().getTag("request")).isNull();
+            assertThat(meter.getId().getTag("content")).isNull();
+        });
+    }
+
     private List<DetectedObject> validDetections() {
         return List.of(DetectedObject.builder().className("car").confidence(0.9)
                 .boundingBox(BoundingBox.builder().x(0).y(0).width(10).height(10).build()).build());
@@ -344,5 +399,10 @@ class VisionGrpcServiceMetricsTest {
 
     private static void withContext(String tenantId, Runnable action) {
         Context.current().withValue(JwtServerInterceptor.CTX_TENANT, tenantId).run(action);
+    }
+
+    private static final class MapWithNullKey {
+        private final java.util.Map<String, Object> map = new HashMap<>();
+        private MapWithNullKey() { map.put(null, "invalid"); }
     }
 }

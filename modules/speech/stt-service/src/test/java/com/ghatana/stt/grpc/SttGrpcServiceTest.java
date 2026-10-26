@@ -116,6 +116,7 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
         assertDecodeBoundary("success");
         assertProviderBoundary("success");
+        assertResponseBoundary("success");
     }
 
     @Test
@@ -182,6 +183,7 @@ class SttGrpcServiceTest {
                 .setAudioData(ByteString.copyFrom(new byte[]{1, 2, 3, 4})).setSampleRate(16_000).build(), observer);
 
         assertProviderBoundary("unknown");
+        assertResponseBoundary("unknown");
     }
 
     private void assertProviderBoundary(String outcome) {
@@ -196,6 +198,27 @@ class SttGrpcServiceTest {
         assertThat(timer.count()).isEqualTo(1);
         assertThat(timer.getId().getTags()).extracting("key")
                 .doesNotContain("tenant", "tenant_id", "content", "request_id");
+    }
+
+    private void assertResponseBoundary(String outcome) {
+        var timer = meterRegistry.get("media.modality.boundary.duration")
+                .tag("modality", "stt")
+                .tag("service", "stt")
+                .tag("boundary", "response")
+                .tag("execution_class", "control")
+                .tag("outcome", outcome)
+                .tag("contract_version", "v1")
+                .timer();
+        assertThat(timer.count()).isEqualTo(1);
+        assertThat(timer.getId().getTags()).extracting("key")
+                .containsExactlyInAnyOrder("modality", "service", "boundary", "execution_class",
+                        "outcome", "contract_version");
+        assertThat(meterRegistry.getMeters()).allSatisfy(meter -> {
+            assertThat(meter.getId().getTag("tenant")).isNull();
+            assertThat(meter.getId().getTag("tenant_id")).isNull();
+            assertThat(meter.getId().getTag("request_id")).isNull();
+            assertThat(meter.getId().getTag("content")).isNull();
+        });
     }
 
     private void assertDecodeBoundary(String outcome) {
@@ -271,6 +294,7 @@ class SttGrpcServiceTest {
                 .isEqualTo(Status.INTERNAL.getCode());
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getDescription())
                 .isEqualTo("Invalid transcription result");
+        assertResponseBoundary("failure");
     }
 
     @Test

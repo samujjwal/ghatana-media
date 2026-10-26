@@ -5,6 +5,7 @@ import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.audio.video.multimodal.engine.AudioVideoProcessingError;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
 import com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapter;
@@ -68,6 +69,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final MediaProcessingRuntimePort mediaRuntimePort;
     private final CanonicalOperationExecutor canonicalOperationExecutor;
     private final AudioVideoTracingService tracingService;
+    private final MediaWorkflowMetrics responseMetrics = new MediaWorkflowMetrics(
+            io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal");
     private volatile BooleanSupplier readinessProbe = () -> false;
 
     public MultimodalGrpcService() {
@@ -316,6 +319,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         } catch (Exception e) {
             LOG.warn("Multimodal processing failed ({})", e.getClass().getSimpleName());
             mediaMetrics.recordFailed("multimodal.analyse");
+            if (e instanceof OperationOutcomeUnknownException) trace.markUnknownOutcome();
             responseObserver.onError(safeFailureStatus(e, "Multimodal processing failed").asRuntimeException());
         }
     }
@@ -425,6 +429,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
         } catch (Exception e) {
             LOG.warn("Video with audio analysis failed ({})", e.getClass().getSimpleName());
+            if (e instanceof OperationOutcomeUnknownException) trace.markUnknownOutcome();
             responseObserver.onError(safeFailureStatus(e, "Video-audio analysis failed").asRuntimeException());
         }
     }
@@ -522,6 +527,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
         } catch (Exception e) {
             LOG.warn("Description generation failed ({})", e.getClass().getSimpleName());
+            if (e instanceof OperationOutcomeUnknownException) trace.markUnknownOutcome();
             responseObserver.onError(safeFailureStatus(e, "Description generation failed").asRuntimeException());
         }
     }
@@ -624,6 +630,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
         } catch (Exception e) {
             LOG.warn("Cross-modal analysis failed ({})", e.getClass().getSimpleName());
+            if (e instanceof OperationOutcomeUnknownException) trace.markUnknownOutcome();
             responseObserver.onError(safeFailureStatus(e, "Cross-modal analysis failed").asRuntimeException());
         }
     }
@@ -782,11 +789,21 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     private Status safeFailureStatus(Exception exception, String context) {
+        if (exception instanceof OperationOutcomeUnknownException) {
+            return Status.UNKNOWN.withDescription(
+                    "MULTIMODAL_OPERATION_OUTCOME_UNKNOWN: do not resubmit without authoritative operation status");
+        }
         Status classified = toStatus(exception, context);
         String message = exception instanceof IllegalArgumentException
                 ? "Request validation failed"
                 : "Analysis could not be completed";
         return classified.withDescription(message);
+    }
+
+    private static final class OperationOutcomeUnknownException extends Exception {
+        private OperationOutcomeUnknownException(Exception cause) {
+            super("Multimodal executor outcome is unknown", cause);
+        }
     }
 
     private Identity requireIdentity(StreamObserver<?> observer) {
@@ -855,7 +872,16 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private <T> T executeCanonical(CanonicalOperationBinding binding, String operationRef,
                                    Callable<T> action) throws Exception {
         if (canonicalOperationExecutor == null) throw multimodalFamilyNotAdmitted();
-        return canonicalOperationExecutor.execute(binding, operationRef, action);
+        try {
+            return canonicalOperationExecutor.execute(binding, operationRef, action);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new OperationOutcomeUnknownException(interrupted);
+        } catch (Exception executorFailure) {
+            // After handoff, Media cannot tell a pre-dispatch failure from a completed effect
+            // whose response was lost. Preserve that uncertainty instead of inviting a retry.
+            throw new OperationOutcomeUnknownException(executorFailure);
+        }
     }
 
     private static RuntimeException multimodalFamilyNotAdmitted() {
@@ -1024,49 +1050,55 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         /** Serialize final delivery, success span closure, and success metrics with cancellation. */
         private boolean completeResponse(T value, Runnable recordSuccess) {
             synchronized (callbackLock) {
-                if (terminal) {
-                    return false;
-                }
-                if (transportCancelled()) {
-                    terminal = true;
+                MediaWorkflowMetrics.ModalityTimingSample responseBoundary = responseMetrics.startModalityTimer(
+                        MediaWorkflowMetrics.Modality.MULTIMODAL, MediaWorkflowMetrics.Boundary.RESPONSE);
+                MediaWorkflowMetrics.Outcome responseOutcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+                try {
+                    if (terminal) return false;
+                    if (transportCancelled()) {
+                        terminal = true;
+                        try (Scope ignored = context.makeCurrent()) {
+                            finishUnknownWhileCurrent();
+                        }
+                        return false;
+                    }
                     try (Scope ignored = context.makeCurrent()) {
-                        finishUnknownWhileCurrent();
-                    }
-                    return false;
-                }
-                try (Scope ignored = context.makeCurrent()) {
-                    try {
-                        delegate.onNext(value);
-                    } catch (RuntimeException | Error observerFailure) {
-                        terminal = true;
-                        finishUnknownWhileCurrent();
-                        throw observerFailure;
-                    }
-                    if (terminal || transportCancelled()) {
-                        if (!terminal) {
+                        try {
+                            delegate.onNext(value);
+                        } catch (RuntimeException | Error observerFailure) {
                             terminal = true;
                             finishUnknownWhileCurrent();
+                            throw observerFailure;
                         }
-                        return false;
-                    }
-                    try {
-                        delegate.onCompleted();
-                    } catch (RuntimeException | Error observerFailure) {
-                        terminal = true;
-                        finishUnknownWhileCurrent();
-                        throw observerFailure;
-                    }
-                    if (terminal || transportCancelled()) {
-                        if (!terminal) {
+                        if (terminal || transportCancelled()) {
+                            if (!terminal) {
+                                terminal = true;
+                                finishUnknownWhileCurrent();
+                            }
+                            return false;
+                        }
+                        try {
+                            delegate.onCompleted();
+                        } catch (RuntimeException | Error observerFailure) {
                             terminal = true;
                             finishUnknownWhileCurrent();
+                            throw observerFailure;
                         }
-                        return false;
+                        if (terminal || transportCancelled()) {
+                            if (!terminal) {
+                                terminal = true;
+                                finishUnknownWhileCurrent();
+                            }
+                            return false;
+                        }
+                        terminal = true;
+                        tracingService.recordSuccess(span, elapsedMillis());
+                        recordSuccess.run();
+                        responseOutcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+                        return true;
                     }
-                    terminal = true;
-                    tracingService.recordSuccess(span, elapsedMillis());
-                    recordSuccess.run();
-                    return true;
+                } finally {
+                    responseMetrics.stopModalityTimer(responseBoundary, responseOutcome);
                 }
             }
         }
@@ -1083,6 +1115,15 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 span.setAttribute("duration.ms", elapsedMillis());
             } finally {
                 span.end();
+            }
+        }
+
+        private void markUnknownOutcome() {
+            synchronized (callbackLock) {
+                if (terminal) return;
+                try (Scope ignored = context.makeCurrent()) {
+                    span.setAttribute("media.outcome", "unknown");
+                }
             }
         }
 

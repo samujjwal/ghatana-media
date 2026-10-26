@@ -237,22 +237,41 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     }
                 }
 
-                if (isCancelled(responseObserver)) {
-                    trace.finishUnknown();
-                    return;
-                }
+                try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
+                             instrumentation.beginBoundaryMeasurement(
+                                     MediaWorkflowMetrics.Modality.TTS,
+                                     MediaWorkflowMetrics.Boundary.RESPONSE)) {
+                    if (isCancelled(responseObserver)) {
+                        trace.finishUnknown();
+                        return;
+                    }
 
-                long elapsed = System.currentTimeMillis() - startedAt;
-                long durationMs = facts.duration().toMillis();
-                LOG.info("TTS synthesis completed in {}ms", elapsed);
-                trace.observer.onNext(SynthesizeResponse.newBuilder()
-                        .setAudioData(com.google.protobuf.ByteString.copyFrom(audio.data()))
-                        .setSampleRate(audio.sampleRate())
-                        .setDurationMs(Math.toIntExact(durationMs))
-                        .setProcessingTimeMs((int) elapsed)
-                        .setVoiceUsed(options.voiceId() == null ? "" : options.voiceId())
-                        .build());
-                trace.observer.onCompleted();
+                    final SynthesizeResponse response;
+                    try {
+                        long elapsed = System.currentTimeMillis() - startedAt;
+                        long durationMs = facts.duration().toMillis();
+                        LOG.info("TTS synthesis completed in {}ms", elapsed);
+                        response = SynthesizeResponse.newBuilder()
+                                .setAudioData(com.google.protobuf.ByteString.copyFrom(audio.data()))
+                                .setSampleRate(audio.sampleRate())
+                                .setDurationMs(Math.toIntExact(durationMs))
+                                .setProcessingTimeMs((int) elapsed)
+                                .setVoiceUsed(options.voiceId() == null ? "" : options.voiceId())
+                                .build();
+                    } catch (RuntimeException responseMappingFailure) {
+                        responseBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                        throw responseMappingFailure;
+                    }
+
+                    try {
+                        trace.observer.onNext(response);
+                        trace.observer.onCompleted();
+                        responseBoundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                    } catch (RuntimeException ambiguousDelivery) {
+                        responseBoundary.complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                        throw ambiguousDelivery;
+                    }
+                }
             } catch (RuntimeException exception) {
                 fail(trace.observer, "Synthesis", exception);
             }
@@ -537,20 +556,39 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             List<VoiceInfo> voices = request.getLanguage().isBlank()
                     ? engine.getAvailableVoices()
                     : engine.getAvailableVoices(Locale.forLanguageTag(request.getLanguage()));
-            GetVoicesResponse.Builder builder = GetVoicesResponse.newBuilder();
-            for (VoiceInfo voice : voices) {
-                builder.addVoices(com.ghatana.tts.core.grpc.proto.VoiceInfo.newBuilder()
-                        .setVoiceId(voice.voiceId())
-                        .setName(voice.name())
-                        .setDescription(voice.description() == null ? "" : voice.description())
-                        .addLanguages(voice.language().toLanguageTag())
-                        .setGender(voice.gender() == null ? "" : voice.gender().name())
-                        .setIsCloned(voice.isCloned())
-                        .setSizeBytes(voice.modelSizeBytes())
-                        .build());
+            try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
+                         instrumentation.beginBoundaryMeasurement(
+                                 MediaWorkflowMetrics.Modality.TTS,
+                                 MediaWorkflowMetrics.Boundary.RESPONSE)) {
+                final GetVoicesResponse response;
+                try {
+                    GetVoicesResponse.Builder builder = GetVoicesResponse.newBuilder();
+                    for (VoiceInfo voice : voices) {
+                        builder.addVoices(com.ghatana.tts.core.grpc.proto.VoiceInfo.newBuilder()
+                                .setVoiceId(voice.voiceId())
+                                .setName(voice.name())
+                                .setDescription(voice.description() == null ? "" : voice.description())
+                                .addLanguages(voice.language().toLanguageTag())
+                                .setGender(voice.gender() == null ? "" : voice.gender().name())
+                                .setIsCloned(voice.isCloned())
+                                .setSizeBytes(voice.modelSizeBytes())
+                                .build());
+                    }
+                    response = builder.build();
+                } catch (RuntimeException responseMappingFailure) {
+                    responseBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                    throw responseMappingFailure;
+                }
+
+                try {
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                    responseBoundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                } catch (RuntimeException ambiguousDelivery) {
+                    responseBoundary.complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                    throw ambiguousDelivery;
+                }
             }
-            responseObserver.onNext(builder.build());
-            responseObserver.onCompleted();
         } catch (RuntimeException exception) {
             fail(responseObserver, "Voice listing", exception);
         }

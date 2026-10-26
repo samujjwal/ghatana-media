@@ -457,6 +457,14 @@ class TtsGrpcServiceTest {
         assertThat(provider.count()).isEqualTo(1);
         assertThat(provider.getId().getTags()).extracting("key")
                 .doesNotContain("tenant", "text", "content", "voice", "provider_id");
+        Timer response = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "success").timer();
+        assertThat(response).isNotNull();
+        assertThat(response.count()).isEqualTo(1);
+        assertThat(response.getId().getTags()).extracting("key")
+                .doesNotContain("tenant", "request", "content", "text", "voice", "provider_id");
     }
 
     @Test
@@ -494,6 +502,10 @@ class TtsGrpcServiceTest {
         assertThat(provider.count()).isEqualTo(1);
         assertThat(registry.find("media.modality.boundary.duration")
                 .tag("modality", "tts").tag("boundary", "provider").tag("outcome", "success").timer()).isNull();
+        Timer response = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "response").tag("outcome", "unknown").timer();
+        assertThat(response).isNotNull();
+        assertThat(response.count()).isEqualTo(1);
         verify(observer, never()).onNext(any());
         verify(observer, never()).onCompleted();
     }
@@ -1143,9 +1155,59 @@ class TtsGrpcServiceTest {
         assertThat(voices.value.getVoices(0).getVoiceId()).isEqualTo("voice-1");
         assertThat(voices.value.getVoices(0).getDescription()).isEqualTo("provider voice");
         assertThat(voices.value.getVoices(0).getGender()).isEqualTo("NEUTRAL");
+        Timer response = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "success").timer();
+        assertThat(response).isNotNull();
+        assertThat(response.count()).isEqualTo(1);
+        assertThat(response.getId().getTags()).extracting("key")
+                .doesNotContain("tenant", "request", "content", "text");
         verify(library).getTtsEngine();
         verify(engine, never()).loadVoice(anyString());
         verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
+    void getVoicesResponseMappingFailureRecordsResponseFailure() {
+        VoiceInfo malformedVoice = new VoiceInfo(
+                "voice-1", "Voice One", "provider voice", null,
+                VoiceInfo.Gender.NEUTRAL, 16_000, false, 1024, 0.9f);
+        when(engine.getAvailableVoices()).thenReturn(List.of(malformedVoice));
+        CapturingObserver<GetVoicesResponse> observer = new CapturingObserver<>();
+
+        service.getVoices(GetVoicesRequest.getDefaultInstance(), observer);
+
+        assertThat(observer.value).isNull();
+        assertThat(observer.error).isNotNull();
+        Timer responseFailure = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "response")
+                .tag("outcome", "failure").timer();
+        assertThat(responseFailure).isNotNull();
+        assertThat(responseFailure.count()).isEqualTo(1);
+    }
+
+    @Test
+    void getVoicesObserverExceptionRecordsResponseUnknown() {
+        when(engine.getAvailableVoices()).thenReturn(List.of());
+        StreamObserver<GetVoicesResponse> observer = new StreamObserver<>() {
+            @Override public void onNext(GetVoicesResponse value) {
+                throw new IllegalStateException("delivery outcome is ambiguous");
+            }
+            @Override public void onError(Throwable error) {}
+            @Override public void onCompleted() {}
+        };
+
+        service.getVoices(GetVoicesRequest.getDefaultInstance(), observer);
+
+        Timer responseUnknown = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "response")
+                .tag("outcome", "unknown").timer();
+        assertThat(responseUnknown).isNotNull();
+        assertThat(responseUnknown.count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "response")
+                .tag("outcome", "success").timer()).isNull();
     }
 
     @Test

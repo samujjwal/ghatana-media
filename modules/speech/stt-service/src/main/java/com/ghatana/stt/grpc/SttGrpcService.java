@@ -168,14 +168,32 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                     }
                 }
 
-                if (isCancelled(responseObserver)) {
-                    tracedObserver.finishUnknown();
-                    return;
-                }
+                try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
+                             boundaryInstrumentation.beginBoundaryMeasurement(
+                                     MediaWorkflowMetrics.Modality.STT,
+                                     MediaWorkflowMetrics.Boundary.RESPONSE)) {
+                    if (isCancelled(responseObserver)) {
+                        tracedObserver.finishUnknown();
+                        return;
+                    }
 
-                TranscribeResponse.Builder mapped = SttTranscriptionResponseMapper.toProto(result, audio);
-                tracedObserver.onNext(mapped.build());
-                tracedObserver.onCompleted();
+                    final TranscribeResponse response;
+                    try {
+                        response = SttTranscriptionResponseMapper.toProto(result, audio).build();
+                    } catch (SttTranscriptionResponseMapper.InvalidResultException invalidResult) {
+                        responseBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                        throw invalidResult;
+                    }
+
+                    try {
+                        tracedObserver.onNext(response);
+                        tracedObserver.onCompleted();
+                        responseBoundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                    } catch (RuntimeException ambiguousDelivery) {
+                        responseBoundary.complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                        throw ambiguousDelivery;
+                    }
+                }
             } catch (SttTranscriptionResponseMapper.InvalidResultException e) {
                 tracedObserver.onError(io.grpc.Status.INTERNAL
                         .withDescription("Invalid transcription result").asRuntimeException());
