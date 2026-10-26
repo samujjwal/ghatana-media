@@ -197,6 +197,12 @@ class SttTranscriptionResponseMapperTest {
     void rejectsNonFiniteOrOutOfRangeConfidenceAndUnboundedAlternatives() {
         assertInvalid(result(Double.NaN, List.of(), List.of()), Duration.ofSeconds(1), "confidence");
         assertInvalid(result(1.01, List.of(), List.of()), Duration.ofSeconds(1), "confidence");
+        assertInvalid(result(0.5,
+                        List.of(new WordTiming("nan-score", 0.0, 0.1, Double.NaN)), List.of()),
+                Duration.ofSeconds(1), "word timing confidence");
+        assertInvalid(result(0.5,
+                        List.of(new WordTiming("out-of-range-score", 0.0, 0.1, 1.01)), List.of()),
+                Duration.ofSeconds(1), "word timing confidence");
         assertInvalid(result(0.5, List.of(), List.of(new Alternative("alt", Double.POSITIVE_INFINITY))),
                 Duration.ofSeconds(1), "alternative confidence");
         assertInvalid(result(0.5, List.of(), alternativesOverLimit()), Duration.ofSeconds(1), "alternative count");
