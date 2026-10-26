@@ -1,9 +1,13 @@
 package com.ghatana.audio.video.vision.recognition;
 
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * Facial recognition service for the Vision pipeline (AV-009.1).
@@ -29,18 +33,27 @@ public final class FacialRecognitionService {
     private final double detectionConfidenceThreshold;
     private final boolean recognitionEnabled;
     private final FacialRecognitionAuditSink auditSink;
+    private final BiometricAdmissionResolver admissionResolver;
+    private final Supplier<JwtServerInterceptor.VerifiedIdentity> verifiedIdentity;
+    private final Clock clock;
 
     private FacialRecognitionService(
             FaceRecognitionModel model,
             double identificationThreshold,
             double detectionConfidenceThreshold,
             boolean recognitionEnabled,
-            FacialRecognitionAuditSink auditSink) {
+            FacialRecognitionAuditSink auditSink,
+            BiometricAdmissionResolver admissionResolver,
+            Supplier<JwtServerInterceptor.VerifiedIdentity> verifiedIdentity,
+            Clock clock) {
         this.model = model;
         this.identificationThreshold = identificationThreshold;
         this.detectionConfidenceThreshold = detectionConfidenceThreshold;
         this.recognitionEnabled = recognitionEnabled;
         this.auditSink = auditSink;
+        this.admissionResolver = admissionResolver;
+        this.verifiedIdentity = Objects.requireNonNull(verifiedIdentity, "verifiedIdentity");
+        this.clock = Objects.requireNonNull(clock, "clock");
     }
 
     /**
@@ -52,7 +65,36 @@ public final class FacialRecognitionService {
      */
     public static FacialRecognitionService of(FaceRecognitionModel model) {
         Objects.requireNonNull(model, "model must not be null");
-        return new FacialRecognitionService(model, 0.85, 0.5, true, FacialRecognitionAuditSink.noop());
+        return new FacialRecognitionService(model, 0.85, 0.5, true, FacialRecognitionAuditSink.noop(),
+                null, JwtServerInterceptor::verifiedIdentity, Clock.systemUTC());
+    }
+
+    /**
+     * Creates a service with an authority resolver supplied by the trusted application composition.
+     * The resolver must bind the verified transport identity and every request reference to current
+     * source rights, biometric purpose, consent/revocation, processing region, and retention policy.
+     *
+     * <p>Without a resolver, or without a verified gRPC identity, restricted provider calls remain
+     * unavailable. Request labels are selectors for authority lookup and never grant permission.</p>
+     */
+    public static FacialRecognitionService of(
+            FaceRecognitionModel model,
+            BiometricAdmissionResolver admissionResolver) {
+        Objects.requireNonNull(model, "model must not be null");
+        Objects.requireNonNull(admissionResolver, "admissionResolver must not be null");
+        return new FacialRecognitionService(model, 0.85, 0.5, true, FacialRecognitionAuditSink.noop(),
+                admissionResolver, JwtServerInterceptor::verifiedIdentity, Clock.systemUTC());
+    }
+
+    /** Test-only composition seam for exercising authenticated request decisions without a gRPC server. */
+    static FacialRecognitionService ofForTesting(
+            FaceRecognitionModel model,
+            BiometricAdmissionResolver admissionResolver,
+            Supplier<JwtServerInterceptor.VerifiedIdentity> verifiedIdentity,
+            Clock clock) {
+        Objects.requireNonNull(model, "model must not be null");
+        return new FacialRecognitionService(model, 0.85, 0.5, true, FacialRecognitionAuditSink.noop(),
+                admissionResolver, verifiedIdentity, clock);
     }
 
     /**
@@ -69,7 +111,8 @@ public final class FacialRecognitionService {
         if (identificationThreshold < 0 || identificationThreshold > 1) {
             throw new IllegalArgumentException("identificationThreshold must be in [0, 1]");
         }
-        return new FacialRecognitionService(model, identificationThreshold, 0.5, true, FacialRecognitionAuditSink.noop());
+        return new FacialRecognitionService(model, identificationThreshold, 0.5, true,
+                FacialRecognitionAuditSink.noop(), null, JwtServerInterceptor::verifiedIdentity, Clock.systemUTC());
     }
 
     public static FacialRecognitionService of(
@@ -91,7 +134,10 @@ public final class FacialRecognitionService {
                 identificationThreshold,
                 detectionConfidenceThreshold,
                 recognitionEnabled,
-                auditSink);
+                auditSink,
+                null,
+                JwtServerInterceptor::verifiedIdentity,
+                Clock.systemUTC());
     }
 
     // ─── detect ───────────────────────────────────────────────────────────────
@@ -110,6 +156,49 @@ public final class FacialRecognitionService {
             throw new IllegalArgumentException("imageBytes must not be empty");
         }
         throw new NotAdmittedException();
+    }
+
+    /**
+     * Performs sensitive face detection only after a fresh authority decision for this request.
+     * This overload is intentionally unavailable unless the trusted composition supplied a resolver.
+     */
+    public List<FaceDetection> detect(byte[] imageBytes, BiometricRequest request) {
+        Objects.requireNonNull(imageBytes, "imageBytes must not be null");
+        Objects.requireNonNull(request, "request must not be null");
+        if (imageBytes.length == 0) throw new IllegalArgumentException("imageBytes must not be empty");
+        if (request.operation() != BiometricOperation.FACE_DETECTION) throw new NotAdmittedException();
+        requireAdmission(request);
+        return List.copyOf(Objects.requireNonNull(model.detectFaces(imageBytes), "face model result"));
+    }
+
+    private void requireAdmission(BiometricRequest request) {
+        JwtServerInterceptor.VerifiedIdentity identity = verifiedIdentity.get();
+        if (admissionResolver == null || identity == null
+                || identity.subject() == null || identity.subject().isBlank()
+                || identity.tenantId() == null || identity.tenantId().isBlank()) {
+            throw new NotAdmittedException();
+        }
+        Instant now = clock.instant();
+        final BiometricAdmission admission;
+        try {
+            admission = admissionResolver.resolve(identity, request);
+        } catch (RuntimeException unavailable) {
+            throw new NotAdmittedException();
+        }
+        if (admission == null || !admission.allowed()
+                || !identity.tenantId().equals(admission.tenantId())
+                || !identity.subject().equals(admission.principalId())
+                || !request.operation().equals(admission.operation())
+                || !request.sourceArtifactId().equals(admission.sourceArtifactId())
+                || !request.sourceVersion().equals(admission.sourceVersion())
+                || !request.purpose().equals(admission.purpose())
+                || !request.region().equals(admission.region())
+                || !request.retentionPolicy().equals(admission.retentionPolicy())
+                || admission.decisionRef() == null || admission.decisionRef().isBlank()
+                || admission.checkedAt() == null || admission.checkedAt().isAfter(now)
+                || admission.expiresAt() == null || !admission.expiresAt().isAfter(now)) {
+            throw new NotAdmittedException();
+        }
     }
 
     /**
@@ -146,6 +235,64 @@ public final class FacialRecognitionService {
         public NotAdmittedException() {
             super("NOT_ADMITTED: trusted biometric rights authority is unavailable");
         }
+    }
+
+    /** Trusted authority boundary. Production composition must back this with current source/rights policy. */
+    @FunctionalInterface
+    public interface BiometricAdmissionResolver {
+        BiometricAdmission resolve(JwtServerInterceptor.VerifiedIdentity identity, BiometricRequest request);
+    }
+
+    public enum BiometricOperation {
+        FACE_DETECTION,
+        FACE_LANDMARKS,
+        GAZE_ANALYSIS,
+        EXPRESSION_ANALYSIS,
+        FACE_IDENTIFICATION
+    }
+
+    /** Untrusted operation/source/policy selectors; each must be echoed by the trusted decision. */
+    public record BiometricRequest(
+            BiometricOperation operation,
+            String sourceArtifactId,
+            String sourceVersion,
+            String purpose,
+            String region,
+            String retentionPolicy) {
+        public BiometricRequest {
+            Objects.requireNonNull(operation, "operation");
+            sourceArtifactId = required(sourceArtifactId, "sourceArtifactId");
+            sourceVersion = required(sourceVersion, "sourceVersion");
+            purpose = required(purpose, "purpose");
+            region = required(region, "region");
+            retentionPolicy = required(retentionPolicy, "retentionPolicy");
+        }
+    }
+
+    /** Authority-owned, request-scoped decision. The resolver must recheck revocation before each call. */
+    public record BiometricAdmission(
+            boolean allowed,
+            String tenantId,
+            String principalId,
+            BiometricOperation operation,
+            String sourceArtifactId,
+            String sourceVersion,
+            String purpose,
+            String region,
+            String retentionPolicy,
+            String decisionRef,
+            Instant checkedAt,
+            Instant expiresAt,
+            String denialReason) {
+        public static BiometricAdmission denied(String reason) {
+            return new BiometricAdmission(false, "", "", null, "", "", "", "", "", "",
+                    null, null, required(reason, "reason"));
+        }
+    }
+
+    private static String required(String value, String field) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " is required");
+        return value.trim();
     }
 
     // ─── domain types ─────────────────────────────────────────────────────────

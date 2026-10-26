@@ -97,7 +97,7 @@ class SttGrpcServerCompositionTest {
             assertThat(emitted).hasValue(0);
             assertThat(failure.get()).isInstanceOf(io.grpc.StatusRuntimeException.class)
                     .matches(error -> io.grpc.Status.fromThrowable(error).getCode() == io.grpc.Status.Code.FAILED_PRECONDITION)
-                    .hasMessageContaining("STT_STREAM_CONSENT_NOT_ADMITTED");
+                    .hasMessageContaining("STT_RIGHTS_NOT_ADMITTED");
             assertThat(service.isProviderReady()).isFalse();
             verify(library, never()).getSttEngine();
             verify(trace.tracer).spanBuilder("audiovideo.grpc.streaming");

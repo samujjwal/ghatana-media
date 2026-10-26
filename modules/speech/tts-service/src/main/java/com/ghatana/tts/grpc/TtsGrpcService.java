@@ -1,5 +1,6 @@
 package com.ghatana.tts.grpc;
 
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
@@ -60,6 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
+import java.util.function.BiPredicate;
 
 /**
  * TTS gRPC façade over an injected, lifecycle-owned {@link AudioVideoLibrary}.
@@ -87,8 +89,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     private final AudioVideoGrpcInstrumentation instrumentation;
     private final AudioVideoTracingService tracingService;
     private final BooleanSupplier synthesisAdmitted;
+    private final BiPredicate<String, Locale> admittedVoiceLanguage;
     private final BooleanSupplier streamingAdmitted;
     private final Duration streamingTimeoutOverride;
+    private final TtsRequestAuthorization requestAuthorization;
 
     /** Package-private injection constructor for production wrappers, persistence, and tests. */
     TtsGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
@@ -128,9 +132,63 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             BooleanSupplier streamingAdmitted,
             Duration streamingTimeoutOverride,
             AudioVideoTracingService tracingService) {
+        this(library, metrics, synthesisAdmitted, streamingAdmitted, streamingTimeoutOverride,
+                tracingService, TtsRequestAuthorization.unavailable());
+    }
+
+    /** Package-private authorization seam; production composition retains the unavailable default. */
+    TtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            BooleanSupplier synthesisAdmitted,
+            BooleanSupplier streamingAdmitted,
+            Duration streamingTimeoutOverride,
+            AudioVideoTracingService tracingService,
+            TtsRequestAuthorization requestAuthorization) {
+        this(library, metrics, synthesisAdmitted, streamingAdmitted, streamingTimeoutOverride,
+                tracingService, requestAuthorization, (voiceId, language) -> synthesisAdmitted.getAsBoolean());
+    }
+
+    /** Production composition binds the trusted decision to the exact admitted voice/language pair. */
+    TtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            BooleanSupplier synthesisAdmitted,
+            BooleanSupplier streamingAdmitted,
+            Duration streamingTimeoutOverride,
+            BiPredicate<String, Locale> admittedVoiceLanguage) {
+        this(library, metrics, synthesisAdmitted, streamingAdmitted, streamingTimeoutOverride,
+                new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-tts")),
+                TtsRequestAuthorization.unavailable(), admittedVoiceLanguage);
+    }
+
+    /** Controlled composition seam for a trusted request authorizer and exact provider profile. */
+    TtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            BooleanSupplier synthesisAdmitted,
+            BooleanSupplier streamingAdmitted,
+            Duration streamingTimeoutOverride,
+            TtsRequestAuthorization requestAuthorization,
+            BiPredicate<String, Locale> admittedVoiceLanguage) {
+        this(library, metrics, synthesisAdmitted, streamingAdmitted, streamingTimeoutOverride,
+                new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-tts")),
+                requestAuthorization, admittedVoiceLanguage);
+    }
+
+    private TtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            BooleanSupplier synthesisAdmitted,
+            BooleanSupplier streamingAdmitted,
+            Duration streamingTimeoutOverride,
+            AudioVideoTracingService tracingService,
+            TtsRequestAuthorization requestAuthorization,
+            BiPredicate<String, Locale> admittedVoiceLanguage) {
         this.library = Objects.requireNonNull(library, "library");
         Objects.requireNonNull(metrics, "metrics");
         this.synthesisAdmitted = Objects.requireNonNull(synthesisAdmitted, "synthesisAdmitted");
+        this.admittedVoiceLanguage = Objects.requireNonNull(admittedVoiceLanguage, "admittedVoiceLanguage");
         this.streamingAdmitted = Objects.requireNonNull(streamingAdmitted, "streamingAdmitted");
         if (streamingTimeoutOverride != null
                 && (streamingTimeoutOverride.isZero() || streamingTimeoutOverride.isNegative())) {
@@ -138,6 +196,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         }
         this.streamingTimeoutOverride = streamingTimeoutOverride;
         this.tracingService = Objects.requireNonNull(tracingService, "tracingService");
+        this.requestAuthorization = Objects.requireNonNull(requestAuthorization, "requestAuthorization");
         this.instrumentation = new AudioVideoGrpcInstrumentation(null, new MediaWorkflowMetrics(metrics, "tts"));
         this.synthesizeTimer = Timer.builder("tts.synthesize")
                 .description("Synthesis latency")
@@ -162,9 +221,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             try {
                 String text = validateText(request.getText());
                 SynthesisControlPolicy.rejectUnqualifiedSsml(text);
-                requireAuthorizedVoiceSelection(request);
                 SynthesisOptions options = options(request);
                 requireAdmittedVoiceLanguage(options.voiceId(), options.language());
+                requireAuthorizedVoiceSelection(request, TtsRequestAuthorization.Operation.SYNTHESIZE);
                 AudioData audio;
                 PcmAudioValidator.PcmFacts facts;
                 try (AudioVideoGrpcInstrumentation.BoundaryMeasurement boundary =
@@ -252,7 +311,6 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         try {
             String text = validateText(request.getText());
             SynthesisControlPolicy.rejectUnqualifiedSsml(text);
-            requireAuthorizedVoiceSelection(request);
             SynthesisOptions synthesisOptions = options(request);
             if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
                 recordDuration.run();
@@ -266,6 +324,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 trace.finishUnknown();
                 return;
             }
+            requireAuthorizedVoiceSelection(request, TtsRequestAuthorization.Operation.STREAM_SYNTHESIZE);
             TtsEngine engine = library.getTtsEngine();
             AtomicInteger expectedSequence = new AtomicInteger();
             AtomicBoolean finalChunkSeen = new AtomicBoolean();
@@ -319,19 +378,24 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                             if (format == null) {
                                 throw new IllegalStateException("TTS provider emitted audio before declaring its format");
                             }
+                            if (chunk == null || chunk.data() == null) {
+                                throw new IllegalStateException("TTS provider emitted a null audio chunk");
+                            }
+                            byte[] providerData = chunk.data();
+                            if (providerData.length == 0 || providerData.length > MAX_STREAM_CHUNK_BYTES) {
+                                throw new IllegalStateException("TTS stream chunk exceeds the admitted non-empty 64 KiB bound");
+                            }
                             // The shared chunk value carries a mutable byte array. Snapshot it at
                             // the callback boundary because the final chunk is retained until
                             // asynchronous session completion and providers may reuse buffers.
-                            byte[] chunkData = chunk.data().clone();
+                            // Enforce the size ceiling before copying provider-owned memory.
+                            byte[] chunkData = providerData.clone();
                             com.ghatana.media.common.AudioChunk chunkSnapshot =
                                     new com.ghatana.media.common.AudioChunk(
                                             chunkData,
                                             chunk.sequenceNumber(),
                                             chunk.isLast(),
                                             chunk.timestampMs());
-                            if (chunkData.length == 0 || chunkData.length > MAX_STREAM_CHUNK_BYTES) {
-                                throw new IllegalStateException("TTS stream chunk exceeds the admitted non-empty 64 KiB bound");
-                            }
                             if (chunkData.length % (format.channels() * (format.bitsPerSample() / 8)) != 0) {
                                 throw new IllegalStateException("TTS stream chunk ends inside an audio frame");
                             }
@@ -580,11 +644,11 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         return SynthesisControlPolicy.resolve(request, outputFormat);
     }
 
-    private static void requireAuthorizedVoiceSelection(SynthesizeRequest request) {
-        if (!request.getVoiceId().isBlank() || !request.getProfileId().isBlank()) {
-            throw new UnsupportedOperationException(
-                    "Voice/profile selection is NOT_ADMITTED without an authoritative owner, rights and consent decision");
-        }
+    private void requireAuthorizedVoiceSelection(
+            SynthesizeRequest request, TtsRequestAuthorization.Operation operation) {
+        TtsRequestAuthorization.requireAdmission(requestAuthorization,
+                JwtServerInterceptor.verifiedIdentity(), operation,
+                request.getVoiceId(), request.getProfileId());
     }
 
     /**
@@ -593,7 +657,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
      * fail before engine lookup instead of allowing a provider to silently select a substitute.
      */
     private void requireAdmittedVoiceLanguage(String voiceId, Locale language) {
-        if (synthesisAdmitted.getAsBoolean()) return;
+        if (synthesisAdmitted.getAsBoolean() && admittedVoiceLanguage.test(voiceId, language)) return;
         String requestedVoice = voiceId == null || voiceId.isBlank() ? "default" : "explicit";
         String requestedLanguage = language == null ? "unspecified" : language.toLanguageTag();
         throw new TtsSynthesisEngine.SynthesisException(
@@ -762,7 +826,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             String operation,
             RuntimeException exception) {
         Status status;
-        if (exception instanceof TtsSynthesisEngine.SynthesisException synthesis
+        if (exception instanceof TtsRequestAuthorization.AuthorizationException authorization) {
+            status = authorization.status();
+        } else if (exception instanceof TtsSynthesisEngine.SynthesisException synthesis
                 && synthesis.reason() == TtsSynthesisEngine.FailureReason.NOT_ADMITTED) {
             status = Status.UNAVAILABLE;
         } else if (exception instanceof ValidationError || exception instanceof IllegalArgumentException) {
@@ -777,7 +843,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             status = Status.INTERNAL;
         }
         LOG.error("TTS {} failed (type={})", operation, exception.getClass().getSimpleName());
-        String description = switch (status.getCode()) {
+        String description = exception instanceof TtsRequestAuthorization.AuthorizationException authorization
+                ? authorization.getMessage()
+                : switch (status.getCode()) {
             case UNAVAILABLE -> "TTS_NOT_ADMITTED: synthesis provider or capability is unavailable";
             case INVALID_ARGUMENT -> "Invalid TTS synthesis request";
             case UNIMPLEMENTED -> "TTS_NOT_ADMITTED: requested TTS capability is unsupported";

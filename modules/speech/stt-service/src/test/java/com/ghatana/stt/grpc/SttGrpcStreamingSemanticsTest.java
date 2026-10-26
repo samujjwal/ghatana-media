@@ -16,6 +16,8 @@ import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import io.grpc.stub.ClientCallStreamObserver;
+import io.grpc.stub.ClientResponseObserver;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +49,8 @@ class SttGrpcStreamingSemanticsTest {
                 .isEqualTo(6);
         assertThat(Transcription.getDescriptor().findFieldByName("durable_resume_enabled").getNumber())
                 .isEqualTo(9);
+        assertThat(Transcription.getDefaultInstance().getDurableResumeEnabled()).isFalse();
+        assertThat(Transcription.getDefaultInstance().getAcceptedSequenceSnapshot()).isZero();
     }
 
     @Test
@@ -79,7 +83,8 @@ class SttGrpcStreamingSemanticsTest {
     void validIdentityStillFailsClosedWithoutTrustedPurposeAndConsentRuntime() {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         RecordingObserver<Transcription> response = new RecordingObserver<>();
-        SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry());
+        SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry(),
+                request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
 
         withIdentity("tenant-a", "00000000-0000-0000-0000-000000000001", () -> {
             StreamObserver<AudioChunk> request = service.streamTranscribe(response);
@@ -88,7 +93,7 @@ class SttGrpcStreamingSemanticsTest {
         });
 
         assertStatus(response, Status.FAILED_PRECONDITION);
-        assertThat(response.error.getMessage()).contains("STT_STREAM_CONSENT_NOT_ADMITTED");
+        assertThat(response.error.getMessage()).contains("STT_STREAM_SESSION_NOT_ADMITTED");
         assertThat(response.values).isEmpty();
         verifyNoInteractions(library);
     }
@@ -106,7 +111,8 @@ class SttGrpcStreamingSemanticsTest {
             String subject = "00000000-0000-0000-0000-000000000001";
             String serverName = InProcessServerBuilder.generateName();
             AudioVideoLibrary library = mock(AudioVideoLibrary.class);
-            SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry());
+            SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry(),
+                    request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
             server = InProcessServerBuilder.forName(serverName)
                     .directExecutor()
                     .addService(service)
@@ -135,7 +141,54 @@ class SttGrpcStreamingSemanticsTest {
             assertThat(completed.await(2, TimeUnit.SECONDS)).isTrue();
             assertThat(failure.get()).isInstanceOf(StatusRuntimeException.class);
             assertThat(Status.fromThrowable(failure.get()).getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
-            assertThat(Status.fromThrowable(failure.get()).getDescription()).contains("STT_STREAM_CONSENT_NOT_ADMITTED");
+            assertThat(Status.fromThrowable(failure.get()).getDescription()).contains("STT_STREAM_SESSION_NOT_ADMITTED");
+            assertThat(responses).isEmpty();
+            verifyNoInteractions(library);
+        } finally {
+            if (channel != null) {
+                channel.shutdownNow();
+                channel.awaitTermination(2, TimeUnit.SECONDS);
+            }
+            if (server != null) {
+                server.shutdownNow();
+                server.awaitTermination(2, TimeUnit.SECONDS);
+            }
+            restoreProperty("AV_JWT_SECRET", previousSecret);
+            restoreProperty("AUTH_GATEWAY_URL", previousGatewayUrl);
+        }
+    }
+
+    @Test
+    void clientCancellationCannotCreateDurableSessionOrProviderEffect() throws Exception {
+        String previousSecret = System.getProperty("AV_JWT_SECRET");
+        String previousGatewayUrl = System.getProperty("AUTH_GATEWAY_URL");
+        Server server = null;
+        ManagedChannel channel = null;
+        try {
+            System.setProperty("AV_JWT_SECRET", TEST_SECRET);
+            System.setProperty("AUTH_GATEWAY_URL", "");
+            String serverName = InProcessServerBuilder.generateName();
+            AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+            SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry(),
+                    request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
+            server = InProcessServerBuilder.forName(serverName).directExecutor()
+                    .addService(service).intercept(new JwtServerInterceptor()).build().start();
+            channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+
+            CountDownLatch terminal = new CountDownLatch(1);
+            List<Transcription> responses = new ArrayList<>();
+            STTServiceGrpc.newStub(channel).withInterceptors(
+                    authorization(signedTestJwt("tenant-stream-test", "00000000-0000-0000-0000-000000000001")))
+                    .streamTranscribe(new ClientResponseObserver<>() {
+                        @Override public void beforeStart(ClientCallStreamObserver<AudioChunk> requestStream) {
+                            requestStream.cancel("fixture cancellation", null);
+                        }
+                        @Override public void onNext(Transcription value) { responses.add(value); }
+                        @Override public void onError(Throwable error) { terminal.countDown(); }
+                        @Override public void onCompleted() { terminal.countDown(); }
+                    });
+
+            assertThat(terminal.await(2, TimeUnit.SECONDS)).isTrue();
             assertThat(responses).isEmpty();
             verifyNoInteractions(library);
         } finally {

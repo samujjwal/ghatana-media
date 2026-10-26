@@ -51,6 +51,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     private final AudioVideoGrpcInstrumentation boundaryInstrumentation;
     private final AudioVideoTracingService tracingService;
     private final int maxAudioLengthSeconds;
+    private final SttRequestAuthorization requestAuthorization;
     private volatile BooleanSupplier readinessProbe = this::isProviderReady;
 
     // AV-P1-004: Supported languages and sample-rate bounds (mirrors PersistentSttService constants).
@@ -63,17 +64,32 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
      */
     SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
         this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS,
-                GlobalOpenTelemetry.getTracer("ghatana-media-stt"));
+                GlobalOpenTelemetry.getTracer("ghatana-media-stt"), SttRequestAuthorization.unavailable());
     }
 
     SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, Tracer tracer) {
-        this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS, tracer);
+        this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS, tracer,
+                SttRequestAuthorization.unavailable());
+    }
+
+    SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics,
+            SttRequestAuthorization requestAuthorization) {
+        this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS,
+                GlobalOpenTelemetry.getTracer("ghatana-media-stt"), requestAuthorization);
+    }
+
+    SttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, Tracer tracer,
+            SttRequestAuthorization requestAuthorization) {
+        this(library, metrics, SttAudioInputDecoder.DEFAULT_MAX_AUDIO_LENGTH_SECONDS, tracer,
+                requestAuthorization);
     }
 
     private SttGrpcService(
-            AudioVideoLibrary library, MeterRegistry metrics, int maxAudioLengthSeconds, Tracer tracer) {
+            AudioVideoLibrary library, MeterRegistry metrics, int maxAudioLengthSeconds, Tracer tracer,
+            SttRequestAuthorization requestAuthorization) {
         this.library = library;
         this.maxAudioLengthSeconds = maxAudioLengthSeconds;
+        this.requestAuthorization = Objects.requireNonNull(requestAuthorization, "requestAuthorization");
         this.tracingService = new AudioVideoTracingService(Objects.requireNonNull(tracer, "tracer"));
         this.boundaryInstrumentation = new AudioVideoGrpcInstrumentation(
                 null, new MediaWorkflowMetrics(metrics, "stt"));
@@ -82,13 +98,6 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
             .publishPercentiles(0.50, 0.95, 0.99)
             .publishPercentileHistogram()
             .register(metrics);
-    }
-
-    /**
-     * Public test hook for constructing the service with an injected library.
-     */
-    public static SttGrpcService forTesting(AudioVideoLibrary library, MeterRegistry metrics) {
-        return new SttGrpcService(library, metrics);
     }
 
     public SttGrpcService(MeterRegistry metrics) {
@@ -101,6 +110,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
         this.library = AudioVideoLibrary.builder().withSttConfig(config).build();
         this.maxAudioLengthSeconds = config.maxAudioLengthSeconds();
+        this.requestAuthorization = SttRequestAuthorization.unavailable();
         this.tracingService = new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-stt"));
         this.boundaryInstrumentation = new AudioVideoGrpcInstrumentation(
                 null, new MediaWorkflowMetrics(metrics, "stt"));
@@ -116,6 +126,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.TRANSCRIBE, request.getArtifactId())) return;
         Span span = tracingService.startTranscriptionSpan(null, null, request.getLanguage());
         TracingObserver<TranscribeResponse> tracedObserver = new TracingObserver<>(
                 responseObserver, tracingService, span);
@@ -256,15 +267,20 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
         Span span = tracingService.startGrpcStreamingSpan("StreamTranscribe", tenantId);
         long startedNanos = System.nanoTime();
 
-        // Stream-session state is owned by MediaRuntime and requires a trusted consent/purpose
-        // decision. This service has neither runtime injection nor an admission authority, so it
-        // must stop before creating a model session or dispatching audio.
+        if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.STREAM_TRANSCRIBE, null)) {
+            tracingService.recordError(span, new IllegalStateException("stream authorization denied"),
+                    java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos));
+            return noOpAudioObserver();
+        }
+
+        // No durable session store/provider session is wired to this service. Do not accept chunks
+        // or imply ACK, reconnect, resume, or cancellation finality without that authority.
         try {
             responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
-                    .withDescription("STT_STREAM_CONSENT_NOT_ADMITTED: trusted purpose and consent admission are unavailable")
+                    .withDescription("STT_STREAM_SESSION_NOT_ADMITTED: durable session store, ACK/resume epoch, and provider session are unavailable")
                     .asRuntimeException());
         } finally {
-            tracingService.recordError(span, new IllegalStateException("stream admission unavailable"),
+            tracingService.recordError(span, new IllegalStateException("durable stream session unavailable"),
                     java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos));
         }
         return noOpAudioObserver();
@@ -301,6 +317,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void getStatus(StatusRequest request, StreamObserver<StatusResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.READ_STATUS, null)) return;
         try (SttEngine stt = library.getSttEngine()) {
             com.ghatana.media.common.EngineStatus status = stt.getStatus();
             responseObserver.onNext(StatusResponse.newBuilder()
@@ -337,6 +354,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void loadModel(LoadModelRequest request, StreamObserver<LoadModelResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.LOAD_MODEL, request.getModelId())) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
@@ -378,6 +396,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void unloadModel(UnloadModelRequest request, StreamObserver<UnloadModelResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.UNLOAD_MODEL, request.getModelId())) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
             responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
@@ -413,6 +432,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.LIST_MODELS, null)) return;
         try (SttEngine stt = library.getSttEngine()) {
             List<com.ghatana.media.stt.api.ModelInfo> models = stt.getAvailableModels();
             com.ghatana.media.stt.api.ModelInfo activeModel = stt.getActiveModel();
@@ -482,6 +502,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void createProfile(CreateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver,
+                SttRequestAuthorization.Operation.CREATE_SPEAKER_IDENTITY, null)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -490,6 +512,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void getProfile(GetProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver,
+                SttRequestAuthorization.Operation.READ_SPEAKER_IDENTITY, request.getProfileId())) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -498,6 +522,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void updateProfile(UpdateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver,
+                SttRequestAuthorization.Operation.UPDATE_SPEAKER_IDENTITY, request.getProfileId())) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -534,6 +560,40 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
             return false;
         }
         return true;
+    }
+
+    protected final boolean authorizeRequest(StreamObserver<?> observer, SttRequestAuthorization.Operation operation,
+            String resourceId) {
+        JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
+        if (identity == null) {
+            observer.onError(io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("STT_IDENTITY_REQUIRED: verified server identity is required")
+                    .asRuntimeException());
+            return false;
+        }
+        SttRequestAuthorization.Decision decision;
+        try {
+            decision = requestAuthorization.authorize(new SttRequestAuthorization.Request(
+                    identity, operation, resourceId));
+        } catch (RuntimeException failure) {
+            decision = SttRequestAuthorization.Decision.UNAVAILABLE;
+        }
+        if (decision == null) decision = SttRequestAuthorization.Decision.UNAVAILABLE;
+        if (decision == SttRequestAuthorization.Decision.ADMITTED) return true;
+        String code = switch (decision) {
+            case REVOKED -> "STT_RIGHTS_REVOKED";
+            case DENIED -> "STT_RIGHTS_DENIED";
+            case UNAVAILABLE -> "STT_RIGHTS_NOT_ADMITTED";
+            case ADMITTED -> throw new IllegalStateException("admitted decision handled above");
+        };
+        io.grpc.Status status = decision == SttRequestAuthorization.Decision.UNAVAILABLE
+                ? io.grpc.Status.FAILED_PRECONDITION : io.grpc.Status.PERMISSION_DENIED;
+        observer.onError(status
+                .withDescription(code + (decision == SttRequestAuthorization.Decision.UNAVAILABLE
+                        ? ": trusted rights and ownership authority is unavailable"
+                        : ": trusted rights and ownership policy denied the request"))
+                .asRuntimeException());
+        return false;
     }
 
     private static String failureType(Throwable error) {

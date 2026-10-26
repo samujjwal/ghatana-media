@@ -23,10 +23,10 @@ import java.util.function.Function;
 /**
  * Production composition for {@link TtsGrpcService}.
  *
- * <p>Provider admission is checked before an embedded engine is constructed or warmed. The current
- * provider resolver remains {@code NOT_ADMITTED}, so production composition fails closed at that
- * check. Synthetic fallback is not a production synthesis path. Production-like profiles also
- * require a durable profile storage path because profile routes are part of the exposed contract.
+ * <p>Provider admission is checked before an embedded engine is constructed or warmed. Production
+ * uses the unavailable resolver until a source-authoritative provider and voice resolver is wired;
+ * test composition can inject an explicitly local fixture resolver. Synthetic fallback is never a
+ * production synthesis path. Production-like profiles also require durable profile storage.
  *
  * @doc.type class
  * @doc.purpose Fail-closed TTS gRPC composition and owned library lifecycle
@@ -38,23 +38,120 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     record ProviderProfile(
             String modelId, String modelVersion, String modelDigest, String license,
             String language, String region, String retention, String hardware,
-            String status, String reason) {}
+            String status, String reason, TtsProviderAdmission.Decision admission) {}
+
+    private record RuntimeConfiguration(
+            TtsConfig config, TtsProviderAdmission.Decision admission, String language) {}
+    private record InitializedRuntime(
+            AudioVideoLibrary library, TtsProviderAdmission.Decision admission,
+            String voiceId, String language) {}
 
     private final AudioVideoLibrary ownedLibrary;
+    private final TtsProviderAdmission.Decision admission;
 
     public ProductionTtsGrpcService(MeterRegistry metrics) {
-        this(createInitializedLibrary(System.getenv()), metrics);
+        this(createInitializedRuntime(System.getenv(), TtsProviderAdmission.unavailable()), metrics);
+    }
+
+    /** Injectable composition for controlled local fixtures; production uses the unavailable default. */
+    ProductionTtsGrpcService(
+            Map<String, String> environment,
+            MeterRegistry metrics,
+            TtsProviderAdmission admissionResolver,
+            Function<TtsConfig, AudioVideoLibrary> libraryFactory) {
+        this(environment, metrics, admissionResolver, TtsRequestAuthorization.unavailable(), libraryFactory);
+    }
+
+    /** Package-private trusted-authorizer seam for controlled composition; production defaults stay unavailable. */
+    ProductionTtsGrpcService(
+            Map<String, String> environment,
+            MeterRegistry metrics,
+            TtsProviderAdmission admissionResolver,
+            TtsRequestAuthorization requestAuthorization,
+            Function<TtsConfig, AudioVideoLibrary> libraryFactory) {
+        this(createInitializedRuntime(environment, libraryFactory, admissionResolver, ignored -> {}),
+                metrics, requestAuthorization);
+    }
+
+    private ProductionTtsGrpcService(InitializedRuntime runtime, MeterRegistry metrics) {
+        this(runtime, metrics, TtsRequestAuthorization.unavailable());
+    }
+
+    private ProductionTtsGrpcService(
+            InitializedRuntime runtime, MeterRegistry metrics, TtsRequestAuthorization requestAuthorization) {
+        this(runtime.library(), metrics, runtime.admission(), runtime.voiceId(), runtime.language(), requestAuthorization);
     }
 
     ProductionTtsGrpcService(
             AudioVideoLibrary library,
             MeterRegistry metrics) {
-        super(library, metrics);
+        this(library, metrics, new TtsProviderAdmission.Decision(Set.of(), null,
+                "no source-authoritative TTS provider and voice admission decision was supplied"));
+    }
+
+    /** Test composition seam. Production construction obtains this decision from the trusted resolver. */
+    ProductionTtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            TtsProviderAdmission.Decision admission) {
+        this(library, metrics, admission, null, null);
+    }
+
+    private ProductionTtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            TtsProviderAdmission.Decision admission,
+            String admittedVoiceId,
+            String admittedLanguage) {
+        this(library, metrics, admission, admittedVoiceId, admittedLanguage, TtsRequestAuthorization.unavailable());
+    }
+
+    private ProductionTtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            TtsProviderAdmission.Decision admission,
+            String admittedVoiceId,
+            String admittedLanguage,
+            TtsRequestAuthorization requestAuthorization) {
+        super(library, metrics,
+                () -> admission.allows(TtsProviderAdmission.Capability.SYNTHESIS),
+                () -> admission.allows(TtsProviderAdmission.Capability.PCM_STREAMING),
+                null,
+                bindConfiguredDefaultVoice(requestAuthorization, admittedVoiceId),
+                (requestedVoice, requestedLanguage) -> matchesAdmittedProfile(
+                        admittedVoiceId, admittedLanguage, requestedVoice, requestedLanguage));
         this.ownedLibrary = Objects.requireNonNull(library, "library");
+        this.admission = Objects.requireNonNull(admission, "admission");
+    }
+
+    static TtsRequestAuthorization bindConfiguredDefaultVoice(
+            TtsRequestAuthorization delegate, String configuredDefaultVoice) {
+        Objects.requireNonNull(delegate, "requestAuthorization");
+        return new TtsRequestAuthorization() {
+            @Override
+            public Decision authorize(Request request) {
+                String selectedVoice = request.voiceId() == null || request.voiceId().isBlank()
+                        ? configuredDefaultVoice
+                        : request.voiceId();
+                return delegate.authorize(new Request(request.identity(), request.operation(),
+                        selectedVoice, request.profileId()));
+            }
+
+            @Override
+            public boolean isConfigured() {
+                return delegate.isConfigured();
+            }
+
+            @Override
+            public String configuredDefaultVoiceId() {
+                return configuredDefaultVoice;
+            }
+        };
     }
 
     /** Readiness derived from the initialized provider state, without exposing model diagnostics. */
     boolean isProviderReady() {
+        if (!admission.allows(TtsProviderAdmission.Capability.SYNTHESIS)) return false;
         try {
             return ownedLibrary.getTtsEngine().getStatus().isHealthy();
         } catch (RuntimeException unavailable) {
@@ -63,25 +160,25 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     }
 
     static TtsConfig createConfig(Map<String, String> environment) {
-        return createConfig(environment, ignored -> {});
+        return createConfig(environment, TtsProviderAdmission.unavailable(), ignored -> {});
+    }
+
+    static TtsConfig createConfig(
+            Map<String, String> environment,
+            TtsProviderAdmission admissionResolver) {
+        return createConfig(environment, admissionResolver, ignored -> {});
     }
 
     private static TtsConfig createConfig(
             Map<String, String> environment,
+            TtsProviderAdmission admissionResolver,
             Consumer<FileChannel> beforeModelHash) {
-        Objects.requireNonNull(environment, "environment");
-        boolean allowSyntheticFallback = parseBoolean(
-                environment,
-                "MEDIA_TTS_ALLOW_SYNTHETIC_FALLBACK",
-                false);
-        if (allowSyntheticFallback) {
-            throw new IllegalStateException(
-                    "Synthetic TTS fallback is forbidden by the provider profile");
-        }
-        ProviderProfile provider = resolveProviderProfile(environment, beforeModelHash);
-        if (!"ADMITTED".equals(provider.status())) {
-            throw new IllegalStateException("TTS_PROVIDER_NOT_ADMITTED: " + provider.reason());
-        }
+        return resolveConfiguration(environment, admissionResolver, beforeModelHash).config();
+    }
+
+    private static TtsConfig createAdmittedConfig(
+            Map<String, String> environment,
+            ProviderProfile provider) {
         String profile = firstNonBlank(
                 environment.get("MEDIA_RUNTIME_ENVIRONMENT"),
                 environment.get("MEDIA_PROFILE"),
@@ -118,7 +215,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         boolean streamingEnabled = parseBoolean(
                 environment,
                 "TTS_STREAMING_ENABLED",
-                true);
+                true) && provider.admission().allows(TtsProviderAdmission.Capability.PCM_STREAMING);
         String defaultVoice = requireText(
                 environment.getOrDefault("TTS_DEFAULT_VOICE", "piper-en"),
                 "TTS_DEFAULT_VOICE");
@@ -139,7 +236,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
                 .enableProsody(true)
                 .enableStreaming(streamingEnabled)
                 .enableVoiceCloning(false)
-                .allowSyntheticFallback(allowSyntheticFallback);
+                .allowSyntheticFallback(false);
         if (!profilePath.isBlank()) {
             builder.profileStoragePath(Path.of(profilePath));
         }
@@ -147,12 +244,21 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     }
 
     static ProviderProfile resolveProviderProfile(Map<String, String> environment) {
-        return resolveProviderProfile(environment, ignored -> {});
+        return resolveProviderProfile(environment, TtsProviderAdmission.unavailable(), ignored -> {});
+    }
+
+    static ProviderProfile resolveProviderProfile(
+            Map<String, String> environment,
+            TtsProviderAdmission admissionResolver) {
+        return resolveProviderProfile(environment, admissionResolver, ignored -> {});
     }
 
     private static ProviderProfile resolveProviderProfile(
             Map<String, String> environment,
+            TtsProviderAdmission admissionResolver,
             Consumer<FileChannel> beforeModelHash) {
+        Objects.requireNonNull(environment, "environment");
+        Objects.requireNonNull(admissionResolver, "admissionResolver");
         String mode = environment.getOrDefault("TTS_PROVIDER_MODE", "").trim();
         if (!mode.equals("LOCAL_ONNX")) {
             return notAdmitted("TTS_PROVIDER_MODE must explicitly select an admitted LOCAL_ONNX provider");
@@ -184,12 +290,36 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         if (!digest.equals(fileDigest(path, beforeModelHash))) {
             throw new IllegalArgumentException("TTS model digest does not match TTS_MODEL_SHA256");
         }
+        String defaultVoice = requireText(
+                environment.getOrDefault("TTS_DEFAULT_VOICE", "piper-en"), "TTS_DEFAULT_VOICE");
+        TtsProviderAdmission.Candidate candidate = new TtsProviderAdmission.Candidate(
+                mode, modelId, version, digest, license, language, region, retention, hardware, defaultVoice);
+        TtsProviderAdmission.Decision decision;
+        try {
+            decision = admissionResolver.resolve(candidate);
+        } catch (RuntimeException unavailable) {
+            decision = new TtsProviderAdmission.Decision(Set.of(), null,
+                    "trusted TTS provider admission resolver is unavailable");
+        }
+        if (decision == null) {
+            decision = new TtsProviderAdmission.Decision(Set.of(), null,
+                    "trusted TTS provider admission resolver returned no decision");
+        }
+        if (!decision.admitted()
+                || !decision.allows(TtsProviderAdmission.Capability.SYNTHESIS)) {
+            String reason = decision.reason() == null
+                    ? "trusted source admission for synthesis is unavailable"
+                    : decision.reason();
+            return new ProviderProfile(modelId, version, digest, license, language, region, retention, hardware,
+                    "NOT_ADMITTED", reason, decision);
+        }
         return new ProviderProfile(modelId, version, digest, license, language, region, retention, hardware,
-                "NOT_ADMITTED", "Local TTS model metadata is configured, but license, voice rights, hardware and quality are not source-admitted; readiness is false");
+                "ADMITTED", decision.reason(), decision);
     }
 
     private static ProviderProfile notAdmitted(String reason) {
-        return new ProviderProfile(null, null, null, null, null, null, null, null, "NOT_ADMITTED", reason);
+        return new ProviderProfile(null, null, null, null, null, null, null, null, "NOT_ADMITTED", reason,
+                new TtsProviderAdmission.Decision(Set.of(), null, reason));
     }
 
     private static String fileDigest(Path path, Consumer<FileChannel> beforeHash) {
@@ -269,30 +399,96 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             Map<String, String> environment,
             Function<TtsConfig, AudioVideoLibrary> libraryFactory,
             Consumer<FileChannel> beforeModelHash) {
+        return createInitializedLibrary(environment, libraryFactory,
+                TtsProviderAdmission.unavailable(), beforeModelHash);
+    }
+
+    private static AudioVideoLibrary createInitializedLibrary(
+            Map<String, String> environment,
+            Function<TtsConfig, AudioVideoLibrary> libraryFactory,
+            TtsProviderAdmission admissionResolver,
+            Consumer<FileChannel> beforeModelHash) {
+        return createInitializedRuntime(environment, libraryFactory, admissionResolver, beforeModelHash).library();
+    }
+
+    private static InitializedRuntime createInitializedRuntime(
+            Map<String, String> environment,
+            TtsProviderAdmission admissionResolver) {
+        return createInitializedRuntime(environment,
+                config -> AudioVideoLibrary.builder().withTtsConfig(config).build(), admissionResolver, ignored -> {});
+    }
+
+    private static InitializedRuntime createInitializedRuntime(
+            Map<String, String> environment,
+            Function<TtsConfig, AudioVideoLibrary> libraryFactory,
+            TtsProviderAdmission admissionResolver,
+            Consumer<FileChannel> beforeModelHash) {
         Objects.requireNonNull(environment, "environment");
         Objects.requireNonNull(libraryFactory, "libraryFactory");
-        TtsConfig config = createConfig(environment, beforeModelHash);
+        RuntimeConfiguration runtime = resolveConfiguration(environment, admissionResolver, beforeModelHash);
         AudioVideoLibrary library = Objects.requireNonNull(
-                libraryFactory.apply(config), "libraryFactory returned null");
+                libraryFactory.apply(runtime.config()), "libraryFactory returned null");
         try {
             library.getTtsEngine().warmup();
-            return library;
+            return new InitializedRuntime(library, runtime.admission(), runtime.config().defaultVoiceId(),
+                    runtime.language());
         } catch (RuntimeException exception) {
             library.close();
             throw exception;
         }
     }
 
-    private static AudioVideoLibrary createInitializedLibrary(
-            Map<String, String> environment) {
-        return createInitializedLibrary(environment,
-                config -> AudioVideoLibrary.builder().withTtsConfig(config).build());
-    }
-
     static AudioVideoLibrary createInitializedLibrary(
             Map<String, String> environment,
             Function<TtsConfig, AudioVideoLibrary> libraryFactory) {
         return createInitializedLibrary(environment, libraryFactory, ignored -> {});
+    }
+
+    private static RuntimeConfiguration resolveConfiguration(
+            Map<String, String> environment,
+            TtsProviderAdmission admissionResolver,
+            Consumer<FileChannel> beforeModelHash) {
+        Objects.requireNonNull(environment, "environment");
+        Objects.requireNonNull(admissionResolver, "admissionResolver");
+        boolean allowSyntheticFallback = parseBoolean(
+                environment, "MEDIA_TTS_ALLOW_SYNTHETIC_FALLBACK", false);
+        if (allowSyntheticFallback) {
+            throw new IllegalStateException(
+                    "Synthetic TTS fallback is forbidden by the provider profile");
+        }
+        ProviderProfile provider = resolveProviderProfile(environment, admissionResolver, beforeModelHash);
+        if (!"ADMITTED".equals(provider.status())) {
+            throw new IllegalStateException("TTS_PROVIDER_NOT_ADMITTED: " + provider.reason());
+        }
+        TtsConfig config = createAdmittedConfig(environment, provider);
+        TtsProviderAdmission.Decision effectiveAdmission = provider.admission();
+        if (!config.enableStreaming()
+                && effectiveAdmission.allows(TtsProviderAdmission.Capability.PCM_STREAMING)) {
+            Set<TtsProviderAdmission.Capability> effectiveCapabilities =
+                    new java.util.HashSet<>(effectiveAdmission.capabilities());
+            effectiveCapabilities.remove(TtsProviderAdmission.Capability.PCM_STREAMING);
+            effectiveAdmission = new TtsProviderAdmission.Decision(
+                    effectiveCapabilities, effectiveAdmission.authorityReference(), effectiveAdmission.reason());
+        }
+        return new RuntimeConfiguration(config, effectiveAdmission, provider.language());
+    }
+
+    static boolean matchesAdmittedProfile(
+            String admittedVoiceId, String admittedLanguage,
+            String requestedVoiceId, java.util.Locale requestedLanguage) {
+        if (admittedVoiceId == null || admittedVoiceId.isBlank()
+                || admittedLanguage == null || admittedLanguage.isBlank()) return false;
+        String selectedVoice = requestedVoiceId == null || requestedVoiceId.isBlank()
+                ? admittedVoiceId : requestedVoiceId;
+        if (!admittedVoiceId.equals(selectedVoice)) return false;
+        String selectedLanguage = requestedLanguage == null
+                ? admittedLanguage
+                : requestedLanguage.toLanguageTag();
+        return normalizeLanguage(admittedLanguage).equals(normalizeLanguage(selectedLanguage));
+    }
+
+    private static String normalizeLanguage(String language) {
+        return java.util.Locale.forLanguageTag(language).toLanguageTag();
     }
 
     @Override

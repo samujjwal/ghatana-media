@@ -242,18 +242,17 @@ class PersistentSttServiceValidationTest {
     }
 
     // -----------------------------------------------------------------------
-    // Size guard — > 100 MB
+    // Size guard — > 4 MiB unary bound
     // -----------------------------------------------------------------------
 
     @Test
-    @DisplayName("audio larger than 100 MB throws IllegalArgumentException")
+    @DisplayName("audio larger than 4 MiB throws IllegalArgumentException")
     void oversizeAudioThrows() {
-        // Allocate just over 100 MB; JVM can handle this in test heap.
-        byte[] huge = new byte[100 * 1024 * 1024 + 1];
+        byte[] huge = new byte[4 * 1024 * 1024 + 1];
         assertThatThrownBy(() -> service.transcribeAndPersist(
                 TENANT, USER, huge, "huge.wav", AudioFormat.WAV, "en", VALID_RATE))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("100 MiB input limit");
+            .hasMessageContaining("4 MiB input limit");
     }
 
     // -----------------------------------------------------------------------

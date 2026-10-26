@@ -42,7 +42,7 @@ class SttGrpcServiceLogPrivacyTest {
         when(engine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(
                 new TranscriptionResult(TRANSCRIPT_MARKER, 0.9, List.of(), List.of(),
                         Duration.ofMillis(7), "en", MODEL_MARKER));
-        SttGrpcService service = SttGrpcService.forTesting(library, new SimpleMeterRegistry());
+        SttGrpcService service = SttGrpcServiceTestFixture.create(library, new SimpleMeterRegistry());
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
 
         try (LogCapture logs = LogCapture.capture(SttGrpcService.class)) {
@@ -65,7 +65,7 @@ class SttGrpcServiceLogPrivacyTest {
         when(library.getSttEngine()).thenReturn(engine);
         doThrow(new InferenceError(PROVIDER_MARKER, new RuntimeException(CAUSE_MARKER), false))
                 .when(engine).transcribe(any(), any(TranscriptionOptions.class));
-        SttGrpcService service = SttGrpcService.forTesting(library, new SimpleMeterRegistry());
+        SttGrpcService service = SttGrpcServiceTestFixture.create(library, new SimpleMeterRegistry());
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
 
         try (LogCapture logs = LogCapture.capture(SttGrpcService.class)) {
@@ -88,7 +88,7 @@ class SttGrpcServiceLogPrivacyTest {
         when(library.getSttEngine()).thenReturn(engine);
         doThrow(new ModelLoadingError(PROVIDER_MARKER, new RuntimeException(CAUSE_MARKER)))
                 .when(engine).loadModel(MODEL_MARKER);
-        SttGrpcService service = SttGrpcService.forTesting(library, new SimpleMeterRegistry());
+        SttGrpcService service = SttGrpcServiceTestFixture.create(library, new SimpleMeterRegistry());
         CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>();
 
         try (LogCapture logs = LogCapture.capture(SttGrpcService.class)) {

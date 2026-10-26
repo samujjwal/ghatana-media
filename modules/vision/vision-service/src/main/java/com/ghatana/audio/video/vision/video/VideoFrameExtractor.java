@@ -58,6 +58,11 @@ public class VideoFrameExtractor {
     private static final Pattern SHOWINFO_TIMEBASE = Pattern.compile(
             "showinfo.*?config in time_base:\\s*(\\d+)/(\\d+)", Pattern.CASE_INSENSITIVE);
     private static final long MAX_INPUT_BYTES = 500L * 1024 * 1024;
+    private static final long MAX_MULTIMODAL_VIDEO_BYTES = 32L * 1024 * 1024;
+    private static final int MAX_DEMUXED_AUDIO_DURATION_SECONDS = 300;
+    // 16 kHz mono S16LE is 32,000 bytes/second; keep decoded output below the
+    // 300-second duration ceiling even if container duration metadata is false.
+    private static final long MAX_DEMUXED_AUDIO_BYTES = 16_000L * 2L * MAX_DEMUXED_AUDIO_DURATION_SECONDS;
     private static final long MAX_EXTRACTED_BYTES = 512L * 1024 * 1024;
     private static final long MAX_FRAME_BYTES = 32L * 1024 * 1024;
     private static final long MAX_SINGLE_FRAME_BYTES = 32L * 1024 * 1024;
@@ -187,6 +192,35 @@ public class VideoFrameExtractor {
     }
 
     /**
+     * Bounded first audio track decoded to the STT client's canonical mono S16LE input.
+     * Source stream timing is retained separately; it is not an audio/video clock mapping.
+     */
+    public record ExtractedAudioTrack(byte[] pcmS16le, int sampleRate, int channels, int sourceStreamIndex,
+                                      long sourceStartPts, long sourceTimeBaseNumerator,
+                                      long sourceTimeBaseDenominator, boolean sourceStartKnown) {
+        public ExtractedAudioTrack {
+            if (pcmS16le == null || pcmS16le.length == 0 || (pcmS16le.length & 1) != 0
+                    || pcmS16le.length > MAX_DEMUXED_AUDIO_BYTES || sampleRate != 16_000 || channels != 1
+                    || sourceStreamIndex < 0
+                    || sourceTimeBaseNumerator <= 0 || sourceTimeBaseDenominator <= 0
+                    || (!sourceStartKnown && sourceStartPts != 0)) {
+                throw new IllegalArgumentException("Extracted audio track is outside the admitted PCM/timebase bounds");
+            }
+            pcmS16le = pcmS16le.clone();
+        }
+
+        @Override
+        public byte[] pcmS16le() { return pcmS16le.clone(); }
+
+        public long sampleCount() { return pcmS16le.length / 2L; }
+    }
+
+    record AudioStreamMetadata(int streamIndex, int sampleRate, int channels,
+                                       long startPts, boolean startKnown,
+                                       long timeBaseNumerator, long timeBaseDenominator,
+                                       long durationTicks) { }
+
+    /**
      * Extract frames from a video file.
      *
      * @param videoPath Path to the video file
@@ -236,6 +270,200 @@ public class VideoFrameExtractor {
         } catch (IOException | RuntimeException failure) {
             cleanupStagingDirectory(staging, failure);
             throw failure;
+        }
+    }
+
+    /**
+     * Demux and decode the first audio stream from a bounded video-container payload.
+     * The payload is staged in an owner-only directory and processed through the same bounded
+     * FFmpeg runner, process semaphore, protocol allowlist, and cleanup policy as frame decoding.
+     * A missing or unbounded duration is rejected. Missing stream start PTS is preserved as
+     * unknown; stream-local timebases do not establish a shared audio/video source origin.
+     */
+    public ExtractedAudioTrack extractAudioTrack(byte[] videoData) throws IOException {
+        if (videoData == null || videoData.length == 0 || videoData.length > MAX_MULTIMODAL_VIDEO_BYTES) {
+            throw new IOException("Video input size is outside the supported audio-demux bounds");
+        }
+        String extension = sniffVideoExtension(videoData);
+        Path workspace = createPrivateWorkspace();
+        Path staging = null;
+        IOException failure = null;
+        try {
+            Path source = workspace.resolve("source." + extension);
+            writeOwnerOnlyInput(source, videoData);
+            Path canonicalSource = validateInput(source);
+            String format = inputFormat(canonicalSource);
+            AudioStreamMetadata metadata = probeFirstAudioStream(canonicalSource, format);
+            if (metadata == null) throw new IOException("VIDEO_AUDIO_TRACK_UNAVAILABLE: no audio stream exists");
+            if (!durationWithinLimit(metadata)) {
+                throw new IOException("VIDEO_AUDIO_DURATION_NOT_ADMITTED: audio duration is missing or exceeds 300 seconds");
+            }
+
+            staging = createIsolatedStagingDirectory(workspace);
+            Path decoded = staging.resolve("audio.pcm");
+            List<String> command = List.of(
+                    FFMPEG_COMMAND, "-nostdin", "-v", "error", "-protocol_whitelist", "file",
+                    "-max_alloc", "268435456", "-i", canonicalSource.toString(),
+                    "-map", "0:" + metadata.streamIndex(), "-vn", "-sn", "-dn",
+                    "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", "-f", "s16le",
+                    "-fs", Long.toString(MAX_DEMUXED_AUDIO_BYTES), decoded.toString(), "-n");
+            ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(120), MAX_DIAGNOSTIC_BYTES,
+                    staging, MAX_DEMUXED_AUDIO_BYTES);
+            if (result.timedOut()) throw new IOException("FFmpeg audio demux timed out");
+            if (result.outputExceeded()) throw new IOException("FFmpeg audio output exceeded its byte limit");
+            if (result.diagnosticExceeded()) throw new IOException("FFmpeg audio diagnostics exceeded their byte limit");
+            if (result.exitCode() != 0) throw new IOException("FFmpeg audio demux failed with exit code: " + result.exitCode());
+            validateAudioOutput(decoded, staging);
+            byte[] pcm = Files.readAllBytes(decoded);
+            return new ExtractedAudioTrack(pcm, 16_000, 1, metadata.streamIndex(), metadata.startPts(),
+                    metadata.timeBaseNumerator(), metadata.timeBaseDenominator(), metadata.startKnown());
+        } catch (IOException | RuntimeException caught) {
+            if (caught instanceof IOException io) {
+                failure = io;
+            } else {
+                failure = new IOException("Video audio demux failed within configured limits", caught);
+            }
+            throw failure;
+        } finally {
+            IOException cleanupFailure = null;
+            if (staging != null) {
+                try {
+                    cleanupStagingDirectory(staging);
+                } catch (IOException cleanup) {
+                    cleanupFailure = cleanup;
+                }
+            }
+            try {
+                cleanupStagingDirectory(workspace);
+            } catch (IOException cleanup) {
+                if (cleanupFailure == null) cleanupFailure = cleanup;
+                else cleanupFailure.addSuppressed(cleanup);
+            }
+            if (cleanupFailure != null) {
+                if (failure != null) failure.addSuppressed(cleanupFailure);
+                else throw cleanupFailure;
+            }
+        }
+    }
+
+    static String sniffVideoExtension(byte[] bytes) throws IOException {
+        if (bytes.length >= 12 && bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F') {
+            if (bytes[8] == 'A' && bytes[9] == 'V' && bytes[10] == 'I' && bytes[11] == ' ') return "avi";
+        }
+        if (bytes.length >= 12 && bytes[4] == 'f' && bytes[5] == 't' && bytes[6] == 'y' && bytes[7] == 'p') {
+            return "mp4";
+        }
+        if (bytes.length >= 4 && (bytes[0] & 0xff) == 0x1a && (bytes[1] & 0xff) == 0x45
+                && (bytes[2] & 0xff) == 0xdf && (bytes[3] & 0xff) == 0xa3) {
+            return "mkv";
+        }
+        throw new IOException("Video container signature is not allow-listed");
+    }
+
+    private static Path createPrivateWorkspace() throws IOException {
+        Path temp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath(LinkOption.NOFOLLOW_LINKS);
+        requireSafeWritableAncestors(temp);
+        Path workspace = Files.createTempDirectory(temp, ".media-video-audio-");
+        try {
+            enforceOwnerOnlyDirectory(workspace);
+            return workspace.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException | RuntimeException failure) {
+            try { Files.deleteIfExists(workspace); } catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
+        }
+    }
+
+    private static void writeOwnerOnlyInput(Path source, byte[] bytes) throws IOException {
+        Files.write(source, bytes, java.nio.file.StandardOpenOption.CREATE_NEW,
+                java.nio.file.StandardOpenOption.WRITE);
+        java.nio.file.attribute.PosixFileAttributeView view = Files.getFileAttributeView(
+                source, java.nio.file.attribute.PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+        if (view == null) throw new IOException("Filesystem cannot enforce private video input permissions");
+        view.setPermissions(java.util.EnumSet.of(java.nio.file.attribute.PosixFilePermission.OWNER_READ,
+                java.nio.file.attribute.PosixFilePermission.OWNER_WRITE));
+        if (Files.isSymbolicLink(source) || !Files.isRegularFile(source, LinkOption.NOFOLLOW_LINKS)
+                || Files.size(source) != bytes.length) {
+            throw new IOException("Staged video input is not a private regular file");
+        }
+    }
+
+    private AudioStreamMetadata probeFirstAudioStream(Path video, String format) throws IOException {
+        List<String> command = List.of("ffprobe", "-nostdin", "-v", "error", "-protocol_whitelist", "file",
+                "-f", format, "-max_alloc", "268435456", "-select_streams", "a:0",
+                "-show_entries", "stream=index,time_base,start_pts,sample_rate,channels,duration_ts",
+                "-of", "default=noprint_wrappers=1", video.toString());
+        ProcessResult result = runProbeProcess(command, Duration.ofSeconds(10), MAX_DIAGNOSTIC_BYTES);
+        if (result.timedOut()) throw new IOException("FFprobe audio-stream inspection timed out");
+        if (result.outputExceeded() || result.diagnosticExceeded()) {
+            throw new IOException("FFprobe audio-stream output exceeded its byte budget");
+        }
+        if (result.exitCode() != 0) throw new IOException("FFprobe audio-stream inspection failed");
+        return parseAudioStreamMetadata(result.output());
+    }
+
+    ProcessResult runProbeProcess(List<String> command, Duration timeout, int maxDiagnosticBytes) throws IOException {
+        return runProcess(command, timeout, maxDiagnosticBytes);
+    }
+
+    static AudioStreamMetadata parseAudioStreamMetadata(String output) throws IOException {
+        if (output == null || output.isBlank()) return null;
+        java.util.Map<String, String> values = new java.util.HashMap<>();
+        for (String line : output.split("\\R")) {
+            int separator = line.indexOf('=');
+            if (separator > 0) {
+                String key = line.substring(0, separator).trim();
+                String value = line.substring(separator + 1).trim();
+                if (values.putIfAbsent(key, value) != null) {
+                    throw new IOException("FFprobe returned multiple audio stream records");
+                }
+            }
+        }
+        try {
+            int index = Integer.parseInt(values.get("index"));
+            int sampleRate = Integer.parseInt(values.get("sample_rate"));
+            int channels = Integer.parseInt(values.get("channels"));
+            String[] timeBase = values.get("time_base").split("/", -1);
+            long numerator = Long.parseLong(timeBase[0]);
+            long denominator = Long.parseLong(timeBase[1]);
+            long duration = Long.parseLong(values.get("duration_ts"));
+            String rawStart = values.get("start_pts");
+            boolean startKnown = rawStart != null && !rawStart.equalsIgnoreCase("N/A");
+            long start = startKnown ? Long.parseLong(rawStart) : 0L;
+            if (index < 0 || sampleRate < 8_000 || sampleRate > 192_000 || channels < 1 || channels > 8
+                    || numerator < 1 || numerator > 1_000_000_000L || denominator < 1
+                    || denominator > 1_000_000_000L || duration <= 0) {
+                throw new IOException("Audio stream metadata is outside configured bounds");
+            }
+            return new AudioStreamMetadata(index, sampleRate, channels, start, startKnown,
+                    numerator, denominator, duration);
+        } catch (IOException known) {
+            throw known;
+        } catch (RuntimeException invalid) {
+            throw new IOException("Audio stream metadata is incomplete or invalid", invalid);
+        }
+    }
+
+    private static boolean durationWithinLimit(AudioStreamMetadata metadata) {
+        java.math.BigInteger ticksNanos = java.math.BigInteger.valueOf(metadata.durationTicks())
+                .multiply(java.math.BigInteger.valueOf(metadata.timeBaseNumerator()))
+                .multiply(java.math.BigInteger.valueOf(1_000_000_000L));
+        java.math.BigInteger maxNanos = java.math.BigInteger.valueOf(MAX_DEMUXED_AUDIO_DURATION_SECONDS)
+                .multiply(java.math.BigInteger.valueOf(1_000_000_000L))
+                .multiply(java.math.BigInteger.valueOf(metadata.timeBaseDenominator()));
+        return ticksNanos.compareTo(maxNanos) <= 0;
+    }
+
+    static void validateAudioOutput(Path output, Path expectedParent) throws IOException {
+        Path normalized = output.toAbsolutePath().normalize();
+        if (!normalized.getParent().equals(expectedParent) || Files.isSymbolicLink(normalized)
+                || !Files.isRegularFile(normalized, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IOException("FFmpeg produced an unsafe audio output path");
+        }
+        long size = Files.size(normalized);
+        // FFmpeg's -fs stops output without guaranteeing that the stream was fully decoded.
+        // Treat a file that reaches the cap as truncated/unknown rather than a valid transcript input.
+        if (size <= 0 || (size & 1L) != 0 || size >= MAX_DEMUXED_AUDIO_BYTES) {
+            throw new IOException("FFmpeg audio output is outside the bounded S16LE sample limits");
         }
     }
 

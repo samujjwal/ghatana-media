@@ -64,16 +64,22 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
             String reason) {}
 
     public ProductionSttGrpcService(MeterRegistry metrics) {
-        this(createInitializedLibrary(System.getenv()), metrics);
+        this(createInitializedLibrary(System.getenv()), metrics, SttRequestAuthorization.unavailable());
     }
 
     ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
-        super(library, metrics);
+        this(library, metrics, SttRequestAuthorization.unavailable());
+    }
+
+    ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics,
+            SttRequestAuthorization requestAuthorization) {
+        super(library, metrics, io.opentelemetry.api.GlobalOpenTelemetry.getTracer("ghatana-media-stt"),
+                requestAuthorization);
         this.ownedLibrary = Objects.requireNonNull(library, "library");
     }
 
     ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, Tracer tracer) {
-        super(library, metrics, tracer);
+        super(library, metrics, tracer, SttRequestAuthorization.unavailable());
         this.ownedLibrary = Objects.requireNonNull(library, "library");
     }
 
@@ -322,6 +328,8 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
             CreateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver,
+                SttRequestAuthorization.Operation.CREATE_SPEAKER_IDENTITY, null)) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -330,6 +338,8 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
             GetProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver,
+                SttRequestAuthorization.Operation.READ_SPEAKER_IDENTITY, request.getProfileId())) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 
@@ -338,6 +348,8 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
             UpdateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver,
+                SttRequestAuthorization.Operation.UPDATE_SPEAKER_IDENTITY, request.getProfileId())) return;
         speakerProfileNotAdmitted(responseObserver);
     }
 

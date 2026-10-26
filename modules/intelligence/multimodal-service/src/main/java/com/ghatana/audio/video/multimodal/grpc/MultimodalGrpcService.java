@@ -41,6 +41,18 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private static final int MAX_TOTAL_INPUT_BYTES = 64 * 1024 * 1024;
     private static final int MAX_TEXT_CHARS = 64 * 1024;
     private static final int MAX_ARTIFACT_REF_BYTES = 256;
+    private static final String CAP_OBSERVE = "media.multimodal.observe.source-grounded";
+    private static final String OP_OBSERVE = "media.operation.capability.media-multimodal-observe-source-grounded";
+    private static final String CAP_RELATE = "media.multimodal.relate.scene-audio";
+    private static final String OP_RELATE = "media.operation.capability.media-multimodal-relate-scene-audio";
+    private static final String CAP_DESCRIBE = "media.multimodal.describe";
+    private static final String OP_DESCRIBE = "media.operation.capability.media-multimodal-describe";
+    private static final String CAP_CROSS_MODAL = "media.multimodal.analyze.cross-modal";
+    private static final String OP_CROSS_MODAL = "media.operation.capability.media-multimodal-analyze-cross-modal";
+    private static final String CAP_SUMMARIZE = "media.multimodal.summarize";
+    private static final String OP_SUMMARIZE = "media.operation.capability.media-multimodal-summarize";
+    private static final String CAP_EXTRACT = "media.multimodal.extract.structured";
+    private static final String OP_EXTRACT = "media.operation.capability.media-multimodal-extract-structured";
 
     private static final Logger LOG = LoggerFactory.getLogger(MultimodalGrpcService.class);
 
@@ -117,7 +129,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         }
 
         if (!withinInputBounds(request.getAudioData().size(), request.getImageData().size(),
-                request.getVideoData().size(), request.getText().length())) {
+                request.getVideoData().size(), utf8Length(request.getText()))) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Multimodal input exceeds configured limits")
                     .asRuntimeException());
             mediaMetrics.recordFailed("multimodal.analyse");
@@ -136,15 +148,25 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
-        if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
-                !request.getImageData().isEmpty(), !request.getVideoData().isEmpty(), !request.getText().isEmpty()),
-                request.getArtifactId(), request.getAudioData().size() + request.getImageData().size()
-                        + request.getVideoData().size() + utf8Length(request.getText()), "multimodal.analyse")) {
-            responseObserver.onError(authorityUnavailable());
+        if (!canonicalSelection(request.getOperationBinding(), CAP_OBSERVE, OP_OBSERVE)
+                || (!request.getArtifactId().isBlank()
+                && !request.getArtifactId().equals(request.getOperationBinding().getSourceArtifactId()))) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
-        if (!hasCanonicalCapabilityBinding()) {
+        RuntimeException authorizationFailure = authorizationFailure(identity, request.getOperationBinding(), modalities(!request.getAudioData().isEmpty(),
+                !request.getImageData().isEmpty(), !request.getVideoData().isEmpty(), !request.getText().isEmpty()),
+                request.getAudioData().size() + request.getImageData().size()
+                        + request.getVideoData().size() + utf8Length(request.getText()),
+                requestContentDigest(List.of(request.getAudioData(), request.getImageData(), request.getVideoData()),
+                        request.getText()));
+        if (authorizationFailure != null) {
+            responseObserver.onError(authorizationFailure);
+            mediaMetrics.recordFailed("multimodal.analyse");
+            return;
+        }
+        if (!canonicalOperationExecutionAvailable()) {
             responseObserver.onError(multimodalFamilyNotAdmitted());
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
@@ -264,12 +286,18 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .asRuntimeException());
             return;
         }
-        if (!authorized(identity, modalities(request.getExtractAudio(), false, true, false),
-                null, request.getVideoData().size(), "multimodal.video-audio-analysis")) {
-            responseObserver.onError(authorityUnavailable());
+        if (!canonicalSelection(request.getOperationBinding(), CAP_RELATE, OP_RELATE)) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
             return;
         }
-        if (!hasCanonicalCapabilityBinding()) {
+        RuntimeException authorizationFailure = authorizationFailure(identity, request.getOperationBinding(),
+                modalities(request.getExtractAudio(), false, true, false), request.getVideoData().size(),
+                requestContentDigest(List.of(request.getVideoData()), ""));
+        if (authorizationFailure != null) {
+            responseObserver.onError(authorizationFailure);
+            return;
+        }
+        if (!canonicalOperationExecutionAvailable()) {
             responseObserver.onError(multimodalFamilyNotAdmitted());
             return;
         }
@@ -345,7 +373,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             return;
         }
         if (!withinInputBounds(request.getAudioData().size(), request.getImageData().size(), 0,
-                request.getContext().length())) {
+                utf8Length(request.getContext()))) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Multimodal input exceeds configured limits")
                     .asRuntimeException());
             return;
@@ -357,14 +385,20 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .asRuntimeException());
             return;
         }
-        if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
-                !request.getImageData().isEmpty(), false, !request.getContext().isEmpty()),
-                null, request.getAudioData().size() + request.getImageData().size()
-                        + utf8Length(request.getContext()), "multimodal.description")) {
-            responseObserver.onError(authorityUnavailable());
+        if (!canonicalSelection(request.getOperationBinding(), CAP_DESCRIBE, OP_DESCRIBE)) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
             return;
         }
-        if (!hasCanonicalCapabilityBinding()) {
+        RuntimeException authorizationFailure = authorizationFailure(identity, request.getOperationBinding(), modalities(!request.getAudioData().isEmpty(),
+                !request.getImageData().isEmpty(), false, !request.getContext().isEmpty()),
+                request.getAudioData().size() + request.getImageData().size()
+                        + utf8Length(request.getContext()),
+                requestContentDigest(List.of(request.getAudioData(), request.getImageData()), request.getContext()));
+        if (authorizationFailure != null) {
+            responseObserver.onError(authorizationFailure);
+            return;
+        }
+        if (!canonicalOperationExecutionAvailable()) {
             responseObserver.onError(multimodalFamilyNotAdmitted());
             return;
         }
@@ -453,13 +487,19 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .asRuntimeException());
             return;
         }
-        if (!authorized(identity, modalities(!request.getAudioData().isEmpty(), false,
-                !request.getVideoData().isEmpty(), false), null,
-                request.getAudioData().size() + request.getVideoData().size(), "multimodal.cross-modal-analysis")) {
-            responseObserver.onError(authorityUnavailable());
+        if (!canonicalSelection(request.getOperationBinding(), CAP_CROSS_MODAL, OP_CROSS_MODAL)) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
             return;
         }
-        if (!hasCanonicalCapabilityBinding()) {
+        RuntimeException authorizationFailure = authorizationFailure(identity, request.getOperationBinding(), modalities(!request.getAudioData().isEmpty(), false,
+                !request.getVideoData().isEmpty(), false),
+                request.getAudioData().size() + request.getVideoData().size(),
+                requestContentDigest(List.of(request.getAudioData(), request.getVideoData()), ""));
+        if (authorizationFailure != null) {
+            responseObserver.onError(authorizationFailure);
+            return;
+        }
+        if (!canonicalOperationExecutionAvailable()) {
             responseObserver.onError(multimodalFamilyNotAdmitted());
             return;
         }
@@ -531,7 +571,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             return;
         }
         if (!withinInputBounds(request.getAudioData().size(), request.getImageData().size(),
-                request.getVideoData().size(), request.getText().length())) {
+                request.getVideoData().size(), utf8Length(request.getText()))) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Multimodal input exceeds configured limits")
                     .asRuntimeException());
             return;
@@ -542,11 +582,20 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .asRuntimeException());
             return;
         }
-        if (!authorized(identity, modalities(!request.getAudioData().isEmpty(),
+        boolean selectedSummary = canonicalSelection(request.getOperationBinding(), CAP_SUMMARIZE, OP_SUMMARIZE);
+        boolean selectedExtraction = canonicalSelection(request.getOperationBinding(), CAP_EXTRACT, OP_EXTRACT);
+        if (!selectedSummary && !selectedExtraction) {
+            responseObserver.onError(multimodalFamilyNotAdmitted());
+            return;
+        }
+        RuntimeException authorizationFailure = authorizationFailure(identity, request.getOperationBinding(), modalities(!request.getAudioData().isEmpty(),
                 !request.getImageData().isEmpty(), !request.getVideoData().isEmpty(), !request.getText().isEmpty()),
-                null, request.getAudioData().size() + request.getImageData().size()
-                        + request.getVideoData().size() + utf8Length(request.getText()), "multimodal.insights")) {
-            responseObserver.onError(authorityUnavailable());
+                request.getAudioData().size() + request.getImageData().size()
+                        + request.getVideoData().size() + utf8Length(request.getText()),
+                requestContentDigest(List.of(request.getAudioData(), request.getImageData(), request.getVideoData()),
+                        request.getText()));
+        if (authorizationFailure != null) {
+            responseObserver.onError(authorizationFailure);
             return;
         }
         // The current STT/Vision results do not expose claim-level source references,
@@ -689,11 +738,11 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         }
     }
 
-    private static boolean withinInputBounds(int audioBytes, int imageBytes, int videoBytes, int textChars) {
+    private static boolean withinInputBounds(int audioBytes, int imageBytes, int videoBytes, int textBytes) {
         long total = (long) audioBytes + imageBytes + videoBytes;
         return audioBytes <= MAX_MODALITY_BYTES && imageBytes <= MAX_MODALITY_BYTES
                 && videoBytes <= MAX_MODALITY_BYTES && total <= MAX_TOTAL_INPUT_BYTES
-                && textChars <= MAX_TEXT_CHARS;
+                && textBytes <= MAX_TEXT_CHARS;
     }
 
     private static RuntimeException authorityUnavailable() {
@@ -702,32 +751,92 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 .asRuntimeException();
     }
 
-    private static boolean hasCanonicalCapabilityBinding() {
-        // All four public family requests lack canonical operation/version/purpose binding fields.
-        // Keep every family route closed until those contracts provide the required binding.
+    private static boolean canonicalSelection(CanonicalOperationBinding binding,
+                                              String capabilityRef, String operationRef) {
+        if (binding == null || binding.getOperationVersion() != 1
+                || !capabilityRef.equals(binding.getCapabilityRef())
+                || !operationRef.equals(binding.getOperationRef())) return false;
+        if (!opaqueId(binding.getRequestId(), 128)
+                || !opaqueId(binding.getSourceArtifactId(), 128)
+                || !opaqueVersion(binding.getSourceVersionId(), 128)
+                || binding.getPurpose().isBlank() || binding.getPurpose().length() > 128
+                || !binding.getPurpose().equals(binding.getPurpose().trim())
+                || binding.getPurpose().chars().anyMatch(Character::isISOControl)
+                || binding.getCorrelationId().length() > 128
+                || (!binding.getCorrelationId().isBlank() && !opaqueId(binding.getCorrelationId(), 128))
+                || binding.getDimensionsCount() > 32) return false;
+        return binding.getDimensionsList().stream().allMatch(dimension -> opaqueId(dimension, 128));
+    }
+
+    private static boolean opaqueId(String value, int maxLength) {
+        return value != null && value.length() >= 1 && value.length() <= maxLength
+                && value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*");
+    }
+
+    private static boolean opaqueVersion(String value, int maxLength) {
+        return value != null && value.length() >= 1 && value.length() <= maxLength
+                && value.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*");
+    }
+
+    private static boolean canonicalOperationExecutionAvailable() {
+        // The additive request binding is now validated, but Media has no admitted per-operation
+        // job/attempt/result executor here. Keep dispatch closed until that durable owner path exists.
         return false;
     }
 
     private static RuntimeException multimodalFamilyNotAdmitted() {
         return Status.FAILED_PRECONDITION
-                .withDescription("MULTIMODAL_FAMILY_NOT_ADMITTED: request/result is not bound to canonical capability operations")
+                .withDescription("MULTIMODAL_FAMILY_NOT_ADMITTED: no admitted per-operation job, attempt, and result executor is configured")
                 .asRuntimeException();
     }
 
-    private boolean authorized(Identity identity, Set<SourceAuthorization.Modality> modalities,
-                               String artifactId, long contentBytes, String purpose) {
+    private RuntimeException authorizationFailure(Identity identity, CanonicalOperationBinding binding,
+                                                  Set<SourceAuthorization.Modality> modalities, long contentBytes,
+                                                  String contentSha256) {
         SourceAuthorization.AuthorizationRequest authorizationRequest =
                 new SourceAuthorization.AuthorizationRequest(identity.tenantId(), identity.principalId(),
-                        modalities, artifactId, null, purpose, null, contentBytes);
+                        modalities, binding.getCapabilityRef(), binding.getOperationRef(),
+                        binding.getOperationVersion(), binding.getRequestId(), binding.getSourceArtifactId(),
+                        binding.getSourceVersionId(), binding.getPurpose(), binding.getCorrelationId(),
+                        binding.getDimensionsList(), null, contentBytes, contentSha256);
         try {
-            return sourceAuthorization.authorize(authorizationRequest) == SourceAuthorization.Decision.ADMITTED;
+            SourceAuthorization.Decision decision = sourceAuthorization.authorize(authorizationRequest);
+            if (decision == SourceAuthorization.Decision.ADMITTED) return null;
+            if (decision == SourceAuthorization.Decision.DENIED) {
+                return Status.PERMISSION_DENIED
+                        .withDescription("Source authorization denied this multimodal operation")
+                        .asRuntimeException();
+            }
+            return authorityUnavailable();
         } catch (RuntimeException unavailable) {
-            return false;
+            return authorityUnavailable();
         }
     }
 
     private static int utf8Length(String value) {
         return value.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+    }
+
+    /**
+     * Request-bound fingerprint used by the source authority to compare caller payload with the
+     * immutable artifact version. Until the authority verifies this against its own artifact
+     * readback, it is only a request fingerprint and grants no source ownership or rights.
+     */
+    private static String requestContentDigest(List<com.google.protobuf.ByteString> parts, String text) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            for (com.google.protobuf.ByteString part : parts) {
+                java.nio.ByteBuffer bytes = part.asReadOnlyByteBuffer();
+                digest.update(java.nio.ByteBuffer.allocate(Long.BYTES).putLong(bytes.remaining()).array());
+                digest.update(bytes);
+            }
+            byte[] textBytes = text.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            digest.update(java.nio.ByteBuffer.allocate(Long.BYTES).putLong(textBytes.length).array());
+            digest.update(textBytes);
+            return java.util.HexFormat.of().formatHex(digest.digest());
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is required by the Java runtime", impossible);
+        }
     }
 
     private <T> TracedObserver<T> traceAnalysis(String operation, String tenantId,

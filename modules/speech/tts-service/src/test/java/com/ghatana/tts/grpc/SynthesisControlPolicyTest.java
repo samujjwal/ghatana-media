@@ -1,0 +1,90 @@
+package com.ghatana.tts.grpc;
+
+import com.ghatana.media.common.AudioFormat;
+import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
+import com.ghatana.tts.core.grpc.proto.SynthesisOptions;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class SynthesisControlPolicyTest {
+
+    @Test
+    void protoDefaultsResolveToNeutralControlsWithoutClaimingProviderEffects() {
+        var resolved = SynthesisControlPolicy.resolve(
+                SynthesizeRequest.newBuilder().setText("hello").build(), AudioFormat.PCM);
+
+        assertThat(resolved.speed()).isEqualTo(1.0);
+        assertThat(resolved.pitch()).isEqualTo(1.0);
+        assertThat(resolved.volume()).isEqualTo(1.0);
+        assertThat(resolved.voiceId()).isNull();
+        assertThat(resolved.language()).isNull();
+        assertThat(resolved.outputFormat()).isEqualTo(AudioFormat.PCM);
+    }
+
+    @Test
+    void explicitProtoZeroDefaultsRemainNeutral() {
+        var request = SynthesizeRequest.newBuilder().setText("hello")
+                .setOptions(SynthesisOptions.newBuilder().setSpeed(0).setEnergy(0).build())
+                .build();
+
+        var resolved = SynthesisControlPolicy.resolve(request, AudioFormat.PCM);
+
+        assertThat(resolved.speed()).isEqualTo(1.0);
+        assertThat(resolved.pitch()).isEqualTo(1.0);
+        assertThat(resolved.volume()).isEqualTo(1.0);
+    }
+
+    @Test
+    void rejectsNonFiniteAndOutOfRangeWireControlsAsInvalid() {
+        for (SynthesisOptions options : new SynthesisOptions[] {
+                SynthesisOptions.newBuilder().setSpeed(Float.NaN).build(),
+                SynthesisOptions.newBuilder().setSpeed(Float.POSITIVE_INFINITY).build(),
+                SynthesisOptions.newBuilder().setSpeed(0.49f).build(),
+                SynthesisOptions.newBuilder().setSpeed(2.01f).build(),
+                SynthesisOptions.newBuilder().setPitch(Float.NEGATIVE_INFINITY).build(),
+                SynthesisOptions.newBuilder().setPitch(-12.01f).build(),
+                SynthesisOptions.newBuilder().setPitch(12.01f).build(),
+                SynthesisOptions.newBuilder().setEnergy(Float.NaN).build(),
+                SynthesisOptions.newBuilder().setEnergy(-0.01f).build(),
+                SynthesisOptions.newBuilder().setEnergy(2.01f).build()
+        }) {
+            var request = SynthesizeRequest.newBuilder().setText("hello").setOptions(options).build();
+            assertThatThrownBy(() -> SynthesisControlPolicy.resolve(request, AudioFormat.PCM))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .isNotInstanceOf(SynthesisControlPolicy.NotAdmittedException.class);
+        }
+    }
+
+    @Test
+    void finiteInRangeNonNeutralControlsAreTypedNotAdmitted() {
+        for (SynthesisOptions options : new SynthesisOptions[] {
+                SynthesisOptions.newBuilder().setSpeed(0.5f).build(),
+                SynthesisOptions.newBuilder().setSpeed(2.0f).build(),
+                SynthesisOptions.newBuilder().setPitch(-12.0f).build(),
+                SynthesisOptions.newBuilder().setPitch(12.0f).build(),
+                SynthesisOptions.newBuilder().setEnergy(2.0f).build(),
+                SynthesisOptions.newBuilder().setEmotion("happy").build()
+        }) {
+            var request = SynthesizeRequest.newBuilder().setText("hello").setOptions(options).build();
+            assertThatThrownBy(() -> SynthesisControlPolicy.resolve(request, AudioFormat.PCM))
+                    .isInstanceOf(SynthesisControlPolicy.NotAdmittedException.class)
+                    .hasMessageStartingWith("NOT_ADMITTED:");
+        }
+    }
+
+    @Test
+    void invalidEmotionAndSsmlControlsFailWithoutAnAdmittedMapping() {
+        var invalidEmotion = SynthesizeRequest.newBuilder().setText("hello")
+                .setOptions(SynthesisOptions.newBuilder().setEmotion("mystery").build()).build();
+        assertThatThrownBy(() -> SynthesisControlPolicy.resolve(invalidEmotion, AudioFormat.PCM))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Unsupported emotion");
+
+        assertThatThrownBy(() -> SynthesisControlPolicy.rejectUnqualifiedSsml(
+                "<speak><prosody rate=\"120%\">hello</prosody></speak>"))
+                .isInstanceOf(SynthesisControlPolicy.NotAdmittedException.class)
+                .hasMessageStartingWith("NOT_ADMITTED:");
+    }
+}

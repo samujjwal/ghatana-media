@@ -200,12 +200,32 @@ class AvJobLifecycleAdapterTest {
     @Test
     void retrySchedulingIncrementsAndEnforcesTheDeclaredBudget() {
         AvTranscriptionJob job = jobAt(AvTranscriptionJob.JobStatus.PROCESSING);
+        String stableJobId = job.jobId();
         for (int attempt = 0; attempt < 3; attempt++) {
             job = job.scheduleRetry().withStatus(AvTranscriptionJob.JobStatus.PROCESSING);
+            assertThat(job.jobId()).as("retry %s preserves stable job identity", attempt + 1)
+                    .isEqualTo(stableJobId);
         }
         assertThat(job.retryCount()).isEqualTo(job.maxRetries());
         assertThat(assertThrows(IllegalStateException.class, job::scheduleRetry))
                 .hasMessageStartingWith("STT_JOB_RETRY_BUDGET_EXCEEDED:");
+    }
+
+    @Test
+    void unknownOutcomeCannotStartAnotherAttemptUntilReconciled() {
+        AvTranscriptionJob unknown = jobAt(AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN);
+
+        assertThat(assertThrows(IllegalStateException.class, unknown::scheduleRetry))
+                .hasMessageStartingWith("STT_JOB_TRANSITION_INVALID:");
+
+        AvTranscriptionJob reconciling = unknown.withStatus(AvTranscriptionJob.JobStatus.RECONCILING);
+        AvTranscriptionJob retry = reconciling.scheduleRetry();
+        assertThat(retry.jobId()).isEqualTo(unknown.jobId());
+        assertThat(retry.artifactId()).isEqualTo(unknown.artifactId());
+        assertThat(retry.tenantId()).isEqualTo(unknown.tenantId());
+        assertThat(retry.requestId()).isEqualTo(unknown.requestId());
+        assertThat(retry.status()).isEqualTo(AvTranscriptionJob.JobStatus.RETRY_PENDING);
+        assertThat(retry.retryCount()).isEqualTo(unknown.retryCount() + 1);
     }
 
     @SuppressWarnings("deprecation")

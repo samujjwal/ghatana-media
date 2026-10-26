@@ -32,8 +32,8 @@ final class SynthesisControlPolicy {
             throw new IllegalArgumentException("Unsupported emotion value", exception);
         }
         if (speed != 1.0 || pitchSemitones != 0.0 || energy != 1.0 || emotion != Emotion.NEUTRAL) {
-            throw new UnsupportedOperationException(
-                    "NOT_ADMITTED: provider has no qualified observable effect for non-neutral prosody/emotion controls");
+            throw new NotAdmittedException(
+                    "provider has no qualified observable effect for non-neutral prosody/emotion controls");
         }
 
         // Only the neutral pitch is currently admitted; non-neutral values returned above.
@@ -51,8 +51,15 @@ final class SynthesisControlPolicy {
     static void rejectUnqualifiedSsml(String text) {
         if (text.stripLeading().startsWith("<")) {
             SsmlProcessor.create().parse(text);
-            throw new UnsupportedOperationException(
-                    "NOT_ADMITTED: no qualified provider adapter maps SSML segments to observable speech effects");
+            throw new NotAdmittedException(
+                    "no qualified provider adapter maps SSML segments to observable speech effects");
+        }
+    }
+
+    /** Typed capability denial; remains an UnsupportedOperationException for existing gRPC mapping. */
+    static final class NotAdmittedException extends UnsupportedOperationException {
+        NotAdmittedException(String reason) {
+            super("NOT_ADMITTED: " + reason);
         }
     }
 

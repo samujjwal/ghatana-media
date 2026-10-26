@@ -113,6 +113,36 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void productionCompositionCannotReturnRepeatingByteSyntheticFallback() {
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        try (ProductionTtsGrpcService production = new ProductionTtsGrpcService(library, registry)) {
+            production.synthesize(SynthesizeRequest.newBuilder().setText("should not dispatch").build(), observer);
+        }
+
+        assertStatus(observer, Status.Code.UNAVAILABLE);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
+    void synthesisRejectsEncodedAudioLabeledAsPcmBeforeResponse() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true);
+        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
+                new byte[44], 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.MP3));
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        admitted.synthesize(SynthesizeRequest.newBuilder().setText("codec mismatch").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verify(engine).synthesize(anyString(), any());
+    }
+
+    @Test
     void synthesizeTraceUsesNoContentIdentifiersAndKeepsProviderMetricSingle() {
         TraceHarness trace = new TraceHarness();
         TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> false,
@@ -150,7 +180,7 @@ class TtsGrpcServiceTest {
                 .setVoiceId("protected-voice-8062")
                 .build(), observer);
 
-        assertStatus(observer, Status.Code.UNIMPLEMENTED);
+        assertStatus(observer, Status.Code.UNAVAILABLE);
         SpanData span = trace.finishedSpan();
         assertThat(span.getStatus().getStatusCode().name()).isEqualTo("ERROR");
         assertThat(span.getStatus().getDescription()).isEqualTo("Media operation failed");
@@ -501,18 +531,18 @@ class TtsGrpcServiceTest {
                     .setVoiceId("provider-default")
                     .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
                             .setLanguage("hi-IN").build()).build(), explicitVoice);
-            assertStatus(explicitVoice, Status.Code.UNIMPLEMENTED);
+            assertStatus(explicitVoice, Status.Code.UNAVAILABLE);
             assertThat(((StatusRuntimeException) explicitVoice.error).getStatus().getDescription())
-                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+                    .contains("TTS_NOT_ADMITTED");
             assertThat(explicitVoice.value).isNull();
             assertThat(explicitVoice.completed).isFalse();
 
             CapturingObserver<SynthesizeResponse> profileDefaultLanguage = new CapturingObserver<>();
             production.synthesize(SynthesizeRequest.newBuilder().setText("hello")
                     .setProfileId("profile-with-ne-default").build(), profileDefaultLanguage);
-            assertStatus(profileDefaultLanguage, Status.Code.UNIMPLEMENTED);
+            assertStatus(profileDefaultLanguage, Status.Code.UNAVAILABLE);
             assertThat(((StatusRuntimeException) profileDefaultLanguage.error).getStatus().getDescription())
-                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+                    .contains("TTS_NOT_ADMITTED");
             assertThat(profileDefaultLanguage.value).isNull();
             assertThat(profileDefaultLanguage.completed).isFalse();
         }
@@ -855,6 +885,27 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void oversizedFinalChunkFailsBeforeItCanBeHeldAsPendingFinalAudio() {
+        TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(monoPcm16Format());
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(
+                    new byte[64 * 1024 + 1], 0, true, 0));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        assertThat(sessionCancelled).isTrue();
+    }
+
+    @Test
     void admittedStreamRejectsSequenceGapAfterPreservingOnlyPriorPartialChunk() {
         TtsGrpcService admitted = new TtsGrpcService(library, registry, () -> true, () -> true);
         AtomicBoolean sessionCancelled = new AtomicBoolean();
@@ -1159,17 +1210,20 @@ class TtsGrpcServiceTest {
     }
 
     @Test
-    void customVoiceAndProfileSelectionsFailBeforeProviderDispatch() {
+    void customVoiceAndProfileSelectionsFailBeforeDispatchWithoutAnAdmittedProviderProfile() {
         CapturingObserver<SynthesizeResponse> voice = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setVoiceId("custom-voice").build(), voice);
-        assertStatus(voice, Status.Code.UNIMPLEMENTED);
+        assertStatus(voice, Status.Code.UNAVAILABLE);
         assertThat(((StatusRuntimeException) voice.error).getStatus().getDescription())
-                .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+                .contains("TTS_NOT_ADMITTED");
 
         CapturingObserver<SynthesizeResponse> profile = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setProfileId("profile-1").build(), profile);
-        assertStatus(profile, Status.Code.UNIMPLEMENTED);
+        assertStatus(profile, Status.Code.UNAVAILABLE);
+        assertThat(((StatusRuntimeException) profile.error).getStatus().getDescription())
+                .contains("TTS_NOT_ADMITTED");
         verify(engine, never()).synthesize(anyString(), any());
+        verify(library, never()).getTtsEngine();
     }
 
     @Test

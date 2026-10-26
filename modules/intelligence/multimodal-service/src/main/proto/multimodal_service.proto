@@ -52,6 +52,23 @@ message MultimodalRequest {
   string correlation_id = 9;
   string consent_status = 10;
   string retention_policy = 11;
+  // Caller selection only. The server must resolve this tuple against trusted Media authorities;
+  // legacy metadata above never grants consent, source ownership, or provider egress.
+  CanonicalOperationBinding operation_binding = 12;
+}
+
+// Additive canonical operation/source selection for one independently tracked capability.
+// Identifiers are opaque selections and are not authorization evidence.
+message CanonicalOperationBinding {
+  string capability_ref = 1;
+  string operation_ref = 2;
+  uint32 operation_version = 3;
+  string request_id = 4;
+  string source_artifact_id = 5;
+  string source_version_id = 6;
+  string purpose = 7;
+  string correlation_id = 8;
+  repeated string dimensions = 9;
 }
 
 message MultimodalResponse {
@@ -94,6 +111,7 @@ message VideoAudioRequest {
   bool extract_audio = 2;
   bool analyze_frames = 3;
   int32 frame_sample_rate = 4;
+  CanonicalOperationBinding operation_binding = 5;
 }
 
 message VideoAudioResponse {
@@ -136,6 +154,7 @@ message DescriptionRequest {
   bytes image_data = 2;
   string context = 3;
   string style = 4;
+  CanonicalOperationBinding operation_binding = 5;
 }
 
 message DescriptionResponse {
@@ -151,6 +170,7 @@ message CrossModalRequest {
   bytes video_data = 2;
   // Analysis window in milliseconds; 0 = full content
   int64 analysis_window_ms = 3;
+  CanonicalOperationBinding operation_binding = 4;
 }
 
 message CrossModalResponse {
@@ -181,6 +201,7 @@ message InsightsRequest {
   bytes image_data = 3;
   string text = 4;
   repeated string insight_types = 5; // "sentiment", "topics", "actions", "entities"
+  CanonicalOperationBinding operation_binding = 6;
 }
 
 message InsightsResponse {

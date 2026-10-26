@@ -78,7 +78,7 @@ class TtsWave2InventoryTest {
                 .contains("TTS streaming is NOT_ADMITTED: no provider has verified mono PCM S16LE framing");
         assertThat(grpc).contains("this(library, metrics, () -> false, () -> false);");
         assertThat(read("src/main/java/com/ghatana/tts/grpc/ProductionTtsGrpcService.java"))
-                .contains("super(library, metrics);");
+                .contains("super(library, metrics,", "bindConfiguredDefaultVoice", "matchesAdmittedProfile");
         assertThat(grpc).contains("profileAccessNotAdmitted(responseObserver)")
                 .contains("Voice loading is NOT_ADMITTED")
                 .contains("GetStatus is NOT_ADMITTED", "GetMetrics is NOT_ADMITTED")
@@ -150,7 +150,7 @@ class TtsWave2InventoryTest {
         assertThat(grpc).contains("AUDIO_FORMAT_PCM_F32LE", "AUDIO_FORMAT_WAV", "AUDIO_FORMAT_MP3")
                 .contains("PCM F32LE output is NOT_ADMITTED", "WAV output is NOT_ADMITTED", "MP3 output is NOT_ADMITTED");
         assertThat(production).contains("TTS_PROVIDER_MODE", "LOCAL_ONNX", "TTS_MODEL_SHA256")
-                .contains("license, voice rights, hardware and quality are not source-admitted");
+                .contains("TTS_MODEL_LICENSE", "TTS_MODEL_HARDWARE", "admissionResolver.resolve(candidate)");
         assertThat(read("README.md")).contains("PROVIDER_DEPENDENT", "NOT_ADMITTED", "PCM_S16LE", "MP3");
     }
 

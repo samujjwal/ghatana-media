@@ -114,7 +114,7 @@ class SttRuntimeLoadRestartTest {
                         "fixture-only",
                         FIXTURE_MODEL));
 
-        SttGrpcService fixtureService = SttGrpcService.forTesting(library, new SimpleMeterRegistry());
+        SttGrpcService fixtureService = SttGrpcServiceTestFixture.create(library, new SimpleMeterRegistry());
         Server server = InProcessServerBuilder.forName(serverName)
                 .directExecutor()
                 .addService(fixtureService)

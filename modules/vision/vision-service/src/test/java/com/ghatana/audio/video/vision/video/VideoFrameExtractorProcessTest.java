@@ -18,6 +18,77 @@ class VideoFrameExtractorProcessTest {
     @TempDir Path tempDir;
 
     @Test
+    void audioDemuxSelectsOneBoundedAudioStreamAndReturnsDefensivePcm() throws Exception {
+        byte[] input = new byte[] {0, 0, 0, 8, 'f', 't', 'y', 'p', 'i', 's', 'o', 'm'};
+        byte[] pcm = new byte[] {1, 2, 3, 4};
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            ProcessResult runProbeProcess(List<String> command, Duration timeout, int maxDiagnosticBytes) {
+                assertThat(command).containsSubsequence("-select_streams", "a:0", "-show_entries");
+                return new ProcessResult(0, false,
+                        "index=1\ntime_base=1/48000\nstart_pts=1024\nsample_rate=48000\nchannels=2\nduration_ts=480000");
+            }
+
+            @Override
+            ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
+                    Path monitoredOutput, long maxOutputBytes) throws java.io.IOException {
+                assertThat(command).containsSubsequence("-map", "0:1", "-ac", "1", "-ar", "16000",
+                        "-c:a", "pcm_s16le", "-fs", Long.toString(16_000L * 2L * 300L));
+                Files.write(monitoredOutput.resolve("audio.pcm"), pcm);
+                return new ProcessResult(0, false, "");
+            }
+        };
+
+        VideoFrameExtractor.ExtractedAudioTrack result = extractor.extractAudioTrack(input);
+
+        assertThat(result.pcmS16le()).containsExactly(pcm);
+        assertThat(result.sampleCount()).isEqualTo(2);
+        assertThat(result.sampleRate()).isEqualTo(16_000);
+        assertThat(result.channels()).isEqualTo(1);
+        assertThat(result.sourceStreamIndex()).isEqualTo(1);
+        assertThat(result.sourceStartKnown()).isTrue();
+        assertThat(result.sourceStartPts()).isEqualTo(1024);
+        assertThat(result.sourceTimeBaseNumerator()).isEqualTo(1);
+        assertThat(result.sourceTimeBaseDenominator()).isEqualTo(48_000);
+        byte[] exposed = result.pcmS16le();
+        exposed[0] = 99;
+        assertThat(result.pcmS16le()).containsExactly(pcm);
+    }
+
+    @Test
+    void rejectsUnrecognizedContainersBeforeProbingForAudio() {
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            ProcessResult runProbeProcess(List<String> command, Duration timeout, int maxDiagnosticBytes) {
+                throw new AssertionError("unknown container must fail before ffprobe");
+            }
+        };
+        assertThatThrownBy(() -> extractor.extractAudioTrack(new byte[] {1, 2, 3, 4}))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("signature");
+    }
+
+    @Test
+    void rejectsMultipleAudioStreamRecordsInsteadOfSelectingTheLastOne() {
+        String stream = "index=1\ntime_base=1/48000\nstart_pts=0\nsample_rate=48000\n"
+                + "channels=2\nduration_ts=480000\n";
+
+        assertThatThrownBy(() -> VideoFrameExtractor.parseAudioStreamMetadata(stream + stream))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("multiple audio stream records");
+    }
+
+    @Test
+    void rejectsOutputThatReachedFfmpegFileSizeCapAsPotentiallyTruncated() throws Exception {
+        Path staging = Files.createDirectory(tempDir.resolve("audio-cap-staging"));
+        Path output = staging.resolve("audio.pcm");
+        Files.write(output, new byte[16_000 * 2 * 300]);
+
+        assertThatThrownBy(() -> VideoFrameExtractor.validateAudioOutput(output, staging))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("bounded S16LE");
+    }
+
+    @Test
     void rejectsUnboundedFrameExtractionSettings() {
         assertThatThrownBy(() -> VideoFrameExtractor.ExtractionConfig.builder().fps(0))
             .isInstanceOf(IllegalArgumentException.class);

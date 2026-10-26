@@ -98,6 +98,37 @@ class SttTranscriptionResponseMapperTest {
     }
 
     @Test
+    void sourceSampleCountAndRateRejectWordTimingPastTheLastSample() {
+        int sampleRate = 44_100;
+        int sampleCount = 1_000;
+        AudioData source = new AudioData(new byte[sampleCount * 2], sampleRate, 1, 16,
+                Duration.ofSeconds(10), AudioFormat.PCM);
+        double oneSamplePastEnd = (double) (sampleCount + 1) / sampleRate;
+        TranscriptionResult result = result(0.5,
+                List.of(new WordTiming("outside-source", 0.0, oneSamplePastEnd, 0.5)), List.of());
+
+        assertThatThrownBy(() -> SttTranscriptionResponseMapper.toProto(result, source))
+                .isInstanceOfSatisfying(SttTranscriptionResponseMapper.InvalidResultException.class, failure ->
+                        assertThat(failure).hasMessageContaining("exceeds decoded audio duration"));
+    }
+
+    @Test
+    void sourceClockDoesNotSynthesizeProviderAlignmentOrConfidence() {
+        AudioData source = new AudioData(new byte[32], 16_000, 1, 16,
+                Duration.ofSeconds(99), AudioFormat.PCM);
+        TranscriptionResult result = TranscriptionResult.withoutConfidence(
+                "text only", List.of(), List.of(), Duration.ZERO, "en", "fixture-model");
+
+        var response = SttTranscriptionResponseMapper.toProto(result, source).build();
+
+        assertThat(response.getWordTimingsList()).isEmpty();
+        assertThat(response.getWordTimingTimebase()).isEqualTo(TimestampTimebase.TIMESTAMP_TIMEBASE_UNKNOWN);
+        assertThat(response.getConfidenceCalibration())
+                .isEqualTo(ConfidenceCalibration.CONFIDENCE_CALIBRATION_UNKNOWN);
+        assertThat(response.toByteArray()).doesNotContain((byte) 0x15);
+    }
+
+    @Test
     void rejectsMillisecondOverflowInsteadOfWrapping() {
         TranscriptionResult result = result(0.5,
                 List.of(new WordTiming("far", 0.0, 1.0e16, 0.5)), List.of());

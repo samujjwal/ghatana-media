@@ -73,7 +73,8 @@ class SttGrpcServiceTest {
     @BeforeEach
     void setUp() { 
         meterRegistry = new SimpleMeterRegistry(); 
-        service = new SttGrpcService(mockLibrary, meterRegistry); 
+        service = new SttGrpcService(mockLibrary, meterRegistry,
+                request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
         // Lenient: getSttEngine is not needed in every test
         lenient().when(mockLibrary.getSttEngine()).thenReturn(mockEngine); 
         previousContext = VerifiedJwtContext.create(
@@ -891,7 +892,8 @@ class SttGrpcServiceTest {
         when(builder.setAttribute(anyString(), anyString())).thenReturn(builder);
         when(builder.setAttribute(anyString(), org.mockito.ArgumentMatchers.anyBoolean())).thenReturn(builder);
         when(builder.startSpan()).thenReturn(span);
-        SttGrpcService tracedService = new SttGrpcService(mockLibrary, meterRegistry, tracer);
+        SttGrpcService tracedService = new SttGrpcService(mockLibrary, meterRegistry, tracer,
+                request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
         CapturingObserver<Transcription> observer = new CapturingObserver<>();
 
         runWithTenantContext(() -> tracedService.streamTranscribe(observer));
@@ -910,7 +912,8 @@ class SttGrpcServiceTest {
     @DisplayName("streamTranscribe: invalid identity is rejected before span creation")
     void streamTranscribe_invalidIdentityDoesNotCreateSpan() {
         io.opentelemetry.api.trace.Tracer tracer = mock(io.opentelemetry.api.trace.Tracer.class);
-        SttGrpcService tracedService = new SttGrpcService(mockLibrary, meterRegistry, tracer);
+        SttGrpcService tracedService = new SttGrpcService(mockLibrary, meterRegistry, tracer,
+                request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
         CapturingObserver<Transcription> observer = new CapturingObserver<>();
 
         io.grpc.Context.ROOT
@@ -942,7 +945,7 @@ class SttGrpcServiceTest {
         void setUp() { 
             histogramRegistry = new SimpleMeterRegistry(); 
             // Constructing the real SttGrpcService wires the timer with publishPercentiles()
-            SttGrpcService.forTesting(mockLibrary, histogramRegistry); 
+            SttGrpcServiceTestFixture.create(mockLibrary, histogramRegistry);
             transcribeTimer = histogramRegistry.find("stt.transcribe").timer(); 
         }
 

@@ -3,6 +3,7 @@ package com.ghatana.tts.grpc;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
+import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.tts.core.grpc.proto.AudioChunk;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
@@ -32,6 +33,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -193,6 +199,99 @@ class TtsGrpcServiceInProcessIntegrationTest {
         } finally {
             if (guardedChannel != null) guardedChannel.shutdownNow();
             if (guardedServer != null) guardedServer.shutdownNow();
+            if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
+            else System.setProperty("AV_JWT_SECRET", previousSecret);
+        }
+    }
+
+    @Test
+    @DisplayName("injected request authorization denies and revokes before provider lookup")
+    void injectedProductionAuthorizationBlocksUnaryAndStreamingEffects() throws Exception {
+        String secret = "tts-injected-authorization-test-secret";
+        String previousSecret = System.getProperty("AV_JWT_SECRET");
+        System.setProperty("AV_JWT_SECRET", secret);
+        Path model = Files.createTempFile(Path.of(".").toAbsolutePath().normalize(), "tts-auth-fixture", ".onnx");
+        AudioVideoLibrary guardedLibrary = mock(AudioVideoLibrary.class);
+        TtsEngine engine = mock(TtsEngine.class);
+        when(guardedLibrary.getTtsEngine()).thenReturn(engine);
+        Server guardedServer = null;
+        ManagedChannel guardedChannel = null;
+        ProductionTtsGrpcService service = null;
+        try {
+            Files.writeString(model, "local authorization fixture model bytes");
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            Map<String, String> environment = Map.ofEntries(
+                    Map.entry("TTS_PROVIDER_MODE", "LOCAL_ONNX"),
+                    Map.entry("TTS_MODEL_ID", "fixture-model"),
+                    Map.entry("TTS_MODEL_VERSION", "fixture-version"),
+                    Map.entry("TTS_MODEL_SHA256", digest),
+                    Map.entry("TTS_MODEL_LICENSE", "test-fixture-placeholder"),
+                    Map.entry("TTS_MODEL_LANGUAGE", "en-US"),
+                    Map.entry("TTS_MODEL_REGION", "test-fixture-region"),
+                    Map.entry("TTS_MODEL_RETENTION", "test-fixture-placeholder"),
+                    Map.entry("TTS_MODEL_HARDWARE", "test-fixture-hardware"),
+                    Map.entry("TTS_MODEL_PATH", model.toString()),
+                    Map.entry("TTS_DEFAULT_VOICE", "voice-selected-by-request"));
+            TtsProviderAdmission providerFixture = candidate -> new TtsProviderAdmission.Decision(
+                    java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS,
+                            TtsProviderAdmission.Capability.PCM_STREAMING),
+                    "local-fixture-resolver:test-only", "controlled test fixture");
+            java.util.List<TtsRequestAuthorization.Request> requests = new java.util.concurrent.CopyOnWriteArrayList<>();
+            TtsRequestAuthorization requestResolver = request -> {
+                requests.add(request);
+                if ("piper-en".equals(request.voiceId())) {
+                    return TtsRequestAuthorization.Decision.UNAVAILABLE;
+                }
+                return request.operation() == TtsRequestAuthorization.Operation.SYNTHESIZE
+                        ? TtsRequestAuthorization.Decision.REVOKED
+                        : TtsRequestAuthorization.Decision.DENIED;
+            };
+            service = new ProductionTtsGrpcService(environment, new SimpleMeterRegistry(),
+                    providerFixture, requestResolver, (TtsConfig ignored) -> guardedLibrary);
+            org.mockito.Mockito.clearInvocations(guardedLibrary, engine);
+
+            String serverName = InProcessServerBuilder.generateName();
+            guardedServer = InProcessServerBuilder.forName(serverName)
+                    .directExecutor()
+                    .addService(service)
+                    .intercept(new JwtServerInterceptor())
+                    .build()
+                    .start();
+            guardedChannel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+            Metadata headers = new Metadata();
+            headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                    "Bearer " + testJwt(secret));
+            TTSServiceGrpc.TTSServiceBlockingStub blockingStub = TTSServiceGrpc.newBlockingStub(guardedChannel)
+                    .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+            SynthesizeRequest request = SynthesizeRequest.newBuilder().setText("authorization fixture")
+                    .setVoiceId("voice-selected-by-request").build();
+
+            assertRpcError(() -> blockingStub.synthesize(request), Status.Code.PERMISSION_DENIED,
+                    "TTS_VOICE_AUTH_REVOKED");
+            assertStreamErrorWithoutChunks(TTSServiceGrpc.newStub(guardedChannel)
+                    .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers)), request,
+                    Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_DENIED");
+            assertRpcError(() -> blockingStub.synthesize(SynthesizeRequest.newBuilder()
+                            .setText("default voice authorization fixture").build()),
+                    Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_REVOKED");
+
+            assertThat(requests).extracting(TtsRequestAuthorization.Request::operation)
+                    .containsExactly(TtsRequestAuthorization.Operation.SYNTHESIZE,
+                            TtsRequestAuthorization.Operation.STREAM_SYNTHESIZE,
+                            TtsRequestAuthorization.Operation.SYNTHESIZE);
+            assertThat(requests).extracting(TtsRequestAuthorization.Request::voiceId)
+                    .containsExactly("voice-selected-by-request", "voice-selected-by-request",
+                            "voice-selected-by-request");
+            assertThat(requests).allSatisfy(observed -> {
+                assertThat(observed.identity().tenantId()).isEqualTo("tenant-test");
+            });
+            verifyNoInteractions(guardedLibrary, engine);
+        } finally {
+            if (guardedChannel != null) guardedChannel.shutdownNow();
+            if (guardedServer != null) guardedServer.shutdownNow();
+            if (service != null) service.close();
+            Files.deleteIfExists(model);
             if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
             else System.setProperty("AV_JWT_SECRET", previousSecret);
         }
@@ -363,10 +462,19 @@ class TtsGrpcServiceInProcessIntegrationTest {
             TTSServiceGrpc.TTSServiceStub stub,
             Status.Code expectedCode,
             String descriptionFragment) throws Exception {
+        assertStreamErrorWithoutChunks(stub, SynthesizeRequest.newBuilder().setText("hello").build(),
+                expectedCode, descriptionFragment);
+    }
+
+    private static void assertStreamErrorWithoutChunks(
+            TTSServiceGrpc.TTSServiceStub stub,
+            SynthesizeRequest request,
+            Status.Code expectedCode,
+            String descriptionFragment) throws Exception {
         java.util.List<AudioChunk> chunks = new java.util.ArrayList<>();
         CountDownLatch terminal = new CountDownLatch(1);
         AtomicReference<Throwable> failure = new AtomicReference<>();
-        stub.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), new io.grpc.stub.StreamObserver<>() {
+        stub.streamSynthesize(request, new io.grpc.stub.StreamObserver<>() {
             @Override public void onNext(AudioChunk value) { chunks.add(value); }
             @Override public void onError(Throwable error) { failure.set(error); terminal.countDown(); }
             @Override public void onCompleted() { terminal.countDown(); }

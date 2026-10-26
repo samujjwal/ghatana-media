@@ -70,7 +70,7 @@ class TtsGrpcServerReadinessTest {
                 new EngineStatus(EngineStatus.State.READY, "model", "v1", 1L, null),
                 new EngineStatus(EngineStatus.State.ERROR, "model", "v1", 2L, "redacted"));
         ProductionTtsGrpcService service = new ProductionTtsGrpcService(
-                library, new SimpleMeterRegistry());
+                library, new SimpleMeterRegistry(), localFixtureAdmissionDecision());
         try {
             assertThat(service.isProviderReady()).isTrue();
             assertThat(service.isProviderReady()).isFalse();
@@ -92,6 +92,15 @@ class TtsGrpcServerReadinessTest {
         CapturingObserver observer = new CapturingObserver();
         readiness.check(HealthCheckRequest.getDefaultInstance(), observer);
         return observer.response.getStatus();
+    }
+
+    private static TtsProviderAdmission.Decision localFixtureAdmissionDecision() {
+        TtsProviderAdmission localFixtureResolver = candidate -> new TtsProviderAdmission.Decision(
+                java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                "local-fixture-resolver:test-only", "readiness fixture only");
+        return localFixtureResolver.resolve(new TtsProviderAdmission.Candidate(
+                "LOCAL_FIXTURE", "fixture", "fixture", "fixture", "fixture", "en-US",
+                "test", "test", "test", "fixture-voice"));
     }
 
     private static final class CapturingObserver implements StreamObserver<HealthCheckResponse> {

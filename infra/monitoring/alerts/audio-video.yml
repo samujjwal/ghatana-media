@@ -198,6 +198,32 @@ groups:
           description: "The Multimodal scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic."
           runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
+      # These two rules deliberately consume fixture-only signals. They exercise
+      # alert routing and redaction without asserting a live provider/model metric.
+      - alert: MediaModelQualityRegressionFixture
+        expr: max by (service) (av_model_quality_regression{source="fixture"} == 1)
+        for: 1m
+        labels:
+          severity: warning
+          product: audio-video
+          component: model-quality-fixture
+        annotations:
+          summary: "Synthetic Media quality regression fixture observed"
+          description: "A fixture-only quality regression signal was observed for {{ $labels.service }}. This validates alert evaluation only; do not infer provider quality or change production traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: MediaProviderSourceStaleFixture
+        expr: max by (service) (time() - av_provider_source_timestamp_seconds{source="fixture"} > 300)
+        for: 1m
+        labels:
+          severity: warning
+          product: audio-video
+          component: source-freshness-fixture
+        annotations:
+          summary: "Synthetic Media source freshness fixture is stale"
+          description: "A fixture-only source timestamp for {{ $labels.service }} is more than 5 minutes old. This validates stale-source alert evaluation only; verify real source freshness through its owning system."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
   # -------------------------------------------------------------------------
   # 2. STT (Speech-to-Text) Performance
   # -------------------------------------------------------------------------

@@ -184,7 +184,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
         try {
             Future<AudioResult> audioFuture = extractAudio
-                    ? submit(children, () -> transcribeAudio(videoData)) : null;
+                    ? submit(children, () -> transcribeVideoAudio(videoData)) : null;
             Future<VisualResult> videoFuture = analyseFrames
                     ? submit(children, () -> analyseVideo(videoData, sampleFps, 100)) : null;
             long deadline = System.nanoTime() + analysisTimeoutNanos;
@@ -260,6 +260,19 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
             boundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
             return result;
         }
+    }
+
+    /** Decode a bounded audio stream before STT. Video-container bytes are never sent to STT. */
+    private AudioResult transcribeVideoAudio(byte[] videoData) {
+        final com.ghatana.audio.video.vision.video.VideoFrameExtractor.ExtractedAudioTrack track;
+        try {
+            track = mediaGateway.extractAudioTrack(videoData);
+        } catch (java.io.IOException | UnsupportedOperationException unavailable) {
+            LOG.info("Video audio track is unavailable or not admitted ({})", unavailable.getClass().getSimpleName());
+            return AudioResult.error("Video audio track unavailable");
+        }
+        if (track == null) return AudioResult.error("Video audio track unavailable");
+        return transcribeAudio(track.pcmS16le());
     }
 
     private VisualResult analyseImage(byte[] imageData) {

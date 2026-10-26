@@ -85,6 +85,40 @@ class MultimodalWave2InventoryTest {
         assertField(crossModalResponse, "synchronization_status", 5,
                 Descriptors.FieldDescriptor.Type.ENUM, false);
 
+        // Additive source/operation selection must retain every pre-existing request field tag.
+        Descriptors.Descriptor multimodalRequest = MultimodalServiceProto.getDescriptor()
+                .findMessageTypeByName("MultimodalRequest");
+        assertField(multimodalRequest, "audio_data", 1, Descriptors.FieldDescriptor.Type.BYTES, false);
+        assertField(multimodalRequest, "analysis_types", 5, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(multimodalRequest, "tenant_id", 6, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(multimodalRequest, "retention_policy", 11, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(multimodalRequest, "operation_binding", 12,
+                Descriptors.FieldDescriptor.Type.MESSAGE, true);
+        Descriptors.Descriptor videoAudioRequest = MultimodalServiceProto.getDescriptor()
+                .findMessageTypeByName("VideoAudioRequest");
+        assertField(videoAudioRequest, "video_data", 1, Descriptors.FieldDescriptor.Type.BYTES, false);
+        assertField(videoAudioRequest, "frame_sample_rate", 4, Descriptors.FieldDescriptor.Type.INT32, false);
+        assertField(videoAudioRequest, "operation_binding", 5,
+                Descriptors.FieldDescriptor.Type.MESSAGE, true);
+        assertField(MultimodalServiceProto.getDescriptor().findMessageTypeByName("DescriptionRequest"),
+                "operation_binding", 5, Descriptors.FieldDescriptor.Type.MESSAGE, true);
+        assertField(MultimodalServiceProto.getDescriptor().findMessageTypeByName("CrossModalRequest"),
+                "operation_binding", 4, Descriptors.FieldDescriptor.Type.MESSAGE, true);
+        assertField(MultimodalServiceProto.getDescriptor().findMessageTypeByName("InsightsRequest"),
+                "operation_binding", 6, Descriptors.FieldDescriptor.Type.MESSAGE, true);
+
+        Descriptors.Descriptor operationBinding = MultimodalServiceProto.getDescriptor()
+                .findMessageTypeByName("CanonicalOperationBinding");
+        assertField(operationBinding, "capability_ref", 1, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(operationBinding, "operation_ref", 2, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(operationBinding, "operation_version", 3, Descriptors.FieldDescriptor.Type.UINT32, false);
+        assertField(operationBinding, "request_id", 4, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(operationBinding, "source_artifact_id", 5, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(operationBinding, "source_version_id", 6, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(operationBinding, "purpose", 7, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(operationBinding, "correlation_id", 8, Descriptors.FieldDescriptor.Type.STRING, false);
+        assertField(operationBinding, "dimensions", 9, Descriptors.FieldDescriptor.Type.STRING, false);
+
         Descriptors.Descriptor modelInfo = MultimodalServiceProto.getDescriptor()
                 .findMessageTypeByName("MultimodalModelInfo");
         assertField(modelInfo, "version", 3, Descriptors.FieldDescriptor.Type.STRING, false);

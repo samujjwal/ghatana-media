@@ -36,9 +36,9 @@ default per-message receive limit. That is the effective maximum serialized
 request size when the production server is admitted and bound, including
 `Transcribe`. The current production provider profile is `NOT_ADMITTED`, so no
 public STT server currently binds;
-`SttAudioInputDecoder`'s 100 MiB input
-check runs only after protobuf bytes have been received and materialized, so it
-does not raise the transport limit. `SttStreamSequenceValidator` defines a 1 MiB
+`SttAudioInputDecoder` enforces the same 4 MiB input ceiling after protobuf
+bytes have been received and materialized, so it cannot raise the transport limit.
+`SttStreamSequenceValidator` defines a 1 MiB
 chunk limit, but the production `StreamTranscribe` RPC is `NOT_ADMITTED` before
 chunk dispatch, so that helper limit is not an active transport bound today.
 Raising the public unary upload size requires a method-specific transport

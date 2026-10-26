@@ -95,7 +95,7 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
             .forName(serverName)
             .directExecutor()
             .addService(service)
-            .intercept(new TestJwtServerInterceptor())
+            .intercept(new JwtServerInterceptor())
             .build()
             .start();
 
@@ -157,7 +157,7 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
             io.grpc.StatusRuntimeException.class,
             () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).transcribe(request));
         assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
-        assertThat(exception.getStatus().getDescription()).contains("STT_TRANSCRIPT_VERSION_NOT_ADMITTED");
+        assertThat(exception.getStatus().getDescription()).contains("STT_RIGHTS_NOT_ADMITTED");
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
         verify(audioFileService, never()).updateStatus(anyString(), any(UUID.class), any(), any());
         verify(transcriptionService, never()).save(anyString(), any(TranscriptionEntity.class));
@@ -252,7 +252,7 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
             io.grpc.StatusRuntimeException.class,
             () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).transcribe(request));
         assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
-        assertThat(exception.getStatus().getDescription()).contains("STT_TRANSCRIPT_VERSION_NOT_ADMITTED");
+        assertThat(exception.getStatus().getDescription()).contains("STT_RIGHTS_NOT_ADMITTED");
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
         verify(audioFileService, never()).updateStatus(anyString(), any(UUID.class), any(), any());
         verify(transcriptionService, never()).save(anyString(), any(TranscriptionEntity.class));

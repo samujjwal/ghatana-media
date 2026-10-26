@@ -11,8 +11,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SttGrpcServerTransportSecurityTest {
 
     @Test
-    void inboundLimitPreservesGrpcDefaultWhileStreamingRemainsNotAdmitted() {
-        assertThat(SttGrpcServer.MAX_INBOUND_MESSAGE_SIZE).isEqualTo(4 * 1024 * 1024);
+    void inboundLimitAllowsBoundedProtoEnvelopeAroundFourMibAudioPayload() {
+        assertThat(SttGrpcServer.MAX_INBOUND_MESSAGE_SIZE).isEqualTo(Math.toIntExact(
+                com.ghatana.stt.service.SttAudioInputDecoder.MAX_INPUT_BYTES
+                        + SttGrpcServer.MAX_REQUEST_ENVELOPE_BYTES));
     }
 
     @Test

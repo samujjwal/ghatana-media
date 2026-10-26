@@ -55,7 +55,7 @@ class MediaResourceProfileHarnessTest {
             assertThat(report.environment().modelProfile()).isEqualTo("NOT_CONFIGURED");
             assertThat(report.environment().corpusProfile()).isEqualTo("NOT_CONFIGURED");
             assertThat(report.toTsv()).startsWith("local-test-workload-no-provider\t");
-            assertThat(report.toTsv()).contains("NOT_MEASURED");
+            assertThat(report.toTsv()).contains("NOT_ADMITTED", "NOT_MEASURED");
         }
 
         String artifactPath = System.getenv("MEDIA_RESOURCE_PROFILE_OUTPUT");

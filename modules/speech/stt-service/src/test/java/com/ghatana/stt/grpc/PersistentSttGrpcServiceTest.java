@@ -19,6 +19,7 @@ import com.ghatana.stt.core.grpc.proto.GetProfileRequest;
 import com.ghatana.stt.core.grpc.proto.ProfileResponse;
 import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
 import com.ghatana.stt.service.PersistentSttService;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
 import io.activej.promise.Promise;
 import io.grpc.Context;
 import io.grpc.Status;
@@ -53,8 +54,55 @@ class PersistentSttGrpcServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new PersistentSttGrpcService(persistentSttService);
+        service = new PersistentSttGrpcService(persistentSttService,
+                request -> SttRequestAuthorization.Decision.ADMITTED); // Test-only authority fixture.
         MDC.clear();
+    }
+
+    @Test
+    @DisplayName("default rights authority rejects malformed input before decoder or service access")
+    void defaultAuthorizationPrecedesDecoderAndServiceAccess() {
+        PersistentSttGrpcService unavailable = new PersistentSttGrpcService(persistentSttService);
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        runWithTenantContext("tenant-default", USER_ID, () -> unavailable.transcribe(
+                TranscribeRequest.getDefaultInstance(), observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_RIGHTS_NOT_ADMITTED:");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verifyNoInteractions(persistentSttService);
+    }
+
+    @Test
+    @DisplayName("denied trusted owner decision precedes decoder and service access")
+    void deniedAuthorizationPrecedesDecoderAndServiceAccess() {
+        java.util.concurrent.atomic.AtomicReference<SttRequestAuthorization.Request> seen =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        PersistentSttGrpcService denied = new PersistentSttGrpcService(persistentSttService, request -> {
+            seen.set(request);
+            return SttRequestAuthorization.Decision.DENIED;
+        });
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        runWithTenantContext("tenant-denied", USER_ID, () -> denied.transcribe(
+                TranscribeRequest.newBuilder().setArtifactId("untrusted-artifact")
+                        .setAudioData(ByteString.EMPTY).build(), observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.PERMISSION_DENIED.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_RIGHTS_DENIED:");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        assertThat(seen.get().identity().tenantId()).isEqualTo("tenant-denied");
+        assertThat(seen.get().identity().subject()).isEqualTo(USER_ID);
+        assertThat(seen.get().operation()).isEqualTo(SttRequestAuthorization.Operation.TRANSCRIBE);
+        assertThat(seen.get().resourceId()).isEqualTo("untrusted-artifact");
+        verifyNoInteractions(persistentSttService);
     }
 
     @Test
@@ -344,10 +392,7 @@ class PersistentSttGrpcServiceTest {
     }
 
     private static void runWithTenantContext(String tenantId, String userId, Runnable action) {
-        Context ctx = Context.current()
-            .withValue(JwtServerInterceptor.CTX_TENANT, tenantId)
-            .withValue(JwtServerInterceptor.CTX_SUBJECT, userId);
-        ctx.run(action);
+        VerifiedJwtContext.create(tenantId, userId).run(action);
     }
 
     private void assertTranscriptVersionNotAdmitted(CapturingObserver<TranscribeResponse> observer) {

@@ -220,13 +220,38 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("processMultimodal: explicit source-rights denial is permission denied before dispatch")
+    void processMultimodal_explicitSourceDenialReturnsPermissionDeniedWithoutDispatch() {
+        MultimodalGrpcService denied = new MultimodalGrpcService(
+                mockEngine, mockAdapter, MediaProcessingMetrics.noop(),
+                request -> SourceAuthorization.Decision.DENIED);
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> denied.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "source observation"))
+                .build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.PERMISSION_DENIED.getCode());
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
     @DisplayName("processMultimodal: production constructor remains unavailable without source authority")
     void processMultimodal_defaultAuthorityIsUnavailable() {
         MultimodalGrpcService noAuthority = new MultimodalGrpcService(
                 mockEngine, mockAdapter, MediaProcessingMetrics.noop());
         CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> noAuthority.processMultimodal(MultimodalRequest.newBuilder()
-                .setAudioData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "source observation"))
+                .build(), observer));
 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.UNAVAILABLE.getCode());
@@ -249,6 +274,10 @@ class MultimodalGrpcServiceTest {
                 .setTenantId("caller-controlled-tenant")
                 .setArtifactId("caller-source-ref")
                 .setConsentStatus("GRANTED")
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "authorized source observation"))
                 .build();
         CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
         withContext(TENANT_ID, () -> capturing.processMultimodal(request, observer));
@@ -259,10 +288,19 @@ class MultimodalGrpcServiceTest {
                 SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.IMAGE,
                 SourceAuthorization.Modality.TEXT));
         assertThat(captured.get().artifactId()).isEqualTo("caller-source-ref");
-        assertThat(captured.get().artifactVersion()).isNull();
+        assertThat(captured.get().artifactVersion()).isEqualTo("source-v17");
         assertThat(captured.get().consentReference()).isNull();
-        assertThat(captured.get().purpose()).isEqualTo("multimodal.analyse");
+        assertThat(captured.get().capabilityRef()).isEqualTo("media.multimodal.observe.source-grounded");
+        assertThat(captured.get().operationRef()).isEqualTo(
+                "media.operation.capability.media-multimodal-observe-source-grounded");
+        assertThat(captured.get().operationVersion()).isEqualTo(1);
+        assertThat(captured.get().requestId()).isEqualTo("request-17");
+        assertThat(captured.get().purpose()).isEqualTo("authorized source observation");
+        assertThat(captured.get().correlationId()).isEqualTo("correlation-17");
+        assertThat(captured.get().dimensions()).isEmpty();
         assertThat(captured.get().contentBytes()).isEqualTo(2 + 1 + 2);
+        assertThat(captured.get().contentSha256()).isEqualTo(contentDigest(
+                List.of(new byte[] {1, 2}, new byte[] {3}, new byte[0]), "é"));
         assertFamilyTransportNotAdmitted(observer);
         verifyNoInteractions(mockEngine);
     }
@@ -291,8 +329,66 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("processMultimodal: revoked or unavailable source authority denies before engine dispatch")
-    void processMultimodal_revokedAndUnavailableAuthorityDenyBeforeDispatch() {
+    @DisplayName("processMultimodal: UTF-8 text byte budget is enforced before authorization")
+    void processMultimodal_multibyteTextCannotExceedByteBudget() {
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        MultimodalGrpcService bounded = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> {
+                    authorizationCalls.incrementAndGet();
+                    return SourceAuthorization.Decision.ADMITTED; // Test fixture only.
+                });
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        String text = "😀".repeat(16_385); // 32,770 UTF-16 code units but 65,540 UTF-8 bytes.
+
+        withContext(TENANT_ID, () -> bounded.processMultimodal(MultimodalRequest.newBuilder()
+                .setText(text)
+                .build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(authorizationCalls).hasValue(0);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: operation and legacy source mismatch are rejected before authority lookup")
+    void processMultimodal_invalidCanonicalSelectionDoesNotCallAuthority() {
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        MultimodalGrpcService bounded = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> {
+                    authorizationCalls.incrementAndGet();
+                    return SourceAuthorization.Decision.ADMITTED; // Test fixture only.
+                });
+        CanonicalOperationBinding wrongOperation = operationBinding(
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-describe", "source observation");
+        CapturingObserver<MultimodalResponse> wrongOperationObserver = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> bounded.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(wrongOperation)
+                .build(), wrongOperationObserver));
+
+        assertFamilyTransportNotAdmitted(wrongOperationObserver);
+        assertThat(authorizationCalls).hasValue(0);
+
+        CapturingObserver<MultimodalResponse> mismatchedSourceObserver = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> bounded.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setArtifactId("legacy-source-ref")
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "source observation"))
+                .build(), mismatchedSourceObserver));
+
+        assertFamilyTransportNotAdmitted(mismatchedSourceObserver);
+        assertThat(authorizationCalls).hasValue(0);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: not-admitted or unavailable source authority stops before engine dispatch")
+    void processMultimodal_notAdmittedAndUnavailableAuthorityStopBeforeDispatch() {
         for (SourceAuthorization authorization : List.<SourceAuthorization>of(
                 request -> SourceAuthorization.Decision.NOT_ADMITTED,
                 request -> { throw new IllegalStateException("authority unavailable"); })) {
@@ -301,6 +397,10 @@ class MultimodalGrpcServiceTest {
             CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
             withContext(TENANT_ID, () -> denied.processMultimodal(MultimodalRequest.newBuilder()
                     .setVideoData(ByteString.copyFrom(new byte[] {1}))
+                    .setOperationBinding(operationBinding(
+                            "media.multimodal.observe.source-grounded",
+                            "media.operation.capability.media-multimodal-observe-source-grounded",
+                            "source observation"))
                     .build(), observer));
 
             assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
@@ -346,6 +446,10 @@ class MultimodalGrpcServiceTest {
                     .setTenantId("caller-controlled-tenant")
                     .setArtifactId("caller-source-ref")
                     .setConsentStatus("GRANTED")
+                    .setOperationBinding(operationBinding(
+                            "media.multimodal.observe.source-grounded",
+                            "media.operation.capability.media-multimodal-observe-source-grounded",
+                            "mixed source analysis"))
                     .build();
 
             withContext(TENANT_ID, () -> denied.processMultimodal(request, observer));
@@ -356,9 +460,9 @@ class MultimodalGrpcServiceTest {
             assertThat(captured.get().principalId()).isEqualTo(java.util.UUID.fromString(SUBJECT_ID));
             assertThat(captured.get().modalities()).isEqualTo(Set.of(
                     SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.VIDEO));
-            assertThat(captured.get().purpose()).isEqualTo("multimodal.analyse");
+            assertThat(captured.get().purpose()).isEqualTo("mixed source analysis");
             assertThat(captured.get().artifactId()).isEqualTo("caller-source-ref");
-            assertThat(captured.get().artifactVersion()).isNull();
+            assertThat(captured.get().artifactVersion()).isEqualTo("source-v17");
             assertThat(captured.get().consentReference()).isNull();
             assertThat(sttCalls).hasValue(0);
             assertThat(imageCalls).hasValue(0);
@@ -381,12 +485,16 @@ class MultimodalGrpcServiceTest {
                 .setVideoData(ByteString.copyFrom(video))
                 .setExtractAudio(true)
                 .setAnalyzeFrames(false)
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.relate.scene-audio",
+                        "media.operation.capability.media-multimodal-relate-scene-audio",
+                        "video audio relation"))
                 .build(), observer));
 
         assertThat(captured.get().modalities()).isEqualTo(Set.of(
                 SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.VIDEO));
         assertThat(captured.get().contentBytes()).isEqualTo(video.length);
-        assertThat(captured.get().purpose()).isEqualTo("multimodal.video-audio-analysis");
+        assertThat(captured.get().purpose()).isEqualTo("video audio relation");
         assertFamilyTransportNotAdmitted(observer);
         verifyNoInteractions(mockEngine);
     }
@@ -806,6 +914,37 @@ class MultimodalGrpcServiceTest {
                 .isEqualTo(Status.FAILED_PRECONDITION.getCode());
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getDescription())
                 .startsWith("MULTIMODAL_FAMILY_NOT_ADMITTED:");
+    }
+
+    private static CanonicalOperationBinding operationBinding(String capabilityRef,
+                                                               String operationRef,
+                                                               String purpose) {
+        return CanonicalOperationBinding.newBuilder()
+                .setCapabilityRef(capabilityRef)
+                .setOperationRef(operationRef)
+                .setOperationVersion(1)
+                .setRequestId("request-17")
+                .setSourceArtifactId("caller-source-ref")
+                .setSourceVersionId("source-v17")
+                .setPurpose(purpose)
+                .setCorrelationId("correlation-17")
+                .build();
+    }
+
+    private static String contentDigest(List<byte[]> parts, String text) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            for (byte[] part : parts) {
+                digest.update(java.nio.ByteBuffer.allocate(Long.BYTES).putLong(part.length).array());
+                digest.update(part);
+            }
+            byte[] textBytes = text.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            digest.update(java.nio.ByteBuffer.allocate(Long.BYTES).putLong(textBytes.length).array());
+            digest.update(textBytes);
+            return java.util.HexFormat.of().formatHex(digest.digest());
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new AssertionError("SHA-256 is required by the Java runtime", impossible);
+        }
     }
 
     private static void withContext(String tenantId, Runnable action) {

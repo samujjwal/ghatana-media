@@ -8,7 +8,6 @@ import com.ghatana.media.common.AudioFormat;
 import com.ghatana.stt.core.grpc.proto.*;
 import com.ghatana.stt.service.PersistentSttService;
 import com.ghatana.stt.service.SttAudioInputDecoder;
-import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
     private static final Logger LOG = LoggerFactory.getLogger(PersistentSttGrpcService.class);
 
     private final PersistentSttService persistentSttService;
+    private final SttRequestAuthorization requestAuthorization;
 
     @Override
     public void createProfile(CreateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
@@ -49,8 +49,9 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
     }
 
     private static boolean requireAuthenticatedTenantPrincipal(StreamObserver<?> observer) {
-        String tenantId = JwtServerInterceptor.CTX_TENANT.get();
-        String principalId = JwtServerInterceptor.CTX_SUBJECT.get();
+        JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
+        String tenantId = identity == null ? null : identity.tenantId();
+        String principalId = identity == null ? null : identity.subject();
         if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
             observer.onError(io.grpc.Status.UNAUTHENTICATED
                     .withDescription("STT_IDENTITY_REQUIRED: authenticated tenant and subject are required")
@@ -79,35 +80,30 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             AudioFileService audioFileService,
             TranscriptionService transcriptionService,
             MeterRegistry metrics) {
-        this.persistentSttService = new PersistentSttService(
-            library, audioFileService, transcriptionService, metrics);
+        this(new PersistentSttService(library, audioFileService, transcriptionService, metrics),
+                SttRequestAuthorization.unavailable());
     }
 
     /**
      * Package-private constructor for unit testing — supply a pre-built service.
      */
     PersistentSttGrpcService(PersistentSttService persistentSttService) {
+        this(persistentSttService, SttRequestAuthorization.unavailable());
+    }
+
+    PersistentSttGrpcService(
+            PersistentSttService persistentSttService,
+            SttRequestAuthorization requestAuthorization) {
         this.persistentSttService = Objects.requireNonNull(persistentSttService);
+        this.requestAuthorization = Objects.requireNonNull(requestAuthorization, "requestAuthorization");
     }
 
     @Override
     public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> responseObserver) {
-        String tenantId = getTenantId();
-        String userIdStr = getUserId();
-
-        if (tenantId == null || tenantId.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant ID")
-                .asRuntimeException());
-            return;
-        }
-
-        if (userIdStr == null || userIdStr.isBlank()) {
-            responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing authenticated subject")
-                .asRuntimeException());
-            return;
-        }
+        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
+        String tenantId = identity.tenantId();
+        String userIdStr = identity.subject();
 
         final UUID userId;
         try {
@@ -118,6 +114,8 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
                 .asRuntimeException());
             return;
         }
+
+        if (!authorizeTranscription(responseObserver, identity, request.getArtifactId())) return;
 
         try {
             SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
@@ -198,13 +196,32 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
         return false;
     }
 
-    private String getTenantId() {
-        String tenantId = JwtServerInterceptor.CTX_TENANT.get();
-        return tenantId != null && !tenantId.isBlank() ? tenantId : null;
-    }
+    private boolean authorizeTranscription(
+            StreamObserver<?> observer,
+            JwtServerInterceptor.VerifiedIdentity identity,
+            String artifactId) {
+        SttRequestAuthorization.Decision decision;
+        try {
+            decision = requestAuthorization.authorize(new SttRequestAuthorization.Request(
+                    identity, SttRequestAuthorization.Operation.TRANSCRIBE, artifactId));
+        } catch (RuntimeException unavailable) {
+            decision = SttRequestAuthorization.Decision.UNAVAILABLE;
+        }
+        if (decision == null) decision = SttRequestAuthorization.Decision.UNAVAILABLE;
+        if (decision == SttRequestAuthorization.Decision.ADMITTED) return true;
 
-    private String getUserId() {
-        return JwtServerInterceptor.CTX_SUBJECT.get();
+        String code = switch (decision) {
+            case DENIED -> "STT_RIGHTS_DENIED";
+            case REVOKED -> "STT_RIGHTS_REVOKED";
+            case UNAVAILABLE -> "STT_RIGHTS_NOT_ADMITTED";
+            case ADMITTED -> throw new IllegalStateException("admitted decision handled above");
+        };
+        io.grpc.Status status = decision == SttRequestAuthorization.Decision.UNAVAILABLE
+                ? io.grpc.Status.FAILED_PRECONDITION : io.grpc.Status.PERMISSION_DENIED;
+        observer.onError(status.withDescription(code + (decision == SttRequestAuthorization.Decision.UNAVAILABLE
+                ? ": trusted rights and ownership authority is unavailable"
+                : ": trusted rights and ownership policy denied the request")).asRuntimeException());
+        return false;
     }
 
     /**

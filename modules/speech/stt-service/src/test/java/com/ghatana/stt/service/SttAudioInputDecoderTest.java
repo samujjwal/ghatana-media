@@ -160,8 +160,10 @@ class SttAudioInputDecoderTest {
     void rejectsContainerSampleRateMismatchAndUnsupportedChannelOrSampleShapes() {
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
                 pcmWav(16_000, 1, 16, new byte[] {1, 2}), AudioFormat.WAV, 48_000))
-                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure ->
-                        assertThat(failure).hasMessageContaining("STT_AUDIO_SAMPLE_RATE_MISMATCH"));
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_SAMPLE_RATE_MISMATCH");
+                });
 
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
                 pcmWav(16_000, 2, 16, new byte[] {1, 2, 3, 4}), AudioFormat.WAV, 16_000))
@@ -204,6 +206,17 @@ class SttAudioInputDecoderTest {
                 .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
                     assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.RESOURCE_EXHAUSTED);
                     assertThat(failure).hasMessageContaining("STT_AUDIO_TOO_LARGE");
+                });
+    }
+
+    @Test
+    void unaryInputAboveFourMibIsTypedResourceExhaustionBeforeFormatParsing() {
+        assertThat(SttAudioInputDecoder.MAX_INPUT_BYTES).isEqualTo(4L * 1024 * 1024);
+        byte[] oversized = new byte[Math.toIntExact(SttAudioInputDecoder.MAX_INPUT_BYTES + 1)];
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(oversized, AudioFormat.PCM, 16_000, 1))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.RESOURCE_EXHAUSTED);
+                    assertThat(failure).hasMessageContaining("4 MiB input limit");
                 });
     }
 

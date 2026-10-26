@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.io.IOException;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -104,6 +105,11 @@ public final class PlatformMultimodalAdapter implements MultimodalMediaGateway {
             rethrowOutcomeSignal(e);
             throw new MultimodalException("Platform video analysis failed", e);
         }
+    }
+
+    @Override
+    public VideoFrameExtractor.ExtractedAudioTrack extractAudioTrack(byte[] videoData) throws IOException {
+        return frameExtractor.extractAudioTrack(videoData);
     }
 
     /** Preserve child cancellation and deadline signals so callers can report uncertain finality. */

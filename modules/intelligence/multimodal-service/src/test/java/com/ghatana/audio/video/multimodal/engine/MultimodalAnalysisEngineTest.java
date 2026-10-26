@@ -475,6 +475,69 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Video audio analysis demuxes PCM before calling STT")
+    void videoAudioAnalysisNeverSendsContainerBytesToStt() {
+        byte[] videoData = new byte[] {'f', 't', 'y', 'p', 1, 2, 3, 4};
+        byte[] decodedPcm = new byte[] {9, 8, 7, 6};
+        AtomicReference<byte[]> sttInput = new AtomicReference<>();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(
+                AudioResult.builder().transcription("speech").build(),
+                VisualResult.error("unused"), VisualResult.error("unused")) {
+            @Override
+            public com.ghatana.audio.video.vision.video.VideoFrameExtractor.ExtractedAudioTrack extractAudioTrack(
+                    byte[] input) {
+                assertTrue(java.util.Arrays.equals(videoData, input));
+                return new com.ghatana.audio.video.vision.video.VideoFrameExtractor.ExtractedAudioTrack(
+                        decodedPcm, 16_000, 1, 1, 0, 1, 16_000, false);
+            }
+
+            @Override
+            public AudioResult transcribe(byte[] audioData) {
+                sttInput.set(audioData.clone());
+                return AudioResult.builder().transcription("speech").build();
+            }
+        };
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            engine.analyseVideoWithAudio(videoData, true, false, 1);
+        }
+
+        assertTrue(java.util.Arrays.equals(decodedPcm, sttInput.get()));
+        assertFalse(java.util.Arrays.equals(videoData, sttInput.get()));
+    }
+
+    @Test
+    @DisplayName("Missing audio track returns unavailable without calling STT")
+    void videoAudioAnalysisDoesNotCallSttWhenDemuxIsNotAdmitted() {
+        AtomicBoolean sttCalled = new AtomicBoolean();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(
+                AudioResult.builder().transcription("unused").build(),
+                VisualResult.error("unused"), VisualResult.error("unused")) {
+            @Override
+            public com.ghatana.audio.video.vision.video.VideoFrameExtractor.ExtractedAudioTrack extractAudioTrack(
+                    byte[] input) throws java.io.IOException {
+                throw new java.io.IOException("VIDEO_AUDIO_TRACK_NOT_ADMITTED");
+            }
+
+            @Override
+            public AudioResult transcribe(byte[] audioData) {
+                sttCalled.set(true);
+                return AudioResult.builder().transcription("must not run").build();
+            }
+        };
+
+        VideoAudioResult result;
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            result = engine.analyseVideoWithAudio(new byte[] {1, 2, 3}, true, false, 1);
+        }
+
+        assertTrue(result.getAudioResult().isError());
+        assertFalse(sttCalled.get());
+    }
+
+    @Test
     @DisplayName("Source, simulation, wall, and unrelated media clocks remain unresolved against media windows")
     void mismatchedClockDomainsAndIdentitiesDoNotAlignTranscriptWindows() {
         AudioResult audio = AudioResult.builder().transcription("word")

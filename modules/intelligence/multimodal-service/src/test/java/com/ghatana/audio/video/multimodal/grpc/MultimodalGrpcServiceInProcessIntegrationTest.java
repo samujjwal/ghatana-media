@@ -325,6 +325,15 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
                 com.ghatana.audio.video.multimodal.grpc.proto.InsightsRequest.newBuilder()
                         .setAudioData(ByteString.copyFrom(new byte[]{0x01}))
                         .setText("Context text")
+                        .setOperationBinding(CanonicalOperationBinding.newBuilder()
+                                .setCapabilityRef("media.multimodal.summarize")
+                                .setOperationRef("media.operation.capability.media-multimodal-summarize")
+                                .setOperationVersion(1)
+                                .setRequestId("insights-request-1")
+                                .setSourceArtifactId("insights-artifact-1")
+                                .setSourceVersionId("v1")
+                                .setPurpose("summarize source")
+                                .build())
                         .build()))
                 .isInstanceOf(StatusRuntimeException.class)
                 .satisfies(error -> {
@@ -333,6 +342,7 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
                     assertThat(status.getStatus().getDescription())
                             .contains("No qualified source-grounded semantic provider");
                 });
+        assertThat(authorizationCalls).hasValue(1);
         verifyNoInteractions(engine, adapter);
     }
 
@@ -356,7 +366,7 @@ class MultimodalGrpcServiceInProcessIntegrationTest {
                     assertThat(status.getStatus().getDescription())
                             .startsWith("MULTIMODAL_FAMILY_NOT_ADMITTED:");
                 });
-        assertThat(authorizationCalls).hasValue(callsBefore + 1);
+        assertThat(authorizationCalls).hasValue(callsBefore);
     }
 
     private static final class TenantInjector implements ServerInterceptor {

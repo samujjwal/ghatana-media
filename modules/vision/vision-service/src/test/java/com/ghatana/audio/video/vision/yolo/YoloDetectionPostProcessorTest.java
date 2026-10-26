@@ -97,6 +97,12 @@ class YoloDetectionPostProcessorTest {
         assertThatThrownBy(() -> YoloDetectionPostProcessor.process(List.of(), CLASSES,
                 LetterboxTransform.fit(100, 100, 100), Double.NaN, 1, MODEL))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("NMS threshold");
+        for (double invalidNmsThreshold : new double[] {Double.NEGATIVE_INFINITY, -0.01, 1.01,
+                Double.POSITIVE_INFINITY}) {
+            assertThatThrownBy(() -> YoloDetectionPostProcessor.process(List.of(), CLASSES,
+                    LetterboxTransform.fit(100, 100, 100), invalidNmsThreshold, 1, MODEL))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("NMS threshold");
+        }
         assertThatThrownBy(() -> new YoloDetectionPostProcessor.Provenance("id", "version", "not-a-digest"))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("SHA-256");
     }
@@ -123,11 +129,16 @@ class YoloDetectionPostProcessorTest {
 
         for (double invalidCoordinate : new double[] {
                 Double.NaN, Double.NEGATIVE_INFINITY, 640.0 * 16.0 + 1.0, -640.0 * 16.0 - 1.0}) {
-            var detection = new YoloOutputParser.Detection(0, 0.9, invalidCoordinate, 10, 20, 20);
-            assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
-                    List.of(detection), CLASSES, transform, 0.5, 1, MODEL))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("x");
+            for (int coordinate = 0; coordinate < 4; coordinate++) {
+                double x = coordinate == 0 ? invalidCoordinate : 10;
+                double y = coordinate == 1 ? invalidCoordinate : 10;
+                double width = coordinate == 2 ? invalidCoordinate : 20;
+                double height = coordinate == 3 ? invalidCoordinate : 20;
+                var detection = new YoloOutputParser.Detection(0, 0.9, x, y, width, height);
+                assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                        List.of(detection), CLASSES, transform, 0.5, 1, MODEL))
+                        .isInstanceOf(IllegalArgumentException.class);
+            }
         }
 
         for (double invalidDimension : new double[] {Double.NaN, Double.POSITIVE_INFINITY, 0.0, -1.0}) {

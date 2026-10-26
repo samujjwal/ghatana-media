@@ -50,9 +50,9 @@ class TtsGrpcLogPrivacyTest {
                     .build(), observer);
 
             assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
-            assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.UNIMPLEMENTED);
+            assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
             assertThat(Status.fromThrowable(observer.error).getDescription())
-                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+                    .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
             assertMarkersAbsent(logs.output(), TEXT_MARKER, VOICE_MARKER);
         }
     }

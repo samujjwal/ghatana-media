@@ -1,7 +1,6 @@
 package com.ghatana.audio.video.vision.ocr;
 
 import com.ghatana.kernel.product.api.ProductExecutionContext;
-import com.ghatana.kernel.product.api.capability.CapabilityOperation;
 import com.ghatana.kernel.product.api.capability.CapabilitySupportDescriptor;
 import com.ghatana.kernel.product.api.capability.CapabilityVersion;
 import com.ghatana.kernel.product.api.capability.ProductRuntimeCapabilityOperations;
@@ -20,23 +19,18 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Legacy Kernel Product API adapter retained for OCR compatibility only.
  *
  * <p>Generic OCR execution, model selection and qualification belong to
- * Document Intelligence. This adapter temporarily preserves older transport
- * and operation-lifecycle behavior; it is not canonical Media OCR ownership or
- * an admitted public Document Intelligence client. A payload reference without
- * inline bytes is rejected because resolving objects belongs to the owning
- * storage service; this adapter never guesses or reads an object store.</p>
+ * Document Intelligence. This compatibility adapter is unavailable until an
+ * admitted public client is wired; it is not canonical Media OCR ownership.
+ * Every request fails closed before payload or object-reference handling, so
+ * this adapter never reads storage or emits OCR text.</p>
  *
  * @doc.type class
  * @doc.purpose Legacy compatibility mapping; not an admitted Media-owned OCR execution service
@@ -49,17 +43,12 @@ public final class KernelOcrProviderAdapter
     private static final String CAPABILITY = "media.ocr";
     private static final String PROVIDER_RECEIPT_PREFIX = "media.ocr.provider";
 
-    private final OcrService service;
     private final String providerId;
-    private final String modelRef;
-    private final String modelVersion;
     private final Clock clock;
-    private final Executor executor;
-    private final ConcurrentMap<String, Operation> operations = new ConcurrentHashMap<>();
     private final AtomicBoolean started = new AtomicBoolean();
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    /** Uses the common work-stealing executor for model execution. */
+    /** Preserves the legacy constructor shape while OCR remains unavailable. */
     public KernelOcrProviderAdapter(
             OcrService service,
             String providerId,
@@ -68,7 +57,7 @@ public final class KernelOcrProviderAdapter
         this(service, providerId, modelRef, modelVersion, Clock.systemUTC(), ForkJoinPool.commonPool());
     }
 
-    /** Constructor with injectable clock and executor for deterministic conformance tests. */
+    /** Constructor with injectable clock/executor for deterministic compatibility tests. */
     public KernelOcrProviderAdapter(
             OcrService service,
             String providerId,
@@ -76,12 +65,15 @@ public final class KernelOcrProviderAdapter
             String modelVersion,
             Clock clock,
             Executor executor) {
-        this.service = Objects.requireNonNull(service, "service must not be null");
+        // Keep the legacy constructor shape for source compatibility, but do
+        // not retain or invoke the generic model while Document Intelligence
+        // admission is absent.
+        Objects.requireNonNull(service, "service must not be null");
         this.providerId = ProductRuntimeProvider.requireProviderId(providerId);
-        this.modelRef = required(modelRef, "modelRef");
-        this.modelVersion = required(modelVersion, "modelVersion");
+        required(modelRef, "modelRef");
+        required(modelVersion, "modelVersion");
         this.clock = Objects.requireNonNull(clock, "clock must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        Objects.requireNonNull(executor, "executor must not be null");
     }
 
     @Override
@@ -114,7 +106,6 @@ public final class KernelOcrProviderAdapter
 
     @Override
     public List<CapabilitySupportDescriptor> capabilitySupport() {
-        CapabilityOperation operation = ProductRuntimeCapabilityOperations.MEDIA_OCR;
         return List.of(new CapabilitySupportDescriptor(
                 CAPABILITY,
                 providerId,
@@ -165,64 +156,6 @@ public final class KernelOcrProviderAdapter
     public void close() {
         if (closed.compareAndSet(false, true)) {
             started.set(false);
-            operations.forEach((operationId, operation) -> {
-                operation.cancelled.set(true);
-                operation.result.complete(failure(operationId, "PROVIDER_CLOSED", operation.context));
-            });
-        }
-    }
-
-    private void execute(
-            ProductExecutionContext context,
-            ProductRuntimeFacets.OcrRequest request,
-            byte[] image,
-            Operation operation) {
-        if (operation.cancelled.get() || closed.get()) {
-            operation.result.complete(failure(request.operationId(), "CANCELLED", context));
-            return;
-        }
-        try {
-            List<OcrService.TextRegion> extracted = service.extract(image);
-            if (operation.cancelled.get() || closed.get()) {
-                operation.result.complete(failure(request.operationId(), "CANCELLED", context));
-                return;
-            }
-            List<ProductRuntimeFacets.OcrTextRegion> regions = extracted.stream()
-                    .sorted(java.util.Comparator.comparingInt(OcrService.TextRegion::readingOrder))
-                    .map(region -> new ProductRuntimeFacets.OcrTextRegion(
-                            region.text(),
-                            1,
-                            region.boundingBox().x(),
-                            region.boundingBox().y(),
-                            region.boundingBox().width(),
-                            region.boundingBox().height(),
-                            region.confidence(),
-                            region.readingOrder()))
-                    .toList();
-            if (regions.size() > request.maxRegions()) {
-                throw new IllegalArgumentException("OCR result exceeds request maxRegions");
-            }
-            if (regions.isEmpty()) {
-                operation.result.complete(failure(request.operationId(), "NO_TEXT_DETECTED", context));
-                return;
-            }
-            String fullText = String.join("\n", regions.stream()
-                    .map(ProductRuntimeFacets.OcrTextRegion::text)
-                    .toList());
-            String resultDigest = digest(fullText, regions);
-            operation.result.complete(new ProductRuntimeFacets.OcrResult(
-                    request.operationId(),
-                    ProductRuntimeFacets.TerminalStatus.SUCCEEDED,
-                    regions,
-                    fullText,
-                    Optional.of(modelRef),
-                    Optional.of(modelVersion),
-                    resultDigest,
-                    receiptRef(request.operationId()),
-                    Optional.empty(),
-                    clock.instant()));
-        } catch (RuntimeException failure) {
-            operation.result.complete(failure(request.operationId(), classify(failure), context));
         }
     }
 
@@ -249,21 +182,6 @@ public final class KernelOcrProviderAdapter
                 observedAt);
     }
 
-    private String classify(RuntimeException failure) {
-        if (failure instanceof IllegalArgumentException) return "INVALID_OCR_RESULT";
-        return "OCR_EXECUTION_FAILED";
-    }
-
-    private static Throwable unwrap(Throwable failure) {
-        Throwable current = failure;
-        while ((current instanceof java.util.concurrent.CompletionException
-                || current instanceof java.util.concurrent.ExecutionException)
-                && current.getCause() != null) {
-            current = current.getCause();
-        }
-        return current;
-    }
-
     private String receiptRef(String operationId) {
         return PROVIDER_RECEIPT_PREFIX + ":" + providerId + ":" + operationId;
     }
@@ -285,24 +203,6 @@ public final class KernelOcrProviderAdapter
         }
     }
 
-    private static String digest(
-            String fullText,
-            List<ProductRuntimeFacets.OcrTextRegion> regions) {
-        StringBuilder canonical = new StringBuilder(fullText);
-        for (ProductRuntimeFacets.OcrTextRegion region : regions) {
-            canonical.append('|')
-                    .append(region.pageNumber()).append('|')
-                    .append(region.x()).append('|')
-                    .append(region.y()).append('|')
-                    .append(region.width()).append('|')
-                    .append(region.height()).append('|')
-                    .append(region.confidence()).append('|')
-                    .append(region.readingOrder()).append('|')
-                    .append(region.text());
-        }
-        return digest(canonical.toString());
-    }
-
     private static String required(String value, String name) {
         Objects.requireNonNull(value, name + " must not be null");
         String normalized = value.trim();
@@ -310,19 +210,4 @@ public final class KernelOcrProviderAdapter
         return normalized;
     }
 
-    private static final class Operation {
-        private final String tenantId;
-        private final String idempotencyKey;
-        private final String payloadDigest;
-        private final ProductExecutionContext context;
-        private final AtomicBoolean cancelled = new AtomicBoolean();
-        private final CompletableFuture<ProductRuntimeFacets.OcrResult> result = new CompletableFuture<>();
-
-        private Operation(ProductExecutionContext context, String idempotencyKey, String payloadDigest) {
-            this.context = context;
-            this.tenantId = context.tenantId();
-            this.idempotencyKey = idempotencyKey;
-            this.payloadDigest = payloadDigest;
-        }
-    }
 }

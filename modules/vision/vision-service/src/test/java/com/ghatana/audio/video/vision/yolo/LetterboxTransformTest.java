@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ghatana.audio.video.vision.image.ExifOrientationTransform;
 import org.junit.jupiter.api.Test;
 
+import java.util.Random;
+
 class LetterboxTransformTest {
     @Test void sourcePixelBoxesRoundTripThroughModelCanvasWithinOnePixel() {
         int[][] dimensions = {{1920, 1080}, {720, 1280}, {333, 777}, {1280, 1280}};
@@ -28,6 +30,53 @@ class LetterboxTransformTest {
         assertThat(source.y()).isZero();
         assertThat(source.x() + source.width()).isLessThanOrEqualTo(1920);
         assertThat(source.y() + source.height()).isLessThanOrEqualTo(1080);
+    }
+
+    @Test void randomizedPixelXywhBoxesRoundTripWithinOnePixelAcrossAspectRatios() {
+        Random random = new Random(0x56495305L);
+        org.assertj.core.data.Offset<Double> tolerance = org.assertj.core.data.Offset.offset(1.0);
+
+        for (int sample = 0; sample < 2_000; sample++) {
+            int width = 1 + random.nextInt(16_384);
+            int height = 1 + random.nextInt(16_384);
+            LetterboxTransform transform = LetterboxTransform.fit(width, height, 640);
+
+            double x = random.nextDouble() * width;
+            double y = random.nextDouble() * height;
+            double boxWidth = random.nextDouble() * (width - x);
+            double boxHeight = random.nextDouble() * (height - y);
+            LetterboxTransform.Box source = new LetterboxTransform.Box(x, y, boxWidth, boxHeight);
+            LetterboxTransform.Box roundTrip = transform.toSourcePixels(transform.toModelPixels(source));
+
+            assertThat(roundTrip.x()).as("sample %s x", sample).isCloseTo(x, tolerance);
+            assertThat(roundTrip.y()).as("sample %s y", sample).isCloseTo(y, tolerance);
+            assertThat(roundTrip.width()).as("sample %s width", sample).isCloseTo(boxWidth, tolerance);
+            assertThat(roundTrip.height()).as("sample %s height", sample).isCloseTo(boxHeight, tolerance);
+        }
+    }
+
+    @Test void randomizedClippingReturnsOnlySourceRasterPixels() {
+        Random random = new Random(0x434C4950L);
+
+        for (int sample = 0; sample < 2_000; sample++) {
+            int width = 1 + random.nextInt(16_384);
+            int height = 1 + random.nextInt(16_384);
+            LetterboxTransform transform = LetterboxTransform.fit(width, height, 640);
+            double x = random.nextDouble() * 1_280 - 320;
+            double y = random.nextDouble() * 1_280 - 320;
+            double boxWidth = random.nextDouble() * 1_280;
+            double boxHeight = random.nextDouble() * 1_280;
+
+            LetterboxTransform.Box clipped = transform.toSourcePixels(
+                    new LetterboxTransform.Box(x, y, boxWidth, boxHeight));
+
+            assertThat(clipped.x()).as("sample %s x", sample).isBetween(0.0, (double) width);
+            assertThat(clipped.y()).as("sample %s y", sample).isBetween(0.0, (double) height);
+            assertThat(clipped.width()).as("sample %s width", sample)
+                    .isBetween(0.0, (double) width - clipped.x());
+            assertThat(clipped.height()).as("sample %s height", sample)
+                    .isBetween(0.0, (double) height - clipped.y());
+        }
     }
 
     @Test void encodedPixelBoxRoundTripsThroughExifOrientationAndLetterboxWithinOnePixel() {

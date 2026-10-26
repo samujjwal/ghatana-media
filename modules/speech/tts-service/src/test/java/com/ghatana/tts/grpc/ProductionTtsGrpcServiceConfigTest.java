@@ -1,8 +1,15 @@
 package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
+import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.tts.core.grpc.proto.AudioChunk;
+import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
+import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -11,9 +18,11 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardCopyOption;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
+import java.util.List;
 import java.util.Map;
 import java.util.HexFormat;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,12 +71,86 @@ class ProductionTtsGrpcServiceConfigTest {
             var profile = ProductionTtsGrpcService.resolveProviderProfile(environment);
             assertThat(profile.modelId()).isEqualTo("fixture-model");
             assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
-            assertThat(profile.reason()).contains("not source-admitted");
+            assertThat(profile.reason()).contains("source-authoritative", "resolver");
             assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(environment))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("TTS_PROVIDER_NOT_ADMITTED");
             assertRejectedBeforeInitialization(environment, IllegalStateException.class,
                     "TTS_PROVIDER_NOT_ADMITTED");
+        } finally {
+            Files.deleteIfExists(model);
+        }
+    }
+
+    @Test
+    void oneFixtureAdmissionDecisionGatesReadinessSynthesisAndStreaming() throws Exception {
+        Path model = createModelFile("tts-model-local-fixture-admission");
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        TtsEngine engine = mock(TtsEngine.class);
+        AtomicReference<TtsConfig> configured = new AtomicReference<>();
+        when(library.getTtsEngine()).thenReturn(engine);
+        when(engine.getStatus()).thenReturn(new EngineStatus(
+                EngineStatus.State.READY, "fixture", "v1", 1L, null));
+        when(engine.synthesize(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any())).thenThrow(new com.ghatana.tts.engine.TtsSynthesisEngine.SynthesisException(
+                "fixture invocation stopped before provider output",
+                com.ghatana.tts.engine.TtsSynthesisEngine.FailureReason.NOT_ADMITTED));
+        try {
+            Files.writeString(model, "local fixture model bytes");
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            Map<String, String> environment = localProfile(model, digest);
+            TtsProviderAdmission localFixtureResolver = candidate -> {
+                assertThat(candidate.modelDigest()).isEqualTo(digest);
+                assertThat(candidate.defaultVoiceId()).isEqualTo("piper-en");
+                return new TtsProviderAdmission.Decision(
+                        java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                        "local-fixture-resolver:test-only", "test fixture decision");
+            };
+            ProductionTtsGrpcService service = new ProductionTtsGrpcService(
+                    environment, new SimpleMeterRegistry(), localFixtureResolver, config -> {
+                        configured.set(config);
+                        return library;
+                    });
+            try {
+                assertThat(configured.get()).isNotNull();
+                assertThat(configured.get().enableStreaming()).isFalse();
+                assertThat(service.isProviderReady()).isTrue();
+
+                RecordingObserver<SynthesizeResponse> synthesis = new RecordingObserver<>();
+                service.synthesize(SynthesizeRequest.newBuilder().setText("fixture request").build(), synthesis);
+                assertThat(Status.fromThrowable(synthesis.error.get()).getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+                assertThat(synthesis.value.get()).isNull();
+                org.mockito.Mockito.verify(engine, org.mockito.Mockito.never()).synthesize(
+                        org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
+                org.mockito.Mockito.clearInvocations(library, engine);
+
+                for (String language : List.of("en", "en-GB", "ne", "ne-NP", "hi", "hi-IN")) {
+                    RecordingObserver<SynthesizeResponse> mismatchedLocale = new RecordingObserver<>();
+                    service.synthesize(SynthesizeRequest.newBuilder().setText("locale fixture")
+                            .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                                    .setLanguage(language).build()).build(), mismatchedLocale);
+                    assertThat(Status.fromThrowable(mismatchedLocale.error.get()).getCode())
+                            .as("locale %s must not use the admitted en-US profile", language)
+                            .isEqualTo(Status.Code.UNAVAILABLE);
+                    assertThat(mismatchedLocale.value.get()).isNull();
+                }
+                // The only admitted profile is the exact configured default voice and en-US.
+                assertThat(ProductionTtsGrpcService.matchesAdmittedProfile(
+                        "piper-en", "en-US", "piper-ne", java.util.Locale.forLanguageTag("en-US"))).isFalse();
+                assertThat(ProductionTtsGrpcService.matchesAdmittedProfile(
+                        "piper-en", "en-US", "piper-en", java.util.Locale.forLanguageTag("ne-NP"))).isFalse();
+                verifyNoInteractions(library, engine);
+
+                RecordingObserver<AudioChunk> streaming = new RecordingObserver<>();
+                service.streamSynthesize(SynthesizeRequest.newBuilder().setText("fixture stream").build(), streaming);
+                assertThat(Status.fromThrowable(streaming.error.get()).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                org.mockito.Mockito.verify(engine, org.mockito.Mockito.never()).startStreaming(
+                        org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.any());
+            } finally {
+                service.close();
+            }
         } finally {
             Files.deleteIfExists(model);
         }
@@ -246,5 +329,14 @@ class ProductionTtsGrpcServiceConfigTest {
 
         assertThat(factoryCalls).hasValue(0);
         verifyNoInteractions(library, engine);
+    }
+
+    private static final class RecordingObserver<T> implements StreamObserver<T> {
+        private final AtomicReference<T> value = new AtomicReference<>();
+        private final AtomicReference<Throwable> error = new AtomicReference<>();
+
+        @Override public void onNext(T next) { value.set(next); }
+        @Override public void onError(Throwable failure) { error.set(failure); }
+        @Override public void onCompleted() { }
     }
 }

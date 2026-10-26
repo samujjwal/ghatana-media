@@ -38,6 +38,14 @@ class SttStreamSequenceValidatorTest {
         assertThat(resumeFence.lastSequence()).isZero();
         assertThat(resumeFence.accept("session", 1, 16_000, 0, 2)).isEqualTo(1);
 
+        SttStreamSequenceValidator reconnect = new SttStreamSequenceValidator("session");
+        assertThatThrownBy(() -> reconnect.accept("session", 2, 16_000, 20, 2))
+                .isInstanceOfSatisfying(SttStreamSequenceValidator.StreamInputException.class, failure -> {
+                    assertThat(failure.failure()).isEqualTo(SttStreamSequenceValidator.Failure.NOT_ADMITTED);
+                    assertThat(failure).hasMessageContaining("STT_STREAM_RESUME_NOT_ADMITTED");
+                });
+        assertThat(reconnect.lastSequence()).isZero();
+
         SttStreamSequenceValidator validator = new SttStreamSequenceValidator("session");
         validator.accept("session", 1, 16_000, 10, 2);
         assertInvalid(validator, 2, "STT_STREAM_SESSION_MISMATCH", "other", 16_000, 20);

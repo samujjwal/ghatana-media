@@ -113,7 +113,8 @@ class ProductionSttGrpcServiceTest {
     @Test
     void productionCompositionKeepsUnsupportedRpcPathsExplicitlyUnavailable() {
         ProductionSttGrpcService service = new ProductionSttGrpcService(
-                mock(AudioVideoLibrary.class), new SimpleMeterRegistry());
+                mock(AudioVideoLibrary.class), new SimpleMeterRegistry(),
+                request -> SttRequestAuthorization.Decision.ADMITTED); // Test authority only.
 
         ProductionSttGrpcServiceTest.<UnloadModelResponse>assertUnimplemented(
                 observer -> runWithTenantPrincipal(
@@ -130,6 +131,78 @@ class ProductionSttGrpcServiceTest {
         ProductionSttGrpcServiceTest.<CorrectionResponse>assertFailedPrecondition(
                 observer -> runWithTenantPrincipal(() -> service.submitCorrection(CorrectionRequest.getDefaultInstance(), observer)),
                 "STT_CORRECTION_NOT_ADMITTED:");
+    }
+
+    @Test
+    void speakerIdentityOperationsRequireTrustedPurposeAndOwnerDecisionBeforeAnyEffects() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        java.util.concurrent.atomic.AtomicReference<SttRequestAuthorization.Decision> decision =
+                new java.util.concurrent.atomic.AtomicReference<>(SttRequestAuthorization.Decision.DENIED);
+        java.util.List<SttRequestAuthorization.Request> seen = new java.util.ArrayList<>();
+        ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry(), request -> {
+            seen.add(request);
+            return decision.get();
+        });
+
+        CapturingObserver<ProfileResponse> create = new CapturingObserver<>();
+        CapturingObserver<ProfileResponse> read = new CapturingObserver<>();
+        CapturingObserver<ProfileResponse> update = new CapturingObserver<>();
+        runWithTenantPrincipal(() -> {
+            service.createProfile(CreateProfileRequest.newBuilder().setDisplayName("fixture").build(), create);
+            service.getProfile(GetProfileRequest.newBuilder().setProfileId("profile-fixture").build(), read);
+            service.updateProfile(UpdateProfileRequest.newBuilder().setProfileId("profile-fixture").build(), update);
+        });
+
+        for (CapturingObserver<ProfileResponse> observer : List.of(create, read, update)) {
+            assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                    .isEqualTo(Status.PERMISSION_DENIED.getCode());
+            assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                    .contains("STT_RIGHTS_DENIED");
+        }
+        assertThat(seen).extracting(SttRequestAuthorization.Request::operation)
+                .containsExactly(SttRequestAuthorization.Operation.CREATE_SPEAKER_IDENTITY,
+                        SttRequestAuthorization.Operation.READ_SPEAKER_IDENTITY,
+                        SttRequestAuthorization.Operation.UPDATE_SPEAKER_IDENTITY);
+        assertThat(seen).allSatisfy(request -> assertThat(request.identity().tenantId()).isEqualTo("tenant-test"));
+        assertThat(seen).allSatisfy(request -> assertThat(request.identity().subject())
+                .isEqualTo("00000000-0000-0000-0000-000000000001"));
+        assertThat(seen).extracting(SttRequestAuthorization.Request::resourceId)
+                .containsExactly(null, "profile-fixture", "profile-fixture");
+        verifyNoInteractions(library);
+
+        decision.set(SttRequestAuthorization.Decision.REVOKED);
+        CapturingObserver<ProfileResponse> revoked = new CapturingObserver<>();
+        runWithTenantPrincipal(() -> service.getProfile(
+                GetProfileRequest.newBuilder().setProfileId("profile-fixture").build(), revoked));
+        assertThat(((StatusRuntimeException) revoked.error).getStatus().getDescription())
+                .contains("STT_RIGHTS_REVOKED");
+        verifyNoInteractions(library);
+
+        decision.set(SttRequestAuthorization.Decision.ADMITTED);
+        CapturingObserver<ProfileResponse> admittedWithoutIdentityStore = new CapturingObserver<>();
+        runWithTenantPrincipal(() -> service.getProfile(
+                GetProfileRequest.newBuilder().setProfileId("profile-fixture").build(), admittedWithoutIdentityStore));
+        assertThat(((StatusRuntimeException) admittedWithoutIdentityStore.error).getStatus().getDescription())
+                .contains("STT_SPEAKER_PROFILE_NOT_ADMITTED");
+        verifyNoInteractions(library);
+    }
+
+    @Test
+    void productionSpeakerIdentityDefaultIsUnavailableAndHasNoProviderEffect() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry());
+        CapturingObserver<ProfileResponse> observer = new CapturingObserver<>();
+
+        runWithTenantPrincipal(() -> service.createProfile(
+                CreateProfileRequest.newBuilder().addEnrollmentAudio(
+                        com.google.protobuf.ByteString.copyFromUtf8("fixture-audio-not-a-biometric-proof")).build(),
+                observer));
+
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .contains("STT_RIGHTS_NOT_ADMITTED");
+        verifyNoInteractions(library);
     }
 
     @Test

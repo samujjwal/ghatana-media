@@ -4,6 +4,7 @@ import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
+import com.ghatana.stt.service.SttAudioInputDecoder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,11 @@ public final class SttGrpcServer extends AudioVideoGrpcServerBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(SttGrpcServer.class);
     private static final int DEFAULT_PORT = 50051;
-    // Keep the explicit transport bound at gRPC-Java's existing 4 MiB default. The decoder's
-    // 100 MiB limit applies after a request is materialized and does not expand the gRPC contract;
-    // method-specific limits are required before raising the shared cap for unary file uploads.
-    static final int MAX_INBOUND_MESSAGE_SIZE = 4 * 1024 * 1024;
+    // Permit bounded protobuf metadata around the separately enforced 4 MiB audio payload.
+    // The service decoder remains the content cap; this transport envelope cap does not raise it.
+    static final long MAX_REQUEST_ENVELOPE_BYTES = 64L * 1024;
+    static final int MAX_INBOUND_MESSAGE_SIZE = Math.toIntExact(
+            SttAudioInputDecoder.MAX_INPUT_BYTES + MAX_REQUEST_ENVELOPE_BYTES);
 
     public SttGrpcServer(int port) {
         this(port, TransportSecurity.plaintext());

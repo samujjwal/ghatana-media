@@ -104,7 +104,7 @@ class MediaWorkflowAlertRulesTest {
             Matcher entry = labelEntry.matcher(line);
             assertThat(entry.matches()).as("alert label line: %s", line).isTrue();
             assertThat(allowedKeys).contains(entry.group(1));
-            assertThat(entry.group(2)).doesNotContain("{{", "$", "tenant", "principal", "request", "provider", "model");
+            assertThat(entry.group(2)).matches("[a-z][a-z0-9_-]*");
             labelCount++;
         }
 
@@ -237,6 +237,34 @@ class MediaWorkflowAlertRulesTest {
                 "values: 1x3",
                 "values: NaN NaN NaN",
                 "exp_alerts: []");
+        assertThat(fixture).doesNotContain("tenant-987", "request-654", "private-media-marker");
+    }
+
+    @Test
+    void qualityAndSourceFreshnessRulesAreFixtureScopedAndRedacted() throws IOException {
+        Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
+        Path fixturePath = Path.of("..", "infra", "monitoring", "tests", "audio-video.rules.test.yml");
+        String rules = Files.readString(rulesPath);
+        String fixture = Files.readString(fixturePath);
+
+        assertThat(rules).contains(
+                "alert: MediaModelQualityRegressionFixture",
+                "av_model_quality_regression{source=\"fixture\"} == 1",
+                "alert: MediaProviderSourceStaleFixture",
+                "av_provider_source_timestamp_seconds{source=\"fixture\"} > 300",
+                "do not infer provider quality or change production traffic",
+                "verify real source freshness through its owning system");
+        assertThat(fixture).contains(
+                "name: fixture-quality-regression-and-stale-source-alerts-fire-redacted",
+                "name: fixture-quality-recovered-and-fresh-source-stay-quiet",
+                "alertname: MediaModelQualityRegressionFixture",
+                "alertname: MediaProviderSourceStaleFixture",
+                "values: 1x11",
+                "values: 100x11",
+                "values: 0x11",
+                "values: 590x11");
+        assertThat(rules).doesNotContain("tenant_id", "principal_id", "request_id", "job_id",
+                "attempt_id", "provider_id", "model_id", "voice_id", "face_id", "token");
         assertThat(fixture).doesNotContain("tenant-987", "request-654", "private-media-marker");
     }
 

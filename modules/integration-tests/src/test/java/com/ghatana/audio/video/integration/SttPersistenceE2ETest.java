@@ -67,10 +67,16 @@ class SttPersistenceE2ETest extends EventloopTestBase {
     private Server server;
     private ManagedChannel channel;
     private STTServiceGrpc.STTServiceBlockingStub blockingStub;
+    private String previousJwtSecret;
+    private String previousAuthGatewayUrl;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
+        previousJwtSecret = System.getProperty("AV_JWT_SECRET");
+        previousAuthGatewayUrl = System.getProperty("AUTH_GATEWAY_URL");
+        System.setProperty("AV_JWT_SECRET", "test-secret-key-for-integration-tests");
+        System.setProperty("AUTH_GATEWAY_URL", "");
         meterRegistry = new SimpleMeterRegistry();
         lenient().when(library.getSttEngine()).thenReturn(sttEngine);
 
@@ -81,7 +87,7 @@ class SttPersistenceE2ETest extends EventloopTestBase {
         server = InProcessServerBuilder.forName(serverName)
                 .directExecutor()
                 .addService(service)
-                .intercept(new TestJwtServerInterceptor())
+                .intercept(new JwtServerInterceptor())
                 .build()
                 .start();
 
@@ -93,6 +99,13 @@ class SttPersistenceE2ETest extends EventloopTestBase {
     void tearDown() throws Exception {
         if (channel != null) { channel.shutdownNow(); channel.awaitTermination(5, TimeUnit.SECONDS); }
         if (server  != null) { server.shutdownNow();  server.awaitTermination(5, TimeUnit.SECONDS); }
+        restoreSystemProperty("AV_JWT_SECRET", previousJwtSecret);
+        restoreSystemProperty("AUTH_GATEWAY_URL", previousAuthGatewayUrl);
+    }
+
+    private static void restoreSystemProperty(String key, String value) {
+        if (value == null) System.clearProperty(key);
+        else System.setProperty(key, value);
     }
 
     // -------------------------------------------------------------------------
@@ -128,7 +141,7 @@ class SttPersistenceE2ETest extends EventloopTestBase {
                 .satisfies(ex -> {
                     StatusRuntimeException status = (StatusRuntimeException) ex;
                     assertThat(status.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
-                    assertThat(status.getStatus().getDescription()).contains("STT_TRANSCRIPT_VERSION_NOT_ADMITTED");
+                    assertThat(status.getStatus().getDescription()).contains("STT_RIGHTS_NOT_ADMITTED");
                 });
 
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
@@ -162,13 +175,13 @@ class SttPersistenceE2ETest extends EventloopTestBase {
     }
 
     // -------------------------------------------------------------------------
-    // AV-P1-004: Validation — empty audio → INVALID_ARGUMENT
+    // No trusted request rights authority: authorization precedes input decoding.
     // -------------------------------------------------------------------------
 
     @Test
     @Order(3)
-    @DisplayName("GIVEN empty audio bytes WHEN transcribe THEN INVALID_ARGUMENT and no persistence call")
-    void emptyAudioBytes_returnsInvalidArgument() {
+    @DisplayName("GIVEN empty audio bytes without authorization WHEN transcribe THEN NOT_ADMITTED before decoding")
+    void emptyAudioBytesFailsBeforeDecodingWithoutRightsAdmission() {
         TranscribeRequest request = TranscribeRequest.newBuilder()
                 .setAudioData(com.google.protobuf.ByteString.EMPTY)
                 .setSampleRate(16000)
@@ -178,20 +191,23 @@ class SttPersistenceE2ETest extends EventloopTestBase {
                 .withInterceptors(jwtHeaders(TENANT_ID, USER_ID))
                 .transcribe(request))
                 .isInstanceOf(StatusRuntimeException.class)
-                .satisfies(ex -> assertThat(((StatusRuntimeException) ex).getStatus().getCode())
-                        .isEqualTo(io.grpc.Status.Code.INVALID_ARGUMENT));
+                .satisfies(ex -> {
+                    StatusRuntimeException status = (StatusRuntimeException) ex;
+                    assertThat(status.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
+                    assertThat(status.getStatus().getDescription()).contains("STT_RIGHTS_NOT_ADMITTED");
+                });
 
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
     }
 
     // -------------------------------------------------------------------------
-    // AV-P1-004: Validation — unsupported language → INVALID_ARGUMENT
+    // AV-P1-004: Unsupported input cannot bypass request authorization.
     // -------------------------------------------------------------------------
 
     @Test
     @Order(4)
-    @DisplayName("GIVEN unsupported language WHEN transcribe THEN INVALID_ARGUMENT and no persistence call")
-    void unsupportedLanguage_returnsInvalidArgument() {
+    @DisplayName("GIVEN unsupported language without authorization WHEN transcribe THEN NOT_ADMITTED before validation")
+    void unsupportedLanguageFailsBeforeValidationWithoutRightsAdmission() {
         byte[] audioBytes = buildMinimalWavBytes();
         // "xx" is not in the supported language list
         TranscribeRequest request = TranscribeRequest.newBuilder()
@@ -204,20 +220,23 @@ class SttPersistenceE2ETest extends EventloopTestBase {
                 .withInterceptors(jwtHeaders(TENANT_ID, USER_ID))
                 .transcribe(request))
                 .isInstanceOf(StatusRuntimeException.class)
-                .satisfies(ex -> assertThat(((StatusRuntimeException) ex).getStatus().getCode())
-                        .isEqualTo(io.grpc.Status.Code.INVALID_ARGUMENT));
+                .satisfies(ex -> {
+                    StatusRuntimeException status = (StatusRuntimeException) ex;
+                    assertThat(status.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
+                    assertThat(status.getStatus().getDescription()).contains("STT_RIGHTS_NOT_ADMITTED");
+                });
 
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
     }
 
     // -------------------------------------------------------------------------
-    // AV-P1-004: Validation — out-of-range sample rate → INVALID_ARGUMENT
+    // AV-P1-004: Invalid sample rate cannot bypass request authorization.
     // -------------------------------------------------------------------------
 
     @Test
     @Order(5)
-    @DisplayName("GIVEN sample rate below minimum WHEN transcribe THEN INVALID_ARGUMENT and no persistence call")
-    void outOfRangeSampleRate_returnsInvalidArgument() {
+    @DisplayName("GIVEN invalid sample rate without authorization WHEN transcribe THEN NOT_ADMITTED before validation")
+    void outOfRangeSampleRateFailsBeforeValidationWithoutRightsAdmission() {
         byte[] audioBytes = buildMinimalWavBytes();
         TranscribeRequest request = TranscribeRequest.newBuilder()
                 .setAudioData(com.google.protobuf.ByteString.copyFrom(audioBytes))
@@ -228,8 +247,11 @@ class SttPersistenceE2ETest extends EventloopTestBase {
                 .withInterceptors(jwtHeaders(TENANT_ID, USER_ID))
                 .transcribe(request))
                 .isInstanceOf(StatusRuntimeException.class)
-                .satisfies(ex -> assertThat(((StatusRuntimeException) ex).getStatus().getCode())
-                        .isEqualTo(io.grpc.Status.Code.INVALID_ARGUMENT));
+                .satisfies(ex -> {
+                    StatusRuntimeException status = (StatusRuntimeException) ex;
+                    assertThat(status.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
+                    assertThat(status.getStatus().getDescription()).contains("STT_RIGHTS_NOT_ADMITTED");
+                });
 
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
     }
@@ -259,7 +281,7 @@ class SttPersistenceE2ETest extends EventloopTestBase {
                 .satisfies(ex -> {
                     StatusRuntimeException status = (StatusRuntimeException) ex;
                     assertThat(status.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
-                    assertThat(status.getStatus().getDescription()).contains("STT_TRANSCRIPT_VERSION_NOT_ADMITTED");
+                    assertThat(status.getStatus().getDescription()).contains("STT_RIGHTS_NOT_ADMITTED");
                 });
 
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));

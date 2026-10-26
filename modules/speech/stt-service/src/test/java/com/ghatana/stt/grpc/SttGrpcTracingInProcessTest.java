@@ -53,7 +53,8 @@ class SttGrpcTracingInProcessTest {
         when(engine.transcribe(any(AudioData.class), any())).thenReturn(result());
 
         try (InProcessCall call = new InProcessCall(new SttGrpcService(library,
-                new SimpleMeterRegistry(), trace.tracer))) {
+                new SimpleMeterRegistry(), trace.tracer,
+                request -> SttRequestAuthorization.Decision.ADMITTED))) {
             STTServiceGrpc.newBlockingStub(call.channel).transcribe(request("en", "opaque-marker"));
         }
 
@@ -68,7 +69,8 @@ class SttGrpcTracingInProcessTest {
         TraceHarness trace = new TraceHarness();
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         try (InProcessCall call = new InProcessCall(new SttGrpcService(library,
-                new SimpleMeterRegistry(), trace.tracer))) {
+                new SimpleMeterRegistry(), trace.tracer,
+                request -> SttRequestAuthorization.Decision.ADMITTED))) {
             try {
                 STTServiceGrpc.newBlockingStub(call.channel).transcribe(request("sensitive-marker", "private"));
             } catch (io.grpc.StatusRuntimeException expected) {
@@ -106,7 +108,8 @@ class SttGrpcTracingInProcessTest {
         });
 
         try (InProcessCall call = new InProcessCall(new SttGrpcService(library,
-                new SimpleMeterRegistry(), trace.tracer))) {
+                new SimpleMeterRegistry(), trace.tracer,
+                request -> SttRequestAuthorization.Decision.ADMITTED))) {
             AtomicReference<ClientCallStreamObserver<Object>> requestStream = new AtomicReference<>();
             STTServiceGrpc.newStub(call.channel).transcribe(request("en", "private-content"),
                     new ClientResponseObserver<Object, TranscribeResponse>() {

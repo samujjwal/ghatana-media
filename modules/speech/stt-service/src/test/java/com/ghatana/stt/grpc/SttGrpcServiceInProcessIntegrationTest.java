@@ -23,6 +23,7 @@ import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.core.grpc.proto.UnloadModelRequest;
 import com.ghatana.stt.core.grpc.proto.UpdateProfileRequest;
+import com.ghatana.stt.service.SttAudioInputDecoder;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -72,6 +73,8 @@ class SttGrpcServiceInProcessIntegrationTest {
     private Metadata authenticatedHeaders;
     private AudioVideoLibrary library;
     private SttEngine engine;
+    private ProductionSttGrpcService productionService;
+    private java.util.concurrent.atomic.AtomicReference<SttRequestAuthorization.Decision> authorizationDecision;
 
     @AfterEach
     void tearDown() {
@@ -81,6 +84,7 @@ class SttGrpcServiceInProcessIntegrationTest {
         if (server != null) {
             server.shutdownNow();
         }
+        if (productionService != null) productionService.close();
         if (previousJwtSecret == null) System.clearProperty("AV_JWT_SECRET");
         else System.setProperty("AV_JWT_SECRET", previousJwtSecret);
     }
@@ -106,12 +110,21 @@ class SttGrpcServiceInProcessIntegrationTest {
             )
         );
 
-        SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry());
+        authorizationDecision = new java.util.concurrent.atomic.AtomicReference<>(SttRequestAuthorization.Decision.ADMITTED);
+        SttRequestAuthorization fixtureAuthorization = request -> {
+            boolean exactOwner = request.identity().tenantId().equals("tenant-stt-matrix")
+                    && request.identity().subject().equals("00000000-0000-0000-0000-000000000001");
+            boolean exactResource = request.resourceId() == null
+                    || request.resourceId().equals("artifact-owned-by-fixture");
+            return exactOwner && exactResource
+                    ? authorizationDecision.get() : SttRequestAuthorization.Decision.DENIED;
+        };
+        productionService = new ProductionSttGrpcService(library, new SimpleMeterRegistry(), fixtureAuthorization);
 
         server = ServerBuilder.forPort(0)
             .maxInboundMessageSize(SttGrpcServer.MAX_INBOUND_MESSAGE_SIZE)
             .directExecutor()
-            .addService(service)
+            .addService(productionService)
             .intercept(new JwtServerInterceptor())
             .build()
             .start();
@@ -134,12 +147,81 @@ class SttGrpcServiceInProcessIntegrationTest {
             TranscribeRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02, 0x03, 0x04}))
                 .setSampleRate(16000)
+                .setArtifactId("artifact-owned-by-fixture")
                 .build()
         );
 
         assertThat(response.getText()).isEqualTo("hello in-process");
         assertThat(response.getConfidence()).isEqualTo(0.93f);
         assertThat(response.getModelUsed()).isEqualTo("whisper-base");
+    }
+
+    @Test
+    @DisplayName("trusted STT authorization denies, revokes and admits only the verified owner before provider dispatch")
+    void trustedAuthorizationFencesProviderDispatch() throws Exception {
+        STTServiceGrpc.STTServiceBlockingStub stub = authenticatedBlockingStub();
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))
+                .setSampleRate(16_000)
+                .setArtifactId("artifact-owned-by-fixture")
+                // These legacy caller fields must never establish authority.
+                .setTenantId("attacker-tenant")
+                .setConsentStatus("APPROVED")
+                .build();
+
+        authorizationDecision.set(SttRequestAuthorization.Decision.DENIED);
+        assertThatThrownBy(() -> stub.transcribe(request))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(error -> assertThat(((StatusRuntimeException) error).getStatus().getCode())
+                        .isEqualTo(Status.Code.PERMISSION_DENIED));
+        verify(library, never()).getSttEngine();
+
+        authorizationDecision.set(SttRequestAuthorization.Decision.REVOKED);
+        assertThatThrownBy(() -> stub.transcribe(request))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(error -> assertThat(((StatusRuntimeException) error).getStatus().getDescription())
+                        .contains("STT_RIGHTS_REVOKED"));
+        verify(library, never()).getSttEngine();
+
+        authorizationDecision.set(SttRequestAuthorization.Decision.ADMITTED);
+        TranscribeResponse result = stub.transcribe(request);
+        assertThat(result.getText()).isEqualTo("hello in-process");
+        verify(library).getSttEngine();
+    }
+
+    @Test
+    @DisplayName("cross-tenant verified identity is denied before provider dispatch")
+    void crossTenantIdentityIsDeniedBeforeProviderDispatch() throws Exception {
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer " + testJwt(System.getProperty("AV_JWT_SECRET"), "other-tenant"));
+        var stub = STTServiceGrpc.newBlockingStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+        assertThatThrownBy(() -> stub.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))
+                .setSampleRate(16_000).setArtifactId("artifact-owned-by-fixture").build()))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(error -> assertThat(((StatusRuntimeException) error).getStatus().getCode())
+                        .isEqualTo(Status.Code.PERMISSION_DENIED));
+        verify(library, never()).getSttEngine();
+    }
+
+    @Test
+    @DisplayName("stream authorization denial is returned before accepting chunks or creating a provider session")
+    void streamAuthorizationDenialPrecedesProviderSession() throws Exception {
+        authorizationDecision.set(SttRequestAuthorization.Decision.REVOKED);
+        java.util.concurrent.CountDownLatch terminal = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error = new java.util.concurrent.atomic.AtomicReference<>();
+        authenticatedAsyncStub().streamTranscribe(new io.grpc.stub.StreamObserver<>() {
+            @Override public void onNext(com.ghatana.stt.core.grpc.proto.Transcription value) { }
+            @Override public void onError(Throwable failure) { error.set(failure); terminal.countDown(); }
+            @Override public void onCompleted() { terminal.countDown(); }
+        });
+        assertThat(terminal.await(5, TimeUnit.SECONDS)).isTrue();
+        assertThat(error.get()).isInstanceOf(StatusRuntimeException.class)
+                .matches(failure -> Status.fromThrowable(failure).getCode() == Status.Code.PERMISSION_DENIED)
+                .hasMessageContaining("STT_RIGHTS_REVOKED");
+        verify(library, never()).getSttEngine();
     }
 
     @Test
@@ -158,6 +240,35 @@ class SttGrpcServiceInProcessIntegrationTest {
                         .isEqualTo(Status.Code.RESOURCE_EXHAUSTED));
 
         verify(library, never()).getSttEngine();
+    }
+
+    @Test
+    @DisplayName("audio content above 4 MiB is rejected inside the bounded protobuf envelope")
+    void audioPayloadAboveDecoderLimitIsRejectedBeforeEngineAccess() {
+        byte[] oversizedAudio = new byte[Math.toIntExact(SttAudioInputDecoder.MAX_INPUT_BYTES + 1)];
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(oversizedAudio))
+                .setSampleRate(16_000)
+                .build();
+
+        assertThatThrownBy(() -> authenticatedBlockingStub().transcribe(request))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(failure -> assertThat(((StatusRuntimeException) failure).getStatus().getCode())
+                        .isEqualTo(Status.Code.RESOURCE_EXHAUSTED));
+        verify(library, never()).getSttEngine();
+    }
+
+    @Test
+    @DisplayName("4 MiB audio payload fits within the bounded protobuf envelope")
+    void maximumAudioPayloadFitsTransportEnvelope() {
+        byte[] maxAudioPayload = new byte[Math.toIntExact(SttAudioInputDecoder.MAX_INPUT_BYTES)];
+        TranscribeResponse response = authenticatedBlockingStub().transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(maxAudioPayload))
+                .setSampleRate(16_000)
+                .build());
+
+        assertThat(response.getText()).isEqualTo("hello in-process");
+        verify(library).getSttEngine();
     }
 
     @Test
@@ -183,7 +294,8 @@ class SttGrpcServiceInProcessIntegrationTest {
 
         Server replacement = ServerBuilder.forPort(0)
             .directExecutor()
-            .addService(new SttGrpcService(library, new SimpleMeterRegistry()))
+            .addService(new SttGrpcService(library, new SimpleMeterRegistry(),
+                    request -> SttRequestAuthorization.Decision.ADMITTED)) // Explicit test fixture only.
             .intercept(new JwtServerInterceptor())
             .build()
             .start();
@@ -295,7 +407,7 @@ class SttGrpcServiceInProcessIntegrationTest {
                 .when(statusFixture).loadModel("unknown-model");
 
         ProductionSttGrpcService productionService = new ProductionSttGrpcService(
-                guardedLibrary, new SimpleMeterRegistry());
+                guardedLibrary, new SimpleMeterRegistry(), request -> SttRequestAuthorization.Decision.ADMITTED);
         Server securedServer = null;
         ManagedChannel securedChannel = null;
         try {
@@ -341,7 +453,7 @@ class SttGrpcServiceInProcessIntegrationTest {
                     Status.Code.FAILED_PRECONDITION, "STT_CORRECTION_NOT_ADMITTED:");
 
             assertStreamError(securedChannel, headers, Status.Code.FAILED_PRECONDITION,
-                    "STT_STREAM_CONSENT_NOT_ADMITTED:");
+                    "STT_STREAM_SESSION_NOT_ADMITTED:");
 
             verify(statusFixture, never()).transcribe(any(AudioData.class), any());
             verify(statusFixture, never()).createProfile(any(), any());
@@ -388,6 +500,11 @@ class SttGrpcServiceInProcessIntegrationTest {
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(authenticatedHeaders));
     }
 
+    private STTServiceGrpc.STTServiceStub authenticatedAsyncStub() {
+        return STTServiceGrpc.newStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(authenticatedHeaders));
+    }
+
     private static void assertRpcError(
             org.assertj.core.api.ThrowableAssert.ThrowingCallable rpc,
             Status.Code expectedCode,
@@ -402,10 +519,14 @@ class SttGrpcServiceInProcessIntegrationTest {
     }
 
     private static String testJwt(String secret) throws Exception {
+        return testJwt(secret, "tenant-stt-matrix");
+    }
+
+    private static String testJwt(String secret, String tenant) throws Exception {
         String header = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
                 "{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         String payload = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
-                ("{\"sub\":\"00000000-0000-0000-0000-000000000001\",\"tenantId\":\"tenant-stt-matrix\",\"exp\":"
+                ("{\"sub\":\"00000000-0000-0000-0000-000000000001\",\"tenantId\":\"" + tenant + "\",\"exp\":"
                         + (System.currentTimeMillis() / 1000 + 3600) + "}")
                         .getBytes(java.nio.charset.StandardCharsets.UTF_8));
         String unsigned = header + "." + payload;

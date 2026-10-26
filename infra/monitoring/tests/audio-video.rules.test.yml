@@ -385,6 +385,52 @@ tests:
   - eval_time: 2m
     alertname: MultimodalReadinessTelemetryInvalid
     exp_alerts: []
+- name: fixture-quality-regression-and-stale-source-alerts-fire-redacted
+  interval: 1m
+  input_series:
+  - series: av_model_quality_regression{service="stt",source="fixture"}
+    values: 1x11
+  - series: av_provider_source_timestamp_seconds{service="vision",source="fixture"}
+    values: 100x11
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: MediaModelQualityRegressionFixture
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: model-quality-fixture
+        service: stt
+      exp_annotations:
+        summary: Synthetic Media quality regression fixture observed
+        description: A fixture-only quality regression signal was observed for stt. This validates alert evaluation only; do not infer provider quality or change production traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 10m
+    alertname: MediaProviderSourceStaleFixture
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: source-freshness-fixture
+        service: vision
+      exp_annotations:
+        summary: Synthetic Media source freshness fixture is stale
+        description: A fixture-only source timestamp for vision is more than 5 minutes old. This validates stale-source alert evaluation only; verify real source freshness through its owning system.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+- name: fixture-quality-recovered-and-fresh-source-stay-quiet
+  interval: 1m
+  input_series:
+  - series: av_model_quality_regression{service="stt",source="fixture"}
+    values: 0x11
+  - series: av_provider_source_timestamp_seconds{service="vision",source="fixture"}
+    values: 590x11
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: MediaModelQualityRegressionFixture
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: MediaProviderSourceStaleFixture
+    exp_alerts: []
 - name: MediaJobLeaseStuck-support-one
   interval: 1m
   input_series:

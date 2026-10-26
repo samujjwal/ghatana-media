@@ -11,8 +11,9 @@ import java.util.Locale;
 
 /** Validates and decodes only the audio encodings supported by the current STT engine boundary. */
 public final class SttAudioInputDecoder {
-    public static final long MAX_INPUT_BYTES = 100L * 1024 * 1024;
-    public static final long MAX_DECODED_PCM_BYTES = 100L * 1024 * 1024;
+    /** Maximum audio-content payload; the gRPC server allows only bounded protobuf envelope overhead. */
+    public static final long MAX_INPUT_BYTES = 4L * 1024 * 1024;
+    public static final long MAX_DECODED_PCM_BYTES = 4L * 1024 * 1024;
     public static final int MIN_SAMPLE_RATE = 8_000;
     public static final int MAX_SAMPLE_RATE = 48_000;
     public static final int DEFAULT_MAX_AUDIO_LENGTH_SECONDS = 300;
@@ -100,7 +101,7 @@ public final class SttAudioInputDecoder {
         }
         if (size > MAX_INPUT_BYTES) {
             throw new InputException(FailureKind.RESOURCE_EXHAUSTED,
-                    "STT_AUDIO_TOO_LARGE: audio data exceeds the 100 MiB input limit");
+                    "STT_AUDIO_TOO_LARGE: audio data exceeds the 4 MiB input limit");
         }
     }
 
@@ -248,7 +249,7 @@ public final class SttAudioInputDecoder {
         if (size <= 0) throw invalid("STT_AUDIO_EMPTY_DECODED: decoded PCM contains no samples");
         if (size > MAX_DECODED_PCM_BYTES) {
             throw new InputException(FailureKind.RESOURCE_EXHAUSTED,
-                    "STT_AUDIO_DECODED_TOO_LARGE: decoded PCM exceeds the 100 MiB limit");
+                    "STT_AUDIO_DECODED_TOO_LARGE: decoded PCM exceeds the 4 MiB limit");
         }
     }
 

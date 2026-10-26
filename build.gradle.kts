@@ -10,6 +10,29 @@ plugins {
 group = "com.ghatana.audio-video"
 version = "0.1.0-SNAPSHOT"
 
+// Media consumes the checked-out Shared source composite, whose Java modules now
+// require JVM 27. The imported Kernel java-module convention still fixes targets
+// to 21 and pins an older Lombok processor, so align only Media Java projects with
+// the source-composite toolchain and the version catalog's compatible processor.
+val mediaLombokVersion = extensions.getByType(org.gradle.api.artifacts.VersionCatalogsExtension::class.java)
+    .named("libs").findVersion("lombok").orElseThrow().requiredVersion
+subprojects {
+    afterEvaluate {
+        val isMediaJavaProject = path.startsWith(":services:media:") || path.startsWith(":media:")
+        if (isMediaJavaProject && plugins.hasPlugin("java")) {
+            extensions.configure(org.gradle.api.plugins.JavaPluginExtension::class.java) {
+                toolchain.languageVersion.set(org.gradle.jvm.toolchain.JavaLanguageVersion.of(27))
+                sourceCompatibility = org.gradle.api.JavaVersion.toVersion(27)
+                targetCompatibility = org.gradle.api.JavaVersion.toVersion(27)
+            }
+            dependencies.add("compileOnly", "org.projectlombok:lombok:$mediaLombokVersion")
+            dependencies.add("annotationProcessor", "org.projectlombok:lombok:$mediaLombokVersion")
+            dependencies.add("testCompileOnly", "org.projectlombok:lombok:$mediaLombokVersion")
+            dependencies.add("testAnnotationProcessor", "org.projectlombok:lombok:$mediaLombokVersion")
+        }
+    }
+}
+
 // Compatibility alias: the old buildAll task previously built only the root
 // Gradle project while claiming a polyglot build. Delegate to the real aggregate.
 tasks.register("buildAll") {

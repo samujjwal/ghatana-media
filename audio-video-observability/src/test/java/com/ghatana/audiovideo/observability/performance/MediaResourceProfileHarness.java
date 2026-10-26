@@ -101,6 +101,7 @@ public final class MediaResourceProfileHarness {
             int incompleteOperations,
             Outcome outcome,
             boolean workerPoolTerminated,
+            long budgetNanos,
             long elapsedNanos,
             double throughputOperationsPerSecond,
             double p50Millis,
@@ -118,8 +119,10 @@ public final class MediaResourceProfileHarness {
         public String toTsv() {
             return String.join("\t",
                     "local-test-workload-no-provider",
+                    "NOT_ADMITTED",
                     Integer.toString(concurrency),
                     Integer.toString(requestedOperations),
+                    formatMillis(budgetNanos),
                     Integer.toString(completedOperations),
                     Integer.toString(failedOperations),
                     Integer.toString(incompleteOperations),
@@ -150,7 +153,7 @@ public final class MediaResourceProfileHarness {
 
         public static String tsvHeader() {
             return String.join("\t",
-                    "scope", "concurrency", "requested_operations", "completed_operations",
+                    "scope", "admission", "concurrency", "requested_operations", "budget_ms", "completed_operations",
                     "failed_operations", "incomplete_operations", "outcome", "worker_pool_terminated",
                     "elapsed_ms", "throughput_ops_s", "p50_ms", "p95_ms", "p99_ms",
                     "process_cpu_time_nanos", "heap_peak_bytes", "thread_peak", "gpu_memory_bytes",
@@ -287,7 +290,7 @@ public final class MediaResourceProfileHarness {
 
         return new Report(concurrency, operations, completedCount, failedCount, incompleteCount,
                 aborted ? Outcome.ABORTED : failedCount > 0 ? Outcome.FAILED : Outcome.COMPLETED,
-                terminated, elapsed, throughput,
+                terminated, budget.toNanos(), elapsed, throughput,
                 percentileMillis(orderedLatencies, 0.50), percentileMillis(orderedLatencies, 0.95),
                 percentileMillis(orderedLatencies, 0.99), environment(), resources);
     }

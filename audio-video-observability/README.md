@@ -4,8 +4,10 @@
 
 The test-only resource profiler runs bounded local workloads at concurrency 1, 16, and 64 and
 records operation p50/p95/p99, throughput, JVM process CPU time, peak JVM heap use, and peak thread
-count. It emits a TSV row scoped as `local-test-workload-no-provider`; the model and corpus are
-`NOT_CONFIGURED`. This is a harness check, not a Media modality benchmark or an SLO result.
+count. It emits a TSV row scoped as `local-test-workload-no-provider`, marked `NOT_ADMITTED`, with
+the requested operation count, configured time budget, runtime environment, and measured-resource
+caps/results. The model and corpus are `NOT_CONFIGURED`. This is a harness check, not a Media
+modality benchmark or an SLO result.
 
 Run the focused fixture from the Media repository root:
 

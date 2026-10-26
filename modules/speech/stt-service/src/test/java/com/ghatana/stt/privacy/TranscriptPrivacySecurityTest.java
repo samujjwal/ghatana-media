@@ -10,6 +10,7 @@ import com.ghatana.stt.core.grpc.proto.ProfileSettings;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.grpc.SttGrpcService;
+import com.ghatana.stt.grpc.SttGrpcServiceTestFixture;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -65,7 +66,7 @@ class TranscriptPrivacySecurityTest {
 
     @BeforeEach
     void setUp() {
-        service = SttGrpcService.forTesting(mockLibrary, new SimpleMeterRegistry());
+        service = SttGrpcServiceTestFixture.create(mockLibrary, new SimpleMeterRegistry());
         lenient().when(mockLibrary.getSttEngine()).thenReturn(mockEngine);
     }
 

@@ -43,6 +43,18 @@ class YoloOutputParserTest {
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("box count");
     }
 
+    @Test void rejectsClassAndBoxCountsOutsideSupportedBoundsBeforeReadingTensor() {
+        assertThatThrownBy(() -> YoloOutputParser.parse(1, 4, 1, new float[0], 0, 0.2))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("channel layout");
+        assertThatThrownBy(() -> YoloOutputParser.parse(1, 1005, 1, new float[0], 1001, 0.2))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("channel layout");
+        assertThatThrownBy(() -> YoloOutputParser.parse(
+                1, 6, YoloOutputParser.MAX_BOXES + 1, new float[0], 2, 0.2))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("box count");
+        assertThatThrownBy(() -> YoloOutputParser.parse(1, 6, 1, null, 2, 0.2))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tensor size");
+    }
+
     @Test void rejectsNonFiniteAndOutOfRangeScores() {
         for (float invalid : new float[] {Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, -0.01f, 1.01f}) {
             float[] values = tensor(invalid, 0.2f);
@@ -74,6 +86,11 @@ class YoloOutputParserTest {
         assertThat(YoloOutputParser.parse(1, 5, 1, tied, 1, 0.5).getFirst().classId()).isZero();
         assertThatThrownBy(() -> YoloOutputParser.parse(1, 5, 1, tied, 1, Double.NaN))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("threshold");
+        for (double invalidThreshold : new double[] {Double.NEGATIVE_INFINITY, -0.01, 1.01,
+                Double.POSITIVE_INFINITY}) {
+            assertThatThrownBy(() -> YoloOutputParser.parse(1, 5, 1, tied, 1, invalidThreshold))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("threshold");
+        }
     }
 
     private static float[] tensor(float... scores) {
