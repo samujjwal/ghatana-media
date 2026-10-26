@@ -83,6 +83,26 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void reportsRuntimeIdentityAndKeepsUnconfiguredProviderProfileExplicit() throws Exception {
+        MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
+                1, 1, Duration.ofSeconds(1), index -> { });
+
+        assertThat(report.environment().javaVersion()).isEqualTo(Runtime.version().toString());
+        assertThat(report.environment().operatingSystem()).isEqualTo(System.getProperty("os.name", "unknown"));
+        assertThat(report.environment().architecture()).isEqualTo(System.getProperty("os.arch", "unknown"));
+        assertThat(report.environment().availableProcessors()).isEqualTo(Runtime.getRuntime().availableProcessors());
+        assertThat(report.environment().modelProfile()).isEqualTo("NOT_CONFIGURED");
+        assertThat(report.environment().corpusProfile()).isEqualTo("NOT_CONFIGURED");
+        assertThat(report.resources().get(MediaResourceProfileHarness.Resource.PROCESS_CPU_TIME_NANOS).unit())
+                .isEqualTo("ns");
+        assertThat(report.resources().get(MediaResourceProfileHarness.Resource.HEAP_PEAK_BYTES).unit())
+                .isEqualTo("bytes");
+        assertThat(report.resources().get(MediaResourceProfileHarness.Resource.THREAD_PEAK).unit())
+                .isEqualTo("threads");
+        assertThat(report.toTsv()).contains("NOT_ADMITTED", "NOT_MEASURED", "NOT_CONFIGURED");
+    }
+
+    @Test
     void timeoutCancelsCooperativeWorkersAndReportsAbortInsteadOfASuccessfulBaseline() throws Exception {
         MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
                 1, 1, Duration.ofMillis(20), index -> TimeUnit.SECONDS.sleep(10));

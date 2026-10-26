@@ -68,7 +68,7 @@ if (mediaCompositeScope == "FOCUSED") {
                     dependencyGroup == "com.ghatana.platform" && dependencyName.startsWith("tool-") ->
                         "Tools source is omitted from FOCUSED"
                     dependencyGroup == "com.ghatana" && dependencyName == "launcher-support" &&
-                        "launcher" in focusedMediaModules -> null
+                        ("launcher" in focusedMediaModules || "runtime-integration" in focusedMediaModules) -> null
                     dependencyGroup == "com.ghatana.platform" && dependencyName !in focusedSharedPlatformArtifacts ->
                         "this platform coordinate is not in the Shared source substitution allowlist"
                     dependencyGroup == "com.ghatana" ||

@@ -35,6 +35,9 @@ record SourceClockAssociation(
         if (audioClock.discontinuityEpoch() != videoClock.discontinuityEpoch()) {
             throw new IllegalArgumentException("Audio and video clocks must belong to the same discontinuity epoch");
         }
+        if (!audioClock.originRef().equals(videoClock.originRef())) {
+            throw new IllegalArgumentException("Audio and video clocks must share an identified source origin");
+        }
     }
 
     /** Map an audio sample and video PTS to one exact rational source timeline. */
@@ -84,6 +87,7 @@ record SourceClockAssociation(
     public record StreamClock(
             String streamId,
             String clockId,
+            String originRef,
             long timeBaseNumerator,
             long timeBaseDenominator,
             long sourceOriginNanosNumerator,
@@ -93,6 +97,7 @@ record SourceClockAssociation(
         public StreamClock {
             streamId = requireId(streamId, "streamId");
             clockId = requireId(clockId, "clockId");
+            originRef = requireId(originRef, "originRef");
             if (timeBaseNumerator <= 0 || timeBaseDenominator <= 0
                     || timeBaseNumerator > 1_000_000_000L || timeBaseDenominator > 1_000_000_000L
                     || sourceOriginNanosDenominator <= 0 || sourceOriginNanosDenominator > 1_000_000_000L) {

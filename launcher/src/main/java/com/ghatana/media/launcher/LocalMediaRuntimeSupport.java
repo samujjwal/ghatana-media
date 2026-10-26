@@ -20,6 +20,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.RecoveryCursor;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamAck;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
@@ -887,6 +888,12 @@ public final class LocalMediaRuntimeSupport {
         private final ConcurrentMap<String, StoredStream> sessions = new ConcurrentHashMap<>();
         @Override public String storeId() { return "local-stream-store"; }
         @Override public StreamSession create(StreamSession session, String tokenHash) {
+            session = new StreamSession(session.tenantId(), session.sessionId(), session.principalId(),
+                    session.streamKind(), session.providerId(), session.state(), session.lastSequence(),
+                    session.bufferedBytes(), session.maximumBufferedBytes(), session.reconnectCount(),
+                    session.leaseExpiresAt(), session.createdAt(), session.updatedAt(), session.closedAt(),
+                    session.metadata(), session.version(), tokenHash, session.acknowledgementRevision(),
+                    session.finality(), session.inFlightSequence(), session.inFlightAttemptId());
             if (sessions.putIfAbsent(key(session.tenantId(), session.sessionId()),
                     new StoredStream(session, tokenHash)) != null) {
                 throw new IllegalStateException("Media stream session already exists");
@@ -898,6 +905,11 @@ public final class LocalMediaRuntimeSupport {
         }
         @Override public StreamSession connect(StreamSession expected, String tokenHash, Instant leaseExpiresAt) {
             requireToken(expected, tokenHash);
+            if (expected.inFlightSequence() != null) {
+                markFrameOutcomeUnknown(expected);
+                throw new IllegalStateException(
+                        "Media stream provider outcome is unknown; frame replay is blocked");
+            }
             if (expected.state() != StreamState.OPEN
                     && expected.state() != StreamState.CONNECTED
                     && expected.state() != StreamState.DEGRADED) {
@@ -907,8 +919,37 @@ public final class LocalMediaRuntimeSupport {
                 throw new IllegalArgumentException("Media stream lease must expire in the future");
             }
             StreamSession updated = copy(expected, StreamState.CONNECTED, expected.lastSequence(),
-                    expected.bufferedBytes(), expected.reconnectCount() + 1, leaseExpiresAt, expected.version() + 1);
+                    expected.bufferedBytes(), expected.reconnectCount() + 1, leaseExpiresAt,
+                    expected.version() + 1, null, "");
             replace(expected, updated, tokenHash);
+            return updated;
+        }
+        @Override public StreamSession beginFrame(StreamSession expected, long sequence, String attemptId) {
+            if (expected.state() != StreamState.CONNECTED && expected.state() != StreamState.DEGRADED) {
+                throw new IllegalStateException("Media stream must be connected before reserving a frame");
+            }
+            if (expected.leaseExpiresAt() == null || !expected.leaseExpiresAt().isAfter(Instant.now())) {
+                throw new IllegalStateException("Media stream lease is absent or expired");
+            }
+            if (expected.finality() != StreamFinality.NONE) {
+                throw new IllegalStateException("Media stream finality is already terminal");
+            }
+            if (expected.inFlightSequence() != null) {
+                throw new IllegalStateException("Media stream already has an unresolved provider attempt");
+            }
+            if (sequence != expected.lastSequence() + 1) {
+                throw new IllegalArgumentException("Media stream frame sequence is not contiguous");
+            }
+            String boundedAttemptId = requireAttemptId(attemptId);
+            StreamSession updated = new StreamSession(expected.tenantId(), expected.sessionId(),
+                    expected.principalId(), expected.streamKind(), expected.providerId(), expected.state(),
+                    expected.lastSequence(), expected.bufferedBytes(), expected.maximumBufferedBytes(),
+                    expected.reconnectCount(), expected.leaseExpiresAt(), expected.createdAt(), Instant.now(),
+                    expected.closedAt(), expected.metadata(), expected.version() + 1,
+                    expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
+                    sequence, boundedAttemptId);
+            StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
+            replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
         }
         @Override public StreamSession recordFrame(StreamSession expected, long sequence, long buffered, boolean end) {
@@ -919,11 +960,51 @@ public final class LocalMediaRuntimeSupport {
                 throw new IllegalStateException("Media stream lease is absent or expired");
             }
             if (sequence != expected.lastSequence() + 1) throw new IllegalArgumentException("Stream frame sequence is not contiguous");
+            if (!java.util.Objects.equals(expected.inFlightSequence(), sequence)
+                    || expected.inFlightAttemptId().isBlank()) {
+                throw new IllegalStateException("Media stream frame has no durable provider reservation");
+            }
             if (buffered < 0 || buffered > expected.maximumBufferedBytes()) {
                 throw new IllegalStateException("Stream buffer limit exceeded");
             }
             StreamSession updated = copy(expected, end ? StreamState.DRAINING : expected.state(), sequence,
-                    buffered, expected.reconnectCount(), expected.leaseExpiresAt(), expected.version() + 1);
+                    buffered, expected.reconnectCount(), expected.leaseExpiresAt(), expected.version() + 1,
+                    null, "");
+            StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
+            replace(expected, updated, current == null ? "" : current.tokenHash());
+            return updated;
+        }
+        @Override public StreamSession markFrameOutcomeUnknown(StreamSession expected) {
+            if (expected.inFlightSequence() == null || expected.inFlightAttemptId().isBlank()) {
+                throw new IllegalStateException("Media stream has no unresolved provider attempt");
+            }
+            if (expected.finality() != StreamFinality.NONE) {
+                throw new IllegalStateException("Media stream finality cannot be upgraded or rewritten");
+            }
+            Instant now = Instant.now();
+            StreamSession updated = new StreamSession(expected.tenantId(), expected.sessionId(),
+                    expected.principalId(), expected.streamKind(), expected.providerId(), StreamState.FAILED,
+                    expected.lastSequence(), expected.bufferedBytes(), expected.maximumBufferedBytes(),
+                    expected.reconnectCount(), expected.leaseExpiresAt(), expected.createdAt(), now, now,
+                    expected.metadata(), expected.version() + 1, expected.sequenceTokenHash(),
+                    expected.acknowledgementRevision() + 1, StreamFinality.UNKNOWN,
+                    expected.inFlightSequence(), expected.inFlightAttemptId());
+            StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
+            replace(expected, updated, current == null ? "" : current.tokenHash());
+            return updated;
+        }
+        @Override public StreamSession recordFinalAcknowledgement(StreamSession expected) {
+            if (expected.state() != StreamState.DRAINING
+                    || expected.finality() != StreamFinality.NONE || expected.inFlightSequence() != null) {
+                throw new IllegalStateException("Final acknowledgement is unavailable for this stream state");
+            }
+            StreamSession updated = new StreamSession(expected.tenantId(), expected.sessionId(),
+                    expected.principalId(), expected.streamKind(), expected.providerId(), expected.state(),
+                    expected.lastSequence(), expected.bufferedBytes(), expected.maximumBufferedBytes(),
+                    expected.reconnectCount(), expected.leaseExpiresAt(), expected.createdAt(), Instant.now(),
+                    expected.closedAt(), expected.metadata(), expected.version() + 1,
+                    expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1,
+                    StreamFinality.FINAL_ACKNOWLEDGED, null, "");
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -934,7 +1015,8 @@ public final class LocalMediaRuntimeSupport {
                         "Invalid Media stream transition " + expected.state() + " -> " + target);
             }
             StreamSession updated = copy(expected, target, expected.lastSequence(), expected.bufferedBytes(),
-                    expected.reconnectCount(), expected.leaseExpiresAt(), expected.version() + 1);
+                    expected.reconnectCount(), expected.leaseExpiresAt(), expected.version() + 1,
+                    expected.inFlightSequence(), expected.inFlightAttemptId());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -963,13 +1045,24 @@ public final class LocalMediaRuntimeSupport {
             }
         }
         private static StreamSession copy(StreamSession value, StreamState state, long sequence, long buffered,
-                                           int reconnects, Instant lease, long version) {
+                                           int reconnects, Instant lease, long version,
+                                           Long inFlightSequence, String inFlightAttemptId) {
             Instant now = Instant.now();
             return new StreamSession(value.tenantId(), value.sessionId(), value.principalId(), value.streamKind(),
                     value.providerId(), state, sequence, buffered, value.maximumBufferedBytes(), reconnects,
                     lease, value.createdAt(), now,
                     state == StreamState.CLOSED || state == StreamState.FAILED ? now : value.closedAt(),
-                    value.metadata(), version);
+                    value.metadata(), version, value.sequenceTokenHash(), value.acknowledgementRevision() + 1,
+                    (state == StreamState.CLOSED || state == StreamState.FAILED)
+                            && (value.finality() == StreamFinality.NONE || value.inFlightSequence() != null)
+                            ? StreamFinality.UNKNOWN : value.finality(), inFlightSequence, inFlightAttemptId);
+        }
+        private static String requireAttemptId(String value) {
+            if (value == null || value.isBlank() || value.length() > 128
+                    || value.chars().anyMatch(Character::isISOControl)) {
+                throw new IllegalArgumentException("Media stream attempt ID must be bounded and nonblank");
+            }
+            return value;
         }
         private static boolean allowed(StreamState from, StreamState to) {
             return switch (from) {

@@ -855,7 +855,12 @@ public final class MediaRuntimeContracts {
             Instant updatedAt,
             Instant closedAt,
             Map<String, Object> metadata,
-            long version) {
+            long version,
+            String sequenceTokenHash,
+            long acknowledgementRevision,
+            StreamFinality finality,
+            Long inFlightSequence,
+            String inFlightAttemptId) {
         public StreamSession {
             tenantId = required(tenantId, "tenantId");
             sessionId = required(sessionId, "sessionId");
@@ -869,9 +874,44 @@ public final class MediaRuntimeContracts {
             createdAt = createdAt == null ? Instant.now() : createdAt;
             updatedAt = updatedAt == null ? createdAt : updatedAt;
             metadata = Map.copyOf(metadata == null ? Map.of() : metadata);
+            sequenceTokenHash = optional(sequenceTokenHash);
+            finality = finality == null ? StreamFinality.NONE : finality;
+            inFlightAttemptId = optional(inFlightAttemptId);
+            if ((!sequenceTokenHash.isEmpty() && !sequenceTokenHash.matches("[0-9a-f]{64}"))
+                    || acknowledgementRevision < 0
+                    || (inFlightSequence == null) != inFlightAttemptId.isEmpty()
+                    || inFlightSequence != null && (inFlightSequence < 0
+                            || lastSequence == Long.MAX_VALUE || inFlightSequence != lastSequence + 1
+                            || finality != StreamFinality.NONE
+                            || inFlightAttemptId.length() > 128
+                            || inFlightAttemptId.chars().anyMatch(Character::isISOControl))) {
+                throw new IllegalArgumentException("stream acknowledgement fields exceed bounds");
+            }
             if (version < 1) throw new IllegalArgumentException("version must be positive");
         }
+
+        public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
+                String providerId, StreamState state, long lastSequence, long bufferedBytes,
+                long maximumBufferedBytes, int reconnectCount, Instant leaseExpiresAt, Instant createdAt,
+                Instant updatedAt, Instant closedAt, Map<String, Object> metadata, long version) {
+            this(tenantId, sessionId, principalId, streamKind, providerId, state, lastSequence,
+                    bufferedBytes, maximumBufferedBytes, reconnectCount, leaseExpiresAt, createdAt,
+                    updatedAt, closedAt, metadata, version, "", 0, StreamFinality.NONE, null, "");
+        }
+
+        public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
+                String providerId, StreamState state, long lastSequence, long bufferedBytes,
+                long maximumBufferedBytes, int reconnectCount, Instant leaseExpiresAt, Instant createdAt,
+                Instant updatedAt, Instant closedAt, Map<String, Object> metadata, long version,
+                String sequenceTokenHash, long acknowledgementRevision, StreamFinality finality) {
+            this(tenantId, sessionId, principalId, streamKind, providerId, state, lastSequence,
+                    bufferedBytes, maximumBufferedBytes, reconnectCount, leaseExpiresAt, createdAt,
+                    updatedAt, closedAt, metadata, version, sequenceTokenHash, acknowledgementRevision,
+                    finality, null, "");
+        }
     }
+
+    public enum StreamFinality { NONE, FINAL_ACKNOWLEDGED, UNKNOWN }
 
     public record StreamSessionRegistration(StreamSession session, String connectionToken) {
         public StreamSessionRegistration {
@@ -1081,7 +1121,18 @@ public final class MediaRuntimeContracts {
         StreamSession create(StreamSession session, String connectionTokenHash);
         Optional<StreamSession> find(String tenantId, String sessionId);
         StreamSession connect(StreamSession expected, String connectionTokenHash, Instant leaseExpiresAt);
+        /** Claims exactly the next sequence durably before any provider effect is dispatched. */
+        default StreamSession beginFrame(StreamSession expected, long sequence, String attemptId) {
+            throw new UnsupportedOperationException("Durable stream frame reservation is unavailable");
+        }
         StreamSession recordFrame(StreamSession expected, long sequence, long payloadBytes, boolean endOfStream);
+        /** Records a provider timeout/crash/ambiguous acknowledgement and prevents blind replay. */
+        default StreamSession markFrameOutcomeUnknown(StreamSession expected) {
+            throw new UnsupportedOperationException("Durable unknown stream outcome is unavailable");
+        }
+        default StreamSession recordFinalAcknowledgement(StreamSession expected) {
+            throw new UnsupportedOperationException("Stream final acknowledgement is unavailable");
+        }
         StreamSession transition(StreamSession expected, StreamState target);
         boolean tokenMatches(String tenantId, String sessionId, String connectionTokenHash);
         boolean durable();

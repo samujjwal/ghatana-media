@@ -183,6 +183,17 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         int dataSize = 0;
 
         try {
+            // The wire contract defines ROI coordinates, but the currently admitted detector
+            // SPI has no crop-aware dispatch. Fail closed so a requested crop is never silently
+            // returned as a full-frame result.
+            if (request.hasSourceRasterRoi()) {
+                recordResponseFailure(responseObserver, io.grpc.Status.FAILED_PRECONDITION
+                    .withDescription("Source-raster ROI detection is not admitted by the active Vision provider")
+                    .asRuntimeException());
+                mediaMetrics.recordFailed("vision.detect");
+                return;
+            }
+
             // AV-P1-013: Validate request size
             if (request.getImageData().isEmpty()) {
                 recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT

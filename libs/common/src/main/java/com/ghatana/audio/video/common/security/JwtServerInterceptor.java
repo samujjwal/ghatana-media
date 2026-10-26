@@ -148,13 +148,18 @@ public class JwtServerInterceptor implements ServerInterceptor {
             jwtProcessor.process(jwt, null);
 
             String subject = jwt.getJWTClaimsSet().getSubject();
+            if (!isUsableSubject(subject)) {
+                LOG.warn("JWT missing subject claim on {}", fullMethod);
+                call.close(Status.UNAUTHENTICATED.withDescription("Missing subject claim"), new Metadata());
+                return new ServerCall.Listener<>() {};
+            }
             String tenantId = extractTenantId(jwt);
             if (tenantId == null || tenantId.isBlank()) {
                 LOG.warn("JWT missing tenantId claim on {}", fullMethod);
                 call.close(Status.UNAUTHENTICATED.withDescription("Missing tenant claim"), new Metadata());
                 return new ServerCall.Listener<>() {};
             }
-            String authenticatedSubject = subject != null ? subject : "unknown";
+            String authenticatedSubject = subject.trim();
             Context ctx = requestContext
                     .withValue(CTX_SUBJECT, authenticatedSubject)
                     .withValue(CTX_TENANT, tenantId)
@@ -184,7 +189,13 @@ public class JwtServerInterceptor implements ServerInterceptor {
                         call.close(Status.UNAUTHENTICATED.withDescription("Missing tenant claim"), new Metadata());
                         return new ServerCall.Listener<>() {};
                     }
-                    String subject = gwResult.userId() != null ? gwResult.userId() : "platform";
+                    String subject = gwResult.userId();
+                    if (!isUsableSubject(subject)) {
+                        LOG.warn("Auth-gateway accepted token but returned no userId on {}", fullMethod);
+                        call.close(Status.UNAUTHENTICATED.withDescription("Missing subject claim"), new Metadata());
+                        return new ServerCall.Listener<>() {};
+                    }
+                    subject = subject.trim();
                     LOG.debug("Platform auth-gateway accepted request on {}", fullMethod);
                     Context ctx = requestContext
                             .withValue(CTX_SUBJECT, subject)
@@ -207,6 +218,12 @@ public class JwtServerInterceptor implements ServerInterceptor {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private static boolean isUsableSubject(String subject) {
+        if (subject == null || subject.isBlank()) return false;
+        String normalized = subject.trim();
+        return !normalized.equalsIgnoreCase("platform") && !normalized.equalsIgnoreCase("unknown");
     }
 
     private static TokenValidator fromAuthGatewayClient(AuthGatewayClient client) {

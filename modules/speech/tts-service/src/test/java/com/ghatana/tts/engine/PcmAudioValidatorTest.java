@@ -47,8 +47,10 @@ class PcmAudioValidatorTest {
     @Test
     void roundsHalfMillisecondFrameDurationUsingExactRationalClock() {
         // 8 frames at 16 kHz are 0.5 ms; ties round up to 1 ms.
+        byte[] varyingPcm = new byte[16];
+        varyingPcm[2] = 1;
         var facts = PcmAudioValidator.validate(new AudioData(
-                new byte[16], 16_000, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
+                varyingPcm, 16_000, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
         assertThat(facts.duration()).isEqualTo(Duration.ofMillis(1));
     }
 
@@ -57,6 +59,20 @@ class PcmAudioValidatorTest {
         assertThatThrownBy(() -> PcmAudioValidator.validate(new AudioData(
                 new byte[2], 96_000, 1, 16, Duration.ofMillis(1), AudioFormat.PCM)))
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("rounds to zero");
+    }
+
+    @Test
+    void rejectsRepeatedBytePlaceholderAndDigitalSilenceEvenWhenFrameMetadataMatches() {
+        // At 8 kHz, eight mono S16 frames are exactly one millisecond.
+        byte[] repeatedPlaceholder = new byte[16];
+        java.util.Arrays.fill(repeatedPlaceholder, (byte) 0x3C);
+
+        for (byte[] flatline : new byte[][] { repeatedPlaceholder, new byte[16] }) {
+            assertThatThrownBy(() -> PcmAudioValidator.validate(new AudioData(
+                    flatline, 8_000, 1, 16, Duration.ofMillis(1), AudioFormat.PCM)))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("no sample variation");
+        }
     }
 
     @Test

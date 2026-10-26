@@ -64,11 +64,22 @@ public final class PcmAudioValidator {
         }
         double sumSquares = 0.0d;
         double peak = 0.0d;
+        short firstSample = 0;
+        boolean hasDifferentSample = false;
         for (int i = 0; i < bytes.length; i += 2) {
             short sample = (short) ((bytes[i] & 0xff) | (bytes[i + 1] << 8));
+            if (i == 0) firstSample = sample;
+            else if (sample != firstSample) hasDifferentSample = true;
             double normalized = sample / 32768.0d;
             sumSquares += normalized * normalized;
             peak = Math.max(peak, Math.abs(normalized));
+        }
+        // A non-empty, correctly labeled PCM buffer can still be the old fixed-byte
+        // placeholder (or digital silence). Reject a flatline before it can be reported
+        // as synthesized speech. This is only a basic signal-integrity guard; it does
+        // not establish intelligibility or provider quality.
+        if (!hasDifferentSample) {
+            throw new IllegalStateException("TTS PCM payload contains no sample variation");
         }
         double rms = Math.sqrt(sumSquares / (bytes.length / 2.0d));
         if (!Double.isFinite(rms) || !Double.isFinite(peak) || rms > 1.0d || peak > 1.0d) {

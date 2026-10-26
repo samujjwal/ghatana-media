@@ -268,6 +268,68 @@ class CrossModalFusionEngineTest {
     }
 
     @Test
+    @DisplayName("source-bound fusion abstains when ROI or source frame differs")
+    void sourceBoundFusionAbstainsOnIncompatibleRegions() {
+        var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),
+                region("source-v1", 10, 20), region("source-v1", 11, 20),
+                mediaTime(100), mediaTime(100));
+
+        assertThat(outcome.fusion()).isEmpty();
+        assertThat(outcome.abstentionReason()).isEqualTo("SOURCE_FRAME_OR_REGION_MISMATCH");
+        assertThat(outcome.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+        assertThat(outcome.synchronizationDisposition())
+                .isEqualTo(CrossModalFusionEngine.SynchronizationDisposition.SYNC_UNDETERMINED);
+    }
+
+    @Test
+    @DisplayName("source-bound fusion accepts identical versioned ROI and exact shared-clock instant")
+    void sourceBoundFusionAcceptsMatchingFramesAndInstant() {
+        var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),
+                region("source-v1", 10, 20), region("source-v1", 10, 20),
+                mediaTime(100), mediaTime(100));
+
+        assertThat(outcome.fusion()).isPresent();
+        assertThat(outcome.abstentionReason()).isNull();
+        assertThat(outcome.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+        assertThat(outcome.synchronizationDisposition())
+                .isEqualTo(CrossModalFusionEngine.SynchronizationDisposition.SYNC_UNDETERMINED);
+    }
+
+    @Test
+    @DisplayName("source-bound fusion abstains on invalid weights")
+    void sourceBoundFusionAbstainsOnInvalidWeights() {
+        var outcome = engine.fuseAudioVisual(makeAudio(DIM, Double.NaN), makeVisual(DIM, 0.5),
+                region("source-v1", 10, 20), region("source-v1", 10, 20),
+                mediaTime(100), mediaTime(100));
+
+        assertThat(outcome.fusion()).isEmpty();
+        assertThat(outcome.abstentionReason()).isEqualTo("INVALID_FUSION_INPUT");
+        assertThat(outcome.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+    }
+
+    @Test
+    @DisplayName("source-bound fusion abstains when stream clocks are not aligned")
+    void sourceBoundFusionAbstainsOnUnalignedStreams() {
+        var audioClock = new com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp(
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.Status.KNOWN,
+                100L, 1L, 1000L,
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE,
+                "audio-clock", null);
+        var videoClock = new com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp(
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.Status.KNOWN,
+                100L, 1L, 1000L,
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE,
+                "video-clock", null);
+        var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),
+                region("source-v1", 10, 20), region("source-v1", 10, 20), audioClock, videoClock);
+
+        assertThat(outcome.fusion()).isEmpty();
+        assertThat(outcome.abstentionReason()).isEqualTo("SYNC_UNDETERMINED");
+        assertThat(outcome.synchronizationDisposition())
+                .isEqualTo(CrossModalFusionEngine.SynchronizationDisposition.SYNC_UNDETERMINED);
+    }
+
+    @Test
     @DisplayName("mismatched coordinate spaces are rejected")
     void mismatchedEmbeddingSpacesRejected() {
         assertThatThrownBy(() -> engine.fuseAudioVisual(
@@ -465,6 +527,14 @@ class CrossModalFusionEngineTest {
         double[] emb = new double[dim];
         for (int i = 0; i < dim; i++) emb[i] = Math.sin(i); 
         return new TextFeatures(emb, text, confidence, "shared-test-space");
+    }
+
+    private CrossModalFusionEngine.RegionFrame region(String sourceVersion, int x, int y) {
+        return new CrossModalFusionEngine.RegionFrame("source-id", sourceVersion, "frame-v1", x, y, 30, 40);
+    }
+
+    private com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp mediaTime(long millis) {
+        return com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.mediaMilliseconds(millis);
     }
 
     private void assertInvalidAudioConfidence(double confidence) {

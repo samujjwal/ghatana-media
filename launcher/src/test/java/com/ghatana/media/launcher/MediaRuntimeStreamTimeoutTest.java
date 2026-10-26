@@ -18,16 +18,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** Verifies timeout cancellation prevents late local stream acknowledgement and persistence. */
+/** Verifies ambiguous provider timeout is persisted as UNKNOWN and cannot be replayed. */
 class MediaRuntimeStreamTimeoutTest {
 
     @Test
-    void timeoutCancelsProviderWorkAndPreservesPersistedSequence() throws Exception {
+    void timeoutCancelsProviderWorkPersistsUnknownAndBlocksSequenceReplay() throws Exception {
         var root = Files.createTempDirectory("media-stream-timeout-");
         var provider = new BlockingStreamingProvider();
         var streamStore = new LocalMediaRuntimeSupport.StreamStore();
@@ -88,7 +89,18 @@ class MediaRuntimeStreamTimeoutTest {
             var persisted = runtime.stream("tenant-a", connected.sessionId()).orElseThrow();
             assertThat(persisted.lastSequence()).isEqualTo(connected.lastSequence());
             assertThat(persisted.bufferedBytes()).isEqualTo(connected.bufferedBytes());
-            assertThat(persisted.version()).isEqualTo(connected.version());
+            assertThat(persisted.version()).isGreaterThan(connected.version());
+            assertThat(persisted.state()).isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.StreamState.FAILED);
+            assertThat(persisted.finality())
+                    .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality.UNKNOWN);
+            assertThat(persisted.inFlightSequence()).isZero();
+            assertThat(provider.calls()).isEqualTo(1);
+            assertThatThrownBy(() -> runtime.acceptFrame(new StreamFrame(
+                    "tenant-a", connected.sessionId(), registration.connectionToken(),
+                    0, "frame".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Media stream is not connected");
+            assertThat(provider.calls()).isEqualTo(1);
         } finally {
             runtime.close();
         }
@@ -97,6 +109,7 @@ class MediaRuntimeStreamTimeoutTest {
     private static final class BlockingStreamingProvider implements MediaStreamingProvider {
         private final CompletableFuture<StreamAck> future = new CompletableFuture<>();
         private final AtomicReference<Cancellation> cancellation = new AtomicReference<>();
+        private final AtomicInteger calls = new AtomicInteger();
 
         @Override public String providerId() { return "blocking-stream-provider"; }
         @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
@@ -108,11 +121,13 @@ class MediaRuntimeStreamTimeoutTest {
 
         @Override
         public CompletableFuture<StreamAck> accept(StreamContext context, StreamFrame frame) {
+            calls.incrementAndGet();
             cancellation.set(context.cancellation());
             return future;
         }
 
         Cancellation cancellation() { return cancellation.get(); }
         CompletableFuture<StreamAck> future() { return future; }
+        int calls() { return calls.get(); }
     }
 }

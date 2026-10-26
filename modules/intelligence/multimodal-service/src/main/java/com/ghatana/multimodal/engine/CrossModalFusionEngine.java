@@ -117,6 +117,45 @@ public class CrossModalFusionEngine {
 
     public enum ConfidenceDisposition { HEURISTIC_UNCALIBRATED }
 
+    /** Source-raster region identity. Coordinates are EXIF-oriented decoded-raster XYWH pixels. */
+    public record RegionFrame(
+            String sourceId, String sourceVersion, String frameVersion,
+            int x, int y, int width, int height) {
+        public RegionFrame {
+            if (sourceId == null || sourceId.isBlank() || sourceVersion == null || sourceVersion.isBlank()
+                    || frameVersion == null || frameVersion.isBlank()) {
+                throw new IllegalArgumentException("Region source and frame versions are required");
+            }
+            if (x < 0 || y < 0 || width <= 0 || height <= 0) {
+                throw new IllegalArgumentException("Region must use non-negative top-left XYWH pixels with positive size");
+            }
+            try {
+                Math.addExact(x, width);
+                Math.addExact(y, height);
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException("Region bounds overflow", overflow);
+            }
+        }
+    }
+
+    public enum SynchronizationDisposition { SYNC_UNDETERMINED }
+
+    /** A fail-closed result for source-bound fusion; empty fusion means the inputs abstained. */
+    public record FusionOutcome(
+            Optional<FusionResult> fusion,
+            ConfidenceDisposition confidenceDisposition,
+            SynchronizationDisposition synchronizationDisposition,
+            String abstentionReason) {
+        public FusionOutcome {
+            Objects.requireNonNull(fusion, "fusion");
+            Objects.requireNonNull(confidenceDisposition, "confidenceDisposition");
+            Objects.requireNonNull(synchronizationDisposition, "synchronizationDisposition");
+            if (fusion.isPresent() == (abstentionReason != null)) {
+                throw new IllegalArgumentException("Outcome must contain either fusion or abstention reason");
+            }
+        }
+    }
+
     private final String modelId;
     private final int embeddingDim;
 
@@ -170,6 +209,49 @@ public class CrossModalFusionEngine {
         double fusionConf = ((missingAudio ? 0.0 : audio.confidence())
                 + (missingVisual ? 0.0 : visual.confidence())) / 2.0;
         return new FusionResult(fused, fusionConf, weights, elapsed, missingAudio || missingVisual);
+    }
+
+    /**
+     * Source-bound fusion seam. It accepts only the same exact source/version/frame/ROI and
+     * identical instants on an explicitly shared clock. This establishes timestamp alignment
+     * only; it does not claim measured A/V synchronization or authorize speaker-face identity.
+     */
+    public FusionOutcome fuseAudioVisual(
+            AudioFeatures audio, VisualFeatures visual,
+            RegionFrame audioRegion, RegionFrame visualRegion,
+            com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp audioTime,
+            com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp visualTime) {
+        if (audioRegion == null || visualRegion == null || !audioRegion.equals(visualRegion)) {
+            return abstain("SOURCE_FRAME_OR_REGION_MISMATCH");
+        }
+        if (audioTime == null || visualTime == null || !audioTime.sharesClock(visualTime)
+                || !sameInstant(audioTime, visualTime)) {
+            return abstain("SYNC_UNDETERMINED");
+        }
+        try {
+            return new FusionOutcome(Optional.of(fuseAudioVisual(audio, visual)),
+                    ConfidenceDisposition.HEURISTIC_UNCALIBRATED,
+                    SynchronizationDisposition.SYNC_UNDETERMINED, null);
+        } catch (FusionException | NullPointerException invalidInput) {
+            return abstain("INVALID_FUSION_INPUT");
+        }
+    }
+
+    private FusionOutcome abstain(String reason) {
+        return new FusionOutcome(Optional.empty(), ConfidenceDisposition.HEURISTIC_UNCALIBRATED,
+                SynchronizationDisposition.SYNC_UNDETERMINED, reason);
+    }
+
+    private boolean sameInstant(
+            com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp left,
+            com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp right) {
+        java.math.BigInteger leftNumerator = java.math.BigInteger.valueOf(left.ticks())
+                .multiply(java.math.BigInteger.valueOf(left.timeBaseNumerator()))
+                .multiply(java.math.BigInteger.valueOf(right.timeBaseDenominator()));
+        java.math.BigInteger rightNumerator = java.math.BigInteger.valueOf(right.ticks())
+                .multiply(java.math.BigInteger.valueOf(right.timeBaseNumerator()))
+                .multiply(java.math.BigInteger.valueOf(left.timeBaseDenominator()));
+        return leftNumerator.equals(rightNumerator);
     }
 
     /**

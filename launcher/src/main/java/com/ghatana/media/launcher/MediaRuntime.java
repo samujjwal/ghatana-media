@@ -857,9 +857,22 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 streamKey(frame.tenantId(), frame.sessionId()),
                 ignored -> streamControlFor(current));
         ConsentDecision consent = refreshConsent(current, control);
-        CompletableFuture<StreamAck> future = control.provider().accept(
-                new StreamContext(current, control.cancellation(), consent, control.governance()), frame);
-        if (future == null) throw new IllegalStateException("Media streaming provider returned a null future");
+        StreamSession reserved = streamStore.beginFrame(
+                current, frame.sequence(), UUID.randomUUID().toString());
+        CompletableFuture<StreamAck> future;
+        try {
+            future = control.provider().accept(
+                    new StreamContext(reserved, control.cancellation(), consent, control.governance()), frame);
+        } catch (RuntimeException failure) {
+            markStreamOutcomeUnknown(reserved, failure);
+            throw new IllegalStateException("Media stream frame processing failed", failure);
+        }
+        if (future == null) {
+            IllegalStateException failure =
+                    new IllegalStateException("Media streaming provider returned a null future");
+            markStreamOutcomeUnknown(reserved, failure);
+            throw failure;
+        }
         try {
             StreamAck ack = future.copy()
                     .orTimeout(config.jobTimeout().toMillis(), TimeUnit.MILLISECONDS)
@@ -870,17 +883,31 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (ack.bufferedBytes() > current.maximumBufferedBytes()) {
                 throw new IllegalStateException("Media streaming provider exceeded the session buffer limit");
             }
-            streamStore.recordFrame(current, frame.sequence(), ack.bufferedBytes(), frame.endOfStream());
+            streamStore.recordFrame(reserved, frame.sequence(), ack.bufferedBytes(), frame.endOfStream());
             return new StreamAck(ack.acceptedSequence(), ack.bufferedBytes(), ack.backpressured());
         } catch (java.util.concurrent.CompletionException failure) {
             Throwable cause = unwrap(failure);
             if (cause instanceof TimeoutException) {
                 cancelTimedOutStreamFrame(control, future);
+                markStreamOutcomeUnknown(reserved, failure);
                 throw new IllegalStateException("Media stream frame processing timed out", cause);
             }
+            markStreamOutcomeUnknown(reserved, failure);
             throw new IllegalStateException("Media stream frame processing failed", cause);
         } catch (java.util.concurrent.CancellationException failure) {
+            markStreamOutcomeUnknown(reserved, failure);
             throw new IllegalStateException("Media stream frame processing was cancelled", failure);
+        } catch (RuntimeException failure) {
+            markStreamOutcomeUnknown(reserved, failure);
+            throw new IllegalStateException("Media stream frame acknowledgement could not be committed", failure);
+        }
+    }
+
+    private void markStreamOutcomeUnknown(StreamSession reserved, RuntimeException triggeringFailure) {
+        try {
+            streamStore.markFrameOutcomeUnknown(reserved);
+        } catch (RuntimeException persistenceFailure) {
+            triggeringFailure.addSuppressed(persistenceFailure);
         }
     }
 

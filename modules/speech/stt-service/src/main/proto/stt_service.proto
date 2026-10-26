@@ -103,6 +103,8 @@ message AudioChunk {
     // Per-connection monotonic sequence. Zero preserves legacy unsequenced clients;
     // it does not enable reconnect/resume.
     int64 sequence = 5;
+    // Opaque bounded per-session credential; STT remains NOT_ADMITTED until canonical runtime wiring.
+    bytes sequence_token = 6;
 }
 
 message Transcription {
@@ -121,6 +123,16 @@ message Transcription {
     // No final transcript was observed from the provider before the stream ended.
     bool outcome_unknown = 10;
     bool backpressured = 11;
+    // Additive checkpoint fields; zero/UNKNOWN until canonical STT runtime wiring is admitted.
+    uint64 acknowledgement_revision = 12;
+    StreamFinality finality = 13;
+    bytes sequence_token = 14;
+}
+
+enum StreamFinality {
+    STREAM_FINALITY_NONE = 0;
+    STREAM_FINALITY_ACKNOWLEDGED = 1;
+    STREAM_FINALITY_UNKNOWN = 2;
 }
 
 message WordTiming {

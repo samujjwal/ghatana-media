@@ -83,11 +83,15 @@ class SttProtoContractTest {
         assertField(AudioChunk.getDescriptor(), "timestamp_ms", 3);
         assertField(AudioChunk.getDescriptor(), "session_id", 4);
         assertField(AudioChunk.getDescriptor(), "sequence", 5);
+        assertField(AudioChunk.getDescriptor(), "sequence_token", 6);
         assertField(Transcription.getDescriptor(), "accepted_sequence_snapshot", 6);
         assertField(Transcription.getDescriptor(), "revision", 7);
         assertField(Transcription.getDescriptor(), "durable_resume_enabled", 9);
         assertField(Transcription.getDescriptor(), "outcome_unknown", 10);
         assertField(Transcription.getDescriptor(), "backpressured", 11);
+        assertField(Transcription.getDescriptor(), "acknowledgement_revision", 12);
+        assertField(Transcription.getDescriptor(), "finality", 13);
+        assertField(Transcription.getDescriptor(), "sequence_token", 14);
     }
 
     private static void assertField(Descriptors.Descriptor message, String fieldName, int number) {

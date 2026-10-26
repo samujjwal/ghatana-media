@@ -14,9 +14,9 @@ class SourceClockAssociationTest {
         // This is arithmetic fixture coverage only; production mapping authority is not wired.
         var association = new SourceClockAssociation(
                 "artifact-1", "version-7",
-                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0",
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1",
                         1, 16_000, 0, 1, 2),
-                new SourceClockAssociation.StreamClock("video-0", "video-clock-0",
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1",
                         1, 90_000, 62_500_000, 1, 2),
                 SourceClockAssociation.MappingProvenance.TRUSTED_CONTAINER_EDIT_METADATA,
                 2_000_000L);
@@ -41,9 +41,9 @@ class SourceClockAssociationTest {
     void reducesNanosecondRationalBeforeConvertingToTheTimestampTimebase() {
         var association = new SourceClockAssociation(
                 "artifact-1", "version-7",
-                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0",
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1",
                         1, 999_999_937L, 1_000_000_000L, 999_999_929L, 2),
-                new SourceClockAssociation.StreamClock("video-0", "video-clock-0",
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1",
                         1, 90_000, 0, 1, 2),
                 SourceClockAssociation.MappingProvenance.TRUSTED_CONTAINER_EDIT_METADATA,
                 0);
@@ -98,9 +98,9 @@ class SourceClockAssociationTest {
         assertThat(invalidSample.audioSourceTime()).isNull();
 
         var overflowing = new SourceClockAssociation("artifact-1", "version-7",
-                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0",
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1",
                         1_000_000_000L, 1, 0, 1, 2),
-                new SourceClockAssociation.StreamClock("video-0", "video-clock-0",
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1",
                         1, 90_000, 0, 1, 2),
                 SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0)
                 .associateAudioSampleWithVideoPts("artifact-1", "version-7", 2,
@@ -126,30 +126,38 @@ class SourceClockAssociationTest {
     @Test
     void rejectsInvalidRationalClockAndUncertainty() {
         assertThatThrownBy(() -> new SourceClockAssociation.StreamClock(
-                "audio-0", "audio-clock-0", 0, 16_000, 0, 1, 0))
+                "audio-0", "audio-clock-0", "origin-v1", 0, 16_000, 0, 1, 0))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new SourceClockAssociation(
                 "artifact-1", "version-7",
-                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", 1, 16_000, 0, 1, 0),
-                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", 1, 90_000, 0, 1, 1),
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1", 1, 16_000, 0, 1, 0),
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1", 1, 90_000, 0, 1, 1),
                 SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("discontinuity epoch");
         assertThatThrownBy(() -> new SourceClockAssociation(
                 "artifact-1", "version-7",
-                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", 1, 16_000, 0, 1, 0),
-                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", 1, 90_000, 0, 1, 0),
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1", 1, 16_000, 0, 1, 0),
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1", 1, 90_000, 0, 1, 0),
                 SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING,
                 60_000_000_001L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("uncertainty");
+
+        assertThatThrownBy(() -> new SourceClockAssociation(
+                "artifact-1", "version-7",
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "audio-origin", 1, 16_000, 0, 1, 0),
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "video-origin", 1, 90_000, 0, 1, 0),
+                SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("source origin");
     }
 
     private static SourceClockAssociation mappedFixture() {
         return new SourceClockAssociation(
                 "artifact-1", "version-7",
-                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", 1, 16_000, 0, 1, 2),
-                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", 1, 90_000, 0, 1, 2),
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1", 1, 16_000, 0, 1, 2),
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1", 1, 90_000, 0, 1, 2),
                 SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0);
     }
 

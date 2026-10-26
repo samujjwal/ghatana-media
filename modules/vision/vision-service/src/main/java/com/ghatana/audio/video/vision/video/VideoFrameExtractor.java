@@ -388,7 +388,7 @@ public class VideoFrameExtractor {
     }
 
     private AudioStreamMetadata probeFirstAudioStream(Path video, String format) throws IOException {
-        List<String> command = List.of("ffprobe", "-nostdin", "-v", "error", "-protocol_whitelist", "file",
+        List<String> command = List.of("ffprobe", "-v", "error", "-protocol_whitelist", "file",
                 "-f", format, "-max_alloc", "268435456", "-select_streams", "a:0",
                 "-show_entries", "stream=index,time_base,start_pts,sample_rate,channels,duration_ts",
                 "-of", "default=noprint_wrappers=1", video.toString());
@@ -738,7 +738,7 @@ public class VideoFrameExtractor {
         Path canonicalVideo = validateInput(videoPath);
         List<String> command = List.of(
             "ffprobe",
-            "-nostdin", "-v", "error", "-protocol_whitelist", "file",
+            "-v", "error", "-protocol_whitelist", "file",
             "-f", inputFormat(canonicalVideo),
             "-max_alloc", "268435456",
             "-select_streams", "v:0",

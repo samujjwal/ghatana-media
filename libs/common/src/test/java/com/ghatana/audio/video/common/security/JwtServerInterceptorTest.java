@@ -235,6 +235,84 @@ class JwtServerInterceptorTest {
             assertThat(statusCaptor.getValue().getDescription()).contains("Missing tenant claim");
             verify(handler, never()).startCall(any(), any()); 
         }
+
+        @Test
+        @DisplayName("validated JWT without a usable subject is rejected")
+        void validatedJwtWithoutUsableSubjectIsRejected() throws Exception {
+            assertLocalSubjectRejected(null);
+            assertLocalSubjectRejected("   ");
+            assertLocalSubjectRejected(" platform ");
+            assertLocalSubjectRejected("UNKNOWN");
+        }
+
+        @Test
+        @DisplayName("auth gateway identity without a usable user ID is rejected")
+        void authGatewayWithoutUsableUserIdIsRejected() throws Exception {
+            assertGatewaySubjectRejected(null);
+            assertGatewaySubjectRejected("   ");
+            assertGatewaySubjectRejected(" PLATFORM ");
+            assertGatewaySubjectRejected("unknown");
+        }
+
+        private void assertLocalSubjectRejected(String subject) throws Exception {
+            ConfigurableJWTProcessor<SecurityContext> processor = mock(ConfigurableJWTProcessor.class);
+            when(processor.process(any(SignedJWT.class), eq(null))).thenReturn(null);
+            JwtServerInterceptor interceptor = new JwtServerInterceptor(processor, disabledTokenValidator());
+            Metadata headers = authorization(signedToken(subject, "tenant-42"));
+            ServerCall<Object, Object> call = mockCall(SECURE_METHOD);
+            ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+            AtomicReference<JwtServerInterceptor.VerifiedIdentity> identity = new AtomicReference<>();
+            when(handler.startCall(any(), any())).thenAnswer(invocation -> {
+                identity.set(JwtServerInterceptor.verifiedIdentity());
+                return mock(ServerCall.Listener.class);
+            });
+
+            interceptor.interceptCall(call, headers, handler);
+
+            assertRejectedWithoutIdentity(call, handler, identity);
+        }
+
+        private void assertGatewaySubjectRejected(String userId) throws Exception {
+            ConfigurableJWTProcessor<SecurityContext> processor = mock(ConfigurableJWTProcessor.class);
+            when(processor.process(any(SignedJWT.class), eq(null))).thenThrow(new JOSEException("gateway token"));
+            JwtServerInterceptor.TokenValidator validator = new JwtServerInterceptor.TokenValidator() {
+                @Override public boolean isEnabled() { return true; }
+                @Override public com.ghatana.audio.video.common.platform.AuthGatewayClient.ValidationResult
+                        validate(String token, String tenantId) {
+                    return new com.ghatana.audio.video.common.platform.AuthGatewayClient.ValidationResult(
+                            true, userId, null, tenantId);
+                }
+            };
+            JwtServerInterceptor interceptor = new JwtServerInterceptor(processor, validator);
+            Metadata headers = authorization(signedToken("local-subject", "tenant-42"));
+            ServerCall<Object, Object> call = mockCall(SECURE_METHOD);
+            ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+            AtomicReference<JwtServerInterceptor.VerifiedIdentity> identity = new AtomicReference<>();
+            when(handler.startCall(any(), any())).thenAnswer(invocation -> {
+                identity.set(JwtServerInterceptor.verifiedIdentity());
+                return mock(ServerCall.Listener.class);
+            });
+
+            interceptor.interceptCall(call, headers, handler);
+
+            assertRejectedWithoutIdentity(call, handler, identity);
+        }
+
+        private Metadata authorization(String token) {
+            Metadata headers = new Metadata();
+            headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + token);
+            return headers;
+        }
+
+        private void assertRejectedWithoutIdentity(ServerCall<Object, Object> call,
+                                                   ServerCallHandler<Object, Object> handler,
+                                                   AtomicReference<JwtServerInterceptor.VerifiedIdentity> identity) {
+            ArgumentCaptor<Status> status = ArgumentCaptor.forClass(Status.class);
+            verify(call).close(status.capture(), any());
+            assertThat(status.getValue().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+            assertThat(identity.get()).isNull();
+            verify(handler, never()).startCall(any(), any());
+        }
     }
 
     // -------------------------------------------------------------------------

@@ -5,6 +5,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
@@ -294,34 +295,85 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             "tenant-a", "stream-a", "principal-a", StreamKind.VIDEO,
                             "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
                             null, now, now, null, Map.of("correlationId", "corr-a"), 1);
-                    assertThat(streams.create(opened, tokenHash)).isEqualTo(opened);
+                    StreamSession created = streams.create(opened, tokenHash);
+                    assertThat(created.sequenceTokenHash()).isEqualTo(tokenHash);
                     assertThat(streams.find("tenant-b", "stream-a")).isEmpty();
                     assertThatThrownBy(() -> streams.connect(
-                            opened, "0".repeat(64), Instant.now().plusSeconds(60)))
+                            created, "0".repeat(64), Instant.now().plusSeconds(60)))
                             .isInstanceOf(SecurityException.class);
                     StreamSession connected = streams.connect(
-                            opened, tokenHash, Instant.now().plusSeconds(60));
+                            created, tokenHash, Instant.now().plusSeconds(60));
                     assertThat(connected.state()).isEqualTo(StreamState.CONNECTED);
                     assertThat(connected.reconnectCount()).isEqualTo(1);
-                    StreamSession frameZero = streams.recordFrame(connected, 0, 128, false);
+                    StreamSession frameZeroPending = streams.beginFrame(connected, 0, "attempt-frame-0");
+                    assertThat(frameZeroPending.inFlightSequence()).isZero();
+                    assertThat(frameZeroPending.inFlightAttemptId()).isEqualTo("attempt-frame-0");
+                    assertThatThrownBy(() -> streams.beginFrame(connected, 0, "duplicate-attempt"))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("version");
+                    StreamSession frameZero = streams.recordFrame(frameZeroPending, 0, 128, false);
                     assertThat(frameZero.lastSequence()).isZero();
                     assertThat(frameZero.bufferedBytes()).isEqualTo(128);
-                    assertThatThrownBy(() -> streams.recordFrame(frameZero, 2, 256, false))
-                            .isInstanceOf(IllegalArgumentException.class)
-                            .hasMessageContaining("not contiguous");
-                    StreamSession draining = streams.recordFrame(frameZero, 1, 0, true);
+                    assertThat(frameZero.acknowledgementRevision()).isEqualTo(2);
+                    StreamSession resumed = streams.connect(frameZero, tokenHash, Instant.now().plusSeconds(60));
+                    assertThat(resumed.lastSequence()).isZero();
+                    assertThat(resumed.acknowledgementRevision()).isEqualTo(3);
+                    assertThatThrownBy(() -> streams.beginFrame(resumed, 0, "replay-attempt"))
+                            .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("not contiguous");
+                    assertThatThrownBy(() -> streams.beginFrame(resumed, 2, "gap-attempt"))
+                            .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("not contiguous");
+                    StreamSession secondPending = streams.beginFrame(resumed, 1, "attempt-frame-1");
+                    StreamSession draining = streams.recordFrame(secondPending, 1, 0, true);
                     assertThat(draining.state()).isEqualTo(StreamState.DRAINING);
+                    assertThat(draining.finality()).isEqualTo(StreamFinality.NONE);
+                    StreamSession finalAcknowledged = streams.recordFinalAcknowledgement(draining);
+                    assertThat(finalAcknowledged.finality()).isEqualTo(StreamFinality.FINAL_ACKNOWLEDGED);
+                    assertThat(streams.find("tenant-a", "stream-a")).contains(finalAcknowledged);
+                    assertThatThrownBy(() -> streams.recordFinalAcknowledgement(finalAcknowledged))
+                            .isInstanceOf(IllegalStateException.class);
                     assertThatThrownBy(() -> streams.connect(
-                            draining, tokenHash, Instant.now().plusSeconds(60)))
+                            finalAcknowledged, tokenHash, Instant.now().plusSeconds(60)))
                             .isInstanceOf(IllegalStateException.class)
                             .hasMessageContaining("cannot connect");
-                    StreamSession closed = streams.transition(draining, StreamState.CLOSED);
+                    StreamSession closed = streams.transition(finalAcknowledged, StreamState.CLOSED);
                     assertThat(closed.closedAt()).isNotNull();
                     assertThat(streams.find("tenant-a", "stream-a")).contains(closed);
+                    StreamSession unknownOpen = streams.create(new StreamSession(
+                            "tenant-a", "stream-unknown", "principal-a", StreamKind.AUDIO,
+                            "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
+                            null, now, now, null, Map.of(), 1), tokenHash);
+                    StreamSession unknownConnected = streams.connect(
+                            unknownOpen, tokenHash, Instant.now().plusSeconds(60));
+                    StreamSession unknownPending = streams.beginFrame(
+                            unknownConnected, 0, "attempt-unknown-frame");
+                    StreamSession unknownDraining = streams.recordFrame(unknownPending, 0, 0, true);
+                    StreamSession unknownClosed = streams.transition(unknownDraining, StreamState.CLOSED);
+                    assertThat(unknownClosed.finality()).isEqualTo(StreamFinality.UNKNOWN);
+                    assertThatThrownBy(() -> streams.recordFinalAcknowledgement(unknownDraining))
+                            .isInstanceOf(IllegalStateException.class);
+                    StreamSession interruptedOpen = streams.create(new StreamSession(
+                            "tenant-a", "stream-interrupted", "principal-a", StreamKind.AUDIO,
+                            "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
+                            null, now, now, null, Map.of(), 1), tokenHash);
+                    StreamSession interruptedConnected = streams.connect(
+                            interruptedOpen, tokenHash, Instant.now().plusSeconds(60));
+                    StreamSession interruptedPending = streams.beginFrame(
+                            interruptedConnected, 0, "attempt-interrupted-frame");
                     try (PostgresqlMediaStreamSessionStore restartedStreams =
                                  new PostgresqlMediaStreamSessionStore()) {
                         assertThat(restartedStreams.find("tenant-a", "stream-a"))
                                 .contains(closed);
+                        assertThat(restartedStreams.find("tenant-a", "stream-unknown"))
+                                .contains(unknownClosed);
+                        assertThatThrownBy(() -> restartedStreams.connect(
+                                interruptedPending, tokenHash, Instant.now().plusSeconds(60)))
+                                .isInstanceOf(IllegalStateException.class)
+                                .hasMessageContaining("outcome is unknown");
+                        StreamSession interruptedUnknown = restartedStreams
+                                .find("tenant-a", "stream-interrupted").orElseThrow();
+                        assertThat(interruptedUnknown.state()).isEqualTo(StreamState.FAILED);
+                        assertThat(interruptedUnknown.finality()).isEqualTo(StreamFinality.UNKNOWN);
+                        assertThat(interruptedUnknown.inFlightSequence()).isZero();
                         assertThatThrownBy(() -> restartedStreams.connect(
                                 closed, tokenHash, Instant.now().plusSeconds(60)))
                                 .isInstanceOf(IllegalStateException.class)

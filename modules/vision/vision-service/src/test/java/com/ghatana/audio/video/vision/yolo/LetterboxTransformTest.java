@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.vision.yolo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ghatana.audio.video.vision.image.ExifOrientationTransform;
 import org.junit.jupiter.api.Test;
@@ -80,9 +81,7 @@ class LetterboxTransformTest {
     }
 
     @Test void encodedPixelBoxRoundTripsThroughExifOrientationAndLetterboxWithinOnePixel() {
-        // This checks the existing implementation's pixel-boundary xywh transforms only.
-        // PDP-1 protobuf-vision still leaves the public wire bbox origin, units, and
-        // reference dimensions unresolved, so this is not a public coordinate-contract claim.
+        // Wire bbox coordinates are absolute EXIF-oriented source-raster pixel xywh.
         int encodedWidth = 1920;
         int encodedHeight = 1080;
         ExifOrientationTransform.Box encodedBox = new ExifOrientationTransform.Box(
@@ -114,5 +113,58 @@ class LetterboxTransformTest {
             assertThat(roundTrip.height()).as("orientation %s height", orientation)
                     .isCloseTo(encodedBox.height(), tolerance);
         }
+    }
+
+    @Test void roiCropLetterboxAndAllExifRotationsMapCornersBackToOrientedSource() {
+        int encodedWidth = 1920;
+        int encodedHeight = 1080;
+        ExifOrientationTransform.Box encodedRoi = new ExifOrientationTransform.Box(320, 180, 1280, 720);
+        ExifOrientationTransform.Box encodedDetection = new ExifOrientationTransform.Box(320, 180, 160, 90);
+
+        for (int orientation = 1; orientation <= 8; orientation++) {
+            ExifOrientationTransform exif = new ExifOrientationTransform(
+                    orientation, encodedWidth, encodedHeight);
+            ExifOrientationTransform.Box orientedRoi = exif.toOrientedBox(encodedRoi);
+            ExifOrientationTransform.Box orientedDetection = exif.toOrientedBox(encodedDetection);
+            SourceRasterRoi roi = new SourceRasterRoi((int) orientedRoi.x(), (int) orientedRoi.y(),
+                    (int) orientedRoi.width(), (int) orientedRoi.height(), "frame-v42");
+            roi.validateWithin(exif.orientedWidth(), exif.orientedHeight());
+
+            LetterboxTransform letterbox = LetterboxTransform.fit(roi.width(), roi.height(), 640);
+            LetterboxTransform.Box cropDetection = new LetterboxTransform.Box(
+                    orientedDetection.x() - roi.x(), orientedDetection.y() - roi.y(),
+                    orientedDetection.width(), orientedDetection.height());
+            LetterboxTransform.Box modelDetection = letterbox.toModelPixels(cropDetection);
+            LetterboxTransform.Box sourceDetection = roi.toSourceRasterPixels(letterbox, modelDetection);
+
+            assertThat(sourceDetection.x()).as("orientation %s x", orientation)
+                    .isCloseTo(orientedDetection.x(), org.assertj.core.data.Offset.offset(1.0));
+            assertThat(sourceDetection.y()).as("orientation %s y", orientation)
+                    .isCloseTo(orientedDetection.y(), org.assertj.core.data.Offset.offset(1.0));
+            assertThat(sourceDetection.width()).as("orientation %s width", orientation)
+                    .isCloseTo(orientedDetection.width(), org.assertj.core.data.Offset.offset(1.0));
+            assertThat(sourceDetection.height()).as("orientation %s height", orientation)
+                    .isCloseTo(orientedDetection.height(), org.assertj.core.data.Offset.offset(1.0));
+        }
+    }
+
+    @Test void roiRejectsUnboundOrOutOfRasterGeometryAndMapsClippedDetections() {
+        assertThatThrownBy(() -> new SourceRasterRoi(0, 0, 10, 10, " "))
+                .isInstanceOf(IllegalArgumentException.class);
+        SourceRasterRoi roi = new SourceRasterRoi(100, 50, 320, 240, "frame-v42");
+        assertThatThrownBy(() -> roi.validateWithin(400, 289))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        LetterboxTransform transform = LetterboxTransform.fit(roi.width(), roi.height(), 640);
+        LetterboxTransform.Box mapped = roi.toSourceRasterPixels(
+                transform, new LetterboxTransform.Box(-20, 20, 700, 700));
+        assertThat(mapped.x()).isEqualTo(roi.x());
+        assertThat(mapped.y()).isEqualTo(roi.y());
+        assertThat(mapped.x() + mapped.width()).isLessThanOrEqualTo(roi.x() + roi.width());
+        assertThat(mapped.y() + mapped.height()).isLessThanOrEqualTo(roi.y() + roi.height());
+        assertThatThrownBy(() -> roi.toSourceRasterPixels(
+                LetterboxTransform.fit(roi.width() - 1, roi.height(), 640),
+                new LetterboxTransform.Box(0, 0, 1, 1)))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

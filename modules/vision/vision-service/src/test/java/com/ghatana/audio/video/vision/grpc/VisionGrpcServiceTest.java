@@ -101,6 +101,25 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("detectObjects: ROI request fails closed until crop-aware provider admission")
+    void detectObjects_roiRequestDoesNotDispatchAsFullFrame() {
+        DetectRequest request = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1, 2, 3}))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(10).setY(20).setWidth(100).setHeight(80)
+                        .setSourceFrameVersion("frame-v42"))
+                .build();
+        CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.detectObjects(request, observer));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
     @DisplayName("detectObjects: detector returns detections → proto response mapped correctly")
     void detectObjects_normal_mapsDetectionsToProto() { 
         // GIVEN

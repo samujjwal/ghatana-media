@@ -3,6 +3,7 @@ package com.ghatana.media.provider.aws;
 import tools.jackson.core.type.TypeReference;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamSessionStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 
@@ -35,14 +36,22 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
     public StreamSession create(StreamSession session, String connectionTokenHash) {
         ensureOpen();
         requireHash(connectionTokenHash);
-        StreamSession persistable = persistedPrecision(session);
+        StreamSession persistable = persistedPrecision(new StreamSession(
+                session.tenantId(), session.sessionId(), session.principalId(), session.streamKind(),
+                session.providerId(), session.state(), session.lastSequence(), session.bufferedBytes(),
+                session.maximumBufferedBytes(), session.reconnectCount(), session.leaseExpiresAt(),
+                session.createdAt(), session.updatedAt(), session.closedAt(), session.metadata(),
+                session.version(), connectionTokenHash, session.acknowledgementRevision(), session.finality(),
+                session.inFlightSequence(), session.inFlightAttemptId()));
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
                      "INSERT INTO media_stream_sessions "
                              + "(tenant_id,session_id,principal_id,stream_kind,provider_id,state,connection_token_hash,"
                              + "lease_owner,lease_expires_at,last_sequence,buffered_bytes,maximum_buffered_bytes,"
-                             + "reconnect_count,created_at,updated_at,closed_at,metadata_json,version) "
-                             + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                             + "reconnect_count,created_at,updated_at,closed_at,metadata_json,version,"
+                             + "sequence_token_hash,acknowledgement_revision,finality,in_flight_sequence,"
+                             + "in_flight_attempt_id) "
+                             + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
             bindInsert(statement, persistable, connectionTokenHash);
             statement.executeUpdate();
             return persistable;
@@ -77,6 +86,10 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         if (!tokenMatches(expected.tenantId(), expected.sessionId(), tokenHash)) {
             throw new SecurityException("Invalid media stream connection token");
         }
+        if (expected.inFlightSequence() != null) {
+            markFrameOutcomeUnknown(expected);
+            throw new IllegalStateException("Media stream provider outcome is unknown; frame replay is blocked");
+        }
         if (expected.state() != StreamState.OPEN
                 && expected.state() != StreamState.CONNECTED
                 && expected.state() != StreamState.DEGRADED) {
@@ -86,8 +99,41 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
                 expected.providerId(), StreamState.CONNECTED, expected.lastSequence(), expected.bufferedBytes(),
                 expected.maximumBufferedBytes(), expected.reconnectCount() + 1, leaseExpiresAt,
-                expected.createdAt(), Instant.now(), null, expected.metadata(), expected.version() + 1));
+                expected.createdAt(), Instant.now(), null, expected.metadata(), expected.version() + 1,
+                expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
+                null, ""));
         update(expected, updated, "connection_token_hash=?", statement -> statement.setString(1, tokenHash));
+        return updated;
+    }
+
+    @Override
+    public StreamSession beginFrame(StreamSession expected, long sequence, String attemptId) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(expected, "expected");
+        if (expected.state() != StreamState.CONNECTED && expected.state() != StreamState.DEGRADED) {
+            throw new IllegalStateException("Media stream must be connected before reserving a frame");
+        }
+        if (expected.leaseExpiresAt() == null || !expected.leaseExpiresAt().isAfter(Instant.now())) {
+            throw new IllegalStateException("Media stream lease is absent or expired");
+        }
+        if (expected.finality() != StreamFinality.NONE) {
+            throw new IllegalStateException("Media stream finality is already terminal");
+        }
+        if (expected.inFlightSequence() != null) {
+            throw new IllegalStateException("Media stream already has an unresolved provider attempt");
+        }
+        if (sequence != expected.lastSequence() + 1) {
+            throw new IllegalArgumentException("Media stream frame sequence is not contiguous");
+        }
+        String boundedAttemptId = requireAttemptId(attemptId);
+        StreamSession updated = persistedPrecision(new StreamSession(
+                expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
+                expected.providerId(), expected.state(), expected.lastSequence(), expected.bufferedBytes(),
+                expected.maximumBufferedBytes(), expected.reconnectCount(), expected.leaseExpiresAt(),
+                expected.createdAt(), Instant.now(), expected.closedAt(), expected.metadata(),
+                expected.version() + 1, expected.sequenceTokenHash(), expected.acknowledgementRevision(),
+                expected.finality(), sequence, boundedAttemptId));
+        update(expected, updated, null, null);
         return updated;
     }
 
@@ -105,6 +151,10 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         if (sequence != expected.lastSequence() + 1) {
             throw new IllegalArgumentException("Media stream frame sequence is not contiguous");
         }
+        if (!java.util.Objects.equals(expected.inFlightSequence(), sequence)
+                || expected.inFlightAttemptId().isBlank()) {
+            throw new IllegalStateException("Media stream frame has no durable provider reservation");
+        }
         if (bufferedBytes < 0 || bufferedBytes > expected.maximumBufferedBytes()) {
             throw new IllegalStateException("Media stream buffered bytes exceed the configured limit");
         }
@@ -113,7 +163,54 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
                 expected.providerId(), target, sequence, bufferedBytes, expected.maximumBufferedBytes(),
                 expected.reconnectCount(), expected.leaseExpiresAt(), expected.createdAt(), Instant.now(),
-                expected.closedAt(), expected.metadata(), expected.version() + 1));
+                expected.closedAt(), expected.metadata(), expected.version() + 1,
+                expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
+                null, ""));
+        update(expected, updated, null, null);
+        return updated;
+    }
+
+    @Override
+    public StreamSession markFrameOutcomeUnknown(StreamSession expected) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(expected, "expected");
+        if (expected.inFlightSequence() == null || expected.inFlightAttemptId().isBlank()) {
+            throw new IllegalStateException("Media stream has no unresolved provider attempt");
+        }
+        if (expected.finality() != StreamFinality.NONE) {
+            throw new IllegalStateException("Media stream finality cannot be upgraded or rewritten");
+        }
+        Instant now = Instant.now();
+        StreamSession updated = persistedPrecision(new StreamSession(
+                expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
+                expected.providerId(), StreamState.FAILED, expected.lastSequence(), expected.bufferedBytes(),
+                expected.maximumBufferedBytes(), expected.reconnectCount(), expected.leaseExpiresAt(),
+                expected.createdAt(), now, now, expected.metadata(), expected.version() + 1,
+                expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1,
+                StreamFinality.UNKNOWN, expected.inFlightSequence(), expected.inFlightAttemptId()));
+        update(expected, updated, null, null);
+        return updated;
+    }
+
+    @Override
+    public StreamSession recordFinalAcknowledgement(StreamSession expected) {
+        ensureOpen();
+        if (expected.state() != StreamState.DRAINING) {
+            throw new IllegalStateException("Final stream acknowledgement requires a draining session");
+        }
+        if (expected.finality() != StreamFinality.NONE) {
+            throw new IllegalStateException("Unknown stream finality cannot be upgraded to acknowledged");
+        }
+        if (expected.inFlightSequence() != null) {
+            throw new IllegalStateException("Unresolved provider attempt prevents final acknowledgement");
+        }
+        StreamSession updated = persistedPrecision(new StreamSession(
+                expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
+                expected.providerId(), expected.state(), expected.lastSequence(), expected.bufferedBytes(),
+                expected.maximumBufferedBytes(), expected.reconnectCount(), expected.leaseExpiresAt(),
+                expected.createdAt(), Instant.now(), expected.closedAt(), expected.metadata(),
+                expected.version() + 1, expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1,
+                StreamFinality.FINAL_ACKNOWLEDGED, null, ""));
         update(expected, updated, null, null);
         return updated;
     }
@@ -134,7 +231,12 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.maximumBufferedBytes(), expected.reconnectCount(), expected.leaseExpiresAt(),
                 expected.createdAt(), now,
                 target == StreamState.CLOSED || target == StreamState.FAILED ? now : expected.closedAt(),
-                expected.metadata(), expected.version() + 1));
+                expected.metadata(), expected.version() + 1, expected.sequenceTokenHash(),
+                expected.acknowledgementRevision() + 1,
+                (target == StreamState.CLOSED || target == StreamState.FAILED)
+                        && (expected.finality() == StreamFinality.NONE || expected.inFlightSequence() != null)
+                        ? StreamFinality.UNKNOWN : expected.finality(),
+                expected.inFlightSequence(), expected.inFlightAttemptId()));
         update(expected, updated, null, null);
         return updated;
     }
@@ -175,7 +277,9 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
             String extraPredicate,
             SqlBinder extraBinder) {
         String sql = "UPDATE media_stream_sessions SET state=?,lease_expires_at=?,last_sequence=?,"
-                + "buffered_bytes=?,reconnect_count=?,updated_at=?,closed_at=?,metadata_json=?,version=? "
+                + "buffered_bytes=?,reconnect_count=?,updated_at=?,closed_at=?,metadata_json=?,version=?,"
+                + "sequence_token_hash=?,acknowledgement_revision=?,finality=?,in_flight_sequence=?,"
+                + "in_flight_attempt_id=? "
                 + "WHERE tenant_id=? AND session_id=? AND version=?"
                 + (extraPredicate == null ? "" : " AND " + extraPredicate);
         try (Connection connection = state.connection();
@@ -189,10 +293,15 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
             nullableLong(statement, 7, updated.closedAt());
             statement.setString(8, json(updated.metadata()));
             statement.setLong(9, updated.version());
-            statement.setString(10, expected.tenantId());
-            statement.setString(11, expected.sessionId());
-            statement.setLong(12, expected.version());
-            if (extraBinder != null) extraBinder.bind(new OffsetPreparedStatement(statement, 12));
+            statement.setString(10, updated.sequenceTokenHash());
+            statement.setLong(11, updated.acknowledgementRevision());
+            statement.setString(12, updated.finality().name());
+            nullableLongValue(statement, 13, updated.inFlightSequence());
+            statement.setString(14, updated.inFlightAttemptId());
+            statement.setString(15, expected.tenantId());
+            statement.setString(16, expected.sessionId());
+            statement.setLong(17, expected.version());
+            if (extraBinder != null) extraBinder.bind(new OffsetPreparedStatement(statement, 17));
             if (statement.executeUpdate() != 1) {
                 throw new IllegalStateException("Media stream session version or ownership changed");
             }
@@ -205,7 +314,9 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
             throws SQLException {
         String sql = "SELECT principal_id,stream_kind,provider_id,state,connection_token_hash,lease_expires_at,"
                 + "last_sequence,buffered_bytes,maximum_buffered_bytes,reconnect_count,created_at,updated_at,"
-                + "closed_at,metadata_json,version FROM media_stream_sessions "
+                + "closed_at,metadata_json,version,sequence_token_hash,acknowledgement_revision,finality,"
+                + "in_flight_sequence,in_flight_attempt_id "
+                + "FROM media_stream_sessions "
                 + "WHERE tenant_id=? AND session_id=?" + (lock ? " FOR UPDATE" : "");
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, tenantId);
@@ -226,7 +337,10 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                                 Instant.ofEpochMilli(result.getLong("created_at")),
                                 Instant.ofEpochMilli(result.getLong("updated_at")),
                                 closedAt == null ? null : Instant.ofEpochMilli(closedAt),
-                                objectMap(result.getString("metadata_json")), result.getLong("version")),
+                                objectMap(result.getString("metadata_json")), result.getLong("version"),
+                                result.getString("sequence_token_hash"), result.getLong("acknowledgement_revision"),
+                                StreamFinality.valueOf(result.getString("finality")),
+                                nullable(result, "in_flight_sequence"), result.getString("in_flight_attempt_id")),
                         result.getString("connection_token_hash"));
             }
         }
@@ -252,6 +366,11 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         nullableLong(statement, 16, session.closedAt());
         statement.setString(17, json(session.metadata()));
         statement.setLong(18, session.version());
+        statement.setString(19, session.sequenceTokenHash());
+        statement.setLong(20, session.acknowledgementRevision());
+        statement.setString(21, session.finality().name());
+        nullableLongValue(statement, 22, session.inFlightSequence());
+        statement.setString(23, session.inFlightAttemptId());
     }
 
     private static boolean allowed(StreamState current, StreamState target) {
@@ -292,7 +411,9 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 session.providerId(), session.state(), session.lastSequence(), session.bufferedBytes(),
                 session.maximumBufferedBytes(), session.reconnectCount(), millis(session.leaseExpiresAt()),
                 millis(session.createdAt()), millis(session.updatedAt()), millis(session.closedAt()),
-                session.metadata(), session.version());
+                session.metadata(), session.version(), session.sequenceTokenHash(),
+                session.acknowledgementRevision(), session.finality(),
+                session.inFlightSequence(), session.inFlightAttemptId());
     }
 
     private static Instant millis(Instant value) {
@@ -303,6 +424,19 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         if (value == null || !value.matches("[0-9a-f]{64}")) {
             throw new IllegalArgumentException("connection token hash must be SHA-256");
         }
+    }
+
+    private static String requireAttemptId(String value) {
+        if (value == null || value.isBlank() || value.length() > 128
+                || value.chars().anyMatch(Character::isISOControl)) {
+            throw new IllegalArgumentException("Media stream attempt ID must be bounded and nonblank");
+        }
+        return value;
+    }
+
+    private static void nullableLongValue(PreparedStatement statement, int index, Long value) throws SQLException {
+        if (value == null) statement.setNull(index, java.sql.Types.BIGINT);
+        else statement.setLong(index, value);
     }
 
     private void ensureOpen() {

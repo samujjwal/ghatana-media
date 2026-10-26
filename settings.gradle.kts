@@ -51,10 +51,14 @@ val focusedModuleBuilds = mapOf(
     "observability" to setOf("ghatana-shared"),
     // The standalone launcher needs only this canonical Ghatana platform project;
     // it does not require the broader Ghatana services source set.
-    "launcher" to setOf("ghatana-shared")
+    "launcher" to setOf("ghatana-shared"),
+    // The runtime integration lane needs Shared primitives but stays outside
+    // the unrelated Ghatana services, Kernel, Tools, and Lifecycle source graphs.
+    "runtime-integration" to setOf("ghatana-shared")
 )
 val focusedModuleProjectSources = mapOf(
-    "launcher" to setOf(":platform:java:launcher-support")
+    "launcher" to setOf(":platform:java:launcher-support"),
+    "runtime-integration" to setOf(":platform:java:launcher-support")
 )
 val focusedModuleProjectClosure = mapOf(
     "stt" to setOf(
@@ -114,6 +118,26 @@ val focusedModuleProjectClosure = mapOf(
         ":services:media:libs:common",
         ":services:media:libs:java:common",
         ":platform:java:launcher-support"
+    ),
+    "runtime-integration" to setOf(
+        ":services:media:integration-tests",
+        ":services:media:launcher",
+        ":services:media:providers:aws-postgresql",
+        ":services:media:runtime-contracts",
+        ":services:media:audio-video-observability",
+        ":services:media:modules:audio-streaming",
+        ":services:media:modules:video-streaming",
+        ":services:media:modules:speech:stt-service",
+        ":services:media:modules:speech:tts-service",
+        ":services:media:modules:vision:vision-service",
+        ":services:media:modules:intelligence:multimodal-service",
+        ":services:media:modules:infrastructure:messaging",
+        ":services:media:modules:infrastructure:persistence",
+        ":services:media:modules:infrastructure:cache",
+        ":services:media:modules:infrastructure:security",
+        ":services:media:libs:common",
+        ":services:media:libs:java:common",
+        ":platform:java:launcher-support"
     )
 )
 if (mediaCompositeScope == "FOCUSED") {
@@ -122,7 +146,8 @@ if (mediaCompositeScope == "FOCUSED") {
     }
     if (focusedModules.isEmpty()) {
         throw GradleException(
-            "FOCUSED requires -Pghatana.media.focusedModules=<stt,tts,vision,multimodal,observability>; " +
+            "FOCUSED requires -Pghatana.media.focusedModules=" +
+                "<stt,tts,vision,multimodal,observability,launcher,runtime-integration>; " +
                 "these names select a fixed source dependency allowlist, not Gradle task-name parsing"
         )
     }
@@ -200,7 +225,8 @@ if (includeLifecycleSource && mediaCompositeScope != "FULL") {
     throw GradleException("Lifecycle source is an optional FULL-scope dependency only")
 }
 
-if (isStandaloneBuild && sourceCompositeEnabled && mediaCompositeScope == "FOCUSED" && "launcher" in focusedModules) {
+if (isStandaloneBuild && sourceCompositeEnabled && mediaCompositeScope == "FOCUSED"
+    && ("launcher" in focusedModules || "runtime-integration" in focusedModules)) {
     val launcherDirectory = File(rootDir, "launcher")
     val launcherBuildFile = sequenceOf("build.gradle.kts", "build.gradle")
         .map { File(launcherDirectory, it) }
@@ -408,7 +434,8 @@ if (mediaCompositeScope == "FULL") {
         val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
         includeProject(projectName, projectDir)
     }
-} else if (mediaCompositeScope == "FOCUSED" && "launcher" in focusedModules) {
+} else if (mediaCompositeScope == "FOCUSED"
+    && ("launcher" in focusedModules || "runtime-integration" in focusedModules)) {
     val providerDir = File(rootDir, "providers/aws-postgresql")
     includeProject("$productProjectPrefix:providers:aws-postgresql", providerDir)
 }
@@ -425,9 +452,13 @@ fileTree(rootDir) {
     if (projectDir != rootDir) {
         val relativePath = projectDir.relativeTo(rootDir).path
         val focusedExcludedProjects = setOf("adapters", "launcher", "providers", "integration-tests")
-        val selectedFocusedLauncher = relativePath == "launcher" && "launcher" in focusedModules
+        val selectedFocusedLauncher = relativePath == "launcher"
+            && ("launcher" in focusedModules || "runtime-integration" in focusedModules)
+        val selectedRuntimeIntegration = relativePath == "integration-tests"
+            && "runtime-integration" in focusedModules
         val excludedForFocused = mediaCompositeScope == "FOCUSED"
-            && ((relativePath in focusedExcludedProjects && !selectedFocusedLauncher) ||
+            && ((relativePath in focusedExcludedProjects
+                && !selectedFocusedLauncher && !selectedRuntimeIntegration) ||
                 relativePath.startsWith("providers/"))
         if (!excludedForFocused) {
             val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"

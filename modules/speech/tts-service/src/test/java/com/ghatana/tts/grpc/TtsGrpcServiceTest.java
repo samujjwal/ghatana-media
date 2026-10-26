@@ -198,7 +198,9 @@ class TtsGrpcServiceTest {
         TtsGrpcService admitted = admittedService(() -> true, () -> false, null, trace.tracing);
         when(engine.synthesize(anyString(), any())).thenAnswer(invocation -> {
             trace.assertCurrentOperationSpan();
-            return new AudioData(new byte[44], 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM);
+            byte[] pcm = new byte[44];
+            pcm[2] = 1;
+            return new AudioData(pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM);
         });
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
         String protectedText = "private synthesis phrase 103857";
@@ -505,6 +507,7 @@ class TtsGrpcServiceTest {
     void admittedFakeEngineRunsThroughRequestPathAndExportsPrivateBoundedProviderMetric() {
         TtsGrpcService admitted = admittedService(() -> true, () -> false);
         byte[] pcm = new byte[44];
+        pcm[2] = 1;
         when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
                 pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
@@ -609,6 +612,7 @@ class TtsGrpcServiceTest {
     void cancellationAfterProviderReturnRecordsUnknownAndDoesNotEmitAudio() {
         TtsGrpcService admitted = admittedService(() -> true, () -> false);
         byte[] pcm = new byte[44];
+        pcm[2] = 1;
         when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
                 pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
         @SuppressWarnings("unchecked")

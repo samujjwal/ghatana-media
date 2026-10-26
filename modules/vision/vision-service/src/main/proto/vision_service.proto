@@ -51,6 +51,18 @@ message DetectRequest {
   string correlation_id = 8;
   string consent_status = 9;
   string retention_policy = 10;
+  // Optional EXIF-oriented decoded source-raster top-left XYWH pixel crop.
+  // Coordinates are half-open pixel-edge bounds and must match source_frame_version exactly.
+  SourceRasterRoi source_raster_roi = 11;
+}
+
+message SourceRasterRoi {
+  uint32 x = 1;
+  uint32 y = 2;
+  uint32 width = 3;
+  uint32 height = 4;
+  // Required immutable source/frame version; an ROI without this binding is invalid.
+  string source_frame_version = 5;
 }
 
 message DetectResponse {

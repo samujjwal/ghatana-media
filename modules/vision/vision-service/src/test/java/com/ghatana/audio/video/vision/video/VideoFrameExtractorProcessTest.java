@@ -25,6 +25,7 @@ class VideoFrameExtractorProcessTest {
             @Override
             ProcessResult runProbeProcess(List<String> command, Duration timeout, int maxDiagnosticBytes) {
                 assertThat(command).containsSubsequence("-select_streams", "a:0", "-show_entries");
+                assertThat(command).doesNotContain("-nostdin");
                 return new ProcessResult(0, false,
                         "index=1\ntime_base=1/48000\nstart_pts=1024\nsample_rate=48000\nchannels=2\nduration_ts=480000");
             }
