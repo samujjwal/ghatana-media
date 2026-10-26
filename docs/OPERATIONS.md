@@ -164,8 +164,8 @@ provider readiness, and drain state. The shared gRPC server lifecycle exports
 the low-cardinality Prometheus gauge
 `av_service_readiness{service="stt|tts|vision|multimodal"}`: `1` means the
 server is serving and required provider checks are healthy; `0` means it is not
-ready. Modality-specific readiness alerts fire only when an observed readiness
-value is `0`; do not alert on an absent or NaN series. `SttProviderNotReady`,
+ready. Modality-specific provider-not-ready alerts fire only when an observed readiness
+value is `0`; an absent or NaN series does not trigger those alerts. `SttProviderNotReady`,
 `TtsProviderNotReady`, `VisionProviderNotReady`, and
 `MultimodalProviderNotReady` use the bounded modality value as their fixed
 `component` label and do not identify a configured provider. Public health
@@ -218,6 +218,20 @@ metric does not identify which provider check failed. No admitted provider
 quality or regression metric exists, so these alerts describe readiness only;
 they do not establish output quality or alert delivery.
 
+The corresponding `*ReadinessTelemetryMissing` warning fires only when a
+modality scrape target remains reachable while its readiness series is absent
+for two minutes. This is a missing/stale status signal: treat provider state as
+unknown, inspect scrape and metrics registration, and do not infer provider
+failure, `NOT_ADMITTED`, or quality degradation from the alert. A reported zero
+continues to drive the modality's `*ProviderNotReady` alert; absent/NaN provider
+quality remains `NO_DATA` / `NOT_ADMITTED` and has no quality alert.
+
+The corresponding `*ReadinessTelemetryInvalid` warning fires when the target
+is reachable and the readiness gauge is present as NaN for two minutes. NaN is
+invalid readiness telemetry, distinct from an absent gauge or an observed zero;
+provider state remains unknown. Repair metric instrumentation and do not change,
+open, close, or reroute traffic based on this warning.
+
 ## Degradation, recovery, and actionable runbook
 
 1. Check lifecycle. Run liveness, startup, readiness, health, and metrics.
@@ -225,6 +239,11 @@ they do not establish output quality or alert delivery.
    state without copying media bytes or tokens.
    Treat a missing provider/quality series as `NO_DATA`/`NOT_ADMITTED`; the
    current public health routes do not provide detailed provider health.
+   If `*ReadinessTelemetryMissing` fires while the scrape target is up, repair
+   the scrape or readiness metric registration first. Do not use missing status
+   as evidence to open, close, or reroute provider traffic.
+   If `*ReadinessTelemetryInvalid` fires, repair the invalid readiness metric;
+   NaN is unknown provider state and must not drive traffic changes.
 2. If not ready, verify selected artifact/job/stream stores, PostgreSQL/S3
    credentials and endpoints, provider endpoint/token/region/retention, and
    consent authority readiness. Restore dependencies before reopening traffic.

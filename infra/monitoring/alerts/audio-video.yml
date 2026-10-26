@@ -99,6 +99,105 @@ groups:
           description: "The observed Multimodal readiness gauge is zero. Check public readiness and lifecycle, then inspect only redacted Multimodal diagnostics and provider configuration. Keep traffic closed until readiness recovers; missing or unknown series do not trigger this alert."
           runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
+      # A reachable scrape target with no modality readiness series indicates
+      # stale/missing status instrumentation, not a failed or unadmitted provider.
+      - alert: SttReadinessTelemetryMissing
+        expr: label_replace(up{job="stt-service"}, "service", "stt", "job", ".*") == 1 unless on (job, instance, service) av_service_readiness{service="stt"}
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: stt
+        annotations:
+          summary: "STT readiness telemetry is missing"
+          description: "The STT scrape target is reachable, but its readiness status has been absent for 2 minutes. Treat provider state as unknown; verify metrics instrumentation and scrape configuration before changing traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: TtsReadinessTelemetryMissing
+        expr: label_replace(up{job="tts-service"}, "service", "tts", "job", ".*") == 1 unless on (job, instance, service) av_service_readiness{service="tts"}
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: tts
+        annotations:
+          summary: "TTS readiness telemetry is missing"
+          description: "The TTS scrape target is reachable, but its readiness status has been absent for 2 minutes. Treat provider state as unknown; verify metrics instrumentation and scrape configuration before changing traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: VisionReadinessTelemetryMissing
+        expr: label_replace(up{job="vision-service"}, "service", "vision", "job", ".*") == 1 unless on (job, instance, service) av_service_readiness{service="vision"}
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: vision
+        annotations:
+          summary: "Vision readiness telemetry is missing"
+          description: "The Vision scrape target is reachable, but its readiness status has been absent for 2 minutes. Treat provider state as unknown; verify metrics instrumentation and scrape configuration before changing traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: MultimodalReadinessTelemetryMissing
+        expr: label_replace(up{job="multimodal-service"}, "service", "multimodal", "job", ".*") == 1 unless on (job, instance, service) av_service_readiness{service="multimodal"}
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: multimodal
+        annotations:
+          summary: "Multimodal readiness telemetry is missing"
+          description: "The Multimodal scrape target is reachable, but its readiness status has been absent for 2 minutes. Treat provider state as unknown; verify metrics instrumentation and scrape configuration before changing traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      # A present NaN gauge is invalid status telemetry, distinct from absence.
+      - alert: SttReadinessTelemetryInvalid
+        expr: (label_replace(up{job="stt-service"}, "service", "stt", "job", ".*") == 1) and on (job, instance, service) (av_service_readiness{service="stt"} != av_service_readiness{service="stt"})
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: stt
+        annotations:
+          summary: "STT readiness telemetry is invalid"
+          description: "The STT scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: TtsReadinessTelemetryInvalid
+        expr: (label_replace(up{job="tts-service"}, "service", "tts", "job", ".*") == 1) and on (job, instance, service) (av_service_readiness{service="tts"} != av_service_readiness{service="tts"})
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: tts
+        annotations:
+          summary: "TTS readiness telemetry is invalid"
+          description: "The TTS scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: VisionReadinessTelemetryInvalid
+        expr: (label_replace(up{job="vision-service"}, "service", "vision", "job", ".*") == 1) and on (job, instance, service) (av_service_readiness{service="vision"} != av_service_readiness{service="vision"})
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: vision
+        annotations:
+          summary: "Vision readiness telemetry is invalid"
+          description: "The Vision scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: MultimodalReadinessTelemetryInvalid
+        expr: (label_replace(up{job="multimodal-service"}, "service", "multimodal", "job", ".*") == 1) and on (job, instance, service) (av_service_readiness{service="multimodal"} != av_service_readiness{service="multimodal"})
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: multimodal
+        annotations:
+          summary: "Multimodal readiness telemetry is invalid"
+          description: "The Multimodal scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
   # -------------------------------------------------------------------------
   # 2. STT (Speech-to-Text) Performance
   # -------------------------------------------------------------------------

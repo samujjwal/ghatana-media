@@ -137,6 +137,254 @@ tests:
   - eval_time: 1m
     alertname: MultimodalProviderNotReady
     exp_alerts: []
+- name: reachable-target-missing-readiness-is-unknown
+  interval: 30s
+  input_series:
+  - series: up{job="stt-service",instance="stt-1"}
+    values: 1x5
+  - series: up{job="tts-service",instance="tts-1"}
+    values: 1x5
+  - series: up{job="vision-service",instance="vision-1"}
+    values: 1x5
+  - series: up{job="multimodal-service",instance="multimodal-1"}
+    values: 1x5
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: SttReadinessTelemetryMissing
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: stt
+        job: stt-service
+        instance: stt-1
+        service: stt
+      exp_annotations:
+        summary: STT readiness telemetry is missing
+        description: The STT scrape target is reachable, but its readiness status has been absent for 2 minutes. Treat provider state as unknown; verify metrics instrumentation and scrape configuration before changing traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 2m
+    alertname: TtsReadinessTelemetryMissing
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: tts
+        job: tts-service
+        instance: tts-1
+        service: tts
+      exp_annotations:
+        summary: TTS readiness telemetry is missing
+        description: The TTS scrape target is reachable, but its readiness status has been absent for 2 minutes. Treat provider state as unknown; verify metrics instrumentation and scrape configuration before changing traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 2m
+    alertname: VisionReadinessTelemetryMissing
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: vision
+        job: vision-service
+        instance: vision-1
+        service: vision
+      exp_annotations:
+        summary: Vision readiness telemetry is missing
+        description: The Vision scrape target is reachable, but its readiness status has been absent for 2 minutes. Treat provider state as unknown; verify metrics instrumentation and scrape configuration before changing traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 2m
+    alertname: MultimodalReadinessTelemetryMissing
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: multimodal
+        job: multimodal-service
+        instance: multimodal-1
+        service: multimodal
+      exp_annotations:
+        summary: Multimodal readiness telemetry is missing
+        description: The Multimodal scrape target is reachable, but its readiness status has been absent for 2 minutes. Treat provider state as unknown; verify metrics instrumentation and scrape configuration before changing traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 2m
+    alertname: SttReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: TtsReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: VisionReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: MultimodalReadinessTelemetryInvalid
+    exp_alerts: []
+- name: reachable-target-nan-readiness-is-invalid-not-missing-or-unavailable
+  interval: 30s
+  input_series:
+  - series: up{job="stt-service",instance="stt-1"}
+    values: 1x5
+  - series: av_service_readiness{job="stt-service",instance="stt-1",service="stt"}
+    values: NaN NaN NaN NaN NaN
+  - series: up{job="tts-service",instance="tts-1"}
+    values: 1x5
+  - series: av_service_readiness{job="tts-service",instance="tts-1",service="tts"}
+    values: NaN NaN NaN NaN NaN
+  - series: up{job="vision-service",instance="vision-1"}
+    values: 1x5
+  - series: av_service_readiness{job="vision-service",instance="vision-1",service="vision"}
+    values: NaN NaN NaN NaN NaN
+  - series: up{job="multimodal-service",instance="multimodal-1"}
+    values: 1x5
+  - series: av_service_readiness{job="multimodal-service",instance="multimodal-1",service="multimodal"}
+    values: NaN NaN NaN NaN NaN
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: SttReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: TtsReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: VisionReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: MultimodalReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: SttReadinessTelemetryInvalid
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: stt
+        job: stt-service
+        instance: stt-1
+        service: stt
+      exp_annotations:
+        summary: STT readiness telemetry is invalid
+        description: The STT scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 2m
+    alertname: TtsReadinessTelemetryInvalid
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: tts
+        job: tts-service
+        instance: tts-1
+        service: tts
+      exp_annotations:
+        summary: TTS readiness telemetry is invalid
+        description: The TTS scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 2m
+    alertname: VisionReadinessTelemetryInvalid
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: vision
+        job: vision-service
+        instance: vision-1
+        service: vision
+      exp_annotations:
+        summary: Vision readiness telemetry is invalid
+        description: The Vision scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 2m
+    alertname: MultimodalReadinessTelemetryInvalid
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: multimodal
+        job: multimodal-service
+        instance: multimodal-1
+        service: multimodal
+      exp_annotations:
+        summary: Multimodal readiness telemetry is invalid
+        description: The Multimodal scrape target is reachable, but its readiness gauge is NaN for 2 minutes. Treat provider state as unknown; repair metrics instrumentation before changing traffic.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+- name: readiness-zero-is-unavailable-not-missing
+  interval: 30s
+  input_series:
+  - series: up{job="stt-service",instance="stt-1"}
+    values: 1x5
+  - series: av_service_readiness{job="stt-service",instance="stt-1",service="stt"}
+    values: 0x5
+  - series: up{job="tts-service",instance="tts-1"}
+    values: 1x5
+  - series: av_service_readiness{job="tts-service",instance="tts-1",service="tts"}
+    values: 0x5
+  - series: up{job="vision-service",instance="vision-1"}
+    values: 1x5
+  - series: av_service_readiness{job="vision-service",instance="vision-1",service="vision"}
+    values: 0x5
+  - series: up{job="multimodal-service",instance="multimodal-1"}
+    values: 1x5
+  - series: av_service_readiness{job="multimodal-service",instance="multimodal-1",service="multimodal"}
+    values: 0x5
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: SttReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: TtsReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: VisionReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: MultimodalReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: SttReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: TtsReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: VisionReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: MultimodalReadinessTelemetryInvalid
+    exp_alerts: []
+- name: down-target-does-not-report-stale-provider-status
+  interval: 30s
+  input_series:
+  - series: up{job="stt-service",instance="stt-1"}
+    values: 0x5
+  - series: up{job="tts-service",instance="tts-1"}
+    values: 0x5
+  - series: up{job="vision-service",instance="vision-1"}
+    values: 0x5
+  - series: up{job="multimodal-service",instance="multimodal-1"}
+    values: 0x5
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: SttReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: TtsReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: VisionReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: MultimodalReadinessTelemetryMissing
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: SttReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: TtsReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: VisionReadinessTelemetryInvalid
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: MultimodalReadinessTelemetryInvalid
+    exp_alerts: []
 - name: MediaJobLeaseStuck-support-one
   interval: 1m
   input_series:

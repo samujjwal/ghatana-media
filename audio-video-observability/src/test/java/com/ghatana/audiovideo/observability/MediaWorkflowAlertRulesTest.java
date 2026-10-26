@@ -128,10 +128,10 @@ class MediaWorkflowAlertRulesTest {
                 .doesNotContain("alert: MediaQualityRegression", "media_provider_health", "media_model_quality");
         assertThat(operations).contains(
                 "`av_service_readiness{service=\"stt|tts|vision|multimodal\"}`",
-                "Modality-specific readiness alerts fire only when an observed readiness",
+                "Modality-specific provider-not-ready alerts fire only when an observed readiness",
                 "`SttProviderNotReady`", "`TtsProviderNotReady`", "`VisionProviderNotReady`",
                 "`MultimodalProviderNotReady`",
-                "do not alert on an absent or NaN series",
+                "absent or NaN series does not trigger those alerts",
                 "`NOT_ADMITTED` / `NO_DATA`",
                 "must not turn that into a zero");
     }
@@ -149,6 +149,40 @@ class MediaWorkflowAlertRulesTest {
                     "severity: critical\n          product: audio-video\n          component: " + service);
             assertThat(expression).doesNotContain("or", "absent", "NaN", "vector(0)");
         });
+    }
+
+    @Test
+    void readinessTelemetryAlertsRequireReachableTargetAndKeepUnknownDistinctFromUnavailable() throws IOException {
+        Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
+        String rules = Files.readString(rulesPath);
+        Map<String, String> modalities = Map.of(
+                "stt", "SttReadinessTelemetryMissing",
+                "tts", "TtsReadinessTelemetryMissing",
+                "vision", "VisionReadinessTelemetryMissing",
+                "multimodal", "MultimodalReadinessTelemetryMissing");
+
+        modalities.forEach((service, alert) -> {
+            String expression = "label_replace(up{job=\"" + service + "-service\"}, \"service\", \""
+                    + service + "\", \"job\", \".*\") == 1 unless on (job, instance, service) "
+                    + "av_service_readiness{service=\"" + service + "\"}";
+            String invalidAlert = switch (service) {
+                case "stt" -> "SttReadinessTelemetryInvalid";
+                case "tts" -> "TtsReadinessTelemetryInvalid";
+                case "vision" -> "VisionReadinessTelemetryInvalid";
+                default -> "MultimodalReadinessTelemetryInvalid";
+            };
+            String invalidExpression = "(label_replace(up{job=\"" + service + "-service\"}, \"service\", \""
+                    + service + "\", \"job\", \".*\") == 1) and on (job, instance, service) "
+                    + "(av_service_readiness{service=\"" + service + "\"} != "
+                    + "av_service_readiness{service=\"" + service + "\"})";
+            assertThat(rules).contains("alert: " + alert, expression,
+                    "severity: warning\n          product: audio-video\n          component: " + service,
+                    "Treat provider state as unknown");
+            assertThat(rules).contains("alert: " + invalidAlert, invalidExpression,
+                    "severity: warning\n          product: audio-video\n          component: " + service,
+                    "readiness gauge is NaN", "Treat provider state as unknown");
+        });
+        assertThat(rules).doesNotContain("provider_id", "model_id", "tenant_id", "request_id");
     }
 
     @Test
@@ -187,6 +221,18 @@ class MediaWorkflowAlertRulesTest {
                 "alertname: TtsProviderNotReady",
                 "alertname: VisionProviderNotReady",
                 "alertname: MultimodalProviderNotReady",
+                "name: reachable-target-missing-readiness-is-unknown",
+                "name: reachable-target-nan-readiness-is-invalid-not-missing-or-unavailable",
+                "name: readiness-zero-is-unavailable-not-missing",
+                "name: down-target-does-not-report-stale-provider-status",
+                "alertname: SttReadinessTelemetryMissing",
+                "alertname: TtsReadinessTelemetryMissing",
+                "alertname: VisionReadinessTelemetryMissing",
+                "alertname: MultimodalReadinessTelemetryMissing",
+                "alertname: SttReadinessTelemetryInvalid",
+                "alertname: TtsReadinessTelemetryInvalid",
+                "alertname: VisionReadinessTelemetryInvalid",
+                "alertname: MultimodalReadinessTelemetryInvalid",
                 "values: '0x3'",
                 "values: 1x3",
                 "values: NaN NaN NaN",
