@@ -603,6 +603,42 @@ class SttGrpcServiceTest {
         verify(mockLibrary, never()).getSttEngine();
     }
 
+    @Test
+    @DisplayName("adaptation and correction require the trusted profile decision before feature admission")
+    void adaptationAndCorrectionRequireTrustedProfileDecisionBeforeEffects() {
+        java.util.List<SttRequestAuthorization.Request> requests = new java.util.ArrayList<>();
+        SttGrpcService deniedService = new SttGrpcService(mockLibrary, meterRegistry, request -> {
+            requests.add(request);
+            return SttRequestAuthorization.Decision.DENIED;
+        });
+        CapturingObserver<AdaptResponse> adaptation = new CapturingObserver<>();
+        CapturingObserver<CorrectionResponse> correction = new CapturingObserver<>();
+
+        runWithTenantContext(() -> {
+            deniedService.adaptModel(AdaptRequest.newBuilder().setProfileId("profile-1").build(), adaptation);
+            deniedService.submitCorrection(CorrectionRequest.newBuilder()
+                    .setProfileId("profile-2").build(), correction);
+        });
+
+        for (CapturingObserver<?> observer : List.of(adaptation, correction)) {
+            assertThat(observer.hasError()).isTrue();
+            StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+            assertThat(failure.getStatus().getCode()).isEqualTo(Status.PERMISSION_DENIED.getCode());
+            assertThat(failure.getStatus().getDescription()).startsWith("STT_RIGHTS_DENIED:");
+            assertThat(observer.getValue()).isNull();
+        }
+        assertThat(requests).extracting(SttRequestAuthorization.Request::operation)
+                .containsExactly(SttRequestAuthorization.Operation.ADAPT_MODEL,
+                        SttRequestAuthorization.Operation.SUBMIT_CORRECTION);
+        assertThat(requests).extracting(SttRequestAuthorization.Request::resourceId)
+                .containsExactly("profile-1", "profile-2");
+        assertThat(requests).allSatisfy(request -> {
+            assertThat(request.identity().tenantId()).isEqualTo("tenant-test");
+            assertThat(request.identity().subject()).isEqualTo("00000000-0000-0000-0000-000000000001");
+        });
+        verifyNoInteractions(mockLibrary);
+    }
+
     // ─────────────────────────────────────────────────────────────
     // createProfile (AV-001.5) 
     // ─────────────────────────────────────────────────────────────

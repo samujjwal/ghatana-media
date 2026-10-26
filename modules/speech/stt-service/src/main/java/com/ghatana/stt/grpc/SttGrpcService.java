@@ -492,6 +492,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void adaptModel(AdaptRequest request, StreamObserver<AdaptResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver,
+                SttRequestAuthorization.Operation.ADAPT_MODEL, request.getProfileId())) return;
         responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
                 .withDescription("STT_ADAPTATION_NOT_ADMITTED: versioned transcript correction, trusted rights admission and an admitted adaptation provider are unavailable")
                 .asRuntimeException());
@@ -536,6 +538,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void submitCorrection(CorrectionRequest request, StreamObserver<CorrectionResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!authorizeRequest(responseObserver,
+                SttRequestAuthorization.Operation.SUBMIT_CORRECTION, request.getProfileId())) return;
         responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
                 .withDescription("STT_CORRECTION_NOT_ADMITTED: immutable transcript revision store and expected-version CAS are unavailable")
                 .asRuntimeException());

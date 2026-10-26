@@ -20,9 +20,27 @@ import static org.mockito.Mockito.verifyNoInteractions;
 class SttVersionedOutputAdmissionTest {
 
     @Test
-    void adaptationAndCorrectionRemainTypedNoEffectWithoutVersionStore() {
+    void adaptationAndCorrectionDefaultToUnavailableWithoutRightsAuthority() {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry());
+        CapturingObserver<AdaptResponse> adaptation = new CapturingObserver<>();
+        CapturingObserver<CorrectionResponse> correction = new CapturingObserver<>();
+
+        runWithVerifiedIdentity(() -> {
+            service.adaptModel(AdaptRequest.newBuilder().setProfileId("profile").build(), adaptation);
+            service.submitCorrection(CorrectionRequest.newBuilder().setProfileId("profile").build(), correction);
+        });
+
+        assertNotAdmitted(adaptation, "STT_RIGHTS_NOT_ADMITTED:", "trusted rights and ownership authority");
+        assertNotAdmitted(correction, "STT_RIGHTS_NOT_ADMITTED:", "trusted rights and ownership authority");
+        verifyNoInteractions(library);
+    }
+
+    @Test
+    void adaptationAndCorrectionRemainTypedNoEffectWithoutVersionStore() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry(),
+                request -> SttRequestAuthorization.Decision.ADMITTED); // Test-only rights authority.
         CapturingObserver<AdaptResponse> adaptation = new CapturingObserver<>();
         CapturingObserver<CorrectionResponse> correction = new CapturingObserver<>();
 
