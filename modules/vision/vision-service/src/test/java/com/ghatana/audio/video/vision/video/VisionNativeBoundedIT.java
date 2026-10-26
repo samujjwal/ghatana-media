@@ -17,6 +17,9 @@ import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,15 +29,26 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * Development-only native codec regression using generated, synthetic media fixtures.
  *
- * <p>The test refuses tools other than the exact R4 pinned executables. It does not exercise
- * model inference: no admitted Vision model is needed or implied by these codec checks.
+ * <p>The test refuses tools other than the verified platform-specific FFmpeg/FFprobe 8.1.2
+ * executables. The Linux pins identify GPL test tools used only as external processes; no tool
+ * binaries are bundled or exercised in the Media runtime. This does not exercise model inference:
+ * no admitted Vision model is needed or implied by these codec checks.
  */
 class VisionNativeBoundedIT {
-    private static final Path FFMPEG = Path.of("/tmp/ghatana-media-r5-ffmpeg-8.1.2/extracted/ffmpeg");
-    private static final Path FFPROBE = Path.of("/tmp/ghatana-media-r5-ffmpeg-8.1.2/extracted/ffprobe");
-    private static final String FFMPEG_SHA256 = "5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33";
-    private static final String FFPROBE_SHA256 = "b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f";
+    private static final Path FFMPEG = configuredToolPath("media.vision.ffmpeg", "GHATANA_MEDIA_FFMPEG", "ffmpeg");
+    private static final Path FFPROBE = configuredToolPath("media.vision.ffprobe", "GHATANA_MEDIA_FFPROBE", "ffprobe");
+    private static final Map<String, NativeToolPins> VERIFIED_TOOL_PINS = Map.of(
+            "macos/aarch64", new NativeToolPins(
+                    "5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33",
+                    "b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f"),
+            "linux/amd64", new NativeToolPins(
+                    "ad7a8c8e8fe4f50972f32f63705cfcc57f44cd3531f57aa8defe388372242f5e",
+                    "150bfd75016992a8d495a5f5c16cd93387a21c059f4309ed1e6342659aef48b3"),
+            "linux/aarch64", new NativeToolPins(
+                    "1b216dbbe46adf213945d357ef958404eed1632e7fb38a85f7f030ed9c212bcf",
+                    "67efa97371fb54199f23a4d33c9b1dbb389089b2d36b4ebab8ebc6eca68a51c4"));
     private static final long MAX_FIXTURE_BYTES = 2L * 1024 * 1024;
+    // Sampled peak RSS is evidence only; the portable child limits below do not enforce RSS.
     private static final long MAX_CHILD_RSS_BYTES = 512L * 1024 * 1024;
 
     @TempDir Path temp;
@@ -48,7 +62,7 @@ class VisionNativeBoundedIT {
                 FFMPEG.toString(), "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
                 "-f", "lavfi", "-i", "testsrc2=size=160x120:rate=24:duration=1",
                 "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=16000:duration=1",
-                "-c:v", "h264_videotoolbox", "-pix_fmt", "yuv420p",
+                "-c:v", h264Encoder(), "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-shortest", avc.toString()), Duration.ofSeconds(15), MAX_FIXTURE_BYTES);
         assertBounded(avcRun, 15);
         assertThat(Files.size(avc)).isBetween(1L, MAX_FIXTURE_BYTES);
@@ -78,8 +92,9 @@ class VisionNativeBoundedIT {
         NativeRun vfrRun = runNative(List.of(
                 FFMPEG.toString(), "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
                 "-f", "lavfi", "-i", "testsrc2=size=160x120:rate=10:duration=1",
-                "-vf", "setpts='N/(10*TB)+gte(N,5)*0.2/TB'", "-fps_mode", "vfr",
-                "-c:v", "h264_videotoolbox", "-pix_fmt", "yuv420p", vfr.toString()),
+                "-vf", "setpts='N/(10*TB)+gte(N,5)*0.2/TB'", // FFmpeg filtergraph quoting, not shell escaping.
+                "-fps_mode", "vfr",
+                "-c:v", h264Encoder(), "-pix_fmt", "yuv420p", vfr.toString()),
                 Duration.ofSeconds(15), MAX_FIXTURE_BYTES);
         assertBounded(vfrRun, 15);
         assertThat(Files.size(vfr)).isBetween(1L, MAX_FIXTURE_BYTES);
@@ -106,9 +121,9 @@ class VisionNativeBoundedIT {
         assertThat(sourceIntervals.stream().distinct().count())
                 .as("extracted VFR timestamps preserve nonuniform source intervals").isGreaterThan(1);
 
-        // This pinned LGPL build has no WebP encoder. Keep a tiny deterministic WebP fixture
-        // generated locally with Pillow so the Java decoder path remains exercised without adding
-        // a runtime dependency or fetching media.
+        // The pinned macOS LGPL build has no WebP encoder; the Linux pins are GPL builds. Keep a
+        // tiny deterministic WebP fixture generated locally with Pillow so the Java decoder path
+        // remains exercised without adding a runtime dependency or fetching media.
         byte[] webp = java.util.Base64.getDecoder().decode(
                 "UklGRnYAAABXRUJQVlA4IGoAAADQBwCdASqgAHgAPm02mUmkIyKhIGgAgA2JaW7hdUlwH4AAAO6HVUmyYh1VJsmIdVSbJiHVUmyYh1VJsmIdVSbJiHVUmyYh1VJsmIdVSbJiHVUmyYWAAD+/uB7///ILlhdcjX//5Af8gP+QH/8fFMrSlfcCAAAAAAA");
         Path webpPath = Files.write(temp.resolve("generated.webp"), webp);
@@ -216,18 +231,25 @@ class VisionNativeBoundedIT {
     private static void verifyPinnedTools() throws Exception {
         assumeTrue("true".equalsIgnoreCase(System.getenv("GHATANA_MEDIA_NATIVE_VISION_REQUIRED")),
                 "native Vision integration is opt-in; set GHATANA_MEDIA_NATIVE_VISION_REQUIRED=true");
-        assertThat(Files.isExecutable(FFMPEG)).as("R4 pinned FFmpeg executable exists").isTrue();
-        assertThat(Files.isExecutable(FFPROBE)).as("R4 pinned FFprobe executable exists").isTrue();
-        assertThat(sha256(FFMPEG)).isEqualTo(FFMPEG_SHA256);
-        assertThat(sha256(FFPROBE)).isEqualTo(FFPROBE_SHA256);
+        NativeToolPins pins = VERIFIED_TOOL_PINS.get(platformKey());
+        if (pins == null) {
+            throw new IllegalStateException("No trusted FFmpeg 8.1.2/FFprobe 8.1.2 SHA-256 pins for "
+                    + platformKey() + "; add independently verified platform pins before running this test");
+        }
+        assertThat(Files.isExecutable(FFMPEG)).as("verified FFmpeg executable exists").isTrue();
+        assertThat(Files.isExecutable(FFPROBE)).as("verified FFprobe executable exists").isTrue();
+        assertThat(sha256(FFMPEG)).isEqualTo(pins.ffmpegSha256());
+        assertThat(sha256(FFPROBE)).isEqualTo(pins.ffprobeSha256());
         System.out.printf("VISION_NATIVE_ENV host=%s os=%s arch=%s ffmpegSha256=%s ffprobeSha256=%s%n",
                 java.lang.management.ManagementFactory.getRuntimeMXBean().getName(),
                 System.getProperty("os.name"), System.getProperty("os.arch"),
                 sha256(FFMPEG), sha256(FFPROBE));
         assertThat(runNative(List.of(FFMPEG.toString(), "-version"), Duration.ofSeconds(3), 4096)
-                .output()).contains("ffmpeg version 8.1.2");
+                .output()).contains("8.1.2");
         assertThat(runNative(List.of(FFPROBE.toString(), "-version"), Duration.ofSeconds(3), 4096)
-                .output()).contains("ffprobe version 8.1.2");
+                .output()).contains("8.1.2");
+        assertThat(runNative(List.of(FFMPEG.toString(), "-hide_banner", "-encoders"), Duration.ofSeconds(5),
+                64 * 1024).output()).contains(h264Encoder());
     }
 
     private String probe(Path source, String... options) throws Exception {
@@ -241,9 +263,8 @@ class VisionNativeBoundedIT {
     }
 
     private static NativeRun runNative(List<String> command, Duration timeout, long outputLimit) throws Exception {
-        java.util.ArrayList<String> timedCommand = new java.util.ArrayList<>(List.of("/usr/bin/time", "-lp"));
-        timedCommand.addAll(boundedCommand(command));
-        Process process = new ProcessBuilder(timedCommand).redirectErrorStream(true).start();
+        Process process = new ProcessBuilder(timedCommand(command)).redirectErrorStream(true).start();
+        ProcessHandle processHandle = process.toHandle();
         long startedNanos = System.nanoTime();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         java.util.concurrent.atomic.AtomicLong totalOutputBytes = new java.util.concurrent.atomic.AtomicLong();
@@ -268,19 +289,24 @@ class VisionNativeBoundedIT {
         reader.setDaemon(true);
         reader.start();
         long deadline = System.nanoTime() + timeout.toNanos();
-        long peakRssBytes = 0;
+        long peakRssBytes = rssBytes(process.pid());
+        long cpuMillis = isLinux() ? sampleCpuMillis(processHandle, -1) : -1;
+        long sampleIntervalMillis = isLinux() ? 10 : 25;
         boolean timedOut = false;
         List<Long> childPids = new java.util.ArrayList<>();
         while (process.isAlive() && System.nanoTime() < deadline) {
+            if (isLinux()) cpuMillis = sampleCpuMillis(processHandle, cpuMillis);
             peakRssBytes = Math.max(peakRssBytes, rssBytes(process.pid()));
-            for (ProcessHandle child : process.toHandle().descendants().toList()) {
+            for (ProcessHandle child : processHandle.descendants().toList()) {
                 peakRssBytes = Math.max(peakRssBytes, rssBytes(child.pid()));
             }
-            process.waitFor(25, TimeUnit.MILLISECONDS);
+            // Linux reads /proc directly, so it can sample more frequently without helper-process
+            // overhead. macOS uses `ps`, so keep that sampling cadence lower.
+            process.waitFor(sampleIntervalMillis, TimeUnit.MILLISECONDS);
         }
         if (process.isAlive()) {
             timedOut = true;
-            childPids = process.toHandle().descendants().map(ProcessHandle::pid).toList();
+            childPids = processHandle.descendants().map(ProcessHandle::pid).toList();
             process.descendants().forEach(handle -> handle.destroyForcibly());
             process.destroyForcibly();
             process.waitFor(2, TimeUnit.SECONDS);
@@ -293,19 +319,27 @@ class VisionNativeBoundedIT {
         reader.join(2_000);
         String captured;
         synchronized (output) { captured = output.toString(StandardCharsets.UTF_8); }
+        if (isMacOS()) cpuMillis = parsePosixCpuMillis(captured);
         long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
-        long cpuMillis = -1;
-        if (!timedOut) {
-            Matcher user = Pattern.compile("(?m)^user\\s+([0-9.]+)$").matcher(captured);
-            Matcher sys = Pattern.compile("(?m)^sys\\s+([0-9.]+)$").matcher(captured);
-            if (!user.find() || !sys.find()) throw new AssertionError("/usr/bin/time did not report child CPU time");
-            cpuMillis = (long) ((Double.parseDouble(user.group(1)) + Double.parseDouble(sys.group(1))) * 1000.0);
-        }
         return new NativeRun(timedOut ? -1 : process.exitValue(), timedOut, captured,
                 peakRssBytes, elapsedMillis, cpuMillis, process.pid(), childPids, outputExceeded.get());
     }
 
+    private static long parsePosixCpuMillis(String output) {
+        Matcher user = Pattern.compile("(?m)^user\\s+([0-9]+(?:\\.[0-9]+)?)$").matcher(output);
+        Matcher system = Pattern.compile("(?m)^sys\\s+([0-9]+(?:\\.[0-9]+)?)$").matcher(output);
+        if (!user.find() || !system.find()) return -1;
+        return Math.round((Double.parseDouble(user.group(1)) + Double.parseDouble(system.group(1))) * 1000.0);
+    }
+
+    private static long sampleCpuMillis(ProcessHandle processHandle, long previousCpuMillis) {
+        Optional<Duration> cpuDuration = processHandle.info().totalCpuDuration();
+        return cpuDuration.map(Duration::toMillis).map(sampled -> Math.max(previousCpuMillis, sampled))
+                .orElse(previousCpuMillis);
+    }
+
     private static long rssBytes(long pid) {
+        if (isLinux()) return linuxRssBytes(pid);
         try {
             Process ps = new ProcessBuilder("ps", "-o", "rss=", "-p", Long.toString(pid)).start();
             if (!ps.waitFor(250, TimeUnit.MILLISECONDS)) {
@@ -319,14 +353,35 @@ class VisionNativeBoundedIT {
         }
     }
 
+    private static long linuxRssBytes(long pid) {
+        Path status = Path.of("/proc", Long.toString(pid), "status");
+        try (var reader = Files.newBufferedReader(status, StandardCharsets.US_ASCII)) {
+            for (String line; (line = reader.readLine()) != null;) {
+                if (!line.startsWith("VmRSS:")) continue;
+                String[] fields = line.trim().split("\\s+");
+                return fields.length >= 2 ? Long.parseLong(fields[1]) * 1024L : 0;
+            }
+        } catch (IOException | NumberFormatException ignored) { }
+        return 0;
+    }
+
     private static void assertBounded(NativeRun run, int maxSeconds) {
-        assertBounded(run, maxSeconds, true);
+        assertBounded(run, maxSeconds, true, true);
     }
 
     private static void assertBounded(NativeRun run, int maxSeconds, boolean requireObservedRss) {
+        assertBounded(run, maxSeconds, requireObservedRss, false);
+    }
+
+    private static void assertBounded(NativeRun run, int maxSeconds, boolean requireObservedRss,
+            boolean requireObservedCpu) {
         assertThat(run.timedOut()).isFalse();
         assertThat(run.elapsedMillis()).isLessThanOrEqualTo(maxSeconds * 1000L);
-        assertThat(run.cpuMillis()).isLessThanOrEqualTo(maxSeconds * 1000L);
+        if (requireObservedCpu) {
+            assertThat(run.cpuMillis()).as("direct native process CPU time was observed")
+                    .isGreaterThanOrEqualTo(0);
+        }
+        if (run.cpuMillis() >= 0) assertThat(run.cpuMillis()).isLessThanOrEqualTo(maxSeconds * 1000L);
         assertThat(run.outputExceeded()).isFalse();
         assertThat(run.output().getBytes(StandardCharsets.UTF_8).length).isLessThanOrEqualTo(64 * 1024);
         if (requireObservedRss) {
@@ -341,10 +396,73 @@ class VisionNativeBoundedIT {
     }
 
     private static List<String> boundedCommand(List<String> command) {
-        java.util.ArrayList<String> bounded = new java.util.ArrayList<>(List.of("/bin/zsh", "-c",
-                "ulimit -t 15 || exit 91; ulimit -f 4096 || exit 92; exec \"$@\"", "vision-native"));
+        java.util.ArrayList<String> bounded = new java.util.ArrayList<>(List.of("/bin/sh", "-c",
+                "ulimit -t 15 || exit 91; ulimit -f " + fixtureFileLimitBlocks()
+                        + " || exit 92; exec \"$@\"", "vision-native"));
         bounded.addAll(command);
         return List.copyOf(bounded);
+    }
+
+    private static List<String> timedCommand(List<String> command) {
+        java.util.ArrayList<String> timed = new java.util.ArrayList<>();
+        // macOS ProcessHandle does not expose child CPU duration; /usr/bin/time -p is available
+        // there. Linux containers may omit the `time` package, so sample ProcessHandle while the
+        // sustained fixture process is alive instead.
+        if (isMacOS()) timed.addAll(List.of("/usr/bin/time", "-p"));
+        timed.addAll(boundedCommand(command));
+        return List.copyOf(timed);
+    }
+
+    private static boolean isLinux() {
+        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("linux");
+    }
+
+    private static boolean isMacOS() {
+        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("mac");
+    }
+
+    private static int fixtureFileLimitBlocks() {
+        // Keep RLIMIT_FSIZE at or below 2 MiB across supported shells: Darwin reports 512-byte
+        // blocks; Linux shell implementations differ (Temurin's /bin/sh applies 512-byte blocks,
+        // while Bash uses 1 KiB). Explicit byte assertions remain the final fixture/output check.
+        return switch (platformKey().split("/")[0]) {
+            case "macos" -> 4096;
+            case "linux" -> 2048;
+            default -> throw new IllegalStateException("No native file-size limit configured for " + platformKey());
+        };
+    }
+
+    private static Path configuredToolPath(String systemProperty, String environmentVariable, String executable) {
+        // The selected binaries are hashed here; the service integration separately verifies that PATH resolves
+        // to the same files so its production command names cannot silently use different tools.
+        String configured = System.getProperty(systemProperty);
+        if (configured == null || configured.isBlank()) configured = System.getenv(environmentVariable);
+        if (configured != null && !configured.isBlank()) return Path.of(configured).toAbsolutePath().normalize();
+        for (String entry : System.getenv().getOrDefault("PATH", "").split(java.io.File.pathSeparator)) {
+            if (entry.isBlank()) continue;
+            Path candidate = Path.of(entry).resolve(executable);
+            if (Files.isExecutable(candidate)) return candidate.toAbsolutePath().normalize();
+        }
+        return Path.of(executable);
+    }
+
+    private static String platformKey() {
+        String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+        String arch = System.getProperty("os.arch", "").toLowerCase(Locale.ROOT);
+        String normalizedOs = os.contains("mac") ? "macos" : os.contains("linux") ? "linux" : os;
+        String normalizedArch = switch (arch) {
+            case "aarch64", "arm64" -> "aarch64";
+            case "amd64", "x86_64", "x64" -> "amd64";
+            default -> arch;
+        };
+        return normalizedOs + "/" + normalizedArch;
+    }
+
+    private static String h264Encoder() {
+        String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+        if (os.contains("mac")) return "h264_videotoolbox";
+        if (os.contains("linux")) return "libx264";
+        throw new IllegalStateException("No verified H.264 fixture encoder selected for " + platformKey());
     }
 
     private static void assertPathCommandResolvesTo(String name, Path expected) throws IOException {
@@ -381,4 +499,6 @@ class VisionNativeBoundedIT {
 
     private record NativeRun(int exitCode, boolean timedOut, String output, long peakRssBytes,
             long elapsedMillis, long cpuMillis, long pid, List<Long> childPids, boolean outputExceeded) { }
+
+    private record NativeToolPins(String ffmpegSha256, String ffprobeSha256) { }
 }
