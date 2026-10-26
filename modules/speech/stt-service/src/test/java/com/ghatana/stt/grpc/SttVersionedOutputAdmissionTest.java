@@ -31,8 +31,8 @@ class SttVersionedOutputAdmissionTest {
             service.submitCorrection(CorrectionRequest.newBuilder().setProfileId("profile").build(), correction);
         });
 
-        assertNotAdmitted(adaptation, "STT_RIGHTS_NOT_ADMITTED:", "trusted rights and ownership authority");
-        assertNotAdmitted(correction, "STT_RIGHTS_NOT_ADMITTED:", "trusted rights and ownership authority");
+        assertNotAdmitted(adaptation, "STT_ADAPTATION_NOT_ADMITTED:", "trusted rights admission and an admitted adaptation provider");
+        assertNotAdmitted(correction, "STT_CORRECTION_NOT_ADMITTED:", "immutable transcript revision store and expected-version CAS");
         verifyNoInteractions(library);
     }
 
@@ -40,7 +40,7 @@ class SttVersionedOutputAdmissionTest {
     void adaptationAndCorrectionRemainTypedNoEffectWithoutVersionStore() {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry(),
-                request -> SttRequestAuthorization.Decision.ADMITTED); // Test-only rights authority.
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED)); // Test-only authority.
         CapturingObserver<AdaptResponse> adaptation = new CapturingObserver<>();
         CapturingObserver<CorrectionResponse> correction = new CapturingObserver<>();
 

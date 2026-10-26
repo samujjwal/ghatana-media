@@ -8,7 +8,7 @@ version = rootProject.version
 description = "Media Runtime artifact, job, stream, and provider contracts"
 
 java {
-    toolchain { languageVersion.set(JavaLanguageVersion.of(21)) }
+    toolchain { languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt())) }
 }
 
 dependencies {

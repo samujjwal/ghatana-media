@@ -5,6 +5,7 @@ import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,12 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
         this(port, transportSecurity, createRuntime());
     }
 
+    /** Constructs the server with the canonical Media runtime port; source authority remains required. */
+    public MultimodalGrpcServer(int port, TransportSecurity transportSecurity,
+                                MediaProcessingRuntimePort mediaRuntimePort) {
+        this(port, transportSecurity, createRuntime(mediaRuntimePort));
+    }
+
     private MultimodalGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
         this(port, transportSecurity, runtime.service(), runtime.readiness());
     }
@@ -57,7 +64,11 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private static ServerRuntime createRuntime() {
-        MultimodalGrpcService service = new MultimodalGrpcService(MediaProcessingMetrics.create());
+        return createRuntime(null);
+    }
+
+    private static ServerRuntime createRuntime(MediaProcessingRuntimePort mediaRuntimePort) {
+        MultimodalGrpcService service = new MultimodalGrpcService(MediaProcessingMetrics.create(), mediaRuntimePort);
         return new ServerRuntime(service, readinessService(service));
     }
 

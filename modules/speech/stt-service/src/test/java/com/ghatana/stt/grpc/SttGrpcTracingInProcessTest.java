@@ -4,6 +4,7 @@ import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.media.stt.api.TranscriptionResult;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
@@ -192,17 +193,27 @@ class SttGrpcTracingInProcessTest {
     private static final class InProcessCall implements AutoCloseable {
         private final Server server;
         private final ManagedChannel channel;
+        private final String previousSecret;
 
         private InProcessCall(SttGrpcService service) throws Exception {
+            previousSecret = System.getProperty("AV_JWT_SECRET");
+            System.setProperty("AV_JWT_SECRET", SttGrpcStreamingSemanticsTest.TEST_SECRET);
             String name = InProcessServerBuilder.generateName();
-            server = InProcessServerBuilder.forName(name).addService(service).build().start();
-            channel = InProcessChannelBuilder.forName(name).build();
+            server = InProcessServerBuilder.forName(name).addService(service)
+                    .intercept(new JwtServerInterceptor()).build().start();
+            channel = InProcessChannelBuilder.forName(name).directExecutor()
+                    .intercept(SttGrpcStreamingSemanticsTest.authorization(
+                            SttGrpcStreamingSemanticsTest.signedTestJwt(
+                                    "tenant-tracing-test", "00000000-0000-0000-0000-000000000001")))
+                    .build();
         }
 
         @Override
         public void close() {
             channel.shutdownNow();
             server.shutdownNow();
+            if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
+            else System.setProperty("AV_JWT_SECRET", previousSecret);
         }
     }
 }

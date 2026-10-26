@@ -1,7 +1,7 @@
 schemaVersion: media.tool-registry.v1
 productId: media
 status: four-observed-registered-tool-handlers; contracts-and-experience-bindings-pending-owner-review
-source: libs/common/src/main/java/com/ghatana/audio/video/tools
+source: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools
 sourcePopulation:
   count: 4
   classification: registered handler inventory only; non-admitted and not evidence of production Agent Tool support
@@ -23,7 +23,7 @@ tools:
   - id: av.speech-to-text
     canonicalId: av.speech-to-text
     handler: SpeechToTextToolHandler
-    handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
+    handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
     executionAdmitted: false
@@ -61,7 +61,7 @@ tools:
   - id: av.text-to-speech
     canonicalId: av.text-to-speech
     handler: TextToSpeechToolHandler
-    handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
+    handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
     executionAdmitted: false
@@ -101,7 +101,7 @@ tools:
   - id: av.vision-analysis
     canonicalId: av.vision-analysis
     handler: VisionAnalysisToolHandler
-    handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
+    handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
     executionAdmitted: false
@@ -140,7 +140,7 @@ tools:
   - id: av.multimodal-inference
     canonicalId: av.multimodal-inference
     handler: MultimodalInferenceToolHandler
-    handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
+    handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
     executionAdmitted: false
@@ -180,7 +180,7 @@ tools:
 
 implementationUpdate:
   status: adapter-validation-hardened; execution-not-admitted
-  source: libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java
+  source: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java
   evidence: Scoped Java tests cover exact context binding, closed inputs, type/range checks, and fail-closed rejection.
   limitation: Local handler checks do not enforce authority; the executor policy boundary checks tenant, caller, action, required permissions and policy tags. Budgeted runtime calls carry deadline, idempotency, cancellation, attempt and correlation through ToolExecutionBudget and ToolTransportInvocationContext. Delegation-chain authority evidence and operation-specific result/provenance bindings remain unavailable here.
   executionAdmitted: false

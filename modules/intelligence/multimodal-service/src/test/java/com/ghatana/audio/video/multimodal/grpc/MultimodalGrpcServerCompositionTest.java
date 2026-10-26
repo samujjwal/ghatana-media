@@ -3,6 +3,7 @@ package com.ghatana.audio.video.multimodal.grpc;
 import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.observability.MetricsServerInterceptor;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
 import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.audio.video.multimodal.engine.MultimodalMediaGateway;
@@ -53,7 +54,10 @@ class MultimodalGrpcServerCompositionTest {
     void productionRootStartsNotServingAndRecordsBoundedHealthRpcThenDrains() throws Exception {
         var engine = mock(MultimodalAnalysisEngine.class);
         var platformAdapter = mock(PlatformMultimodalAdapter.class);
-        var service = new MultimodalGrpcService(engine, platformAdapter, MediaProcessingMetrics.create());
+        var mediaRuntimePort = mock(MediaProcessingRuntimePort.class);
+        var service = new MultimodalGrpcService(
+                engine, platformAdapter, MediaProcessingMetrics.create(), mediaRuntimePort);
+        assertThat(service.mediaRuntimePort()).isSameAs(mediaRuntimePort);
         var readiness = MultimodalGrpcServer.readinessService(service);
         int port = freePort();
         var server = new MultimodalGrpcServer(
@@ -78,10 +82,19 @@ class MultimodalGrpcServerCompositionTest {
             var stub = MultimodalServiceGrpc.newBlockingStub(channel)
                     .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(authenticatedHeaders()));
             assertThatThrownBy(() -> stub.processMultimodal(MultimodalRequest.newBuilder()
-                            .setAudioData(ByteString.copyFrom(new byte[] {1})).build()))
+                            .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                            .setOperationBinding(com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding
+                                    .newBuilder().setOperationVersion(1)
+                                    .setCapabilityRef("media.multimodal.observe.source-grounded")
+                                    .setOperationRef("media.operation.capability.media-multimodal-observe-source-grounded")
+                                    .setRequestId("composition-request")
+                                    .setSourceArtifactId("composition-artifact")
+                                    .setSourceVersionId("composition-version")
+                                    .setPurpose("composition fixture").build())
+                            .build()))
                     .isInstanceOf(io.grpc.StatusRuntimeException.class)
                     .hasMessageContaining("Trusted artifact rights, purpose, and consent authority is not configured");
-            verifyNoInteractions(engine, platformAdapter);
+            verifyNoInteractions(engine, platformAdapter, mediaRuntimePort);
             assertThat(handledCount(MetricsServerInterceptor.getInstance().scrape(), method, "UNAVAILABLE"))
                     .isEqualTo(before + 1);
         } finally {
@@ -150,7 +163,7 @@ class MultimodalGrpcServerCompositionTest {
                         ? SourceAuthorization.Decision.ADMITTED
                         : SourceAuthorization.Decision.NOT_ADMITTED;
         var service = new MultimodalGrpcService(engine, mock(PlatformMultimodalAdapter.class),
-                MediaProcessingMetrics.create(), fixtureAuthorization);
+                MediaProcessingMetrics.create(), fixtureAuthorization, fixtureExecutor());
         var readiness = MultimodalGrpcServer.readinessService(service);
         int port = freePort();
         var server = new MultimodalGrpcServer(port, AudioVideoGrpcServerBase.TransportSecurity.plaintext(),
@@ -172,7 +185,16 @@ class MultimodalGrpcServerCompositionTest {
             String initialScrape = MetricsServerInterceptor.getInstance().scrape();
             long before = handledCount(initialScrape, method, "UNAVAILABLE");
             assertThatThrownBy(() -> stub.processMultimodal(MultimodalRequest.newBuilder()
-                            .setAudioData(ByteString.copyFrom(new byte[] {7})).build()))
+                            .setAudioData(ByteString.copyFrom(new byte[] {7}))
+                            .setOperationBinding(com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding
+                                    .newBuilder().setOperationVersion(1)
+                                    .setCapabilityRef("media.multimodal.observe.source-grounded")
+                                    .setOperationRef("media.operation.capability.media-multimodal-observe-source-grounded")
+                                    .setRequestId("composition-child-request")
+                                    .setSourceArtifactId("composition-child-artifact")
+                                    .setSourceVersionId("composition-child-version")
+                                    .setPurpose("multimodal.analyse").build())
+                            .build()))
                     .isInstanceOf(io.grpc.StatusRuntimeException.class)
                     .satisfies(error -> {
                         var status = io.grpc.Status.fromThrowable(error);
@@ -197,6 +219,16 @@ class MultimodalGrpcServerCompositionTest {
 
     private static int freePort() throws Exception {
         try (ServerSocket socket = new ServerSocket(0)) { return socket.getLocalPort(); }
+    }
+
+    private static CanonicalOperationExecutor fixtureExecutor() {
+        return new CanonicalOperationExecutor() {
+            @Override
+            public <T> T execute(com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding binding,
+                                 String operationRef, java.util.concurrent.Callable<T> action) throws Exception {
+                return action.call();
+            }
+        };
     }
 
     private static Metadata authenticatedHeaders() throws Exception {

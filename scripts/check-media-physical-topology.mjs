@@ -26,7 +26,7 @@ export function validateTopology(topology, root = repo) {
   const candidates = topology.manifestCandidates ?? [];
   const byId = new Map(candidates.map((candidate) => [candidate.surfaceId, candidate]));
   if (topology.schemaVersion !== 'media.physical-topology.v1') fail('schemaVersion must be media.physical-topology.v1');
-  if (candidates.length !== topology.activeManifestCandidateCount || candidates.length !== 26) fail('active manifest candidate count must remain exactly 26');
+  if (candidates.length !== topology.activeManifestCandidateCount || candidates.length !== 28) fail('active manifest candidate count must include the two isolated optional adapter modules (28 total)');
   if (new Set(candidates.map((candidate) => candidate.sourcePath)).size !== candidates.length) fail('physical source paths must be unique');
   if (new Set(candidates.map((candidate) => candidate.surfaceId)).size !== candidates.length) fail('physical identities must be unique');
   const dispositions = new Set(['PHYSICAL', 'SUBSUMED', 'SUPPORT_ONLY', 'ARCHIVED', 'EXTERNAL']);
@@ -162,14 +162,14 @@ export function validateTopology(topology, root = repo) {
     }
   }
   const agentTools = crosswalk.find((consumer) => consumer.surfaceId === 'media.surface.agent-tools');
-  const common = byId.get('media.physical.libs-common');
-  if (agentTools && common) {
+  const agentToolAdapters = byId.get('media.physical.adapters-agent-tools-media');
+  if (agentTools && agentToolAdapters) {
     const observation = agentTools.handlerSourceObservation;
     if (!agentTools.physicalRefs.includes('media.physical.runtime-contracts')
-      || !agentTools.physicalRefs.includes('media.physical.libs-common')) {
-      fail('media.surface.agent-tools must preserve runtime-contracts association and map its libs/common handler source owner');
+      || !agentTools.physicalRefs.includes('media.physical.adapters-agent-tools-media')) {
+      fail('media.surface.agent-tools must preserve runtime-contracts association and map its optional adapter source owner');
     }
-    if (observation?.physicalOwner !== 'media.physical.libs-common'
+    if (observation?.physicalOwner !== 'media.physical.adapters-agent-tools-media'
       || observation?.operationAssociation !== 'media.physical.runtime-contracts'
       || observation?.classification !== 'LEGACY_SUBSUMED_NOT_ADMITTED'
       || !existsRef(root, observation?.sourcePath ?? '')) {
@@ -178,13 +178,13 @@ export function validateTopology(topology, root = repo) {
     const sourceRegistry = source('.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml');
     const handlers = [...sourceRegistry.matchAll(/^\s+handlerSource:\s*([^\s]+)$/gm)].map((match) => match[1]);
     if (handlers.length !== 4 || handlers.some((handler) => !handler.startsWith(`${observation?.sourcePath}/`) || !existsRef(root, handler))) {
-      fail('Agent Tool source observation must cover the four exact handler files under libs/common');
+      fail('Agent Tool source observation must cover the four exact handler files under adapters/agent-tools-media');
     }
-    if (!common.consumerSurfaceRefs.includes('media.surface.agent-tools')
-      || !common.sourceOwnedObservations?.some((item) => item.consumerSurfaceId === 'media.surface.agent-tools'
+    if (!agentToolAdapters.consumerSurfaceRefs.includes('media.surface.agent-tools')
+      || !agentToolAdapters.sourceOwnedObservations?.some((item) => item.consumerSurfaceId === 'media.surface.agent-tools'
         && item.classification === 'LEGACY_SUBSUMED_NOT_ADMITTED'
         && item.sourcePath === observation?.sourcePath)) {
-      fail('libs/common must reverse-map the Agent Tool observational source link without claiming runtime admission');
+      fail('agent-tools-media must reverse-map the Agent Tool observational source link without claiming runtime admission');
     }
   }
   const compositions = topology.compositions ?? [];

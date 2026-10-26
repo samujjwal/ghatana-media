@@ -9,7 +9,7 @@ version = rootProject.version
 description = "Media Runtime S3 artifact and PostgreSQL state providers"
 
 java {
-    toolchain { languageVersion.set(JavaLanguageVersion.of(21)) }
+    toolchain { languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt())) }
 }
 
 dependencies {

@@ -4,7 +4,7 @@
   "owner": {
     "repo": "ghatana",
     "serviceId": "media",
-    "module": "modules/vision/vision-service"
+    "module": "adapters/ocr-compat"
   },
   "requests": [
     {
@@ -14,11 +14,11 @@
       "owner": {
         "repo": "ghatana",
         "serviceId": "media",
-        "module": "modules/vision/vision-service"
+        "module": "adapters/ocr-compat"
       },
       "sourceRefs": [
-        {"path": "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java", "role": "provider-adapter"},
-        {"path": "modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapterTest.java", "role": "provider-conformance-tests"}
+        {"path": "adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java", "role": "provider-adapter"},
+        {"path": "adapters/ocr-compat/src/test/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapterTest.java", "role": "provider-conformance-tests"}
       ],
       "closureUnits": {"providerConformance": "ghatana.runtime-provider.media.ocr::provider-conformance", "kernelMaterialization": "ghatana.runtime-provider.media.ocr::kernel-materialization", "consumerConformance": "ghatana.runtime-provider.media.ocr::consumer-conformance"},
       "environmentPrerequisites": []

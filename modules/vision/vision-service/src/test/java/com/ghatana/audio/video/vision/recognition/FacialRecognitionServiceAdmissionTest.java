@@ -39,7 +39,7 @@ class FacialRecognitionServiceAdmissionTest {
         var service = service(providerCalls, (identity, request) -> admitted(
                 identity.tenantId(), identity.subject(), request));
 
-        List<FaceDetection> detections = service.detect(new byte[] {1}, REQUEST);
+        List<FacialRecognitionService.FaceDetection> detections = service.detect(new byte[] {1}, REQUEST);
 
         assertThat(detections).isEmpty();
         assertThat(providerCalls).hasValue(1);

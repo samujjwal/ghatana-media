@@ -372,20 +372,21 @@ class PersistentSttGrpcServiceTest {
     @Test
     @DisplayName("transcribe leaves caller MDC intact without adding tenant or subject identifiers")
     void transcribeDoesNotWriteRequestIdentityToMdc() {
-        MDC.put("callerContext", "preserve-me");
         try {
             CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
-            runWithTenantContext("tenant-sensitive-marker", USER_ID, () ->
-                    service.transcribe(
-                            TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en")
-                                    .setSampleRate(16_000).build(),
-                            observer));
+            runWithTenantContext("tenant-sensitive-marker", USER_ID, () -> {
+                MDC.put("callerContext", "preserve-me");
+                service.transcribe(
+                        TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en")
+                                .setSampleRate(16_000).build(),
+                        observer);
 
-            assertTranscriptVersionNotAdmitted(observer);
-            assertThat(MDC.get("tenantId")).isNull();
-            assertThat(MDC.get("userId")).isNull();
-            assertThat(MDC.get("cid")).isNull();
-            assertThat(MDC.get("callerContext")).isEqualTo("preserve-me");
+                assertTranscriptVersionNotAdmitted(observer);
+                assertThat(MDC.get("tenantId")).isNull();
+                assertThat(MDC.get("userId")).isNull();
+                assertThat(MDC.get("cid")).isNull();
+                assertThat(MDC.get("callerContext")).isEqualTo("preserve-me");
+            });
         } finally {
             MDC.clear();
         }

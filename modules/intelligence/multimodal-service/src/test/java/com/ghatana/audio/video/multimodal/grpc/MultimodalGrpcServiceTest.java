@@ -212,7 +212,12 @@ class MultimodalGrpcServiceTest {
         withContext(TENANT_ID, () -> unavailable.processMultimodal(MultimodalRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(new byte[] {1}))
                 .setTenantId("caller-controlled-tenant")
-                .setConsentStatus("GRANTED").build(), observer));
+                .setConsentStatus("GRANTED")
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "source observation"))
+                .build(), observer));
 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.UNAVAILABLE.getCode());
@@ -523,6 +528,22 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("admitted source rights still cannot dispatch without canonical job executor")
+    void processMultimodalSourceAuthorizationAloneDoesNotAdmitFamilyExecution() {
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "source observation"))
+                .build(), observer));
+
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
     @DisplayName("processMultimodal: audio-only family request remains not admitted")
     void processMultimodal_audioOnlyFamilyRequestIsNotAdmitted() {
         CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>(); 
@@ -734,6 +755,8 @@ class MultimodalGrpcServiceTest {
         withContext(TENANT_ID, () -> service.getInsights( 
             InsightsRequest.newBuilder() 
                 .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(operationBinding("media.multimodal.summarize",
+                        "media.operation.capability.media-multimodal-summarize", "summary fixture"))
                 .build(), 
             observer));
 
@@ -747,7 +770,10 @@ class MultimodalGrpcServiceTest {
     void getInsights_withTextOnly_returnsUnavailable() {
         CapturingObserver<InsightsResponse> observer = new CapturingObserver<>(); 
         withContext(TENANT_ID, () -> service.getInsights( 
-            InsightsRequest.newBuilder().setText("some context").build(),
+            InsightsRequest.newBuilder().setText("some context")
+                    .setOperationBinding(operationBinding("media.multimodal.summarize",
+                            "media.operation.capability.media-multimodal-summarize", "summary fixture"))
+                    .build(),
             observer));
 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())

@@ -105,24 +105,24 @@ test('AI Voice GUI applicability rejects missing exact component or grammar refe
   assert.ok(errors.some((error) => error.includes('PDP-2 GUI authority refs must exactly match')));
 });
 
-test('Agent Tool handler source maps bidirectionally to subsumed libs/common and retains non-admission', () => {
+test('Agent Tool handler source maps bidirectionally to optional adapter and retains non-admission', () => {
   const changed = copy();
   const consumer = changed.consumerCrosswalk.find((item) => item.surfaceId === 'media.surface.agent-tools');
-  const common = changed.manifestCandidates.find((item) => item.surfaceId === 'media.physical.libs-common');
+  const adapter = changed.manifestCandidates.find((item) => item.surfaceId === 'media.physical.adapters-agent-tools-media');
   consumer.physicalRefs = ['media.physical.runtime-contracts'];
-  common.consumerSurfaceRefs = [];
-  common.consumerMappingState = 'NO_DIRECT_CONSUMER_SUPPORT_ONLY';
+  adapter.consumerSurfaceRefs = [];
+  adapter.consumerMappingState = 'NO_DIRECT_CONSUMER_SUPPORT_ONLY';
   const errors = validateTopology(changed);
-  assert.ok(errors.some((error) => error.includes('preserve runtime-contracts association and map its libs/common handler source owner')));
-  assert.ok(errors.some((error) => error.includes('libs/common must reverse-map')));
+  assert.ok(errors.some((error) => error.includes('preserve runtime-contracts association and map its optional adapter source owner')));
+  assert.ok(errors.some((error) => error.includes('agent-tools-media must reverse-map')));
 });
 
 test('Agent Tool handler mappings cannot claim execution admission or lose exact handler source coverage', () => {
   const changed = copy();
   const consumer = changed.consumerCrosswalk.find((item) => item.surfaceId === 'media.surface.agent-tools');
   consumer.handlerSourceObservation.classification = 'ADMITTED';
-  consumer.handlerSourceObservation.sourcePath = 'libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java';
+  consumer.handlerSourceObservation.sourcePath = 'adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java';
   const errors = validateTopology(changed);
   assert.ok(errors.some((error) => error.includes('must remain observational, legacy/subsumed, and not admitted')));
-  assert.ok(errors.some((error) => error.includes('four exact handler files under libs/common')));
+  assert.ok(errors.some((error) => error.includes('four exact handler files under adapters/agent-tools-media')));
 });

@@ -74,7 +74,8 @@ class SttGrpcServiceTest {
     void setUp() { 
         meterRegistry = new SimpleMeterRegistry(); 
         service = new SttGrpcService(mockLibrary, meterRegistry,
-                request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
+        // Explicit test fixture only; select the authorization overload.
         // Lenient: getSttEngine is not needed in every test
         lenient().when(mockLibrary.getSttEngine()).thenReturn(mockEngine); 
         previousContext = VerifiedJwtContext.create(
@@ -113,6 +114,7 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getConfidence()).isEqualTo(0.95f); 
         assertThat(observer.getValue().getProcessingTimeMs()).isEqualTo(120L); 
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
+        assertDecodeBoundary("success");
         assertProviderBoundary("success");
     }
 
@@ -194,6 +196,26 @@ class SttGrpcServiceTest {
         assertThat(timer.count()).isEqualTo(1);
         assertThat(timer.getId().getTags()).extracting("key")
                 .doesNotContain("tenant", "tenant_id", "content", "request_id");
+    }
+
+    private void assertDecodeBoundary(String outcome) {
+        var timer = meterRegistry.get("media.modality.boundary.duration")
+                .tag("modality", "stt")
+                .tag("service", "stt")
+                .tag("boundary", "decode")
+                .tag("execution_class", "model")
+                .tag("outcome", outcome)
+                .tag("contract_version", "v1")
+                .timer();
+        assertThat(timer.count()).isEqualTo(1);
+        assertThat(timer.getId().getTags()).extracting("key")
+                .containsExactlyInAnyOrder("modality", "service", "boundary", "execution_class",
+                        "outcome", "contract_version");
+        assertThat(meterRegistry.getMeters()).allSatisfy(meter -> {
+            assertThat(meter.getId().getTag("tenant")).isNull();
+            assertThat(meter.getId().getTag("request_id")).isNull();
+            assertThat(meter.getId().getTag("content")).isNull();
+        });
     }
 
     @Test
@@ -281,7 +303,19 @@ class SttGrpcServiceTest {
         StatusRuntimeException error = (StatusRuntimeException) observer.getError();
         assertThat(error.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode());
         assertThat(error.getStatus().getDescription()).isEqualTo("Invalid audio input");
+        assertDecodeBoundary("failure");
         verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("unexpected decoder failure records unknown without adding request labels")
+    void decodeUnexpectedFailure_recordsUnknownBoundary() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.measureDecode(() -> {
+            throw new IllegalStateException("decoder implementation failure");
+        })).isInstanceOf(IllegalStateException.class);
+
+        assertDecodeBoundary("unknown");
+        verifyNoInteractions(mockLibrary, mockEngine);
     }
 
     @Test
@@ -607,10 +641,11 @@ class SttGrpcServiceTest {
     @DisplayName("adaptation and correction require the trusted profile decision before feature admission")
     void adaptationAndCorrectionRequireTrustedProfileDecisionBeforeEffects() {
         java.util.List<SttRequestAuthorization.Request> requests = new java.util.ArrayList<>();
-        SttGrpcService deniedService = new SttGrpcService(mockLibrary, meterRegistry, request -> {
-            requests.add(request);
-            return SttRequestAuthorization.Decision.DENIED;
-        });
+        SttGrpcService deniedService = new SttGrpcService(mockLibrary, meterRegistry,
+                (SttRequestAuthorization) (request -> {
+                    requests.add(request);
+                    return SttRequestAuthorization.Decision.DENIED;
+                }));
         CapturingObserver<AdaptResponse> adaptation = new CapturingObserver<>();
         CapturingObserver<CorrectionResponse> correction = new CapturingObserver<>();
 

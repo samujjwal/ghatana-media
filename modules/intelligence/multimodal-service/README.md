@@ -16,10 +16,10 @@ Fuses audio transcription with visual signals (frames, images) to produce multim
 |---|---|
 | `MultimodalGrpcServer` | gRPC server entry-point |
 | `MultimodalGrpcService` | gRPC request handler; validates and delegates |
-| `MultimodalAnalysisAgent` | Orchestrates multi-step analysis pipelines |
 | `CrossModalFusionEngine` | Fuses audio and visual embeddings into a unified representation |
-| `AudioTranscriptionAgent` | Runs audio-specific transcription within a multimodal pipeline |
 | `MultimodalAnalysisRequest` / `MultimodalAnalysisResult` | Request/response models |
+
+The optional `adapters/agent-tools-media` module contains the existing `AudioTranscriptionAgent` and `MultimodalAnalysisAgent` wrappers. Their package names remain unchanged; keeping them at the Tools SPI boundary lets the multimodal service compile and run without pulling Tool runtime into its core classpath.
 
 ## Configuration
 

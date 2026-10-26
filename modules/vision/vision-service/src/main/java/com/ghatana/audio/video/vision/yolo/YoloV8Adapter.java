@@ -7,6 +7,9 @@ import com.ghatana.audio.video.vision.model.VisionProviderAdmission;
 import com.ghatana.audio.video.vision.model.VisionModelProfile;
 import com.ghatana.audio.video.vision.image.BoundedImageDecoder;
 import com.ghatana.audio.video.vision.image.SrgbToBgr;
+import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -68,10 +71,16 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
     private final Path modelDirectory;
     private final double confidenceThreshold;
     private final double nmsThreshold;
+    private final MediaWorkflowMetrics workflowMetrics;
     private volatile Net net;
     private volatile VisionModelProfile activeProfile;
 
     public YoloV8Adapter(Path modelDirectory, double confidenceThreshold, double nmsThreshold) {
+        this(modelDirectory, confidenceThreshold, nmsThreshold, Metrics.globalRegistry);
+    }
+
+    YoloV8Adapter(Path modelDirectory, double confidenceThreshold, double nmsThreshold,
+                  MeterRegistry meterRegistry) {
         this.modelDirectory = Objects.requireNonNull(modelDirectory, "modelDirectory")
                 .toAbsolutePath()
                 .normalize();
@@ -85,6 +94,8 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         }
         this.confidenceThreshold = confidenceThreshold;
         this.nmsThreshold = nmsThreshold;
+        this.workflowMetrics = new MediaWorkflowMetrics(
+                Objects.requireNonNull(meterRegistry, "meterRegistry"), "vision");
     }
 
     public synchronized void initialize(VisionModelProfile profile) {
@@ -151,7 +162,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         Mat image = null;
         Mat processed = null;
         try {
-            BoundedImageDecoder.DecodedImage decoded = BoundedImageDecoder.decodeWithMetadata(imageData);
+            BoundedImageDecoder.DecodedImage decoded = decodeImage(imageData);
             image = bufferedImageToMat(decoded.image());
             PreprocessedInput input = preprocessImage(image);
             processed = input.blob();
@@ -166,6 +177,28 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         } finally {
             release(processed);
             release(image);
+        }
+    }
+
+    BoundedImageDecoder.DecodedImage decodeImage(byte[] imageData) {
+        return measureDecode(workflowMetrics, () -> BoundedImageDecoder.decodeWithMetadata(imageData));
+    }
+
+    static <T> T measureDecode(MediaWorkflowMetrics metrics, Supplier<T> decoder) {
+        Objects.requireNonNull(metrics, "metrics");
+        Objects.requireNonNull(decoder, "decoder");
+        MediaWorkflowMetrics.ModalityTimingSample sample = metrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.DECODE);
+        MediaWorkflowMetrics.Outcome outcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+        try {
+            T result = decoder.get();
+            outcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+            return result;
+        } catch (BoundedImageDecoder.UnsupportedImageMetadataException | IllegalArgumentException rejectedInput) {
+            outcome = MediaWorkflowMetrics.Outcome.FAILURE;
+            throw rejectedInput;
+        } finally {
+            metrics.stopModalityTimer(sample, outcome);
         }
     }
 

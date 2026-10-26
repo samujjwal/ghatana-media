@@ -11,6 +11,7 @@ import com.ghatana.stt.core.grpc.proto.LoadModelResponse;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.testutil.LogCapture;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -46,10 +47,10 @@ class SttGrpcServiceLogPrivacyTest {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
 
         try (LogCapture logs = LogCapture.capture(SttGrpcService.class)) {
-            service.transcribe(TranscribeRequest.newBuilder()
+            VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001").run(() -> service.transcribe(TranscribeRequest.newBuilder()
                     .setAudioData(ByteString.copyFrom(new byte[32_000]))
                     .setSampleRate(16_000)
-                    .build(), observer);
+                    .build(), observer));
 
             assertThat(observer.error).isNull();
             assertThat(observer.value.getText()).isEqualTo(TRANSCRIPT_MARKER);
@@ -69,10 +70,10 @@ class SttGrpcServiceLogPrivacyTest {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
 
         try (LogCapture logs = LogCapture.capture(SttGrpcService.class)) {
-            service.transcribe(TranscribeRequest.newBuilder()
+            VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001").run(() -> service.transcribe(TranscribeRequest.newBuilder()
                     .setAudioData(ByteString.copyFrom(new byte[32_000]))
                     .setSampleRate(16_000)
-                    .build(), observer);
+                    .build(), observer));
 
             assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
             assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.INTERNAL);
@@ -92,7 +93,8 @@ class SttGrpcServiceLogPrivacyTest {
         CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>();
 
         try (LogCapture logs = LogCapture.capture(SttGrpcService.class)) {
-            service.loadModel(LoadModelRequest.newBuilder().setModelId(MODEL_MARKER).build(), observer);
+            VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001").run(() ->
+                    service.loadModel(LoadModelRequest.newBuilder().setModelId(MODEL_MARKER).build(), observer));
 
             assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
             assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.NOT_FOUND);

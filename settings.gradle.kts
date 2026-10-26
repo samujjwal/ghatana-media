@@ -24,6 +24,203 @@ if (mediaDependencyProfile !in setOf("DEV_SOURCE_COMPOSITE", "RELEASE_ARTIFACT_O
 }
 val sourceCompositeEnabled = mediaDependencyProfile == "DEV_SOURCE_COMPOSITE"
 
+val mediaCompositeScope = providers.gradleProperty("ghatana.media.compositeScope")
+    .map { it.trim().uppercase() }
+    .orElse("FULL")
+    .get()
+if (mediaCompositeScope !in setOf("FOCUSED", "FULL")) {
+    throw GradleException(
+        "Unknown ghatana.media.compositeScope '$mediaCompositeScope'; use FOCUSED or FULL"
+    )
+}
+
+val focusedModulesProperty = providers.gradleProperty("ghatana.media.focusedModules").orNull
+val focusedModules = focusedModulesProperty
+    ?.split(',')
+    ?.map { it.trim().lowercase() }
+    ?.filter { it.isNotEmpty() }
+    ?.toSet()
+    .orEmpty()
+val focusedModuleBuilds = mapOf(
+    // Core modality modules use Shared primitives only. Tool and Kernel APIs live in
+    // optional adapter projects in FULL scope and must not leak into focused core builds.
+    "stt" to setOf("ghatana-shared"),
+    "tts" to setOf("ghatana-shared"),
+    "vision" to setOf("ghatana-shared"),
+    "multimodal" to setOf("ghatana-shared"),
+    "observability" to setOf("ghatana-shared"),
+    // The standalone launcher needs only this canonical Ghatana platform project;
+    // it does not require the broader Ghatana services source set.
+    "launcher" to setOf("ghatana-shared")
+)
+val focusedModuleProjectSources = mapOf(
+    "launcher" to setOf(":platform:java:launcher-support")
+)
+val focusedModuleProjectClosure = mapOf(
+    "stt" to setOf(
+        ":services:media:modules:speech:stt-service",
+        ":services:media:runtime-contracts",
+        ":services:media:audio-video-observability",
+        ":services:media:libs:common",
+        ":services:media:libs:java:common",
+        ":services:media:modules:infrastructure:persistence"
+    ),
+    "tts" to setOf(
+        ":services:media:modules:speech:tts-service",
+        ":services:media:runtime-contracts",
+        ":services:media:audio-video-observability",
+        ":services:media:libs:common",
+        ":services:media:libs:java:common",
+        ":services:media:modules:infrastructure:persistence"
+    ),
+    "vision" to setOf(
+        ":services:media:modules:vision:vision-service",
+        ":services:media:runtime-contracts",
+        ":services:media:audio-video-observability",
+        ":services:media:libs:common",
+        ":services:media:libs:java:common",
+        ":services:media:modules:infrastructure:persistence"
+    ),
+    "multimodal" to setOf(
+        ":services:media:modules:intelligence:multimodal-service",
+        ":services:media:modules:vision:vision-service",
+        ":services:media:modules:speech:stt-service",
+        ":services:media:runtime-contracts",
+        ":services:media:audio-video-observability",
+        ":services:media:libs:common",
+        ":services:media:libs:java:common",
+        ":services:media:modules:infrastructure:persistence"
+    ),
+    "observability" to setOf(
+        ":services:media:audio-video-observability",
+        ":services:media:libs:common",
+        ":services:media:libs:java:common"
+    ),
+    "launcher" to setOf(
+        ":services:media:launcher",
+        ":services:media:providers:aws-postgresql",
+        ":services:media:runtime-contracts",
+        ":services:media:audio-video-observability",
+        ":services:media:modules:audio-streaming",
+        ":services:media:modules:video-streaming",
+        ":services:media:modules:speech:stt-service",
+        ":services:media:modules:speech:tts-service",
+        ":services:media:modules:vision:vision-service",
+        ":services:media:modules:intelligence:multimodal-service",
+        ":services:media:modules:infrastructure:messaging",
+        ":services:media:modules:infrastructure:persistence",
+        ":services:media:modules:infrastructure:cache",
+        ":services:media:modules:infrastructure:security",
+        ":services:media:libs:common",
+        ":services:media:libs:java:common",
+        ":platform:java:launcher-support"
+    )
+)
+if (mediaCompositeScope == "FOCUSED") {
+    if (!sourceCompositeEnabled || !isStandaloneBuild) {
+        throw GradleException("FOCUSED requires a standalone DEV_SOURCE_COMPOSITE Media build")
+    }
+    if (focusedModules.isEmpty()) {
+        throw GradleException(
+            "FOCUSED requires -Pghatana.media.focusedModules=<stt,tts,vision,multimodal,observability>; " +
+                "these names select a fixed source dependency allowlist, not Gradle task-name parsing"
+        )
+    }
+    val unknownFocusedModules = focusedModules - focusedModuleBuilds.keys
+    if (unknownFocusedModules.isNotEmpty()) {
+        throw GradleException(
+            "Unsupported focused Media module(s): $unknownFocusedModules; " +
+                "adapters and aggregate builds require compositeScope=FULL"
+        )
+    }
+    val allFocusedCoreProjects = focusedModuleProjectClosure.values.flatten().toSet()
+    val allowedFocusedCoreProjects = focusedModules
+        .flatMap { focusedModuleProjectClosure.getValue(it) }
+        .toSet()
+    val focusedAggregateTaskPaths = setOf(
+        ":services:media:buildMediaJvm",
+        ":services:media:buildFull",
+        ":services:media:buildAll"
+    )
+    gradle.taskGraph.whenReady {
+        val requestedAggregates = allTasks.map { it.path }.toSet() intersect focusedAggregateTaskPaths
+        if (requestedAggregates.isNotEmpty()) {
+            throw GradleException(
+                "Aggregate task(s) $requestedAggregates require compositeScope=FULL"
+            )
+        }
+        val requestedCoreProjects = allTasks.map { it.project.path }.toSet() intersect allFocusedCoreProjects
+        val unexpectedCoreProjects = requestedCoreProjects - allowedFocusedCoreProjects
+        if (unexpectedCoreProjects.isNotEmpty()) {
+            throw GradleException(
+                "FOCUSED source allowlist $focusedModules does not cover selected Media core project(s) " +
+                    "$unexpectedCoreProjects; select the matching focusedModules or use compositeScope=FULL"
+            )
+        }
+    }
+} else if (focusedModulesProperty != null) {
+    throw GradleException("ghatana.media.focusedModules is valid only with compositeScope=FOCUSED")
+}
+
+val focusedRequiredBuilds = focusedModules.flatMap { focusedModuleBuilds.getValue(it) }.toSet()
+val focusedRequiredProjectSources = focusedModules
+    .flatMap { focusedModuleProjectSources[it].orEmpty() }
+    .toSet()
+val focusedSourceProjectDirectories = mapOf(
+    ":platform:java:launcher-support" to File(monorepoRoot, "platform/java/launcher-support")
+)
+val unknownFocusedProjectSources = focusedRequiredProjectSources - focusedSourceProjectDirectories.keys
+if (unknownFocusedProjectSources.isNotEmpty()) {
+    throw GradleException("FOCUSED selector references unsupported source project(s): $unknownFocusedProjectSources")
+}
+if (mediaCompositeScope == "FOCUSED") {
+    focusedRequiredProjectSources.forEach { projectPath ->
+        val sourceDirectory = focusedSourceProjectDirectories.getValue(projectPath)
+        val sourceBuildFile = sequenceOf("build.gradle.kts", "build.gradle")
+            .map { File(sourceDirectory, it) }
+            .firstOrNull(File::isFile)
+        if (!sourceDirectory.isDirectory || sourceBuildFile == null) {
+            throw GradleException(
+                "FOCUSED selector requires canonical source project $projectPath at $sourceDirectory; " +
+                    "published-artifact fallback is forbidden"
+            )
+        }
+    }
+}
+val requiredSourceBuilds = if (mediaCompositeScope == "FULL") {
+    setOf("ghatana-shared", "ghatana-kernel", "ghatana-tools", "ghatana-services")
+} else {
+    focusedRequiredBuilds
+}
+val includeLifecycleSource = providers.gradleProperty("ghatana.media.includeLifecycle")
+    .map { it.toBooleanStrict() }
+    .orElse(false)
+    .get()
+if (includeLifecycleSource && mediaCompositeScope != "FULL") {
+    throw GradleException("Lifecycle source is an optional FULL-scope dependency only")
+}
+
+if (isStandaloneBuild && sourceCompositeEnabled && mediaCompositeScope == "FOCUSED" && "launcher" in focusedModules) {
+    val launcherDirectory = File(rootDir, "launcher")
+    val launcherBuildFile = sequenceOf("build.gradle.kts", "build.gradle")
+        .map { File(launcherDirectory, it) }
+        .firstOrNull(File::isFile)
+    if (!launcherDirectory.isDirectory || launcherBuildFile == null) {
+        throw GradleException(
+            "FOCUSED launcher selection requires Media launcher sources at $launcherDirectory"
+        )
+    }
+    val awsProviderDirectory = File(rootDir, "providers/aws-postgresql")
+    val awsProviderBuildFile = sequenceOf("build.gradle.kts", "build.gradle")
+        .map { File(awsProviderDirectory, it) }
+        .firstOrNull(File::isFile)
+    if (!awsProviderDirectory.isDirectory || awsProviderBuildFile == null) {
+        throw GradleException(
+            "FOCUSED launcher selection requires Media aws-postgresql provider sources at $awsProviderDirectory"
+        )
+    }
+}
+
 if (mediaDependencyProfile == "RELEASE_ARTIFACT_ONLY") {
     val lockPath = providers.gradleProperty("ghatana.media.releaseArtifactLock")
         .orElse("config/dependency-admission/release-artifact-lock.json")
@@ -165,7 +362,9 @@ fileTree("modules") {
     val projectDir = buildFile.parentFile
     val relativePath = projectDir.relativeTo(rootDir).path
     val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
-    includeProject(projectName, projectDir)
+    if (mediaCompositeScope == "FULL" || relativePath != "modules/integration-tests") {
+        includeProject(projectName, projectDir)
+    }
 }
 
 // Include audio-video libs (including nested java/ subdirectory)
@@ -180,29 +379,38 @@ fileTree("libs") {
     includeProject(projectName, projectDir)
 }
 
-// Include Audio-Video adapters
-fileTree("adapters") {
-    include("**/build.gradle.kts")
-    include("**/build.gradle")
-}.forEach { buildFile ->
-    val projectDir = buildFile.parentFile
-    val relativePath = projectDir.relativeTo(rootDir).path
-    val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
-    includeProject(projectName, projectDir)
+// Adapter projects have platform-owned source dependencies and belong to the
+// full source composite. FOCUSED intentionally omits them so core selectors
+// cannot silently resolve against a published platform artifact.
+if (mediaCompositeScope == "FULL") {
+    fileTree("adapters") {
+        include("**/build.gradle.kts")
+        include("**/build.gradle")
+    }.forEach { buildFile ->
+        val projectDir = buildFile.parentFile
+        val relativePath = projectDir.relativeTo(rootDir).path
+        val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
+        includeProject(projectName, projectDir)
+    }
 }
 
 // Include provider implementations (for example the AWS PostgreSQL provider)
 // used by the standalone launcher dependency graph.
 include("$productProjectPrefix:providers")
 project(":$productProjectPrefix:providers").projectDir = File(rootDir, "providers")
-fileTree("providers") {
-    include("**/build.gradle.kts")
-    include("**/build.gradle")
-}.forEach { buildFile ->
-    val projectDir = buildFile.parentFile
-    val relativePath = projectDir.relativeTo(rootDir).path
-    val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
-    includeProject(projectName, projectDir)
+if (mediaCompositeScope == "FULL") {
+    fileTree("providers") {
+        include("**/build.gradle.kts")
+        include("**/build.gradle")
+    }.forEach { buildFile ->
+        val projectDir = buildFile.parentFile
+        val relativePath = projectDir.relativeTo(rootDir).path
+        val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
+        includeProject(projectName, projectDir)
+    }
+} else if (mediaCompositeScope == "FOCUSED" && "launcher" in focusedModules) {
+    val providerDir = File(rootDir, "providers/aws-postgresql")
+    includeProject("$productProjectPrefix:providers:aws-postgresql", providerDir)
 }
 
 // Include top-level audio-video submodules (e.g. audio-video-observability, benchmarks, etc.)
@@ -216,8 +424,15 @@ fileTree(rootDir) {
     val projectDir = buildFile.parentFile
     if (projectDir != rootDir) {
         val relativePath = projectDir.relativeTo(rootDir).path
-        val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
-        includeProject(projectName, projectDir)
+        val focusedExcludedProjects = setOf("adapters", "launcher", "providers", "integration-tests")
+        val selectedFocusedLauncher = relativePath == "launcher" && "launcher" in focusedModules
+        val excludedForFocused = mediaCompositeScope == "FOCUSED"
+            && ((relativePath in focusedExcludedProjects && !selectedFocusedLauncher) ||
+                relativePath.startsWith("providers/"))
+        if (!excludedForFocused) {
+            val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
+            includeProject(projectName, projectDir)
+        }
     }
 }
 
@@ -227,7 +442,13 @@ fileTree(rootDir) {
 // In standalone mode, include ghatana-shared as a composite build so that
 // shared platform modules and services are available.
 val ghatanaSharedPath = File(monorepoRoot.parentFile, "ghatana-shared")
-if (isStandaloneBuild && sourceCompositeEnabled && ghatanaSharedPath.exists()) {
+if (isStandaloneBuild && sourceCompositeEnabled && "ghatana-shared" in requiredSourceBuilds) {
+    if (!ghatanaSharedPath.isDirectory) {
+        throw GradleException(
+            "DEV_SOURCE_COMPOSITE requires the canonical ghatana-shared checkout at $ghatanaSharedPath; " +
+                "published artifact fallback is forbidden"
+        )
+    }
     logger.lifecycle("Including ghatana-shared composite build from: $ghatanaSharedPath")
     includeBuild(ghatanaSharedPath) {
         name = "ghatana-shared"
@@ -264,9 +485,7 @@ if (isStandaloneBuild && sourceCompositeEnabled && ghatanaSharedPath.exists()) {
             }
         }
     }
-} else if (isStandaloneBuild && sourceCompositeEnabled) {
-    logger.lifecycle("WARNING: ghatana-shared not found at $ghatanaSharedPath — standalone build requires immutable published artifacts")
-} else if (isStandaloneBuild) {
+} else if (isStandaloneBuild && !sourceCompositeEnabled) {
     logger.lifecycle("Using published Shared artifacts; source composite substitution is disabled")
 }
 
@@ -276,7 +495,13 @@ val ghatanaKernelPath = providers.gradleProperty("ghatana.kernel.path")
     .map { file(it) }
     .orElse(File(monorepoRoot.parentFile, "ghatana-kernel"))
     .get()
-if (isStandaloneBuild && sourceCompositeEnabled && ghatanaKernelPath.exists()) {
+if (isStandaloneBuild && sourceCompositeEnabled && "ghatana-kernel" in requiredSourceBuilds) {
+    if (!ghatanaKernelPath.isDirectory) {
+        throw GradleException(
+            "Selected Media composite scope requires ghatana-kernel source at $ghatanaKernelPath; " +
+                "published artifact fallback is forbidden"
+        )
+    }
     logger.lifecycle("Including ghatana-kernel composite build from: $ghatanaKernelPath")
     includeBuild(ghatanaKernelPath) {
         name = "ghatana-kernel"
@@ -285,10 +510,10 @@ if (isStandaloneBuild && sourceCompositeEnabled && ghatanaKernelPath.exists()) {
                 .using(project(":platform-kernel:kernel-product-api"))
         }
     }
-} else if (isStandaloneBuild && sourceCompositeEnabled) {
-    logger.lifecycle("WARNING: ghatana-kernel not found at $ghatanaKernelPath — kernel API requires published artifacts")
-} else if (isStandaloneBuild) {
+} else if (isStandaloneBuild && !sourceCompositeEnabled) {
     logger.lifecycle("Using the published Kernel API; source composite substitution is disabled")
+} else if (isStandaloneBuild && mediaCompositeScope == "FOCUSED") {
+    logger.lifecycle("Kernel source omitted by the selected FOCUSED dependency allowlist")
 }
 
 // ============================================================================
@@ -301,7 +526,13 @@ val ghatanaToolsPath = providers.gradleProperty("ghatana.tools.path")
     .map { file(it) }
     .orElse(File(monorepoRoot.parentFile, "ghatana-tools"))
     .get()
-if (isStandaloneBuild && sourceCompositeEnabled && ghatanaToolsPath.exists()) {
+if (isStandaloneBuild && sourceCompositeEnabled && "ghatana-tools" in requiredSourceBuilds) {
+    if (!ghatanaToolsPath.isDirectory) {
+        throw GradleException(
+            "Selected Media composite scope requires ghatana-tools source at $ghatanaToolsPath; " +
+                "published artifact fallback is forbidden"
+        )
+    }
     logger.lifecycle("Including ghatana-tools composite build from: $ghatanaToolsPath")
     includeBuild(ghatanaToolsPath) {
         name = "ghatana-tools"
@@ -322,9 +553,7 @@ if (isStandaloneBuild && sourceCompositeEnabled && ghatanaToolsPath.exists()) {
             }
         }
     }
-} else if (isStandaloneBuild && sourceCompositeEnabled) {
-    logger.lifecycle("WARNING: ghatana-tools not found at $ghatanaToolsPath — tool-runtime consumers require the canonical sibling checkout")
-} else if (isStandaloneBuild) {
+} else if (isStandaloneBuild && !sourceCompositeEnabled) {
     logger.lifecycle("Using published Tools artifacts; source composite substitution is disabled")
 }
 
@@ -339,22 +568,44 @@ val ghatanaLifecyclePath = providers.gradleProperty("ghatana.lifecycle.path")
     .map { file(it) }
     .orElse(File(monorepoRoot.parentFile, "ghatana-lifecycle"))
     .get()
-if (isStandaloneBuild && sourceCompositeEnabled && ghatanaLifecyclePath.exists()) {
+if (isStandaloneBuild && sourceCompositeEnabled && includeLifecycleSource) {
+    if (!ghatanaLifecyclePath.isDirectory) {
+        throw GradleException(
+            "ghatana.media.includeLifecycle=true requires a source checkout at $ghatanaLifecyclePath"
+        )
+    }
     logger.lifecycle("Including ghatana-lifecycle composite build from: $ghatanaLifecyclePath")
     includeBuild(ghatanaLifecyclePath) {
         name = "ghatana-lifecycle"
     }
-} else if (isStandaloneBuild && sourceCompositeEnabled) {
-    logger.lifecycle("Lifecycle sibling not found at $ghatanaLifecyclePath — no Lifecycle composite build included")
 } else if (isStandaloneBuild) {
-    logger.lifecycle("Lifecycle source build is disabled under the published-artifact profile")
+    logger.lifecycle("Lifecycle source build omitted; Media has no direct Lifecycle project dependency")
 }
 
 // Standalone media sources still use a small set of platform/Data Cloud
 // project coordinates. Map those coordinates to their canonical monorepo
 // sources so configuring the media graph does not silently fall back to
 // duplicate or stale compatibility artifacts.
-if (isStandaloneBuild && sourceCompositeEnabled) {
+if (isStandaloneBuild && sourceCompositeEnabled && "ghatana-services" in requiredSourceBuilds) {
+    val externalProjectPaths = mapOf(
+        "platform/java/launcher-support" to File(monorepoRoot, "platform/java/launcher-support"),
+        "integration-tests/service-contract-test-utils" to
+            File(monorepoRoot, "integration-tests/service-contract-test-utils"),
+        "services/event-plane/contracts" to File(monorepoRoot, "services/event-plane/contracts"),
+        "services/data-cloud/planes/shared-spi" to
+            File(monorepoRoot, "services/data-cloud/planes/shared-spi"),
+        "services/data-cloud/planes/intelligence/analytics" to
+            File(monorepoRoot, "services/data-cloud/planes/intelligence/analytics"),
+        "services/data-cloud/delivery/api" to File(monorepoRoot, "services/data-cloud/delivery/api"),
+        "services/ai-inference/delivery/api" to File(monorepoRoot, "services/ai-inference/delivery/api")
+    )
+    val missingExternalProjects = externalProjectPaths.filterValues { !it.isDirectory }.keys
+    if (missingExternalProjects.isNotEmpty()) {
+        throw GradleException(
+            "FULL DEV_SOURCE_COMPOSITE requires Ghatana source projects under $monorepoRoot; " +
+                "missing: $missingExternalProjects. Published-artifact fallback is forbidden"
+        )
+    }
     include(":platform:java:launcher-support")
     include(":integration-tests:service-contract-test-utils")
     project(":platform").projectDir = File(monorepoRoot, "platform")
@@ -387,6 +638,23 @@ if (isStandaloneBuild && sourceCompositeEnabled) {
         project(projectPath).projectDir = File(monorepoRoot, relativePath)
     }
 }
+
+// The focused launcher lane needs only the canonical platform launcher-support
+// project. Keep it independent from the broader Ghatana services source set.
+if (isStandaloneBuild && sourceCompositeEnabled && mediaCompositeScope == "FOCUSED") {
+    focusedRequiredProjectSources.forEach { projectPath ->
+        val sourceDirectory = focusedSourceProjectDirectories.getValue(projectPath)
+        include(projectPath)
+        when (projectPath) {
+            ":platform:java:launcher-support" -> {
+                project(":platform").projectDir = File(monorepoRoot, "platform")
+                project(":platform:java").projectDir = File(monorepoRoot, "platform/java")
+            }
+        }
+        project(projectPath).projectDir = sourceDirectory
+    }
+}
+
 // Plugin management - use version catalog from root
 pluginManagement {
     repositories {
@@ -400,7 +668,13 @@ pluginManagement {
     }
     val pluginDependencyProfile = gradle.startParameter.projectProperties["ghatana.media.dependencyProfile"]
         ?: "DEV_SOURCE_COMPOSITE"
-    if (sharedBuildLogic.exists() && pluginDependencyProfile == "DEV_SOURCE_COMPOSITE") {
+    if (pluginDependencyProfile == "DEV_SOURCE_COMPOSITE" && !sharedBuildLogic.isDirectory) {
+        throw GradleException(
+            "DEV_SOURCE_COMPOSITE requires Shared build logic at $sharedBuildLogic; " +
+                "published plugin/artifact fallback is forbidden"
+        )
+    }
+    if (pluginDependencyProfile == "DEV_SOURCE_COMPOSITE") {
         includeBuild(sharedBuildLogic)
     }
     plugins {

@@ -72,6 +72,20 @@
         "requirementIds": ["MEDIA-REQ-CAP-MULTIMODAL"]
       },
       {
+        "surface": "services/media/adapters/agent-tools-media",
+        "selector": "type:com.ghatana.audio.video.multimodal.agents.AudioTranscriptionAgent",
+        "classification": "metadata",
+        "freezeDisposition": "EXPLICIT_PROVIDER_ADAPTER",
+        "rationale": "The existing public FQCN is retained in the optional agent-tools adapter; the adapter does not admit execution or alter core multimodal ownership."
+      },
+      {
+        "surface": "services/media/adapters/agent-tools-media",
+        "selector": "type:com.ghatana.audio.video.multimodal.agents.MultimodalAnalysisAgent",
+        "classification": "metadata",
+        "freezeDisposition": "EXPLICIT_PROVIDER_ADAPTER",
+        "rationale": "The existing public FQCN is retained in the optional agent-tools adapter; the adapter does not admit execution or alter core multimodal ownership."
+      },
+      {
         "surface": "services/media/modules/intelligence/multimodal-service",
         "selector": "type-family:com.ghatana.multimodal.engine.*",
         "classification": "requirements",
@@ -96,6 +110,13 @@
         "requirementIds": ["MEDIA-REQ-CAP-VISION", "MEDIA-REQ-CAP-VISION-SCENE-TEXT"]
       },
       {
+        "surface": "services/media/adapters/ocr-compat",
+        "selector": "type:com.ghatana.audio.video.vision.ocr.KernelOcrProviderAdapter",
+        "classification": "requirements",
+        "freezeDisposition": "EXPLICIT_PROVIDER_ADAPTER",
+        "requirementIds": ["MEDIA-REQ-CAP-VISION", "MEDIA-REQ-CAP-VISION-SCENE-TEXT"]
+      },
+      {
         "surface": "services/media/modules/vision/vision-service",
         "selector": "type-family:com.ghatana.vision.engine.*",
         "classification": "requirements",
@@ -108,9 +129,10 @@
         "requirementIds": ["MEDIA-REQ-CAP-HEALTH", "NFR-OBS-001", "NFR-SEC-001", "NFR-RECOVERY-001"]
       },
       {
-        "surface": "services/media/libs/common",
+        "surface": "services/media/adapters/agent-tools-media",
         "selector": "type-family:com.ghatana.audio.video.tools.*",
         "classification": "requirements",
+        "freezeDisposition": "EXPLICIT_PROVIDER_ADAPTER",
         "requirementIds": ["MEDIA-REQ-CAP-CAPABILITY"]
       },
       {

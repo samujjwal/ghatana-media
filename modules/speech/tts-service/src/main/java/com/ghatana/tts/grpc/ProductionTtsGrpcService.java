@@ -2,6 +2,7 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.config.TtsConfig;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import java.nio.file.Path;
@@ -51,9 +52,16 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     private final String admittedVoiceId;
     private final String admittedLanguage;
     private final TtsRequestAuthorization requestAuthorization;
+    private final MediaProcessingRuntimePort mediaRuntimePort;
 
     public ProductionTtsGrpcService(MeterRegistry metrics) {
-        this(createInitializedRuntime(System.getenv(), TtsProviderAdmission.unavailable()), metrics);
+        this(metrics, null);
+    }
+
+    /** Integration seam for canonical durable Media jobs; it does not grant provider admission. */
+    public ProductionTtsGrpcService(MeterRegistry metrics, MediaProcessingRuntimePort mediaRuntimePort) {
+        this(createInitializedRuntime(System.getenv(), TtsProviderAdmission.unavailable()), metrics,
+                TtsRequestAuthorization.unavailable(), mediaRuntimePort);
     }
 
     /** Injectable composition for controlled local fixtures; production uses the unavailable default. */
@@ -82,7 +90,14 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     private ProductionTtsGrpcService(
             InitializedRuntime runtime, MeterRegistry metrics, TtsRequestAuthorization requestAuthorization) {
-        this(runtime.library(), metrics, runtime.admission(), runtime.voiceId(), runtime.language(), requestAuthorization);
+        this(runtime, metrics, requestAuthorization, null);
+    }
+
+    private ProductionTtsGrpcService(
+            InitializedRuntime runtime, MeterRegistry metrics, TtsRequestAuthorization requestAuthorization,
+            MediaProcessingRuntimePort mediaRuntimePort) {
+        this(runtime.library(), metrics, runtime.admission(), runtime.voiceId(), runtime.language(),
+                requestAuthorization, mediaRuntimePort);
     }
 
     ProductionTtsGrpcService(
@@ -116,6 +131,17 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             String admittedVoiceId,
             String admittedLanguage,
             TtsRequestAuthorization requestAuthorization) {
+        this(library, metrics, admission, admittedVoiceId, admittedLanguage, requestAuthorization, null);
+    }
+
+    ProductionTtsGrpcService(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            TtsProviderAdmission.Decision admission,
+            String admittedVoiceId,
+            String admittedLanguage,
+            TtsRequestAuthorization requestAuthorization,
+            MediaProcessingRuntimePort mediaRuntimePort) {
         super(library, metrics,
                 () -> admission.allows(TtsProviderAdmission.Capability.SYNTHESIS),
                 () -> admission.allows(TtsProviderAdmission.Capability.PCM_STREAMING),
@@ -128,7 +154,10 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         this.admittedVoiceId = admittedVoiceId;
         this.admittedLanguage = admittedLanguage;
         this.requestAuthorization = Objects.requireNonNull(requestAuthorization, "requestAuthorization");
+        this.mediaRuntimePort = mediaRuntimePort;
     }
+
+    MediaProcessingRuntimePort mediaRuntimePort() { return mediaRuntimePort; }
 
     static TtsRequestAuthorization bindConfiguredDefaultVoice(
             TtsRequestAuthorization delegate, String configuredDefaultVoice) {

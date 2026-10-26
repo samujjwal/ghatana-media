@@ -7,7 +7,7 @@ const parse = createRequire(new URL("../../ghatana-tools/package.json", import.m
 
 const registryPath = ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml";
 const conventionsPath = ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml";
-const handlerRoot = "libs/common/src/main/java/com/ghatana/audio/video/tools";
+const handlerRoot = "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools";
 const factoryPath = `${handlerRoot}/AudioVideoToolHandlerFactory.java`;
 const factorySource = readFileSync(factoryPath, "utf8");
 const registryText = () => readFileSync(registryPath, "utf8");

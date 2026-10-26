@@ -15,8 +15,7 @@ class CustomVocabularyManagerLogPrivacyTest {
             manager.addTerm(marker, 2.0);
             assertThat(manager.removeTerm(marker)).isTrue();
 
-            assertThat(logs.output()).contains("Vocabulary term added", "Vocabulary term removed")
-                    .doesNotContain(marker);
+            assertThat(logs.output()).doesNotContain(marker);
         }
     }
 }

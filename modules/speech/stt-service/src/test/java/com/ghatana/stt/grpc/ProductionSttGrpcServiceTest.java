@@ -114,7 +114,7 @@ class ProductionSttGrpcServiceTest {
     void productionCompositionKeepsUnsupportedRpcPathsExplicitlyUnavailable() {
         ProductionSttGrpcService service = new ProductionSttGrpcService(
                 mock(AudioVideoLibrary.class), new SimpleMeterRegistry(),
-                request -> SttRequestAuthorization.Decision.ADMITTED); // Test authority only.
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED)); // Test authority only.
 
         ProductionSttGrpcServiceTest.<UnloadModelResponse>assertUnimplemented(
                 observer -> runWithTenantPrincipal(
@@ -139,10 +139,11 @@ class ProductionSttGrpcServiceTest {
         java.util.concurrent.atomic.AtomicReference<SttRequestAuthorization.Decision> decision =
                 new java.util.concurrent.atomic.AtomicReference<>(SttRequestAuthorization.Decision.DENIED);
         java.util.List<SttRequestAuthorization.Request> seen = new java.util.ArrayList<>();
-        ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry(), request -> {
-            seen.add(request);
-            return decision.get();
-        });
+        ProductionSttGrpcService service = new ProductionSttGrpcService(library, new SimpleMeterRegistry(),
+                (SttRequestAuthorization) (request -> {
+                    seen.add(request);
+                    return decision.get();
+                }));
 
         CapturingObserver<ProfileResponse> create = new CapturingObserver<>();
         CapturingObserver<ProfileResponse> read = new CapturingObserver<>();

@@ -3,6 +3,7 @@ package com.ghatana.tts.grpc;
 import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.observability.MetricsServerInterceptor;
 import com.ghatana.media.AudioVideoLibrary;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -49,8 +51,12 @@ class TtsGrpcServerCompositionTest {
         var metrics = new SimpleMeterRegistry();
         var library = mock(AudioVideoLibrary.class);
         var engine = mock(TtsEngine.class);
+        var mediaRuntimePort = mock(MediaProcessingRuntimePort.class);
         when(library.getTtsEngine()).thenReturn(engine);
-        var service = new ProductionTtsGrpcService(library, metrics);
+        var service = new ProductionTtsGrpcService(library, metrics,
+                new TtsProviderAdmission.Decision(java.util.Set.of(), null, "test not admitted"),
+                null, null, TtsRequestAuthorization.unavailable(), mediaRuntimePort);
+        assertThat(service.mediaRuntimePort()).isSameAs(mediaRuntimePort);
         var readiness = TtsGrpcServer.createReadinessLifecycle(metrics, service::isProviderReady);
         int port = freePort();
         var server = new TtsGrpcServer(port, AudioVideoGrpcServerBase.TransportSecurity.plaintext(), service, readiness);
@@ -77,6 +83,7 @@ class TtsGrpcServerCompositionTest {
                     .isInstanceOf(io.grpc.StatusRuntimeException.class)
                     .hasMessageContaining("TTS_NOT_ADMITTED");
             verify(engine, never()).synthesize(anyString(), any());
+            verifyNoInteractions(mediaRuntimePort);
             assertThat(handledCount(MetricsServerInterceptor.getInstance().scrape(), method, "UNAVAILABLE"))
                     .isEqualTo(before + 1);
         } finally {

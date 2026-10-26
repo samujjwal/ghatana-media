@@ -292,7 +292,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             .build(); 
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine( 
-            new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+            gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
             AudioVideoRuntimeSettings.defaults())) { 
             VideoAudioResult result = runPromise(() -> Promise.of( 
                 engine.analyseVideoWithAudio(new byte[] {9, 8, 7}, true, true, 2) 
@@ -323,7 +323,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 .build();
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
-                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
                 AudioVideoRuntimeSettings.defaults())) {
             VideoAudioResult result = runPromise(() -> Promise.of(
                     engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
@@ -350,7 +350,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
         VisualResult video = VisualResult.builder().frameResults(frames).build();
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
-                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
                 AudioVideoRuntimeSettings.defaults())) {
             VideoAudioResult result = runPromise(() -> Promise.of(
                     engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
@@ -375,7 +375,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
         VisualResult video = VisualResult.builder().frameResults(sourceFrames).build();
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
-                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
                 AudioVideoRuntimeSettings.defaults())) {
             VideoAudioResult result = runPromise(() -> Promise.of(
                     engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
@@ -411,7 +411,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 .build();
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
-                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
                 AudioVideoRuntimeSettings.defaults())) {
             VideoAudioResult result = runPromise(() -> Promise.of(
                     engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
@@ -440,7 +440,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 .build();
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
-                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
                 AudioVideoRuntimeSettings.defaults())) {
             VideoAudioResult result = runPromise(() -> Promise.of(
                     engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
@@ -464,7 +464,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 .build();
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
-                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
                 AudioVideoRuntimeSettings.defaults())) {
             VideoAudioResult result = runPromise(() -> Promise.of(
                     engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
@@ -555,7 +555,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 .build();
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
-                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
                 AudioVideoRuntimeSettings.defaults())) {
             VideoAudioResult result = runPromise(() -> Promise.of(
                     engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
@@ -576,7 +576,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                 new FrameResult(1, sourcePts(90_000, 1, 90_000), List.of()))).build();
 
         try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
-                new FakeMediaGateway(audio, VisualResult.error("unused"), video),
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
                 AudioVideoRuntimeSettings.defaults())) {
             VideoAudioResult result = runPromise(() -> Promise.of(
                     engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
@@ -931,6 +931,19 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
                                                    MediaClockTimestamp.ClockDomain domain, String clockId) {
         return new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN, ticks, numerator, denominator,
                 domain, clockId, null);
+    }
+
+    /** Explicit deterministic demux fixture for transcript-window tests; it is not provider evidence. */
+    private static FakeMediaGateway gatewayWithDecodedAudio(
+            AudioResult audio, VisualResult image, VisualResult video) {
+        return new FakeMediaGateway(audio, image, video) {
+            @Override
+            public com.ghatana.audio.video.vision.video.VideoFrameExtractor.ExtractedAudioTrack extractAudioTrack(
+                    byte[] input) {
+                return new com.ghatana.audio.video.vision.video.VideoFrameExtractor.ExtractedAudioTrack(
+                        new byte[] {1, 2}, 16_000, 1, 1, 0, 1, 16_000, false);
+            }
+        };
     }
 
     @Test

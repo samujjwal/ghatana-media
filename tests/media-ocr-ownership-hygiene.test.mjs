@@ -10,14 +10,14 @@ const prefix = 'modules/vision/vision-service/src/main/java/com/ghatana/audio/vi
 
 test('Media OCR compatibility source does not claim generic OCR ownership or unsupported accuracy', () => {
   const service = read(prefix + 'OcrService.java');
-  const adapter = read(prefix + 'KernelOcrProviderAdapter.java');
-  const build = read('modules/vision/vision-service/build.gradle.kts');
+  const adapter = read('adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java');
+  const adapterBuild = read('adapters/ocr-compat/build.gradle.kts');
   for (const source of [service, adapter]) {
     assert.match(source, /Document Intelligence/u);
     assert.doesNotMatch(source, /OCR accuracy &gt;95%|model identity, confidence policy, and image decoding remain Media-owned/u);
   }
-  assert.doesNotMatch(build, /Media owns the OCR model/u);
-  assert.match(build, /Legacy Kernel OCR compatibility only/u);
+  assert.doesNotMatch(adapterBuild, /Media owns the OCR model/u);
+  assert.match(adapterBuild, /optional Kernel bridge/u);
 });
 
 test('legacy OCR is not an automatically selected provider', () => {

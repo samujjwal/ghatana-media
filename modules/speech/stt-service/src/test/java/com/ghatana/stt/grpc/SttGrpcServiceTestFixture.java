@@ -11,6 +11,6 @@ public final class SttGrpcServiceTestFixture {
     public static SttGrpcService create(AudioVideoLibrary library, MeterRegistry metrics) {
         return new SttGrpcService(Objects.requireNonNull(library, "library"),
                 Objects.requireNonNull(metrics, "metrics"),
-                request -> SttRequestAuthorization.Decision.ADMITTED);
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
     }
 }

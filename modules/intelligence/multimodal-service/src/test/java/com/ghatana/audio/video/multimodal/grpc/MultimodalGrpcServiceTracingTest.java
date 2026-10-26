@@ -169,7 +169,7 @@ class MultimodalGrpcServiceTracingTest {
         MediaProcessingMetrics metrics = MediaProcessingMetrics.create();
         MultimodalGrpcService service = new MultimodalGrpcService(engine, adapter, metrics,
                 request -> SourceAuthorization.Decision.ADMITTED,
-                new AudioVideoTracingService(tracing.tracer));
+                new AudioVideoTracingService(tracing.tracer), fixtureExecutor());
 
         withTenant(() -> service.processMultimodal(audioRequest(), observer));
 
@@ -279,13 +279,32 @@ class MultimodalGrpcServiceTracingTest {
         when(adapter.metricsEnabled()).thenReturn(false);
         return new MultimodalGrpcService(engine, adapter,
                 metrics, request -> SourceAuthorization.Decision.ADMITTED,
-                new AudioVideoTracingService(tracing.tracer));
+                new AudioVideoTracingService(tracing.tracer), fixtureExecutor());
     }
 
     private static MultimodalRequest audioRequest() {
         return MultimodalRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(CONTENT.getBytes(java.nio.charset.StandardCharsets.UTF_8)))
+                .setOperationBinding(com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding.newBuilder()
+                        .setOperationVersion(1)
+                        .setCapabilityRef("media.multimodal.observe.source-grounded")
+                        .setOperationRef("media.operation.capability.media-multimodal-observe-source-grounded")
+                        .setRequestId("request-trace-test")
+                        .setSourceArtifactId("artifact-trace-test")
+                        .setSourceVersionId("version-trace-test")
+                        .setPurpose("trace fixture")
+                        .build())
                 .build();
+    }
+
+    private static CanonicalOperationExecutor fixtureExecutor() {
+        return new CanonicalOperationExecutor() {
+            @Override
+            public <T> T execute(com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding binding,
+                                 String operationRef, java.util.concurrent.Callable<T> action) throws Exception {
+                return action.call();
+            }
+        };
     }
 
     private static MultimodalResult success() {

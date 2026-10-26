@@ -10,6 +10,7 @@ val libsCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 
 dependencies {
+    implementation(project(":services:media:runtime-contracts"))
     // Audio-Video common library — TtsEngine, SttEngine, VisionEngine, media types, security interceptors
     implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:libs:common"))
@@ -76,7 +77,7 @@ application {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt()))
     }
 }
 

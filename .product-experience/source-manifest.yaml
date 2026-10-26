@@ -17,7 +17,7 @@ externalOwnerObservations:
   repositories:
   - repositoryId: ghatana
     available: true
-    revision: 7d393962ee3ad727e5f1d781adb52b575860bde2
+    revision: d310c282f3ce2a3c8c60645e5891378702fc3abe
     workingTree: CLEAN
     files:
       - path: "config/repo-boundary.json"
@@ -46,7 +46,7 @@ externalOwnerObservations:
         sha256: b95a1c0b5bd09de4f8103293f108ecf1bf24d0f62fbd20f4f36620e5e963c272
   - repositoryId: ghatana-products
     available: true
-    revision: ed29b74df4f9ae7f749e279c27f19fc8d3d84129
+    revision: 283cbd2a712385d2b00f8b898e29db10668bc707
     workingTree: CLEAN
     files:
       - path: "config/product-extraction-records/media.yaml"
@@ -57,11 +57,11 @@ externalOwnerObservations:
         sha256: 7ed204413749a3c82c1cba4b531d34c9bc4d7440489363f5dfdc3310e4fdf618
   - repositoryId: gharbatai
     available: true
-    revision: f4e0f18dc45cfe661f5d8a51cabeac87d27ead2b
+    revision: b2efb731a8cb51633bcf45fa10dfaaece38ddaa6
     workingTree: CLEAN
     files:
       - path: "pnpm-lock.yaml"
-        sha256: aa9c9c42a86f36a29c7d9ce8e26ef49e8cbe313fa794ed0667ea9d441416bc6a
+        sha256: 373601df683170ac73970d4b2c3db51c6baa8522180228ca8f8311d6f143f29c
       - path: "products/org/apps/api/src/modules/document-extraction/document-intelligence.config.ts"
         sha256: aeda2d44fcbfc86fb90de8909ed7952590fdd7f4a6593277cfe39bfd83a07223
   - repositoryId: ghatana-tools
@@ -97,19 +97,19 @@ externalOwnerObservations:
         sha256: ea614e2b85ad661034e2e4441f0f2dbf36e3fd0e569e3706595a5b76844faf6e
   - repositoryId: ghatana-lifecycle
     available: true
-    revision: a3b9eb24963e3379d3519127aad9485d8e409e75
+    revision: 4169d6c0928a9b23c1af01b9afc3444f16649b6d
     workingTree: MODIFIED
     files:
       - path: "package.json"
         package: "@ghatana/lifecycle"
         version: "0.1.0-rc.1"
-        sha256: 00c3e5e0d92c570b50faf38fa7e9cc2d135a9a6cc392d0787d7b9315d4a064a0
+        sha256: 31bb2cb4045f7613d171d2328dfbd07988cc00b3cbba83f663c3fd7b8ecec052
       - path: "scripts/checks/check-pdp-acceptance.mjs"
         sha256: 447f4b8e8c6bca3c546d929034262ab4aaba9b37debc4716f6a9cf9b3bf0a792
   - repositoryId: ghatana-shared
     available: true
-    revision: 5ba48d9a63fa634bcb9fc841cfa7cfc0a75c1cda
-    workingTree: MODIFIED
+    revision: f0074f591d673735070309206c2fcd9c13ea7b1f
+    workingTree: CLEAN
     files:
       - path: "platform/typescript/tokens/package.json"
         package: "@ghatana/tokens"
@@ -120,11 +120,11 @@ externalOwnerObservations:
       - path: "platform/typescript/theme/package.json"
         package: "@ghatana/theme"
         version: "0.1.0-SNAPSHOT"
-        sha256: 807b350250d306e526abbcfb10e18ee249709bff7066647b27f17e6c1543cdf4
+        sha256: 029f226f520f60ea81a784f350ed8e0aa7c1e9b57a8603baae52b23528933322
       - path: "platform/typescript/design-system/package.json"
         package: "@ghatana/design-system"
         version: "0.1.0-SNAPSHOT"
-        sha256: 1ca1ff0ad5e40c5ac2901f586a357cbe80c8ffaa30db41ff35677258611c3f92
+        sha256: 5a64440eb7789c04f24f6bd6b339a79843bf55554370ebeccd280cec06e46079
 supplementalDecisionReference:
   title: Document Intelligence ownership instruction
   path: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
@@ -270,7 +270,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2
+      contentSha256: 0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-DEVELOPMENT-VERSION-POLICY
@@ -891,7 +891,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6
+      contentSha256: df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-CAPABILITIES
@@ -914,7 +914,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac
+      contentSha256: fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-CAPABILITY-LEAF-REVIEW
@@ -937,7 +937,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad
+      contentSha256: 3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-CAPABILITY-CROSSWALK
@@ -1328,7 +1328,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 3eb27caa45b582312ec80f371d5f67d94588459609195060247c6c71b0e496b0
+      contentSha256: 80f4c8d879ba5bd712c4b246d255aaefd97906b39c5a33916ed426a33ecf1410
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-POLICY-AUTHORITY
@@ -1420,7 +1420,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a
+      contentSha256: 39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-RECORDER-STUDIO-EXTENSION
@@ -1466,7 +1466,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765
+      contentSha256: 672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-REUSE-DECISIONS
@@ -2271,7 +2271,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 8d86816919f8bf5aa4412b554faf31c084dd3e8739190d84ec9be3c322376f7d
+      contentSha256: aa0045ddd67c4a6137b15576a9c32d71774ebe9eae7993e682b0f952f2aa9151
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P1-PHASE-1-DESIGN-LANGUAGE-ANIMATION-SIMULATION-GRAMMAR-YAML
@@ -3628,7 +3628,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 2f0e495a97c39a9f871a58acc5676982856692f6e9c6b59869b0bed5456e4ed6
+      contentSha256: 0fa244feef87dfe965720fe01a977cbc63a6cdd80763805aa8a641db8fd55f20
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-1382A9C1C8E7
@@ -3651,7 +3651,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: bec6d8b8a72aaa4a3f34a3c0b4040911e6aaaf8f88da64a103fec32e26825170
+      contentSha256: f96964041aa4322ebffee024c400750ffc2b4fd9e9feb2fbed9021c98a20abaf
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-API-EXPERIENCE-MAPPING-YAML
@@ -8550,7 +8550,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2
+      contentSha256: f7fe775126fdb7f92264ede051e5b88c13c3ab172a4399a8815a6f3225e14071
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-TRACEABILITY

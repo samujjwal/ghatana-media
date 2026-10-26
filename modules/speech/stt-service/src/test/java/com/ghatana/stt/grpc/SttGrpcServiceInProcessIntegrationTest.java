@@ -292,10 +292,11 @@ class SttGrpcServiceInProcessIntegrationTest {
         when(engine.getAvailableModels()).thenReturn(List.of(new ModelInfo(
             "whisper-base", "Whisper Base", "1.0", new Locale[]{Locale.ENGLISH}, 10L, false)));
 
+        // Authorization is a test fixture; no provider effect is admitted.
         Server replacement = ServerBuilder.forPort(0)
             .directExecutor()
             .addService(new SttGrpcService(library, new SimpleMeterRegistry(),
-                    request -> SttRequestAuthorization.Decision.ADMITTED)) // Explicit test fixture only.
+                    (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED)))
             .intercept(new JwtServerInterceptor())
             .build()
             .start();
@@ -407,7 +408,8 @@ class SttGrpcServiceInProcessIntegrationTest {
                 .when(statusFixture).loadModel("unknown-model");
 
         ProductionSttGrpcService productionService = new ProductionSttGrpcService(
-                guardedLibrary, new SimpleMeterRegistry(), request -> SttRequestAuthorization.Decision.ADMITTED);
+                guardedLibrary, new SimpleMeterRegistry(),
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
         Server securedServer = null;
         ManagedChannel securedChannel = null;
         try {

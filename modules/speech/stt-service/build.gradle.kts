@@ -10,6 +10,7 @@ val libsCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 
 dependencies {
+    implementation(project(":services:media:runtime-contracts"))
     // Audio-Video common library — SttEngine, TtsEngine, media types, security interceptors
     implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:libs:common"))
@@ -62,6 +63,7 @@ dependencies {
     // Testing
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
+    testRuntimeOnly(libs.log4j.slf4j.impl)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.assertj.core)
@@ -74,7 +76,7 @@ application {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt()))
     }
 }
 

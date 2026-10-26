@@ -56,6 +56,8 @@ public class TemporalAlignment {
                              String speechText, List<DetectionResult> detections,
                              long syncOffsetMs, double syncConfidence,
                              SyncStatus syncStatus) {
+        this.timestamp = java.util.Objects.requireNonNull(timestamp, "timestamp");
+        this.detections = List.copyOf(java.util.Objects.requireNonNull(detections, "detections"));
         if (syncStatus == null) {
             throw new IllegalArgumentException("syncStatus is required");
         }
@@ -63,17 +65,15 @@ public class TemporalAlignment {
                 && (!Double.isFinite(syncConfidence) || syncConfidence < 0.0 || syncConfidence > 1.0)) {
             throw new IllegalArgumentException("measured synchronization requires finite confidence in [0, 1]");
         }
-        if (syncStatus == SyncStatus.MEASURED && !timestamp.isKnown()) {
+        if (syncStatus == SyncStatus.MEASURED && !this.timestamp.isKnown()) {
             throw new IllegalArgumentException("measured synchronization requires a known timestamp");
         }
         if (syncStatus == SyncStatus.SYNC_UNDETERMINED
                 && (syncOffsetMs != 0L || syncConfidence != 0.0)) {
             throw new IllegalArgumentException("undetermined synchronization cannot carry measurement values");
         }
-        this.timestamp    = java.util.Objects.requireNonNull(timestamp, "timestamp");
         this.frameNumber    = frameNumber;
         this.speechText     = speechText;
-        this.detections     = List.copyOf(java.util.Objects.requireNonNull(detections, "detections"));
         this.syncOffsetMs   = syncOffsetMs;
         this.syncConfidence = syncConfidence;
         this.syncStatus     = syncStatus;

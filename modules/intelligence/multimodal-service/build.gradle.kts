@@ -10,14 +10,11 @@ val libsCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 
 dependencies {
+    implementation(project(":services:media:runtime-contracts"))
     // Audio-Video common library (shared AI inference client, health/metrics, gRPC interceptors)
     implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:libs:common"))
     implementation(project(":services:media:audio-video-observability"))
-    // Direct consumer dependency: the agent sources use the canonical
-    // ToolExecutor SPI rather than relying on transitive exposure by common.
-    implementation("com.ghatana.platform:tool-runtime:${providers.gradleProperty("ghatana.tools.version").get()}")
-
     // Agent contracts plus reusable provider-neutral runtime base implementations.
     implementation("com.ghatana.platform:agent-core:${providers.gradleProperty("ghatana.shared.version").get()}")
     implementation("com.ghatana.platform:agent-runtime:${providers.gradleProperty("ghatana.shared.version").get()}")
@@ -91,7 +88,7 @@ application {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(libsCatalog.findVersion("java").get().requiredVersion.toInt()))
     }
 }
 

@@ -164,7 +164,44 @@ class VisionGrpcServiceMetricsTest {
                 VideoFileRequest.newBuilder().setVideoData(ByteString.copyFrom(new byte[]{1})).build(), observer));
 
         assertThat(observer.error).isNull();
+        assertDecodeBoundary("success");
         assertProviderTimer("success", 1);
+    }
+
+    @Test
+    @DisplayName("analyzeVideoFile extraction rejection records a failed decode and never calls the detector")
+    void analyzeVideoFile_extractionRejectionRecordsFailure() throws Exception {
+        when(frameExtractor.getVideoMetadata(any(Path.class)))
+                .thenReturn(new VideoFrameExtractor.VideoMetadata(1, 1, 1, 1, 1));
+        when(frameExtractor.extractFrames(any(Path.class), any(Path.class),
+                any(VideoFrameExtractor.ExtractionConfig.class)))
+                .thenThrow(new java.io.IOException("fixture extraction failure"));
+        SimpleObserver<VideoFileResponse> observer = new SimpleObserver<>();
+
+        withContext("tenant-video-fixture", () -> service.analyzeVideoFile(
+                VideoFileRequest.newBuilder().setVideoData(ByteString.copyFrom(new byte[]{1})).build(), observer));
+
+        assertThat(observer.error).isNotNull();
+        assertThat(fakeDetector.calls).isZero();
+        assertDecodeBoundary("failure");
+    }
+
+    @Test
+    @DisplayName("unexpected frame decoder exception records unknown")
+    void analyzeVideoFile_unexpectedExtractionExceptionRecordsUnknown() throws Exception {
+        when(frameExtractor.getVideoMetadata(any(Path.class)))
+                .thenReturn(new VideoFrameExtractor.VideoMetadata(1, 1, 1, 1, 1));
+        when(frameExtractor.extractFrames(any(Path.class), any(Path.class),
+                any(VideoFrameExtractor.ExtractionConfig.class)))
+                .thenThrow(new IllegalStateException("fixture decoder state failure"));
+        SimpleObserver<VideoFileResponse> observer = new SimpleObserver<>();
+
+        withContext("tenant-video-fixture", () -> service.analyzeVideoFile(
+                VideoFileRequest.newBuilder().setVideoData(ByteString.copyFrom(new byte[]{1})).build(), observer));
+
+        assertThat(observer.error).isNotNull();
+        assertThat(fakeDetector.calls).isZero();
+        assertDecodeBoundary("unknown");
     }
 
     @Test
@@ -225,6 +262,22 @@ class VisionGrpcServiceMetricsTest {
         });
     }
 
+    private void assertDecodeBoundary(String outcome) {
+        Timer timer = meterRegistry.find("media.modality.boundary.duration")
+                .tags("modality", "vision", "service", "vision", "boundary", "decode",
+                        "execution_class", "model", "outcome", outcome, "contract_version", "v1").timer();
+        assertThat(timer).isNotNull();
+        assertThat(timer.count()).isEqualTo(1);
+        assertThat(timer.getId().getTags()).extracting("key")
+                .containsExactlyInAnyOrder("modality", "service", "boundary", "execution_class",
+                        "outcome", "contract_version");
+        assertThat(meterRegistry.getMeters()).allSatisfy(meter -> {
+            assertThat(meter.getId().getTag("tenant")).isNull();
+            assertThat(meter.getId().getTag("request_id")).isNull();
+            assertThat(meter.getId().getTag("content")).isNull();
+        });
+    }
+
     private List<DetectedObject> validDetections() {
         return List.of(DetectedObject.builder().className("car").confidence(0.9)
                 .boundingBox(BoundingBox.builder().x(0).y(0).width(10).height(10).build()).build());
@@ -275,9 +328,11 @@ class VisionGrpcServiceMetricsTest {
         List<DetectedObject> results = Collections.emptyList(); 
         RuntimeException throwOn;
         Runnable onDetect;
+        int calls;
 
         @Override
         public List<DetectedObject> detectObjects(byte[] imageData, DetectionOptions options) { 
+            calls++;
             if (onDetect != null) onDetect.run();
             if (throwOn != null) throw throwOn; 
             return results;

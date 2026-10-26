@@ -10,11 +10,7 @@ val libsCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 
 dependencies {
-    // Legacy Kernel OCR compatibility only: generic OCR/model execution belongs
-    // to Document Intelligence. Keep this source dependency until its published
-    // public client is admitted and the compatibility adapter can be retired.
-    implementation("com.ghatana.kernel:kernel-product-api:${providers.gradleProperty("ghatana.kernel.version").get()}")
-
+    implementation(project(":services:media:runtime-contracts"))
     // Audio-Video common (health/metrics server, gRPC interceptor chain, security)
     implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:libs:common"))
@@ -29,6 +25,11 @@ dependencies {
 
     // Multi-tenancy
     implementation("com.ghatana.platform:governance:${providers.gradleProperty("ghatana.shared.version").get()}")
+
+    // Metrics and provider-boundary observability are direct Vision API dependencies;
+    // they were previously supplied transitively by the optional Kernel OCR adapter.
+    implementation("com.ghatana.platform:observability:${providers.gradleProperty("ghatana.shared.version").get()}")
+    implementation(libs.micrometer.core)
 
     // Platform audit (AuditService, AuditEvent)
     implementation("com.ghatana.platform:audit:${providers.gradleProperty("ghatana.shared.version").get()}")
@@ -74,7 +75,7 @@ application {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt()))
     }
 }
 

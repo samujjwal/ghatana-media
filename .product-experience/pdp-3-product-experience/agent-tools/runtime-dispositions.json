@@ -5,7 +5,7 @@
   "tools": [
     {
       "toolId": "av.speech-to-text",
-      "handlerSource": "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+      "handlerSource": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
@@ -26,7 +26,7 @@
     },
     {
       "toolId": "av.text-to-speech",
-      "handlerSource": "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+      "handlerSource": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
@@ -47,7 +47,7 @@
     },
     {
       "toolId": "av.vision-analysis",
-      "handlerSource": "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+      "handlerSource": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
@@ -68,7 +68,7 @@
     },
     {
       "toolId": "av.multimodal-inference",
-      "handlerSource": "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+      "handlerSource": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",

@@ -24,7 +24,9 @@
       "buildFile": "launcher/build.gradle.kts",
       "gradleModules": [
         ":services:media",
+        ":services:media:adapters:agent-tools-media",
         ":services:media:adapters:ledger",
+        ":services:media:adapters:ocr-compat",
         ":services:media:audio-video-observability",
         ":services:media:integration-tests",
         ":services:media:launcher",

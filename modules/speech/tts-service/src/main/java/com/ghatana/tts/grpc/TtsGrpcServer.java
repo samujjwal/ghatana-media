@@ -2,6 +2,7 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -39,6 +40,11 @@ public final class TtsGrpcServer extends AudioVideoGrpcServerBase {
         this(port, transportSecurity, createProductionRuntime());
     }
 
+    /** Constructs the server with the canonical Media runtime port; admission remains independently gated. */
+    public TtsGrpcServer(int port, TransportSecurity transportSecurity, MediaProcessingRuntimePort mediaRuntimePort) {
+        this(port, transportSecurity, createProductionRuntime(mediaRuntimePort));
+    }
+
     private TtsGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
         this(port, transportSecurity, runtime.service(), runtime.readiness());
     }
@@ -58,8 +64,12 @@ public final class TtsGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private static ServerRuntime createProductionRuntime() {
+        return createProductionRuntime(null);
+    }
+
+    private static ServerRuntime createProductionRuntime(MediaProcessingRuntimePort mediaRuntimePort) {
         MeterRegistry metrics = new SimpleMeterRegistry();
-        ProductionTtsGrpcService service = new ProductionTtsGrpcService(metrics);
+        ProductionTtsGrpcService service = new ProductionTtsGrpcService(metrics, mediaRuntimePort);
         return new ServerRuntime(service, createReadinessLifecycle(metrics, service::isProviderReady));
     }
 

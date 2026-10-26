@@ -202,10 +202,10 @@ mediaUploadArtifactSlice:
 observedHandlerInventory:
   status: observed-source-identifiers-only; schemas-and-runtime-bindings-pending
   sourceRefs:
-    - libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
-    - libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
-    - libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
-    - libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
+    - adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
+    - adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
+    - adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
+    - adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
   tools:
     - canonicalToolId: av.speech-to-text
       idStatus: observed-in-handler; canonical registry admission pending
@@ -429,8 +429,8 @@ ownerSemanticSelections:
 mediaHandlerImplementationObservation:
   status: hardened-adapter-contract; execution-not-admitted
   sourceRefs:
-    - libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java
-    - libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java
+    - adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java
+    - adapters/agent-tools-media/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java
   implementedChecks:
     - Tool ID, version and effect-class binding between invocation envelope and
       declared tool contract.
@@ -992,7 +992,7 @@ mediaOwnedToolDefinitionContracts:
   contracts:
     - id: media.agent-tool-contract.speech-to-text.v1
       toolId: av.speech-to-text
-      handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
+      handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
       operationFamilyRef: media.operation.transcription
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission
       executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-speech-transcription-file
@@ -1274,7 +1274,7 @@ mediaOwnedToolDefinitionContracts:
       runtimeAdmission: NOT_ADMITTED
     - id: media.agent-tool-contract.text-to-speech.v1
       toolId: av.text-to-speech
-      handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
+      handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
       operationFamilyRef: media.operation.synthesis
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech
       executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-speech-synthesis-text-to-speech
@@ -1637,7 +1637,7 @@ mediaOwnedToolDefinitionContracts:
       runtimeAdmission: NOT_ADMITTED
     - id: media.agent-tool-contract.vision-analysis.v1
       toolId: av.vision-analysis
-      handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
+      handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
       operationFamilyRef: media.operation.vision-analysis
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect
       executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-vision-detect
@@ -2043,7 +2043,7 @@ mediaOwnedToolDefinitionContracts:
       runtimeAdmission: NOT_ADMITTED
     - id: media.agent-tool-contract.multimodal-inference.v1
       toolId: av.multimodal-inference
-      handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
+      handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
       operationFamilyRef: media.operation.multimodal-analysis
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal
       executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-multimodal-analyze-cross-modal
@@ -2463,8 +2463,8 @@ mediaOwnedToolDefinitionContracts:
       av.speech-to-text:
         field: audioSource.audioBytes
         maximumDecodedBytes: 20971520
-        sourceRef: libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java#resolveAudioSource
+        sourceRef: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java#resolveAudioSource
       av.vision-analysis:
         field: mediaSource.imageBytes
         maximumDecodedBytes: 20971520
-        sourceRef: libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java#resolveMediaSource
+        sourceRef: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java#resolveMediaSource

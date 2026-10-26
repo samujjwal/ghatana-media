@@ -205,6 +205,10 @@ public final class LanguageDetectionService {
         }
 
         private static Locale parseLanguageTag(String languageTag) {
+            if (languageTag == null || languageTag.isBlank()) {
+                throw new IllegalArgumentException(
+                        "STT_LANGUAGE_TAG_INVALID: languageTag must be a valid IETF language tag");
+            }
             try {
                 return new Locale.Builder().setLanguageTag(languageTag).build();
             } catch (IllformedLocaleException exception) {

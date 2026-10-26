@@ -5,6 +5,7 @@ import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.stt.core.grpc.proto.AudioChunk;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.Transcription;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
 import com.google.protobuf.ByteString;
 import io.grpc.ClientInterceptor;
 import io.grpc.Context;
@@ -36,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class SttGrpcStreamingSemanticsTest {
-    private static final String TEST_SECRET = "stt-stream-fixture-secret-not-for-production";
+    static final String TEST_SECRET = "stt-stream-fixture-secret-not-for-production";
 
     @Test
     void additiveSequenceFieldsPreserveExistingWireNumbersAndDoNotClaimDurableResume() {
@@ -84,7 +85,8 @@ class SttGrpcStreamingSemanticsTest {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         RecordingObserver<Transcription> response = new RecordingObserver<>();
         SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry(),
-                request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
+                (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
+        // Explicit test fixture only.
 
         withIdentity("tenant-a", "00000000-0000-0000-0000-000000000001", () -> {
             StreamObserver<AudioChunk> request = service.streamTranscribe(response);
@@ -112,7 +114,8 @@ class SttGrpcStreamingSemanticsTest {
             String serverName = InProcessServerBuilder.generateName();
             AudioVideoLibrary library = mock(AudioVideoLibrary.class);
             SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry(),
-                    request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
+                    (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
+            // Explicit test fixture only.
             server = InProcessServerBuilder.forName(serverName)
                     .directExecutor()
                     .addService(service)
@@ -170,23 +173,26 @@ class SttGrpcStreamingSemanticsTest {
             String serverName = InProcessServerBuilder.generateName();
             AudioVideoLibrary library = mock(AudioVideoLibrary.class);
             SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry(),
-                    request -> SttRequestAuthorization.Decision.ADMITTED); // Explicit test fixture only.
+                    (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
+            // Explicit test fixture only.
             server = InProcessServerBuilder.forName(serverName).directExecutor()
                     .addService(service).intercept(new JwtServerInterceptor()).build().start();
             channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
 
             CountDownLatch terminal = new CountDownLatch(1);
             List<Transcription> responses = new ArrayList<>();
+            AtomicReference<ClientCallStreamObserver<AudioChunk>> callStream = new AtomicReference<>();
             STTServiceGrpc.newStub(channel).withInterceptors(
                     authorization(signedTestJwt("tenant-stream-test", "00000000-0000-0000-0000-000000000001")))
-                    .streamTranscribe(new ClientResponseObserver<>() {
-                        @Override public void beforeStart(ClientCallStreamObserver<AudioChunk> requestStream) {
-                            requestStream.cancel("fixture cancellation", null);
+                    .streamTranscribe(new ClientResponseObserver<AudioChunk, Transcription>() {
+                        @Override public void beforeStart(ClientCallStreamObserver<AudioChunk> stream) {
+                            callStream.set(stream);
                         }
                         @Override public void onNext(Transcription value) { responses.add(value); }
                         @Override public void onError(Throwable error) { terminal.countDown(); }
                         @Override public void onCompleted() { terminal.countDown(); }
                     });
+            callStream.get().cancel("fixture cancellation", null);
 
             assertThat(terminal.await(2, TimeUnit.SECONDS)).isTrue();
             assertThat(responses).isEmpty();
@@ -205,7 +211,7 @@ class SttGrpcStreamingSemanticsTest {
         }
     }
 
-    private static ClientInterceptor authorization(String token) {
+    static ClientInterceptor authorization(String token) {
         Metadata metadata = new Metadata();
         metadata.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + token);
         return new ClientInterceptor() {
@@ -223,7 +229,7 @@ class SttGrpcStreamingSemanticsTest {
         };
     }
 
-    private static String signedTestJwt(String tenant, String subject) throws GeneralSecurityException {
+    static String signedTestJwt(String tenant, String subject) throws GeneralSecurityException {
         String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
         long expiresAt = System.currentTimeMillis() / 1_000 + 60;
         String payload = "{\"sub\":\"" + subject + "\",\"tenantId\":\"" + tenant
@@ -252,6 +258,10 @@ class SttGrpcStreamingSemanticsTest {
     }
 
     private static void withIdentity(String tenant, String subject, Runnable action) {
+        if (subject.matches("[0-9a-fA-F-]{36}")) {
+            VerifiedJwtContext.create(tenant, subject).run(action);
+            return;
+        }
         Context context = Context.current()
                 .withValue(JwtServerInterceptor.CTX_TENANT, tenant)
                 .withValue(JwtServerInterceptor.CTX_SUBJECT, subject);

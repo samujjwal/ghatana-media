@@ -10,6 +10,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission.Decision;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission.LanguageMode;
@@ -35,6 +36,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MediaRuntimeSpeechAdmissionTest {
+
+    @Test
+    void modalityPortUsesCanonicalRuntimeAndKeepsPrincipalScopedArtifactReadback() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-port-");
+        var runtime = runtime(root, new LocalMediaRuntimeSupport.JobStore(), List.of(), null);
+        try {
+            MediaProcessingRuntimePort port = runtime.modalityPort();
+            var source = artifact(runtime);
+
+            assertThat(port).isSameAs(runtime);
+            assertThat(port.artifact("tenant-a", "principal-a", source.artifactId()))
+                    .contains(source);
+            assertThat(port.artifact("tenant-a", "another-principal", source.artifactId()))
+                    .isEmpty();
+            assertThat(port.job("tenant-a", "principal-a", "missing-job")).isEmpty();
+        } finally {
+            runtime.close();
+        }
+    }
 
     @Test
     void absentProfileAndUnqualifiedTimingNeverCreateJobOrCallProvider() throws Exception {

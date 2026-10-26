@@ -4,6 +4,7 @@ import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.stt.service.SttAudioInputDecoder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
@@ -41,6 +42,13 @@ public final class SttGrpcServer extends AudioVideoGrpcServerBase {
 
     SttGrpcServer(int port, TransportSecurity transportSecurity) {
         this(port, transportSecurity, new ProductionSttGrpcService(new SimpleMeterRegistry()));
+    }
+
+    /** Constructs the server with the canonical Media runtime port; rights and source-version gates remain required. */
+    public SttGrpcServer(int port, TransportSecurity transportSecurity,
+                         MediaProcessingRuntimePort mediaRuntimePort) {
+        this(port, transportSecurity,
+                new ProductionSttGrpcService(new SimpleMeterRegistry(), mediaRuntimePort));
     }
 
     SttGrpcServer(int port, TransportSecurity transportSecurity, ProductionSttGrpcService service) {

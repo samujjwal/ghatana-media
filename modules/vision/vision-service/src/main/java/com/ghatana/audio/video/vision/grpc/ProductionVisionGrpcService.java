@@ -5,6 +5,7 @@ import com.ghatana.audio.video.vision.model.VisionModelProfile;
 import com.ghatana.audio.video.vision.model.VisionProviderAdmission;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audio.video.vision.yolo.YoloV8Adapter;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
 import java.util.Map;
@@ -14,14 +15,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** Production composition gated by trusted model/license provider admission. */
 public final class ProductionVisionGrpcService extends VisionGrpcService implements AutoCloseable {
     private final YoloV8Adapter detector;
+    private final MediaProcessingRuntimePort mediaRuntimePort;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     public ProductionVisionGrpcService(MediaProcessingMetrics metrics) {
-        this(metrics, Metrics.globalRegistry);
+        this(metrics, Metrics.globalRegistry, null);
+    }
+
+    /** Runtime integration seam; it does not qualify a model or authorize source processing. */
+    public ProductionVisionGrpcService(MediaProcessingMetrics metrics, MediaProcessingRuntimePort mediaRuntimePort) {
+        this(compose(System.getenv()), metrics, Metrics.globalRegistry, mediaRuntimePort);
     }
 
     ProductionVisionGrpcService(MediaProcessingMetrics metrics, MeterRegistry providerMetrics) {
-        this(compose(System.getenv()), metrics, providerMetrics);
+        this(compose(System.getenv()), metrics, providerMetrics, null);
+    }
+
+    ProductionVisionGrpcService(MediaProcessingMetrics metrics, MeterRegistry providerMetrics,
+                                MediaProcessingRuntimePort mediaRuntimePort) {
+        this(compose(System.getenv()), metrics, providerMetrics, mediaRuntimePort);
     }
 
     ProductionVisionGrpcService(Composition composition, MediaProcessingMetrics metrics) {
@@ -30,9 +42,17 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
 
     ProductionVisionGrpcService(Composition composition, MediaProcessingMetrics metrics,
                                 MeterRegistry providerMetrics) {
+        this(composition, metrics, providerMetrics, null);
+    }
+
+    ProductionVisionGrpcService(Composition composition, MediaProcessingMetrics metrics,
+                                MeterRegistry providerMetrics, MediaProcessingRuntimePort mediaRuntimePort) {
         super(composition, metrics, null, providerMetrics);
         this.detector = composition.detector();
+        this.mediaRuntimePort = mediaRuntimePort;
     }
+
+    MediaProcessingRuntimePort mediaRuntimePort() { return mediaRuntimePort; }
 
     @Override
     protected boolean isProviderReady() {

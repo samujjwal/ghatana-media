@@ -11,6 +11,7 @@ import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.grpc.SttGrpcService;
 import com.ghatana.stt.grpc.SttGrpcServiceTestFixture;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -101,7 +102,8 @@ class TranscriptPrivacySecurityTest {
             .setSampleRate(16000)
             .build();
 
-        service.transcribe(request, responseObserver);
+        VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001")
+                .run(() -> service.transcribe(request, responseObserver));
 
         ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
         verify(responseObserver).onError(errorCaptor.capture());
@@ -125,12 +127,12 @@ class TranscriptPrivacySecurityTest {
 
         byte[] audioBytes = validPcmWav();
 
-        service.transcribe(
+        VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001").run(() -> service.transcribe(
             TranscribeRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(audioBytes))
                 .setSampleRate(16000)
                 .build(),
-            responseObserver);
+            responseObserver));
 
         verify(responseObserver).onNext(captor.capture());
         assertThat(captor.getValue().getText()).isEqualTo("Hello world");
@@ -151,12 +153,12 @@ class TranscriptPrivacySecurityTest {
         byte[] audioBytes = validPcmWav();
         ArgumentCaptor<TranscribeResponse> captor = ArgumentCaptor.forClass(TranscribeResponse.class);
 
-        service.transcribe(
+        VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001").run(() -> service.transcribe(
             TranscribeRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(audioBytes))
                 .setSampleRate(16000)
                 .build(),
-            responseObserver);
+            responseObserver));
 
         verify(responseObserver).onNext(captor.capture());
         String responseText = captor.getValue().getText();

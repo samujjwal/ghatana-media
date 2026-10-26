@@ -72,7 +72,8 @@ class MultimodalGrpcProductionWrapperMatrixTest {
         lenient().when(adapter.backendName()).thenReturn("test-fixture-backend");
         lenient().when(adapter.metricsEnabled()).thenReturn(false);
         MultimodalGrpcService service = new MultimodalGrpcService(engine, adapter,
-                MediaProcessingMetrics.noop(), request -> SourceAuthorization.Decision.ADMITTED);
+                MediaProcessingMetrics.noop(), request -> SourceAuthorization.Decision.ADMITTED,
+                fixtureExecutor());
         readiness = MultimodalGrpcServer.readinessService(service);
         String name = InProcessServerBuilder.generateName();
         server = InProcessServerBuilder.forName(name).directExecutor()
@@ -114,29 +115,44 @@ class MultimodalGrpcProductionWrapperMatrixTest {
     @Test
     void authenticatedTenRpcMatrixPreservesDeclaredOutcomesAndFieldIdentity() {
         MultimodalResponse process = authenticated.processMultimodal(MultimodalRequest.newBuilder()
-                .setAudioData(ByteString.copyFrom(new byte[] {1})).build());
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(binding("media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded"))
+                .build());
         assertThat(process.getCombinedAnalysis()).isEqualTo("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE");
         assertThat(process.getAudioAnalysis().getTranscription()).isEqualTo("fixture transcript");
 
         VideoAudioResponse video = authenticated.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
-                .setVideoData(ByteString.copyFrom(new byte[] {2})).setExtractAudio(true).setAnalyzeFrames(true).build());
+                .setVideoData(ByteString.copyFrom(new byte[] {2})).setExtractAudio(true).setAnalyzeFrames(true)
+                .setOperationBinding(binding("media.multimodal.relate.scene-audio",
+                        "media.operation.capability.media-multimodal-relate-scene-audio"))
+                .build());
         assertThat(video.getAudioTranscription()).isEqualTo("fixture transcript");
         assertThat(video.getCombinedNarrative()).isEqualTo("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE");
 
         DescriptionResponse description = authenticated.generateDescription(DescriptionRequest.newBuilder()
-                .setAudioData(ByteString.copyFrom(new byte[] {3})).build());
+                .setAudioData(ByteString.copyFrom(new byte[] {3}))
+                .setOperationBinding(binding("media.multimodal.describe",
+                        "media.operation.capability.media-multimodal-describe"))
+                .build());
         assertThat(description.getDescription()).isEqualTo("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE");
         assertThat(description.getConfidence()).isZero();
 
         CrossModalResponse crossModal = authenticated.analyzeCrossModal(CrossModalRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(new byte[] {4}))
-                .setVideoData(ByteString.copyFrom(new byte[] {5})).build());
+                .setVideoData(ByteString.copyFrom(new byte[] {5}))
+                .setOperationBinding(binding("media.multimodal.analyze.cross-modal",
+                        "media.operation.capability.media-multimodal-analyze-cross-modal"))
+                .build());
         assertThat(crossModal.getSynchronizationStatus())
                 .isEqualTo(CrossModalResponse.SynchronizationStatus.SYNC_UNDETERMINED);
         assertThat(crossModal.getEventsList()).isEmpty();
 
         assertUnavailable(() -> authenticated.getInsights(InsightsRequest.newBuilder()
-                .setAudioData(ByteString.copyFrom(new byte[] {6})).build()));
+                .setAudioData(ByteString.copyFrom(new byte[] {6}))
+                .setOperationBinding(binding("media.multimodal.summarize",
+                        "media.operation.capability.media-multimodal-summarize"))
+                .build()));
 
         assertUnavailable(() -> authenticated.loadModel(LoadModelRequest.newBuilder()
                 .setModelId("unknown-model").build()));
@@ -227,15 +243,27 @@ class MultimodalGrpcProductionWrapperMatrixTest {
                         .build());
 
         assertUnavailable(() -> authenticated.processMultimodal(MultimodalRequest.newBuilder()
-                .setImageData(ByteString.copyFrom(new byte[] {1})).build()));
+                .setImageData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(binding("media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded"))
+                .build()));
         assertUnavailable(() -> authenticated.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
                 .setVideoData(ByteString.copyFrom(new byte[] {2}))
-                .setExtractAudio(true).setAnalyzeFrames(true).build()));
+                .setExtractAudio(true).setAnalyzeFrames(true)
+                .setOperationBinding(binding("media.multimodal.relate.scene-audio",
+                        "media.operation.capability.media-multimodal-relate-scene-audio"))
+                .build()));
         assertUnavailable(() -> authenticated.generateDescription(DescriptionRequest.newBuilder()
-                .setImageData(ByteString.copyFrom(new byte[] {3})).build()));
+                .setImageData(ByteString.copyFrom(new byte[] {3}))
+                .setOperationBinding(binding("media.multimodal.describe",
+                        "media.operation.capability.media-multimodal-describe"))
+                .build()));
         assertUnavailable(() -> authenticated.analyzeCrossModal(CrossModalRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(new byte[] {4}))
-                .setVideoData(ByteString.copyFrom(new byte[] {5})).build()));
+                .setVideoData(ByteString.copyFrom(new byte[] {5}))
+                .setOperationBinding(binding("media.multimodal.analyze.cross-modal",
+                        "media.operation.capability.media-multimodal-analyze-cross-modal"))
+                .build()));
 
         verify(engine, org.mockito.Mockito.times(3)).analyse(any());
         verify(engine).analyseVideoWithAudio(any(), anyBoolean(), anyBoolean(), anyInt());
@@ -288,7 +316,10 @@ class MultimodalGrpcProductionWrapperMatrixTest {
             }, new Metadata());
             call.request(1);
             call.sendMessage(MultimodalRequest.newBuilder()
-                    .setAudioData(ByteString.copyFrom(new byte[] {9})).build());
+                    .setAudioData(ByteString.copyFrom(new byte[] {9}))
+                    .setOperationBinding(binding("media.multimodal.observe.source-grounded",
+                            "media.operation.capability.media-multimodal-observe-source-grounded"))
+                    .build());
             call.halfClose();
             return null;
         });
@@ -307,6 +338,28 @@ class MultimodalGrpcProductionWrapperMatrixTest {
 
     private static void assertUnavailable(org.assertj.core.api.ThrowableAssert.ThrowingCallable rpc) {
         assertCode(rpc, Status.Code.UNAVAILABLE);
+    }
+
+    private static CanonicalOperationBinding binding(String capability, String operation) {
+        return CanonicalOperationBinding.newBuilder()
+                .setOperationVersion(1)
+                .setCapabilityRef(capability)
+                .setOperationRef(operation)
+                .setRequestId("rpc-matrix-request")
+                .setSourceArtifactId("rpc-matrix-artifact")
+                .setSourceVersionId("rpc-matrix-version")
+                .setPurpose("test fixture")
+                .build();
+    }
+
+    private static CanonicalOperationExecutor fixtureExecutor() {
+        return new CanonicalOperationExecutor() {
+            @Override
+            public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                 java.util.concurrent.Callable<T> action) throws Exception {
+                return action.call();
+            }
+        };
     }
 
     private static void assertUnauthenticated(org.assertj.core.api.ThrowableAssert.ThrowingCallable rpc) {

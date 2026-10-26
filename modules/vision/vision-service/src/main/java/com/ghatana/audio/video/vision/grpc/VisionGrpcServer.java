@@ -5,6 +5,7 @@ import com.ghatana.audio.video.common.GrpcTransportSecurityPolicy;
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
@@ -40,6 +41,12 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
         this(port, transportSecurity, createProductionRuntime());
     }
 
+    /** Constructs the server with the canonical Media runtime port; model/rights gates remain independent. */
+    public VisionGrpcServer(int port, TransportSecurity transportSecurity,
+                            MediaProcessingRuntimePort mediaRuntimePort) {
+        this(port, transportSecurity, createProductionRuntime(mediaRuntimePort));
+    }
+
     private VisionGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
         this(port, transportSecurity, runtime.service(), runtime.readiness());
     }
@@ -59,9 +66,13 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private static ServerRuntime createProductionRuntime() {
+        return createProductionRuntime(null);
+    }
+
+    private static ServerRuntime createProductionRuntime(MediaProcessingRuntimePort mediaRuntimePort) {
         MeterRegistry providerMetrics = new SimpleMeterRegistry();
         ProductionVisionGrpcService service = new ProductionVisionGrpcService(
-                MediaProcessingMetrics.create(), providerMetrics);
+                MediaProcessingMetrics.create(), providerMetrics, mediaRuntimePort);
         try {
             AudioVideoHealthService readiness = createReadinessLifecycle(
                     providerMetrics, service::isProviderReady);

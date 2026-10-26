@@ -3,6 +3,7 @@ package com.ghatana.stt.grpc;
 import com.ghatana.audio.video.common.AudioVideoGrpcServerBase;
 import com.ghatana.audio.video.common.observability.MetricsServerInterceptor;
 import com.ghatana.media.AudioVideoLibrary;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.stt.core.grpc.proto.AudioChunk;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.Transcription;
@@ -34,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,8 +60,11 @@ class SttGrpcServerCompositionTest {
     void productionRootStartsNotServingAndRecordsBoundedHealthRpcThenDrains() throws Exception {
         var metrics = new SimpleMeterRegistry();
         var library = mock(AudioVideoLibrary.class);
+        var mediaRuntimePort = mock(MediaProcessingRuntimePort.class);
         var trace = new TraceHarness();
-        var service = new ProductionSttGrpcService(library, metrics, trace.tracer);
+        var service = new ProductionSttGrpcService(library, metrics, trace.tracer,
+                SttRequestAuthorization.unavailable(), mediaRuntimePort);
+        assertThat(service.mediaRuntimePort()).isSameAs(mediaRuntimePort);
         int port = freePort();
         var server = new SttGrpcServer(port, AudioVideoGrpcServerBase.TransportSecurity.plaintext(), service);
         ManagedChannel channel = null;
@@ -100,6 +105,7 @@ class SttGrpcServerCompositionTest {
                     .hasMessageContaining("STT_RIGHTS_NOT_ADMITTED");
             assertThat(service.isProviderReady()).isFalse();
             verify(library, never()).getSttEngine();
+            verifyNoInteractions(mediaRuntimePort);
             verify(trace.tracer).spanBuilder("audiovideo.grpc.streaming");
             verify(trace.builder).setAttribute("method.name", "StreamTranscribe");
             verify(trace.builder).setAttribute("tenant.present", true);

@@ -41,6 +41,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaModalityContracts;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
 import com.ghatana.media.runtime.MediaJobView;
 import com.ghatana.media.runtime.MediaLifecycleEvent;
@@ -101,7 +102,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @doc.layer product
  * @doc.pattern Component
  */
-public final class MediaRuntime implements AutoCloseable {
+public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntimePort {
     /** A consent lookup must be current for the effect; older decisions fail closed. */
     private static final Duration MAX_CONSENT_DECISION_AGE = Duration.ofSeconds(30);
     private static final Logger log = LoggerFactory.getLogger(MediaRuntime.class);
@@ -423,6 +424,7 @@ public final class MediaRuntime implements AutoCloseable {
         throw new SecurityException("Authenticated principal is required to read a Media artifact");
     }
 
+    @Override
     public Optional<MediaArtifact> artifact(String tenantId, String principalId, String artifactId) {
         ensureOpen();
         requirePrincipal(principalId);
@@ -430,6 +432,7 @@ public final class MediaRuntime implements AutoCloseable {
                 .filter(value -> value.principalId().equals(principalId));
     }
 
+    @Override
     public ProcessingJob submit(ProcessingJobRequest request) {
         ensureOpen();
         if (request.jobType() == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
@@ -646,6 +649,7 @@ public final class MediaRuntime implements AutoCloseable {
         throw new SecurityException("Authenticated principal is required to read a Media job");
     }
 
+    @Override
     public Optional<ProcessingJob> job(String tenantId, String principalId, String jobId) {
         ensureOpen();
         requirePrincipal(principalId);
@@ -948,6 +952,9 @@ public final class MediaRuntime implements AutoCloseable {
     }
 
     public MediaRuntimeConfig config() { return config; }
+
+    /** Typed seam supplied to modality server compositions; it is this runtime, not a shadow store. */
+    public MediaProcessingRuntimePort modalityPort() { return this; }
 
     public List<String> providerIds() {
         ensureOpen();

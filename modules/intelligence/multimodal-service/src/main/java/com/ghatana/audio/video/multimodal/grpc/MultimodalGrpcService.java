@@ -1,5 +1,7 @@
 package com.ghatana.audio.video.multimodal.grpc;
 
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
+
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
@@ -26,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.UUID;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.concurrent.Callable;
 
 /**
  * gRPC service implementation for multimodal audio+video analysis.
@@ -62,6 +65,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final AtomicLong totalProcessingTime = new AtomicLong(0);
     private final MediaProcessingMetrics mediaMetrics;
     private final SourceAuthorization sourceAuthorization;
+    private final MediaProcessingRuntimePort mediaRuntimePort;
+    private final CanonicalOperationExecutor canonicalOperationExecutor;
     private final AudioVideoTracingService tracingService;
     private volatile BooleanSupplier readinessProbe = () -> false;
 
@@ -70,20 +75,38 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     public MultimodalGrpcService(MediaProcessingMetrics metrics) {
-        this(metrics, SourceAuthorization.unavailable());
+        this(metrics, SourceAuthorization.unavailable(), defaultTracingService(), null);
+    }
+
+    /** Runtime integration seam; unbound RPC inputs remain unavailable until canonical envelopes exist. */
+    public MultimodalGrpcService(MediaProcessingMetrics metrics, MediaProcessingRuntimePort mediaRuntimePort) {
+        this(metrics, SourceAuthorization.unavailable(), mediaRuntimePort);
     }
 
     MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization) {
-        this(metrics, sourceAuthorization, defaultTracingService());
+        this(metrics, sourceAuthorization, defaultTracingService(), null);
+    }
+
+    private MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                                  MediaProcessingRuntimePort mediaRuntimePort) {
+        this(metrics, sourceAuthorization, defaultTracingService(), mediaRuntimePort);
     }
 
     MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
                           AudioVideoTracingService tracingService) {
+        this(metrics, sourceAuthorization, tracingService, null);
+    }
+
+    private MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                                  AudioVideoTracingService tracingService,
+                                  MediaProcessingRuntimePort mediaRuntimePort) {
         this.platformAdapter = new PlatformMultimodalAdapter();
         this.engine = new MultimodalAnalysisEngine(platformAdapter);
         this.mediaMetrics = metrics;
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
+        this.mediaRuntimePort = mediaRuntimePort;
+        this.canonicalOperationExecutor = null;
         LOG.info("Multimodal service initialized with backend={}", platformAdapter.backendName());
     }
 
@@ -97,19 +120,59 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
+                          MediaProcessingMetrics metrics, MediaProcessingRuntimePort mediaRuntimePort) {
+        this(engine, platformAdapter, metrics, SourceAuthorization.unavailable(), defaultTracingService(),
+                mediaRuntimePort);
+    }
+
+    MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
                           MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization) {
         this(engine, platformAdapter, metrics, sourceAuthorization, defaultTracingService());
     }
 
     MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
                           MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                          CanonicalOperationExecutor canonicalOperationExecutor) {
+        this(engine, platformAdapter, metrics, sourceAuthorization, defaultTracingService(),
+                canonicalOperationExecutor);
+    }
+
+    MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
+                          MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
                           AudioVideoTracingService tracingService) {
+        this(engine, platformAdapter, metrics, sourceAuthorization, tracingService,
+                (MediaProcessingRuntimePort) null);
+    }
+
+    private MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
+                                  MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                                  AudioVideoTracingService tracingService,
+                                  MediaProcessingRuntimePort mediaRuntimePort) {
         this.engine = engine;
         this.platformAdapter = platformAdapter;
         this.mediaMetrics = metrics;
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
+        this.mediaRuntimePort = mediaRuntimePort;
+        this.canonicalOperationExecutor = null;
     }
+
+    /** Test-only executor seam; production constructors remain unbound and fail closed. */
+    MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
+                          MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                          AudioVideoTracingService tracingService,
+                          CanonicalOperationExecutor canonicalOperationExecutor) {
+        this.engine = java.util.Objects.requireNonNull(engine, "engine");
+        this.platformAdapter = java.util.Objects.requireNonNull(platformAdapter, "platformAdapter");
+        this.mediaMetrics = java.util.Objects.requireNonNull(metrics, "metrics");
+        this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
+        this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
+        this.mediaRuntimePort = null;
+        this.canonicalOperationExecutor = java.util.Objects.requireNonNull(
+                canonicalOperationExecutor, "canonicalOperationExecutor");
+    }
+
+    MediaProcessingRuntimePort mediaRuntimePort() { return mediaRuntimePort; }
 
     private static AudioVideoTracingService defaultTracingService() {
         return new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-multimodal"));
@@ -191,7 +254,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             MultimodalResult result;
             try (Scope ignored = trace.makeCurrent()) {
-                result = engine.analyse(engineRequest);
+                result = executeCanonical(request.getOperationBinding(), OP_OBSERVE,
+                        () -> engine.analyse(engineRequest));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();
@@ -309,11 +373,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             VideoAudioResult result;
             try (Scope ignored = trace.makeCurrent()) {
-                result = engine.analyseVideoWithAudio(
+                result = executeCanonical(request.getOperationBinding(), OP_RELATE, () ->
+                        engine.analyseVideoWithAudio(
                         request.getVideoData().toByteArray(),
                         request.getExtractAudio(),
                         request.getAnalyzeFrames(),
-                        request.getFrameSampleRate() > 0 ? request.getFrameSampleRate() : 1);
+                        request.getFrameSampleRate() > 0 ? request.getFrameSampleRate() : 1));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();
@@ -423,7 +488,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             MultimodalResult analysis;
             try (Scope ignored = trace.makeCurrent()) {
-                analysis = engine.analyse(engineRequest);
+                analysis = executeCanonical(request.getOperationBinding(), OP_DESCRIBE,
+                        () -> engine.analyse(engineRequest));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();
@@ -520,7 +586,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             MultimodalResult result;
             try (Scope ignored = trace.makeCurrent()) {
-                result = engine.analyse(engineRequest);
+                result = executeCanonical(request.getOperationBinding(), OP_CROSS_MODAL,
+                        () -> engine.analyse(engineRequest));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();
@@ -778,10 +845,17 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                 && value.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*");
     }
 
-    private static boolean canonicalOperationExecutionAvailable() {
+    private boolean canonicalOperationExecutionAvailable() {
         // The additive request binding is now validated, but Media has no admitted per-operation
-        // job/attempt/result executor here. Keep dispatch closed until that durable owner path exists.
-        return false;
+        // job/attempt/result executor here. Production constructors leave this null; only tests
+        // may inject a fixture executor to exercise the transport and tracing paths.
+        return canonicalOperationExecutor != null;
+    }
+
+    private <T> T executeCanonical(CanonicalOperationBinding binding, String operationRef,
+                                   Callable<T> action) throws Exception {
+        if (canonicalOperationExecutor == null) throw multimodalFamilyNotAdmitted();
+        return canonicalOperationExecutor.execute(binding, operationRef, action);
     }
 
     private static RuntimeException multimodalFamilyNotAdmitted() {

@@ -37,7 +37,7 @@ classifications:
     migration: retain current runtime behavior until the public DI client is published and consumer-verified; then migrate and requalify
   - id: media.ocr.kernel-adapter
     target: INCORRECT_IMPLEMENTATION
-    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java
+    source: adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java
     classification: INCORRECT_IMPLEMENTATION
     semanticAuthority: false
     allowedUse: preserve existing adapter behavior pending a published DI client; do not admit as generic OCR ownership

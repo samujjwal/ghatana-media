@@ -2,6 +2,7 @@ package com.ghatana.stt.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.config.SttConfig;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.stt.core.grpc.proto.AdaptRequest;
 import com.ghatana.stt.core.grpc.proto.AdaptResponse;
 import com.ghatana.stt.core.grpc.proto.CorrectionRequest;
@@ -44,6 +45,7 @@ import java.util.Objects;
 public final class ProductionSttGrpcService extends SttGrpcService implements AutoCloseable {
 
     private final AudioVideoLibrary ownedLibrary;
+    private final MediaProcessingRuntimePort mediaRuntimePort;
 
     enum ProviderMode {
         GRPC,
@@ -64,7 +66,14 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
             String reason) {}
 
     public ProductionSttGrpcService(MeterRegistry metrics) {
-        this(createInitializedLibrary(System.getenv()), metrics, SttRequestAuthorization.unavailable());
+        this(metrics, null);
+    }
+
+    /** Runtime integration seam; current STT RPCs remain not admitted without versioned rights inputs. */
+    public ProductionSttGrpcService(MeterRegistry metrics, MediaProcessingRuntimePort mediaRuntimePort) {
+        this(createInitializedLibrary(System.getenv()), metrics,
+                io.opentelemetry.api.GlobalOpenTelemetry.getTracer("ghatana-media-stt"),
+                SttRequestAuthorization.unavailable(), mediaRuntimePort);
     }
 
     ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
@@ -73,15 +82,23 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
 
     ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics,
             SttRequestAuthorization requestAuthorization) {
-        super(library, metrics, io.opentelemetry.api.GlobalOpenTelemetry.getTracer("ghatana-media-stt"),
-                requestAuthorization);
-        this.ownedLibrary = Objects.requireNonNull(library, "library");
+        this(library, metrics, io.opentelemetry.api.GlobalOpenTelemetry.getTracer("ghatana-media-stt"),
+                requestAuthorization, null);
     }
 
     ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, Tracer tracer) {
-        super(library, metrics, tracer, SttRequestAuthorization.unavailable());
-        this.ownedLibrary = Objects.requireNonNull(library, "library");
+        this(library, metrics, tracer, SttRequestAuthorization.unavailable(), null);
     }
+
+    ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, Tracer tracer,
+                             SttRequestAuthorization requestAuthorization,
+                             MediaProcessingRuntimePort mediaRuntimePort) {
+        super(library, metrics, tracer, requestAuthorization);
+        this.ownedLibrary = Objects.requireNonNull(library, "library");
+        this.mediaRuntimePort = mediaRuntimePort;
+    }
+
+    MediaProcessingRuntimePort mediaRuntimePort() { return mediaRuntimePort; }
 
     @Override
     protected boolean isProviderReady() {

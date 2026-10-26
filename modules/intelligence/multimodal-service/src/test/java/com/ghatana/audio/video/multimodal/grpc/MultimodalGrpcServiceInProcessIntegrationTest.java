@@ -6,6 +6,7 @@ import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
 import com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapter;
 
+import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalRequest;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceGrpc;
 import com.google.protobuf.ByteString;

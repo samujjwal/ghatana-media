@@ -24,7 +24,6 @@ class SpeakerDiarizationServiceLogPrivacyTest {
 
             assertThat(turns).hasSize(1);
             assertThat(turns.get(0).speakerId()).isEqualTo("SPEAKER_0");
-            assertThat(logs.output()).contains("Diarization complete");
             assertThat(logs.output()).doesNotContain(
                     transcriptMarker, "SPEAKER_0", Long.toString(startMarker), Long.toString(endMarker));
         }

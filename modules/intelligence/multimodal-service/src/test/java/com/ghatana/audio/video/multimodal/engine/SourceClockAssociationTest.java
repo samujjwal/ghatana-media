@@ -17,7 +17,7 @@ class SourceClockAssociationTest {
                 new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0",
                         1, 16_000, 0, 1, 2),
                 new SourceClockAssociation.StreamClock("video-0", "video-clock-0",
-                        1, 90_000, 62_500, 1, 2),
+                        1, 90_000, 62_500_000, 1, 2),
                 SourceClockAssociation.MappingProvenance.TRUSTED_CONTAINER_EDIT_METADATA,
                 2_000_000L);
 
@@ -28,10 +28,10 @@ class SourceClockAssociationTest {
         assertThat(result.audioSourceTime().sharesClock(result.videoSourceTime())).isTrue();
         assertThat(result.audioSourceTime().domain())
                 .isEqualTo(MediaClockTimestamp.ClockDomain.SOURCE);
-        assertThat(result.audioSourceTime().ticks()).isEqualTo(1_000_000_000L);
-        assertThat(result.videoSourceTime().ticks()).isEqualTo(1_062_500_000L);
-        assertThat(result.audioSourceTime().timeBaseDenominator()).isEqualTo(1_000_000_000L);
-        assertThat(result.videoSourceTime().timeBaseDenominator()).isEqualTo(1_000_000_000L);
+        assertThat(asNanos(result.audioSourceTime())).isEqualTo(new SourceClockAssociation.RationalNanos(
+                BigInteger.valueOf(1_000_000_000L), BigInteger.ONE));
+        assertThat(asNanos(result.videoSourceTime())).isEqualTo(new SourceClockAssociation.RationalNanos(
+                BigInteger.valueOf(1_062_500_000L), BigInteger.ONE));
         assertThat(result.audioMinusVideoNanos()).isEqualTo(new SourceClockAssociation.RationalNanos(
                 BigInteger.valueOf(-62_500_000L), BigInteger.ONE));
         assertThat(result.uncertaintyNanos()).isEqualTo(2_000_000L);
@@ -53,8 +53,8 @@ class SourceClockAssociationTest {
 
         assertThat(result.status()).isEqualTo(SourceClockAssociation.AssociationStatus.TIMESTAMP_ALIGNED);
         assertThat(result.audioSourceTime().isKnown()).isTrue();
-        assertThat(result.audioSourceTime().ticks()).isEqualTo(1_000_000_000L);
-        assertThat(result.audioSourceTime().timeBaseDenominator()).isEqualTo(999_999_929_000_000_000L);
+        assertThat(asNanos(result.audioSourceTime())).isEqualTo(new SourceClockAssociation.RationalNanos(
+                BigInteger.valueOf(1_000_000_000L), BigInteger.valueOf(999_999_929L)));
     }
 
     @Test
@@ -88,6 +88,42 @@ class SourceClockAssociationTest {
     }
 
     @Test
+    void rejectsMalformedRequestsAndReturnsUnknownWhenMappedTimestampOverflows() {
+        var association = mappedFixture();
+
+        var invalidSample = association.associateAudioSampleWithVideoPts(
+                "artifact-1", "version-7", 2, -1, 0);
+        assertThat(invalidSample.status()).isEqualTo(SourceClockAssociation.AssociationStatus.SYNC_UNDETERMINED);
+        assertThat(invalidSample.reason()).isEqualTo("AUDIO_SAMPLE_INDEX_INVALID");
+        assertThat(invalidSample.audioSourceTime()).isNull();
+
+        var overflowing = new SourceClockAssociation("artifact-1", "version-7",
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0",
+                        1_000_000_000L, 1, 0, 1, 2),
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0",
+                        1, 90_000, 0, 1, 2),
+                SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0)
+                .associateAudioSampleWithVideoPts("artifact-1", "version-7", 2,
+                        Long.MAX_VALUE, 0);
+        assertThat(overflowing.status()).isEqualTo(SourceClockAssociation.AssociationStatus.SYNC_UNDETERMINED);
+        assertThat(overflowing.reason()).isEqualTo("MAPPED_TIMESTAMP_OUT_OF_RANGE");
+        assertThat(overflowing.audioMinusVideoNanos()).isNull();
+    }
+
+    @Test
+    void unavailableMappingIsReportedForMissingArtifactOrVersionIdentity() {
+        var association = mappedFixture();
+
+        var missingArtifact = association.associateAudioSampleWithVideoPts(null, "version-7", 2, 0, 0);
+        var missingVersion = association.associateAudioSampleWithVideoPts("artifact-1", "", 2, 0, 0);
+
+        assertThat(missingArtifact.status()).isEqualTo(SourceClockAssociation.AssociationStatus.SYNC_UNDETERMINED);
+        assertThat(missingArtifact.reason()).isEqualTo("SOURCE_ARTIFACT_VERSION_MISMATCH");
+        assertThat(missingVersion.status()).isEqualTo(SourceClockAssociation.AssociationStatus.SYNC_UNDETERMINED);
+        assertThat(missingVersion.reason()).isEqualTo("SOURCE_ARTIFACT_VERSION_MISMATCH");
+    }
+
+    @Test
     void rejectsInvalidRationalClockAndUncertainty() {
         assertThatThrownBy(() -> new SourceClockAssociation.StreamClock(
                 "audio-0", "audio-clock-0", 0, 16_000, 0, 1, 0))
@@ -115,5 +151,13 @@ class SourceClockAssociationTest {
                 new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", 1, 16_000, 0, 1, 2),
                 new SourceClockAssociation.StreamClock("video-0", "video-clock-0", 1, 90_000, 0, 1, 2),
                 SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0);
+    }
+
+    private static SourceClockAssociation.RationalNanos asNanos(MediaClockTimestamp timestamp) {
+        return new SourceClockAssociation.RationalNanos(
+                BigInteger.valueOf(timestamp.ticks())
+                        .multiply(BigInteger.valueOf(timestamp.timeBaseNumerator()))
+                        .multiply(BigInteger.valueOf(1_000_000_000L)),
+                BigInteger.valueOf(timestamp.timeBaseDenominator()));
     }
 }

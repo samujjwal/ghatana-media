@@ -3,12 +3,14 @@
 # migrated Media Gradle build; update this file as Media build metadata.
 
 [versions]
-java = "21"
+java = "27"
 archunit = "1.5.0"
 activej = "6.0-rc2"
 assertj = "3.27.7"
+asm = "9.10.1"
 aws-sdk = "2.54.1"
 caffeine = "3.2.4"
+checkstyle = "10.26.1"
 flyway = "13.3.0"
 grpc = "1.83.1"
 h2 = "2.3.232"
@@ -34,6 +36,7 @@ nimbus-jose-jwt = "10.9.1"
 onnx-runtime = "1.29.0"
 opencv = "4.9.0-0"
 opentelemetry = "1.65.0"
+pmd = "7.13.0"
 postgresql = "42.7.13"
 protobuf = "4.36.0"
 rabbitmq = "5.18.0"

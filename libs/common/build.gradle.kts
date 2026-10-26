@@ -9,19 +9,15 @@ description = "Audio-Video Common Library - Shared security, observability, and 
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get().toInt())
     }
 }
 
 dependencies {
     val sharedVersion = providers.gradleProperty("ghatana.shared.version").get()
-    val toolsVersion = providers.gradleProperty("ghatana.tools.version").get()
 
     // Media processing errors and validation — from libs/java/common
     api(project(":services:media:libs:java:common"))
-
-    // Tool handler SPI — owned and published by ghatana-tools.
-    api("com.ghatana.platform:tool-runtime:$toolsVersion")
 
     // gRPC interceptor API
     api(libs.grpc.stub)
@@ -50,7 +46,6 @@ dependencies {
     testImplementation(libs.opentelemetry.sdk)
     testImplementation(libs.opentelemetry.sdk.testing)
     testImplementation(libs.log4j.core)
-    testImplementation("com.ghatana.platform:tool-test-support:$toolsVersion")
     testRuntimeOnly(libs.log4j.slf4j.impl)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testRuntimeOnly(libs.junit.platform.launcher)

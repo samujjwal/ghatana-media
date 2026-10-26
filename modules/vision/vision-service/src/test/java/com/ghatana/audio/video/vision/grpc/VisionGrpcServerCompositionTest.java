@@ -6,6 +6,7 @@ import com.ghatana.audio.video.common.observability.MetricsServerInterceptor;
 import com.ghatana.audio.video.vision.model.VisionModelProfile;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audio.video.vision.yolo.YoloV8Adapter;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.audio.video.vision.grpc.proto.DetectRequest;
 import com.ghatana.audio.video.vision.grpc.proto.VisionServiceGrpc;
 import com.google.protobuf.ByteString;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class VisionGrpcServerCompositionTest {
     private String previousSecret;
@@ -52,12 +54,14 @@ class VisionGrpcServerCompositionTest {
     void productionRootStartsNotServingAndRecordsBoundedHealthRpcThenDrains() throws Exception {
         var metrics = new SimpleMeterRegistry();
         YoloV8Adapter detector = mock(YoloV8Adapter.class);
+        MediaProcessingRuntimePort mediaRuntimePort = mock(MediaProcessingRuntimePort.class);
         when(detector.isInitialized()).thenReturn(false);
         var profile = new VisionModelProfile("fixture", "test", Path.of("/unused"), Path.of("/unused/model.onnx"),
                 "a".repeat(64), "test-only", List.of("object"), VisionModelProfile.Device.CPU, 1L);
         var service = new ProductionVisionGrpcService(
                 new ProductionVisionGrpcService.Composition(detector, new VideoFrameExtractor(), profile),
-                MediaProcessingMetrics.create(), metrics);
+                MediaProcessingMetrics.create(), metrics, mediaRuntimePort);
+        assertThat(service.mediaRuntimePort()).isSameAs(mediaRuntimePort);
         var readiness = VisionGrpcServer.createReadinessLifecycle(metrics, service::isProviderReady);
         service.setReadinessProbe(readiness::isServing);
         int port = freePort();
@@ -87,6 +91,7 @@ class VisionGrpcServerCompositionTest {
                     .hasMessageContaining("PROVIDER_NOT_ADMITTED");
             verify(detector, never()).detectObjects(org.mockito.ArgumentMatchers.any(byte[].class),
                     org.mockito.ArgumentMatchers.any());
+            verifyNoInteractions(mediaRuntimePort);
             assertThat(handledCount(MetricsServerInterceptor.getInstance().scrape(), method, "UNAVAILABLE"))
                     .isEqualTo(before + 1);
         } finally {

@@ -544,8 +544,22 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .build();
 
             Path framesDir = tempDir.resolve("frames");
-            List<VideoFrameExtractor.ExtractedFrame> frames =
-                frameExtractor.extractFrames(videoFile, framesDir, extractConfig);
+            List<VideoFrameExtractor.ExtractedFrame> frames;
+            MediaWorkflowMetrics.ModalityTimingSample decodeSample = modalityMetrics.startModalityTimer(
+                    MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.DECODE);
+            MediaWorkflowMetrics.Outcome decodeOutcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+            try {
+                frames = frameExtractor.extractFrames(videoFile, framesDir, extractConfig);
+                decodeOutcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+            } catch (IOException | IllegalArgumentException rejectedInput) {
+                decodeOutcome = MediaWorkflowMetrics.Outcome.FAILURE;
+                throw rejectedInput;
+            } catch (RuntimeException uncertainDecoderFailure) {
+                decodeOutcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+                throw uncertainDecoderFailure;
+            } finally {
+                modalityMetrics.stopModalityTimer(decodeSample, decodeOutcome);
+            }
 
             LOG.info("Extracted {} frames for analysis", frames.size());
 

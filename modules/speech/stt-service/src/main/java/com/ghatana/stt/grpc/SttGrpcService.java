@@ -153,8 +153,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                         }
                     }
 
-                AudioData audio = SttAudioInputDecoder.decode(
-                        audioBytes, null, sampleRate, maxAudioLengthSeconds);
+                AudioData audio = decodeAudio(audioBytes, sampleRate);
 
                 TranscriptionResult result;
                 try (SttEngine stt = library.getSttEngine()) {
@@ -259,6 +258,31 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                 && serverObserver.isCancelled();
     }
 
+    private AudioData decodeAudio(byte[] input, int sampleRate) {
+        return measureDecode(() -> SttAudioInputDecoder.decode(
+                input, null, sampleRate, maxAudioLengthSeconds));
+    }
+
+    AudioData measureDecode(java.util.function.Supplier<AudioData> decoder) {
+        Objects.requireNonNull(decoder, "decoder");
+        try (AudioVideoGrpcInstrumentation.BoundaryMeasurement measurement =
+                     boundaryInstrumentation.beginBoundaryMeasurement(
+                             MediaWorkflowMetrics.Modality.STT,
+                             MediaWorkflowMetrics.Boundary.DECODE)) {
+            try {
+                AudioData result = decoder.get();
+                measurement.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                return result;
+            } catch (IllegalArgumentException rejectedInput) {
+                measurement.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                throw rejectedInput;
+            } catch (RuntimeException uncertainDecoderFailure) {
+                measurement.complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                throw uncertainDecoderFailure;
+            }
+        }
+    }
+
     @Override
     public StreamObserver<AudioChunk> streamTranscribe(StreamObserver<Transcription> responseObserver) {
         if (!requireAuthenticatedTenantPrincipal(responseObserver)) return noOpAudioObserver();
@@ -276,12 +300,22 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
         // No durable session store/provider session is wired to this service. Do not accept chunks
         // or imply ACK, reconnect, resume, or cancellation finality without that authority.
         try {
-            responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
-                    .withDescription("STT_STREAM_SESSION_NOT_ADMITTED: durable session store, ACK/resume epoch, and provider session are unavailable")
-                    .asRuntimeException());
+            if (isCancelled(responseObserver)) return noOpAudioObserver();
+            try {
+                responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                        .withDescription("STT_STREAM_SESSION_NOT_ADMITTED: durable session store, ACK/resume epoch, and provider session are unavailable")
+                        .asRuntimeException());
+            } catch (IllegalStateException cancelledCall) {
+                if (!isCancelled(responseObserver)) throw cancelledCall;
+            }
         } finally {
-            tracingService.recordError(span, new IllegalStateException("durable stream session unavailable"),
-                    java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos));
+            if (isCancelled(responseObserver)) {
+                span.setAttribute("media.outcome", "unknown");
+                span.end();
+            } else {
+                tracingService.recordError(span, new IllegalStateException("durable stream session unavailable"),
+                        java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos));
+            }
         }
         return noOpAudioObserver();
     }
