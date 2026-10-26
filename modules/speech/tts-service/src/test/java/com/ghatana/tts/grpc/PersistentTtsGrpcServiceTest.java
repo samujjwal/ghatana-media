@@ -274,6 +274,21 @@ class PersistentTtsGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("empty clone request stays NOT_ADMITTED even with authenticated tenant and principal")
+    void emptyCloneRequestDoesNotReachProviderOrStorage() {
+        CapturingObserver<CloneVoiceResponse> clone = new CapturingObserver<>();
+
+        withContext(TENANT_ID, USER_ID, () -> streamingService.cloneVoice(
+                CloneVoiceRequest.getDefaultInstance(), clone));
+
+        assertThat(statusCode(clone)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(description(clone)).contains("NOT_ADMITTED", "owner consent", "biometric purpose", "retention");
+        assertThat(clone.values).isEmpty();
+        assertThat(clone.completed).isFalse();
+        verifyNoInteractions(persistentTtsService, library, audioFileService, engine);
+    }
+
+    @Test
     @DisplayName("profile and clone payload claims never substitute for trusted tenant, owner, consent, or purpose authority")
     void profileAndCloneClaimsNeverDispatchAcrossAuthorityContexts() {
         List<String[]> contexts = List.of(

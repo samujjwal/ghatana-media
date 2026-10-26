@@ -7,13 +7,18 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.StandardCopyOption;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.util.Map;
 import java.util.HexFormat;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -48,7 +53,7 @@ class ProductionTtsGrpcServiceConfigTest {
 
     @Test
     void completeLocalProfileVerifiesDigestButIsNotProviderAdmission() throws Exception {
-        Path model = Files.createTempFile("tts-model", ".onnx");
+        Path model = createModelFile("tts-model");
         try {
             Files.writeString(model, "fixture model bytes");
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
@@ -69,16 +74,18 @@ class ProductionTtsGrpcServiceConfigTest {
     }
 
     @Test
-    void rejectsMissingAndMismatchedProviderMetadata() {
-        assertThatThrownBy(() -> ProductionTtsGrpcService.resolveProviderProfile(Map.of(
-                "TTS_PROVIDER_MODE", "LOCAL_ONNX")))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("TTS_MODEL_ID");
+    void incompleteProviderProfileRemainsNotAdmittedBeforeInitialization() {
+        Map<String, String> incomplete = Map.of("TTS_PROVIDER_MODE", "LOCAL_ONNX");
+        var profile = ProductionTtsGrpcService.resolveProviderProfile(incomplete);
+        assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+        assertThat(profile.reason()).contains("TTS_MODEL_ID", "TTS_MODEL_LICENSE", "TTS_MODEL_PATH");
+        assertRejectedBeforeInitialization(incomplete, IllegalStateException.class,
+                "TTS_PROVIDER_NOT_ADMITTED");
     }
 
     @Test
     void modelDigestMismatchFailsBeforeLibraryConstructionOrWarmup() throws Exception {
-        Path model = Files.createTempFile("tts-model-mismatch", ".onnx");
+        Path model = createModelFile("tts-model-mismatch");
         try {
             Files.writeString(model, "immutable fixture model bytes");
             Map<String, String> environment = localProfile(model, "0".repeat(64));
@@ -95,6 +102,91 @@ class ProductionTtsGrpcServiceConfigTest {
                 "missing-tts-model-" + java.util.UUID.randomUUID() + ".onnx");
         assertRejectedBeforeInitialization(localProfile(unavailable, "0".repeat(64)),
                 IllegalStateException.class, "TTS_PROVIDER_NOT_ADMITTED");
+    }
+
+    @Test
+    void rejectsModelPathWithSymlinkedParentBeforeLibraryConstructionOrWarmup() throws Exception {
+        Path root = Files.createTempDirectory(Path.of(".").toAbsolutePath().normalize(), "tts-model-link");
+        Path targetDirectory = Files.createDirectory(root.resolve("target"));
+        Path model = targetDirectory.resolve("model.onnx");
+        Path aliasDirectory = root.resolve("alias");
+        try {
+            Files.writeString(model, "model bytes behind a directory alias");
+            Files.createSymbolicLink(aliasDirectory, targetDirectory);
+            Path aliasedModel = aliasDirectory.resolve("model.onnx");
+            Map<String, String> environment = localProfile(aliasedModel, "0".repeat(64));
+
+            var profile = ProductionTtsGrpcService.resolveProviderProfile(environment);
+            assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+            assertThat(profile.reason()).contains("unavailable", "regular readable file");
+            assertRejectedBeforeInitialization(environment, IllegalStateException.class,
+                    "TTS_PROVIDER_NOT_ADMITTED");
+        } finally {
+            Files.deleteIfExists(aliasDirectory);
+            Files.deleteIfExists(model);
+            Files.deleteIfExists(targetDirectory);
+            Files.deleteIfExists(root);
+        }
+    }
+
+    @Test
+    void permitsOnlyCanonicalMacOsTmpSystemAlias() throws Exception {
+        Path tmpAlias = Path.of("/tmp");
+        assumeTrue(Files.isSymbolicLink(tmpAlias)
+                && tmpAlias.toRealPath().equals(Path.of("/private/tmp")));
+        Path model = Files.createTempFile(tmpAlias, "tts-model-canonical-tmp", ".onnx");
+        try {
+            Files.writeString(model, "model bytes through the canonical system alias");
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            var profile = ProductionTtsGrpcService.resolveProviderProfile(localProfile(model, digest));
+            assertThat(profile.modelId()).isEqualTo("fixture-model");
+            assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+        } finally {
+            Files.deleteIfExists(model);
+        }
+    }
+
+    @Test
+    void rejectsFileChangedDuringDigestBeforeLibraryConstructionOrWarmup() throws Exception {
+        Path model = createModelFile("tts-model-changing");
+        try {
+            Files.writeString(model, "stable model bytes before verification");
+            Map<String, String> environment = localProfile(model, "0".repeat(64));
+            assertRejectedBeforeInitialization(environment, IllegalArgumentException.class,
+                    "changed during digest verification", channel -> {
+                        try {
+                            Files.writeString(model, "changed model content", StandardOpenOption.WRITE,
+                                    StandardOpenOption.TRUNCATE_EXISTING);
+                        } catch (java.io.IOException exception) {
+                            throw new java.io.UncheckedIOException(exception);
+                        }
+                    });
+        } finally {
+            Files.deleteIfExists(model);
+        }
+    }
+
+    @Test
+    void rejectsFileReplacementDuringDigestBeforeLibraryConstructionOrWarmup() throws Exception {
+        Path model = createModelFile("tts-model-replaced");
+        Path replacement = model.resolveSibling(model.getFileName() + ".replacement");
+        try {
+            Files.writeString(model, "original model bytes for hashing");
+            Files.writeString(replacement, "replacement model bytes");
+            Map<String, String> environment = localProfile(model, "0".repeat(64));
+            assertRejectedBeforeInitialization(environment, IllegalArgumentException.class,
+                    "changed during digest verification", ignored -> {
+                        try {
+                            Files.move(replacement, model, StandardCopyOption.REPLACE_EXISTING);
+                        } catch (java.io.IOException exception) {
+                            throw new java.io.UncheckedIOException(exception);
+                        }
+                    });
+        } finally {
+            Files.deleteIfExists(replacement);
+            Files.deleteIfExists(model);
+        }
     }
 
     @Test
@@ -121,10 +213,22 @@ class ProductionTtsGrpcServiceConfigTest {
                 "TTS_MODEL_HARDWARE", "test-fixture-hardware-placeholder");
     }
 
+    private static Path createModelFile(String prefix) throws java.io.IOException {
+        return Files.createTempFile(Path.of(".").toAbsolutePath().normalize(), prefix, ".onnx");
+    }
+
     private static void assertRejectedBeforeInitialization(
             Map<String, String> environment,
             Class<? extends RuntimeException> expectedType,
             String reason) {
+        assertRejectedBeforeInitialization(environment, expectedType, reason, ignored -> {});
+    }
+
+    private static void assertRejectedBeforeInitialization(
+            Map<String, String> environment,
+            Class<? extends RuntimeException> expectedType,
+            String reason,
+            Consumer<FileChannel> beforeModelHash) {
         AtomicInteger factoryCalls = new AtomicInteger();
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         TtsEngine engine = mock(TtsEngine.class);
@@ -135,7 +239,8 @@ class ProductionTtsGrpcServiceConfigTest {
                 (TtsConfig ignored) -> {
                     factoryCalls.incrementAndGet();
                     return library;
-                }))
+                },
+                beforeModelHash))
                 .isInstanceOf(expectedType)
                 .hasMessageContaining(reason);
 

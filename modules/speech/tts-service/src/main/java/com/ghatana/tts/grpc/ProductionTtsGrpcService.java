@@ -6,12 +6,18 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 import java.nio.file.Path;
 import java.nio.file.Files;
-import java.io.InputStream;
+import java.nio.file.LinkOption;
+import java.nio.file.StandardOpenOption;
+import java.nio.channels.FileChannel;
+import java.nio.ByteBuffer;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -57,6 +63,12 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     }
 
     static TtsConfig createConfig(Map<String, String> environment) {
+        return createConfig(environment, ignored -> {});
+    }
+
+    private static TtsConfig createConfig(
+            Map<String, String> environment,
+            Consumer<FileChannel> beforeModelHash) {
         Objects.requireNonNull(environment, "environment");
         boolean allowSyntheticFallback = parseBoolean(
                 environment,
@@ -66,7 +78,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             throw new IllegalStateException(
                     "Synthetic TTS fallback is forbidden by the provider profile");
         }
-        ProviderProfile provider = resolveProviderProfile(environment);
+        ProviderProfile provider = resolveProviderProfile(environment, beforeModelHash);
         if (!"ADMITTED".equals(provider.status())) {
             throw new IllegalStateException("TTS_PROVIDER_NOT_ADMITTED: " + provider.reason());
         }
@@ -135,25 +147,43 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     }
 
     static ProviderProfile resolveProviderProfile(Map<String, String> environment) {
+        return resolveProviderProfile(environment, ignored -> {});
+    }
+
+    private static ProviderProfile resolveProviderProfile(
+            Map<String, String> environment,
+            Consumer<FileChannel> beforeModelHash) {
         String mode = environment.getOrDefault("TTS_PROVIDER_MODE", "").trim();
         if (!mode.equals("LOCAL_ONNX")) {
             return notAdmitted("TTS_PROVIDER_MODE must explicitly select an admitted LOCAL_ONNX provider");
         }
-        String modelId = required(environment, "TTS_MODEL_ID");
-        String version = required(environment, "TTS_MODEL_VERSION");
-        String digest = required(environment, "TTS_MODEL_SHA256").toLowerCase(java.util.Locale.ROOT);
-        String license = required(environment, "TTS_MODEL_LICENSE");
-        String language = required(environment, "TTS_MODEL_LANGUAGE");
-        String region = required(environment, "TTS_MODEL_REGION");
-        String retention = required(environment, "TTS_MODEL_RETENTION");
-        String hardware = required(environment, "TTS_MODEL_HARDWARE");
-        String rawPath = required(environment, "TTS_MODEL_PATH");
+        List<String> missing = List.of("TTS_MODEL_ID", "TTS_MODEL_VERSION", "TTS_MODEL_SHA256",
+                        "TTS_MODEL_LICENSE", "TTS_MODEL_LANGUAGE", "TTS_MODEL_REGION",
+                        "TTS_MODEL_RETENTION", "TTS_MODEL_HARDWARE", "TTS_MODEL_PATH")
+                .stream()
+                .filter(name -> environment.get(name) == null || environment.get(name).isBlank())
+                .toList();
+        if (!missing.isEmpty()) {
+            return notAdmitted("TTS provider profile is incomplete; missing " + String.join(", ", missing));
+        }
+        String modelId = environment.get("TTS_MODEL_ID").trim();
+        String version = environment.get("TTS_MODEL_VERSION").trim();
+        String digest = environment.get("TTS_MODEL_SHA256").trim().toLowerCase(java.util.Locale.ROOT);
+        String license = environment.get("TTS_MODEL_LICENSE").trim();
+        String language = environment.get("TTS_MODEL_LANGUAGE").trim();
+        String region = environment.get("TTS_MODEL_REGION").trim();
+        String retention = environment.get("TTS_MODEL_RETENTION").trim();
+        String hardware = environment.get("TTS_MODEL_HARDWARE").trim();
+        String rawPath = environment.get("TTS_MODEL_PATH").trim();
         if (!digest.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("TTS_MODEL_SHA256 must be a SHA-256 digest");
         Path path = Path.of(rawPath);
-        if (!Files.isRegularFile(path) || !Files.isReadable(path) || Files.isSymbolicLink(path)) {
+        if (containsSymbolicLink(path) || !Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)
+                || !Files.isReadable(path)) {
             return notAdmitted("Configured model file is unavailable or not a regular readable file");
         }
-        if (!digest.equals(fileDigest(path))) throw new IllegalArgumentException("TTS model digest does not match TTS_MODEL_SHA256");
+        if (!digest.equals(fileDigest(path, beforeModelHash))) {
+            throw new IllegalArgumentException("TTS model digest does not match TTS_MODEL_SHA256");
+        }
         return new ProviderProfile(modelId, version, digest, license, language, region, retention, hardware,
                 "NOT_ADMITTED", "Local TTS model metadata is configured, but license, voice rights, hardware and quality are not source-admitted; readiness is false");
     }
@@ -162,20 +192,94 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         return new ProviderProfile(null, null, null, null, null, null, null, null, "NOT_ADMITTED", reason);
     }
 
-    private static String required(Map<String, String> environment, String name) {
-        String value = environment.get(name);
-        if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " is required");
-        return value.trim();
-    }
-
-    private static String fileDigest(Path path) {
-        try (InputStream input = Files.newInputStream(path)) {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] buffer = new byte[16_384];
-            for (int count; (count = input.read(buffer)) >= 0;) if (count > 0) digest.update(buffer, 0, count);
-            return HexFormat.of().formatHex(digest.digest());
+    private static String fileDigest(Path path, Consumer<FileChannel> beforeHash) {
+        Path absolute = path.toAbsolutePath().normalize();
+        try {
+            if (containsSymbolicLink(absolute)) {
+                throw new IllegalArgumentException("Configured model path contains a symbolic link");
+            }
+            BasicFileAttributes before = readModelAttributes(absolute);
+            if (!before.isRegularFile() || before.fileKey() == null) {
+                throw new IllegalArgumentException("Configured model file identity is unavailable");
+            }
+            try (FileChannel channel = FileChannel.open(
+                    absolute, Set.of(StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS))) {
+                BasicFileAttributes opened = readModelAttributes(absolute);
+                requireStableModelFile(before, opened, channel.size());
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                beforeHash.accept(channel);
+                channel.position(0);
+                ByteBuffer buffer = ByteBuffer.allocate(16_384);
+                while (channel.read(buffer) >= 0) {
+                    buffer.flip();
+                    if (buffer.hasRemaining()) digest.update(buffer);
+                    buffer.clear();
+                }
+                BasicFileAttributes after = readModelAttributes(absolute);
+                requireStableModelFile(before, after, channel.size());
+                if (containsSymbolicLink(absolute)) {
+                    throw new IllegalArgumentException("Configured model path changed to a symbolic link during verification");
+                }
+                return HexFormat.of().formatHex(digest.digest());
+            }
+        } catch (IllegalArgumentException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new IllegalArgumentException("Unable to verify configured TTS model digest", exception);
+        }
+    }
+
+    private static BasicFileAttributes readModelAttributes(Path path) throws java.io.IOException {
+        return Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+    }
+
+    private static void requireStableModelFile(
+            BasicFileAttributes before,
+            BasicFileAttributes after,
+            long openedChannelSize) {
+        if (!after.isRegularFile()
+                || !Objects.equals(before.fileKey(), after.fileKey())
+                || before.size() != after.size()
+                || before.size() != openedChannelSize
+                || !before.lastModifiedTime().equals(after.lastModifiedTime())) {
+            throw new IllegalArgumentException("Configured TTS model file changed during digest verification");
+        }
+    }
+
+    private static boolean containsSymbolicLink(Path path) {
+        Path absolute = path.toAbsolutePath().normalize();
+        Path current = absolute.getRoot();
+        for (Path component : absolute) {
+            current = current == null ? component : current.resolve(component);
+            if (Files.isSymbolicLink(current) && !isCanonicalMacOsTmpAlias(current)) return true;
+        }
+        return false;
+    }
+
+    private static boolean isCanonicalMacOsTmpAlias(Path path) {
+        if (!path.equals(Path.of("/tmp"))) return false;
+        try {
+            return Files.isSymbolicLink(path) && path.toRealPath().equals(Path.of("/private/tmp"));
+        } catch (java.io.IOException unavailable) {
+            return false;
+        }
+    }
+
+    static AudioVideoLibrary createInitializedLibrary(
+            Map<String, String> environment,
+            Function<TtsConfig, AudioVideoLibrary> libraryFactory,
+            Consumer<FileChannel> beforeModelHash) {
+        Objects.requireNonNull(environment, "environment");
+        Objects.requireNonNull(libraryFactory, "libraryFactory");
+        TtsConfig config = createConfig(environment, beforeModelHash);
+        AudioVideoLibrary library = Objects.requireNonNull(
+                libraryFactory.apply(config), "libraryFactory returned null");
+        try {
+            library.getTtsEngine().warmup();
+            return library;
+        } catch (RuntimeException exception) {
+            library.close();
+            throw exception;
         }
     }
 
@@ -188,19 +292,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     static AudioVideoLibrary createInitializedLibrary(
             Map<String, String> environment,
             Function<TtsConfig, AudioVideoLibrary> libraryFactory) {
-        Objects.requireNonNull(environment, "environment");
-        Objects.requireNonNull(libraryFactory, "libraryFactory");
-        // Resolve provider admission before creating a library or model-backed engine.
-        TtsConfig config = createConfig(environment);
-        AudioVideoLibrary library = Objects.requireNonNull(
-                libraryFactory.apply(config), "libraryFactory returned null");
-        try {
-            library.getTtsEngine().warmup();
-            return library;
-        } catch (RuntimeException exception) {
-            library.close();
-            throw exception;
-        }
+        return createInitializedLibrary(environment, libraryFactory, ignored -> {});
     }
 
     @Override
