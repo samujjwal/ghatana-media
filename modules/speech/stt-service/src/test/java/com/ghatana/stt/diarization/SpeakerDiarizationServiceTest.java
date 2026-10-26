@@ -152,6 +152,25 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("inconsistent provider embedding dimensions fail with typed provider error")
+        void inconsistentEmbeddingDimensionsFailBeforeReturningTurns() {
+            var extractionCount = new java.util.concurrent.atomic.AtomicInteger();
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> extractionCount.getAndIncrement() == 0
+                            ? new float[] {1.0f, 0.0f}
+                            : new float[] {1.0f})
+                    .admission(() -> true) // test fixture; no production rights authority is wired
+                    .build();
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(List.of(
+                            new SpeakerDiarizationService.AudioSegment(new byte[] {1}, 0, 100, "first"),
+                            new SpeakerDiarizationService.AudioSegment(new byte[] {2}, 100, 200, "second"))))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_PROVIDER_INVALID:");
+            org.assertj.core.api.Assertions.assertThat(extractionCount).hasValue(2);
+        }
+
+        @Test
         @DisplayName("out-of-order source segments fail before embedding extraction")
         void outOfOrderSegmentsFailBeforeProvider() {
             var providerCalls = new java.util.concurrent.atomic.AtomicInteger();

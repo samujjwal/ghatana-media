@@ -1735,3 +1735,9 @@ This pulse records a fresh macOS/aarch64 execution cut at `f203bbc0` using Temur
 - A bounded production-source scan of the selected Wave 2 paths found host-specific behavior only at OS edges: `VideoFrameExtractor` invokes FFmpeg directly without a shell, model defaults use the user home, TTS recognizes macOS's canonical `/tmp` symlink, and native resource collection selects host-specific measurement tools. These do not alter modality request, authorization, data, state, finality, or error semantics. Continue to keep OS differences inside process, path, device, and resource adapters.
 
 No new code changes or task-status promotions resulted from this verification pulse. Existing fixtures and fail-closed paths prove their local behavior only. Canonical status remains **58 = 22 LOCALLY_VERIFIED + 30 PARTIAL + 6 EXTERNAL/OWNER + 0 SOURCE_CONFLICT**; the 36 R5 owner IDs remain pending whole-row acceptance. Real model/provider quality, rights/consent authority, Data Cloud API, named-host resource qualification, formal PDP status, lifecycle closure, data cutover, deployment, and release remain unproven.
+
+### STT-07 implementation increment — 2026-10-26
+
+- `SpeakerDiarizationService` now requires every embedding returned during one request to keep the same vector dimension. A provider dimension change is rejected as typed `STT_DIARIZATION_PROVIDER_INVALID` before centroid assignment; the service returns no partial turn list. Added an adversarial two-segment regression test.
+- Focused macOS/JDK 27 `SpeakerDiarizationServiceTest` — **21/21 passed**, including the new provider-dimension-drift case; `git diff --check` — **PASS**.
+- This protects the anonymous diarization provider boundary only. It does not enable speaker identity/biometric processing, establish production rights, or provide licensed DER quality evidence. **STT-07 remains PARTIAL** and no task row is promoted.

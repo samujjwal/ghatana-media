@@ -102,6 +102,7 @@ public final class SpeakerDiarizationService {
 
         List<SpeakerTurn> result = new ArrayList<>(segments.size());
         List<float[]> centroids = new ArrayList<>(); // per-speaker centroid embeddings
+        int embeddingDimensions = -1;
 
         for (AudioSegment segment : segments) {
             // Admission can change while a batch is being processed. Re-check immediately
@@ -110,6 +111,12 @@ public final class SpeakerDiarizationService {
             requireAdmission();
             float[] embedding = extractor.extract(segment.audioBytes());
             validateEmbedding(embedding);
+            if (embeddingDimensions < 0) {
+                embeddingDimensions = embedding.length;
+            } else if (embedding.length != embeddingDimensions) {
+                throw new DiarizationException(
+                        "STT_DIARIZATION_PROVIDER_INVALID: embedding dimensions changed within the request");
+            }
             String speakerId = assignSpeaker(embedding, centroids);
 
             result.add(new SpeakerTurn(speakerId, segment.startMs(), segment.endMs(), segment.text()));
