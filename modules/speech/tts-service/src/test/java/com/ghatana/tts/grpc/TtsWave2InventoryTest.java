@@ -74,7 +74,7 @@ class TtsWave2InventoryTest {
         String grpc = read("src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java");
         assertThat(grpc).contains("requireAdmittedStreamingProvider();")
                 .contains("private void requireAdmittedStreamingProvider()")
-                .contains("if (streamingAdmitted.getAsBoolean()) return;")
+                .contains("if (streamingAdmitted.getAsBoolean()) {")
                 .contains("TTS streaming is NOT_ADMITTED: no provider has verified mono PCM S16LE framing");
         assertThat(grpc).contains("this(library, metrics, () -> false, () -> false);");
         assertThat(read("src/main/java/com/ghatana/tts/grpc/ProductionTtsGrpcService.java"))

@@ -69,7 +69,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final MediaProcessingRuntimePort mediaRuntimePort;
     private final CanonicalOperationExecutor canonicalOperationExecutor;
     private final AudioVideoTracingService tracingService;
-    private final MediaWorkflowMetrics responseMetrics = new MediaWorkflowMetrics(
+    private final MediaWorkflowMetrics workflowMetrics = new MediaWorkflowMetrics(
             io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal");
     private volatile BooleanSupplier readinessProbe = () -> false;
 
@@ -893,23 +893,40 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private RuntimeException authorizationFailure(Identity identity, CanonicalOperationBinding binding,
                                                   Set<SourceAuthorization.Modality> modalities, long contentBytes,
                                                   String contentSha256) {
-        SourceAuthorization.AuthorizationRequest authorizationRequest =
-                new SourceAuthorization.AuthorizationRequest(identity.tenantId(), identity.principalId(),
-                        modalities, binding.getCapabilityRef(), binding.getOperationRef(),
-                        binding.getOperationVersion(), binding.getRequestId(), binding.getSourceArtifactId(),
-                        binding.getSourceVersionId(), binding.getPurpose(), binding.getCorrelationId(),
-                        binding.getDimensionsList(), null, contentBytes, contentSha256);
+        MediaWorkflowMetrics.ModalityTimingSample admissionBoundary = workflowMetrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.MULTIMODAL, MediaWorkflowMetrics.Boundary.ADMISSION);
+        MediaWorkflowMetrics.Outcome admissionOutcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
         try {
-            SourceAuthorization.Decision decision = sourceAuthorization.authorize(authorizationRequest);
-            if (decision == SourceAuthorization.Decision.ADMITTED) return null;
+            SourceAuthorization.AuthorizationRequest authorizationRequest =
+                    new SourceAuthorization.AuthorizationRequest(identity.tenantId(), identity.principalId(),
+                            modalities, binding.getCapabilityRef(), binding.getOperationRef(),
+                            binding.getOperationVersion(), binding.getRequestId(), binding.getSourceArtifactId(),
+                            binding.getSourceVersionId(), binding.getPurpose(), binding.getCorrelationId(),
+                            binding.getDimensionsList(), null, contentBytes, contentSha256);
+            SourceAuthorization.Decision decision;
+            try {
+                decision = sourceAuthorization.authorize(authorizationRequest);
+            } catch (RuntimeException unavailable) {
+                admissionOutcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+                return authorityUnavailable();
+            }
+            if (decision == SourceAuthorization.Decision.ADMITTED) {
+                admissionOutcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+                return null;
+            }
+            if (decision == null) {
+                admissionOutcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+                return authorityUnavailable();
+            }
+            admissionOutcome = MediaWorkflowMetrics.Outcome.FAILURE;
             if (decision == SourceAuthorization.Decision.DENIED) {
                 return Status.PERMISSION_DENIED
                         .withDescription("Source authorization denied this multimodal operation")
                         .asRuntimeException();
             }
             return authorityUnavailable();
-        } catch (RuntimeException unavailable) {
-            return authorityUnavailable();
+        } finally {
+            workflowMetrics.stopModalityTimer(admissionBoundary, admissionOutcome);
         }
     }
 
@@ -1050,7 +1067,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         /** Serialize final delivery, success span closure, and success metrics with cancellation. */
         private boolean completeResponse(T value, Runnable recordSuccess) {
             synchronized (callbackLock) {
-                MediaWorkflowMetrics.ModalityTimingSample responseBoundary = responseMetrics.startModalityTimer(
+                MediaWorkflowMetrics.ModalityTimingSample responseBoundary = workflowMetrics.startModalityTimer(
                         MediaWorkflowMetrics.Modality.MULTIMODAL, MediaWorkflowMetrics.Boundary.RESPONSE);
                 MediaWorkflowMetrics.Outcome responseOutcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
                 try {
@@ -1098,7 +1115,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                         return true;
                     }
                 } finally {
-                    responseMetrics.stopModalityTimer(responseBoundary, responseOutcome);
+                    workflowMetrics.stopModalityTimer(responseBoundary, responseOutcome);
                 }
             }
         }

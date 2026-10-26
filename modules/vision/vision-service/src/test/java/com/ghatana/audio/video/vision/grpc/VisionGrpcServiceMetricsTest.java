@@ -125,7 +125,84 @@ class VisionGrpcServiceMetricsTest {
 
         assertThat(observer.error).isNull();
         assertProviderTimer("success", 1);
+        // A valid request passes both the tenant and provider admission boundaries.
+        assertAdmissionTimer("success", 2);
         assertResponseTimer("success", 1);
+    }
+
+    @Test
+    @DisplayName("provider admission denial records one bounded failure without dispatch")
+    void detectObjects_providerAdmissionDenialRecordsAdmissionFailure() {
+        VisionGrpcService unadmitted = new VisionGrpcService(fakeDetector, frameExtractor, metrics, null,
+                new com.ghatana.audio.video.common.model.FileSystemModelStore(), meterRegistry) {
+            @Override protected boolean isInferenceProviderAdmitted() { return false; }
+        };
+        SimpleObserver<DetectResponse> observer = new SimpleObserver<>();
+
+        withContext("tenant-admission-test", () -> unadmitted.detectObjects(
+                DetectRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+
+        assertThat(observer.error).isNotNull();
+        assertThat(fakeDetector.calls).isZero();
+        assertAdmissionTimer("failure", 1);
+    }
+
+    @Test
+    @DisplayName("provider admission exception records UNKNOWN without dispatch")
+    void detectObjects_providerAdmissionExceptionRecordsUnknownWithoutDispatch() {
+        VisionGrpcService admissionUnknown = new VisionGrpcService(fakeDetector, frameExtractor, metrics, null,
+                new com.ghatana.audio.video.common.model.FileSystemModelStore(), meterRegistry) {
+            @Override protected boolean isInferenceProviderAdmitted() {
+                throw new IllegalStateException("admission authority unavailable");
+            }
+        };
+        SimpleObserver<DetectResponse> observer = new SimpleObserver<>();
+
+        withContext("tenant-admission-unknown-test", () -> admissionUnknown.detectObjects(
+                DetectRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[] {1})).build(), observer));
+
+        assertThat(observer.error).isNotNull();
+        assertThat(fakeDetector.calls).isZero();
+        assertAdmissionTimer("unknown", 1);
+    }
+
+    @Test
+    @DisplayName("tenant admission records failure when verified context is absent")
+    void listModels_missingTenantRecordsAdmissionFailure() {
+        SimpleObserver<ListModelsResponse> observer = new SimpleObserver<>();
+
+        service.listModels(ListModelsRequest.getDefaultInstance(), observer);
+
+        assertThat(observer.error).isNotNull();
+        assertAdmissionTimer("failure", 1);
+    }
+
+    @Test
+    @DisplayName("manual unary and streaming tenant gates record bounded admission failures")
+    void manualTenantGatesRecordAdmissionFailures() {
+        SimpleObserver<DetectResponse> detect = new SimpleObserver<>();
+        SimpleObserver<AnalyzeResponse> analyze = new SimpleObserver<>();
+        SimpleObserver<ClassifyResponse> classify = new SimpleObserver<>();
+        SimpleObserver<VideoFileResponse> videoFile = new SimpleObserver<>();
+        SimpleObserver<VideoFrameResponse> videoFrames = new SimpleObserver<>();
+
+        service.detectObjects(DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1})).build(), detect);
+        service.analyzeImage(AnalyzeRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1})).build(), analyze);
+        service.classifyImage(ClassifyRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1})).build(), classify);
+        service.analyzeVideoFile(VideoFileRequest.newBuilder()
+                .setVideoData(ByteString.copyFrom(new byte[] {1})).build(), videoFile);
+        service.processVideo(videoFrames).onNext(VideoFrameRequest.getDefaultInstance());
+
+        assertThat(detect.error).isNotNull();
+        assertThat(analyze.error).isNotNull();
+        assertThat(classify.error).isNotNull();
+        assertThat(videoFile.error).isNotNull();
+        assertThat(videoFrames.error).isNotNull();
+        assertThat(fakeDetector.calls).isZero();
+        assertAdmissionTimer("failure", 5);
     }
 
     @Test
@@ -193,6 +270,8 @@ class VisionGrpcServiceMetricsTest {
         assertThat(list.error).isNotNull();
         assertThat(status.error).isNull();
         assertThat(health.error).isNull();
+        // analyze/classify each check tenant context; load/unload/listModels add three more.
+        assertAdmissionTimer("success", 5);
         assertResponseTimer("failure", 5);
         assertResponseTimer("success", 2);
     }
@@ -403,6 +482,22 @@ class VisionGrpcServiceMetricsTest {
     private void assertResponseTimer(String outcome, long expectedCount) {
         Timer timer = meterRegistry.find("media.modality.boundary.duration")
                 .tags("modality", "vision", "service", "vision", "boundary", "response",
+                        "execution_class", "control", "outcome", outcome, "contract_version", "v1").timer();
+        assertThat(timer == null ? 0 : timer.count()).isEqualTo(expectedCount);
+        if (timer == null) return;
+        assertThat(timer.getId().getTags()).extracting("key")
+                .containsExactlyInAnyOrder("modality", "service", "boundary", "execution_class",
+                        "outcome", "contract_version");
+        assertThat(meterRegistry.getMeters()).allSatisfy(meter -> {
+            assertThat(meter.getId().getTag("tenant")).isNull();
+            assertThat(meter.getId().getTag("request")).isNull();
+            assertThat(meter.getId().getTag("content")).isNull();
+        });
+    }
+
+    private void assertAdmissionTimer(String outcome, long expectedCount) {
+        Timer timer = meterRegistry.find("media.modality.boundary.duration")
+                .tags("modality", "vision", "service", "vision", "boundary", "admission",
                         "execution_class", "control", "outcome", outcome, "contract_version", "v1").timer();
         assertThat(timer == null ? 0 : timer.count()).isEqualTo(expectedCount);
         if (timer == null) return;

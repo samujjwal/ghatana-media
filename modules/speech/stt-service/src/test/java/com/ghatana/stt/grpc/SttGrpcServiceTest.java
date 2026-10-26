@@ -114,6 +114,7 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getConfidence()).isEqualTo(0.95f); 
         assertThat(observer.getValue().getProcessingTimeMs()).isEqualTo(120L); 
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
+        assertAdmissionBoundary("success", 2);
         assertDecodeBoundary("success");
         assertProviderBoundary("success");
         assertResponseBoundary("success");
@@ -132,6 +133,7 @@ class SttGrpcServiceTest {
 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertAdmissionBoundary("failure", 1);
         verifyNoInteractions(mockLibrary);
     }
 
@@ -198,6 +200,27 @@ class SttGrpcServiceTest {
         assertThat(timer.count()).isEqualTo(1);
         assertThat(timer.getId().getTags()).extracting("key")
                 .doesNotContain("tenant", "tenant_id", "content", "request_id");
+    }
+
+    private void assertAdmissionBoundary(String outcome, long expectedCount) {
+        var timer = meterRegistry.get("media.modality.boundary.duration")
+                .tag("modality", "stt")
+                .tag("service", "stt")
+                .tag("boundary", "admission")
+                .tag("execution_class", "control")
+                .tag("outcome", outcome)
+                .tag("contract_version", "v1")
+                .timer();
+        assertThat(timer.count()).isEqualTo(expectedCount);
+        assertThat(timer.getId().getTags()).extracting(io.micrometer.core.instrument.Tag::getKey)
+                .containsExactlyInAnyOrder("modality", "service", "boundary",
+                        "execution_class", "outcome", "contract_version");
+        assertThat(meterRegistry.getMeters()).allSatisfy(meter -> {
+            assertThat(meter.getId().getTag("tenant")).isNull();
+            assertThat(meter.getId().getTag("subject")).isNull();
+            assertThat(meter.getId().getTag("request")).isNull();
+            assertThat(meter.getId().getTag("content")).isNull();
+        });
     }
 
     private void assertResponseBoundary(String outcome) {

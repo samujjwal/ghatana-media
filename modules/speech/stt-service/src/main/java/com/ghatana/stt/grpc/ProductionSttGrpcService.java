@@ -326,7 +326,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void unloadModel(
             UnloadModelRequest request,
             StreamObserver<UnloadModelResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         unimplemented(responseObserver, "Model unload is not supported by the single-model STT provider");
     }
 
@@ -334,7 +334,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void adaptModel(
             AdaptRequest request,
             StreamObserver<AdaptResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         responseObserver.onError(Status.FAILED_PRECONDITION
                 .withDescription("STT_ADAPTATION_NOT_ADMITTED: versioned transcript correction, trusted rights admission and an admitted adaptation provider are unavailable")
                 .asRuntimeException());
@@ -344,7 +344,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void createProfile(
             CreateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver,
                 SttRequestAuthorization.Operation.CREATE_SPEAKER_IDENTITY, null)) return;
         speakerProfileNotAdmitted(responseObserver);
@@ -354,7 +354,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void getProfile(
             GetProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver,
                 SttRequestAuthorization.Operation.READ_SPEAKER_IDENTITY, request.getProfileId())) return;
         speakerProfileNotAdmitted(responseObserver);
@@ -364,7 +364,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void updateProfile(
             UpdateProfileRequest request,
             StreamObserver<ProfileResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver,
                 SttRequestAuthorization.Operation.UPDATE_SPEAKER_IDENTITY, request.getProfileId())) return;
         speakerProfileNotAdmitted(responseObserver);
@@ -374,7 +374,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     public void submitCorrection(
             CorrectionRequest request,
             StreamObserver<CorrectionResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         responseObserver.onError(Status.FAILED_PRECONDITION
                 .withDescription("STT_CORRECTION_NOT_ADMITTED: immutable transcript revision store and expected-version CAS are unavailable")
                 .asRuntimeException());

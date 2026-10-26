@@ -4,6 +4,7 @@ import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptPrincipalConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevisionConflictException;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -33,6 +34,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Testcontainers(disabledWithoutDocker = true)
 class PostgresqlMediaTranscriptStoreTest {
+    @Container static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
+            DockerImageName.parse("postgres:16-alpine"));
     @Container static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
             DockerImageName.parse("localstack/localstack:3.8")).withServices("s3");
 
@@ -257,7 +260,7 @@ class PostgresqlMediaTranscriptStoreTest {
             try (PreparedStatement s = c.prepareStatement("INSERT INTO media_consents (tenant_id,consent_id,principal_id,purposes_csv,allowed_regions_csv,external_processing_allowed,biometric_processing_allowed,granted_at,revoked_at,version) VALUES (?,?,?,?,?,?,?,?,?,?)")) {
                 s.setString(1,tenant); s.setString(2,consent); s.setString(3,principal); s.setString(4,"transcription");
                 s.setString(5,"local"); s.setBoolean(6,false); s.setBoolean(7,false); s.setLong(8,System.currentTimeMillis());
-                if (revoked) s.setLong(9,System.currentTimeMillis()); else s.setObject(9,null);
+                if (revoked) s.setLong(9,System.currentTimeMillis()); else s.setNull(9, java.sql.Types.BIGINT);
                 s.setLong(10,1); s.executeUpdate();
             }
         }
@@ -285,8 +288,11 @@ class PostgresqlMediaTranscriptStoreTest {
     private static Map<String,String> environment(String bucket) {
         Map<String,String> env = new HashMap<>();
         env.put("MEDIA_RUNTIME_ENVIRONMENT","integration");
-        env.put("MEDIA_POSTGRES_JDBC_URL","jdbc:h2:mem:transcript-"+UUID.randomUUID()+";MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false");
-        env.put("MEDIA_POSTGRES_USER","sa"); env.put("MEDIA_POSTGRES_DRIVER","org.h2.Driver");
+        env.put("MEDIA_POSTGRES_JDBC_URL", POSTGRES.getJdbcUrl());
+        env.put("MEDIA_POSTGRES_USER", POSTGRES.getUsername());
+        env.put("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_TRANSCRIPT_DB_PASSWORD");
+        env.put("MEDIA_TRANSCRIPT_DB_PASSWORD", POSTGRES.getPassword());
+        env.put("MEDIA_POSTGRES_DRIVER", "org.postgresql.Driver");
         env.put("MEDIA_S3_BUCKET",bucket); env.put("MEDIA_S3_REGION",LOCALSTACK.getRegion());
         env.put("MEDIA_S3_ENDPOINT",LOCALSTACK.getEndpoint().toString()); env.put("MEDIA_S3_PATH_STYLE","true");
         env.put("MEDIA_S3_ACCESS_KEY_REFERENCE","secret:env:MEDIA_ACCESS"); env.put("MEDIA_S3_SECRET_KEY_REFERENCE","secret:env:MEDIA_SECRET");

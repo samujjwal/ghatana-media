@@ -282,12 +282,20 @@ class TtsGrpcServiceTest {
         assertThat(completed.await(5, TimeUnit.SECONDS)).isTrue();
         verify(observer, never()).onError(any());
         cancelHandler.get().run(); // Cancellation after successful terminal delivery must not rewrite success.
-        Timer responseSuccess = registry.find("media.modality.boundary.duration")
+        long metricDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+        Timer responseSuccess;
+        do {
+            responseSuccess = registry.find("media.modality.boundary.duration")
                 .tag("modality", "tts").tag("service", "tts")
                 .tag("boundary", "response").tag("execution_class", "control")
                 .tag("outcome", "success").timer();
+            if (responseSuccess != null && responseSuccess.count() == 1) break;
+            Thread.yield();
+        } while (System.nanoTime() < metricDeadline);
         assertThat(responseSuccess).isNotNull();
         assertThat(responseSuccess.count()).isEqualTo(1);
+        // Streaming has separate voice/profile, provider, and rights decisions.
+        assertAdmissionBoundary("success", 3);
         assertThat(responseSuccess.getId().getTags()).extracting("key")
                 .doesNotContain("tenant", "subject", "request", "text", "content");
         assertThat(registry.find("media.modality.boundary.duration")
@@ -505,6 +513,7 @@ class TtsGrpcServiceTest {
 
         assertThat(observer.error).isNull();
         assertThat(observer.value).isNotNull();
+        assertAdmissionBoundary("success", 2);
         Timer provider = registry.find("media.modality.boundary.duration")
                 .tag("modality", "tts").tag("service", "tts")
                 .tag("boundary", "provider").tag("execution_class", "model")
@@ -521,6 +530,62 @@ class TtsGrpcServiceTest {
         assertThat(response.count()).isEqualTo(1);
         assertThat(response.getId().getTags()).extracting("key")
                 .doesNotContain("tenant", "request", "content", "text", "voice", "provider_id");
+    }
+
+    @Test
+    void deniedVoiceAuthorizationRecordsAdmissionFailureWithoutProviderAccess() {
+        TtsRequestAuthorization denied = request -> TtsRequestAuthorization.Decision.DENIED;
+        TtsGrpcService serviceWithDeniedVoice = new TtsGrpcService(library, registry,
+                () -> true, () -> false, null, denied, (voiceId, language) -> true);
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        serviceWithDeniedVoice.synthesize(SynthesizeRequest.newBuilder()
+                .setText("private denied phrase")
+                .setVoiceId("protected-voice-1138")
+                .build(), observer);
+
+        assertStatus(observer, Status.Code.PERMISSION_DENIED);
+        assertAdmissionBoundary("success", 1);
+        assertAdmissionBoundary("failure", 1);
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
+    void throwingAdmissionSupplierFailsClosedAndRecordsUnknownWithoutProviderAccess() {
+        TtsGrpcService admissionUnavailable = admittedService(() -> {
+            throw new IllegalStateException("admission dependency unavailable");
+        }, () -> false);
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        admissionUnavailable.synthesize(SynthesizeRequest.newBuilder()
+                .setText("private admission phrase")
+                .setVoiceId("protected-voice-2194")
+                .build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertAdmissionBoundary("unknown", 1);
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    private void assertAdmissionBoundary(String outcome, long expectedCount) {
+        Timer admission = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "admission").tag("execution_class", "control")
+                .tag("outcome", outcome).timer();
+        assertThat(admission).isNotNull();
+        assertThat(admission.count()).isEqualTo(expectedCount);
+        assertThat(admission.getId().getTags()).extracting(io.micrometer.core.instrument.Tag::getKey)
+                .containsExactlyInAnyOrder("modality", "service", "boundary",
+                        "execution_class", "outcome", "contract_version");
+        assertThat(registry.getMeters()).allSatisfy(meter -> {
+            assertThat(meter.getId().getTag("tenant")).isNull();
+            assertThat(meter.getId().getTag("subject")).isNull();
+            assertThat(meter.getId().getTag("request")).isNull();
+            assertThat(meter.getId().getTag("voice")).isNull();
+            assertThat(meter.getId().getTag("content")).isNull();
+        });
     }
 
     @Test
@@ -653,10 +718,12 @@ class TtsGrpcServiceTest {
 
     @Test
     void validStreamRequestFailsNotAdmittedWithoutEmittingPartialOrFinalAudio() {
+        TtsGrpcService voiceAdmittedButStreamingUnavailable = admittedService(() -> true, () -> false);
         CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
                 new CapturingObserver<>();
 
-        service.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        voiceAdmittedButStreamingUnavailable.streamSynthesize(
+                SynthesizeRequest.newBuilder().setText("hello").build(), observer);
 
         assertStatus(observer, Status.Code.UNAVAILABLE);
         assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
@@ -672,6 +739,10 @@ class TtsGrpcServiceTest {
                 .tag("outcome", "failure").timer();
         assertThat(responseFailure).isNotNull();
         assertThat(responseFailure.count()).isEqualTo(1);
+        // The voice profile is admitted, then the separate streaming provider gate
+        // rejects before rights authorization is evaluated.
+        assertAdmissionBoundary("success", 1);
+        assertAdmissionBoundary("failure", 1);
     }
 
     @Test

@@ -13,6 +13,10 @@ import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,14 +57,23 @@ class MultimodalGrpcServiceTest {
     private PlatformMultimodalAdapter mockAdapter;
 
     private MultimodalGrpcService service;
+    private SimpleMeterRegistry meterRegistry;
 
     @BeforeEach
     void setUp() { 
+        meterRegistry = new SimpleMeterRegistry();
+        Metrics.addRegistry(meterRegistry);
         service = new MultimodalGrpcService(mockEngine, mockAdapter, MediaProcessingMetrics.noop(),
                 // Test fixture only: production constructors retain unavailable authorization.
                 request -> SourceAuthorization.Decision.ADMITTED);
         lenient().when(mockAdapter.backendName()).thenReturn("test-backend");
         lenient().when(mockAdapter.metricsEnabled()).thenReturn(false); 
+    }
+
+    @AfterEach
+    void tearDown() {
+        Metrics.removeRegistry(meterRegistry);
+        meterRegistry.close();
     }
 
     @Test
@@ -241,6 +254,27 @@ class MultimodalGrpcServiceTest {
 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.PERMISSION_DENIED.getCode());
+        assertAdmissionTimer("failure", 1);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: null source decision is UNKNOWN and fails closed")
+    void processMultimodal_nullSourceDecisionRecordsUnknownAdmission() {
+        MultimodalGrpcService ambiguous = new MultimodalGrpcService(
+                mockEngine, mockAdapter, MediaProcessingMetrics.noop(), request -> null);
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> ambiguous.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "source observation"))
+                .build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.UNAVAILABLE.getCode());
+        assertAdmissionTimer("unknown", 1);
         verifyNoInteractions(mockEngine);
     }
 
@@ -306,6 +340,7 @@ class MultimodalGrpcServiceTest {
         assertThat(captured.get().contentBytes()).isEqualTo(2 + 1 + 2);
         assertThat(captured.get().contentSha256()).isEqualTo(contentDigest(
                 List.of(new byte[] {1, 2}, new byte[] {3}, new byte[0]), "é"));
+        assertAdmissionTimer("success", 1);
         assertFamilyTransportNotAdmitted(observer);
         verifyNoInteractions(mockEngine);
     }
@@ -976,5 +1011,21 @@ class MultimodalGrpcServiceTest {
     private static void withContext(String tenantId, Runnable action) {
         Context.current().withValue(JwtServerInterceptor.CTX_TENANT, tenantId)
                 .withValue(JwtServerInterceptor.CTX_SUBJECT, SUBJECT_ID).run(action);
+    }
+
+    private void assertAdmissionTimer(String outcome, long expectedCount) {
+        Timer timer = meterRegistry.find("media.modality.boundary.duration")
+                .tags("modality", "multimodal", "service", "multimodal", "boundary", "admission",
+                        "execution_class", "control", "outcome", outcome, "contract_version", "v1").timer();
+        assertThat(timer).isNotNull();
+        assertThat(timer.count()).isEqualTo(expectedCount);
+        assertThat(timer.getId().getTags()).extracting("key")
+                .containsExactlyInAnyOrder("modality", "service", "boundary", "execution_class",
+                        "outcome", "contract_version");
+        assertThat(meterRegistry.getMeters()).allSatisfy(meter -> {
+            assertThat(meter.getId().getTag("tenant")).isNull();
+            assertThat(meter.getId().getTag("request")).isNull();
+            assertThat(meter.getId().getTag("content")).isNull();
+        });
     }
 }

@@ -744,9 +744,19 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
 
     private void requireAuthorizedVoiceSelection(
             SynthesizeRequest request, TtsRequestAuthorization.Operation operation) {
-        TtsRequestAuthorization.requireAdmission(requestAuthorization,
-                JwtServerInterceptor.verifiedIdentity(), operation,
-                request.getVoiceId(), request.getProfileId());
+        try (AudioVideoGrpcInstrumentation.BoundaryMeasurement admissionBoundary =
+                     instrumentation.beginBoundaryMeasurement(
+                             MediaWorkflowMetrics.Modality.TTS, MediaWorkflowMetrics.Boundary.ADMISSION)) {
+            try {
+                TtsRequestAuthorization.requireAdmission(requestAuthorization,
+                        JwtServerInterceptor.verifiedIdentity(), operation,
+                        request.getVoiceId(), request.getProfileId());
+                admissionBoundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+            } catch (TtsRequestAuthorization.AuthorizationException denied) {
+                admissionBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+                throw denied;
+            }
+        }
     }
 
     /**
@@ -755,20 +765,36 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
      * fail before engine lookup instead of allowing a provider to silently select a substitute.
      */
     private void requireAdmittedVoiceLanguage(String voiceId, Locale language) {
-        if (synthesisAdmitted.getAsBoolean() && admittedVoiceLanguage.test(voiceId, language)) return;
-        String requestedVoice = voiceId == null || voiceId.isBlank() ? "default" : "explicit";
-        String requestedLanguage = language == null ? "unspecified" : language.toLanguageTag();
-        throw new TtsSynthesisEngine.SynthesisException(
-                "TTS locale/voice NOT_ADMITTED: no exact admitted voice-language-rights profile "
-                        + "for requested voice=" + requestedVoice + ", language=" + requestedLanguage,
-                TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+        try (AudioVideoGrpcInstrumentation.BoundaryMeasurement admissionBoundary =
+                     instrumentation.beginBoundaryMeasurement(
+                             MediaWorkflowMetrics.Modality.TTS, MediaWorkflowMetrics.Boundary.ADMISSION)) {
+            if (synthesisAdmitted.getAsBoolean() && admittedVoiceLanguage.test(voiceId, language)) {
+                admissionBoundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                return;
+            }
+            admissionBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+            String requestedVoice = voiceId == null || voiceId.isBlank() ? "default" : "explicit";
+            String requestedLanguage = language == null ? "unspecified" : language.toLanguageTag();
+            throw new TtsSynthesisEngine.SynthesisException(
+                    "TTS locale/voice NOT_ADMITTED: no exact admitted voice-language-rights profile "
+                            + "for requested voice=" + requestedVoice + ", language=" + requestedLanguage,
+                    TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+        }
     }
 
     private void requireAdmittedStreamingProvider() {
-        if (streamingAdmitted.getAsBoolean()) return;
-        throw new TtsSynthesisEngine.SynthesisException(
-                "TTS streaming is NOT_ADMITTED: no provider has verified mono PCM S16LE framing, sample rate, cancellation and finality",
-                TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+        try (AudioVideoGrpcInstrumentation.BoundaryMeasurement admissionBoundary =
+                     instrumentation.beginBoundaryMeasurement(
+                             MediaWorkflowMetrics.Modality.TTS, MediaWorkflowMetrics.Boundary.ADMISSION)) {
+            if (streamingAdmitted.getAsBoolean()) {
+                admissionBoundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
+                return;
+            }
+            admissionBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
+            throw new TtsSynthesisEngine.SynthesisException(
+                    "TTS streaming is NOT_ADMITTED: no provider has verified mono PCM S16LE framing, sample rate, cancellation and finality",
+                    TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+        }
     }
 
     private static void awaitSinkReady(TtsStreamSink sink) throws InterruptedException {

@@ -125,7 +125,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.TRANSCRIBE, request.getArtifactId())) return;
         Span span = tracingService.startTranscriptionSpan(null, null, request.getLanguage());
         TracingObserver<TranscribeResponse> tracedObserver = new TracingObserver<>(
@@ -303,7 +303,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public StreamObserver<AudioChunk> streamTranscribe(StreamObserver<Transcription> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return noOpAudioObserver();
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return noOpAudioObserver();
         String tenantId = JwtServerInterceptor.verifiedIdentity().tenantId();
 
         Span span = tracingService.startGrpcStreamingSpan("StreamTranscribe", tenantId);
@@ -373,7 +373,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void getStatus(StatusRequest request, StreamObserver<StatusResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.READ_STATUS, null)) return;
         try (SttEngine stt = library.getSttEngine()) {
             com.ghatana.media.common.EngineStatus status = stt.getStatus();
@@ -388,7 +388,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void healthCheck(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         boolean ready = Boolean.TRUE.equals(readinessProbe.getAsBoolean());
         responseObserver.onNext(HealthCheckResponse.newBuilder()
             .setStatus(ready ? HealthStatus.HEALTH_STATUS_HEALTHY : HealthStatus.HEALTH_STATUS_UNHEALTHY)
@@ -410,7 +410,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void loadModel(LoadModelRequest request, StreamObserver<LoadModelResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.LOAD_MODEL, request.getModelId())) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
@@ -452,7 +452,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void unloadModel(UnloadModelRequest request, StreamObserver<UnloadModelResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.UNLOAD_MODEL, request.getModelId())) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
@@ -488,7 +488,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.LIST_MODELS, null)) return;
         try (SttEngine stt = library.getSttEngine()) {
             List<com.ghatana.media.stt.api.ModelInfo> models = stt.getAvailableModels();
@@ -548,7 +548,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void adaptModel(AdaptRequest request, StreamObserver<AdaptResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver,
                 SttRequestAuthorization.Operation.ADAPT_MODEL, request.getProfileId())) return;
         responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
@@ -560,7 +560,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void createProfile(CreateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver,
                 SttRequestAuthorization.Operation.CREATE_SPEAKER_IDENTITY, null)) return;
         speakerProfileNotAdmitted(responseObserver);
@@ -570,7 +570,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void getProfile(GetProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver,
                 SttRequestAuthorization.Operation.READ_SPEAKER_IDENTITY, request.getProfileId())) return;
         speakerProfileNotAdmitted(responseObserver);
@@ -580,7 +580,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void updateProfile(UpdateProfileRequest request, StreamObserver<ProfileResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver,
                 SttRequestAuthorization.Operation.UPDATE_SPEAKER_IDENTITY, request.getProfileId())) return;
         speakerProfileNotAdmitted(responseObserver);
@@ -594,7 +594,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     @Override
     public void submitCorrection(CorrectionRequest request, StreamObserver<CorrectionResponse> responseObserver) {
-        if (!requireAuthenticatedTenantPrincipal(responseObserver)) return;
+        if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver,
                 SttRequestAuthorization.Operation.SUBMIT_CORRECTION, request.getProfileId())) return;
         responseObserver.onError(io.grpc.Status.FAILED_PRECONDITION
@@ -602,6 +602,19 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                 .asRuntimeException());
     }
 
+    /** Measures the trusted identity precheck separately from the rights/purpose authorization decision. */
+    protected final boolean requireAuthenticatedTenantPrincipalWithMetrics(StreamObserver<?> observer) {
+        try (AudioVideoGrpcInstrumentation.BoundaryMeasurement admissionBoundary =
+                     boundaryInstrumentation.beginBoundaryMeasurement(
+                             MediaWorkflowMetrics.Modality.STT, MediaWorkflowMetrics.Boundary.ADMISSION)) {
+            boolean authenticated = requireAuthenticatedTenantPrincipal(observer);
+            admissionBoundary.complete(authenticated
+                    ? MediaWorkflowMetrics.Outcome.SUCCESS : MediaWorkflowMetrics.Outcome.FAILURE);
+            return authenticated;
+        }
+    }
+
+    /** Compatibility identity check retained for existing subclass callers. */
     protected static boolean requireAuthenticatedTenantPrincipal(StreamObserver<?> observer) {
         JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
         String tenantId = identity == null ? null : identity.tenantId();
@@ -625,6 +638,18 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     protected final boolean authorizeRequest(StreamObserver<?> observer, SttRequestAuthorization.Operation operation,
             String resourceId) {
+        try (AudioVideoGrpcInstrumentation.BoundaryMeasurement admissionBoundary =
+                     boundaryInstrumentation.beginBoundaryMeasurement(
+                             MediaWorkflowMetrics.Modality.STT, MediaWorkflowMetrics.Boundary.ADMISSION)) {
+            boolean admitted = authorizeRequestDecision(observer, operation, resourceId);
+            admissionBoundary.complete(admitted
+                    ? MediaWorkflowMetrics.Outcome.SUCCESS : MediaWorkflowMetrics.Outcome.FAILURE);
+            return admitted;
+        }
+    }
+
+    private boolean authorizeRequestDecision(StreamObserver<?> observer,
+            SttRequestAuthorization.Operation operation, String resourceId) {
         JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
         if (identity == null) {
             observer.onError(io.grpc.Status.UNAUTHENTICATED

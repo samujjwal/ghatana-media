@@ -172,7 +172,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
         // AV-P1-007: Enforce tenant authentication
         String tenantId = resolveTenantId();
-        if (tenantId == null || tenantId.isBlank()) {
+        if (!tenantContextAvailable(tenantId)) {
             recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Missing tenant context — authenticate before calling Vision service")
                 .asRuntimeException());
@@ -388,6 +388,20 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         if (recorded.compareAndSet(false, true)) modalityMetrics.stopModalityTimer(sample, outcome);
     }
 
+    /** Measures only a concrete admission decision; exceptions remain UNKNOWN. */
+    private boolean recordAdmissionDecision(BooleanSupplier admissionDecision) {
+        MediaWorkflowMetrics.ModalityTimingSample sample = modalityMetrics.startModalityTimer(
+                MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.ADMISSION);
+        MediaWorkflowMetrics.Outcome outcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
+        try {
+            boolean admitted = admissionDecision.getAsBoolean();
+            outcome = admitted ? MediaWorkflowMetrics.Outcome.SUCCESS : MediaWorkflowMetrics.Outcome.FAILURE;
+            return admitted;
+        } finally {
+            modalityMetrics.stopModalityTimer(sample, outcome);
+        }
+    }
+
     @Override
     public void analyzeImage(AnalyzeRequest request, StreamObserver<AnalyzeResponse> responseObserver) {
         TracedResponse<AnalyzeResponse> traced = genericTracedResponse("analyzeImage", responseObserver);
@@ -395,7 +409,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         try (Scope scope = tracingService.createScope(traced.span)) {
         mediaMetrics.recordStarted("vision.analyze");
         String tenantId = resolveTenantId();
-        if (tenantId == null || tenantId.isBlank()) {
+        if (!tenantContextAvailable(tenantId)) {
             mediaMetrics.recordFailed("vision.analyze");
             recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                     .withDescription("Missing tenant context")
@@ -443,7 +457,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         try (Scope scope = tracingService.createScope(traced.span)) {
         mediaMetrics.recordStarted("vision.classify");
         String tenantId = resolveTenantId();
-        if (tenantId == null || tenantId.isBlank()) {
+        if (!tenantContextAvailable(tenantId)) {
             mediaMetrics.recordFailed("vision.classify");
             recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                     .withDescription("Missing tenant context")
@@ -538,7 +552,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
         // AV-P1-007: Enforce tenant authentication
         String videoTenantId = resolveTenantId();
-        if (videoTenantId == null || videoTenantId.isBlank()) {
+        if (!tenantContextAvailable(videoTenantId)) {
             recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Missing tenant context")
                 .asRuntimeException());
@@ -752,7 +766,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 try (Scope scope = tracingService.createScope(trace)) {
                 try {
                     String tenantId = resolveTenantId();
-                    if (tenantId == null || tenantId.isBlank()) {
+                    if (!tenantContextAvailable(tenantId)) {
                         sendFailure(io.grpc.Status.UNAUTHENTICATED
                                 .withDescription("Missing tenant context")
                                 .asRuntimeException());
@@ -781,7 +795,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         return;
                     }
 
-                    if (!isInferenceProviderAdmitted()) {
+                    if (!recordAdmissionDecision(VisionGrpcService.this::isInferenceProviderAdmitted)) {
                         sendFailure(io.grpc.Status.UNAVAILABLE
                                 .withDescription("Video frame processing is unavailable: PROVIDER_NOT_ADMITTED")
                                 .asRuntimeException());
@@ -1016,7 +1030,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     }
 
     private boolean rejectWhenProviderUnavailable(StreamObserver<?> responseObserver, String operation) {
-        if (isInferenceProviderAdmitted()) return false;
+        if (recordAdmissionDecision(this::isInferenceProviderAdmitted)) return false;
         recordResponseFailure(responseObserver, io.grpc.Status.UNAVAILABLE
                 .withDescription(operation + " is unavailable: PROVIDER_NOT_ADMITTED")
                 .asRuntimeException());
@@ -1040,12 +1054,15 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     }
 
     private boolean hasTenantContext(StreamObserver<?> responseObserver) {
-        String tenantId = resolveTenantId();
-        if (tenantId != null && !tenantId.isBlank()) return true;
+        if (tenantContextAvailable(resolveTenantId())) return true;
         recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Missing tenant context")
                 .asRuntimeException());
         return false;
+    }
+
+    private boolean tenantContextAvailable(String tenantId) {
+        return recordAdmissionDecision(() -> tenantId != null && !tenantId.isBlank());
     }
 
     private String resolveUserId() {

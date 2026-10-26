@@ -59,13 +59,15 @@ class SttGrpcStreamingSemanticsTest {
     @Test
     void missingTenantOrSubjectFailsBeforeAnyEngineOrSessionAccess() {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
         RecordingObserver<Transcription> response = new RecordingObserver<>();
-        SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry());
+        SttGrpcService service = new SttGrpcService(library, registry);
 
         service.streamTranscribe(response);
 
         assertStatus(response, Status.UNAUTHENTICATED);
         assertThat(response.values).isEmpty();
+        assertAdmissionCount(registry, "failure", 1);
         verifyNoInteractions(library);
     }
 
@@ -85,8 +87,9 @@ class SttGrpcStreamingSemanticsTest {
     @Test
     void validIdentityStillFailsClosedWithoutTrustedPurposeAndConsentRuntime() {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
         RecordingObserver<Transcription> response = new RecordingObserver<>();
-        SttGrpcService service = new SttGrpcService(library, new SimpleMeterRegistry(),
+        SttGrpcService service = new SttGrpcService(library, registry,
                 (SttRequestAuthorization) (request -> SttRequestAuthorization.Decision.ADMITTED));
         // Explicit test fixture only.
 
@@ -99,7 +102,9 @@ class SttGrpcStreamingSemanticsTest {
         assertStatus(response, Status.FAILED_PRECONDITION);
         assertThat(response.error.getMessage()).contains("STT_STREAM_SESSION_NOT_ADMITTED");
         assertThat(response.values).isEmpty();
+        assertAdmissionCount(registry, "success", 2);
         verifyNoInteractions(library);
+        registry.close();
     }
 
     @Test
@@ -114,6 +119,7 @@ class SttGrpcStreamingSemanticsTest {
                 () -> service.streamTranscribe(response));
 
         assertStatus(response, Status.FAILED_PRECONDITION);
+        assertAdmissionCount(registry, "success", 2);
         assertBoundaryCount(registry, "failure", 1);
         assertBoundaryCount(registry, "success", 0);
         assertBoundaryCount(registry, "unknown", 0);
@@ -156,6 +162,18 @@ class SttGrpcStreamingSemanticsTest {
         Timer timer = registry.find("media.modality.boundary.duration")
                 .tag("service", "stt").tag("modality", "stt")
                 .tag("boundary", "response").tag("outcome", outcome).timer();
+        assertThat(timer == null ? 0 : timer.count()).isEqualTo(expected);
+        if (timer != null) {
+            assertThat(timer.getId().getTags()).noneMatch(tag ->
+                    List.of("tenant", "subject", "request_id", "content", "text").contains(tag.getKey()));
+        }
+    }
+
+    private static void assertAdmissionCount(SimpleMeterRegistry registry, String outcome, long expected) {
+        Timer timer = registry.find("media.modality.boundary.duration")
+                .tag("service", "stt").tag("modality", "stt")
+                .tag("boundary", "admission").tag("execution_class", "control")
+                .tag("outcome", outcome).timer();
         assertThat(timer == null ? 0 : timer.count()).isEqualTo(expected);
         if (timer != null) {
             assertThat(timer.getId().getTags()).noneMatch(tag ->
