@@ -1,7 +1,7 @@
 # R-01 codec/container profile observations
 
 **Observation date:** 2026-10-07
-**Scope:** source and dependency declarations in this Media checkout only. This is a gap audit, not a supported-format list, profile selection, provider admission, or release qualification.
+**Scope:** source and dependency declarations plus the explicitly dated local binary smoke below. This is a gap audit, not a supported-format list, profile selection, provider admission, or release qualification.
 **Qualification status:** every row is `NOT_EVALUATED` for correctness, security, performance, hardware, and licensing/patent clearance unless the row explicitly describes a narrow source-level test observation. No row is promoted by a compile, unit test, format-name declaration, or dependency declaration.
 
 ## Local fail-closed parser observation (2026-10-08)
@@ -13,6 +13,12 @@ A subsequent malformed-input correction validates the entire RIFF container inst
 This is fail-closed input validation, not evidence that WAV/PCM is a qualified deployment profile. The parser still needs specialist malformed-input review, a representative corpus, decode/runtime integration, time/resource bounds, performance and hardware evidence, and exact distribution-license/patent review. All codec/container profiles remain `NOT_EVALUATED`.
 
 R-01 requires profile-level correctness, security, performance, licensing, and hardware evidence, with explicit rejection for unsupported formats. This checkout does not contain a complete, release-pinned transcode matrix or specialist/legal/runtime evidence for such admission. This page records what source declares and what remains unknown; it does not choose a codec/provider or infer a supported profile.
+
+## Wave 2 bounded local native-tool observation (2026-10-25)
+
+For the Media Wave 2 recovery check, a local Apple Silicon FFmpeg/FFprobe 8.1.2 artifact from the Server Side Up `ffmpeg-lgpl-builds` release `v8.1.2-27` was downloaded outside the repository and verified against archive SHA-256 `ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332`. The archive identifies the binary as LGPL-2.1-only, disables GPL/nonfree/version-3 build options, includes source provenance and license files, and pins upstream FFmpeg source SHA-256 `464beb5e7bf0c311e68b45ae2f04e9cc2af88851abb4082231742a74d97b524c`. Extracted executable SHA-256 values: `ffmpeg` `5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33`; `ffprobe` `b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f`.
+
+A local synthetic color-bar and sine fixture encoded to a one-second 160×120 H.264/AAC MP4, `ffprobe` confirmed two video frames and mono 16 kHz audio, and FFmpeg decoded the file to a null sink successfully. CPU time was capped at 15 seconds and output size at 2 MiB; the 11,311-byte output run measured peak child RSS of 40,009,728 bytes. This establishes only that this exact local binary can process the tiny synthetic fixture. It does not qualify hostile inputs, broader codec/container profiles, Media production wiring, hardware support, deployment distribution, or licensing/patent clearance. All codec/container profile rows remain `NOT_EVALUATED`.
 
 ## Source-pinned observation and qualification matrix
 

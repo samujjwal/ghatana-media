@@ -137,6 +137,19 @@ Investigate or alert on:
 Validate the checked-in alert rules and readiness/workflow fixtures from the
 repository root with Prometheus `promtool` (v3.15.1):
 
+For a digest-pinned local Wave 2 run from the repository root, use:
+
+```sh
+docker run --rm -v "$PWD:/workspace" -w /workspace \
+  --entrypoint /bin/promtool \
+  prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2 \
+  check rules infra/monitoring/alerts/audio-video.yml
+docker run --rm -v "$PWD:/workspace" -w /workspace \
+  --entrypoint /bin/promtool \
+  prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2 \
+  test rules infra/monitoring/tests/audio-video.rules.test.yml
+```
+
 ```sh
 promtool check rules monitoring/prometheus/rules/media.yml infra/monitoring/alerts/audio-video.yml
 promtool test rules infra/monitoring/tests/audio-video.rules.test.yml
