@@ -50,10 +50,6 @@ dependencies {
     // Platform audit (AuditService, AuditEvent)
     implementation("com.ghatana.platform:audit:${providers.gradleProperty("ghatana.shared.version").get()}")
 
-    // Data Cloud integration for media artifact job handling
-    implementation(project(":services:data-cloud:delivery:api"))
-    implementation(project(":services:data-cloud:planes:shared-spi"))
-
     // Protobuf
     implementation(libs.protobuf.java)
 

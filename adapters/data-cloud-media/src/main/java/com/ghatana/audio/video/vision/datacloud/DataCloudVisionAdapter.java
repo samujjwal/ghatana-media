@@ -52,7 +52,7 @@ public class DataCloudVisionAdapter implements MediaProcessorPort {
     @Override
     public Promise<String> analyzeVision(String artifactId, String tenantId, String analysisType, Map<String, String> parameters) {
         LOG.info("[WS3] Analyzing vision artifact");
-        
+
         // WS3: Delegate to vision service for analysis
         // The vision service should return a frame index ID that can be stored in Data Cloud
         return visionService.analyze(artifactId, tenantId, analysisType, parameters)

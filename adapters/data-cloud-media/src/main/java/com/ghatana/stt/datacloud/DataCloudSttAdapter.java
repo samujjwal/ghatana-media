@@ -44,7 +44,7 @@ public class DataCloudSttAdapter implements MediaProcessorPort {
     @Override
     public Promise<String> transcribeAudio(String artifactId, String tenantId, String languageCode, Map<String, String> parameters) {
         LOG.info("[WS3] Transcribing audio");
-        
+
         // WS3: Delegate to STT service for transcription
         // The STT service should return a transcript ID that can be stored in Data Cloud
         return sttService.transcribe(artifactId, tenantId, languageCode, parameters)

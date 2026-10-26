@@ -3,6 +3,7 @@ package com.ghatana.stt.datacloud;
 import com.ghatana.stt.service.PersistentSttService;
 import com.ghatana.stt.testutil.LogCapture;
 import io.activej.promise.Promise;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -11,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Tag("datacloud-event-bridge")
 class DataCloudSttAdapterLogPrivacyTest {
     @Test
     void successLogsOmitArtifactTenantAndTranscriptIds() {

@@ -33,9 +33,6 @@ dependencies {
     // Platform audit (AuditService, AuditEvent)
     implementation("com.ghatana.platform:audit:${providers.gradleProperty("ghatana.shared.version").get()}")
 
-    // Data Cloud integration for media artifact job handling and result schema
-    implementation(project(":services:data-cloud:delivery:api"))
-
     // Persistence integration
     implementation(project(":services:media:modules:infrastructure:persistence"))
 
@@ -105,16 +102,6 @@ tasks.register<JavaExec>("smokeTestMainClass") {
     systemProperty("av.smokeTest", "true")
     isIgnoreExitValue = false
     jvmArgs("-Dav.smokeTest=true")
-}
-
-// Data Cloud job handling test - validates vision service can handle Data Cloud media processing jobs
-tasks.register<Test>("testDataCloudJobHandling") {
-    group = "verification"
-    description = "Test Data Cloud job handling and result schema for vision service"
-    useJUnitPlatform {
-        includeTags("datacloud-job-handling")
-    }
-    systemProperty("datacloud.job.handling.test", "true")
 }
 
 // Fix duplicate jar entries in distribution

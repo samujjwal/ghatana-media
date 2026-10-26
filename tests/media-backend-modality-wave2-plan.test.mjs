@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
@@ -100,8 +100,15 @@ test('every task binds existing PDP-0 capability, current NFR, exact code and ex
         assert.ok(nfrSource.includes('id: ' + id), task.id + ' missing PDP-0 NFR: ' + id);
       }
     }
-    assert.ok(task.where.includes('`' + owned.get(prefix).sourcePath + '/'),
+    const primaryModuleTarget = task.where.includes('`' + owned.get(prefix).sourcePath + '/');
+    const dataCloudAdapterTarget = task.id === 'MM-10'
+      && task.where.includes('`adapters/data-cloud-media/');
+    assert.ok(primaryModuleTarget || dataCloudAdapterTarget,
       task.id + ' missing precise Media owned source target');
+    if (dataCloudAdapterTarget) {
+      assert.ok(existsSync(resolve(ROOT, 'adapters/data-cloud-media/build.gradle.kts')),
+        'MM-10 Data Cloud adapter project is not registered in the repository');
+    }
     assert.ok(task.assertion.length >= 35, task.id + ' lacks an executable acceptance check');
     assert.ok(task.wave >= 0 && task.wave <= 3);
   }

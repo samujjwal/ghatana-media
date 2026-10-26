@@ -4,6 +4,7 @@ import com.ghatana.audio.video.vision.VisionLogCapture;
 import com.ghatana.audio.video.vision.service.PersistentVisionService;
 import com.ghatana.testing.activej.EventloopTestBase;
 import io.activej.promise.Promise;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Tag("datacloud-job-handling")
 class DataCloudVisionAdapterLogPrivacyTest extends EventloopTestBase {
     private static final String ARTIFACT_MARKER = "artifact-marker-vision-private";
     private static final String TENANT_MARKER = "tenant-marker-vision-private";

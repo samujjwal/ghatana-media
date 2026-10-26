@@ -33,9 +33,6 @@ dependencies {
     // Platform audit (AuditService, AuditEvent)
     implementation("com.ghatana.platform:audit:${providers.gradleProperty("ghatana.shared.version").get()}")
 
-    // Data Cloud integration for media artifact operations
-    implementation(project(":services:data-cloud:delivery:api"))
-
     // Persistence layer
     implementation(project(":services:media:modules:infrastructure:persistence"))
 
@@ -121,14 +118,4 @@ tasks.register<JavaExec>("smokeTestMainClass") {
     // Fail-fast: treat non-zero exit as a build error
     isIgnoreExitValue = false
     jvmArgs("-Dav.smokeTest=true")
-}
-
-// Data Cloud event bridge test - validates STT service can consume Data Cloud media events
-tasks.register<Test>("testDataCloudEventBridge") {
-    group = "verification"
-    description = "Test Data Cloud event bridge integration for STT service"
-    useJUnitPlatform {
-        includeTags("datacloud-event-bridge")
-    }
-    systemProperty("datacloud.event.bridge.test", "true")
 }
