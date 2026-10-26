@@ -19,6 +19,10 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.logging.Logger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * ONNX Runtime based Piper text-to-speech engine.
@@ -39,6 +43,7 @@ public final class PiperOnnxEngine implements TtsEngine {
     private final AtomicReference<EngineStatus.State> state;
     private final AtomicReference<String> activeVoiceId;
     private final TextToPhonemeConverter phonemeConverter;
+    private final Map<String, List<Long>> phonemeIdMap;
 
     public PiperOnnxEngine(TtsConfig config, AudioVideoLibrary.LibraryState libraryState) throws ModelLoadingError {
         this.config = config;
@@ -49,6 +54,8 @@ public final class PiperOnnxEngine implements TtsEngine {
 
         try {
             LOG.info("Loading Piper ONNX model from: " + config.voiceModelPath());
+
+            this.phonemeIdMap = loadPhonemeIdMap(config.voiceModelPath());
 
             this.environment = OrtEnvironment.getEnvironment();
 
@@ -484,23 +491,17 @@ public final class PiperOnnxEngine implements TtsEngine {
      *   <li>{@code "output"} — float32[1, 1, N]: raw PCM samples (−1 … 1)</li>
      * </ul>
      *
-     * <p>Phoneme characters are mapped to their Unicode code-point as a simple
-     * ID scheme that preserves identity for ASCII phoneme symbols.  A production
-     * deployment should load the {@code phoneme_ids.json} sidecar shipped with
-     * each Piper voice model.
+     * <p>Phoneme symbols are mapped using the voice-specific adjacent Piper JSON
+     * sidecar. Code-point IDs are not compatible with Piper model vocabularies.
      */
     private float[] runInference(String phonemes, SynthesisOptions options) throws OrtException {
         if (phonemes.isEmpty()) return new float[0];
 
-        // Build phoneme ID array (use char code-points as IDs)
-        int seqLen = phonemes.length();
-        long[] phoneIds = new long[seqLen];
-        for (int i = 0; i < seqLen; i++) {
-            phoneIds[i] = phonemes.charAt(i);
-        }
+        long[] phoneIds = encodePhonemes(phonemes, phonemeIdMap);
+        int seqLen = phoneIds.length;
 
         // Prosody scales: noise_scale, length_scale, noise_w
-        float lengthScale = options.speed() > 0 ? (float) (1.0 / options.speed()) : 1.0f;
+        float lengthScale = (float) (1.0 / bounded(options.speed(), 0.5, 2.0));
         float[] scales = {0.667f, lengthScale, 0.8f};
 
         OnnxTensor inputTensor = OnnxTensor.createTensor(
@@ -540,6 +541,70 @@ public final class PiperOnnxEngine implements TtsEngine {
         }
 
         return new float[0];
+    }
+
+    static Path sidecarPath(Path modelPath) {
+        return modelPath.resolveSibling(modelPath.getFileName().toString() + ".json");
+    }
+
+    static Map<String, List<Long>> loadPhonemeIdMap(Path modelPath) throws ModelLoadingError {
+        Path sidecar = sidecarPath(modelPath);
+        if (!Files.isRegularFile(sidecar)) {
+            throw new ModelLoadingError("Piper phoneme sidecar is missing: " + sidecar);
+        }
+        try {
+            JsonNode root = new ObjectMapper().readTree(sidecar.toFile());
+            JsonNode mapNode = root == null ? null : root.get("phoneme_id_map");
+            if (mapNode == null || !mapNode.isObject() || mapNode.isEmpty()) {
+                throw new IllegalArgumentException("phoneme_id_map must be a non-empty object");
+            }
+            Map<String, List<Long>> result = new HashMap<>();
+            mapNode.properties().forEach(entry -> {
+                String symbol = entry.getKey();
+                JsonNode ids = entry.getValue();
+                if (symbol.codePointCount(0, symbol.length()) != 1 || !ids.isArray() || ids.isEmpty()) {
+                    throw new IllegalArgumentException("invalid phoneme_id_map entry for '" + symbol + "'");
+                }
+                List<Long> tokenIds = new ArrayList<>();
+                for (JsonNode id : ids) {
+                    if (!id.isIntegralNumber() || id.longValue() < 0 || id.longValue() > 1_000_000) {
+                        throw new IllegalArgumentException("invalid phoneme ID for '" + symbol + "'");
+                    }
+                    tokenIds.add(id.longValue());
+                }
+                result.put(symbol, List.copyOf(tokenIds));
+            });
+            if (!result.containsKey("^") || !result.containsKey("$") || !result.containsKey("_")) {
+                throw new IllegalArgumentException("phoneme_id_map must contain Piper BOS '^', pad '_', and EOS '$' tokens");
+            }
+            return Map.copyOf(result);
+        } catch (Exception e) {
+            if (e instanceof ModelLoadingError modelLoadingError) throw modelLoadingError;
+            throw new ModelLoadingError("Invalid Piper phoneme sidecar: " + sidecar, e);
+        }
+    }
+
+    static long[] encodePhonemes(String phonemes, Map<String, List<Long>> map) {
+        if (phonemes.length() > 40_000) throw new ValidationError("Phoneme sequence exceeds Piper limit");
+        List<Long> bos = map.get("^");
+        List<Long> eos = map.get("$");
+        List<Long> pad = map.get("_");
+        if (bos == null || eos == null || pad == null) throw new InferenceError("Piper voice phoneme map is incomplete", null, false);
+        List<Long> sequence = new ArrayList<>(bos);
+        sequence.addAll(pad);
+        for (int offset = 0; offset < phonemes.length();) {
+            int cp = phonemes.codePointAt(offset);
+            String symbol = new String(Character.toChars(cp));
+            List<Long> idsForSymbol = map.get(symbol);
+            if (idsForSymbol == null) throw new InferenceError("Piper voice does not define phoneme token", null, false);
+            sequence.addAll(idsForSymbol);
+            sequence.addAll(pad);
+            offset += Character.charCount(cp);
+        }
+        sequence.addAll(eos);
+        long[] ids = new long[sequence.size()];
+        for (int i = 0; i < ids.length; i++) ids[i] = sequence.get(i);
+        return ids;
     }
 
     /** Flatten Piper's output tensor (can be 1D, 2D, or 3D) to a 1D sample array. */
@@ -582,9 +647,9 @@ public final class PiperOnnxEngine implements TtsEngine {
      * @return modified PCM samples
      */
     private float[] applyProsody(float[] samples, SynthesisOptions options) {
-        double speed  = options.speed()  > 0 ? options.speed()  : 1.0;
-        double pitch  = options.pitch()  > 0 ? options.pitch()  : 1.0;
-        double volume = options.volume() > 0 ? options.volume() : 1.0;
+        double speed  = bounded(options.speed(), 0.5, 2.0);
+        double pitch  = bounded(options.pitch(), 0.5, 2.0);
+        double volume = bounded(options.volume(), 0.0, 2.0);
 
         float[] result = samples;
 
@@ -612,6 +677,10 @@ public final class PiperOnnxEngine implements TtsEngine {
         }
 
         return result;
+    }
+
+    private static double bounded(double value, double min, double max) {
+        return Double.isFinite(value) ? Math.max(min, Math.min(max, value)) : min;
     }
 
     /**

@@ -47,6 +47,18 @@ class SttAudioInputDecoderTest {
     }
 
     @Test
+    void rejectsEmptyRawAndWavAudioAsInvalidArgument() {
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(new byte[0], AudioFormat.PCM, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure ->
+                        assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT));
+
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(
+                pcmWav(16_000, 1, 16, new byte[0]), AudioFormat.WAV, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure ->
+                        assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT));
+    }
+
+    @Test
     void rejectsForgedRiffAndDataLengthsWithStableMalformedStatus() {
         byte[] forgedRiff = pcmWav(16_000, 1, 16, new byte[] {1, 2});
         ByteBuffer.wrap(forgedRiff).order(ByteOrder.LITTLE_ENDIAN).putInt(4, Integer.MAX_VALUE);

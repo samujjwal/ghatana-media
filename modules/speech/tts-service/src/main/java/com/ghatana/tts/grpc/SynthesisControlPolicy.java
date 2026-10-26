@@ -31,10 +31,10 @@ final class SynthesisControlPolicy {
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Unsupported emotion value", exception);
         }
-        if (speed != 1.0 || pitchSemitones != 0.0 || energy != 1.0 || emotion != Emotion.NEUTRAL) {
-            throw new NotAdmittedException(
-                    "provider has no qualified observable effect for non-neutral prosody/emotion controls");
-        }
+        if (speed != 1.0) throw unsupported("speed");
+        if (pitchSemitones != 0.0) throw unsupported("pitch");
+        if (energy != 1.0) throw unsupported("energy");
+        if (emotion != Emotion.NEUTRAL) throw unsupported("emotion");
 
         // Only the neutral pitch is currently admitted; non-neutral values returned above.
         double pitchRatio = 1.0;
@@ -51,16 +51,32 @@ final class SynthesisControlPolicy {
     static void rejectUnqualifiedSsml(String text) {
         if (text.stripLeading().startsWith("<")) {
             SsmlProcessor.create().parse(text);
-            throw new NotAdmittedException(
-                    "no qualified provider adapter maps SSML segments to observable speech effects");
+            throw unsupported("ssml");
         }
     }
 
     /** Typed capability denial; remains an UnsupportedOperationException for existing gRPC mapping. */
-    static final class NotAdmittedException extends UnsupportedOperationException {
+    static class NotAdmittedException extends UnsupportedOperationException {
         NotAdmittedException(String reason) {
             super("NOT_ADMITTED: " + reason);
         }
+    }
+
+    private static UnsupportedControlException unsupported(String control) {
+        return new UnsupportedControlException(control,
+                "provider has no qualified observable effect or mapping for " + control);
+    }
+
+    /** Identifies a valid, bounded control for which no admitted provider effect exists. */
+    static final class UnsupportedControlException extends NotAdmittedException {
+        private final String control;
+
+        UnsupportedControlException(String control, String reason) {
+            super(reason);
+            this.control = control;
+        }
+
+        String control() { return control; }
     }
 
     private static double finite(double value, String name) {

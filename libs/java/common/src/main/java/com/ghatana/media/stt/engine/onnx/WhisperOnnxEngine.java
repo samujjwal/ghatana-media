@@ -19,7 +19,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * ONNX Runtime based Whisper speech-to-text engine.
@@ -44,6 +43,7 @@ public final class WhisperOnnxEngine implements SttEngine {
     private final SttConfig config;
     private final OrtEnvironment environment;
     private final OrtSession session;
+    private final WhisperTokenizer tokenizer;
     private final Semaphore concurrencyLimiter;
     private final ExecutorService executor;
     private final AtomicLong requestCount = new AtomicLong(0);
@@ -75,6 +75,7 @@ public final class WhisperOnnxEngine implements SttEngine {
                 }
             }
 
+            this.tokenizer = WhisperTokenizer.load(config.modelPath());
             this.session = environment.createSession(config.modelPath().toString(), options);
 
             LOG.info("Whisper model loaded successfully. Input: " + session.getInputNames() +
@@ -518,10 +519,8 @@ public final class WhisperOnnxEngine implements SttEngine {
      *               token IDs decoded by a greedy strategy.</li>
      * </ul>
      *
-     * <p>Token IDs in the range [0..49363] are mapped to text via the embedded
-     * GPT-2 / Whisper BPE vocabulary.  In production, token-level decoding is
-     * handled by the ONNX decoder sub-graph exposed as a second session; this
-     * implementation covers encoder-only exports where the decoder is fused.
+     * <p>Token IDs are decoded with the vocab.json/merges.txt profile adjacent
+     * to the configured model. A missing profile is a model-loading failure.
      */
     private String runInference(float[][] melSpectrogram, TranscriptionOptions options) throws OrtException {
         int nFrames = melSpectrogram.length;
@@ -565,7 +564,7 @@ public final class WhisperOnnxEngine implements SttEngine {
 
                     // Integer / long token-ID tensor: perform greedy decoding
                     if (info.type == OnnxJavaType.INT64 || info.type == OnnxJavaType.INT32) {
-                        return decodeTokenIds(outTensor, options);
+                        return decodeTokenIds(outTensor);
                     }
                 }
             }
@@ -577,29 +576,23 @@ public final class WhisperOnnxEngine implements SttEngine {
     }
 
     /**
-     * Greedy token-ID decoder for Whisper output tensors.
-     *
-     * <p>Strips special tokens (≥ 50256) and joins the remaining indices via
-     * whitespace as a best-effort text representation. A production deployment
-     * would swap this for the full Whisper BPE vocabulary lookup.
+     * Decode token IDs through the configured Whisper tokenizer profile.
      */
-    private String decodeTokenIds(OnnxTensor tensor, TranscriptionOptions options) throws OrtException {
+    private String decodeTokenIds(OnnxTensor tensor) throws OrtException {
         Object rawIds = tensor.getValue();
         long[] ids;
         if (rawIds instanceof long[][] arr2d) {
             ids = arr2d.length > 0 ? arr2d[0] : new long[0];
         } else if (rawIds instanceof long[] arr1d) {
             ids = arr1d;
+        } else if (rawIds instanceof int[][] arr2d) {
+            ids = arr2d.length > 0 ? Arrays.stream(arr2d[0]).asLongStream().toArray() : new long[0];
+        } else if (rawIds instanceof int[] arr1d) {
+            ids = Arrays.stream(arr1d).asLongStream().toArray();
         } else {
-            return "";
+            throw new IllegalArgumentException("Whisper token output has unsupported tensor shape");
         }
-
-        // Filter special / control tokens (Whisper special-token range: ≥ 50256)
-        return Arrays.stream(ids)
-            .filter(id -> id >= 0 && id < 50256)
-            .mapToObj(id -> "<" + id + ">")
-            .collect(Collectors.joining(" "))
-            .trim();
+        return tokenizer.decode(ids);
     }
 
     // ====================================================================================

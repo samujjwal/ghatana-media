@@ -21,9 +21,13 @@ class BoundedImageDecoderAdversarialTest {
         };
 
         assertThatThrownBy(() -> BoundedImageDecoder.decode(truncatedJpeg))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOfSatisfying(BoundedImageDecoder.ImageInputException.class,
+                        failure -> assertThat(failure.reason())
+                                .isEqualTo(BoundedImageDecoder.ImageInputException.Reason.MALFORMED_ENCODING));
         assertThatThrownBy(() -> BoundedImageDecoder.decode(oversizedExifSegment))
-                .isInstanceOf(BoundedImageDecoder.UnsupportedImageMetadataException.class);
+                .isInstanceOfSatisfying(BoundedImageDecoder.UnsupportedImageMetadataException.class,
+                        failure -> assertThat(failure.reason())
+                                .isEqualTo(BoundedImageDecoder.ImageInputException.Reason.UNSUPPORTED_METADATA));
     }
 
     @Test
@@ -35,8 +39,11 @@ class BoundedImageDecoderAdversarialTest {
 
         assertThat(oversizedDimensions.length).isLessThan(64);
         assertThatThrownBy(() -> BoundedImageDecoder.decode(oversizedDimensions))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("dimensions");
+                .isInstanceOfSatisfying(BoundedImageDecoder.ImageInputException.class, failure -> {
+                    assertThat(failure.reason())
+                            .isEqualTo(BoundedImageDecoder.ImageInputException.Reason.DECODED_SIZE_LIMIT);
+                    assertThat(failure).hasMessageContaining("dimensions");
+                });
     }
 
     @Test
@@ -56,8 +63,11 @@ class BoundedImageDecoderAdversarialTest {
     void rejectsEncodedInputOverLimitBeforeFormatParsing() {
         byte[] oversized = new byte[BoundedImageDecoder.MAX_ENCODED_BYTES + 1];
         assertThatThrownBy(() -> BoundedImageDecoder.decode(oversized))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("50 MiB");
+                .isInstanceOfSatisfying(BoundedImageDecoder.ImageInputException.class, failure -> {
+                    assertThat(failure.reason())
+                            .isEqualTo(BoundedImageDecoder.ImageInputException.Reason.ENCODED_SIZE_LIMIT);
+                    assertThat(failure).hasMessageContaining("50 MiB");
+                });
     }
 
     private static byte[] pngHeader(int width, int height) {

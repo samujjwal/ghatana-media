@@ -37,6 +37,21 @@ class SynthesisControlPolicyTest {
     }
 
     @Test
+    void mapsSupportedNeutralControlsToRuntimeUnits() {
+        var request = SynthesizeRequest.newBuilder().setText("hello")
+                .setOptions(SynthesisOptions.newBuilder()
+                        .setSpeed(1.0f).setPitch(0.0f).setEnergy(1.0f).setEmotion("NEUTRAL").build())
+                .build();
+
+        var resolved = SynthesisControlPolicy.resolve(request, AudioFormat.PCM);
+
+        assertThat(resolved.speed()).isEqualTo(1.0); // multiplier
+        assertThat(resolved.pitch()).isEqualTo(1.0); // neutral pitch ratio
+        assertThat(resolved.volume()).isEqualTo(1.0); // linear gain
+        assertThat(resolved.outputFormat()).isEqualTo(AudioFormat.PCM);
+    }
+
+    @Test
     void rejectsNonFiniteAndOutOfRangeWireControlsAsInvalid() {
         for (SynthesisOptions options : new SynthesisOptions[] {
                 SynthesisOptions.newBuilder().setSpeed(Float.NaN).build(),
@@ -72,6 +87,17 @@ class SynthesisControlPolicyTest {
                     .isInstanceOf(SynthesisControlPolicy.NotAdmittedException.class)
                     .hasMessageStartingWith("NOT_ADMITTED:");
         }
+    }
+
+    @Test
+    void unsupportedBoundedControlReportsWhichEffectCannotBeApplied() {
+        var request = SynthesizeRequest.newBuilder().setText("hello")
+                .setOptions(SynthesisOptions.newBuilder().setSpeed(0.5f).build()).build();
+
+        assertThatThrownBy(() -> SynthesisControlPolicy.resolve(request, AudioFormat.PCM))
+                .isInstanceOfSatisfying(SynthesisControlPolicy.UnsupportedControlException.class, error ->
+                        assertThat(error.control()).isEqualTo("speed"))
+                .hasMessageStartingWith("NOT_ADMITTED:");
     }
 
     @Test

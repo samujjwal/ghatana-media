@@ -26,35 +26,48 @@ public final class BoundedImageDecoder {
     }
 
     public static DecodedImage decodeWithMetadata(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) throw new IllegalArgumentException("Image data is required");
-        if (bytes.length > MAX_ENCODED_BYTES) throw new IllegalArgumentException("Encoded image exceeds the 50 MiB limit");
+        if (bytes == null || bytes.length == 0) {
+            throw inputError(ImageInputException.Reason.EMPTY_INPUT, "Image data is required");
+        }
+        if (bytes.length > MAX_ENCODED_BYTES) {
+            throw inputError(ImageInputException.Reason.ENCODED_SIZE_LIMIT,
+                    "Encoded image exceeds the 50 MiB limit");
+        }
         try (ImageInputStream input = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {
-            if (input == null) throw new IllegalArgumentException("Image stream is unavailable");
+            if (input == null) {
+                throw inputError(ImageInputException.Reason.MALFORMED_ENCODING, "Image stream is unavailable");
+            }
             var readers = ImageIO.getImageReaders(input);
-            if (!readers.hasNext()) throw new IllegalArgumentException("Unsupported or malformed image encoding");
+            if (!readers.hasNext()) {
+                throw inputError(ImageInputException.Reason.MALFORMED_ENCODING,
+                        "Unsupported or malformed image encoding");
+            }
             ImageReader reader = readers.next();
             try {
                 reader.setInput(input, true, true);
                 if (!FORMATS.contains(reader.getFormatName().toLowerCase(java.util.Locale.ROOT))) {
-                    throw new IllegalArgumentException("Unsupported image format");
+                    throw inputError(ImageInputException.Reason.UNSUPPORTED_FORMAT, "Unsupported image format");
                 }
                 int orientation = exifOrientation(bytes, reader.getFormatName().toLowerCase(java.util.Locale.ROOT));
                 int width = reader.getWidth(0);
                 int height = reader.getHeight(0);
                 if (width < 1 || height < 1 || width > MAX_DIMENSION || height > MAX_DIMENSION
                         || (long) width * height > MAX_PIXELS) {
-                    throw new IllegalArgumentException("Decoded image dimensions exceed the supported bounds");
+                    throw inputError(ImageInputException.Reason.DECODED_SIZE_LIMIT,
+                            "Decoded image dimensions exceed the supported bounds");
                 }
                 BufferedImage image = reader.read(0);
                 if (image == null || image.getWidth() != width || image.getHeight() != height) {
-                    throw new IllegalArgumentException("Decoded image dimensions do not match the validated header");
+                    throw inputError(ImageInputException.Reason.DECODED_SIZE_LIMIT,
+                            "Decoded image dimensions do not match the validated header");
                 }
                 return new DecodedImage(applyOrientation(image, orientation), orientation, width, height);
             } finally {
                 reader.dispose();
             }
         } catch (IOException failure) {
-            throw new IllegalArgumentException("Failed to decode image data", failure);
+            throw new ImageInputException(ImageInputException.Reason.MALFORMED_ENCODING,
+                    "Failed to decode image data", failure);
         }
     }
 
@@ -205,7 +218,36 @@ public final class BoundedImageDecoder {
         return new UnsupportedImageMetadataException(message);
     }
 
+    private static ImageInputException inputError(ImageInputException.Reason reason, String message) {
+        return new ImageInputException(reason, message);
+    }
+
+    public static class ImageInputException extends IllegalArgumentException {
+        private final Reason reason;
+
+        public ImageInputException(Reason reason, String message) {
+            super(message);
+            this.reason = java.util.Objects.requireNonNull(reason, "reason");
+        }
+
+        public ImageInputException(Reason reason, String message, Throwable cause) {
+            super(message, cause);
+            this.reason = java.util.Objects.requireNonNull(reason, "reason");
+        }
+
+        public Reason reason() { return reason; }
+
+        public enum Reason { EMPTY_INPUT, ENCODED_SIZE_LIMIT, DECODED_SIZE_LIMIT, UNSUPPORTED_FORMAT,
+            MALFORMED_ENCODING, UNSUPPORTED_METADATA }
+    }
+
     public static final class UnsupportedImageMetadataException extends RuntimeException {
-        public UnsupportedImageMetadataException(String message) { super(message); }
+        private final ImageInputException.Reason reason = ImageInputException.Reason.UNSUPPORTED_METADATA;
+
+        public UnsupportedImageMetadataException(String message) {
+            super(message);
+        }
+
+        public ImageInputException.Reason reason() { return reason; }
     }
 }
