@@ -295,6 +295,13 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             "tenant-a", "stream-a", "principal-a", StreamKind.VIDEO,
                             "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
                             null, now, now, null, Map.of("correlationId", "corr-a"), 1);
+                    StreamSession forgedFinal = new StreamSession(
+                            "tenant-a", "stream-forged-final", "principal-a", StreamKind.VIDEO,
+                            "http-media-streaming", StreamState.DRAINING, -1, 0, 1024, 0,
+                            null, now, now, null, Map.of(), 1, "", 0, StreamFinality.FINAL_ACKNOWLEDGED);
+                    assertThatThrownBy(() -> streams.create(forgedFinal, tokenHash))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("cannot contain provider outcome state");
                     StreamSession created = streams.create(opened, tokenHash);
                     assertThat(created.sequenceTokenHash()).isEqualTo(tokenHash);
                     assertThat(streams.find("tenant-b", "stream-a")).isEmpty();
@@ -326,17 +333,13 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     StreamSession draining = streams.recordFrame(secondPending, 1, 0, true);
                     assertThat(draining.state()).isEqualTo(StreamState.DRAINING);
                     assertThat(draining.finality()).isEqualTo(StreamFinality.NONE);
-                    StreamSession finalAcknowledged = streams.recordFinalAcknowledgement(draining);
-                    assertThat(finalAcknowledged.finality()).isEqualTo(StreamFinality.FINAL_ACKNOWLEDGED);
-                    assertThat(streams.find("tenant-a", "stream-a")).contains(finalAcknowledged);
-                    assertThatThrownBy(() -> streams.recordFinalAcknowledgement(finalAcknowledged))
-                            .isInstanceOf(IllegalStateException.class);
-                    assertThatThrownBy(() -> streams.connect(
-                            finalAcknowledged, tokenHash, Instant.now().plusSeconds(60)))
-                            .isInstanceOf(IllegalStateException.class)
-                            .hasMessageContaining("cannot connect");
-                    StreamSession closed = streams.transition(finalAcknowledged, StreamState.CLOSED);
+                    assertThatThrownBy(() -> streams.recordFinalAcknowledgement(draining))
+                            .isInstanceOf(UnsupportedOperationException.class)
+                            .hasMessageContaining("unavailable");
+                    assertThat(streams.find("tenant-a", "stream-a")).contains(draining);
+                    StreamSession closed = streams.transition(draining, StreamState.CLOSED);
                     assertThat(closed.closedAt()).isNotNull();
+                    assertThat(closed.finality()).isEqualTo(StreamFinality.UNKNOWN);
                     assertThat(streams.find("tenant-a", "stream-a")).contains(closed);
                     StreamSession unknownOpen = streams.create(new StreamSession(
                             "tenant-a", "stream-unknown", "principal-a", StreamKind.AUDIO,
@@ -350,7 +353,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     StreamSession unknownClosed = streams.transition(unknownDraining, StreamState.CLOSED);
                     assertThat(unknownClosed.finality()).isEqualTo(StreamFinality.UNKNOWN);
                     assertThatThrownBy(() -> streams.recordFinalAcknowledgement(unknownDraining))
-                            .isInstanceOf(IllegalStateException.class);
+                            .isInstanceOf(UnsupportedOperationException.class);
                     StreamSession interruptedOpen = streams.create(new StreamSession(
                             "tenant-a", "stream-interrupted", "principal-a", StreamKind.AUDIO,
                             "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,

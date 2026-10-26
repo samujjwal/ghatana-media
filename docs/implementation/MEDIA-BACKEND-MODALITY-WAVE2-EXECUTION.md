@@ -1615,3 +1615,71 @@ Focused verification on JDK 27:
 - `git diff --check`: **PASS**.
 
 The canonical disposition remains **58 = 22 LOCALLY_VERIFIED + 30 PARTIAL + 6 EXTERNAL/OWNER + 0 SOURCE_CONFLICT**; 99 PDP capability memberships and 43 source RPC identities remain unchanged. No task row was promoted. The G1/G2 positive STT gate still lacks source-version-bound recording rights, a pinned policy version/profile, admitted licensed model/corpus, and a production-eligible immutable transcript writer. The R5 G0 result does not establish provider quality, runtime admission, formal PDP acceptance, lifecycle closure, data cutover, deployment or release.
+
+### R5 implementation follow-on pulse — 2026-10-26 (all 36 owner task IDs accounted)
+
+This pulse records bounded implementation progress against `GHATANA_MEDIA_WAVE2_R5_36_TASK_OWNER_EXECUTION_2026-10-26.json`. It preserves the 36-task pending denominator and the canonical 58-row dispositions above. The added tests and code are implementation evidence only; no row is promoted by this pulse.
+
+#### Executed increments
+
+- **X0 / runtime integration:** the named `runtime-integration` FOCUSED selector runs the existing top-level integration suite while excluding nested `modules/integration-tests` and unrelated Kernel, Tools, Ghatana Services and Lifecycle source graphs. The final JDK 27 run of `:services:media:integration-tests:test` passed **59 tests, 0 failures, 0 errors, 9 skips**. The 9 skips are the existing Docker Compose service tests. This suite contains deterministic integration fixtures and does not qualify a real STT model/provider journey.
+- **STT-03:** added an injectable Shared `PolicyEngine` consumer that resolves server-side immutable source/version, purpose, rights, consent expiry and revocation facts before evaluation, requires an authoritative ALLOW tied to interceptor-verified identity, and revalidates the same facts before admission. Any stale, denied, unavailable, changed or timed-out result fails closed. Production STT remains wired to `UNAVAILABLE`; there is no owner-pinned policy ID/version or canonical Media rights resolver.
+- **STT-05 / stream runtime:** additive proto checkpoint fields and V019 persist sequence-token hash, acknowledgement revision and finality. V020 adds a CAS-fenced in-flight frame reservation. `MediaRuntime` persists the reservation before provider dispatch, commits ACK against that reservation, and marks timeout/cancellation/ambiguous response as `UNKNOWN`; reconnect after a crash with a pending reservation marks it unknown and blocks replay. Final acknowledgement remains unavailable until a trusted provider-final verifier and persisted receipt path are implemented; client EOS alone cannot establish it, and new sessions cannot be pre-marked acknowledged. This does not wire STT gRPC resume, VAD, partial transcript results or final provider output.
+- **G1 / identity:** JWT/AuthGateway verification rejects missing or synthetic `platform`/`unknown` subjects. The HTTP stream projection omits credential hashes and internal provider-attempt IDs.
+- **TTS-02:** PCM validation rejects constant-sample output, including repeated placeholder samples and silence. Existing mapping fixtures were changed to varying PCM and remain explicitly test doubles; no audible real-speech result is claimed.
+- **VIS-03 / VIS-05 / VIS-07:** the native decoder harness and prior opt-in FFmpeg/FFprobe run remain documented in the preceding pulse. The current focused Vision module suite passed **425 tests, 0 failures, 0 errors, 3 skips**; its 3 native-harness skips provide no current resource acceptance. ROI geometry and inverse EXIF/letterbox mapping tests were added, while the gRPC service rejects ROI requests until a crop-aware provider exists. Existing PTS/track tests do not establish a verified source-clock model. VIS-03/05/07 remain partial.
+- **MM-03 / MM-06:** source-bound fusion abstains on mismatched source/version/frame/ROI or clock evidence. The source-clock association seam requires matching nonblank origin references and reports UNKNOWN without a verified mapping. These remain local/test seams; no production clock mapping, calibrated model or biometric authority is installed.
+- **OBS-08:** the bounded resource harness reports runtime identity and explicit `NOT_CONFIGURED`/`NOT_MEASURED` results. It profiles local fixtures only; no modality/provider hardware baseline or production throughput is claimed.
+- **G5 / MM-10:** the Data Cloud read-only review found no owner-published versioned public transport for the Java 21/27 process boundary. The owner handoff is for Data Cloud to define the versioned HTTP/gRPC operation, authorization, idempotency and unknown/unavailable semantics plus its consumer tests. Media does not invent that API; MM-10 remains partial.
+
+#### Current disposition for every R5 owner task ID
+
+| ID | R5 progress | Exact remaining acceptance boundary |
+| --- | --- | --- |
+| STT-03 | Shared Policy adapter and adversarial tests added; partial. | Owner-selected policy ID/version, production source-rights resolver and dispatch-time authority are absent; no positive provider effect. |
+| STT-04 | Existing bounded PCM/WAV decoder and focused tests reviewed; partial. | No admitted immutable artifact/version job binding or qualified FLAC path. |
+| STT-05 | Durable reservation, ACK/revision/finality persistence, timeout UNKNOWN and restart replay block added; partial. | Active STT gRPC is not wired to MediaRuntime; no provider final output, VAD, bounded partial transcript stream or reconciliation. |
+| STT-06 | Existing mapper preserves only provider-supplied timing and returns unsupported timing without fabricating words; partial. | No admitted export with native sample/word clocks or calibrated confidence and source digest. |
+| STT-07 | No biometric identity path enabled. | Anonymous overlap diarization, licensed DER corpus and separate owner-authorized biometric consent remain absent. |
+| STT-08 | Existing transcript CAS foundation remains available. | No qualified STT result projection or authorized caption-correction/source-lineage integration test. |
+| STT-09 | Existing fenced job/outbox foundations remain available. | No STT-specific canonical submit/attempt/reconcile path or post-crash real provider result readback. |
+| STT-10 | No model-quality claim added. | Licensed en/hi/ne corpus and real WER/CER/DER scoring are unavailable. |
+| TTS-02 | Added flatline/silence rejection and fixture coverage; partial. | Real authorized decoded playable speech is still required. |
+| TTS-03 | Existing fail-closed provider admission preserved. | No signed exact model/voice profile and owner-approved positive provider admission. |
+| TTS-05 | Existing rights guards preserved. | No live voice owner, biometric purpose/consent/expiry/revocation/region/retention authority or embedding encryption proof. |
+| TTS-06 | Unsupported controls remain typed. | No admitted provider and measured rate/pitch/emotion/pronunciation effects. |
+| TTS-08 | No fake stream resume added. | Qualified PCM frames, provider ordering, backpressure, cancel and finality remain unavailable. |
+| TTS-09 | Existing storage foundations remain separate from provider proof. | No real bytes/model/voice/prosody/rights digest persisted by a fenced canonical attempt. |
+| TTS-10 | No locale fallback was added. | Exact signed en/ne/hi voice-language-style rights matrix is absent. |
+| VIS-03 | Generated codec, malformed input, timeout, cleanup and native Mat harness exists; partial. | Production child processes lack OS-level CPU/RSS ceilings; current full suite skips the opt-in native harness and sampled RSS is not aggregate process-tree enforcement. |
+| VIS-05 | Source-raster ROI/EXIF geometry and additive request field added; partial. | No crop-aware detector, exact frame-version validation or response ROI provenance; requests stay `FAILED_PRECONDITION`. |
+| VIS-06 | Existing adapter stays fail-closed for unsupported model semantics. | Exact pinned ONNX tensor layout, class mapping, NMS and real mAP corpus are absent. |
+| VIS-07 | Existing PTS/track tests remain; partial. | No verified stream timebase/epoch/discontinuity mapping or qualified temporal tracking corpus. |
+| VIS-09 | Unsupported OCR/Document Intelligence behavior stays unavailable. | No admitted public Document Intelligence API, immutable region rights or text-retention mapping. |
+| VIS-10 | Sensitive face/gaze effects remain fail-closed. | No trusted biometric tenant/purpose/consent/revocation/region/retention authority. |
+| MM-02 | Existing authorization boundary remains fail-closed. | No real per-modality source authorization authority or immutable egress binding. |
+| MM-03 | Source-clock fixture validation added; partial. | Production audio/video mapping, source clock origin/epoch and measured uncertainty are absent. |
+| MM-05 | No fake child provider was installed. | Real admitted STT/Vision clients, bounded owner-job fanout, child fencing and UNKNOWN reconciliation are absent. |
+| MM-06 | Source-bound ROI/clock abstention coverage added; partial. | No production clock/ROI provenance, calibrated confidence corpus or speaker-face biometric authority. |
+| MM-08 | Existing family RPCs remain additive and fail-closed. | No admitted per-operation canonical request/source/version/purpose binding and result parity. |
+| MM-09 | Existing artifact stores remain available. | No real per-operation provider/model/time/source digest persisted via CAS and fenced outbox. |
+| MM-10 | Data Cloud boundary inspected read-only; partial. | Data Cloud owner must publish the cross-process versioned public transport and consumer tests. |
+| OBS-07 | No alert delivery claim added. | Owner-approved provider/quality/stale-source thresholds and alert-exporter-to-receiver proof are absent. |
+| OBS-08 | Runtime identity/units and explicit unmeasured states covered by tests; partial. | Named-host modality/provider CPU/GPU/RAM/network, p50/p95/p99, RTF/fps and native RSS measurements are absent. |
+| STT-12 | No synthetic E2E quality result added. | Licensed model/tokenizer/corpus, all 12 RPC/16 intents, restart/concurrency and named-host quality/load evidence remain external. |
+| TTS-07 | TTS remains unavailable absent exact voice admission. | Signed licensed voice/phonemizer/sidecar and actual decoded speech proof are absent. |
+| TTS-12 | No synthetic load claim added. | Real SSML fuzz, privacy, streaming, restart and 1/16/64 load results require the admitted provider. |
+| VIS-02 | Vision provider admission remains closed. | Exact allowlisted compatible model/export and CPU profile are absent. |
+| VIS-12 | Native harness covers fixtures only; partial. | Golden-image/mAP, provider restart/fault and named-host throughput/hardware acceptance remain absent. |
+| MM-12 | No composed positive journey or load claim added. | Requires admitted STT/Vision children, governed clocks, per-operation result evidence and 16/64 bounded load. |
+
+#### Verification on the final source cut
+
+- Runtime integration command: `JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:integration-tests:test --no-build-cache --no-parallel --max-workers=2 --console=plain` — **BUILD SUCCESSFUL**, 59 tests, 0 failures/errors, 9 skips.
+- Runtime/store focused command: `JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:launcher:test --tests com.ghatana.media.launcher.MediaRuntimeStreamTimeoutTest --tests com.ghatana.media.launcher.MediaRuntimeActiveTest --tests com.ghatana.media.launcher.MediaConsentRevocationTest :services:media:providers:aws-postgresql:test --tests com.ghatana.media.provider.aws.MediaAwsPostgresqlRuntimeStateTest --no-build-cache --no-parallel --max-workers=2 --console=plain` — **BUILD SUCCESSFUL**; launcher stream timeout/ordering/consent tests and isolated PostgreSQL reservation/finality/restart test passed.
+- STT consumer/wire tests: `:services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.SharedPolicySttRequestAuthorizationTest --tests com.ghatana.stt.grpc.SttProtoContractTest` — **4/4 passed**.
+- Multimodal and observability focus: source-bound fusion **43/43**; source-clock association **7/7**; resource harness **4/4**. TTS module suite **324/324 passed**. Vision module suite **425 passed, 3 opt-in native skips**. JWT focused selector **9/9 passed**.
+- The broader `libs:common:test` run completed **157/158**; the unrelated `AudioVideoSecurityLogRedactionTest.tracingApplicationLogOmitsRawStatusDescriptionButKeepsCodeAndCategory` assertion failed because it expects `errorCategory=none` while the current tracing interceptor logs only the gRPC status code and omits the raw description.
+- `pnpm test:backend-modality-wave2-plan`: **7/7 passed**; `git diff --check`: **PASS**.
+
+Canonical status remains **58 = 22 LOCALLY_VERIFIED + 30 PARTIAL + 6 EXTERNAL/OWNER + 0 SOURCE_CONFLICT**; 99 capability memberships and 43 registered RPC identities remain unchanged. The 36 R5 IDs above are still pending original whole-row acceptance. No model, rights, provider quality, native aggregate resource ceiling, Data Cloud API, formal PDP status, lifecycle closure, deployment or release is inferred from this implementation pulse.

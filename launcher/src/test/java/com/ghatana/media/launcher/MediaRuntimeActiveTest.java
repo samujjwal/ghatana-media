@@ -579,6 +579,36 @@ class MediaRuntimeActiveTest {
     }
 
     @Test
+    void streamHttpResponseOmitsCredentialHashAndProviderAttemptId() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-stream-http-view-");
+        MediaRuntime runtime = MediaRuntime.compose(localEnvironment(root));
+        HttpServer server = HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/", new MediaHttpHandler(runtime));
+        server.start();
+        try {
+            String endpoint = "http://127.0.0.1:" + server.getAddress().getPort();
+            String body = "{\"tenantId\":\"tenant-http-stream\",\"principalId\":\"principal-a\","
+                    + "\"correlationId\":\"stream-http\",\"streamKind\":\"AUDIO\","
+                    + "\"providerHint\":\"local-stream-diagnostic\",\"maximumBufferedBytes\":64,"
+                    + "\"leaseDuration\":\"PT30S\",\"metadata\":{}}";
+            var response = java.net.http.HttpClient.newHttpClient().send(
+                    java.net.http.HttpRequest.newBuilder(java.net.URI.create(endpoint + "/api/v1/streams"))
+                            .header("Content-Type", "application/json")
+                            .header("X-Tenant-Id", "tenant-http-stream")
+                            .header("X-Principal-Id", "principal-a")
+                            .POST(java.net.http.HttpRequest.BodyPublishers.ofString(body))
+                            .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+
+            assertThat(response.statusCode()).isEqualTo(201);
+            assertThat(response.body()).contains("connectionToken", "acknowledgementRevision", "finality");
+            assertThat(response.body()).doesNotContain("sequenceTokenHash", "inFlightAttemptId");
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    @Test
     void expiredLocalUploadCannotCompleteAndPersistsExpiredState() throws Exception {
         var root = Files.createTempDirectory("media-runtime-expired-complete-");
         byte[] content = "expired-complete".getBytes(StandardCharsets.UTF_8);

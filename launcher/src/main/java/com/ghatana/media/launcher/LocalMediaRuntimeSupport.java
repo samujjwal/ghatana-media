@@ -888,6 +888,10 @@ public final class LocalMediaRuntimeSupport {
         private final ConcurrentMap<String, StoredStream> sessions = new ConcurrentHashMap<>();
         @Override public String storeId() { return "local-stream-store"; }
         @Override public StreamSession create(StreamSession session, String tokenHash) {
+            java.util.Objects.requireNonNull(session, "session");
+            if (session.finality() != StreamFinality.NONE || session.inFlightSequence() != null) {
+                throw new IllegalArgumentException("New Media stream sessions cannot contain provider outcome state");
+            }
             session = new StreamSession(session.tenantId(), session.sessionId(), session.principalId(),
                     session.streamKind(), session.providerId(), session.state(), session.lastSequence(),
                     session.bufferedBytes(), session.maximumBufferedBytes(), session.reconnectCount(),
@@ -989,22 +993,6 @@ public final class LocalMediaRuntimeSupport {
                     expected.metadata(), expected.version() + 1, expected.sequenceTokenHash(),
                     expected.acknowledgementRevision() + 1, StreamFinality.UNKNOWN,
                     expected.inFlightSequence(), expected.inFlightAttemptId());
-            StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
-            replace(expected, updated, current == null ? "" : current.tokenHash());
-            return updated;
-        }
-        @Override public StreamSession recordFinalAcknowledgement(StreamSession expected) {
-            if (expected.state() != StreamState.DRAINING
-                    || expected.finality() != StreamFinality.NONE || expected.inFlightSequence() != null) {
-                throw new IllegalStateException("Final acknowledgement is unavailable for this stream state");
-            }
-            StreamSession updated = new StreamSession(expected.tenantId(), expected.sessionId(),
-                    expected.principalId(), expected.streamKind(), expected.providerId(), expected.state(),
-                    expected.lastSequence(), expected.bufferedBytes(), expected.maximumBufferedBytes(),
-                    expected.reconnectCount(), expected.leaseExpiresAt(), expected.createdAt(), Instant.now(),
-                    expected.closedAt(), expected.metadata(), expected.version() + 1,
-                    expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1,
-                    StreamFinality.FINAL_ACKNOWLEDGED, null, "");
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;

@@ -35,7 +35,11 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
     @Override
     public StreamSession create(StreamSession session, String connectionTokenHash) {
         ensureOpen();
+        java.util.Objects.requireNonNull(session, "session");
         requireHash(connectionTokenHash);
+        if (session.finality() != StreamFinality.NONE || session.inFlightSequence() != null) {
+            throw new IllegalArgumentException("New Media stream sessions cannot contain provider outcome state");
+        }
         StreamSession persistable = persistedPrecision(new StreamSession(
                 session.tenantId(), session.sessionId(), session.principalId(), session.streamKind(),
                 session.providerId(), session.state(), session.lastSequence(), session.bufferedBytes(),
@@ -188,29 +192,6 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.createdAt(), now, now, expected.metadata(), expected.version() + 1,
                 expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1,
                 StreamFinality.UNKNOWN, expected.inFlightSequence(), expected.inFlightAttemptId()));
-        update(expected, updated, null, null);
-        return updated;
-    }
-
-    @Override
-    public StreamSession recordFinalAcknowledgement(StreamSession expected) {
-        ensureOpen();
-        if (expected.state() != StreamState.DRAINING) {
-            throw new IllegalStateException("Final stream acknowledgement requires a draining session");
-        }
-        if (expected.finality() != StreamFinality.NONE) {
-            throw new IllegalStateException("Unknown stream finality cannot be upgraded to acknowledged");
-        }
-        if (expected.inFlightSequence() != null) {
-            throw new IllegalStateException("Unresolved provider attempt prevents final acknowledgement");
-        }
-        StreamSession updated = persistedPrecision(new StreamSession(
-                expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
-                expected.providerId(), expected.state(), expected.lastSequence(), expected.bufferedBytes(),
-                expected.maximumBufferedBytes(), expected.reconnectCount(), expected.leaseExpiresAt(),
-                expected.createdAt(), Instant.now(), expected.closedAt(), expected.metadata(),
-                expected.version() + 1, expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1,
-                StreamFinality.FINAL_ACKNOWLEDGED, null, ""));
         update(expected, updated, null, null);
         return updated;
     }

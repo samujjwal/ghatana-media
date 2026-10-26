@@ -10,8 +10,11 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.sun.net.httpserver.HttpExchange;
@@ -366,7 +369,9 @@ public final class MediaHttpHandler implements HttpHandler {
                 request.leaseDuration(),
                 MediaMetadataSanitizer.sanitize(request.metadata()),
                 request.governanceContext());
-        json(exchange, 201, runtime.openStream(sanitized));
+        var registration = runtime.openStream(sanitized);
+        json(exchange, 201, new StreamSessionRegistrationView(
+                streamSessionView(registration.session()), registration.connectionToken()));
     }
 
     private void connectStream(
@@ -374,8 +379,8 @@ public final class MediaHttpHandler implements HttpHandler {
         if (runtime.stream(tenantId, principalId, sessionId).isEmpty()) {
             error(exchange, 404, "STREAM_NOT_FOUND", "Media stream not found"); return;
         }
-        json(exchange, 200, runtime.connectStream(
-                tenantId, principalId, sessionId, requiredHeader(exchange, "X-Stream-Token")));
+        json(exchange, 200, streamSessionView(runtime.connectStream(
+                tenantId, principalId, sessionId, requiredHeader(exchange, "X-Stream-Token"))));
     }
 
     private void frame(
@@ -395,8 +400,8 @@ public final class MediaHttpHandler implements HttpHandler {
         if (runtime.stream(tenantId, principalId, sessionId).isEmpty()) {
             error(exchange, 404, "STREAM_NOT_FOUND", "Media stream not found"); return;
         }
-        json(exchange, 200, runtime.closeStream(
-                tenantId, principalId, sessionId, requiredHeader(exchange, "X-Stream-Token")));
+        json(exchange, 200, streamSessionView(runtime.closeStream(
+                tenantId, principalId, sessionId, requiredHeader(exchange, "X-Stream-Token"))));
     }
 
     private void stream(HttpExchange exchange, String tenantId, String principalId, String sessionId) throws IOException {
@@ -404,7 +409,15 @@ public final class MediaHttpHandler implements HttpHandler {
         if (session == null) {
             error(exchange, 404, "STREAM_NOT_FOUND", "Media stream not found"); return;
         }
-        json(exchange, 200, session);
+        json(exchange, 200, streamSessionView(session));
+    }
+
+    private static StreamSessionView streamSessionView(StreamSession session) {
+        return new StreamSessionView(session.tenantId(), session.sessionId(), session.principalId(),
+                session.streamKind(), session.providerId(), session.state(), session.lastSequence(),
+                session.bufferedBytes(), session.maximumBufferedBytes(), session.reconnectCount(),
+                session.leaseExpiresAt(), session.createdAt(), session.updatedAt(), session.closedAt(),
+                session.metadata(), session.version(), session.acknowledgementRevision(), session.finality());
     }
 
     private void providers(HttpExchange exchange) throws IOException {
@@ -613,4 +626,27 @@ public final class MediaHttpHandler implements HttpHandler {
             allowedRegions = Set.copyOf(allowedRegions == null ? Set.of() : allowedRegions);
         }
     }
+
+    private record StreamSessionRegistrationView(StreamSessionView session, String connectionToken) { }
+
+    /** HTTP projection that omits credential hashes and internal provider-attempt identifiers. */
+    private record StreamSessionView(
+            String tenantId,
+            String sessionId,
+            String principalId,
+            StreamKind streamKind,
+            String providerId,
+            StreamState state,
+            long lastSequence,
+            long bufferedBytes,
+            long maximumBufferedBytes,
+            int reconnectCount,
+            Instant leaseExpiresAt,
+            Instant createdAt,
+            Instant updatedAt,
+            Instant closedAt,
+            Map<String, Object> metadata,
+            long version,
+            long acknowledgementRevision,
+            StreamFinality finality) { }
 }

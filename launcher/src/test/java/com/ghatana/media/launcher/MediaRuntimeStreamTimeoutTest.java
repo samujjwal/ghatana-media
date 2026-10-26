@@ -7,7 +7,10 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamAck;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -26,6 +29,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Verifies ambiguous provider timeout is persisted as UNKNOWN and cannot be replayed. */
 class MediaRuntimeStreamTimeoutTest {
+
+    @Test
+    void localStoreRejectsSessionPreMarkedWithUnverifiedProviderFinality() {
+        Instant now = Instant.now();
+        StreamSession forgedFinal = new StreamSession(
+                "tenant-a", "stream-forged-final", "principal-a", StreamKind.AUDIO,
+                "provider-a", StreamState.DRAINING, -1, 0, 128, 0,
+                null, now, now, null, java.util.Map.of(), 1, "", 0, StreamFinality.FINAL_ACKNOWLEDGED);
+
+        assertThatThrownBy(() -> new LocalMediaRuntimeSupport.StreamStore()
+                .create(forgedFinal, "a".repeat(64)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("cannot contain provider outcome state");
+    }
 
     @Test
     void timeoutCancelsProviderWorkPersistsUnknownAndBlocksSequenceReplay() throws Exception {
