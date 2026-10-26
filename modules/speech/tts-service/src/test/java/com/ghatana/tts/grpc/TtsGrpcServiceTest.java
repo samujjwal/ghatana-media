@@ -6,6 +6,7 @@ import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.api.TtsStreamSink;
 import com.ghatana.media.tts.api.TtsStreamingSession;
 import com.ghatana.media.tts.api.VoiceInfo;
+import com.ghatana.tts.engine.PcmAudioValidator;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.CanonicalAudioFormat;
@@ -940,6 +941,71 @@ class TtsGrpcServiceTest {
         verify(observer, never()).onNext(any());
         verify(observer, never()).onCompleted();
         verify(observer, never()).onError(any());
+    }
+
+    @Test
+    void admittedStreamCancellationAfterPartialChunkKeepsDeliveredPrefixAndSuppressesFinality() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(observer.isReady()).thenReturn(true);
+        doAnswer(invocation -> { cancelHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnCancelHandler(any(Runnable.class));
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 1));
+        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk -> !chunk.getIsFinal()
+                && chunk.getAudioData().equals(ByteString.copyFrom(new byte[] {1, 2}))));
+
+        cancelHandler.get().run();
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 1, true, 2));
+
+        assertThat(sessionCancelled).isTrue();
+        verify(observer, org.mockito.Mockito.times(1)).onNext(any());
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).onError(any());
+    }
+
+    @Test
+    void admittedStreamBoundsCumulativeOutputAndCancelsWhenTheLimitIsExceeded() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        AtomicInteger deliveredChunks = new AtomicInteger();
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        byte[] providerBuffer = new byte[64 * 1024];
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(monoPcm16Format());
+            for (int sequence = 0; sequence < PcmAudioValidator.MAX_AUDIO_BYTES / providerBuffer.length; sequence++) {
+                sink.onChunk(new com.ghatana.media.common.AudioChunk(providerBuffer, sequence, false, sequence));
+            }
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(
+                    new byte[] {1, 2}, PcmAudioValidator.MAX_AUDIO_BYTES / providerBuffer.length, false,
+                    PcmAudioValidator.MAX_AUDIO_BYTES / providerBuffer.length));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new StreamObserver<>() {
+            @Override public void onNext(com.ghatana.tts.core.grpc.proto.AudioChunk value) {
+                deliveredChunks.incrementAndGet();
+            }
+            @Override public void onError(Throwable failure) { error.set(failure); }
+            @Override public void onCompleted() {}
+        };
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertThat(deliveredChunks).hasValue(PcmAudioValidator.MAX_AUDIO_BYTES / providerBuffer.length);
+        assertThat(error.get()).isNotNull();
+        assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.FAILED_PRECONDITION);
+        assertThat(sessionCancelled).isTrue();
     }
 
     @Test
