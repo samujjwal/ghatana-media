@@ -142,7 +142,7 @@ flowchart LR
 | **MM-07** (W2) | MM-06 | `media.multimodal.describe; media.multimodal.summarize; media.multimodal.extract.structured; NFR-FIDELITY-001` | `modules/intelligence/multimodal-service/engine/MultimodalResult.java; engine/MultimodalAnalysisEngine.java`: Produce typed, source-grounded description/summaries/structured outputs with references to frame/word/region/version and uncertainty; if no qualified semantics/provider return abstain. | Every asserted entity/time fact traces to actual source observation; contradictory/audio-only/video-only cases do not invent missing evidence. |
 | **MM-08** (W2) | MM-05,MM-06 | `media.multimodal.observe.source-grounded; NFR-RECOVERY-001` | `modules/intelligence/multimodal-service/service/PersistentMultimodalService.java; engine/MultimodalAnalysisEngine.java`: Preserve result, quality, attempt identity and finality independently for each selected capability operation; cancellation and UNKNOWN remain scoped to the affected operation. Keep the legacy cross-modal family transport `NOT_ADMITTED` until its request/result is bound to canonical capability operations. | No family-level aggregate result or PARTIAL is emitted. A failed/ambiguous selected operation retains its own typed outcome and exact attempt/provider identity; the independently submitted capability's result remains separate; no blind retry or false combined completion. |
 | **MM-09** (W3) | MM-05,MM-08 | `media.multimodal.observe.source-grounded; NFR-AUD-001` | `modules/intelligence/multimodal-service/service/PersistentMultimodalService.java; Media job/artifact/version outbox SPI`: Persist fusion result, source artifact references, selected provider/model, time mapping, provenance and privacy classification under CAS/fenced job attempt; replay only proved idempotent effects. | Read exact result bytes/version; repeated request same identity stable; no generated output when grounded data missing. |
-| **MM-10** (W3) | MM-05,MM-07 | `media.multimodal.extract.structured; NFR-PRIV-001` | `modules/intelligence/multimodal-service/datacloud/DataCloudMultimodalAdapter.java; MediaSemanticObservationProjector.java`: Publish only governed typed metadata and redacted source-grounded observations to public Data Cloud/AI Inference boundaries; no direct internal DB access or generic platform engine fork. | Projection format/visibility/classification/version negative tests; disabled platform returns explicit integration unavailable but local Media result preserved. |
+| **MM-10** (W3) | MM-05,MM-07 | `media.multimodal.extract.structured; NFR-PRIV-001` | `adapters/data-cloud-media/src/main/java/com/ghatana/audio/video/multimodal/datacloud/{DataCloudMultimodalAdapter,MediaSemanticObservationProjector}.java`: Publish only governed typed metadata and redacted source-grounded observations to public Data Cloud/AI Inference boundaries; no direct internal DB access or generic platform engine fork. | Projection format/visibility/classification/version negative tests; disabled platform returns explicit integration unavailable but local Media result preserved. |
 | **MM-11** (W3) | MM-07,MM-08,OBS-01 | `media.multimodal.analyze.cross-modal; NFR-RECOVERY-001` | `modules/intelligence/multimodal-service/grpc/MultimodalGrpcService.java; multimodal_service.proto`: Exercise 10 RPCs: Process/AnalyzeVideoWithAudio, GenerateDescription, AnalyzeCrossModal, GetInsights, model Load/Unload/List and GetStatus/Health; management only if provider admission exists. | 10/10 proto method matrix with version, auth, cancellation, unsupported branches; no body success for unsupported models. |
 | **MM-12** (W3) | MM-01..MM-11 | `media.multimodal.observe.source-grounded; NFR-PERF-001` | `modules/intelligence/multimodal-service/src/test; MultimodalGrpcServiceInProcessIntegrationTest; MultimodalAnalysisEngineTest`: Run real STT+Vision composed E2E with artifact provenance, offset gold corpus, calibrated/unknown result semantics, 16/64 concurrent requests, p50/p95/p99, backpressure and fanout limits. | Actual source-grounded positive result and protected negative/unknown cases; no dummy frames or unqualified scientific confidence. |
 
@@ -352,13 +352,14 @@ Execute from **`ghatana-media` root** using the actual Gradle source-composite p
 ./gradlew :services:media:modules:speech:tts-service:test --no-build-cache
 ./gradlew :services:media:modules:vision:vision-service:test --no-build-cache
 ./gradlew :services:media:modules:intelligence:multimodal-service:test --no-build-cache
+./gradlew :services:media:adapters:data-cloud-media:test --no-build-cache
 ./gradlew :services:media:audio-video-observability:test --no-build-cache
 ./gradlew :services:media:modules:integration-tests:test --no-build-cache
 # separate integration/compose profile when Testcontainers + image prerequisites exist
 ./gradlew :services:media:integration-tests:test --no-build-cache
 ```
 
-For docker compose smoke images, `docker/Dockerfile.stt-service` and `docker/Dockerfile.tts-service` exist in Media; `integration-tests/docker-compose.integration.yml` honors `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE`. A successful image inspect does not prove the image was built from the current source or includes admitted model weights; use pinned image digest, source commit, SBOM/license evidence and actual health/rpc behavior before reporting integration PASS.
+The optional Data Cloud adapter tests remain separately runnable with `:services:media:adapters:data-cloud-media:testDataCloudEventBridge` and `:services:media:adapters:data-cloud-media:testDataCloudJobHandling`. For docker compose smoke images, `docker/Dockerfile.stt-service` and `docker/Dockerfile.tts-service` exist in Media; `integration-tests/docker-compose.integration.yml` honors `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE`. A successful image inspect does not prove the image was built from the current source or includes admitted model weights; use pinned image digest, source commit, SBOM/license evidence and actual health/rpc behavior before reporting integration PASS.
 
 **Test accountability** records every suite/task separately: actual command, git source cut, Java/OS/hardware/container/model versions, discovered/pass/fail/**skip** (exact reasons), response/error/latency trace and real sample data or fixture oracle. The plan is not a test run. A reported prior run with 9 compose skips remains 9 unresolved *image-dependent* execution assertions; do not erase these just because a different in-process suite passes.
 
@@ -1365,3 +1366,105 @@ The exhaustive handoff disposition is unchanged: **B1 (11):** 9 partial (`STT-03
 Verification used JDK 27 for Media source-composite modules. The Media root build aligns only Media Java subprojects to the checked-out Shared JVM 27 source and current Lombok processor, allowing TTS and observability to compile; it does not alter Event Plane's target. The Event Plane/Shared target mismatch is an exact build-owner handoff, not a task-status promotion or a reason to stop independent code work.
 
 Current exclusive status remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 EXTERNAL/OWNER, 0 SOURCE_CONFLICT (58 total)**. No provider admission, real-model quality, native decoder qualification, formal PDP/gtool acceptance, operational writer cutover, deployment or release is claimed. Working-tree changes remain uncommitted.
+
+### Revised blocker-elimination execution pulse — 2026-10-25
+
+This pulse follows the revised implementation-first recovery order against the clean starting cut `524b3607d8de1ac9f227a06708a14da29540b52b`. It preserves the existing 58-task ledger and all 99 capability memberships, 43 RPCs, 12 scenarios and five residual handoffs. The downloaded JSON handoff was used only as a non-authoritative inventory; no task-wide disposition was changed.
+
+**R0 — source protection:** `HEAD == origin/main == 524b3607d8de1ac9f227a06708a14da29540b52b`; the initial porcelain status and untracked inventory were empty, and `git diff --check` passed. No reset, stash, rebase, sibling-source edit, or old-runtime edit occurred.
+
+**R1 — source-composite diagnosis and adapter isolation:** the source-composite dependency report runs under Temurin 27.0.1.0.2+1 and identifies `com.ghatana.platform:core:0.1.0-SNAPSHOT` as failed. `dependencyInsight` and `:services:event-plane:contracts:compileJava` confirm the first actual incompatibility: Event Plane selects Java 21 while source-composite Shared Core is compatible with Java 27+. The Event Plane compile failed before Java compilation. The correction remains with Ghatana/Shared owners: establish a tested Java 21-compatible public API closure, or upgrade the whole deployed closure and runtime. No single target edit, artifact-only substitution or variant suppression is accepted.
+
+A read-only closure audit confirmed the rest of the target matrix. Local Ghatana is clean at `6f0404fb608966a9b84352abb62974b071d92d3a`; local Shared is at `fa01789fbd51b8012ba8ca750355455af5ffbeb0` and has unrelated existing changes, preserved. Ghatana's catalog and Event Plane contracts target Java 21 (`ghatana/gradle/libs.versions.toml:9`, `ghatana/services/event-plane/contracts/build.gradle.kts:10–13`); Data Cloud `shared-spi`, analytics, delivery API and AI Inference delivery API use the Ghatana Java 21 convention. Shared Core, Security, Audit, Observability, Runtime, HTTP, Governance, Agent Core, Contracts and test modules target Java 27 (`ghatana-shared/gradle/libs.versions.toml:9`, `ghatana-shared/build-logic/conventions/.../ConventionSupport.kt:31–38,56–65`), and Shared requires a JDK 27 build JVM. Data Cloud's `shared-spi` exposes Shared Core/Security and Event Plane contracts; analytics exposes shared-spi/Core/Observability/Testing; delivery API exposes those plus Event Plane and other Shared APIs and depends on AI Inference delivery API; AI Inference also exposes Shared Core/HTTP/Observability/Security. Event Plane's current deployment images remain Java 21 (`ghatana/services/event-plane/deploy/Dockerfile:14,34`). A targeted Shared source scan found Java 21 APIs but no demonstrated need for later bytecode; that makes a Java 21 compatibility lane plausible, not proven. No full source-composite Java 21 compile, installed consumer, or Java 21 runtime smoke has passed. Upstream tests were not repeated in this pulse. The next lawful owner action is to test the complete transitive closure at Java 21 and installed consumers; if it fails, any Java 27 choice requires an authorized whole-closure runtime/image migration.
+
+BK-02's Media-side adapter boundary is implemented in `adapters/data-cloud-media/`. It preserves the existing STT/Vision/Multimodal Java packages and Data Cloud public contracts, moves the four optional adapter/projector sources and their tests together, and removes only the direct Data Cloud dependencies from the three modality core projects. The existing settings file auto-includes this adapter project. Tagged STT/Vision adapter test tasks now live at the adapter boundary. Source scans show no remaining direct Data Cloud imports in those modality modules. This is a source change, not verified build unblocking.
+
+BK-03 produced bounded STT and TTS admission progress. The active STT gRPC path now sends adaptation and correction through the verified-identity request-authorization seam before returning its existing typed unavailable result; tests were added for denied and production-default-unavailable decisions with zero library effects. The existing wire requests still lack immutable source-version and purpose fields, and no source-authoritative owner/rights resolver is composed, so STT remains unavailable for real requests. TTS readiness now requires the exact configured voice/language profile, an injected provider admission decision, a configured request authorizer whose explicit live-readiness signal is true, and provider health. Production still uses unavailable provider/voice authority; test fixture readiness does not admit a model or voice. Vision already fails closed before model initialization through `VisionProviderAdmission`; the active contract has no trusted source/version/purpose/rights resolver, so no callback or caller `consent_status` was promoted into authority and no Vision source change was made. The new STT/TTS Java tests were not executed because the bounded Gradle attempts did not reach Media tasks.
+
+Two bounded JDK 27 module-test attempts were stopped before any Media task or assertion ran. The combined six-module run and then a single STT test both waited at `:ghatana-kernel:build-logic:conventions:compileKotlin`; the second daemon thread dump shows `DefaultBuildControllers.awaitCompletion` while execution workers are idle. The exact log/thread evidence is recorded in the pulse JSON below. A Kernel/Gradle build owner must diagnose included-build completion and Kotlin/Java target alignment; no third retry or compatibility bypass was used. Adapter and modality Gradle tests therefore have no result at this cut.
+
+**R2 — pinned local tools:** Temurin JDK 27.0.1.0.2+1 was installed outside the repository from the ARM64 archive listed on the [Adoptium Temurin 27 release page](https://adoptium.net/temurin/releases/?arch=aarch64&os=mac&version=27); the published and locally verified archive SHA-256 is `c2619cb73ff1d296edd0644d92ae8ed94039bc1bdd43282398835b7f88134fb6`. FFmpeg and FFprobe 8.1.2 were installed outside the repository from the [Server Side Up LGPL-only Apple Silicon release](https://github.com/serversideup/ffmpeg-lgpl-builds/releases/tag/v8.1.2-27); archive SHA-256 is `ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332`, executable SHA-256 values are recorded below, upstream FFmpeg source SHA-256 is `464beb5e7bf0c311e68b45ae2f04e9cc2af88851abb4082231742a74d97b524c`, and the binary identifies itself as LGPL-2.1-only. A synthetic one-second MP4 encoded and decoded under a 15-second CPU and 2 MiB output limit; `ffprobe` confirmed two 160×120 H.264 frames and 16 kHz mono AAC. The output was 11,311 bytes and peak child RSS was 40,009,728 bytes. The two checked-in J-03 Explorer MOVs were not used as decoder inputs: their source plan explicitly marks the simulated recordings unreviewed and their rights, privacy, audio and recording quality unapproved. This is a bounded native-tool smoke using a generated fixture, not codec-profile or deployment qualification. The digest-pinned Prometheus `promtool` reports version 3.15.1.
+
+Prometheus checks used the cached immutable `prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2` image: `check rules infra/monitoring/alerts/audio-video.yml` found 40 rules; `test rules infra/monitoring/tests/audio-video.rules.test.yml` passed 31 scenario groups and 87 alert assertions. Alert delivery and deployment remain untested.
+
+**R3 — candidate source/license review:** no weights or corpora were downloaded or executed. [Whisper's README](https://github.com/openai/whisper/blob/main/README.md) states MIT terms for code and weights, and [`whisper/__init__.py`](https://github.com/openai/whisper/blob/main/whisper/__init__.py) pins tiny weight SHA-256 `65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9`; its `.pt` artifact is not a drop-in for the current ONNX route, and request-input rights, exact corpus release and locale quality remain unsupplied. [Kokoro-82M's model card](https://huggingface.co/hexgrad/Kokoro-82M) claims Apache-2.0 weights and SHA-256 `496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4`; its selected voice's rights, runtime adapter, and Hindi quality remain unsupplied, and Nepali is not listed in the [pinned voice list](https://huggingface.co/hexgrad/Kokoro-82M/blob/c3327e9bac3dbe55779397bfa82de0f8806fb3bc/VOICES.md). [YOLOX's source license](https://github.com/Megvii-BaseDetection/YOLOX/blob/main/LICENSE) is Apache-2.0, but no weight license/digest was established; the project's [open weight-license question](https://github.com/Megvii-BaseDetection/YOLOX/issues/1865) leaves weights unavailable for qualification, and the current YOLOv8-oriented parser is not compatible by assumption. These are source-reviewed candidates only; none is admitted.
+
+`pnpm test:backend-modality-wave2-plan` passed 7/7 structural checks and `git diff --check` passed. No task was promoted: the inventory remains 22 `LOCALLY_VERIFIED`, 30 `PARTIAL`, six `EXTERNAL/OWNER`, zero `SOURCE_CONFLICT`; `newlyTaskAccepted` and `newlyBuildUnblocked` are empty. No real STT/TTS/Vision provider, model or corpus was admitted, and no persisted modality result was produced.
+
+```json
+{
+  "taskDenominator": 58,
+  "locallyVerified": 22,
+  "partial": 30,
+  "externalOwner": 6,
+  "newlyTaskAccepted": [],
+  "newlyBuildUnblocked": [],
+  "realPositiveOutcomes": [],
+  "remainingRootBlockers": [
+    {
+      "id": "BK-01",
+      "owner": "Ghatana and Shared JVM owners",
+      "failure": "Event Plane and Data Cloud consumers request JVM 21 across Shared Core and related JVM 27 variants; deployed Event Plane remains Java 21; the complete compatibility matrix is untested",
+      "nextCodeAction": "Compile Event Plane, Data Cloud SPI/API/analytics, AI Inference and Shared compile/test closure at Java 21, then verify installed consumers/runtime; if unsupported, obtain authorization for whole-closure Java 27 image/runtime migration"
+    },
+    {
+      "id": "LANE-A-INCLUDED-BUILD-WAIT",
+      "owner": "Kernel build-logic and Gradle integrator",
+      "failure": "Single-module and six-module test graphs wait at Kernel conventions compileKotlin before any Media task executes",
+      "nextCodeAction": "Diagnose included-build controller completion and Java/Kotlin target metadata, then rerun the focused Media suites once"
+    }
+  ],
+  "buildResults": [
+    {"target": ":services:event-plane:contracts:dependencies", "result": "PASS_DIAGNOSTIC_WITH_FAILED_CORE_VARIANT", "testCount": null},
+    {"target": ":services:event-plane:contracts:dependencyInsight", "result": "CONFIRMED_JVM_21_TO_27_VARIANT_MISMATCH", "testCount": null},
+    {"target": ":services:event-plane:contracts:compileJava", "result": "FAIL_JVM_VARIANT_MISMATCH", "testCount": null},
+    {"target": "Event Plane/Data Cloud/AI Inference/Shared source target matrix", "result": "READ_ONLY_SOURCE_AUDIT_JAVA_21_LANE_PLAUSIBLE_NOT_PROVEN", "testCount": null},
+    {"target": "STT/Vision/MM/adapter/TTS/observability Gradle tests", "result": "INTERRUPTED_BEFORE_MEDIA_TASKS_AT_INCLUDED_BUILD_WAIT", "testCount": null},
+    {"target": "pnpm test:backend-modality-wave2-plan", "result": "PASS", "testCount": 7},
+    {"target": "promtool check and test rules", "result": "PASS", "testCount": 87}
+  ],
+  "measuredResources": {
+    "syntheticMp4Bytes": 11311,
+    "durationSeconds": 1,
+    "videoFrames": 2,
+    "resolution": "160x120",
+    "audio": "AAC 16000 Hz mono",
+    "cpuLimitSeconds": 15,
+    "outputLimitBytes": 2097152,
+    "peakChildRssBytes": 40009728
+  },
+  "toolchain": {
+    "jdkVersion": "Temurin 27.0.1.0.2+1",
+    "ffmpegVersion": "8.1.2",
+    "ffprobeVersion": "8.1.2",
+    "promtoolVersion": "3.15.1",
+    "jdkArchiveSha256": "c2619cb73ff1d296edd0644d92ae8ed94039bc1bdd43282398835b7f88134fb6",
+    "ffmpegArchiveSha256": "ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332",
+    "ffmpegBinarySha256": "5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33",
+    "ffprobeBinarySha256": "b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f",
+    "prometheusImage": "prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2"
+  },
+  "modelAdmissionCandidates": [
+    {"id": "whisper-tiny", "admission": "NOT_ADMITTED", "reason": "PyTorch artifact does not fit current ONNX route; request/corpus rights and adapter proof are unsupplied"},
+    {"id": "kokoro-82m", "admission": "NOT_ADMITTED", "reason": "Per-voice rights and runtime adapter are unsupplied; locale quality is not established"},
+    {"id": "yolox-nano", "admission": "NOT_ADMITTED", "reason": "Weight license and digest are unsupplied; parser parity is unimplemented"}
+  ],
+  "evidenceDigests": {
+    "combinedTestDaemonLog": "sha256:5e08a894291e21e9988bfbd0ac70e1e3eb5427db33437e5bc8958e8e016fab1b",
+    "singleSttTestDaemonLog": "sha256:00430ec01a5142da59f77ca500771c4918f6baef40ff2643b067750a8e644892",
+    "singleSttThreadDump": "sha256:2b6f09d98157647412289f5b86a7ea63c8783912318eba03b5c648c7f44c6795"
+  },
+  "workPackages": [
+    {"id": "BK-01", "source_changed": false, "build_unblocked": false, "unit_tests_passed": "CLOSURE_AUDIT_ONLY_NO_TESTS", "negative_contract_passed": "NOT_RUN", "real_provider_positive": "NOT_ADMITTED", "persisted_reread": "NOT_RUN", "failure_recovery_passed": "NOT_RUN", "quality_measured": false, "task_accepted": false},
+    {"id": "BK-02", "source_changed": true, "build_unblocked": false, "unit_tests_passed": "NOT_RUN_GRADLE_INCLUDED_BUILD_WAIT", "negative_contract_passed": "NOT_RUN", "real_provider_positive": "NOT_ADMITTED", "persisted_reread": "NOT_RUN", "failure_recovery_passed": "NOT_RUN", "quality_measured": false, "task_accepted": false},
+    {"id": "BK-03-STT", "source_changed": true, "build_unblocked": false, "unit_tests_passed": "NOT_RUN_GRADLE_INCLUDED_BUILD_WAIT", "negative_contract_passed": "ADDED_NOT_RUN", "real_provider_positive": "NOT_ADMITTED", "persisted_reread": "NOT_RUN", "failure_recovery_passed": "NOT_RUN", "quality_measured": false, "task_accepted": false},
+    {"id": "BK-03-TTS", "source_changed": true, "build_unblocked": false, "unit_tests_passed": "NOT_RUN_GRADLE_INCLUDED_BUILD_WAIT", "negative_contract_passed": "ADDED_NOT_RUN", "real_provider_positive": "NOT_ADMITTED", "persisted_reread": "NOT_RUN", "failure_recovery_passed": "NOT_RUN", "quality_measured": false, "task_accepted": false},
+    {"id": "BK-03-Vision", "source_changed": false, "build_unblocked": false, "unit_tests_passed": "EXISTING_FAIL_CLOSED_TESTS_NOT_RERUN", "negative_contract_passed": "EXISTING_TESTS_NOT_RERUN", "real_provider_positive": "NOT_ADMITTED", "persisted_reread": "NOT_RUN", "failure_recovery_passed": "NOT_RUN", "quality_measured": false, "task_accepted": false},
+    {"id": "BK-04", "source_changed": false, "build_unblocked": false, "unit_tests_passed": "CANDIDATE_SOURCE_REVIEW_ONLY", "negative_contract_passed": "NOT_APPLICABLE", "real_provider_positive": "NOT_ADMITTED", "persisted_reread": "NOT_RUN", "failure_recovery_passed": "NOT_RUN", "quality_measured": false, "task_accepted": false},
+    {"id": "BK-06", "source_changed": false, "build_unblocked": false, "unit_tests_passed": "NOT_RUN", "negative_contract_passed": "NOT_RUN", "real_provider_positive": "NOT_APPLICABLE", "persisted_reread": "NOT_APPLICABLE", "failure_recovery_passed": "NOT_RUN", "quality_measured": false, "native_tool_smoke": "PASS_SYNTHETIC_BOUNDED", "task_accepted": false},
+    {"id": "BK-09", "source_changed": false, "build_unblocked": false, "unit_tests_passed": "NOT_APPLICABLE", "negative_contract_passed": "PROMTOOL_87_ASSERTIONS_PASS", "real_provider_positive": "NOT_ADMITTED", "persisted_reread": "NOT_APPLICABLE", "failure_recovery_passed": "NOT_RUN", "quality_measured": false, "rule_validation": "PROMTOOL_CHECK_AND_TEST_PASS", "task_accepted": false}
+  ],
+  "sourceFingerprintScope": "SHA-256 over normalized sorted paths and file contents for every tracked and non-ignored untracked working-tree file, excluding this plan to avoid self-reference; symlinks use their link target bytes",
+  "sourceFingerprint": "sha256:5cfcaba81691d8754475bd79595fde65419212f2e23bf99f56ba6ddd88146271"
+}
+```
