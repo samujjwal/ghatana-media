@@ -107,6 +107,15 @@ class SttTranscriptionResponseMapperTest {
     }
 
     @Test
+    void rejectsProcessingTimeMillisecondOverflowAsInvalidResult() {
+        TranscriptionResult result = new TranscriptionResult(
+                "transcript", 0.5, List.of(), List.of(), Duration.ofSeconds(Long.MAX_VALUE),
+                "en-US", "fixture-model");
+
+        assertInvalid(result, Duration.ofSeconds(1), "processing time exceeds representable millisecond bounds");
+    }
+
+    @Test
     void absentWordTimingIsUnknownAndConfidenceStillExplicitlyUncalibrated() {
         var response = SttTranscriptionResponseMapper.toProto(
                 result(0.0, List.of(), List.of()), Duration.ofSeconds(1)).build();

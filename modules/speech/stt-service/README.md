@@ -28,6 +28,23 @@ fail before the server binds. Supplying descriptive metadata does not admit a
 provider. No live provider or model quality qualification is claimed. The
 current STT entry in `config/provider-manifest.json` records these dispositions.
 
+## gRPC message bounds
+
+`SttGrpcServer` explicitly keeps gRPC-Java's documented 4 MiB
+[`ServerBuilder.maxInboundMessageSize`](https://grpc.github.io/grpc-java/javadoc/io/grpc/ServerBuilder.html)
+default per-message receive limit. That is the effective maximum serialized
+request size when the production server is admitted and bound, including
+`Transcribe`. The current production provider profile is `NOT_ADMITTED`, so no
+public STT server currently binds;
+`SttAudioInputDecoder`'s 100 MiB input
+check runs only after protobuf bytes have been received and materialized, so it
+does not raise the transport limit. `SttStreamSequenceValidator` defines a 1 MiB
+chunk limit, but the production `StreamTranscribe` RPC is `NOT_ADMITTED` before
+chunk dispatch, so that helper limit is not an active transport bound today.
+Raising the public unary upload size requires a method-specific transport
+boundary so a larger server-wide cap does not also allow oversized stream
+chunks to be materialized before rejection.
+
 ## RPC inventory — 12 methods
 
 The method names and field numbers remain those in the protobuf authority.

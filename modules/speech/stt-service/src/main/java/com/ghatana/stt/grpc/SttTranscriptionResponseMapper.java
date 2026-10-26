@@ -76,7 +76,11 @@ final class SttTranscriptionResponseMapper {
         if (result.hasConfidence()) response.setConfidence((float) result.confidence());
         if (result.processingTime() != null) {
             if (result.processingTime().isNegative()) throw invalid("processing time cannot be negative");
-            response.setProcessingTimeMs(result.processingTime().toMillis());
+            try {
+                response.setProcessingTimeMs(result.processingTime().toMillis());
+            } catch (ArithmeticException overflow) {
+                throw invalid("processing time exceeds representable millisecond bounds");
+            }
         }
 
         for (Alternative alternative : alternatives) {
