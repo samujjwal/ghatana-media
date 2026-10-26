@@ -48,6 +48,9 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     private final AudioVideoLibrary ownedLibrary;
     private final TtsProviderAdmission.Decision admission;
+    private final String admittedVoiceId;
+    private final String admittedLanguage;
+    private final TtsRequestAuthorization requestAuthorization;
 
     public ProductionTtsGrpcService(MeterRegistry metrics) {
         this(createInitializedRuntime(System.getenv(), TtsProviderAdmission.unavailable()), metrics);
@@ -97,7 +100,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         this(library, metrics, admission, null, null);
     }
 
-    private ProductionTtsGrpcService(
+    ProductionTtsGrpcService(
             AudioVideoLibrary library,
             MeterRegistry metrics,
             TtsProviderAdmission.Decision admission,
@@ -106,7 +109,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         this(library, metrics, admission, admittedVoiceId, admittedLanguage, TtsRequestAuthorization.unavailable());
     }
 
-    private ProductionTtsGrpcService(
+    ProductionTtsGrpcService(
             AudioVideoLibrary library,
             MeterRegistry metrics,
             TtsProviderAdmission.Decision admission,
@@ -122,6 +125,9 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
                         admittedVoiceId, admittedLanguage, requestedVoice, requestedLanguage));
         this.ownedLibrary = Objects.requireNonNull(library, "library");
         this.admission = Objects.requireNonNull(admission, "admission");
+        this.admittedVoiceId = admittedVoiceId;
+        this.admittedLanguage = admittedLanguage;
+        this.requestAuthorization = Objects.requireNonNull(requestAuthorization, "requestAuthorization");
     }
 
     static TtsRequestAuthorization bindConfiguredDefaultVoice(
@@ -143,6 +149,11 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             }
 
             @Override
+            public boolean isReady() {
+                return delegate.isReady();
+            }
+
+            @Override
             public String configuredDefaultVoiceId() {
                 return configuredDefaultVoice;
             }
@@ -151,8 +162,19 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     /** Readiness derived from the initialized provider state, without exposing model diagnostics. */
     boolean isProviderReady() {
-        if (!admission.allows(TtsProviderAdmission.Capability.SYNTHESIS)) return false;
+        // A provider can be healthy while every request is guaranteed to fail. Keep readiness
+        // down until the exact startup voice/language profile and the request-time owner/consent
+        // resolver used by synthesis are both present.
+        if (!admission.allows(TtsProviderAdmission.Capability.SYNTHESIS)
+                || !matchesAdmittedProfile(
+                        admittedVoiceId,
+                        admittedLanguage,
+                        admittedVoiceId,
+                        admittedLanguage == null ? null : java.util.Locale.forLanguageTag(admittedLanguage))) {
+            return false;
+        }
         try {
+            if (!requestAuthorization.isConfigured() || !requestAuthorization.isReady()) return false;
             return ownedLibrary.getTtsEngine().getStatus().isHealthy();
         } catch (RuntimeException unavailable) {
             return false;

@@ -42,6 +42,13 @@ interface TtsRequestAuthorization {
     /** Whether an authoritative resolver is configured; true means calls can still be unavailable. */
     default boolean isConfigured() { return true; }
 
+    /**
+     * Whether the same live owner/consent authority snapshot used by {@link #authorize(Request)}
+     * is currently available. This is service readiness only; it does not authorize any request.
+     * Implementations must fail closed when snapshot freshness or resolver health is unknown.
+     */
+    default boolean isReady() { return false; }
+
     /** No source-authoritative voice ownership or consent resolver is currently wired. */
     static TtsRequestAuthorization unavailable() {
         return new TtsRequestAuthorization() {

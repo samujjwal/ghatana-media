@@ -108,7 +108,8 @@ class ProductionTtsGrpcServiceConfigTest {
                         "local-fixture-resolver:test-only", "test fixture decision");
             };
             ProductionTtsGrpcService service = new ProductionTtsGrpcService(
-                    environment, new SimpleMeterRegistry(), localFixtureResolver, config -> {
+                    environment, new SimpleMeterRegistry(), localFixtureResolver,
+                    readyFixtureAuthorization(), config -> {
                         configured.set(config);
                         return library;
                     });
@@ -280,6 +281,20 @@ class ProductionTtsGrpcServiceConfigTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> TtsGrpcServer.parsePort("not-a-port"))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    private static TtsRequestAuthorization readyFixtureAuthorization() {
+        return new TtsRequestAuthorization() {
+            @Override
+            public Decision authorize(Request request) {
+                return Decision.ADMITTED;
+            }
+
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+        };
     }
 
     private static Map<String, String> localProfile(Path model, String digest) {

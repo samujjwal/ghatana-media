@@ -70,11 +70,50 @@ class TtsGrpcServerReadinessTest {
                 new EngineStatus(EngineStatus.State.READY, "model", "v1", 1L, null),
                 new EngineStatus(EngineStatus.State.ERROR, "model", "v1", 2L, "redacted"));
         ProductionTtsGrpcService service = new ProductionTtsGrpcService(
-                library, new SimpleMeterRegistry(), localFixtureAdmissionDecision());
+                library, new SimpleMeterRegistry(), localFixtureAdmissionDecision(),
+                "fixture-voice", "en-US", readyFixtureAuthorization());
         try {
             assertThat(service.isProviderReady()).isTrue();
             assertThat(service.isProviderReady()).isFalse();
             verify(engine, never()).close();
+        } finally {
+            service.close();
+        }
+    }
+
+    @Test
+    void providerHealthCannotAdvertiseReadyWithoutVoiceAuthorizationResolver() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        ProductionTtsGrpcService service = new ProductionTtsGrpcService(
+                library, new SimpleMeterRegistry(), localFixtureAdmissionDecision());
+        try {
+            assertThat(service.isProviderReady()).isFalse();
+            verify(library, never()).getTtsEngine();
+        } finally {
+            service.close();
+        }
+    }
+
+    @Test
+    void configuredButUnreadyVoiceAuthorityKeepsProviderNotReady() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        TtsRequestAuthorization configuredButUnready = new TtsRequestAuthorization() {
+            @Override
+            public Decision authorize(Request request) {
+                return Decision.ADMITTED;
+            }
+
+            @Override
+            public boolean isConfigured() {
+                return true;
+            }
+        };
+        ProductionTtsGrpcService service = new ProductionTtsGrpcService(
+                library, new SimpleMeterRegistry(), localFixtureAdmissionDecision(),
+                "fixture-voice", "en-US", configuredButUnready);
+        try {
+            assertThat(service.isProviderReady()).isFalse();
+            verify(library, never()).getTtsEngine();
         } finally {
             service.close();
         }
@@ -101,6 +140,20 @@ class TtsGrpcServerReadinessTest {
         return localFixtureResolver.resolve(new TtsProviderAdmission.Candidate(
                 "LOCAL_FIXTURE", "fixture", "fixture", "fixture", "fixture", "en-US",
                 "test", "test", "test", "fixture-voice"));
+    }
+
+    private static TtsRequestAuthorization readyFixtureAuthorization() {
+        return new TtsRequestAuthorization() {
+            @Override
+            public Decision authorize(Request request) {
+                return Decision.ADMITTED;
+            }
+
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+        };
     }
 
     private static final class CapturingObserver implements StreamObserver<HealthCheckResponse> {
