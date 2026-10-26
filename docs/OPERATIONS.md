@@ -157,6 +157,16 @@ promtool test rules infra/monitoring/tests/audio-video.rules.test.yml
 
 The rule test file evaluates local Prometheus expressions only; it does not
 verify alert delivery, deployment, or the Postgres process-restart scenario.
+For a separate opt-in local transport smoke, run:
+
+```sh
+RUN_MEDIA_ALERT_DELIVERY_TEST=1 bash infra/monitoring/tests/alert-delivery-smoke.sh
+```
+
+The smoke uses digest-pinned Prometheus and Alertmanager containers, scrapes
+Prometheus's own `/metrics` endpoint, and checks that the fixture alert reaches
+the local Alertmanager route. It does not exercise Media's exporter, provider
+readiness or quality metrics, production receivers, or deployment.
 
 The current Media Runtime Prometheus scrape emits durable workflow metrics from
 `MediaWorkflowMetrics`: request/event counts, workflow-stage durations, queue

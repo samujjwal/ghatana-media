@@ -1,0 +1,15 @@
+groups:
+  - name: audio_video.alert_delivery_fixture
+    interval: 1s
+    rules:
+      - alert: MediaAlertDeliveryFixture
+        expr: up{job="media-alert-delivery-fixture"} == 1
+        for: 2s
+        labels:
+          severity: warning
+          product: audio-video
+          component: alert-delivery-fixture
+          source: fixture
+        annotations:
+          summary: "Fixture-triggered local alert delivery"
+          description: "Local Prometheus and Alertmanager wiring fixture only; no provider or production metric is asserted."

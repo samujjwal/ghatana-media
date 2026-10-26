@@ -1685,3 +1685,20 @@ This pulse records bounded implementation progress against `GHATANA_MEDIA_WAVE2_
 - `pnpm test:backend-modality-wave2-plan`: **7/7 passed**; `git diff --check`: **PASS**.
 
 Canonical status remains **58 = 22 LOCALLY_VERIFIED + 30 PARTIAL + 6 EXTERNAL/OWNER + 0 SOURCE_CONFLICT**; 99 capability memberships and 43 registered RPC identities remain unchanged. The 36 R5 IDs above are still pending original whole-row acceptance. No model, rights, provider quality, native aggregate resource ceiling, Data Cloud API, formal PDP status, lifecycle closure, deployment or release is inferred from this implementation pulse.
+
+### R5 continuation pulse — 2026-10-26 (tokenizer and alert plumbing)
+
+This continuation records two bounded development increments and the G0 native-runner decision. It does not change the 36-task pending denominator or promote any canonical row.
+
+- **STT-10/12 tokenizer candidate:** added adjacent `multilingual.tiktoken` sidecar loading to `WhisperTokenizer`, pinned to the OpenAI Whisper asset at commit [`86098128c0b4f24f0e2aa2994de830614b474227`](https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/whisper/tokenizer.py), exactly 816,730 bytes with SHA-256 `b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126`. The parser preserves the upstream empty `= 50256` rank, rejects empty tokens elsewhere, bounds reads to 2 MB, validates the digest/ranks, skips registered special IDs 50257–51864, and preserves legacy vocabulary/merge behavior. The exact asset parsed in a temporary JDK 27 probe; no tokenizer asset was copied into the repository. This closes the tokenizer mapping subproblem only: the compatible autoregressive ONNX export, frontend, provider admission, corpus rights and model-quality proof remain open.
+- **OBS-07 local delivery plumbing:** added an opt-in smoke using digest-pinned Prometheus and Alertmanager containers. Prometheus scrapes its own `/metrics` endpoint; the fixture alert reaches the local Alertmanager route with an allowlisted fixed label set. This proves local Prometheus-to-Alertmanager wiring only; it does not exercise Media's exporter, provider readiness/quality metrics, production receivers, or deployment.
+- **G0 / VIS-03 decision:** Docker Desktop's Linux cgroup v2 outer limits were verified in a disposable container, but its inner cgroup mount is read-only. The repository's pinned FFmpeg/FFprobe files are macOS Mach-O binaries, and no end-to-end bounded Linux runner was added. A third-party Linux FFmpeg 8.1.2 image could generate fixtures under outer limits, but its runner, output cap and in-repo acceptance path were not completed. VIS-03 remains partial; no resource-qualification claim is made.
+
+#### Verification on this continuation
+
+- `:services:media:libs:java:common:test --tests com.ghatana.media.stt.engine.onnx.WhisperTokenizerTest` on JDK 27 — **11/11 passed**; a temporary Java probe parsed the exact pinned asset and decoded representative ranks while skipping EOT/timestamp IDs.
+- `RUN_MEDIA_ALERT_DELIVERY_TEST=1 bash infra/monitoring/tests/alert-delivery-smoke.sh` — **PASS**; fixture alert reached local Alertmanager, and the script removed its containers and network.
+- Digest-pinned Prometheus `promtool check rules` — **PASS**, 40 audio-video rules and 1 delivery-fixture rule; `promtool test rules infra/monitoring/tests/audio-video.rules.test.yml` — **PASS**.
+- `bash -n infra/monitoring/tests/alert-delivery-smoke.sh` and `git diff --check` — **PASS**.
+
+Canonical status remains **58 = 22 LOCALLY_VERIFIED + 30 PARTIAL + 6 EXTERNAL/OWNER + 0 SOURCE_CONFLICT**; all 36 R5 owner IDs remain pending original whole-row acceptance. No real model inference, source rights, provider quality, full OBS-07 acceptance, native aggregate resource ceiling, formal PDP status, lifecycle closure, deployment or release is inferred from this continuation.
