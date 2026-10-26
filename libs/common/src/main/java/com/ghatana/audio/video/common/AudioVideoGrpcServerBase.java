@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -77,6 +78,31 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
             List<io.grpc.ServerInterceptor> interceptors,
             TransportSecurity transportSecurity,
             ServerReadinessLifecycle readinessLifecycle) {
+        this(serviceName, port, serviceImpl, interceptors, transportSecurity, readinessLifecycle,
+                OptionalInt.empty());
+    }
+
+    /** Construct a Media gRPC server with an explicit maximum serialized inbound message size. */
+    protected AudioVideoGrpcServerBase(
+            String serviceName,
+            int port,
+            BindableService serviceImpl,
+            List<io.grpc.ServerInterceptor> interceptors,
+            TransportSecurity transportSecurity,
+            ServerReadinessLifecycle readinessLifecycle,
+            int maxInboundMessageSize) {
+        this(serviceName, port, serviceImpl, interceptors, transportSecurity, readinessLifecycle,
+                OptionalInt.of(requirePositiveInboundLimit(maxInboundMessageSize)));
+    }
+
+    private AudioVideoGrpcServerBase(
+            String serviceName,
+            int port,
+            BindableService serviceImpl,
+            List<io.grpc.ServerInterceptor> interceptors,
+            TransportSecurity transportSecurity,
+            ServerReadinessLifecycle readinessLifecycle,
+            OptionalInt maxInboundMessageSize) {
         this.serviceName = requireText(serviceName, "serviceName");
         if (port < 0 || port > 65_535) {
             throw new IllegalArgumentException("port must be between 0 and 65535");
@@ -95,6 +121,7 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         this.readinessLifecycle = readinessLifecycle;
 
         ServerBuilder<?> builder = ServerBuilder.forPort(port);
+        maxInboundMessageSize.ifPresent(builder::maxInboundMessageSize);
         interceptors.forEach(builder::intercept);
         if (transportSecurity.tlsEnabled()) {
             builder.useTransportSecurity(
@@ -311,5 +338,12 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
             throw new IllegalArgumentException(field + " must not be blank");
         }
         return normalized;
+    }
+
+    private static int requirePositiveInboundLimit(int value) {
+        if (value <= 0) {
+            throw new IllegalArgumentException("maxInboundMessageSize must be positive");
+        }
+        return value;
     }
 }

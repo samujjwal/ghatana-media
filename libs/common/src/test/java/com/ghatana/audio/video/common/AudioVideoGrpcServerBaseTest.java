@@ -1,14 +1,25 @@
 package com.ghatana.audio.video.common;
 
 import io.grpc.BindableService;
+import io.grpc.CallOptions;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.MethodDescriptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServiceDescriptor;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.ServerCalls;
+import io.grpc.stub.ClientCalls;
 import com.ghatana.audio.video.common.health.ServerReadinessLifecycle;
 import com.ghatana.audio.video.common.observability.MetricsServerInterceptor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -129,6 +140,9 @@ class AudioVideoGrpcServerBaseTest {
         assertThatThrownBy(() -> new TestServer(0, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("serviceImpl");
+        assertThatThrownBy(() -> new TestServer(0, new CloseableNoOpService(), 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("maxInboundMessageSize");
 
         TestServer server = new TestServer(0, new CloseableNoOpService());
         server.close();
@@ -149,6 +163,32 @@ class AudioVideoGrpcServerBaseTest {
                 .hasMessageContaining("readable regular non-symlink file");
     }
 
+    @Test
+    void configuredInboundLimitRejectsOversizedTransportMessageBeforeServiceDispatch() throws Exception {
+        AtomicInteger dispatches = new AtomicInteger();
+        BindableService service = payloadService(dispatches);
+        int port = findAvailablePort();
+        TestServer server = new TestServer(port, service, 64);
+        server.start();
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("127.0.0.1", port)
+                .usePlaintext()
+                .build();
+        try {
+            StatusRuntimeException failure = org.assertj.core.api.Assertions.catchThrowableOfType(
+                    () -> ClientCalls.blockingUnaryCall(
+                            channel, payloadMethod(), CallOptions.DEFAULT, "x".repeat(1024)),
+                    StatusRuntimeException.class);
+
+            assertThat(failure).isNotNull();
+            assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.RESOURCE_EXHAUSTED);
+            assertThat(dispatches).hasValue(0);
+        } finally {
+            channel.shutdownNow();
+            server.close();
+        }
+    }
+
     private static final class TestServer extends AudioVideoGrpcServerBase {
         private TestServer(int port, BindableService service) {
             super("test-service", port, service, List.of());
@@ -165,12 +205,60 @@ class AudioVideoGrpcServerBaseTest {
             super("test-service", port, service, List.of(), TransportSecurity.plaintext(), readiness);
         }
 
+        private TestServer(int port, BindableService service, int maxInboundMessageSize) {
+            super("test-service", port, service, List.of(), TransportSecurity.plaintext(), null,
+                    maxInboundMessageSize);
+        }
+
         private TestServer(
                 String serviceName,
                 int port,
                 BindableService service,
                 ServerReadinessLifecycle readiness) {
             super(serviceName, port, service, List.of(), TransportSecurity.plaintext(), readiness);
+        }
+    }
+
+    private static BindableService payloadService(AtomicInteger dispatches) {
+        return () -> ServerServiceDefinition.builder("test.PayloadService")
+                .addMethod(payloadMethod(), ServerCalls.asyncUnaryCall((request, observer) -> {
+                    dispatches.incrementAndGet();
+                    observer.onNext("accepted");
+                    observer.onCompleted();
+                }))
+                .build();
+    }
+
+    private static MethodDescriptor<String, String> payloadMethod() {
+        return MethodDescriptor.<String, String>newBuilder()
+                .setType(MethodDescriptor.MethodType.UNARY)
+                .setFullMethodName(MethodDescriptor.generateFullMethodName(
+                        "test.PayloadService", "Send"))
+                .setRequestMarshaller(STRING_MARSHALLER)
+                .setResponseMarshaller(STRING_MARSHALLER)
+                .build();
+    }
+
+    private static final MethodDescriptor.Marshaller<String> STRING_MARSHALLER =
+            new MethodDescriptor.Marshaller<>() {
+                @Override
+                public InputStream stream(String value) {
+                    return new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8));
+                }
+
+                @Override
+                public String parse(InputStream stream) {
+                    try {
+                        return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+                    } catch (IOException failure) {
+                        throw new IllegalStateException("Unable to parse test payload", failure);
+                    }
+                }
+            };
+
+    private static int findAvailablePort() throws IOException {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
         }
     }
 
