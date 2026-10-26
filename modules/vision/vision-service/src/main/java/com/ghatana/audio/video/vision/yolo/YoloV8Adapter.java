@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -142,6 +143,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         ensureInitialized();
         Objects.requireNonNull(imageData, "imageData");
         Objects.requireNonNull(options, "options");
+        VisionModelProfile requestProfile = activeProfile;
         if (imageData.length == 0) {
             throw new IllegalArgumentException("imageData must not be empty");
         }
@@ -155,7 +157,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
             processed = input.blob();
             List<DetectedObject> detections = postProcessDetections(
                     runInference(processed, confidenceThresholdFor(options)), input.transform(),
-                    decoded.orientation(), nmsThresholdFor(options));
+                    decoded.orientation(), nmsThresholdFor(options), requestProfile);
             return finalizeDetections(detections, options);
         } catch (BoundedImageDecoder.UnsupportedImageMetadataException unsupported) {
             throw unsupported;
@@ -171,6 +173,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
         ensureInitialized();
         Objects.requireNonNull(frame, "frame");
         Objects.requireNonNull(options, "options");
+        VisionModelProfile requestProfile = activeProfile;
         if (frame.empty()) throw new IllegalArgumentException("frame must not be empty");
 
         Mat processed = null;
@@ -179,7 +182,7 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
             processed = input.blob();
             List<DetectedObject> detections = postProcessDetections(
                     runInference(processed, confidenceThresholdFor(options)), input.transform(),
-                    1, nmsThresholdFor(options));
+                    1, nmsThresholdFor(options), requestProfile);
             return finalizeDetections(detections, options);
         } catch (RuntimeException failure) {
             throw new VisionDetector.DetectionException("Frame object detection failed", failure);
@@ -220,10 +223,22 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
     @Override
     public synchronized void close() {
         if (!closed.compareAndSet(false, true)) return;
-        initialized.set(false);
-        // OpenCV 4.9 Net exposes no deterministic native release API.
-        net = null;
-        activeProfile = null;
+        Net closingNet = net;
+        if (closingNet == null) {
+            initialized.set(false);
+            activeProfile = null;
+            return;
+        }
+        // Wait for an active native forward to finish before dropping the final adapter-owned
+        // reference. New or queued inference calls re-check `closed` under this same lock.
+        withNetworkLock(closingNet, () -> {
+            initialized.set(false);
+            if (net == closingNet) net = null;
+            activeProfile = null;
+            return null;
+        });
+        // OpenCV 4.9 Net exposes no deterministic native release API; dropping the reference
+        // allows its wrapper finalizer to reclaim the native network after in-flight use drains.
     }
 
     private List<DetectedObject> finalizeDetections(
@@ -313,12 +328,15 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
 
     private List<YoloOutputParser.Detection> runInference(Mat processedImage, double requestConfidenceThreshold) {
         Net active = net;
-        if (active == null || active.empty()) {
+        if (active == null) {
             throw new IllegalStateException("YOLOv8 network is unavailable");
         }
         // Net is mutable: setInput() and forward() share native network state. A service instance
         // is called concurrently by gRPC, so keep the input, forward, and output read as one unit.
-        return withNetworkLock(active, () -> {
+        return withNetworkLock(active, () -> !closed.get() && initialized.get() && net == active, () -> {
+            if (active.empty()) {
+                throw new IllegalStateException("YOLOv8 network is unavailable");
+            }
             active.setInput(processedImage);
             List<Mat> outputs = new ArrayList<>();
             try {
@@ -331,9 +349,17 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
     }
 
     static <T> T withNetworkLock(Object network, Supplier<T> operation) {
+        return withNetworkLock(network, () -> true, operation);
+    }
+
+    static <T> T withNetworkLock(Object network, BooleanSupplier stillCurrent, Supplier<T> operation) {
         Objects.requireNonNull(network, "network");
+        Objects.requireNonNull(stillCurrent, "stillCurrent");
         Objects.requireNonNull(operation, "operation");
         synchronized (network) {
+            if (!stillCurrent.getAsBoolean()) {
+                throw new IllegalStateException("YOLOv8 network is closed or replaced");
+            }
             return operation.get();
         }
     }
@@ -393,8 +419,8 @@ public final class YoloV8Adapter implements VisionDetector, AutoCloseable {
             List<YoloOutputParser.Detection> rawDetections,
             LetterboxTransform transform,
             int orientation,
-            double requestNmsThreshold) {
-        VisionModelProfile profile = activeProfile;
+            double requestNmsThreshold,
+            VisionModelProfile profile) {
         if (profile == null) {
             throw new IllegalStateException("Verified Vision model provenance is unavailable");
         }
