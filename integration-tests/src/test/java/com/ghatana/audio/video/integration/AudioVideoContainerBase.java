@@ -48,8 +48,9 @@ public abstract class AudioVideoContainerBase {
     protected static final int STT_GRPC_PORT = 50051;
     /** gRPC port for the TTS service. */
     protected static final int TTS_GRPC_PORT = 50052;
-    /** HTTP health port shared by both services. */
-    protected static final int SERVICE_HTTP_PORT = 8080;
+    /** HTTP health ports follow the per-service Media health listener configuration. */
+    protected static final int STT_HTTP_PORT = 8090;
+    protected static final int TTS_HTTP_PORT = 8091;
 
     /**
      * Single shared Docker Compose environment for the entire test suite.
@@ -67,7 +68,7 @@ public abstract class AudioVideoContainerBase {
                     .withExposedService(STT_SERVICE, STT_GRPC_PORT,
                             Wait.forListeningPort()
                                     .withStartupTimeout(Duration.ofSeconds(120)))
-                    .withExposedService(STT_SERVICE, SERVICE_HTTP_PORT,
+                    .withExposedService(STT_SERVICE, STT_HTTP_PORT,
                             Wait.forHttp("/health/live")
                                     .forStatusCode(200)
                                     .withStartupTimeout(Duration.ofSeconds(120)))
@@ -75,7 +76,7 @@ public abstract class AudioVideoContainerBase {
                     .withExposedService(TTS_SERVICE, TTS_GRPC_PORT,
                             Wait.forListeningPort()
                                     .withStartupTimeout(Duration.ofSeconds(120)))
-                    .withExposedService(TTS_SERVICE, SERVICE_HTTP_PORT,
+                    .withExposedService(TTS_SERVICE, TTS_HTTP_PORT,
                             Wait.forHttp("/health/live")
                                     .forStatusCode(200)
                                     .withStartupTimeout(Duration.ofSeconds(120)));
@@ -122,9 +123,14 @@ public abstract class AudioVideoContainerBase {
      * Returns the externally-mapped HTTP port for the given service.
      *
      * @param serviceName one of {@link #STT_SERVICE} or {@link #TTS_SERVICE}
-     * @return ephemeral port mapped from container's {@code 8080}
+     * @return ephemeral port mapped from the service's canonical health port
      */
     protected static int serviceHttpPort(String serviceName) {
-        return COMPOSE.getServicePort(serviceName, SERVICE_HTTP_PORT);
+        int port = switch (serviceName) {
+            case STT_SERVICE -> STT_HTTP_PORT;
+            case TTS_SERVICE -> TTS_HTTP_PORT;
+            default -> throw new IllegalArgumentException("Unknown Media Compose service: " + serviceName);
+        };
+        return COMPOSE.getServicePort(serviceName, port);
     }
 }
