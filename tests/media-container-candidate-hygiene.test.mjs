@@ -55,3 +55,18 @@ test('Docker packaging context excludes sources and secrets by default', () => {
     assert.ok(ignore.includes('!' + c.module + '/build/install/' + c.file + '/**'));
   }
 });
+
+test('compose health ports match service bootstraps and Testcontainers HTTP waits', () => {
+  const compose = read('integration-tests/docker-compose.integration.yml');
+  const base = read('integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoContainerBase.java');
+  for (const c of candidates.filter(({ file }) => file === 'stt-service' || file === 'tts-service')) {
+    assert.ok(compose.includes('AV_HEALTH_PORT: "' + c.health + '"'),
+      c.file + ' Compose listener must use its canonical per-service health port');
+    assert.ok(compose.includes('      - "' + c.health + '"'),
+      c.file + ' Compose must expose the exact listener');
+    const constant = c.file === 'stt-service' ? 'STT_HTTP_PORT' : 'TTS_HTTP_PORT';
+    assert.ok(base.includes(constant + ' = ' + c.health + ';'),
+      'Testcontainers port mapping must match actual listener ' + c.file);
+  }
+  assert.doesNotMatch(compose, /^\s+STT_HTTP_PORT:\s*"8080"|^\s+TTS_HTTP_PORT:\s*"8080"/mu);
+});
