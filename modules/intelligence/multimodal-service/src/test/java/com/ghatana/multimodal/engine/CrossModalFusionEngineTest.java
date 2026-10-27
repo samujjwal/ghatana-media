@@ -308,6 +308,18 @@ class CrossModalFusionEngineTest {
     }
 
     @Test
+    @DisplayName("source-bound fusion abstains when either modality is missing")
+    void sourceBoundFusionAbstainsOnMissingModality() {
+        var outcome = engine.fuseAudioVisual(new AudioFeatures(new double[0], 0.0), makeVisual(DIM, 0.5),
+                region("source-v1", 10, 20), region("source-v1", 10, 20),
+                sourceTime(100, 1, 1_000), sourceTime(100, 1, 1_000));
+
+        assertThat(outcome.fusion()).isEmpty();
+        assertThat(outcome.abstentionReason()).isEqualTo("MISSING_MODALITY");
+        assertThat(outcome.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+    }
+
+    @Test
     @DisplayName("source-bound fusion does not treat a shared media clock as source provenance")
     void sourceBoundFusionAbstainsOnNonSourceClock() {
         var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),

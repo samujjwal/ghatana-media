@@ -223,6 +223,9 @@ public class CrossModalFusionEngine {
             RegionFrame audioRegion, RegionFrame visualRegion,
             com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp audioTime,
             com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp visualTime) {
+        if (audio == null || visual == null || audio.isEmpty() || visual.isEmpty()) {
+            return abstain("MISSING_MODALITY");
+        }
         if (audioRegion == null || visualRegion == null || !audioRegion.equals(visualRegion)) {
             return abstain("SOURCE_FRAME_OR_REGION_MISMATCH");
         }
