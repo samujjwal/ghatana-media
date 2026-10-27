@@ -25,6 +25,8 @@ Environment:
   MEDIA_MATRIX_MEMORY         Docker memory cap, default 8g.
   MEDIA_MATRIX_CPUS           Docker CPU cap, default 4.
   MEDIA_MATRIX_PIDS           Docker PID cap, default 256.
+  MEDIA_MATRIX_GRADLE_CACHE  Optional persistent host directory for the Linux Gradle user cache.
+                              Defaults to a report-directory cache isolated by Linux architecture.
   MEDIA_LINUX_CODECS_DIR     Host directory with platform-correct ffmpeg and ffprobe
                               binaries, required for Linux native lanes.
   GHATANA_MEDIA_FFMPEG        Mac ffmpeg binary, required for mac-native.
@@ -295,11 +297,13 @@ else
 fi
 SCRATCH="$(mktemp -d "${TMPDIR:-/tmp}/ghatana-media-matrix.XXXXXXXX")"
 SCRATCH="$(cd "$SCRATCH" && pwd -P)"
+GRADLE_CACHE="${MEDIA_MATRIX_GRADLE_CACHE:-$REPORT_DIR/gradle-home-${PLATFORM#linux/}}"
+mkdir -p "$GRADLE_CACHE"
 cleanup() {
   if [[ "${MEDIA_MATRIX_KEEP_SCRATCH:-0}" != 1 ]]; then rm -rf "$SCRATCH"; fi
 }
 trap cleanup EXIT
-mkdir -p "$SCRATCH/Development/ghatana-media" "$SCRATCH/Development/ghatana-shared" "$SCRATCH/gradle-home"
+mkdir -p "$SCRATCH/Development/ghatana-media" "$SCRATCH/Development/ghatana-shared"
 git -C "$ROOT" archive HEAD | tar -xf - -C "$SCRATCH/Development/ghatana-media"
 git -C "$SHARED" archive HEAD | tar -xf - -C "$SCRATCH/Development/ghatana-shared"
 
@@ -327,10 +331,11 @@ DOCKER_ARGS=(
   --user "$(id -u):$(id -g)"
   --tmpfs /tmp:rw,nosuid,nodev,size=1g
   --volume "$SCRATCH:/work:rw"
+  --volume "$GRADLE_CACHE:/gradle-home:rw"
   # Keep Media two directories below the writable mount. The standalone Gradle
   # build assigns its synthetic :services parent to rootDir.parentFile.parentFile.
   --workdir /work/Development/ghatana-media
-  --env HOME=/work --env GRADLE_USER_HOME=/work/gradle-home
+  --env HOME=/work --env GRADLE_USER_HOME=/gradle-home
 )
 if [[ "$MODE" == linux-arm64-core || "$MODE" == linux-amd64-core ]]; then
   DOCKER_ARGS+=(--env "MEDIA_RESOURCE_PROFILE_OUTPUT=/work/Development/ghatana-media/$PROFILE_ARTIFACT_NAME")

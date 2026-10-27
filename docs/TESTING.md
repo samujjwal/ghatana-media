@@ -140,6 +140,10 @@ clean committed Media and Shared sources into a fresh scratch directory and
 applies container memory, CPU, PID, and temporary-storage limits. It refuses
 dirty source checkouts because they would not match the archived source cut.
 Gradle outputs and the build cache are not shared with the host lane.
+The runner keeps a Gradle user cache per Linux architecture under the report
+directory to avoid redownloading tooling; every run still gets fresh source and
+project build output. Set `MEDIA_MATRIX_GRADLE_CACHE` to choose another cache
+directory.
 
 ```bash
 MEDIA_MATRIX_IMAGE='eclipse-temurin:27-jdk@sha256:<reviewed-digest>' \
