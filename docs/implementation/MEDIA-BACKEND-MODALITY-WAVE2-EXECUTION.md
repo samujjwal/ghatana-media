@@ -1741,3 +1741,39 @@ No new code changes or task-status promotions resulted from this verification pu
 - `SpeakerDiarizationService` now requires every embedding returned during one request to keep the same vector dimension. A provider dimension change is rejected as typed `STT_DIARIZATION_PROVIDER_INVALID` before centroid assignment; the service returns no partial turn list. Added an adversarial two-segment regression test.
 - Focused macOS/JDK 27 `SpeakerDiarizationServiceTest` — **21/21 passed**, including the new provider-dimension-drift case; `git diff --check` — **PASS**.
 - This protects the anonymous diarization provider boundary only. It does not enable speaker identity/biometric processing, establish production rights, or provide licensed DER quality evidence. **STT-07 remains PARTIAL** and no task row is promoted.
+
+
+### R6 platform-neutral 36-task completion program — 2026-10-26
+
+**Source review:** Media `c17091fea797b4b31ab38ba4196848ad58708619` with current external Shared/Ghatana API ownership. **Status unchanged:** 58 = 22 LOCALLY_VERIFIED + 30 PARTIAL + 6 EXTERNAL/OWNER. The 99 PDP capability memberships, 43 RPC identities, 12 scenarios and five residual handoffs are not renumbered. These are **engineering execution tasks**, not Lifecycle/gtool closure, model/voice/corpus approval, cutover or release evidence.
+
+**Owner decisions (implementable now):** One portable implementation across macOS and Linux. Defer Windows-only UI/installers, Windows DLL/Win32 process/ACL, or native Windows distribution testing entirely outside this Wave 2; OS-neutral path safety, resource limits, API contracts, privacy, retry/finality, typed errors and output fidelity remain applicable on both required platforms. Required test environments are (1) macOS ARM64 JDK27 native on the developer Mac, (2) Linux ARM64 JDK27 in Docker Desktop on that Mac. Linux AMD64 under emulation is optional *functional compatibility*, never a native performance benchmark. Record OS/arch/JDK/Gradle/source SHA/tool hashes and each JUnit skip in structured outputs; do not reuse macOS-compiled Gradle outputs in the Linux source build.
+
+**Reviewed native evidence:** macOS full selected run reported 1,833 tests, 0 failures/errors, 12 skips (3 opt-in Vision-native, nine GH-90000 Compose-image cases); the separate macOS native Vision selection passed 3/3, and STT-07 dimension-drift diarization focused selection passed 21/21. These do not establish Linux execution. Existing `VisionNativeBoundedIT` already defines pinned FFmpeg/FFprobe 8.1.2 digests for macOS/aarch64, linux/aarch64, linux/amd64, configurable executable paths, synthetic media fixtures, wall/output/process-tree bounds, and sampled RSS. Reuse it. Do not count sampled RSS as a hard per-child memory cap, ignore non-native FFmpeg licensing, or infer codec support in Java ImageIO from FFmpeg's decoder. Keep rights/corpus checks open.
+
+**Sixteen prerequisite work packages; no new Wave 2 IDs:**
+
+| Work | Ownership and exact exit |
+| --- | --- |
+| X01 | Media Build: keep FOCUSED core and `runtime-integration` Gradle selectors; full integration suite invocable without unrelated Ghatana/Kernel/Tools/Lifecycle graphs |
+| X02 | Media QA: one Mac-native + Linux ARM64 Docker source-snapshot runner and JSON outcome with all skips, source and image/tool identities |
+| X03 | Vision native: resolve and verify Linux ARM64 native binary SHA/arch/license, run existing `VisionNativeBoundedIT` rather than another fixture harness |
+| X04 | Media native/ops: hard aggregate process CPU/RSS/PID/disk budget in qualified sandbox (e.g. Linux cgroup); Mac sampled RSS is informational and cannot prove a hard cap |
+| X05 | TTS/Vision security: replace macOS-specific `/tmp` exception with portable canonicalized, owner-scoped symlink-safe paths and immutable file identity checks |
+| X06 | Media integration QA: reconcile 3 native + nine Compose skips with executed matching test class/host; rerun redaction regression if it still fails outside the 1,833 selected cases |
+| X07 | Shared policy + Media security: authoritative verified principal/purpose/source/version/recording/voice/biometric rights and consent/revocation, with zero effects on invalid decisions |
+| X08 | Owner qualification: model/weights/voice/phonemizer/tokenizer/corpus exact artifact, license/use/region/hardware/host and signatures; no implicit downloads or approval |
+| X09 | Model owners: exact Whisper ONNX frontend/BPE export, Piper phoneme mapping/voice profile and compatible Vision tensor shape; one real golden output per admitted provider |
+| X10 | Media artifact owner: version-bound, principal-scoped, digest-validated bounded source-byte access to canonical stored media, no duplicate blob store |
+| X11 | Media runtime/Postgres: fenced provider attempt, authoritative result/job/outbox and immutable transcript/audio/detection revision with CAS and restart readback |
+| X12 | Media timing/ROI: source-version/stream-origin/rational PTS/sample clock and EXIF-oriented source-pixel ROI; do not infer measured A/V sync |
+| X13 | Ghatana Data Cloud owner: versioned Java21-server/Java27-client public transport, full principal/purpose/source/version/rights contract; no unsafe in-process ABI or tenant-only source permission |
+| X14 | Document Intelligence owner: public OCR API integration with immutable region/source permissions; no Media OCR engine fork |
+| X15 | Media SRE: real exported provider readiness/model quality -> Prometheus -> Alertmanager delivery, then named-host genuine 1/16/64 concurrency/RTF/fps/RSS |
+| X16 | Media reviewer: 36 original incomplete whole-row requirements retained; 99 memberships/43 RPCs/12 scenarios and typed errors/finality checked across channel consumers |
+
+**Dependency order:** X01-X06 unlock Mac/Linux parity and target **VIS-03** first for full-row acceptance. In parallel X07+X08+X09+X10+X11 must produce one *real* fully authorized, source-versioned STT request → model output → fenced Media job/attempt/outbox → PostgreSQL immutable revision → owner readback after restart. That unlocks STT-03/04/08/09 *only if their original criteria really pass*. TTS and Vision follow the same canonical writers and true model/voice/model-output proofs; then MM-02/03/05/06/08/09+10 consume actual STT/Vision child outputs and source clocks. X13 and X14 advance independently through public owning APIs. X15 and the external-owner tasks are qualified only after genuine providers/rights/corpora/hardware are established.
+
+**Cross-platform acceptance:** Linux ARM64 functional and native test JVMs must execute from a fresh source archive using a reviewed Linux Temurin 27 image and matching pinned FFmpeg/FFprobe binaries, under a container CPU/RAM/PID cap. Do not mount a host Docker socket into arbitrary model/test containers by default. For Testcontainers on Linux JVM use a separately authorized isolated Docker daemon; running Java tests on macOS against Linux PostgreSQL containers does *not* substitute for running the Java test JVM on Linux. Treat QEMU-emulated Linux AMD64 timing as NOT_QUALIFIED. A requirement for a hard per-child native cap remains open where only sampled RSS or an aggregate outer-container cap exists.
+
+**Concrete next gate:** After platform-runner static checks, run the already-present `:services:media:integration-tests:test` under `-Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration`; run native macOS, Linux ARM64 JVM and native FFmpeg suites; account for every actual skip. Then finish one original acceptance row (first candidate VIS-03) before another 30-row sweep. 90-minute implementation pulses and four-hour outcome checkpoints, with first failure / owner / patch / XML / release-safe claim. Keep 22/30/6 unless verified whole-row criteria prove a change.
