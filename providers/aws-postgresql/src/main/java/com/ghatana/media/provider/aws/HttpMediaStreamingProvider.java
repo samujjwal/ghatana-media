@@ -107,10 +107,7 @@ public final class HttpMediaStreamingProvider implements MediaStreamingProvider 
             }
             try {
                 JsonNode json = client.json(response, "Media stream frame");
-                result.complete(new StreamAck(
-                        json.path("acceptedSequence").asLong(frame.sequence()),
-                        json.path("bufferedBytes").asLong(context.session().bufferedBytes()),
-                        json.path("backpressured").asBoolean(false)));
+                result.complete(parseAcknowledgement(json, frame, context));
             } catch (RuntimeException invalid) {
                 result.completeExceptionally(invalid);
             }
@@ -127,6 +124,33 @@ public final class HttpMediaStreamingProvider implements MediaStreamingProvider 
             }
         });
         return result;
+    }
+
+    private static StreamAck parseAcknowledgement(JsonNode json, StreamFrame frame, StreamContext context) {
+        if (!json.isObject()) {
+            throw new IllegalStateException("Media stream frame response must be a JSON object");
+        }
+        JsonNode acceptedSequence = json.get("acceptedSequence");
+        JsonNode bufferedBytes = json.get("bufferedBytes");
+        JsonNode backpressured = json.get("backpressured");
+        if (acceptedSequence == null || !acceptedSequence.isIntegralNumber() || !acceptedSequence.canConvertToLong()) {
+            throw new IllegalStateException("Media stream frame response has invalid acceptedSequence");
+        }
+        if (bufferedBytes == null || !bufferedBytes.isIntegralNumber() || !bufferedBytes.canConvertToLong()) {
+            throw new IllegalStateException("Media stream frame response has invalid bufferedBytes");
+        }
+        if (backpressured == null || !backpressured.isBoolean()) {
+            throw new IllegalStateException("Media stream frame response has invalid backpressured");
+        }
+        long sequence = acceptedSequence.longValue();
+        long buffered = bufferedBytes.longValue();
+        if (sequence != frame.sequence()) {
+            throw new IllegalStateException("Media stream frame response acceptedSequence does not match request");
+        }
+        if (buffered < 0 || buffered > context.session().maximumBufferedBytes()) {
+            throw new IllegalStateException("Media stream frame response bufferedBytes is outside session bounds");
+        }
+        return new StreamAck(sequence, buffered, backpressured.booleanValue());
     }
 
     @Override

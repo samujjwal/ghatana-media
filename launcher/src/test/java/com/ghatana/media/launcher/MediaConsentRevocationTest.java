@@ -13,6 +13,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamAck;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
@@ -40,13 +41,14 @@ class MediaConsentRevocationTest {
         var root = Files.createTempDirectory("media-consent-revocation-");
         var authority = new MutableConsentAuthority();
         var provider = new RecordingExternalProvider();
+        var streamStore = new LocalMediaRuntimeSupport.StreamStore();
         var runtime = new MediaRuntime(
                 new MediaRuntimeConfig(
                         true, "local", 8093, 1_024, 64, 1_024, Duration.ofSeconds(2), 1,
                         "", "", true, false, root),
                 new LocalMediaRuntimeSupport.FileArtifactStore(root),
                 new LocalMediaRuntimeSupport.JobStore(),
-                new LocalMediaRuntimeSupport.StreamStore(),
+                streamStore,
                 authority,
                 List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
                 List.of(provider));
@@ -65,41 +67,89 @@ class MediaConsentRevocationTest {
                 BiometricSensitivity.NONE,
                 AutomationRisk.ASSISTIVE);
         try {
-            var registration = runtime.openStream(new StreamSessionRequest(
+            var registration = new StreamSessionRequest(
                     "tenant-a", "principal-a", "correlation-a", StreamKind.AUDIO,
-                    provider.providerId(), 128, Duration.ofSeconds(30), Map.of(), governance));
-            var connected = runtime.connectStream(
-                    "tenant-a", registration.session().sessionId(), registration.connectionToken());
-            StreamAck accepted = runtime.acceptFrame(new StreamFrame(
-                    "tenant-a", connected.sessionId(), registration.connectionToken(), 0,
-                    "first-frame".getBytes(StandardCharsets.UTF_8), false, Instant.now()));
-            assertThat(accepted.acceptedSequence()).isZero();
-            assertThat(provider.acceptedFrames()).isEqualTo(1);
-            assertThat(authority.verifications()).isEqualTo(3);
+                    provider.providerId(), 128, Duration.ofSeconds(30), Map.of(), governance);
+            var verifiedThenDenied = assertThatThrownBy(() -> runtime.openStream(registration))
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .actual();
+            assertThat(((MediaCapabilityNotAdmittedException) verifiedThenDenied).reason())
+                    .isEqualTo(MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED);
+            assertThat(authority.verifications()).isEqualTo(1);
+            assertThat(streamStore.sessionCount()).isZero();
+            assertThat(provider.acceptedFrames()).isZero();
 
-            authority.revoke();
+            // Simulate durable external sessions created by an older runtime. The source-rights
+            // gate must run before reconnect mutation and before frame reservation/provider work.
+            String token = "legacy-session-token";
+            String connectedToken = "legacy-connected-session-token";
+            Instant now = Instant.now();
+            String id = "legacy-external-session";
+            String connectedId = "legacy-connected-external-session";
+            var metadata = Map.<String, Object>of(
+                    "governance.consentId", governance.consentId(),
+                    "governance.purpose", governance.purpose(),
+                    "governance.classification", governance.classification().name(),
+                    "governance.residency", governance.residency(),
+                    "governance.allowedRegions", List.of("us-west-2"),
+                    "governance.externalProcessingAllowed", true,
+                    "governance.retentionPolicy", governance.retentionPolicy());
+            streamStore.create(new StreamSession("tenant-a", id, "principal-a", StreamKind.AUDIO,
+                    provider.providerId(), StreamState.OPEN, -1, 0, 128, 0,
+                    now.plusSeconds(30), now, now, null, metadata, 1),
+                    tokenHash(token));
+            streamStore.create(new StreamSession("tenant-a", connectedId, "principal-a", StreamKind.AUDIO,
+                    provider.providerId(), StreamState.CONNECTED, -1, 0, 128, 1,
+                    now.plusSeconds(30), now, now, null, metadata, 1),
+                    tokenHash(connectedToken));
 
+            var openBeforeReconnect = runtime.stream("tenant-a", id).orElseThrow();
+            assertThatThrownBy(() -> runtime.connectStream("tenant-a", id, token))
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED));
+            assertThat(runtime.stream("tenant-a", id).orElseThrow())
+                    .satisfies(current -> {
+                        assertThat(current.version()).isEqualTo(openBeforeReconnect.version());
+                        assertThat(current.state()).isEqualTo(StreamState.OPEN);
+                        assertThat(current.reconnectCount()).isZero();
+                    });
+
+            var connectedBeforeFrame = runtime.stream("tenant-a", connectedId).orElseThrow();
             assertThatThrownBy(() -> runtime.acceptFrame(new StreamFrame(
-                    "tenant-a", connected.sessionId(), registration.connectionToken(), 1,
+                    "tenant-a", connectedId, connectedToken, 0,
                     "must-not-leave".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
                     .isInstanceOf(MediaCapabilityNotAdmittedException.class)
                     .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
-                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED));
+            assertThat(runtime.stream("tenant-a", connectedId).orElseThrow())
+                    .satisfies(current -> {
+                        assertThat(current.version()).isEqualTo(connectedBeforeFrame.version());
+                        assertThat(current.state()).isEqualTo(StreamState.CONNECTED);
+                        assertThat(current.lastSequence()).isEqualTo(-1);
+                        assertThat(current.inFlightSequence()).isNull();
+                    });
+            assertThat(provider.acceptedFrames()).isZero();
+            assertThat(authority.verifications()).isEqualTo(4);
+
+            authority.revoke();
             assertThatThrownBy(() -> runtime.connectStream(
-                    "tenant-a", connected.sessionId(), registration.connectionToken()))
+                    "tenant-a", id, token))
                     .isInstanceOf(MediaCapabilityNotAdmittedException.class)
                     .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
                             .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
-            assertThat(provider.acceptedFrames()).isEqualTo(1);
+            assertThat(provider.acceptedFrames()).isZero();
+            assertThat(provider.closed()).isFalse();
+            assertThat(runtime.stream("tenant-a", id).orElseThrow().state()).isEqualTo(StreamState.OPEN);
             assertThat(authority.verifications()).isEqualTo(5);
 
-            var closed = runtime.closeStream(
-                    "tenant-a", connected.sessionId(), registration.connectionToken());
+            var closed = runtime.closeStream("tenant-a", connectedId, connectedToken);
             assertThat(closed.state()).isEqualTo(StreamState.CLOSED);
             assertThat(provider.closed()).isTrue();
             assertThat(provider.terminationUsedCancellation()).isTrue();
+            assertThat(provider.terminationUsedVerifiedConsent()).isTrue();
             assertThat(authority.verifications())
-                    .as("termination uses prior verified evidence and performs no new disclosure")
+                    .as("resource termination reuses prior evidence and performs no new disclosure")
                     .isEqualTo(5);
         } finally {
             runtime.close();
@@ -138,10 +188,16 @@ class MediaConsentRevocationTest {
         int verifications() { return verifications.get(); }
     }
 
+    private static String tokenHash(String token) throws Exception {
+        return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                .digest(token.getBytes(StandardCharsets.UTF_8)));
+    }
+
     private static final class RecordingExternalProvider implements MediaStreamingProvider {
         private final AtomicInteger frames = new AtomicInteger();
         private final AtomicBoolean closed = new AtomicBoolean();
         private final AtomicBoolean terminationCancelled = new AtomicBoolean();
+        private final AtomicBoolean terminationConsentVerified = new AtomicBoolean();
 
         @Override public String providerId() { return "external-stream-test"; }
         @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
@@ -166,10 +222,12 @@ class MediaConsentRevocationTest {
         public void closeSession(StreamContext context) {
             closed.set(true);
             terminationCancelled.set(context.cancellation().cancelled());
+            terminationConsentVerified.set(context.consentDecision().verified());
         }
 
         int acceptedFrames() { return frames.get(); }
         boolean closed() { return closed.get(); }
         boolean terminationUsedCancellation() { return terminationCancelled.get(); }
+        boolean terminationUsedVerifiedConsent() { return terminationConsentVerified.get(); }
     }
 }

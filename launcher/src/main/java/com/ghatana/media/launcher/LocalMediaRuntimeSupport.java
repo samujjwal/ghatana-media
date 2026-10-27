@@ -944,6 +944,7 @@ public final class LocalMediaRuntimeSupport {
     public static final class StreamStore implements MediaStreamSessionStore {
         private final ConcurrentMap<String, StoredStream> sessions = new ConcurrentHashMap<>();
         @Override public String storeId() { return "local-stream-store"; }
+        int sessionCount() { return sessions.size(); }
         @Override public StreamSession create(StreamSession session, String tokenHash) {
             java.util.Objects.requireNonNull(session, "session");
             if (session.finality() != StreamFinality.NONE || session.inFlightSequence() != null) {

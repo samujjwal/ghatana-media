@@ -8,23 +8,25 @@ execution plan's registered-surface projection.
 
 ## RPC inventory
 
-`multimodal_service.proto` declares 10 RPCs. A `partial` disposition means a
-caller may receive an audio-only or visual-only result. Current proto responses
-do not carry a typed modality-finality, provenance, or uncertainty field, so
-the service must not imply those facts from a successful transport response.
+`multimodal_service.proto` declares 10 RPCs. The response shapes retain legacy
+combined-result fields, but the production service does not currently emit a
+family-level combined or partial result. Production source authorization is
+unavailable, and there is no admitted canonical per-operation executor. The
+guards below describe current runtime behavior; prior heuristic response
+descriptions are historical implementation notes, not current outcomes.
 
-| RPC | Input → output | Capability relationship | Current semantic disposition |
+| RPC | Input → output | Capability relationship | Current implementation outcome |
 | --- | --- | --- | --- |
-| `ProcessMultimodal` | audio/image/video/text → combined analysis, optional audio and visual results | `media.multimodal.observe.source-grounded`; uses delegated STT and Vision | Optional modality results are partial. The wire response has no source/version provenance or typed uncertainty. |
-| `AnalyzeVideoWithAudio` | video plus extraction/frame flags → transcript, frame observations, narrative | `media.multimodal.relate.scene-audio`; uses delegated STT and Vision | Timestamp association is available; synchronization measurement is `SYNC_UNDETERMINED` until qualified signal features and an algorithm are supplied. |
-| `GenerateDescription` | audio/image/context/style → description, confidence, key elements | `media.multimodal.describe`; uses delegated STT and Vision | Source-grounded description and calibrated confidence are not established by this RPC's current heuristic implementation. |
-| `AnalyzeCrossModal` | audio/video/window → score, events, summary | `media.multimodal.analyze.cross-modal`; uses delegated STT and Vision | Current keyword overlap heuristic is not a measured synchronization or calibrated alignment score; disposition remains provisional pending MM-06. |
-| `GetInsights` | audio/video/image/text/types → sentiment, topics, entities, actions, confidence map | `media.multimodal.summarize`, `media.multimodal.extract.structured`; uses delegated STT and Vision | Current rules are heuristic; fixed confidence values do not establish model quality or source-grounded evidence. |
-| `LoadModel` | model id → success/message/id/load time | Runtime management only; no standalone PDP capability | Must remain unavailable unless a provider/model is admitted and actually loaded. |
-| `UnloadModel` | model id → success/message/memory freed | Runtime management only; no standalone PDP capability | A response is valid only for a real registry-managed model lifecycle. |
-| `ListModels` | loaded-only flag → model metadata/counts | Runtime management only; no standalone PDP capability | Lists registry observations; it does not establish model qualification. |
-| `GetStatus` | empty request → service counters/average processing time | Runtime status projection; no new capability | Operational status only, not readiness or provider qualification. |
-| `HealthCheck` | empty request → healthy/message | Runtime health projection; no new capability | Must reflect required provider checks; an empty check set cannot mean serving. |
+| `ProcessMultimodal` | audio/image/video/text → legacy combined analysis shape | `media.multimodal.observe.source-grounded`; delegates to STT and Vision | After identity, input, and canonical-binding validation, default production source authorization returns `UNAVAILABLE`. With test-injected admitted authorization, the absent executor returns `FAILED_PRECONDITION/MULTIMODAL_FAMILY_NOT_ADMITTED`. No family response is emitted. |
+| `AnalyzeVideoWithAudio` | video plus extraction/frame flags → legacy transcript/frame/narrative shape | `media.multimodal.relate.scene-audio`; delegates to STT and Vision | Same identity/input/binding checks and default source-authority/executor gates. No timestamp association or synchronization result is emitted by the production path. |
+| `GenerateDescription` | audio/image/context/style → legacy description shape | `media.multimodal.describe`; delegates to STT and Vision | Same identity/input/binding checks and default source-authority/executor gates. No description or confidence is emitted. |
+| `AnalyzeCrossModal` | audio/video/window → legacy score/events/summary shape | `media.multimodal.analyze.cross-modal`; delegates to STT and Vision | Same identity/input/binding checks and default source-authority/executor gates. No alignment score or combined result is emitted. |
+| `GetInsights` | audio/video/image/text/types → legacy insights shape | `media.multimodal.summarize`, `media.multimodal.extract.structured`; delegates to STT and Vision | After identity and input validation, missing/invalid operation binding returns `FAILED_PRECONDITION/MULTIMODAL_FAMILY_NOT_ADMITTED`; otherwise production source authorization is unavailable, and an admitted test authority reaches `UNAVAILABLE` because no qualified source-grounded semantic provider exists. No heuristic insight is emitted. |
+| `LoadModel` | model id → success/message/id/load time | Runtime management only; no standalone PDP capability | Blank model id returns `INVALID_ARGUMENT`; otherwise `UNAVAILABLE` because no qualified provider is available. |
+| `UnloadModel` | model id → success/message/memory freed | Runtime management only; no standalone PDP capability | Blank model id returns `INVALID_ARGUMENT`; otherwise `UNAVAILABLE` because no admitted model lifecycle exists. |
+| `ListModels` | loaded-only flag → model metadata/counts | Runtime management only; no standalone PDP capability | `UNAVAILABLE`; no qualified provider registry is available. |
+| `GetStatus` | empty request → service counters/average processing time | Runtime status projection; no new capability | Returns `status=NOT_ADMITTED`; counters do not establish provider qualification. |
+| `HealthCheck` | empty request → healthy/message | Runtime health projection; no new capability | Default production readiness is false and returns `MULTIMODAL_NOT_SERVING`; injected test readiness can exercise the positive transport branch only. |
 
 ## Direct Media capability intents
 

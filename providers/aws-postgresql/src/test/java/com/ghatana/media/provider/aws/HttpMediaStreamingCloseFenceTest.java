@@ -60,6 +60,43 @@ class HttpMediaStreamingCloseFenceTest {
     }
 
     @Test
+    void acceptsOnlyCompleteTypedBoundedAcknowledgement() throws Exception {
+        AtomicInteger frameCalls = new AtomicInteger();
+        AtomicInteger closeCalls = new AtomicInteger();
+        startServer(frameCalls, closeCalls, null, null,
+                "{\"acceptedSequence\":0,\"bufferedBytes\":3,\"backpressured\":true}");
+        var ack = provider().accept(context("session-a", new Cancellation()), frame("session-a", 0)).join();
+        assertThat(ack.acceptedSequence()).isZero();
+        assertThat(ack.bufferedBytes()).isEqualTo(3);
+        assertThat(ack.backpressured()).isTrue();
+    }
+
+    @Test
+    void malformedAcknowledgementsFailAfterDispatchWithoutAnAck() throws Exception {
+        for (String body : new String[] {
+                "{}",
+                "[]",
+                "{\"acceptedSequence\":\"0\",\"bufferedBytes\":3,\"backpressured\":false}",
+                "{\"acceptedSequence\":0.0,\"bufferedBytes\":3,\"backpressured\":false}",
+                "{\"acceptedSequence\":1,\"bufferedBytes\":3,\"backpressured\":false}",
+                "{\"acceptedSequence\":0,\"bufferedBytes\":-1,\"backpressured\":false}",
+                "{\"acceptedSequence\":0,\"bufferedBytes\":1025,\"backpressured\":false}",
+                "{\"acceptedSequence\":0,\"bufferedBytes\":3,\"backpressured\":0}"
+        }) {
+            AtomicInteger frameCalls = new AtomicInteger();
+            AtomicInteger closeCalls = new AtomicInteger();
+            startServer(frameCalls, closeCalls, null, null, body);
+            var future = provider().accept(context("session-a", new Cancellation()), frame("session-a", 0));
+            assertThatThrownBy(future::join).isInstanceOf(java.util.concurrent.CompletionException.class);
+            assertThat(frameCalls).hasValue(1);
+            server.stop(0);
+            server = null;
+            executor.shutdownNow();
+            executor = null;
+        }
+    }
+
+    @Test
     void closeCancelsFrameThatWasAlreadyDispatched() throws Exception {
         AtomicInteger frameCalls = new AtomicInteger();
         AtomicInteger closeCalls = new AtomicInteger();
@@ -152,12 +189,22 @@ class HttpMediaStreamingCloseFenceTest {
             AtomicInteger closeCalls,
             CountDownLatch frameStarted,
             CountDownLatch releaseFrame) throws IOException {
+        startServer(frameCalls, closeCalls, frameStarted, releaseFrame,
+                "{\"acceptedSequence\":0,\"bufferedBytes\":3,\"backpressured\":false}");
+    }
+
+    private void startServer(
+            AtomicInteger frameCalls,
+            AtomicInteger closeCalls,
+            CountDownLatch frameStarted,
+            CountDownLatch releaseFrame,
+            String frameResponse) throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         executor = Executors.newCachedThreadPool();
         server.setExecutor(executor);
         server.createContext("/v1/streams/session-a/frames/0", exchange -> {
             frameCalls.incrementAndGet();
-            respond(exchange, 200, "{\"acceptedSequence\":0,\"bufferedBytes\":3,\"backpressured\":false}");
+            respond(exchange, 200, frameResponse);
         });
         server.createContext("/v1/streams/session-a/close", exchange -> {
             closeCalls.incrementAndGet();

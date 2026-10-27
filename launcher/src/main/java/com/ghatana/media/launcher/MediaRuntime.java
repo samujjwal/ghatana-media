@@ -789,6 +789,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         ConsentDecision consent = verifiedStreamConsent(
                 request.tenantId(), request.principalId(), request.governanceContext(),
                 "stream:" + request.streamKind().name(), provider);
+        requireStreamSourceAdmission(provider);
         String sessionId = UUID.randomUUID().toString();
         String token = connectionToken();
         Instant now = Instant.now();
@@ -830,6 +831,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ConsentDecision consent = verifiedStreamConsent(
                     current.tenantId(), current.principalId(), governance,
                     "stream:" + current.streamKind().name(), provider);
+            requireStreamSourceAdmission(provider);
             StreamSession connected = streamStore.connect(
                     current, tokenHash, Instant.now().plusSeconds(30));
             activeStreams.put(streamKey(tenantId, sessionId),
@@ -877,6 +879,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 streamKey(frame.tenantId(), frame.sessionId()),
                 ignored -> streamControlFor(current));
         ConsentDecision consent = refreshConsent(current, control);
+        requireStreamSourceAdmission(control.provider());
         StreamSession reserved = streamStore.beginFrame(
                 current, frame.sequence(), UUID.randomUUID().toString());
         CompletableFuture<StreamAck> future;
@@ -1609,10 +1612,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             concurrency.release();
             releaseTenantPermit(accepted.tenantId(), tenantPermits);
             Throwable cause = failure == null ? null : unwrap(failure);
-            boolean policyDeniedBeforeDispatch = cause instanceof MediaCapabilityNotAdmittedException denied
-                    && denied.reason() == MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED
-                    || cause instanceof MediaAuthorizationDeniedException;
-            boolean timedOut = cause instanceof TimeoutException;
+            boolean policyDeniedBeforeDispatch = cause instanceof PreDispatchNoEffectException;
+            boolean timedOut = isProviderTimeout(cause);
             if (timedOut) {
                 cancellation.cancel();
                 CompletableFuture<Map<String, Object>> active = activeProvider.get();
@@ -1657,13 +1658,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 Map<String, Object> denial = new LinkedHashMap<>();
                 denial.put("policyOutcome", "DENIED");
                 denial.put("providerOutcome", "NO_EFFECT_PROVEN");
-                if (cause instanceof MediaAuthorizationDeniedException denied) {
+                Throwable denialCause = cause.getCause();
+                if (denialCause instanceof MediaAuthorizationDeniedException denied) {
                     denial.put("authorizationDenialReason", denied.reasonCode());
+                } else if (denialCause instanceof MediaCapabilityNotAdmittedException denied) {
+                    denial.put("authorizationDenialReason", denied.reason().name());
                 }
                 workflowMetrics.record(MediaWorkflowMetrics.Event.DENIED);
                 terminal = transition(value, JobStatus.FAILED,
                         denial,
-                        cause instanceof MediaCapabilityNotAdmittedException
+                        denialCause instanceof MediaCapabilityNotAdmittedException
                                 ? "MEDIA_POLICY_DENIED" : "PROCESSING_BLOCKED_BEFORE_PROVIDER");
             } else if (cause != null) {
                 // The provider call was dispatched. Network errors, malformed replies and local
@@ -1786,6 +1790,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         MediaProcessingProvider provider = providers.get(index);
         final ConsentDecision consent;
         final CompletableFuture<Map<String, Object>> raw;
+        boolean providerHandoffStarted = false;
         final java.util.concurrent.atomic.AtomicReference<ProviderSubmission> submission =
                 new java.util.concurrent.atomic.AtomicReference<>();
         try {
@@ -1825,6 +1830,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             };
             ProcessingContext context = new ProcessingContext(
                     request, artifact, cancellation, consent, sourceContentReader);
+            providerHandoffStarted = true;
             if (attempt == null) {
                 raw = java.util.Objects.requireNonNull(provider.process(context),
                         "Media provider returned a null future");
@@ -1843,9 +1849,13 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 });
             }
         } catch (RuntimeException failure) {
-            if (failure instanceof SecurityException) {
-                return CompletableFuture.failedFuture(failure);
+            if (!providerHandoffStarted && isPolicyDenial(failure)) {
+                return CompletableFuture.failedFuture(new PreDispatchNoEffectException(failure));
             }
+            if (providerHandoffStarted && provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
+                return CompletableFuture.failedFuture(new ProviderHandoffFailure(failure));
+            }
+            if (failure instanceof SecurityException) return CompletableFuture.failedFuture(failure);
             return fallbackOrFail(
                     request, artifact, providers, index, attempt, cancellation, active, provider, failure);
         }
@@ -1864,6 +1874,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
             Throwable cause = unwrap(failure);
             if (cause instanceof TimeoutException) raw.cancel(true);
+            if (provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
+                cause = new ProviderHandoffFailure(cause);
+            }
             fallbackOrFail(request, artifact, providers, index, attempt, cancellation, active, provider, cause)
                     .whenComplete((next, nextFailure) -> {
                         if (nextFailure == null) result.complete(next);
@@ -1890,6 +1903,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             MediaProcessingProvider failedProvider,
             Throwable failure) {
         if (attempt == null
+                && !(unwrap(failure) instanceof ProviderHandoffFailure)
+                && !(unwrap(failure) instanceof PreDispatchNoEffectException)
                 && !(unwrap(failure) instanceof TimeoutException)
                 && !cancellation.cancelled()
                 && failedProvider.fallbackEligible(failure)
@@ -2266,6 +2281,27 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED,
                     operation, denial.reasonCode() + ": " + denial.getMessage());
         }
+    }
+
+    private static void requireStreamSourceAdmission(MediaStreamingProvider provider) {
+        if (provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
+                    "STREAM_SOURCE_RIGHTS",
+                    "authoritative source rights and classification admission is unavailable");
+        }
+    }
+
+    private static boolean isPolicyDenial(Throwable failure) {
+        return failure instanceof MediaAuthorizationDeniedException
+                || failure instanceof MediaCapabilityNotAdmittedException denied
+                && denied.reason() == MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED;
+    }
+
+    private static boolean isProviderTimeout(Throwable failure) {
+        return failure instanceof TimeoutException
+                || failure instanceof ProviderHandoffFailure handoff
+                && handoff.getCause() instanceof TimeoutException;
     }
 
     private static Map<String, Object> governedStreamMetadata(
@@ -2656,6 +2692,22 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
         private ProviderDispatchNotStartedException(Throwable cause) {
             super("Media provider dispatch was blocked before provider I/O", cause);
+        }
+    }
+
+    private static final class PreDispatchNoEffectException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        private PreDispatchNoEffectException(Throwable cause) {
+            super("Media policy denied before provider handoff", cause);
+        }
+    }
+
+    private static final class ProviderHandoffFailure extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        private ProviderHandoffFailure(Throwable cause) {
+            super("Media provider handoff failed with outcome unconfirmed", cause);
         }
     }
 

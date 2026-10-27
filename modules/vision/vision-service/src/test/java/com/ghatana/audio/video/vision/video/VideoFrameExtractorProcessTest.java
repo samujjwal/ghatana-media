@@ -589,6 +589,19 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void earlyParentExitForceKillsObservedTermResistantChild() throws Exception {
+        Path pidFile = tempDir.resolve("early-parent-child.pid");
+        long startedAt = System.nanoTime();
+        var result = VideoFrameExtractor.runProcess(childCommand("orphan", pidFile.toString()),
+                Duration.ofSeconds(5), 128);
+        assertThat(result.exitCode()).isZero();
+        assertThat(result.timedOut()).isFalse();
+        assertThat((System.nanoTime() - startedAt) / 1_000_000).isLessThan(4_000);
+        long childPid = Long.parseLong(Files.readString(pidFile));
+        assertThat(ProcessHandle.of(childPid).map(ProcessHandle::isAlive).orElse(false)).isFalse();
+    }
+
+    @Test
     void interruptionCancelsChildProcessTree() throws Exception {
         Path pidFile = tempDir.resolve("cancelled-child.pid");
         java.util.concurrent.atomic.AtomicReference<Throwable> failure = new java.util.concurrent.atomic.AtomicReference<>();
@@ -786,6 +799,12 @@ class VideoFrameExtractorProcessTest {
                     VideoFrameExtractorProcessTest.class.getName(), "sleep").start();
             Files.writeString(Path.of(args[1]), Long.toString(child.pid()));
             Thread.sleep(30_000);
+        } else if ("orphan".equals(args[0])) {
+            Process child = new ProcessBuilder("/bin/sh", "-c",
+                    "trap '' TERM; printf '%s' \"$$\" > \"$1\"; exec sleep 30",
+                    "video-term-resistant-child", args[1]).start();
+            Files.writeString(Path.of(args[1]), Long.toString(child.pid()));
+            Thread.sleep(300);
         } else if ("write".equals(args[0])) {
             Path output = Path.of(args[1]);
             Path file = output.resolve("frame_0000.jpg");

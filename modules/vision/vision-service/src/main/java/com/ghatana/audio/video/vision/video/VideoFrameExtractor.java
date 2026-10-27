@@ -811,10 +811,12 @@ public class VideoFrameExtractor {
                 "media-child-output-drain");
             drain.setDaemon(true);
             drain.start();
+            java.util.Set<ProcessHandle> observedDescendants = java.util.concurrent.ConcurrentHashMap.newKeySet();
             long deadline = System.nanoTime() + timeout.toNanos();
             boolean finished = false;
             boolean outputExceeded = false;
             while (!finished && System.nanoTime() < deadline) {
+                observeDescendants(process, observedDescendants);
                 finished = process.waitFor(Math.min(100L, Math.max(1L,
                         TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime()))), TimeUnit.MILLISECONDS);
                 if (!finished) {
@@ -831,9 +833,12 @@ public class VideoFrameExtractor {
             if (finished && monitoredOutput != null && directoryBytes(monitoredOutput) > maxOutputBytes) {
                 outputExceeded = true;
             }
+            observeDescendants(process, observedDescendants);
             if (!finished) {
-                terminateProcessTree(process);
+                terminateProcessTree(process, observedDescendants);
                 process.waitFor(2, TimeUnit.SECONDS);
+            } else if (!observedDescendants.isEmpty()) {
+                terminateProcessTree(process, observedDescendants);
             }
             drain.join(2_000);
             if (drain.isAlive()) {
@@ -1160,17 +1165,43 @@ public class VideoFrameExtractor {
     }
 
     private static void terminateProcessTree(Process process) {
-        process.toHandle().descendants().forEach(handle -> { try { handle.destroy(); } catch (RuntimeException ignored) { } });
+        terminateProcessTree(process, new java.util.HashSet<>(process.toHandle().descendants().toList()));
+    }
+
+    private static void terminateProcessTree(Process process, java.util.Set<ProcessHandle> observed) {
+        observeDescendants(process, observed);
+        observed.forEach(handle -> { try { if (handle.isAlive()) handle.destroy(); } catch (RuntimeException ignored) { } });
         process.destroy();
         try {
             if (!process.waitFor(250, TimeUnit.MILLISECONDS)) {
-                process.toHandle().descendants().forEach(handle -> { try { handle.destroyForcibly(); } catch (RuntimeException ignored) { } });
-                process.destroyForcibly();
+                forceAndAwait(process, observed);
+            } else {
+                forceAndAwait(process, observed);
             }
         } catch (InterruptedException interrupted) {
-            process.toHandle().descendants().forEach(handle -> { try { handle.destroyForcibly(); } catch (RuntimeException ignored) { } });
-            process.destroyForcibly();
+            forceAndAwait(process, observed);
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private static void observeDescendants(Process process, java.util.Set<ProcessHandle> observed) {
+        try { process.toHandle().descendants().forEach(observed::add); } catch (RuntimeException ignored) { }
+    }
+
+    private static void forceAndAwait(Process process, java.util.Set<ProcessHandle> observed) {
+        observeDescendants(process, observed);
+        observed.forEach(handle -> { try { if (handle.isAlive()) handle.destroyForcibly(); } catch (RuntimeException ignored) { } });
+        try { if (process.isAlive()) process.destroyForcibly(); } catch (RuntimeException ignored) { }
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+        for (ProcessHandle handle : observed) {
+            long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) break;
+            try { handle.onExit().get(remaining, TimeUnit.NANOSECONDS); } catch (Exception ignored) { }
+        }
+        long remaining = deadline - System.nanoTime();
+        if (remaining > 0) {
+            try { process.waitFor(remaining, TimeUnit.NANOSECONDS); }
+            catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
         }
     }
 

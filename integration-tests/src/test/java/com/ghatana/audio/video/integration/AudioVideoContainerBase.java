@@ -48,6 +48,7 @@ public abstract class AudioVideoContainerBase {
     private static final String STT_DEFAULT_IMAGE = "ghatana/stt-service:latest";
     private static final String TTS_DEFAULT_IMAGE = "ghatana/tts-service:latest";
     private static final Duration STARTUP_TIMEOUT = Duration.ofSeconds(30);
+    private static final Duration CLEANUP_TIMEOUT = Duration.ofSeconds(8);
     private static final int MAX_CAPTURED_OUTPUT_BYTES = 64 * 1024;
     private static final Map<String, StartupResult> RESULTS = new ConcurrentHashMap<>();
 
@@ -75,19 +76,26 @@ public abstract class AudioVideoContainerBase {
             throw new IllegalStateException("Compose fixture is missing: " + composeFile);
         }
         String projectName = "avw2-" + UUID.randomUUID().toString().replace("-", "");
-        CommandResult result = runCommand(List.of(
-                "docker", "compose", "--project-name", projectName,
-                "-f", composeFile.toString(),
-                "run", "--rm", "--no-deps", serviceName));
-        CommandResult cleanup = runCommand(List.of(
-                "docker", "compose", "--project-name", projectName,
-                "-f", composeFile.toString(), "down", "--remove-orphans"));
+        CommandResult result = null;
+        boolean cleanupSuccessful;
+        try {
+            result = runCommand(List.of(
+                    "docker", "compose", "--project-name", projectName,
+                    "-f", composeFile.toString(),
+                    "run", "--rm", "--no-deps", serviceName));
+        } finally {
+            cleanupSuccessful = cleanupProject(projectName, composeFile, serviceName, AudioVideoContainerBase::runCommand);
+        }
         return new StartupResult(serviceName, imageFor(serviceName), result.exitCode(),
                 result.timedOut(), result.output(), result.elapsed(),
-                result.command().contains("--service-ports"), cleanup.exitCode() == 0);
+                result.command().contains("--service-ports"), cleanupSuccessful);
     }
 
-    private static CommandResult runCommand(List<String> command) {
+    static CommandResult runCommand(List<String> command) {
+        return runCommand(command, STARTUP_TIMEOUT);
+    }
+
+    static CommandResult runCommand(List<String> command, Duration timeout) {
         long startedNanos = System.nanoTime();
         Process process;
         try {
@@ -103,7 +111,7 @@ public abstract class AudioVideoContainerBase {
                 () -> readBounded(process.getInputStream()));
         boolean finished;
         try {
-            finished = process.waitFor(STARTUP_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
+            finished = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
             if (!finished) {
                 process.descendants().forEach(ProcessHandle::destroyForcibly);
                 process.destroyForcibly();
@@ -122,6 +130,31 @@ public abstract class AudioVideoContainerBase {
             process.descendants().forEach(ProcessHandle::destroyForcibly);
             process.destroyForcibly();
             throw new IllegalStateException("Unable to collect bounded image probe result", failure);
+        }
+    }
+
+    static boolean cleanupProject(String projectName, Path composeFile, String serviceName, CommandExecutor executor) {
+        boolean interrupted = Thread.interrupted();
+        boolean successful = true;
+        try {
+            successful &= runCleanup(executor, List.of("docker", "compose", "--project-name", projectName,
+                    "-f", composeFile.toString(), "down", "--remove-orphans", "--timeout", "2"));
+            interrupted |= Thread.interrupted();
+            successful &= runCleanup(executor, List.of("docker", "compose", "--project-name", projectName,
+                    "-f", composeFile.toString(), "rm", "--force", "--stop", serviceName));
+            interrupted |= Thread.interrupted();
+            return successful;
+        } finally {
+            if (interrupted) Thread.currentThread().interrupt();
+        }
+    }
+
+    private static boolean runCleanup(CommandExecutor executor, List<String> command) {
+        try {
+            CommandResult result = executor.run(command, CLEANUP_TIMEOUT);
+            return result.exitCode() == 0 && !result.timedOut();
+        } catch (RuntimeException cleanupFailure) {
+            return false;
         }
     }
 
@@ -155,4 +188,9 @@ public abstract class AudioVideoContainerBase {
             boolean timedOut,
             String output,
             Duration elapsed) {}
+
+    @FunctionalInterface
+    interface CommandExecutor {
+        CommandResult run(List<String> command, Duration timeout);
+    }
 }

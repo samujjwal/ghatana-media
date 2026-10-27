@@ -96,6 +96,105 @@ class MediaRuntimeJobGovernanceTest {
     }
 
     @Test
+    void providerPolicyDenialAfterHandoffRemainsUnknownAndNeverFallsBack() throws Exception {
+        for (boolean asynchronous : List.of(false, true)) {
+            var root = Files.createTempDirectory("media-provider-denial-after-handoff-");
+            var calls = new AtomicInteger();
+            var fallbackCalls = new AtomicInteger();
+            MediaProcessingProvider handedOff = new MediaProcessingProvider() {
+                @Override public String providerId() { return "external-denial-" + asynchronous; }
+                @Override public String providerVersion() { return "v1"; }
+                @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+                @Override public boolean ready() { return true; }
+                @Override public boolean productionEligible() { return false; }
+                @Override public int priority() { return 0; }
+                @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.EXTERNAL; }
+                @Override public String processingRegion() { return "us"; }
+                @Override public com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention
+                        providerDataRetention() {
+                    return com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE;
+                }
+                @Override public boolean fallbackEligible(Throwable failure) { return true; }
+                @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                    calls.incrementAndGet();
+                    var denied = new com.ghatana.media.runtime.MediaCapabilityNotAdmittedException(
+                            com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED,
+                            "provider-policy", "provider refused after receiving the request");
+                    if (asynchronous) return CompletableFuture.failedFuture(denied);
+                    throw denied;
+                }
+            };
+            MediaProcessingProvider fallback = provider(
+                    "fallback", 1, fallbackCalls, CompletableFuture.completedFuture(Map.of()),
+                    CancellationOutcome.UNSUPPORTED, true);
+            var runtime = runtime(root, List.of(handedOff, fallback), consentAuthority(allowedConsent()));
+            try {
+                var artifact = artifact(runtime);
+                var accepted = runtime.submit(new ProcessingJobRequest(
+                        "request-after-handoff-" + asynchronous, "tenant-a", "principal-a",
+                        "correlation-after-handoff", artifact.artifactId(), JobType.VISION,
+                        "", Map.of(), governance()));
+                var terminal = awaitTerminal(runtime, accepted.jobId());
+                assertThat(terminal.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(terminal.result()).containsEntry("providerOutcome", "UNKNOWN");
+                assertThat(calls).hasValue(1);
+                assertThat(fallbackCalls).hasValue(0);
+            } finally {
+                runtime.close();
+            }
+        }
+    }
+
+    @Test
+    void externalProviderTimeoutSignalsCancellationAndNeverFallsBack() throws Exception {
+        var root = Files.createTempDirectory("media-external-timeout-after-handoff-");
+        var pending = new CompletableFuture<Map<String, Object>>();
+        var cancellation = new AtomicReference<com.ghatana.media.runtime.MediaRuntimeContracts.Cancellation>();
+        var calls = new AtomicInteger();
+        var fallbackCalls = new AtomicInteger();
+        MediaProcessingProvider external = new MediaProcessingProvider() {
+            @Override public String providerId() { return "external-timeout"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.EXTERNAL; }
+            @Override public String processingRegion() { return "us"; }
+            @Override public com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention
+                    providerDataRetention() {
+                return com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE;
+            }
+            @Override public boolean fallbackEligible(Throwable failure) { return true; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                calls.incrementAndGet();
+                cancellation.set(context.cancellation());
+                return pending;
+            }
+        };
+        MediaProcessingProvider fallback = provider(
+                "timeout-fallback", 1, fallbackCalls, CompletableFuture.completedFuture(Map.of("fallback", true)),
+                CancellationOutcome.UNSUPPORTED, true);
+        var runtime = runtime(root, List.of(external, fallback), consentAuthority(allowedConsent()));
+        try {
+            var artifact = artifact(runtime);
+            var accepted = runtime.submit(new ProcessingJobRequest(
+                    "request-external-timeout", "tenant-a", "principal-a", "correlation-timeout",
+                    artifact.artifactId(), null, JobType.VISION, "", Map.of(), governance()));
+            var terminal = awaitTerminal(runtime, accepted.jobId());
+            assertThat(terminal.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(terminal.result()).containsEntry("providerOutcome", "UNKNOWN");
+            assertThat(calls).hasValue(1);
+            assertThat(cancellation.get()).isNotNull();
+            assertThat(cancellation.get().cancelled()).isTrue();
+            assertThat(pending.isCancelled()).isTrue();
+            assertThat(fallbackCalls).hasValue(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void exactIdempotentSubmissionReplaysAndChangedNormalizedFieldsConflict() throws Exception {
         var root = Files.createTempDirectory("media-submission-digest-");
         AtomicReference<String> providerVersion = new AtomicReference<>("local-v1");
