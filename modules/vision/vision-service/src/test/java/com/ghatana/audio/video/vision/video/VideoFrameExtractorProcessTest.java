@@ -602,6 +602,23 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void earlyParentExitReapsGrandchildSpawnedByObservedChildDuringTermination() throws Exception {
+        Path childPidFile = tempDir.resolve("fork-on-term-child.pid");
+        Path grandchildPidFile = tempDir.resolve("fork-on-term-grandchild.pid");
+
+        var result = VideoFrameExtractor.runProcess(
+                childCommand("fork-on-term", childPidFile.toString(), grandchildPidFile.toString()),
+                Duration.ofSeconds(5), 128);
+
+        assertThat(result.exitCode()).isZero();
+        assertThat(result.timedOut()).isFalse();
+        assertThat(childPidFile).exists();
+        assertThat(grandchildPidFile).exists();
+        long grandchildPid = Long.parseLong(Files.readString(grandchildPidFile).trim());
+        assertThat(ProcessHandle.of(grandchildPid).map(ProcessHandle::isAlive).orElse(false)).isFalse();
+    }
+
+    @Test
     void interruptionCancelsChildProcessTree() throws Exception {
         Path pidFile = tempDir.resolve("cancelled-child.pid");
         java.util.concurrent.atomic.AtomicReference<Throwable> failure = new java.util.concurrent.atomic.AtomicReference<>();
@@ -772,10 +789,12 @@ class VideoFrameExtractorProcessTest {
             VideoFrameExtractorProcessTest.class.getName(), mode);
     }
 
-    private static List<String> childCommand(String mode, String argument) {
+    private static List<String> childCommand(String mode, String... arguments) {
         String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
-        return List.of(java, "-cp", System.getProperty("java.class.path"),
-                VideoFrameExtractorProcessTest.class.getName(), mode, argument);
+        List<String> command = new java.util.ArrayList<>(List.of(java, "-cp", System.getProperty("java.class.path"),
+                VideoFrameExtractorProcessTest.class.getName(), mode));
+        command.addAll(List.of(arguments));
+        return List.copyOf(command);
     }
 
     public static void main(String[] args) throws Exception {
@@ -803,6 +822,12 @@ class VideoFrameExtractorProcessTest {
             Process child = new ProcessBuilder("/bin/sh", "-c",
                     "trap '' TERM; printf '%s' \"$$\" > \"$1\"; exec sleep 30",
                     "video-term-resistant-child", args[1]).start();
+            Files.writeString(Path.of(args[1]), Long.toString(child.pid()));
+            Thread.sleep(300);
+        } else if ("fork-on-term".equals(args[0])) {
+            String script = "trap 'sleep 30 & echo $! > \"$1\"; wait' TERM; sleep 30 & wait";
+            Process child = new ProcessBuilder("/bin/sh", "-c", script,
+                    "video-fork-on-term-child", args[2]).start();
             Files.writeString(Path.of(args[1]), Long.toString(child.pid()));
             Thread.sleep(300);
         } else if ("write".equals(args[0])) {

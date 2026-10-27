@@ -70,6 +70,8 @@ public class VideoFrameExtractor {
     /** Bound aggregate codec/probe processes so per-child limits cannot multiply without bound. */
     private static final java.util.concurrent.Semaphore MEDIA_PROCESS_SLOTS =
             new java.util.concurrent.Semaphore(2, true);
+    /** Bound cleanup bookkeeping even if a compromised child creates a large process tree. */
+    private static final int MAX_OBSERVED_CHILD_PROCESSES = 256;
     private static final java.util.Set<String> ALLOWED_VIDEO_EXTENSIONS =
             java.util.Set.of("mp4", "mov", "mkv", "avi", "webm");
 
@@ -1165,43 +1167,81 @@ public class VideoFrameExtractor {
     }
 
     private static void terminateProcessTree(Process process) {
-        terminateProcessTree(process, new java.util.HashSet<>(process.toHandle().descendants().toList()));
+        terminateProcessTree(process, new java.util.HashSet<>());
     }
 
     private static void terminateProcessTree(Process process, java.util.Set<ProcessHandle> observed) {
-        observeDescendants(process, observed);
+        observeDescendantTree(process, observed);
         observed.forEach(handle -> { try { if (handle.isAlive()) handle.destroy(); } catch (RuntimeException ignored) { } });
         process.destroy();
-        try {
-            if (!process.waitFor(250, TimeUnit.MILLISECONDS)) {
-                forceAndAwait(process, observed);
-            } else {
-                forceAndAwait(process, observed);
-            }
-        } catch (InterruptedException interrupted) {
-            forceAndAwait(process, observed);
-            Thread.currentThread().interrupt();
-        }
+        forceAndAwait(process, observed);
     }
 
     private static void observeDescendants(Process process, java.util.Set<ProcessHandle> observed) {
-        try { process.toHandle().descendants().forEach(observed::add); } catch (RuntimeException ignored) { }
+        observeDescendants(process.toHandle(), observed);
+    }
+
+    private static void observeDescendants(ProcessHandle parent, java.util.Set<ProcessHandle> observed) {
+        int remaining = MAX_OBSERVED_CHILD_PROCESSES - observed.size();
+        if (remaining <= 0) return;
+        try (var descendants = parent.descendants()) {
+            descendants.limit(remaining).forEach(observed::add);
+        } catch (RuntimeException ignored) { }
+    }
+
+    /**
+     * Re-scan descendants of every observed handle. The original process may have exited,
+     * while an observed child is still alive and spawning work during its termination handler.
+     */
+    private static void observeDescendantTree(Process process, java.util.Set<ProcessHandle> observed) {
+        if (process.isAlive()) {
+            observeDescendants(process, observed);
+            return;
+        }
+
+        // ProcessHandle.descendants() already returns a full subtree. After the root exits,
+        // inspect only the live top-level observed handles so we can discover newly spawned
+        // descendants without repeatedly walking the same nested subtrees.
+        for (ProcessHandle handle : java.util.List.copyOf(observed)) {
+            if (!handle.isAlive()) continue;
+            boolean hasLiveObservedParent = handle.parent()
+                    .filter(observed::contains)
+                    .filter(ProcessHandle::isAlive)
+                    .isPresent();
+            if (!hasLiveObservedParent) observeDescendants(handle, observed);
+        }
     }
 
     private static void forceAndAwait(Process process, java.util.Set<ProcessHandle> observed) {
-        observeDescendants(process, observed);
-        observed.forEach(handle -> { try { if (handle.isAlive()) handle.destroyForcibly(); } catch (RuntimeException ignored) { } });
-        try { if (process.isAlive()) process.destroyForcibly(); } catch (RuntimeException ignored) { }
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
-        for (ProcessHandle handle : observed) {
-            long remaining = deadline - System.nanoTime();
-            if (remaining <= 0) break;
-            try { handle.onExit().get(remaining, TimeUnit.NANOSECONDS); } catch (Exception ignored) { }
-        }
-        long remaining = deadline - System.nanoTime();
-        if (remaining > 0) {
-            try { process.waitFor(remaining, TimeUnit.NANOSECONDS); }
-            catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
+        long graceDeadline = Math.min(deadline, System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(250));
+        boolean interrupted = false;
+        try {
+            while (System.nanoTime() < deadline) {
+                observeDescendantTree(process, observed);
+                boolean alive = process.isAlive();
+                for (ProcessHandle handle : observed) alive |= handle.isAlive();
+                if (!alive) return;
+
+                if (System.nanoTime() >= graceDeadline) {
+                    observed.forEach(handle -> {
+                        try { if (handle.isAlive()) handle.destroyForcibly(); } catch (RuntimeException ignored) { }
+                    });
+                    try { if (process.isAlive()) process.destroyForcibly(); } catch (RuntimeException ignored) { }
+                }
+
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {
+                    interrupted = true;
+                    // Keep reaping within the existing bounded cleanup interval, then restore
+                    // the caller's interrupt flag after all currently observable descendants
+                    // have had a chance to exit.
+                    Thread.interrupted();
+                }
+            }
+        } finally {
+            if (interrupted) Thread.currentThread().interrupt();
         }
     }
 
