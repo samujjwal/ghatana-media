@@ -577,7 +577,11 @@ class VideoFrameExtractorProcessTest {
     @Test
     void timeoutKillsChildProcessTree() throws Exception {
         Path pidFile = tempDir.resolve("child.pid");
-        var result = VideoFrameExtractor.runProcess(childCommand("tree", pidFile.toString()), Duration.ofSeconds(2), 128);
+        // Use a shell child directly so the two-second timeout tests process-tree cleanup, not
+        // cold-JVM startup time. The nested sleep process publishes its PID before waiting.
+        List<String> childTree = List.of("/bin/sh", "-c",
+                "sleep 30 & printf '%s' \"$!\" > \"$1\"; wait", "video-process-tree", pidFile.toString());
+        var result = VideoFrameExtractor.runProcess(childTree, Duration.ofSeconds(2), 128);
         assertThat(result.timedOut()).isTrue();
         long childPid = Long.parseLong(Files.readString(pidFile));
         Thread.sleep(100);
