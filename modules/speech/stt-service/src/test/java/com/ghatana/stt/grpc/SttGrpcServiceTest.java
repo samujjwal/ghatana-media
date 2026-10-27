@@ -1027,6 +1027,38 @@ class SttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("streamTranscribe: chunks remain no-effect when durable runtime session is unavailable")
+    void streamTranscribe_doesNotAcceptChunksWithoutRuntimeSession() {
+        CapturingObserver<Transcription> response = new CapturingObserver<>();
+        Context previous = VerifiedJwtContext.create(
+                "tenant-test", "00000000-0000-0000-0000-000000000001").attach();
+        StreamObserver<AudioChunk> request;
+        try {
+            request = service.streamTranscribe(response);
+        } finally {
+            Context.current().detach(previous);
+        }
+
+        assertThat(response.hasError()).isTrue();
+        assertThat(((StatusRuntimeException) response.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(((StatusRuntimeException) response.getError()).getStatus().getDescription())
+                .contains("STT_STREAM_SESSION_NOT_ADMITTED");
+
+        request.onNext(AudioChunk.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2}))
+                .setSampleRate(16_000)
+                .setTimestampMs(0)
+                .setSessionId("session-fixture")
+                .setSequence(1)
+                .build());
+        request.onCompleted();
+
+        assertThat(response.getValue()).isNull();
+        verify(mockLibrary, never()).getSttEngine();
+    }
+
+    @Test
     @DisplayName("streamTranscribe: invalid identity is rejected before span creation")
     void streamTranscribe_invalidIdentityDoesNotCreateSpan() {
         io.opentelemetry.api.trace.Tracer tracer = mock(io.opentelemetry.api.trace.Tracer.class);
@@ -1116,4 +1148,5 @@ class SttGrpcServiceTest {
     private static void runWithTenantContext(Runnable action) {
         VerifiedJwtContext.create("tenant-test", "00000000-0000-0000-0000-000000000001").run(action);
     }
+
 }
