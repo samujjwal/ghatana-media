@@ -119,12 +119,12 @@ summarize_reports() {
   python3 - "$1" "$2" "$MODE" "$MEDIA_SHA" "$SHARED_SHA" "$START_UTC" \
     "$TEST_PROJECTS" "$HOST_OS" "$HOST_ARCH" "$EXECUTION_OS" "$EXECUTION_ARCH" \
     "$JAVA_VERSION" "$IMAGE_REF" "$IMAGE_DIGEST" "$MEMORY" "$CPUS" "$PIDS" \
-    "$FFMPEG_PATH" "$FFPROBE_PATH" "$MEDIA_CLEAN" "$SHARED_CLEAN" "$RUN_LOG" "$PROFILE_ARTIFACT" "$RUN_STATUS" <<'PY'
+    "$FFMPEG_PATH" "$FFPROBE_PATH" "$MEDIA_CLEAN" "$SHARED_CLEAN" "$RUN_LOG" "$PROFILE_ARTIFACT" "$RUN_STATUS" "$CODEC_ARCHIVE_PATH" <<'PY'
 import hashlib, json, pathlib, re, sys, xml.etree.ElementTree as ET
 (source, output, mode, media_sha, shared_sha, start_utc, test_projects,
  host_os, host_arch, execution_os, execution_arch, java_version, image_ref,
  image_digest, memory, cpus, pids, ffmpeg_path, ffprobe_path,
- media_clean, shared_clean, run_log, profile_artifact, run_status) = sys.argv[1:]
+ media_clean, shared_clean, run_log, profile_artifact, run_status, codec_archive_path) = sys.argv[1:]
 root = pathlib.Path(source)
 planned_projects = list(filter(None, test_projects.split(',')))
 log_file = pathlib.Path(run_log)
@@ -199,7 +199,8 @@ result = dict(mode=mode, startUTC=start_utc,
                                javaVersion=java_version, dockerImage=image_ref or None,
                                dockerImageDigest=image_digest or None,
                                dockerLimits=dict(memory=memory or None, cpus=cpus or None, pids=pids or None),
-                               ffmpegSha256=digest(ffmpeg_path), ffprobeSha256=digest(ffprobe_path)),
+                               ffmpegSha256=digest(ffmpeg_path), ffprobeSha256=digest(ffprobe_path),
+                               codecSourceArchiveSha256=digest(codec_archive_path)),
               plannedTestProjects=planned_projects,
               executedTestProjects=executed_tasks,
               gradleFailure=gradle_failure,
@@ -227,6 +228,7 @@ SHARED_CLEAN=true
 [[ -z "$(git -C "$SHARED" status --porcelain)" ]] || SHARED_CLEAN=false
 FFMPEG_PATH="${GHATANA_MEDIA_FFMPEG:-}"
 FFPROBE_PATH="${GHATANA_MEDIA_FFPROBE:-}"
+CODEC_ARCHIVE_PATH="${GHATANA_MEDIA_CODEC_ARCHIVE:-}"
 IMAGE_REF=""
 IMAGE_DIGEST=""
 MEMORY=""
@@ -321,6 +323,7 @@ if [[ "$MODE" == *-native ]]; then
   esac
   if [[ -f "$CODECS/$candidate" ]]; then
     CODEC_ARCHIVE_NAME="$candidate"
+    CODEC_ARCHIVE_PATH="$CODECS/$candidate"
   fi
 fi
 if [[ "$MODE" == *-core ]]; then
