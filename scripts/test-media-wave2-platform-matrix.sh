@@ -358,10 +358,10 @@ RUN_STATUS=0
 set +e
 docker "${DOCKER_ARGS[@]}" "$IMAGE" sh -c '
 set -eu
-protoc_dir=/gradle-home/caches/modules-2/files-2.1/com.google.protobuf/protoc
-if [ -d "$protoc_dir" ]; then
-  # macOS Docker bind mounts can lose the executable bit from Linux protoc artifacts.
-  find "$protoc_dir" -type f -name "protoc-*-linux-*.exe" -exec chmod u+x {} +
+native_tools_dir=/gradle-home/caches/modules-2/files-2.1
+if [ -d "$native_tools_dir" ]; then
+  # macOS Docker bind mounts can lose executable bits from Linux Gradle tool artifacts.
+  find "$native_tools_dir" -type f -name "*-linux-*.exe" -exec chmod u+x {} +
 fi
 exec ./gradlew "$@"
 ' sh "${TASKS[@]}" 2>&1 | tee "$RUN_LOG"
