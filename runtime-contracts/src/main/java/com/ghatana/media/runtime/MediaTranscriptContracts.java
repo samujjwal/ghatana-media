@@ -46,6 +46,40 @@ public final class MediaTranscriptContracts {
         }
     }
 
+    /** Derived operations that must remain fail-closed until their owning evidence exists. */
+    public enum TranscriptDerivedCapability {
+        FORCED_ALIGNMENT,
+        TRANSLATION,
+        CAPTION_VERSION_REGISTRATION
+    }
+
+    public enum TranscriptCapabilityBlocker {
+        QUALIFIED_ENGINE_UNAVAILABLE,
+        CANONICAL_TRANSCRIPT_VERSION_UNAVAILABLE,
+        AUTHORITATIVE_SOURCE_CLOCK_UNAVAILABLE,
+        DERIVED_CONTENT_AUTHORITY_UNAVAILABLE
+    }
+
+    public enum TranscriptCapabilityDisposition {
+        UNMET_CAPABILITY
+    }
+
+    /** Typed no-effect result; it never represents a transcript or caption version. */
+    public record TranscriptCapabilityResult(
+            TranscriptDerivedCapability capability,
+            TranscriptCapabilityDisposition disposition,
+            List<TranscriptCapabilityBlocker> blockers,
+            boolean effectOccurred) {
+        public TranscriptCapabilityResult {
+            capability = Objects.requireNonNull(capability, "capability");
+            disposition = Objects.requireNonNull(disposition, "disposition");
+            blockers = List.copyOf(Objects.requireNonNull(blockers, "blockers"));
+            if (blockers.isEmpty() || effectOccurred) {
+                throw new IllegalArgumentException("Unavailable transcript capabilities must report typed no-effect");
+            }
+        }
+    }
+
     /** A transcript revision changed after the writer's expected latest revision was observed. */
     public static final class TranscriptRevisionConflictException extends IllegalStateException {
         private static final long serialVersionUID = 1L;
@@ -101,6 +135,14 @@ public final class MediaTranscriptContracts {
             throw new UnsupportedOperationException("Principal-scoped transcript readback is not supported by this store");
         }
 
+        /**
+         * Reports the current derived-operation boundary. Implementations must not create output
+         * versions from these unavailable capabilities. Plain-text transcript CAS remains separate.
+         */
+        default TranscriptCapabilityResult capability(TranscriptDerivedCapability capability) {
+            return unavailableCapability(capability);
+        }
+
         boolean productionEligible();
         @Override void close();
     }
@@ -108,5 +150,20 @@ public final class MediaTranscriptContracts {
     private static String required(String value, String name) {
         if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " is required");
         return value.trim();
+    }
+
+    public static TranscriptCapabilityResult unavailableCapability(TranscriptDerivedCapability capability) {
+        Objects.requireNonNull(capability, "capability");
+        List<TranscriptCapabilityBlocker> blockers = switch (capability) {
+            case FORCED_ALIGNMENT -> List.of(TranscriptCapabilityBlocker.QUALIFIED_ENGINE_UNAVAILABLE,
+                    TranscriptCapabilityBlocker.AUTHORITATIVE_SOURCE_CLOCK_UNAVAILABLE);
+            case TRANSLATION -> List.of(TranscriptCapabilityBlocker.QUALIFIED_ENGINE_UNAVAILABLE);
+            case CAPTION_VERSION_REGISTRATION -> List.of(
+                    TranscriptCapabilityBlocker.CANONICAL_TRANSCRIPT_VERSION_UNAVAILABLE,
+                    TranscriptCapabilityBlocker.AUTHORITATIVE_SOURCE_CLOCK_UNAVAILABLE,
+                    TranscriptCapabilityBlocker.DERIVED_CONTENT_AUTHORITY_UNAVAILABLE);
+        };
+        return new TranscriptCapabilityResult(capability, TranscriptCapabilityDisposition.UNMET_CAPABILITY,
+                blockers, false);
     }
 }

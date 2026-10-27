@@ -5,6 +5,9 @@ import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptPrincipalConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevisionConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDerivedCapability;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptCapabilityResult;
+import com.ghatana.media.runtime.MediaTranscriptContracts;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -136,6 +139,12 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         } catch (SQLException failure) {
             throw dbFailure("read transcript revisions", failure);
         }
+    }
+
+    @Override
+    public TranscriptCapabilityResult capability(TranscriptDerivedCapability capability) {
+        ensureOpen();
+        return MediaTranscriptContracts.unavailableCapability(capability);
     }
 
     /** Tenant-only readback is retained for source compatibility and fails closed. */

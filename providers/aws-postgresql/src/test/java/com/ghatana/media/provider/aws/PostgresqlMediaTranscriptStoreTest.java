@@ -3,6 +3,8 @@ package com.ghatana.media.provider.aws;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptPrincipalConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevisionConflictException;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDerivedCapability;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptCapabilityDisposition;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.localstack.LocalStackContainer;
@@ -34,6 +36,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Testcontainers(disabledWithoutDocker = true)
 class PostgresqlMediaTranscriptStoreTest {
+
+    @Test
+    void unsupportedDerivedOperationsAreTypedNoEffectAndPersistNoCaptionVersion() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            for (TranscriptDerivedCapability capability : TranscriptDerivedCapability.values()) {
+                var result = store.capability(capability);
+                assertThat(result.disposition()).isEqualTo(TranscriptCapabilityDisposition.UNMET_CAPABILITY);
+                assertThat(result.effectOccurred()).isFalse();
+                assertThat(result.blockers()).isNotEmpty();
+            }
+            assertThat(store.revisions("tenant-capability", "principal-a", "transcript-capability")).isEmpty();
+        }
+    }
     @Container static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
             DockerImageName.parse("postgres:16-alpine"));
     @Container static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
