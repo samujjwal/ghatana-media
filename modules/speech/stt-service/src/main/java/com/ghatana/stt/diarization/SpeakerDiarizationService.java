@@ -140,6 +140,67 @@ public final class SpeakerDiarizationService {
         return Collections.unmodifiableList(result);
     }
 
+    /**
+     * Diarizes borrowed inputs, applying batch limits before allocating owned
+     * segment payload copies. The arrays must not be mutated while this call runs.
+     */
+    public List<SpeakerTurn> diarizeInputs(List<AudioSegmentInput> inputs) {
+        requireAdmission();
+        if (extractor == null) {
+            throw new DiarizationException(
+                    "STT_DIARIZATION_NOT_ADMITTED: qualified speaker embedding provider is unavailable");
+        }
+        return diarize(copySegments(inputs));
+    }
+
+    /**
+     * Validates a batch of borrowed segment inputs before creating the defensive
+     * {@link AudioSegment} copies. Prefer this when a caller has not constructed
+     * segments yet, so an over-budget request does not first copy each payload.
+     *
+     * <p>The input byte arrays remain caller-owned and must not be mutated while
+     * this method runs. Returned segments own defensive copies.
+     */
+    public static List<AudioSegment> copySegments(List<AudioSegmentInput> inputs) {
+        Objects.requireNonNull(inputs, "inputs must not be null");
+        int reportedSize = inputs.size();
+        if (reportedSize > MAX_SEGMENTS_PER_REQUEST) {
+            throw new DiarizationException("STT_DIARIZATION_SEGMENT_LIMIT: request exceeds the segment limit");
+        }
+
+        List<AudioSegmentInput> snapshot = new ArrayList<>(reportedSize);
+        long totalAudioBytes = 0;
+        long previousStartMs = -1;
+        try {
+            for (AudioSegmentInput input : inputs) {
+                if (snapshot.size() == MAX_SEGMENTS_PER_REQUEST) {
+                    throw new DiarizationException(
+                            "STT_DIARIZATION_SEGMENT_LIMIT: request exceeds the segment limit");
+                }
+                Objects.requireNonNull(input, "inputs must not contain null");
+                if (input.startMs < previousStartMs) {
+                    throw new DiarizationException(
+                            "STT_DIARIZATION_SEGMENTS_OUT_OF_ORDER: segments must be ordered by source start time");
+                }
+                previousStartMs = input.startMs;
+                if (totalAudioBytes > MAX_TOTAL_AUDIO_BYTES - input.audioBytes.length) {
+                    throw new DiarizationException(
+                            "STT_DIARIZATION_INPUT_TOO_LARGE: segment audio exceeds the request byte limit");
+                }
+                totalAudioBytes += input.audioBytes.length;
+                snapshot.add(input);
+            }
+        } catch (ConcurrentModificationException changedDuringSnapshot) {
+            throw new DiarizationException("STT_DIARIZATION_INPUT_CHANGED: segments changed during validation");
+        }
+
+        List<AudioSegment> copied = new ArrayList<>(snapshot.size());
+        for (AudioSegmentInput input : snapshot) {
+            copied.add(new AudioSegment(input.audioBytes, input.startMs, input.endMs, input.text));
+        }
+        return Collections.unmodifiableList(copied);
+    }
+
     private static List<AudioSegment> snapshotSegments(List<AudioSegment> segments) {
         int reportedSize = segments.size();
         if (reportedSize > MAX_SEGMENTS_PER_REQUEST) {
@@ -319,6 +380,30 @@ public final class SpeakerDiarizationService {
         @Override
         public byte[] audioBytes() {
             return audioBytes.clone();
+        }
+    }
+
+    /**
+     * Borrowed input for {@link #copySegments(List)}. The payload is not copied
+     * until the full batch passes its count, ordering, and aggregate-byte checks.
+     */
+    public static final class AudioSegmentInput {
+        private final byte[] audioBytes;
+        private final long startMs;
+        private final long endMs;
+        private final String text;
+
+        public AudioSegmentInput(byte[] audioBytes, long startMs, long endMs, String text) {
+            this.audioBytes = Objects.requireNonNull(audioBytes, "audioBytes must not be null");
+            this.text = Objects.requireNonNull(text, "text must not be null");
+            if (audioBytes.length == 0) throw new IllegalArgumentException("audioBytes must not be empty");
+            if (audioBytes.length > MAX_TOTAL_AUDIO_BYTES) {
+                throw new IllegalArgumentException("audioBytes exceeds the STT audio input limit");
+            }
+            if (startMs < 0) throw new IllegalArgumentException("startMs must be >= 0");
+            if (endMs <= startMs) throw new IllegalArgumentException("endMs must be > startMs");
+            this.startMs = startMs;
+            this.endMs = endMs;
         }
     }
 

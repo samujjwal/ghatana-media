@@ -50,6 +50,55 @@ class SpeakerDiarizationServiceTest {
     class Diarize {
 
         @Test
+        @DisplayName("batch copy validates aggregate boundary before owning segment payloads")
+        void copySegments_acceptsExactAggregateLimitAndReturnsDefensiveCopies() {
+            byte[] firstAudio = new byte[] {1};
+            byte[] secondAudio = new byte[(int) SpeakerDiarizationService.MAX_TOTAL_AUDIO_BYTES - 1];
+            secondAudio[0] = 2;
+
+            List<SpeakerDiarizationService.AudioSegment> copied = SpeakerDiarizationService.copySegments(List.of(
+                    new SpeakerDiarizationService.AudioSegmentInput(firstAudio, 0, 10, "first"),
+                    new SpeakerDiarizationService.AudioSegmentInput(secondAudio, 10, 20, "second")));
+
+            firstAudio[0] = 9;
+            secondAudio[0] = 9;
+            assertThat(copied).hasSize(2);
+            assertThat(copied.get(0).audioBytes()).containsExactly(1);
+            assertThat(copied.get(1).audioBytes()[0]).isEqualTo((byte) 2);
+        }
+
+        @Test
+        @DisplayName("batch copy rejects aggregate overflow before creating segment copies")
+        void copySegments_rejectsAggregateOverflow() {
+            byte[] firstAudio = new byte[(int) (SpeakerDiarizationService.MAX_TOTAL_AUDIO_BYTES / 2)];
+            byte[] secondAudio = new byte[firstAudio.length + 1];
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> { providerCalls.incrementAndGet(); return new float[] {1}; })
+                    .admission(() -> true)
+                    .build();
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarizeInputs(List.of(
+                            new SpeakerDiarizationService.AudioSegmentInput(firstAudio, 0, 10, "first"),
+                            new SpeakerDiarizationService.AudioSegmentInput(secondAudio, 10, 20, "second"))))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_INPUT_TOO_LARGE:");
+            assertThat(providerCalls).hasValue(0);
+        }
+
+        @Test
+        @DisplayName("batch copy rejects too many inputs before creating segment copies")
+        void copySegments_rejectsExcessiveSegmentCount() {
+            var input = new SpeakerDiarizationService.AudioSegmentInput(new byte[] {1}, 0, 1, "x");
+            List<SpeakerDiarizationService.AudioSegmentInput> inputs = Collections.nCopies(
+                    SpeakerDiarizationService.MAX_SEGMENTS_PER_REQUEST + 1, input);
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> SpeakerDiarizationService.copySegments(inputs))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_SEGMENT_LIMIT:");
+        }
+
+        @Test
         @DisplayName("empty segment list returns empty list")
         void diarize_empty_returnsEmpty() { 
             SpeakerDiarizationService service = buildService(); 
