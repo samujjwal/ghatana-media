@@ -58,6 +58,31 @@ class FacialRecognitionServiceAdmissionTest {
     }
 
     @Test
+    void restrictedLandmarkGazeExpressionAndIdentityOperationsNeverReachResolverOrProvider() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        AtomicInteger resolverCalls = new AtomicInteger();
+        var service = service(providerCalls, (identity, request) -> {
+            resolverCalls.incrementAndGet();
+            return admitted(identity.tenantId(), identity.subject(), request);
+        });
+
+        for (var operation : List.of(
+                FacialRecognitionService.BiometricOperation.FACE_LANDMARKS,
+                FacialRecognitionService.BiometricOperation.GAZE_ANALYSIS,
+                FacialRecognitionService.BiometricOperation.EXPRESSION_ANALYSIS,
+                FacialRecognitionService.BiometricOperation.FACE_IDENTIFICATION)) {
+            var request = new FacialRecognitionService.BiometricRequest(
+                    operation, "artifact-1", "version-2", "safety-review", "region-a", "ephemeral");
+
+            assertThatThrownBy(() -> service.detect(new byte[] {1}, request))
+                    .isInstanceOf(FacialRecognitionService.NotAdmittedException.class);
+        }
+
+        org.assertj.core.api.Assertions.assertThat(resolverCalls).hasValue(0);
+        org.assertj.core.api.Assertions.assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
     void callerPolicyLabelsCannotAuthorizeWhenNoResolverIsConfigured() {
         AtomicInteger providerCalls = new AtomicInteger();
         var service = FacialRecognitionService.of(image -> {
