@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.IllformedLocaleException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -189,8 +191,14 @@ public class PersistentTtsService {
             throw new IllegalArgumentException("voiceId must not exceed 255 characters");
         }
         if (language != null && !language.isBlank()) {
-            String langCode = language.toLowerCase(java.util.Locale.ROOT).split("-")[0];
-            if (!SUPPORTED_LANGUAGES.contains(langCode)) {
+            final Locale parsedLanguage;
+            try {
+                parsedLanguage = new Locale.Builder().setLanguageTag(language).build();
+            } catch (IllformedLocaleException malformed) {
+                throw new IllegalArgumentException("Language must be a well-formed BCP-47 tag", malformed);
+            }
+            String langCode = parsedLanguage.getLanguage().toLowerCase(Locale.ROOT);
+            if (langCode.isBlank() || !SUPPORTED_LANGUAGES.contains(langCode)) {
                 throw new IllegalArgumentException(
                         "Unsupported language: " + language + ". Supported: " + SUPPORTED_LANGUAGES);
             }
