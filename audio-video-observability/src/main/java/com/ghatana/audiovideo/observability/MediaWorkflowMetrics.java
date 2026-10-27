@@ -160,6 +160,7 @@ public final class MediaWorkflowMetrics {
         private final AtomicReference<Double> readiness = new AtomicReference<>(Double.NaN);
         private final AtomicReference<Double> checkedAt = new AtomicReference<>(Double.NaN);
         private final AtomicReference<Double> qualityObservedAt = new AtomicReference<>(Double.NaN);
+        private ProviderProfileObservation latestObservation;
     }
 
     public MediaWorkflowMetrics(MeterRegistry registry, String service) {
@@ -267,10 +268,11 @@ public final class MediaWorkflowMetrics {
 
     /**
      * Export the latest provider/profile readiness and measured-quality freshness. The registry
-     * keeps at most 64 provider profiles per service instance. A profile check with no measured
-     * quality timestamp exports NaN, never zero or a healthy quality value.
+     * keeps at most 64 provider profiles per service instance. Older observations and conflicting
+     * observations with the same check time are rejected; exact duplicates are idempotent. A
+     * profile check with no measured quality timestamp exports NaN, never zero or a healthy quality value.
      *
-     * @return false when the bounded profile series capacity has been reached
+     * @return false when the bounded profile series capacity has been reached or the observation is stale
      */
     public boolean recordProviderProfile(Modality modality, ProviderProfileObservation observation) {
         if (modality == null || observation == null) return false;
@@ -290,15 +292,27 @@ public final class MediaWorkflowMetrics {
                 providerProfiles.put(key, gauges);
             }
         }
-        gauges.readiness.set(switch (observation.readiness()) {
-            case HEALTHY -> 1.0;
-            case DEGRADED -> 0.0;
-            case UNAVAILABLE -> -1.0;
-        });
-        gauges.checkedAt.set(epochSeconds(observation.checkedAt()));
-        gauges.qualityObservedAt.set(observation.qualityObservedAt() == null
-                ? Double.NaN : epochSeconds(observation.qualityObservedAt()));
-        return true;
+        synchronized (gauges) {
+            ProviderProfileObservation latest = gauges.latestObservation;
+            if (latest != null && !observation.checkedAt().isAfter(latest.checkedAt())) {
+                // Exact duplicates are idempotent. Older or conflicting equal-time results are stale:
+                // async completion order must not replace the more recent readiness/quality tuple.
+                if (observation.equals(latest)) return true;
+                registry.counter("media.provider.profile.observation.rejected",
+                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                return false;
+            }
+            gauges.readiness.set(switch (observation.readiness()) {
+                case HEALTHY -> 1.0;
+                case DEGRADED -> 0.0;
+                case UNAVAILABLE -> -1.0;
+            });
+            gauges.checkedAt.set(epochSeconds(observation.checkedAt()));
+            gauges.qualityObservedAt.set(observation.qualityObservedAt() == null
+                    ? Double.NaN : epochSeconds(observation.qualityObservedAt()));
+            gauges.latestObservation = observation;
+            return true;
+        }
     }
 
     private void registerProviderGauges(ProviderProfileKey key, ProviderProfileGauges gauges) {

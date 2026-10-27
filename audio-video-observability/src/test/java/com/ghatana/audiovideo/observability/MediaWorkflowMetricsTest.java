@@ -203,10 +203,11 @@ class MediaWorkflowMetricsTest {
                 .tag("provider_id", "vision-cpu").gauge().value()).isNaN();
 
         Instant measuredAt = checkedAt.minusSeconds(60);
+        Instant degradedCheckedAt = checkedAt.plusSeconds(1);
         assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.VISION,
                 new MediaWorkflowMetrics.ProviderProfileObservation(
                         "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
-                        MediaWorkflowMetrics.ProviderReadiness.DEGRADED, checkedAt, measuredAt))).isTrue();
+                        MediaWorkflowMetrics.ProviderReadiness.DEGRADED, degradedCheckedAt, measuredAt))).isTrue();
         assertThat(registry.get("media.provider.profile.readiness")
                 .tag("provider_id", "vision-cpu").gauge().value()).isZero();
         assertThat(registry.get("media.provider.quality.observation_timestamp_seconds")
@@ -216,6 +217,83 @@ class MediaWorkflowMetricsTest {
                 .flatMap(meter -> meter.getId().getTags().stream())
                 .map(tag -> tag.getKey()))
                 .doesNotContain("tenant", "tenant_id", "request_id", "job_id", "attempt_id");
+    }
+
+    @Test
+    void rejectsOutOfOrderAndConflictingEqualTimeProviderObservationsWithoutRegressingGauges() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "vision");
+        Instant newerCheck = Instant.parse("2026-10-26T12:00:10Z");
+        var latest = new MediaWorkflowMetrics.ProviderProfileObservation(
+                "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
+                MediaWorkflowMetrics.ProviderReadiness.DEGRADED, newerCheck, newerCheck.minusSeconds(5));
+        var key = MediaWorkflowMetrics.Modality.VISION;
+
+        assertThat(metrics.recordProviderProfile(key, latest)).isTrue();
+        assertThat(metrics.recordProviderProfile(key, latest)).isTrue(); // exact duplicate is idempotent
+        assertThat(metrics.recordProviderProfile(key, new MediaWorkflowMetrics.ProviderProfileObservation(
+                "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
+                MediaWorkflowMetrics.ProviderReadiness.HEALTHY, newerCheck, newerCheck))).isFalse();
+        assertThat(metrics.recordProviderProfile(key, new MediaWorkflowMetrics.ProviderProfileObservation(
+                "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
+                MediaWorkflowMetrics.ProviderReadiness.HEALTHY, newerCheck.minusSeconds(1), null))).isFalse();
+
+        assertProviderProfile(registry, 0.0, newerCheck, newerCheck.minusSeconds(5));
+        assertThat(registry.get("media.provider.profile.observation.rejected")
+                .tag("service", "vision").counter().count()).isEqualTo(2);
+    }
+
+    @Test
+    void concurrentOutOfOrderProviderCompletionsKeepTheNewestObservationTuple() throws Exception {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "vision");
+        Instant base = Instant.parse("2026-10-26T12:00:00Z");
+        int count = 40;
+        var ready = new java.util.concurrent.CountDownLatch(1);
+        var executor = java.util.concurrent.Executors.newFixedThreadPool(8);
+        try {
+            var results = new java.util.ArrayList<java.util.concurrent.Future<Boolean>>();
+            for (int index = 0; index < count; index++) {
+                int sequence = index;
+                results.add(executor.submit(() -> {
+                    ready.await();
+                    Instant checkedAt = base.plusSeconds(sequence);
+                    return metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.VISION,
+                            new MediaWorkflowMetrics.ProviderProfileObservation(
+                                    "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
+                                    sequence == count - 1 ? MediaWorkflowMetrics.ProviderReadiness.UNAVAILABLE
+                                            : MediaWorkflowMetrics.ProviderReadiness.HEALTHY,
+                                    checkedAt, checkedAt.minusSeconds(1)));
+                }));
+            }
+            ready.countDown();
+            assertThat(results.stream().map(MediaWorkflowMetricsTest::getUnchecked).toList()).contains(true);
+        } finally {
+            executor.shutdownNow();
+        }
+
+        assertProviderProfile(registry, -1.0, base.plusSeconds(count - 1), base.plusSeconds(count - 2));
+    }
+
+    private static void assertProviderProfile(
+            SimpleMeterRegistry registry, double readiness, Instant checkedAt, Instant qualityAt) {
+        assertThat(registry.get("media.provider.profile.readiness")
+                .tag("provider_id", "vision-cpu").gauge().value()).isEqualTo(readiness);
+        assertThat(registry.get("media.provider.profile.checked_at_seconds")
+                .tag("provider_id", "vision-cpu").gauge().value()).isEqualTo(checkedAt.getEpochSecond());
+        assertThat(registry.get("media.provider.quality.observation_timestamp_seconds")
+                .tag("provider_id", "vision-cpu").gauge().value()).isEqualTo(qualityAt.getEpochSecond());
+    }
+
+    private static boolean getUnchecked(java.util.concurrent.Future<Boolean> result) {
+        try {
+            return result.get();
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new AssertionError("Interrupted while waiting for provider observation", interrupted);
+        } catch (java.util.concurrent.ExecutionException failed) {
+            throw new AssertionError("Concurrent provider observation failed", failed.getCause());
+        }
     }
 
     @Test
