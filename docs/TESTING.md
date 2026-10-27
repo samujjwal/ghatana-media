@@ -163,6 +163,49 @@ MEDIA_MATRIX_IMAGE='eclipse-temurin:27-jdk@sha256:<reviewed-digest>' \
   ./scripts/test-media-wave2-platform-matrix.sh linux-arm64-native
 ```
 
+### Source-pinned codec setup for the native matrix
+
+The missing external codec executables can now be provisioned without operator
+downloads, unpinned PATH lookup or a second runtime implementation. The opt-in
+`scripts/prepare-wave2-codecs.sh` fetches the fixed
+`serversideup/ffmpeg-lgpl-builds@v8.1.2-27` release archive, verifies its
+platform-specific published SHA-256, rejects unsafe tar entries and extracts
+only to a private, bounded temporary directory. It retains the exact archive;
+`VisionNativeBoundedIT` checks both the archive's fixed digest and that the
+actual `ffmpeg` and `ffprobe` executables match archived members. Existing
+direct executable SHA-256 profiles remain supported.
+
+```bash
+# From the Media root. No sudo, no global binary install, no runtime admission.
+bash scripts/prepare-wave2-codecs.sh mac-arm64
+bash scripts/prepare-wave2-codecs.sh linux-arm64
+
+# Default output directory is /tmp/ghatana-media-codecs; use the paths
+# actually printed by the provisioner, or supply your own isolated output root.
+export GHATANA_MEDIA_FFMPEG=/tmp/ghatana-media-codecs/v8.1.2-27-aarch64-apple-darwin/ffmpeg
+export GHATANA_MEDIA_FFPROBE=/tmp/ghatana-media-codecs/v8.1.2-27-aarch64-apple-darwin/ffprobe
+export GHATANA_MEDIA_CODEC_ARCHIVE=/tmp/ghatana-media-codecs/v8.1.2-27-aarch64-apple-darwin/ffmpeg-8.1.2-aarch64-apple-darwin.tar.gz
+./scripts/test-media-wave2-platform-matrix.sh mac-native
+
+export MEDIA_LINUX_CODECS_DIR=/tmp/ghatana-media-codecs/v8.1.2-27-aarch64-unknown-linux-gnu
+MEDIA_MATRIX_IMAGE='eclipse-temurin:27-jdk@sha256:<reviewed-image-digest>' \
+  ./scripts/test-media-wave2-platform-matrix.sh linux-arm64-native
+```
+
+The release's Linux LGPL profile uses `libopenh264` instead of
+the older GPL test binary's `libx264`; the test selects that encoder only
+when the digest-pinned archive profile is used and checks the actual encoder
+before the codec fixture. A missing image2 codec, executable dynamic library,
+H.264 encoder, model, or platform capability must report a failing/unsupported
+qualification, never a fabricated pass. Its model and patent/license obligations
+are still evaluated independently for any future product distribution.
+
+No binary is placed in the repository. A successful native suite is
+codec/host test evidence only: it does not prove hard per-child RSS/CPU caps
+on macOS, real model inference, provider admission, quality thresholds or
+delivery qualification. Linux sandbox cgroup resource ceilings and
+unprivileged native runner probes are separate requirements.
+
 The Linux native lane requires FFmpeg/FFprobe files matching the Linux ARM64
 pins in `VisionNativeBoundedIT`, mounted read-only. The outer Docker cgroup
 limits are hard limits for the test container, not per-child production
