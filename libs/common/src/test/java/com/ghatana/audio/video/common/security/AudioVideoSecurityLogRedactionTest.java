@@ -124,6 +124,31 @@ class AudioVideoSecurityLogRedactionTest {
         }
     }
 
+    @Test
+    void tracingApplicationLogUsesCauseTypeAsCategoryWithoutLoggingCauseMessage() {
+        String description = "tenant-model-token-description-marker";
+        String causeMessage = "private-cause-message-marker";
+        TracingServerInterceptor interceptor = new TracingServerInterceptor();
+        ServerCall<Object, Object> originalCall = mockCall(METHOD);
+        @SuppressWarnings("unchecked")
+        ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+        AtomicReference<ServerCall<Object, Object>> wrappedCall = new AtomicReference<>();
+        when(handler.startCall(any(), any())).thenAnswer(invocation -> {
+            wrappedCall.set(invocation.getArgument(0));
+            return mock(ServerCall.Listener.class);
+        });
+
+        try (LogCapture logs = capture(TracingServerInterceptor.class)) {
+            interceptor.interceptCall(originalCall, new Metadata(), handler);
+            wrappedCall.get().close(Status.INTERNAL.withDescription(description)
+                    .withCause(new IllegalArgumentException(causeMessage)), new Metadata());
+
+            String output = logs.output();
+            assertThat(output).contains("status=INTERNAL", "errorCategory=IllegalArgumentException")
+                    .doesNotContain(description, causeMessage);
+        }
+    }
+
     private static String signedToken(String subject, String tenant) throws Exception {
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
                 .subject(subject)

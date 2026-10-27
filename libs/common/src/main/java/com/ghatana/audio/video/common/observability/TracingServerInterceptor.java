@@ -236,7 +236,10 @@ public class TracingServerInterceptor implements ServerInterceptor {
         } else {
             span.setAttribute("error.type", status.getCode().name());
             span.setStatus(StatusCode.ERROR, "gRPC call failed");
-            LOG.warn("gRPC call failed: {} status={}", fullMethod, status.getCode());
+            String errorCategory = status.getCause() == null
+                    ? "none" : status.getCause().getClass().getSimpleName();
+            LOG.warn("gRPC call failed: {} status={} errorCategory={}",
+                    fullMethod, status.getCode(), errorCategory);
         }
         span.end();
     }
