@@ -244,12 +244,16 @@ PDP-3 screen-contract paths, so the post-projection manifest pass updates the
 provenance-only dependency edges. This is an expected synchronization step; it
 does not make those edges semantic dependencies or currentness evidence.
 
-Current isolated-build note: the focused STT compile is still blocked during
-external sibling composite configuration by
-`ghatana/integration-tests/service-contract-test-utils/build.gradle.kts:16`;
-the shared version catalog does not expose `libs.jackson.dataformat.yaml` in
-that checkout. This is recorded as a build-environment/sibling-repository
-blocker, not converted into a Media build pass.
+Historical isolated-build issue (October 8 source cut): an older, broad
+source-composite configuration was blocked by the Ghatana service-contract
+utility's `libs.jackson.dataformat.yaml` alias. **This no longer describes
+the selected Media FOCUSED graph.** The October 26 macOS ARM64 and Linux ARM64
+core suites and macOS runtime-integration suite executed on the same pinned
+source cut without importing that optional Data Cloud/Event Plane graph.
+`compositeScope=FULL` Data Cloud integration is still independently blocked
+until the Ghatana-owned Java 21 / Shared Java 27 public consumer boundary is
+implemented and tested. See the active owner directive in
+`implementation/MEDIA-WAVE2-OWNER-IMPLEMENTATION-DIRECTIVE-2026-10-27.md`.
 
 The browser experience audit starts from a running Explorer preview at
 `http://127.0.0.1:4179/` and exercises all 29 synthetic scenarios, the generated
@@ -327,10 +331,14 @@ successful local build does not admit it for runtime or distribution.
 
 ## Development composite builds
 
-In a standalone checkout, `./gradlew` includes the Media Gradle projects plus
-available sibling `ghatana-shared`, `ghatana-tools`, and `ghatana-kernel` builds.
-Declared Shared and Tools dependencies resolve to their canonical source
-projects through dependency substitution. The verified versions are Shared
+In standalone `compositeScope=FULL`, Gradle includes Media plus available
+Shared, Tools, Kernel and selected Ghatana source projects as needed by
+optional adapters. For routine Media core, launcher and runtime integration
+tests use `compositeScope=FOCUSED` with a named `focusedModules` allowlist;
+it includes Shared and excludes optional Tools, Kernel, Data Cloud, Event
+Plane, AI Inference and Lifecycle source builds. Both modes preserve canonical
+artifact coordinates and use source substitution; a focused core test is not a
+substitute for the separate FULL public-consumer compatibility test. The verified versions are Shared
 `0.1.0-SNAPSHOT`, Tools Java runtime `0.1.0-rc.1`, Tools Product Development
 TypeScript packages `0.1.0-SNAPSHOT`, and Kernel `0.1.0` (stable, without a
 SNAPSHOT suffix). The version-policy checker enforces these Gradle coordinates
