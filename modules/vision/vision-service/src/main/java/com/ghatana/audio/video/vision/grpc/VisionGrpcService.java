@@ -66,6 +66,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     private final VisionDetector detector;
     private final VideoFrameExtractor frameExtractor;
+    /** Codec work without an OS sandbox is allowed only for package-private in-process tests. */
+    private final boolean allowVideoCodecForTestComposition;
     private final AtomicLong requestCount = new AtomicLong(0);
     private final AtomicLong totalProcessingTime = new AtomicLong(0);
     private volatile BooleanSupplier readinessProbe = () -> false;
@@ -113,8 +115,17 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                       MediaProcessingMetrics metrics, @Nullable AuditService auditService,
                       ModelRegistry modelRegistry, MeterRegistry providerMetrics,
                       AudioVideoTracingService tracingService) {
+        this(detector, frameExtractor, metrics, auditService, modelRegistry, providerMetrics,
+                tracingService, true);
+    }
+
+    private VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
+                      MediaProcessingMetrics metrics, @Nullable AuditService auditService,
+                      ModelRegistry modelRegistry, MeterRegistry providerMetrics,
+                      AudioVideoTracingService tracingService, boolean allowVideoCodecForTestComposition) {
         this.detector = detector;
         this.frameExtractor = frameExtractor;
+        this.allowVideoCodecForTestComposition = allowVideoCodecForTestComposition;
         this.mediaMetrics = metrics;
         this.modalityMetrics = new MediaWorkflowMetrics(
                 Objects.requireNonNull(providerMetrics, "providerMetrics"), "vision");
@@ -144,7 +155,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                       MediaProcessingMetrics metrics, @Nullable AuditService auditService,
                       MeterRegistry providerMetrics) {
         this(composition.detector(), composition.frameExtractor(), metrics, auditService,
-                new FileSystemModelStore(), providerMetrics);
+                new FileSystemModelStore(), providerMetrics,
+                new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-vision")), false);
         ModelMetadata defaultModel = ModelMetadata.builder()
                 .modelId(composition.profile().modelId())
                 .name(composition.profile().modelId())
@@ -602,6 +614,17 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             }
 
             if (rejectWhenProviderUnavailable(responseObserver, "Video analysis")) return;
+
+            // The production composition has no trusted OS-level per-worker codec sandbox.
+            // Keep video codec work unavailable until such enforcement is part of the launch
+            // boundary; image RPCs and isolated test compositions remain usable.
+            if (!recordAdmissionDecision(() -> allowVideoCodecForTestComposition)) {
+                recordResponseFailure(responseObserver, io.grpc.Status.UNAVAILABLE
+                    .withDescription("VIDEO_CODEC_SANDBOX_UNAVAILABLE: bounded codec worker isolation is not configured")
+                    .asRuntimeException());
+                mediaMetrics.recordFailed("vision.analyzeVideo");
+                return;
+            }
 
             // AV-P1-012: Log request size without tenant/user identifiers.
             LOG.info("Analyzing video file ({} bytes)", dataSize);

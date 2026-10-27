@@ -18,6 +18,8 @@ import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.protobuf.services.HealthStatusManager;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,6 +56,7 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
     private YoloV8Adapter detector;
     private VideoFrameExtractor frameExtractor;
     private ProductionVisionGrpcService service;
+    private SimpleMeterRegistry providerMetrics;
     private HealthStatusManager publicHealth;
     private VisionServiceGrpc.VisionServiceBlockingStub authenticated;
     private VisionServiceGrpc.VisionServiceBlockingStub unauthenticated;
@@ -65,13 +68,14 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
         detector = mock(YoloV8Adapter.class);
         when(detector.isInitialized()).thenReturn(false);
         frameExtractor = mock(VideoFrameExtractor.class);
+        providerMetrics = new SimpleMeterRegistry();
         Path modelDirectory = Path.of("/test-only/vision-models");
         VisionModelProfile profile = new VisionModelProfile(
                 "fixture-model", "fixture-version", modelDirectory,
                 modelDirectory.resolve("fixture-model.onnx"), "a".repeat(64), "TEST_ONLY",
                 YoloV8Adapter.supportedClassLabels(), VisionModelProfile.Device.CPU, 1);
         service = new ProductionVisionGrpcService(new ProductionVisionGrpcService.Composition(
-                detector, frameExtractor, profile), MediaProcessingMetrics.noop());
+                detector, frameExtractor, profile), MediaProcessingMetrics.noop(), providerMetrics);
         service.setReadinessProbe(service::isProviderReady);
         publicHealth = new HealthStatusManager();
         publicHealth.setStatus("", io.grpc.health.v1.HealthCheckResponse.ServingStatus.NOT_SERVING);
@@ -97,6 +101,7 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
         if (channel != null) channel.shutdownNow();
         if (server != null) server.shutdownNow();
         if (service != null) service.close();
+        if (providerMetrics != null) providerMetrics.close();
         if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
         else System.setProperty("AV_JWT_SECRET", previousSecret);
     }
@@ -176,6 +181,28 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
         verify(frameExtractor, never()).getVideoMetadata(org.mockito.ArgumentMatchers.any());
         verify(frameExtractor, never()).extractFrames(org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void initializedProviderStillRejectsVideoBeforeCodecMetadataOrProcessDispatch() throws Exception {
+        when(detector.isInitialized()).thenReturn(true);
+
+        assertStatus(Status.Code.UNAVAILABLE, "VIDEO_CODEC_SANDBOX_UNAVAILABLE",
+                () -> authenticated.analyzeVideoFile(VideoFileRequest.newBuilder()
+                        .setVideoData(ByteString.copyFrom(new byte[] {4, 5, 6}))
+                        .build()));
+
+        verify(frameExtractor, never()).getVideoMetadata(org.mockito.ArgumentMatchers.any());
+        verify(frameExtractor, never()).extractFrames(org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        verify(detector, never()).detectObjects(org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any());
+        Timer deniedAdmission = providerMetrics.find("media.modality.boundary.duration")
+                .tags("modality", "vision", "service", "vision", "boundary", "admission",
+                        "execution_class", "control", "outcome", "failure", "contract_version", "v1")
+                .timer();
+        assertThat(deniedAdmission).isNotNull();
+        assertThat(deniedAdmission.count()).isEqualTo(1);
     }
 
     @Test
