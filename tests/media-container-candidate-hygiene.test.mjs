@@ -12,9 +12,31 @@ const candidates = [{"file":"stt-service","module":"modules/speech/stt-service",
 test('one canonical runtime-only image candidate per Media service', () => {
   const dockerfiles = [...tracked].filter((p) => /(?:^|\/)Dockerfile(?:\.[^/]+)?$/u.test(p)).sort();
   assert.deepEqual(dockerfiles, candidates.map((c) => 'docker/Dockerfile.' + c.file).sort());
+  const target = read('gradle/libs.versions.toml').match(/^java = "(\d+)"$/mu)?.[1];
+  assert.ok(target, 'Media canonical Java target must be declared');
   for (const c of candidates) {
     const recipe = read('docker/Dockerfile.' + c.file);
-    assert.match(recipe, /^FROM eclipse-temurin:21-jre-jammy\s*$/mu);
+    assert.match(recipe, new RegExp('^FROM eclipse-temurin:' + target + '-jre\\s*
+    assert.ok(recipe.includes(c.module + '/build/install/' + c.file + '/ /app/'));
+    assert.ok(recipe.includes('ENV ' + c.key + '=' + c.port));
+    assert.ok(recipe.includes('AV_HEALTH_PORT=' + c.health));
+    assert.ok(recipe.includes('EXPOSE ' + c.port + ' ' + c.health));
+    assert.ok(recipe.includes('ENTRYPOINT ["/app/bin/' + c.file + '"]'));
+    assert.match(recipe, /^USER 10001:10001\s*$/mu);
+    assert.doesNotMatch(recipe, /^COPY\s+(?:\.\s+\.|buildSrc|products\/audio-video)/mu);
+    assert.doesNotMatch(recipe, /shadowJar|-x\s+(?:test|compileJava|checkstyleMain)/u);
+  }
+});
+test('Docker packaging context excludes sources and secrets by default', () => {
+  const ignore = read('.dockerignore');
+  assert.match(ignore, /^\*\*\/\*\s*$/mu);
+  assert.doesNotMatch(ignore, /^!\.env/u);
+  for (const c of candidates) {
+    assert.ok(ignore.includes('!' + c.module + '/build/install/' + c.file + '/**'));
+  }
+});
+, 'mu'),
+      'candidate container JVM must match canonical Media Java bytecode target');
     assert.ok(recipe.includes(c.module + '/build/install/' + c.file + '/ /app/'));
     assert.ok(recipe.includes('ENV ' + c.key + '=' + c.port));
     assert.ok(recipe.includes('AV_HEALTH_PORT=' + c.health));
