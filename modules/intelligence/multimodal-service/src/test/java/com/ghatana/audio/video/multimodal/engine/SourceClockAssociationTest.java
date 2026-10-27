@@ -34,7 +34,7 @@ class SourceClockAssociationTest {
                 BigInteger.valueOf(1_062_500_000L), BigInteger.ONE));
         assertThat(result.audioMinusVideoNanos()).isEqualTo(new SourceClockAssociation.RationalNanos(
                 BigInteger.valueOf(-62_500_000L), BigInteger.ONE));
-        assertThat(result.uncertaintyNanos()).isEqualTo(2_000_000L);
+        assertThat(result.uncertainty()).isEqualTo(SourceClockAssociation.Uncertainty.known(2_000_000L));
     }
 
     @Test
@@ -121,6 +121,76 @@ class SourceClockAssociationTest {
         assertThat(overflowing.status()).isEqualTo(SourceClockAssociation.AssociationStatus.SYNC_UNDETERMINED);
         assertThat(overflowing.reason()).isEqualTo("MAPPED_TIMESTAMP_OUT_OF_RANGE");
         assertThat(overflowing.audioMinusVideoNanos()).isNull();
+    }
+
+    @Test
+    void rationalSampleAndPtsConversionMatchesExactIntegerArithmeticAcrossBoundaryValues() {
+        var clock = new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1",
+                1001, 48_000, -7, 3, 2);
+        long[] sampleIndices = {0, 1, 47_999, 48_000, 1_000_003, Long.MAX_VALUE / 1_000_000};
+
+        for (long sampleIndex : sampleIndices) {
+            BigInteger expectedNumerator = BigInteger.valueOf(sampleIndex)
+                    .multiply(BigInteger.valueOf(1001))
+                    .multiply(BigInteger.valueOf(1_000_000_000L))
+                    .multiply(BigInteger.valueOf(3))
+                    .add(BigInteger.valueOf(-7).multiply(BigInteger.valueOf(48_000)));
+            BigInteger expectedDenominator = BigInteger.valueOf(48_000).multiply(BigInteger.valueOf(3));
+            assertThat(clock.toSourceNanos(sampleIndex)).isEqualTo(
+                    new SourceClockAssociation.RationalNanos(expectedNumerator, expectedDenominator));
+        }
+    }
+
+    @Test
+    void missingImmutableVersionOriginOrEpochReturnsExplicitUnknownWithoutAnOffset() {
+        var audio = new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1",
+                1, 48_000, 0, 1, 2);
+        var video = new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1",
+                1, 90_000, 0, 1, 2);
+        var missingVersion = new SourceClockAssociation("artifact-1", null, audio, video,
+                SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0)
+                .associateAudioSampleWithVideoPts("artifact-1", "version-7", 2, 1, 1);
+        var missingOrigin = new SourceClockAssociation("artifact-1", "version-7", audio,
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", null,
+                        1, 90_000, 0, 1, 2),
+                SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0)
+                .associateAudioSampleWithVideoPts("artifact-1", "version-7", 2, 1, 1);
+        var missingEpoch = new SourceClockAssociation("artifact-1", "version-7", audio,
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1",
+                        1, 90_000, 0, 1, null),
+                SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0)
+                .associateAudioSampleWithVideoPts("artifact-1", "version-7", 2, 1, 1);
+
+        assertUndetermined(missingVersion, "SOURCE_ARTIFACT_VERSION_UNAVAILABLE");
+        assertUndetermined(missingOrigin, "SOURCE_CLOCK_ORIGIN_UNAVAILABLE");
+        assertUndetermined(missingEpoch, "SOURCE_CLOCK_EPOCH_UNAVAILABLE");
+    }
+
+    @Test
+    void unknownUncertaintyIsNotCollapsedToAnExactZeroBound() {
+        var result = new SourceClockAssociation("artifact-1", "version-7",
+                new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1",
+                        1, 48_000, 0, 1, 2),
+                new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1",
+                        1, 90_000, 0, 1, 2),
+                SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING,
+                SourceClockAssociation.Uncertainty.unknown("UNCERTAINTY_NOT_PROVEN"))
+                .associateAudioSampleWithVideoPts("artifact-1", "version-7", 2, 48_000, 90_000);
+
+        assertThat(result.status()).isEqualTo(SourceClockAssociation.AssociationStatus.TIMESTAMP_ALIGNED);
+        assertThat(result.uncertainty().isKnown()).isFalse();
+        assertThat(result.uncertainty().reason()).isEqualTo("UNCERTAINTY_NOT_PROVEN");
+        assertThat(result.audioMinusVideoNanos()).isNotNull();
+    }
+
+    private static void assertUndetermined(SourceClockAssociation.Association result, String reason) {
+        assertThat(result.status()).isEqualTo(SourceClockAssociation.AssociationStatus.SYNC_UNDETERMINED);
+        assertThat(result.reason()).isEqualTo(reason);
+        assertThat(result.audioSourceTime()).isNull();
+        assertThat(result.videoSourceTime()).isNull();
+        assertThat(result.audioMinusVideoNanos()).isNull();
+        assertThat(result.uncertainty().isKnown()).isFalse();
+        assertThat(result.uncertainty().reason()).isEqualTo(reason);
     }
 
     @Test

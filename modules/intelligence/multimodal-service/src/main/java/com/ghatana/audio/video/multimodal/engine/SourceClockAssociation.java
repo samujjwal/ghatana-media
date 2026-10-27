@@ -19,25 +19,36 @@ record SourceClockAssociation(
         StreamClock audioClock,
         StreamClock videoClock,
         MappingProvenance provenance,
-        long uncertaintyNanos) {
+        Uncertainty uncertainty) {
 
     private static final long MAX_UNCERTAINTY_NANOS = 60_000_000_000L;
 
     public SourceClockAssociation {
-        sourceArtifactId = requireId(sourceArtifactId, "sourceArtifactId");
-        sourceVersionId = requireId(sourceVersionId, "sourceVersionId");
+        sourceArtifactId = optionalId(sourceArtifactId, "sourceArtifactId");
+        sourceVersionId = optionalId(sourceVersionId, "sourceVersionId");
         Objects.requireNonNull(audioClock, "audioClock");
         Objects.requireNonNull(videoClock, "videoClock");
         Objects.requireNonNull(provenance, "provenance");
-        if (uncertaintyNanos < 0 || uncertaintyNanos > MAX_UNCERTAINTY_NANOS) {
+        Objects.requireNonNull(uncertainty, "uncertainty");
+        if (uncertainty.isKnown() && uncertainty.nanos() > MAX_UNCERTAINTY_NANOS) {
             throw new IllegalArgumentException("Source clock uncertainty is outside the supported bound");
         }
-        if (audioClock.discontinuityEpoch() != videoClock.discontinuityEpoch()) {
+        if (audioClock.discontinuityEpoch() != null && videoClock.discontinuityEpoch() != null
+                && !audioClock.discontinuityEpoch().equals(videoClock.discontinuityEpoch())) {
             throw new IllegalArgumentException("Audio and video clocks must belong to the same discontinuity epoch");
         }
-        if (!audioClock.originRef().equals(videoClock.originRef())) {
+        if (audioClock.originRef() != null && videoClock.originRef() != null
+                && !audioClock.originRef().equals(videoClock.originRef())) {
             throw new IllegalArgumentException("Audio and video clocks must share an identified source origin");
         }
+    }
+
+    /** Compatibility constructor for fixtures with a declared finite uncertainty bound. */
+    public SourceClockAssociation(String sourceArtifactId, String sourceVersionId,
+                                  StreamClock audioClock, StreamClock videoClock,
+                                  MappingProvenance provenance, long uncertaintyNanos) {
+        this(sourceArtifactId, sourceVersionId, audioClock, videoClock, provenance,
+                Uncertainty.known(uncertaintyNanos));
     }
 
     /** Map an audio sample and video PTS to one exact rational source timeline. */
@@ -49,6 +60,17 @@ record SourceClockAssociation(
             long videoPts) {
         if (provenance == MappingProvenance.UNAVAILABLE) {
             return Association.undetermined("SOURCE_CLOCK_MAPPING_NOT_ADMITTED");
+        }
+        if (sourceArtifactId == null) return Association.undetermined("SOURCE_ARTIFACT_ID_UNAVAILABLE");
+        if (sourceVersionId == null) return Association.undetermined("SOURCE_ARTIFACT_VERSION_UNAVAILABLE");
+        if (audioClock.originRef() == null || videoClock.originRef() == null) {
+            return Association.undetermined("SOURCE_CLOCK_ORIGIN_UNAVAILABLE");
+        }
+        if (audioClock.discontinuityEpoch() == null || videoClock.discontinuityEpoch() == null) {
+            return Association.undetermined("SOURCE_CLOCK_EPOCH_UNAVAILABLE");
+        }
+        if (!audioClock.originRef().equals(videoClock.originRef())) {
+            return Association.undetermined("SOURCE_CLOCK_ORIGIN_MISMATCH");
         }
         if (!sourceArtifactId.equals(requestedArtifactId) || !sourceVersionId.equals(requestedVersionId)) {
             return Association.undetermined("SOURCE_ARTIFACT_VERSION_MISMATCH");
@@ -71,7 +93,7 @@ record SourceClockAssociation(
                 audioTime,
                 videoTime,
                 audioNanos.subtract(videoNanos),
-                uncertaintyNanos,
+                uncertainty,
                 provenance,
                 null);
     }
@@ -89,6 +111,10 @@ record SourceClockAssociation(
         return value;
     }
 
+    private static String optionalId(String value, String label) {
+        return value == null ? null : requireId(value, label);
+    }
+
     /** One stream's rational clock and source-timeline origin. */
     public record StreamClock(
             String streamId,
@@ -98,17 +124,26 @@ record SourceClockAssociation(
             long timeBaseDenominator,
             long sourceOriginNanosNumerator,
             long sourceOriginNanosDenominator,
-            long discontinuityEpoch) {
+            Long discontinuityEpoch) {
 
         public StreamClock {
             streamId = requireId(streamId, "streamId");
             clockId = requireId(clockId, "clockId");
-            originRef = requireId(originRef, "originRef");
+            originRef = optionalId(originRef, "originRef");
             if (timeBaseNumerator <= 0 || timeBaseDenominator <= 0
                     || timeBaseNumerator > 1_000_000_000L || timeBaseDenominator > 1_000_000_000L
                     || sourceOriginNanosDenominator <= 0 || sourceOriginNanosDenominator > 1_000_000_000L) {
                 throw new IllegalArgumentException("Stream clock rational values are outside supported bounds");
             }
+        }
+
+        /** Compatibility constructor for streams with a known discontinuity epoch. */
+        public StreamClock(String streamId, String clockId, String originRef,
+                           long timeBaseNumerator, long timeBaseDenominator,
+                           long sourceOriginNanosNumerator, long sourceOriginNanosDenominator,
+                           long discontinuityEpoch) {
+            this(streamId, clockId, originRef, timeBaseNumerator, timeBaseDenominator,
+                    sourceOriginNanosNumerator, sourceOriginNanosDenominator, Long.valueOf(discontinuityEpoch));
         }
 
         RationalNanos toSourceNanos(long ticks) {
@@ -165,12 +200,13 @@ record SourceClockAssociation(
             MediaClockTimestamp audioSourceTime,
             MediaClockTimestamp videoSourceTime,
             RationalNanos audioMinusVideoNanos,
-            long uncertaintyNanos,
+            Uncertainty uncertainty,
             MappingProvenance provenance,
             String reason) {
 
         public Association {
             Objects.requireNonNull(status, "status");
+            Objects.requireNonNull(uncertainty, "uncertainty");
             if (status == AssociationStatus.TIMESTAMP_ALIGNED) {
                 Objects.requireNonNull(audioSourceTime, "audioSourceTime");
                 Objects.requireNonNull(videoSourceTime, "videoSourceTime");
@@ -185,15 +221,32 @@ record SourceClockAssociation(
                     || provenance != null || reason == null || reason.isBlank()) {
                 throw new IllegalArgumentException("Undetermined association must omit mapped clock values and state a reason");
             }
-            if (uncertaintyNanos < 0 || uncertaintyNanos > MAX_UNCERTAINTY_NANOS) {
+            if (uncertainty.isKnown() && uncertainty.nanos() > MAX_UNCERTAINTY_NANOS) {
                 throw new IllegalArgumentException("Source clock uncertainty is outside the supported bound");
             }
         }
 
         public static Association undetermined(String reason) {
-            return new Association(AssociationStatus.SYNC_UNDETERMINED, null, null, null, 0,
+            return new Association(AssociationStatus.SYNC_UNDETERMINED, null, null, null,
+                    Uncertainty.unknown(reason),
                     null, Objects.requireNonNull(reason, "reason"));
         }
+    }
+
+    /** A bound is distinct from unknown uncertainty; zero is never used as an unknown sentinel. */
+    public record Uncertainty(boolean known, long nanos, String reason) {
+        public Uncertainty {
+            if (known && (nanos < 0 || reason != null)) {
+                throw new IllegalArgumentException("Known uncertainty requires a non-negative bound and no reason");
+            }
+            if (!known && (nanos != 0 || reason == null || reason.isBlank())) {
+                throw new IllegalArgumentException("Unknown uncertainty requires a reason and no numeric bound");
+            }
+        }
+
+        public static Uncertainty known(long nanos) { return new Uncertainty(true, nanos, null); }
+        public static Uncertainty unknown(String reason) { return new Uncertainty(false, 0, reason); }
+        public boolean isKnown() { return known; }
     }
 
     public enum AssociationStatus { TIMESTAMP_ALIGNED, SYNC_UNDETERMINED }
