@@ -5,7 +5,9 @@
 #   - a gRPC port for the core API
 #   - port 8080 for the HTTP health endpoint (/health/live, /health/ready)
 #
-# Real images are produced by the audio-video CI pipeline (GH-90000).
+# Real images must be built from Java 27 candidate distributions (GH-90000).
+# Testcontainers owns per-service /health/live HTTP waits on 8090 and 8091;
+# no dependency on curl being installed inside the JRE-only image.
 # Override image names via AUDIO_VIDEO_STT_IMAGE / AUDIO_VIDEO_TTS_IMAGE
 # environment variables when running locally against custom builds.
 
@@ -23,18 +25,13 @@ services:
       - audio-video-test
     ports:
       - "50051"
-      - "8080"
+      - "8090"
     environment:
       STT_GRPC_PORT: "50051"
-      STT_HTTP_PORT: "8080"
+      AV_HEALTH_PORT: "8090"
       STT_DEFAULT_MODEL: "whisper-tiny"
       LOG_LEVEL: "info"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/live || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
+
 
   tts-service:
     image: ${AUDIO_VIDEO_TTS_IMAGE:-ghatana/tts-service:latest}
@@ -42,15 +39,10 @@ services:
       - audio-video-test
     ports:
       - "50052"
-      - "8080"
+      - "8091"
     environment:
       TTS_GRPC_PORT: "50052"
-      TTS_HTTP_PORT: "8080"
+      AV_HEALTH_PORT: "8091"
       TTS_DEFAULT_VOICE: "en-US-default"
       LOG_LEVEL: "info"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/live || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
+
