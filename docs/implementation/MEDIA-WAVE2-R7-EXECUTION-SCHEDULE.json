@@ -1010,5 +1010,131 @@
       "separateModelVoiceCorpusRightsOrConsentQualificationManifestsFound": false
     },
     "taskAcceptanceChanged": false
+  },
+  "currentCutFollowUpVerification": {
+    "verifiedAt": "2026-10-27",
+    "matrixSourceCut": {
+      "media": "9bd38bf1b64be8076dbaf8c73a25850ee017189b",
+      "shared": "bd7ce719952ae9693d87dec09fecd12ab6693576",
+      "worktreesClean": true
+    },
+    "matrixReportDirectories": [
+      "/private/tmp/ghatana-wave2-r7-current-mac-core",
+      "/private/tmp/ghatana-wave2-r7-current-linux-arm64-core",
+      "/private/tmp/ghatana-wave2-r7-current-linux-arm64-native",
+      "/private/tmp/ghatana-wave2-r7-current-mac-integration",
+      "/private/var/folders/ct/rbzll5l91xj9hw30s3j768yc0000gn/T/ghatana-media-wave2-platform-results"
+    ],
+    "platformRuns": [
+      {
+        "mode": "mac-core",
+        "report": "/private/tmp/ghatana-wave2-r7-current-mac-core/mac-core.json",
+        "execution": "macOS/arm64, Temurin 27.0.1.0.2",
+        "counts": {"tests": 1781, "failures": 0, "errors": 0, "skipped": 3},
+        "skipReason": "Three opt-in VisionNativeBoundedIT cases; they passed in mac-native. Resource profile is a local no-provider harness and records modality/native metrics as NOT_MEASURED."
+      },
+      {
+        "mode": "linux-arm64-core",
+        "report": "/private/tmp/ghatana-wave2-r7-current-linux-arm64-core/linux-arm64-core.json",
+        "execution": "Linux/arm64 in Docker Desktop on macOS/arm64, Temurin 27",
+        "javaImage": "eclipse-temurin:27-jdk@sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "outerContainerBounds": {"memory": "8 GiB", "cpus": 4, "pids": 512},
+        "counts": {"tests": 1781, "failures": 0, "errors": 0, "skipped": 3},
+        "skipReason": "Three opt-in VisionNativeBoundedIT cases; they passed in linux-arm64-native. Outer Docker limits are not per-worker native resource enforcement."
+      },
+      {
+        "mode": "mac-native",
+        "report": "/private/var/folders/ct/rbzll5l91xj9hw30s3j768yc0000gn/T/ghatana-media-wave2-platform-results/mac-native.json",
+        "execution": "macOS/arm64, Temurin 27.0.1.0.2",
+        "codecArchiveSha256": "ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332",
+        "ffmpegSha256": "5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33",
+        "ffprobeSha256": "b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f",
+        "counts": {"tests": 49, "failures": 0, "errors": 0, "skipped": 0},
+        "resourceProfileArtifact": null
+      },
+      {
+        "mode": "linux-arm64-native",
+        "report": "/private/tmp/ghatana-wave2-r7-current-linux-arm64-native/linux-arm64-native.json",
+        "execution": "Linux/arm64 in Docker Desktop on macOS/arm64, Temurin 27",
+        "javaImage": "eclipse-temurin:27-jdk@sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "nativeRuntimeImage": "ubuntu:24.04@sha256:19cad59657037cffa0ac9a48107019b768900ff1071140965827513ac866bd5e",
+        "outerContainerBounds": {"memory": "8 GiB", "cpus": 4, "pids": 512},
+        "codecArchiveSha256": "ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586",
+        "ffmpegSha256": "020b113f52f1e44515538d965d143ea8bb38066d5893b8a3c502eece23bb3db0",
+        "ffprobeSha256": "c3a51d1aa8afa398a778192e67b26e94ddd541ce350d0a527dbcbba278c660be",
+        "counts": {"tests": 49, "failures": 0, "errors": 0, "skipped": 0},
+        "resourceProfileArtifact": null,
+        "sampledDockerStatsAreNotPeaks": true,
+        "retry": "The guarded one-time chmod/retry repaired cached Linux protoc execute permission; retry succeeded."
+      }
+    ],
+    "ttsSnapshotCommit": {
+      "mediaCut": "46ba04e22c74732cae2e5f4b1ea3ba7b50c921dd",
+      "summary": "fix(media): snapshot admitted TTS model inputs",
+      "verificationMediaCut": "46ba04e22c74732cae2e5f4b1ea3ba7b50c921dd",
+      "ttsSourceFilesCleanAtVerification": true,
+      "changedFiles": [
+        "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/ProductionTtsGrpcService.java",
+        "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/ProductionTtsGrpcServiceConfigTest.java"
+      ],
+      "modelSizeAssumption": "Use existing TTS_MAX_MEMORY_BYTES as a conservative model-file and private-snapshot byte ceiling (default 256 MiB; bounded 1 MiB–4 GiB); apply before source hashing, during copy, and during staged-file verification.",
+      "focusedConfigTests": {"tests": 18, "failures": 0, "errors": 0, "skipped": 0},
+      "fullTtsModuleTests": {"tests": 337, "failures": 0, "errors": 0, "skipped": 0},
+      "focusedConfigXmlReport": "modules/speech/tts-service/build/test-results/test/TEST-com.ghatana.tts.grpc.ProductionTtsGrpcServiceConfigTest.xml",
+      "fullTtsModuleXmlReportDirectory": "modules/speech/tts-service/build/test-results/test (43 TEST-*.xml files)",
+      "focusedConfigCommand": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.ProductionTtsGrpcServiceConfigTest --no-build-cache --no-parallel --max-workers=2 --console=plain",
+      "fullTtsModuleCommand": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-build-cache --no-parallel --max-workers=2 --console=plain",
+      "independentCodeReview": "No concrete blocker found; mock-backed post-cleanup synthesis verifies path lifecycle only, not real ONNX/provider output or qualification."
+    },
+    "macIntegration": {
+      "mediaCut": "46ba04e22c74732cae2e5f4b1ea3ba7b50c921dd",
+      "sharedCut": "bd7ce719952ae9693d87dec09fecd12ab6693576",
+      "report": "/private/tmp/ghatana-wave2-r7-current-mac-integration/mac-integration.json",
+      "execution": "macOS/arm64, Temurin 27.0.1.0.2, clean worktrees at run start",
+      "candidateImages": [
+        "ghatana/stt-service:r7-local-20261027",
+        "ghatana/tts-service:r7-local-20261027"
+      ],
+      "candidateImageIds": {
+        "stt": "sha256:7d1c520e1f01dcfc57853218a80eab8ed7b25ea075f7b279c2c79242fa9a8373",
+        "tts": "sha256:b653c822b2b6bccee75d6a83ba08ac79629fa632f1169df7856131e7d530040f"
+      },
+      "counts": {"tests": 246, "failures": 0, "errors": 0, "skipped": 0},
+      "gh90000ComposeTests": {"tests": 9, "failures": 0, "errors": 0, "skipped": 0},
+      "executedTestProjects": {"integration-tests": "EXECUTED", "launcher": "EXECUTED", "providers/aws-postgresql": "UP-TO-DATE"},
+      "claim": "Fail-closed startup, toolchain parity, no port publication, bounded diagnostics, and no false provider result only; no provider-positive effect."
+    },
+    "currentLedgerReview": {
+      "reviewedMediaCut": "46ba04e22c74732cae2e5f4b1ea3ba7b50c921dd",
+      "reviewedSharedCut": "bd7ce719952ae9693d87dec09fecd12ab6693576",
+      "reviewer": "Independent Luna full-ledger delta audit",
+      "taskIds": 58,
+      "locallyVerifiedTaskIds": ["STT-01", "STT-02", "STT-11", "TTS-01", "TTS-04", "TTS-11", "VIS-01", "VIS-04", "VIS-08", "VIS-11", "MM-01", "MM-04", "MM-07", "MM-11", "OBS-01", "OBS-02", "OBS-03", "OBS-04", "OBS-05", "OBS-06", "OBS-09", "OBS-10"],
+      "partialTaskIds": ["VIS-03", "STT-03", "TTS-05", "VIS-10", "MM-02", "STT-04", "STT-08", "STT-09", "STT-05", "STT-06", "STT-07", "TTS-02", "TTS-03", "TTS-06", "TTS-08", "TTS-09", "VIS-05", "VIS-06", "VIS-07", "MM-03", "MM-05", "MM-06", "MM-08", "MM-09", "MM-10", "VIS-09", "STT-10", "TTS-10", "OBS-07", "OBS-08"],
+      "ownerExternalTaskIds": ["STT-12", "TTS-07", "TTS-12", "VIS-02", "VIS-12", "MM-12"],
+      "allOpenRowsUnaccepted": true,
+      "externalRightsAdmitted": false,
+      "rowsPromoted": 0,
+      "taskAcceptanceChanged": false,
+      "providerManifest": {
+        "path": "config/provider-manifest.json",
+        "provenance": "UNCONFIRMED",
+        "sttStatus": "NOT_ADMITTED",
+        "ttsStatus": "NOT_ADMITTED",
+        "modelAndVoiceFieldsNull": true,
+        "readiness": false,
+        "automaticSelectionDisabled": true,
+        "conformanceEvidenceReferencesEmpty": true,
+        "separateAdmittedModelVoiceCorpusRightsOrConsentManifestFound": false
+      }
+    },
+    "recordValidation": {
+      "wave2PlanTests": {"tests": 7, "failures": 0},
+      "repositoryHygieneTests": {"tests": 19, "failures": 0},
+      "containerImageHygieneTests": {"tests": 3, "failures": 0},
+      "scheduleJsonValid": true,
+      "gitDiffCheckPassed": true
+    },
+    "claim": "Execution and implementation review evidence only; no Wave 2 task acceptance, formal PDP/gtool transition, closure receipt, deployment, cutover, or release is asserted."
   }
 }

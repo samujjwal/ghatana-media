@@ -1832,3 +1832,61 @@ The Media source cut is `0066f665e7ac44f3152a11c9ee51496c1b0ed143` (bounded STT 
 All **58** task IDs remain disjoint and accounted for as **22 locally verified / 30 partial / 6 owner-external**. No task acceptance or owner authority was inferred from these focused reruns; the original full-row acceptance criteria remain controlling.
 
 An independent current-source Luna audit at Media `aea3ec64` reconfirmed those counts, all 36 open rows unaccepted, no rights admitted, and zero promotions. The only repository provider manifest remains `config/provider-manifest.json`: provenance is `UNCONFIRMED`; STT/TTS profiles are `NOT_ADMITTED`; required model/voice fields are null; readiness is false; automatic selection is disabled; and conformance evidence references are empty. No separate model, voice, corpus, rights, or consent qualification manifests were found. The six owner-external rows remain **STT-12, TTS-07, TTS-12, VIS-02, VIS-12, and MM-12**.
+
+### R7 current-cut verification and TTS path follow-up — 2026-10-27
+
+This append supplements the historical `c40a60a7` matrix in `latestVerification`; it does not replace that record. Current platform core/native evidence is tied to Media `9bd38bf1b64be8076dbaf8c73a25850ee017189b` and Shared `bd7ce719952ae9693d87dec09fecd12ab6693576`. The TTS path change was then committed as `46ba04e22c74732cae2e5f4b1ea3ba7b50c921dd` and independently checked by a fresh ledger delta audit.
+
+- **macOS ARM64 core:** Temurin 27.0.1.0.2, **1,781 tests, 0 failures, 0 errors, 3 skipped**. All three skips are the opt-in `VisionNativeBoundedIT` tests; the separate native lane passed. Report: `/private/tmp/ghatana-wave2-r7-current-mac-core/mac-core.json`.
+- **Linux ARM64 core:** pinned Temurin 27 image, 8 GiB / 4 CPU / 512 PID outer-container limits, **1,781 tests, 0 failures, 0 errors, 3 skipped** for the same opt-in native Vision selectors. The first Gradle attempt hit the known cached `protoc` executable-bit issue; the runner performed its guarded chmod/retry and passed. The outer Docker limits do not prove per-worker CPU/RSS/PID isolation. Report: `/private/tmp/ghatana-wave2-r7-current-linux-arm64-core/linux-arm64-core.json`.
+- **macOS ARM64 native Vision:** pinned FFmpeg/FFprobe 8.1.2, **49/49 tests, 0 failures/errors/skips**. The run validates the pinned fixture/tool path, bounded output/time/path guards, and OpenCV cleanup. It produced no aggregate resource-profile artifact.
+- **Linux ARM64 native Vision:** pinned Temurin and Ubuntu 24.04 sidecar, verified FFmpeg/FFprobe archive and executable hashes, 8 GiB / 4 CPU / 512 PID outer-container limits, **49/49 tests, 0 failures/errors/skips**. The guarded retry repaired the cached protoc execute bit. No aggregate resource-profile artifact was produced; live Docker statistics were samples, not peak or per-worker enforcement measurements. Report: `/private/tmp/ghatana-wave2-r7-current-linux-arm64-native/linux-arm64-native.json`.
+- **macOS ARM64 integration on TTS commit `46ba04e2`:** rebuilt local Java 27 candidate images `ghatana/stt-service:r7-local-20261027` and `ghatana/tts-service:r7-local-20261027`; **246 tests, 0 failures, 0 errors, 0 skips**. All **9 GH-90000 Compose tests** ran and passed. They prove startup refuses unadmitted providers, no gRPC/HTTP ports are published, diagnostics remain bounded, the images use Java 27, and no transcript/audio success is claimed on refusal. `integration-tests` and `launcher` ran; `providers/aws-postgresql` was `UP-TO-DATE`. Report: `/private/tmp/ghatana-wave2-r7-current-mac-integration/mac-integration.json`.
+
+#### TTS X05 implementation and review
+
+`46ba04e2` updates `ProductionTtsGrpcService` to verify the configured model and Piper sidecar, copy them into a private owner-only snapshot using no-follow/no-replace file operations, bind the copied bytes to the admitted digests, verify the staged snapshot around engine construction and warmup, and clean the files before exposing the initialized service. The implementation applies the existing `TTS_MAX_MEMORY_BYTES` setting as a conservative model-file/snapshot byte ceiling (default 256 MiB, allowed range 1 MiB–4 GiB) before source hashing, during copy, and during staged verification. This relationship is a documented safety assumption; it does not qualify a model.
+
+The focused `ProductionTtsGrpcServiceConfigTest` suite passed **18/18** and the full TTS module passed **337/337**, with no failures, errors, or skips. Regressions cover source mutation/replacement, symlink and permission boundaries, byte-limit boundary and over-limit rejection before warmup, cleanup on failures, and an authorized mock-backed synthesis after staged-file deletion. An independent Luna review found no concrete blocker. The mock test proves path lifecycle only; no real ONNX inference, provider output, model rights, or quality claim is made.
+
+These two TTS runs were repeated with Media `HEAD=46ba04e22c74732cae2e5f4b1ea3ba7b50c921dd`; the TTS source files were clean at test time. The exact focused and full-module commands were:
+
+```sh
+JDK27=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home
+JAVA_HOME="$JDK27" PATH="$JDK27/bin:$PATH" ./gradlew --no-daemon \
+  -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts \
+  :services:media:modules:speech:tts-service:test \
+  --tests com.ghatana.tts.grpc.ProductionTtsGrpcServiceConfigTest \
+  --no-build-cache --no-parallel --max-workers=2 --console=plain
+
+JAVA_HOME="$JDK27" PATH="$JDK27/bin:$PATH" ./gradlew --no-daemon \
+  -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts \
+  :services:media:modules:speech:tts-service:test \
+  --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+JUnit XML evidence: focused `modules/speech/tts-service/build/test-results/test/TEST-com.ghatana.tts.grpc.ProductionTtsGrpcServiceConfigTest.xml`; full module: all **43** `TEST-*.xml` files in `modules/speech/tts-service/build/test-results/test/`.
+
+The Compose run used the images built with the existing STT/TTS Dockerfiles and the matrix runner:
+
+```sh
+docker build -f docker/Dockerfile.stt-service -t ghatana/stt-service:r7-local-20261027 .
+docker build -f docker/Dockerfile.tts-service -t ghatana/tts-service:r7-local-20261027 .
+JAVA_HOME="$JDK27" PATH="$JDK27/bin:$PATH" \
+  AUDIO_VIDEO_STT_IMAGE=ghatana/stt-service:r7-local-20261027 \
+  AUDIO_VIDEO_TTS_IMAGE=ghatana/tts-service:r7-local-20261027 \
+  MEDIA_MATRIX_REPORT_DIR=/private/tmp/ghatana-wave2-r7-current-mac-integration \
+  ./scripts/test-media-wave2-platform-matrix.sh mac-integration
+```
+
+#### Current dispositions at Media `46ba04e2`
+
+A fresh independent Luna delta audit reconciled all 58 task IDs and found no mismatch. Dispositions remain **22 LOCALLY_VERIFIED, 30 PARTIAL, and 6 OWNER_EXTERNAL**. The 22 locally verified IDs are unchanged; all 36 open IDs remain `taskAccepted=false`, no external rights were admitted, and no row was promoted. X05 hardens TTS model input handling but does not complete TTS whole-row criteria; the cross-surface X05 package also still lacks the Vision path work.
+
+The six owner-external tasks remain **STT-12, TTS-07, TTS-12, VIS-02, VIS-12, and MM-12**. Remaining partial-row requirements include trusted source/rights/consent admission, real qualified STT/TTS/Vision provider effects and quality, canonical persistence/restart/finality, source-clock authority and measured synchronization, the public Document Intelligence and Data Cloud APIs, deployed provider-quality alert delivery, named-host 1/16/64 modality measurements, and per-worker native resource enforcement. The source manifest remains `UNCONFIRMED`; STT/TTS are `NOT_ADMITTED`, model/voice fields are null, readiness is false, automatic selection is disabled, and conformance evidence references are empty.
+
+These runs and reviews establish local execution evidence and a bounded implementation review only. They do not create formal PDP/gtool acceptance, a closure receipt, production admission, data/worker cutover, deployment, or release.
+
+The final execution-record checks passed after the follow-up was appended: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, `node --test tests/media-container-candidate-hygiene.test.mjs` **3/3**, `jq empty docs/implementation/MEDIA-WAVE2-R7-EXECUTION-SCHEDULE.json`, and `git diff --check`.
