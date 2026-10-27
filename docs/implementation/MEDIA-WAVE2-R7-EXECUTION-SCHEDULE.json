@@ -875,5 +875,31 @@
       "taskAcceptanceChanged": false,
       "rowsPromoted": 0
     }
+  },
+  "visionCleanupFollowup": {
+    "verifiedAt": "2026-10-27",
+    "mediaCommit": "15b724359d96811dee6ddc8d9ab694d61f02db38",
+    "platformMatrixCut": "c40a60a730e5bf11f6ffc05644253f2c130ffbb7",
+    "VIS-03": {
+      "sourceChanged": true,
+      "files": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java",
+        "modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/video/VideoFrameExtractorProcessTest.java"
+      ],
+      "focusedTests": {
+        "selector": ":services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest --no-build-cache",
+        "java": "Temurin 27.0.1.0.2",
+        "tests": 46,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "independentReview": "Luna reviewer accepted descendant rescanning within the observation cap and two-second cleanup deadline; noted that additional descendants beyond the 256-handle cap may survive.",
+      "disposition": "PARTIAL",
+      "taskAccepted": false,
+      "remaining": "This closes the observed fork-on-termination cleanup race for bounded trees. It does not provide hard process-count, CPU, RSS, or native-memory isolation; trees exceeding the 256-handle tracking cap may have unobserved descendants.",
+      "rowsPromoted": 0
+    },
+    "taskAcceptanceChanged": false
   }
 }
