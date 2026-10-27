@@ -901,5 +901,89 @@
       "rowsPromoted": 0
     },
     "taskAcceptanceChanged": false
+  },
+  "wholeOpenRowFollowupAudit": {
+    "verifiedAt": "2026-10-27",
+    "mediaCodeCut": "0066f665e7ac44f3152a11c9ee51496c1b0ed143",
+    "mediaDocumentationCut": "9448e8c50838eb3acf8f55ece6634f0317a80e3e",
+    "platformMatrixCut": "c40a60a730e5bf11f6ffc05644253f2c130ffbb7",
+    "STT": {
+      "auditedRows": ["STT-03", "STT-04", "STT-05", "STT-06", "STT-07", "STT-08", "STT-09", "STT-10"],
+      "focusedPostChangeTests": {
+        "selector": "SpeakerDiarizationServiceTest",
+        "java": "Temurin 27.0.1.0.2",
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "priorFullModuleTestsBeforeThisEdit": {
+        "tests": 332,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "STT-07": {
+        "disposition": "PARTIAL",
+        "sourceChanged": true,
+        "independentReview": "Accepted bounded pre-provider-dispatch validation, byte/count limits, and request-list snapshot.",
+        "remaining": "AudioSegment construction still defensively copies up to 4 MiB per object, so callers can allocate large aggregate memory before diarize() validates the batch. No qualified embeddings, owner rights, or licensed DER corpus are available.",
+        "taskAccepted": false
+      },
+      "otherRowsRemainPartial": true,
+      "STT-12": "OWNER_EXTERNAL"
+    },
+    "TTS": {
+      "auditedRows": ["TTS-02", "TTS-03", "TTS-05", "TTS-06", "TTS-08", "TTS-09", "TTS-10"],
+      "fullModuleTests": {
+        "tests": 333,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "READMEReconciled": "TtsGrpcService maps only unspecified/PCM_S16LE to raw PCM and validates mono PCM bytes; F32/WAV/MP3 are rejected before engine access.",
+      "rowsRemainPartial": true,
+      "ownerExternalRows": ["TTS-07", "TTS-12"]
+    },
+    "Vision": {
+      "auditedRows": ["VIS-03", "VIS-05", "VIS-06", "VIS-07", "VIS-09", "VIS-10"],
+      "selectedSuite": {
+        "java": "Temurin 27.0.1.0.2",
+        "tests": 79,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "VIS-10": {
+        "focusedTests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "regression": "Biometric landmark/gaze/expression/identity operations do not call the resolver or provider without the trusted authorized path.",
+        "disposition": "PARTIAL",
+        "taskAccepted": false
+      },
+      "rowsRemainPartial": true,
+      "ownerExternalRows": ["VIS-02", "VIS-12"]
+    },
+    "MultimodalObservability": {
+      "auditedRows": ["MM-02", "MM-03", "MM-05", "MM-06", "MM-08", "MM-09", "MM-10", "OBS-07", "OBS-08"],
+      "focusedTests": [
+        {"selector": "CrossModalFusionEngineTest", "tests": 45, "failures": 0, "errors": 0, "skipped": 0},
+        {"selector": "MultimodalGrpcServiceTest", "tests": 49, "failures": 0, "errors": 0, "skipped": 0},
+        {"selector": "MediaWorkflowAlertRulesTest", "tests": 10, "failures": 0, "errors": 0, "skipped": 0},
+        {"selector": "MediaResourceProfileHarnessTest", "tests": 6, "failures": 0, "errors": 0, "skipped": 0}
+      ],
+      "rowsRemainPartial": true,
+      "remaining": "Source rights/clock authority, actual STT/Vision children, canonical result/job wiring, public Data Cloud transport, deployed provider-quality alert delivery, and named-host provider/resource measurements remain unavailable."
+    },
+    "ledger": {
+      "taskIds": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "taskAcceptanceChanged": false,
+      "rowsPromoted": 0
+    }
   }
 }
