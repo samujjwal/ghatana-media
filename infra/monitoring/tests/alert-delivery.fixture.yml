@@ -2,14 +2,14 @@ groups:
   - name: audio_video.alert_delivery_fixture
     interval: 1s
     rules:
-      - alert: MediaAlertDeliveryFixture
-        expr: up{job="media-alert-delivery-fixture"} == 1
+      - alert: MediaProviderProfileUnavailableFixture
+        expr: max by (service, modality) (media_provider_profile_readiness{provider_id="alert-delivery-fixture",provider_version="fixture-v1",model_profile="fixture-model",model_revision="fixture-r1",contract_version="v1"} == -1)
         for: 2s
         labels:
           severity: warning
           product: audio-video
-          component: alert-delivery-fixture
+          component: provider-profile-fixture
           source: fixture
         annotations:
-          summary: "Fixture-triggered local alert delivery"
-          description: "Local Prometheus and Alertmanager wiring fixture only; no provider or production metric is asserted."
+          summary: "Fixture Media provider profile unavailable"
+          description: "A deterministic test profile from MediaWorkflowMetrics exercises local exporter delivery only; no provider health or model quality is asserted."

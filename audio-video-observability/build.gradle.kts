@@ -28,7 +28,18 @@ dependencies {
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.assertj.core)
     testImplementation(libs.grpc.inprocess)
+    testImplementation(libs.micrometer.registry.prometheus)
     testRuntimeOnly(libs.log4j.slf4j.impl)
+}
+
+// A deterministic local exporter used by infra/monitoring's opt-in delivery smoke.
+// It exercises MediaWorkflowMetrics' actual Prometheus registry/export path while
+// keeping the provider observation explicitly synthetic and test-only.
+tasks.register<JavaExec>("runAlertDeliveryExporterFixture") {
+    group = "verification"
+    description = "Run the deterministic Media metrics exporter fixture for alert delivery smoke tests."
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("com.ghatana.audiovideo.observability.MediaAlertDeliveryExporterFixture")
 }
 
 

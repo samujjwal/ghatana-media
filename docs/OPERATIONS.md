@@ -163,10 +163,14 @@ For a separate opt-in local transport smoke, run:
 RUN_MEDIA_ALERT_DELIVERY_TEST=1 bash infra/monitoring/tests/alert-delivery-smoke.sh
 ```
 
-The smoke uses digest-pinned Prometheus and Alertmanager containers, scrapes
-Prometheus's own `/metrics` endpoint, and checks that the fixture alert reaches
-the local Alertmanager route. It does not exercise Media's exporter, provider
-readiness or quality metrics, production receivers, or deployment.
+The smoke starts a test-only exporter backed by Media's `MediaWorkflowMetrics`
+Prometheus registry. A deterministic synthetic provider-profile readiness
+observation begins healthy, changes to unavailable, and recovers; Prometheus
+scrapes the Media exporter and the unavailable alert must reach the local
+Alertmanager receiver and clear after recovery. The quality observation
+timestamp remains `NaN`, so the fixture supplies no measured quality. This
+proves local exporter-to-receiver wiring only; it does not establish real
+provider health or quality, production receiver delivery, or deployment.
 
 The current Media Runtime Prometheus scrape emits durable workflow metrics from
 `MediaWorkflowMetrics`: request/event counts, workflow-stage durations, queue
@@ -252,9 +256,11 @@ existing provider configuration and redacted service diagnostics. Do not print
 credential values, endpoint query strings, model paths, request content, or
 tenant identifiers while triaging. Restore the configured dependency or keep
 the service out of traffic until readiness recovers. The current readiness
-metric does not identify which provider check failed. No admitted provider
-quality or regression metric exists, so these alerts describe readiness only;
-they do not establish output quality or alert delivery.
+metric does not identify which provider check failed. The exporter exposes a
+quality-observation timestamp only when an admitted source records a measured
+observation; the current fixture leaves it unknown (`NaN`), and no admitted
+quality/regression source exists. The readiness alerts do not establish output
+quality or production alert delivery.
 
 The corresponding `*ReadinessTelemetryMissing` warning fires only when a
 modality scrape target remains reachable while its readiness series is absent
