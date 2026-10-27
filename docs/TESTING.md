@@ -117,6 +117,12 @@ run-stamped resource-profile TSV for core lanes (default report directory:
 test execution only; it does not promote a Wave 2 task or qualify a provider,
 model, rights grant, deployment, or release.
 
+When Gradle exits non-zero, the JSON also includes a bounded `gradleFailure`
+diagnostic with the concise `What went wrong` summary and failed task paths.
+This is separate from JUnit counts: configuration failures before test XML are
+reported as Gradle failures with zero reported tests, never as a passing test
+result.
+
 Run the primary Apple Silicon lanes with JDK 27 and an adjacent
 `ghatana-shared` checkout:
 

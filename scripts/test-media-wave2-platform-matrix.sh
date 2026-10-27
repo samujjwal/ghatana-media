@@ -119,16 +119,37 @@ summarize_reports() {
   python3 - "$1" "$2" "$MODE" "$MEDIA_SHA" "$SHARED_SHA" "$START_UTC" \
     "$TEST_PROJECTS" "$HOST_OS" "$HOST_ARCH" "$EXECUTION_OS" "$EXECUTION_ARCH" \
     "$JAVA_VERSION" "$IMAGE_REF" "$IMAGE_DIGEST" "$MEMORY" "$CPUS" "$PIDS" \
-    "$FFMPEG_PATH" "$FFPROBE_PATH" "$MEDIA_CLEAN" "$SHARED_CLEAN" "$RUN_LOG" "$PROFILE_ARTIFACT" <<'PY'
+    "$FFMPEG_PATH" "$FFPROBE_PATH" "$MEDIA_CLEAN" "$SHARED_CLEAN" "$RUN_LOG" "$PROFILE_ARTIFACT" "$RUN_STATUS" <<'PY'
 import hashlib, json, pathlib, re, sys, xml.etree.ElementTree as ET
 (source, output, mode, media_sha, shared_sha, start_utc, test_projects,
  host_os, host_arch, execution_os, execution_arch, java_version, image_ref,
  image_digest, memory, cpus, pids, ffmpeg_path, ffprobe_path,
- media_clean, shared_clean, run_log, profile_artifact) = sys.argv[1:]
+ media_clean, shared_clean, run_log, profile_artifact, run_status) = sys.argv[1:]
 root = pathlib.Path(source)
 planned_projects = list(filter(None, test_projects.split(',')))
 log_file = pathlib.Path(run_log)
 log_text = log_file.read_text(errors='replace') if log_file.is_file() else ''
+failed_gradle_tasks = []
+for line in log_text.splitlines():
+    match = re.match(r'^> Task (:\S+) FAILED\s*$', line)
+    if match and match.group(1) not in failed_gradle_tasks:
+        failed_gradle_tasks.append(match.group(1))
+what_went_wrong = []
+in_failure = False
+for line in log_text.splitlines():
+    if line.strip() == '* What went wrong:':
+        in_failure = True
+        continue
+    if in_failure and (line.strip() == '* Try:' or line.startswith('BUILD FAILED')):
+        break
+    if in_failure and line.strip():
+        what_went_wrong.append(line.strip())
+gradle_failure = None
+if run_status != '0':
+    gradle_failure = dict(
+        summary=' '.join(what_went_wrong)[:1200] or 'Gradle exited non-zero; see bounded failedTasks and gradleLog.',
+        failedTasks=failed_gradle_tasks[:50],
+        diagnosticKind='GRADLE_EXECUTION_FAILURE_NOT_TEST_RESULT')
 executed_tasks = {}
 for project in planned_projects:
     task_path = ':services:media:' + project.replace('/', ':') + ':test'
@@ -181,6 +202,7 @@ result = dict(mode=mode, startUTC=start_utc,
                                ffmpegSha256=digest(ffmpeg_path), ffprobeSha256=digest(ffprobe_path)),
               plannedTestProjects=planned_projects,
               executedTestProjects=executed_tasks,
+              gradleFailure=gradle_failure,
               gradleLog=run_log,
               resourceProfileArtifact=profile_artifact if pathlib.Path(profile_artifact).is_file() else None,
               counts=counts, failedTestNames=failures, skippedTests=skips,
@@ -363,7 +385,21 @@ if [ -d "$native_tools_dir" ]; then
   # macOS Docker bind mounts can lose executable bits from Linux Gradle tool artifacts.
   find "$native_tools_dir" -type f -name "*-linux-*.exe" -exec chmod u+x {} +
 fi
-exec ./gradlew "$@"
+if ./gradlew "$@" >/tmp/media-wave2-gradle-first-attempt.log 2>&1; then
+  cat /tmp/media-wave2-gradle-first-attempt.log
+  exit 0
+else
+  first_status=$?
+  cat /tmp/media-wave2-gradle-first-attempt.log
+fi
+if { grep -Fq "Exec failed, error: 13 (Permission denied)" /tmp/media-wave2-gradle-first-attempt.log \
+     || grep -Fq "program not found or is not executable" /tmp/media-wave2-gradle-first-attempt.log; } \
+    && grep -Eq "/gradle-home/.*/[^/]*-linux-[^/]*\\.exe" /tmp/media-wave2-gradle-first-attempt.log; then
+  echo "Retrying once after correcting executable bits for cached Linux Gradle tools."
+  find /gradle-home/caches/modules-2/files-2.1 -type f -name "*-linux-*.exe" -exec chmod u+x {} +
+  exec ./gradlew "$@"
+fi
+exit "$first_status"
 ' sh "${TASKS[@]}" 2>&1 | tee "$RUN_LOG"
 RUN_STATUS=${PIPESTATUS[0]}
 set -e
