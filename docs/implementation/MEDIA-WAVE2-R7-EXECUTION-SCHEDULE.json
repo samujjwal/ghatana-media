@@ -810,5 +810,70 @@
     },
     "taskDispositionsChanged": false,
     "rowsPromoted": 0
+  },
+  "laterTaskWork": {
+    "verifiedAt": "2026-10-27",
+    "mediaCommit": "670c157a01dea9a206c169cdcb9ef11d7acda064",
+    "platformMatrixCut": "c40a60a730e5bf11f6ffc05644253f2c130ffbb7",
+    "TTS-08": {
+      "sourceChanged": true,
+      "files": [
+        "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java",
+        "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsGrpcServiceTest.java"
+      ],
+      "fullModuleTests": {
+        "selector": ":services:media:modules:speech:tts-service:test --no-build-cache --rerun-tasks",
+        "java": "Temurin 27.0.1.0.2",
+        "tests": 333,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "focusedClassTests": {
+        "class": "TtsGrpcServiceTest",
+        "tests": 56,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "independentReview": "Luna reviewer accepted the bounded cancellation/finality repair after verifying cancellation is observable before session return and on active-session chunk validation failure.",
+      "disposition": "PARTIAL",
+      "taskAccepted": false,
+      "remaining": "Real provider streaming and finality qualification remain unverified."
+    },
+    "VIS-05": {
+      "sourceChanged": false,
+      "focusedTests": {
+        "selector": "Vision geometry/detector tests",
+        "java": "Temurin 27.0.1.0.2",
+        "tests": 38,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "disposition": "PARTIAL",
+      "taskAccepted": false,
+      "remaining": "The request contract lacks source content version; native leak-rate stress and real model quality/rights remain unverified."
+    },
+    "STT-08": {
+      "sourceChanged": false,
+      "disposition": "PARTIAL",
+      "taskAccepted": false,
+      "remaining": "PersistentSttService is not wired to canonical MediaTranscriptStore; the current request path lacks governed source/version/provider/job/rights provenance; PostgreSQL productionEligible is false; alignment, translation, and caption capabilities remain unmet."
+    },
+    "STT-09": {
+      "sourceChanged": false,
+      "disposition": "PARTIAL",
+      "taskAccepted": false,
+      "remaining": "AvJobLifecycleAdapter projects status only; the shared durable job/attempt runtime needed for idempotency, lease fencing, UNKNOWN handling, and restart reconciliation is not integrated."
+    },
+    "independentFullLedgerDisposition": {
+      "taskIds": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "taskAcceptanceChanged": false,
+      "rowsPromoted": 0
+    }
   }
 }
