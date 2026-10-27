@@ -339,6 +339,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         AtomicReference<TtsStreamingSession> activeSession = new AtomicReference<>();
         Runnable requestSessionCancellation = () -> {
             sessionCancellationRequested.set(true);
+            sessionCancelled.set(true);
             TtsStreamingSession running = activeSession.get();
             if (running != null) running.cancel();
         };
@@ -419,19 +420,29 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 }
                 @Override public void onAudioFormat(CanonicalAudioFormat format) {
                     try (Scope ignored = operationContext.makeCurrent()) {
-                    if (format == null) {
-                        throw new IllegalStateException("TTS provider did not declare an audio format");
-                    }
-                    if (!declaredStreamFormat.compareAndSet(null, format)) {
-                        throw new IllegalStateException("TTS provider declared the stream format more than once");
-                    }
-                    if (format.format() != AudioFormat.PCM
-                            || format.channels() != 1
-                            || format.bitsPerSample() != 16
-                            || format.sampleRate() != synthesisOptions.sampleRate()) {
-                        throw new IllegalStateException(
-                                "TTS stream format does not match the mono PCM S16LE response contract");
-                    }
+                        try {
+                            if (format == null) {
+                                throw new IllegalStateException("TTS provider did not declare an audio format");
+                            }
+                            if (!declaredStreamFormat.compareAndSet(null, format)) {
+                                throw new IllegalStateException("TTS provider declared the stream format more than once");
+                            }
+                            if (format.format() != AudioFormat.PCM
+                                    || format.channels() != 1
+                                    || format.bitsPerSample() != 16
+                                    || format.sampleRate() != synthesisOptions.sampleRate()) {
+                                throw new IllegalStateException(
+                                        "TTS stream format does not match the mono PCM S16LE response contract");
+                            }
+                        } catch (RuntimeException streamFailure) {
+                            if (!isCancelled() && terminal.compareAndSet(false, true)) {
+                                requestSessionCancellation.run();
+                                fail(tracedObserver, "Streaming synthesis", streamFailure);
+                                recordDuration.run();
+                            } else {
+                                requestSessionCancellation.run();
+                            }
+                        }
                     }
                 }
                 @Override public void onChunk(com.ghatana.media.common.AudioChunk chunk) {
@@ -496,13 +507,12 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                             }
                         }
                     } catch (RuntimeException streamFailure) {
-                        TtsStreamingSession running = activeSession.get();
                         if (!isCancelled() && terminal.compareAndSet(false, true)) {
-                            if (running != null) running.cancel();
+                            requestSessionCancellation.run();
                             fail(tracedObserver, "Streaming synthesis", streamFailure);
                             recordDuration.run();
-                        } else if (running != null) {
-                            running.cancel();
+                        } else {
+                            requestSessionCancellation.run();
                         }
                     }
                     }
