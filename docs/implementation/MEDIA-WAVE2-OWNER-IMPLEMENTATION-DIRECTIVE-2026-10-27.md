@@ -9,6 +9,10 @@
 
 **Current Wave 2 denominator:** 58 = **22 LOCALLY_VERIFIED + 30 PARTIAL + 6 OWNER_EXTERNAL**, 99 PDP capability memberships, 43 RPCs, 12 scenarios, five residual handoffs. Previously reported macOS and Linux ARM64 core tests and macOS integration passed on one local cut; 13 skips were classified (three native Vision, nine Compose, one Linux-specific former macOS TTS test). Those test totals establish executable boundaries, not real model effects or whole-task acceptance.
 
+## R7 container-image dependency correction — 2026-10-27
+
+A new inspection of the previously skipped GH-90000 cases found that **all four candidate service Dockerfiles used JRE 21 despite Media compiling Java 27** and that the Compose/Testcontainers test path expected HTTP 8080 while the real STT/TTS health servers use 8090/8091. This was a real implementation defect, not an external-owner licensing gate. Source fixes on Media main now change the candidate Dockerfiles to a JRE 27 base, correct Compose per-service health ports, remove the redundant curl-dependent in-container health probe in favor of Testcontainers' actual HTTP wait, and dynamically test container JRE/toolchain parity and health ports. Their tests and real container startup have **not** been executed on the current source cut; the nine Compose rows remain unverified. Even valid images must remain not-ready or fail startup while their production provider/model admission is absent. Build image/probe tests separately from real authorized service effects; do not stage fake positives.
+
 ## Decisions authorized now (no additional discretionary engineering approval required)
 
 1. **Single source owner:** Media-specific source changes belong only in `ghatana-media`; Shared policy/identity, Ghatana Data Cloud/AI Inference/Document Intelligence, Kernel, Tools and Lifecycle continue owning their canonical public contracts. No forked job store, OCR model, policy engine, media writer, or imported private legacy code.
