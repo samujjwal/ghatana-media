@@ -1,0 +1,646 @@
+{
+  "schemaVersion": "ghatana.media.wave2.owner-execution-schedule.v1",
+  "authority": "ENGINEERING_PLAN_ONLY_NOT_LICENSE_CONSENT_PRODUCTION_OR_LIFECYCLE_CLOSURE",
+  "canonicalRequirements": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+  "implementationDirective": "docs/implementation/MEDIA-WAVE2-OWNER-IMPLEMENTATION-DIRECTIVE-2026-10-27.md",
+  "sourceReviewBaseline": {
+    "media": "9c2793604e0e2b3c92a11b77f487a9bf238b3382",
+    "shared": "07e1e0d0f56000ecd15550d296b37695e56a9f9c",
+    "ghatana": "387bfc3eede86265aa8b42340d6a32f6e19ffeee"
+  },
+  "currentReportedCounts": {
+    "total": 58,
+    "locallyVerified": 22,
+    "partial": 30,
+    "ownerExternal": 6
+  },
+  "preservedVerifiedTaskIds": [
+    "STT-01",
+    "STT-02",
+    "STT-11",
+    "TTS-01",
+    "TTS-04",
+    "TTS-11",
+    "VIS-01",
+    "VIS-04",
+    "VIS-08",
+    "VIS-11",
+    "MM-01",
+    "MM-04",
+    "MM-07",
+    "MM-11",
+    "OBS-01",
+    "OBS-02",
+    "OBS-03",
+    "OBS-04",
+    "OBS-05",
+    "OBS-06",
+    "OBS-09",
+    "OBS-10"
+  ],
+  "ownerPackages": [
+    "X01",
+    "X02",
+    "X03",
+    "X04",
+    "X05",
+    "X06",
+    "X07",
+    "X08",
+    "X09",
+    "X10",
+    "X11",
+    "X12",
+    "X13",
+    "X14",
+    "X15",
+    "X16"
+  ],
+  "phases": [
+    {
+      "id": "A",
+      "lane": "platform-native",
+      "priority": 0,
+      "dependsOn": [],
+      "tasks": [
+        "VIS-03"
+      ],
+      "requiredPackages": [
+        "X02",
+        "X03",
+        "X04",
+        "X05",
+        "X06"
+      ],
+      "exit": "Mac and Linux ARM64 real native codec suites execute with verified tools and limits; promote VIS-03 only on original whole-row native acceptance"
+    },
+    {
+      "id": "B",
+      "lane": "canonical-rights-source",
+      "priority": 0,
+      "dependsOn": [],
+      "tasks": [
+        "STT-03",
+        "TTS-05",
+        "VIS-10",
+        "MM-02"
+      ],
+      "requiredPackages": [
+        "X07",
+        "X10"
+      ],
+      "exit": "Trusted Shared and Media principal+artifact/source/voice/biometric ownership and live consent verify at dispatch/retry, with zero effects on denial"
+    },
+    {
+      "id": "C",
+      "lane": "first-real-stt-result",
+      "priority": 1,
+      "dependsOn": [
+        "B"
+      ],
+      "tasks": [
+        "STT-04",
+        "STT-08",
+        "STT-09"
+      ],
+      "requiredPackages": [
+        "X08",
+        "X09",
+        "X11"
+      ],
+      "exit": "One actual licensed, source-pinned, consented STT model result, durable Media job+attempt+outbox and principal-scoped Postgres CAS/readback after restart"
+    },
+    {
+      "id": "C2",
+      "lane": "advanced-speech",
+      "priority": 2,
+      "dependsOn": [
+        "C"
+      ],
+      "tasks": [
+        "STT-05",
+        "STT-06",
+        "STT-07"
+      ],
+      "requiredPackages": [
+        "X11",
+        "X12"
+      ],
+      "exit": "Real STT stream finality, timed segments, anonymous diarization and independently authorized biometric operations as declared"
+    },
+    {
+      "id": "D",
+      "lane": "real-tts-and-vision",
+      "priority": 1,
+      "dependsOn": [
+        "B"
+      ],
+      "tasks": [
+        "TTS-02",
+        "TTS-03",
+        "TTS-06",
+        "TTS-07",
+        "TTS-08",
+        "TTS-09",
+        "VIS-02",
+        "VIS-05",
+        "VIS-06",
+        "VIS-07"
+      ],
+      "requiredPackages": [
+        "X08",
+        "X09",
+        "X11",
+        "X12"
+      ],
+      "exit": "Actual rights-cleared playable speech and actual source-provenant detector output, each persisted under fenced attempts"
+    },
+    {
+      "id": "E",
+      "lane": "composed-multimodal-and-platform-api",
+      "priority": 3,
+      "dependsOn": [
+        "C",
+        "D"
+      ],
+      "tasks": [
+        "MM-03",
+        "MM-05",
+        "MM-06",
+        "MM-08",
+        "MM-09",
+        "MM-10",
+        "VIS-09"
+      ],
+      "requiredPackages": [
+        "X12",
+        "X13",
+        "X14"
+      ],
+      "exit": "Real per-child STT/Vision operations, trusted source clocks, independent finality, immutable result, Data Cloud public projection and Document Intelligence OCR public API"
+    },
+    {
+      "id": "F",
+      "lane": "real-quality-alerts-and-capacity",
+      "priority": 4,
+      "dependsOn": [
+        "C2",
+        "D",
+        "E"
+      ],
+      "tasks": [
+        "STT-10",
+        "STT-12",
+        "TTS-10",
+        "TTS-12",
+        "VIS-12",
+        "MM-12",
+        "OBS-07",
+        "OBS-08"
+      ],
+      "requiredPackages": [
+        "X08",
+        "X15",
+        "X16"
+      ],
+      "exit": "Attributed licensed quality corpora, real model quality per locale, provider exporters and alert delivery, bounded named-host 1/16/64 concurrency and original 58-row acceptance review"
+    }
+  ],
+  "remainingTasks": [
+    {
+      "id": "VIS-03",
+      "ordinal": 1,
+      "phase": "A",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-03",
+      "ordinal": 2,
+      "phase": "B",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-05",
+      "ordinal": 3,
+      "phase": "B",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "VIS-10",
+      "ordinal": 4,
+      "phase": "B",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "MM-02",
+      "ordinal": 5,
+      "phase": "B",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-04",
+      "ordinal": 6,
+      "phase": "C",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-08",
+      "ordinal": 7,
+      "phase": "C",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-09",
+      "ordinal": 8,
+      "phase": "C",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-05",
+      "ordinal": 9,
+      "phase": "C2",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-06",
+      "ordinal": 10,
+      "phase": "C2",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-07",
+      "ordinal": 11,
+      "phase": "C2",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-02",
+      "ordinal": 12,
+      "phase": "D",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-03",
+      "ordinal": 13,
+      "phase": "D",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-06",
+      "ordinal": 14,
+      "phase": "D",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-07",
+      "ordinal": 15,
+      "phase": "D",
+      "disposition": "OWNER_EXTERNAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-08",
+      "ordinal": 16,
+      "phase": "D",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-09",
+      "ordinal": 17,
+      "phase": "D",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "VIS-02",
+      "ordinal": 18,
+      "phase": "D",
+      "disposition": "OWNER_EXTERNAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "VIS-05",
+      "ordinal": 19,
+      "phase": "D",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "VIS-06",
+      "ordinal": 20,
+      "phase": "D",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "VIS-07",
+      "ordinal": 21,
+      "phase": "D",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "MM-03",
+      "ordinal": 22,
+      "phase": "E",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "MM-05",
+      "ordinal": 23,
+      "phase": "E",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "MM-06",
+      "ordinal": 24,
+      "phase": "E",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "MM-08",
+      "ordinal": 25,
+      "phase": "E",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "MM-09",
+      "ordinal": 26,
+      "phase": "E",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "MM-10",
+      "ordinal": 27,
+      "phase": "E",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "VIS-09",
+      "ordinal": 28,
+      "phase": "E",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-10",
+      "ordinal": 29,
+      "phase": "F",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "STT-12",
+      "ordinal": 30,
+      "phase": "F",
+      "disposition": "OWNER_EXTERNAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-10",
+      "ordinal": 31,
+      "phase": "F",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "TTS-12",
+      "ordinal": 32,
+      "phase": "F",
+      "disposition": "OWNER_EXTERNAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "VIS-12",
+      "ordinal": 33,
+      "phase": "F",
+      "disposition": "OWNER_EXTERNAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "MM-12",
+      "ordinal": 34,
+      "phase": "F",
+      "disposition": "OWNER_EXTERNAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "OBS-07",
+      "ordinal": 35,
+      "phase": "F",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    },
+    {
+      "id": "OBS-08",
+      "ordinal": 36,
+      "phase": "F",
+      "disposition": "PARTIAL",
+      "engineeringApproved": true,
+      "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+      "taskAccepted": false,
+      "testsRerunAfterR7": false,
+      "externalRightsAdmitted": false
+    }
+  ],
+  "platforms": {
+    "required": [
+      "macOS/arm64",
+      "Linux/arm64/Docker-on-Mac"
+    ],
+    "optionalCompatibility": [
+      "Linux/amd64/emulated"
+    ],
+    "deferredOSSpecific": [
+      "Windows"
+    ],
+    "dockerFunctionalBounds": {
+      "memory": "8 GiB",
+      "cpu": 4,
+      "pids": 512
+    }
+  },
+  "proofPolicy": {
+    "taskPromotion": "EXACT_ORIGINAL_WHOLE_ROW_POSITIVE_NEGATIVE_FAULT_QUALITY_ACCEPTANCE",
+    "afterCodeChange": "run affected selector and record exact SHA and JUnit XML",
+    "afterExternalInputs": "verify rights/license/corpus/model/host provenance; no inferred admission",
+    "release": "separate approval"
+  },
+  "nextCommands": [
+    "bash scripts/prepare-wave2-codecs.sh mac-arm64",
+    "bash scripts/prepare-wave2-codecs.sh linux-arm64",
+    "./scripts/test-media-wave2-platform-matrix.sh mac-native",
+    "./scripts/test-media-wave2-platform-matrix.sh linux-arm64-native",
+    "./scripts/test-media-wave2-platform-matrix.sh mac-integration"
+  ],
+  "knownRemainingUnverified": [
+    "Linux native codec suite and product sandbox/resource limits",
+    "Nine GH-90000 Compose-image tests",
+    "Shared/Media source rights and policy admission",
+    "Real qualified STT/TTS/Vision positive outputs and canonical persistence",
+    "Document Intelligence public OCR integration",
+    "Data Cloud Java21/Media Java27 public process contract",
+    "Real corpus quality and named-host 1/16/64 load"
+  ]
+}
