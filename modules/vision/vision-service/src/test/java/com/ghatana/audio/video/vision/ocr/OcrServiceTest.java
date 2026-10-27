@@ -10,6 +10,28 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class OcrServiceTest {
 
     @Test
+    void normalizedRegionBoundsAcceptEdgesAndRejectInvalidOrOutOfImageCoordinates() {
+        org.assertj.core.api.Assertions.assertThatCode(() ->
+                new OcrService.BoundingBox(0.0, 0.0, 1.0, 1.0))
+                .doesNotThrowAnyException();
+        org.assertj.core.api.Assertions.assertThatCode(() ->
+                new OcrService.BoundingBox(1.0, 1.0, 0.0, 0.0))
+                .doesNotThrowAnyException();
+
+        for (double[] invalid : new double[][] {
+                {-0.01, 0.0, 0.1, 0.1}, {0.0, -0.01, 0.1, 0.1},
+                {0.0, 0.0, 1.01, 0.1}, {0.0, 0.0, 0.1, 1.01},
+                {0.9, 0.0, 0.2, 0.1}, {0.0, 0.9, 0.1, 0.2},
+                {Double.NaN, 0.0, 0.1, 0.1}, {0.0, Double.POSITIVE_INFINITY, 0.1, 0.1}
+        }) {
+            assertThatThrownBy(() -> new OcrService.BoundingBox(
+                    invalid[0], invalid[1], invalid[2], invalid[3]))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("normalized source image coordinates");
+        }
+    }
+
+    @Test
     void factoryRejectsNonFiniteThresholdsAndAcceptsInclusiveBounds() {
         OcrService.OcrModel model = image -> List.of();
         for (double invalid : new double[] {

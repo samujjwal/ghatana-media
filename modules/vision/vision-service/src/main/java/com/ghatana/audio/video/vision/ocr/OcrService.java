@@ -139,12 +139,23 @@ public final class OcrService {
     }
 
     /**
-     * Bounding box in relative image coordinates.
+     * Bounding box in normalized image coordinates. The entire rectangle must fit in the
+     * source image so malformed downstream OCR regions cannot be mistaken for valid evidence.
      *
      * @param x      left edge in [0, 1]
      * @param y      top edge in [0, 1]
      * @param width  width in [0, 1]
      * @param height height in [0, 1]
      */
-    public record BoundingBox(double x, double y, double width, double height) {}
+    public record BoundingBox(double x, double y, double width, double height) {
+        public BoundingBox {
+            if (!Double.isFinite(x) || !Double.isFinite(y)
+                    || !Double.isFinite(width) || !Double.isFinite(height)
+                    || x < 0 || y < 0 || width < 0 || height < 0
+                    || x > 1 || y > 1 || width > 1 || height > 1
+                    || x + width > 1 || y + height > 1) {
+                throw new IllegalArgumentException("OCR region bounds must fit normalized source image coordinates");
+            }
+        }
+    }
 }
