@@ -47,6 +47,15 @@ class VisionNativeBoundedIT {
             "linux/aarch64", new NativeToolPins(
                     "1b216dbbe46adf213945d357ef958404eed1632e7fb38a85f7f030ed9c212bcf",
                     "67efa97371fb54199f23a4d33c9b1dbb389089b2d36b4ebab8ebc6eca68a51c4"));
+    // Archive hashes are fixed upstream release identities. For these profiles, the test
+    // also streams each executable member from that exact archive and compares its digest
+    // to the executed file. This permits an independent LGPL-only build without trusting
+    // a caller supplied executable hash. Legacy directly pinned binary profiles remain.
+    private static final Map<String, String> VERIFIED_ARCHIVE_PINS = Map.of(
+            "macos/aarch64", "ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332",
+            "linux/aarch64", "ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586",
+            "linux/amd64", "233ba61cec5c7056698c963b67b2a4a04f1bfe67783948eb9f68b2ec9b0e2199");
+
     private static final long MAX_FIXTURE_BYTES = 2L * 1024 * 1024;
     // Sampled peak RSS is evidence only; the portable child limits below do not enforce RSS.
     private static final long MAX_CHILD_RSS_BYTES = 512L * 1024 * 1024;
@@ -238,8 +247,19 @@ class VisionNativeBoundedIT {
         }
         assertThat(Files.isExecutable(FFMPEG)).as("verified FFmpeg executable exists").isTrue();
         assertThat(Files.isExecutable(FFPROBE)).as("verified FFprobe executable exists").isTrue();
-        assertThat(sha256(FFMPEG)).isEqualTo(pins.ffmpegSha256());
-        assertThat(sha256(FFPROBE)).isEqualTo(pins.ffprobeSha256());
+        String archiveLocation = System.getenv("GHATANA_MEDIA_CODEC_ARCHIVE");
+        if (archiveLocation != null && !archiveLocation.isBlank()) {
+            Path archive = Path.of(archiveLocation).toAbsolutePath().normalize();
+            assertThat(sha256(archive)).as("source release archive digest")
+                    .isEqualTo(VERIFIED_ARCHIVE_PINS.get(platformKey()));
+            assertThat(sha256(FFMPEG)).as("ffmpeg matches immutable archive member")
+                    .isEqualTo(archiveMemberSha256(archive, "ffmpeg"));
+            assertThat(sha256(FFPROBE)).as("ffprobe matches immutable archive member")
+                    .isEqualTo(archiveMemberSha256(archive, "ffprobe"));
+        } else {
+            assertThat(sha256(FFMPEG)).isEqualTo(pins.ffmpegSha256());
+            assertThat(sha256(FFPROBE)).isEqualTo(pins.ffprobeSha256());
+        }
         System.out.printf("VISION_NATIVE_ENV host=%s os=%s arch=%s ffmpegSha256=%s ffprobeSha256=%s%n",
                 java.lang.management.ManagementFactory.getRuntimeMXBean().getName(),
                 System.getProperty("os.name"), System.getProperty("os.arch"),
@@ -461,7 +481,12 @@ class VisionNativeBoundedIT {
     private static String h264Encoder() {
         String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
         if (os.contains("mac")) return "h264_videotoolbox";
-        if (os.contains("linux")) return "libx264";
+        if (os.contains("linux")) {
+            // The pinned GPL test-build uses libx264; the separately verified
+            // LGPL-only v8.1.2-27 archive instead uses libopenh264.
+            return System.getenv().getOrDefault("GHATANA_MEDIA_CODEC_ARCHIVE", "").isBlank()
+                    ? "libx264" : "libopenh264";
+        }
         throw new IllegalStateException("No verified H.264 fixture encoder selected for " + platformKey());
     }
 
@@ -485,6 +510,37 @@ class VisionNativeBoundedIT {
         crc.update(png.array(), 12, 17);
         png.putInt((int) crc.getValue());
         return png.array();
+    }
+
+    /** SHA-256 over one regular archive member, streamed through portable tar without extraction. */
+    private static String archiveMemberSha256(Path archive, String memberName) throws Exception {
+        for (String member : List.of(memberName, "./" + memberName)) {
+            Process tar = new ProcessBuilder("tar", "-xOzf", archive.toString(), member)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD).start();
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            long count = 0;
+            byte[] buffer = new byte[64 * 1024];
+            try (var input = tar.getInputStream()) {
+                int read;
+                while ((read = input.read(buffer)) >= 0) {
+                    count += read;
+                    if (count > 100_000_000L) {
+                        tar.destroyForcibly();
+                        throw new IOException("Verified codec archive member exceeds the 100 MB bound");
+                    }
+                    digest.update(buffer, 0, read);
+                }
+            } finally {
+                if (!tar.waitFor(15, TimeUnit.SECONDS)) {
+                    tar.destroyForcibly();
+                    throw new IOException("Verified codec archive extraction exceeded its time bound");
+                }
+            }
+            if (tar.exitValue() == 0 && count > 0) {
+                return HexFormat.of().formatHex(digest.digest());
+            }
+        }
+        throw new IOException("Pinned codec archive has no valid executable member " + memberName);
     }
 
     private static String sha256(Path path) throws Exception {
