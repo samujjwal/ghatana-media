@@ -958,6 +958,15 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 || lifecycleEvent.aggregateVersion() != terminal.version()) {
             throw new IllegalArgumentException("expired-job reconciliation event does not match terminal job");
         }
+        boolean validRecoveryTransition = switch (expected.status()) {
+            case ACCEPTED -> terminal.status() == JobStatus.FAILED;
+            case RUNNING -> terminal.status() == JobStatus.OUTCOME_UNKNOWN;
+            default -> false;
+        };
+        if (!validRecoveryTransition) {
+            throw new IllegalArgumentException(
+                    "expired-job recovery may only fail undispatched jobs or mark dispatched jobs unknown");
+        }
         ProcessingJob persistable = sanitizeForPersistence(terminal);
         long now = System.currentTimeMillis();
         try (Connection connection = state.connection()) {
@@ -970,6 +979,9 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                     attemptLock.setString(2, expected.jobId());
                     try (ResultSet row = attemptLock.executeQuery()) {
                         if (row.next()) {
+                            if (expected.status() != JobStatus.RUNNING) {
+                                throw new IllegalStateException("accepted Media job cannot have a provider attempt");
+                            }
                             String attemptState = row.getString("state");
                             if ("SUCCEEDED".equals(attemptState) || "FAILED".equals(attemptState)
                                     || "NO_EFFECT_PROVEN".equals(attemptState)) {
@@ -990,9 +1002,6 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                                     throw new IllegalStateException("Media attempt recovery state changed");
                                 }
                             }
-                        } else if (expected.status() == JobStatus.RUNNING
-                                && terminal.status() != JobStatus.OUTCOME_UNKNOWN) {
-                            throw new IllegalArgumentException("running job without an attempt must remain unknown");
                         }
                     }
                 }

@@ -264,6 +264,32 @@ class MediaDurableWorkerCrashIT {
     }
 
     @Test
+    void crashedRunningJobCannotBeReconciledAsProviderSuccessOrFailure() throws Exception {
+        try (Harness h = harness()) {
+            for (var entry : Map.of(
+                    "job-recovery-success", JobStatus.COMPLETED,
+                    "job-recovery-failure", JobStatus.FAILED).entrySet()) {
+                ProcessingJob accepted = h.workerA().create(acceptedJob(entry.getKey()));
+                JobLease lease = h.workerA().claim(accepted, "worker-a", Instant.now().plusSeconds(600));
+                AttemptStart started = h.workerA().startAttempt(
+                        accepted, runningOf(accepted), lease, 1, FINGERPRINT);
+                expireLease(h.jdbcUrl(), accepted);
+
+                ProcessingJob forgedFinal = terminalOf(
+                        started.running(), entry.getValue(), "RECOVERY_GUESSED_FINALITY", Map.of("label", "fixture"));
+                assertThatThrownBy(() -> h.workerB().reconcileExpired(
+                        started.running(), forgedFinal, event(forgedFinal, "media.job.reconciled")))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("mark dispatched jobs unknown");
+
+                assertThat(h.workerB().find(accepted.tenantId(), accepted.jobId()).orElseThrow().status())
+                        .isEqualTo(JobStatus.RUNNING);
+                assertThat(attemptColumn(h.jdbcUrl(), accepted, "state")).isEqualTo("DISPATCH_INTENDED");
+            }
+        }
+    }
+
+    @Test
     void killAfterFinalOutcomeCommitReadsBackTerminalTruth() throws Exception {
         try (Harness h = harness()) {
             ProcessingJob accepted = h.workerA().create(acceptedJob("job-kill-after-commit"));
