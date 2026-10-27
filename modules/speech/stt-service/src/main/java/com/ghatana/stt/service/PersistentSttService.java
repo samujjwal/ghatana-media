@@ -30,7 +30,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
@@ -48,8 +47,6 @@ import java.util.concurrent.TimeoutException;
 public class PersistentSttService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistentSttService.class);
-    private static final Set<String> SUPPORTED_LANGUAGES = Set.of(
-            "en", "ne", "hi", "es", "fr", "de", "ja", "zh");
     private static final long BATCH_TRANSCRIPTION_TIMEOUT_MS = 30_000;
 
     private volatile boolean degraded = false;
@@ -377,16 +374,15 @@ public class PersistentSttService {
         SttAudioInputDecoder.requireSampleRate(sampleRate);
         if (!isSupportedLanguage(language)) {
             throw new IllegalArgumentException(
-                    "Unsupported language: " + language + ". Supported: " + SUPPORTED_LANGUAGES);
+                    "Unsupported language: " + language + ". Supported base languages: "
+                            + SttLanguageSupport.supportedBaseLanguages());
         }
         return SttAudioInputDecoder.decode(audioBytes, format, sampleRate, maxAudioLengthSeconds);
     }
 
     /** Shared request-level language validation for the direct service and its gRPC boundary. */
     public static boolean isSupportedLanguage(String language) {
-        if (language == null || language.isBlank()) return true;
-        String langCode = language.toLowerCase(Locale.ROOT).split("-")[0];
-        return SUPPORTED_LANGUAGES.contains(langCode);
+        return SttLanguageSupport.isSupported(language);
     }
 
     private static String resolveFailureOutcome(Throwable failure) {

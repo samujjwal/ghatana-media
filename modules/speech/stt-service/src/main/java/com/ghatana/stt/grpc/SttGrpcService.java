@@ -8,6 +8,7 @@ import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.api.UserProfile;
 import com.ghatana.stt.service.SttAudioInputDecoder;
+import com.ghatana.stt.service.SttLanguageSupport;
 import com.ghatana.stt.core.grpc.proto.*;
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import com.ghatana.audiovideo.observability.instrumentation.AudioVideoGrpcInstrumentation;
@@ -30,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 
@@ -53,10 +53,6 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     private final int maxAudioLengthSeconds;
     private final SttRequestAuthorization requestAuthorization;
     private volatile BooleanSupplier readinessProbe = this::isProviderReady;
-
-    // AV-P1-004: Supported languages and sample-rate bounds (mirrors PersistentSttService constants).
-    static final Set<String> SUPPORTED_LANGUAGES = Set.of(
-        "en", "es", "fr", "de", "it", "pt", "nl", "pl", "ru", "zh", "ja", "ko", "ar", "hi", "tr");
 
     /**
      * Package-private constructor for unit testing — supply a pre-configured library.
@@ -144,8 +140,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                     // AV-P1-004: Validate language if provided
                     String language = request.getLanguage();
                     if (language != null && !language.isBlank()) {
-                        String langCode = language.toLowerCase(Locale.ROOT).split("-")[0];
-                        if (!SUPPORTED_LANGUAGES.contains(langCode)) {
+                        if (!SttLanguageSupport.isSupported(language)) {
                             tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
                                 .withDescription("Unsupported language")
                                 .asRuntimeException());
