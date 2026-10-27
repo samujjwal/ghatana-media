@@ -450,10 +450,13 @@ class ProductionSttGrpcServiceTest {
     }
 
     @Test
-    void nopIsExplicitlyUnavailableAndCannotCarryProviderSettings() {
+    void sttListenerPortIsNotTreatedAsUpstreamProviderAdmission() throws Exception {
         ProductionSttGrpcService.ProviderProfile profile =
-                ProductionSttGrpcService.resolveProviderProfile(Map.of("STT_PROVIDER_MODE", "NOP"));
+                ProductionSttGrpcService.resolveProviderProfile(Map.of(
+                        "STT_PROVIDER_MODE", "NOP",
+                        "STT_GRPC_PORT", "50051"));
         assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+        assertThat(profile.reason()).contains("NOP intentionally disables transcription");
         assertThatThrownBy(() -> ProductionSttGrpcService.createConfig(Map.of("STT_PROVIDER_MODE", "NOP")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("NOP intentionally disables transcription");
@@ -463,6 +466,24 @@ class ProductionSttGrpcServiceTest {
                         "STT_GRPC_HOST", "stt.internal")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("do not match NOP mode");
+
+        Path localModelFixture = tempDir.resolve("test-only-model.bin");
+        byte[] modelBytes = "test-only-not-admitted-model".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        Files.write(localModelFixture, modelBytes);
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(modelBytes));
+        ProductionSttGrpcService.ProviderProfile localProfile =
+                ProductionSttGrpcService.resolveProviderProfile(Map.of(
+                        "STT_PROVIDER_MODE", "LOCAL_ONNX",
+                        "STT_GRPC_PORT", "50051",
+                        "STT_MODEL_PATH", localModelFixture.toString(),
+                        "STT_MODEL_ID", "test-only-not-admitted",
+                        "STT_MODEL_VERSION", "test-only",
+                        "STT_MODEL_SHA256", digest,
+                        "STT_MODEL_LICENSE", "UNKNOWN_PENDING_OWNER_REVIEW",
+                        "STT_EXECUTION_HARDWARE", "cpu",
+                        "STT_MODEL_REGION", "test-only"));
+        assertThat(localProfile.status()).isEqualTo("NOT_ADMITTED");
+        assertThat(localProfile.reason()).contains("No source-authorized local STT model license");
     }
 
     private static Map<String, String> grpcProfile() {

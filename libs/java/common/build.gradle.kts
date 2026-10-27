@@ -53,3 +53,10 @@ tasks.test {
     useJUnitPlatform()
     maxParallelForks = 4
 }
+
+// This project and :services:media:libs:common both produce common-<version>.jar.
+// Keep the component coordinates and project path intact while giving this
+// internal engine/API library a unique runtime archive name for distributions.
+tasks.named<Jar>("jar") {
+    archiveBaseName.set("media-java-common")
+}

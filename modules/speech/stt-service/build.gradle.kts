@@ -46,6 +46,7 @@ dependencies {
     // Logging
     implementation(libs.log4j.core)
     implementation(libs.log4j.api)
+    runtimeOnly(libs.log4j.slf4j.impl)
 
     // JSON processing
 
@@ -63,7 +64,6 @@ dependencies {
     // Testing
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
-    testRuntimeOnly(libs.log4j.slf4j.impl)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.assertj.core)

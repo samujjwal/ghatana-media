@@ -259,10 +259,12 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     }
 
     private static void rejectModeMismatch(Map<String, String> environment, String mode) {
+        // STT_GRPC_PORT is also the service's local listener port from its image
+        // defaults; it cannot establish or distinguish an upstream provider.
         if (mode.equals("NOP")
                 && (hasAny(environment, "STT_MODEL_PATH", "STT_MODEL_ID", "STT_MODEL_VERSION",
                         "STT_MODEL_SHA256", "STT_MODEL_LICENSE", "STT_EXECUTION_HARDWARE",
-                        "STT_MODEL_REGION", "STT_GRPC_HOST", "STT_GRPC_PORT"))) {
+                        "STT_MODEL_REGION", "STT_GRPC_HOST"))) {
             throw new IllegalArgumentException("STT provider settings do not match NOP mode");
         }
     }
@@ -275,7 +277,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     }
 
     private static void rejectGrpcSettings(Map<String, String> environment) {
-        if (hasAny(environment, "STT_GRPC_HOST", "STT_GRPC_PORT", "STT_GRPC_TRANSPORT_MODE",
+        if (hasAny(environment, "STT_GRPC_HOST", "STT_GRPC_TRANSPORT_MODE",
                 "STT_GRPC_MODEL_ID", "STT_GRPC_MODEL_VERSION", "STT_GRPC_MODEL_SHA256",
                 "STT_GRPC_MODEL_LICENSE", "STT_GRPC_EXECUTION_HARDWARE", "STT_GRPC_MODEL_REGION")) {
             throw new IllegalArgumentException("gRPC provider settings do not match LOCAL_ONNX provider mode");

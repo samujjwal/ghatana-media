@@ -6,131 +6,153 @@ package com.ghatana.audio.video.integration;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.DockerComposeContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Shared Testcontainers base for audio-video integration tests.
+ * Runs isolated Compose startup probes for the STT and TTS candidate images.
  *
- * <p>Orchestrates the STT and TTS services via Docker Compose
- * ({@code docker-compose.integration.yml}). Wait strategies are defined
- * <em>on the container object itself</em> — not in {@code @BeforeEach} —
- * so Testcontainers can honour them during startup.
- *
- * <p>Exposes helper methods to retrieve mapped host/port values so individual
- * test classes can build their gRPC channels without repeating boilerplate.
- *
- * <p>All subclasses must be annotated with {@code @Tag("integration")} and
- * {@code @Testcontainers} (inherited annotations are supported from JUnit 5.8+,
- * but explicit declaration keeps intent clear).
+ * <p>The current production provider profiles are not admitted. The expected
+ * contract is therefore a bounded, typed startup refusal before gRPC/HTTP
+ * listeners or provider effects are created. {@code docker compose run} does
+ * not publish service ports unless {@code --service-ports} is explicitly set.
  *
  * @doc.type class
- * @doc.purpose Shared Docker Compose container base for audio-video integration tests
+ * @doc.purpose Shared Compose startup-refusal probes for audio-video images
  * @doc.layer integration
  * @doc.pattern TestBase
  */
 @Tag("integration")
-@Testcontainers
 @ExtendWith(IntegrationImagesCondition.class)
 public abstract class AudioVideoContainerBase {
 
-    /** Service name as declared in {@code docker-compose.integration.yml}. */
     protected static final String STT_SERVICE = "stt-service";
-    /** Service name as declared in {@code docker-compose.integration.yml}. */
     protected static final String TTS_SERVICE = "tts-service";
+    protected static final String STT_PROVIDER_REFUSAL = "STT_PROVIDER_NOT_ADMITTED";
+    protected static final String TTS_PROVIDER_REFUSAL = "TTS_PROVIDER_NOT_ADMITTED";
 
-    /** gRPC port for the STT service. */
-    protected static final int STT_GRPC_PORT = 50051;
-    /** gRPC port for the TTS service. */
-    protected static final int TTS_GRPC_PORT = 50052;
-    /** HTTP health ports follow the per-service Media health listener configuration. */
-    protected static final int STT_HTTP_PORT = 8090;
-    protected static final int TTS_HTTP_PORT = 8091;
+    private static final String STT_IMAGE_ENV = "AUDIO_VIDEO_STT_IMAGE";
+    private static final String TTS_IMAGE_ENV = "AUDIO_VIDEO_TTS_IMAGE";
+    private static final String STT_DEFAULT_IMAGE = "ghatana/stt-service:latest";
+    private static final String TTS_DEFAULT_IMAGE = "ghatana/tts-service:latest";
+    private static final Duration STARTUP_TIMEOUT = Duration.ofSeconds(30);
+    private static final int MAX_CAPTURED_OUTPUT_BYTES = 64 * 1024;
+    private static final Map<String, StartupResult> RESULTS = new ConcurrentHashMap<>();
 
-    /**
-     * Single shared Docker Compose environment for the entire test suite.
-     *
-     * <p>Wait strategies are registered per-service so startup blocks until
-     * both health endpoints respond {@code 200 OK}, guaranteeing that the gRPC
-     * listeners are ready before any test method executes.
-     */
-    @Container
-    @SuppressWarnings("resource") // managed by @Testcontainers lifecycle
-    protected static final DockerComposeContainer<?> COMPOSE =
-            new DockerComposeContainer<>(
-                    new File("docker-compose.integration.yml"))
-                    // STT service: wait on HTTP health before proceeding
-                    .withExposedService(STT_SERVICE, STT_GRPC_PORT,
-                            Wait.forListeningPort()
-                                    .withStartupTimeout(Duration.ofSeconds(120)))
-                    .withExposedService(STT_SERVICE, STT_HTTP_PORT,
-                            Wait.forHttp("/health/live")
-                                    .forStatusCode(200)
-                                    .withStartupTimeout(Duration.ofSeconds(120)))
-                    // TTS service: wait on HTTP health before proceeding
-                    .withExposedService(TTS_SERVICE, TTS_GRPC_PORT,
-                            Wait.forListeningPort()
-                                    .withStartupTimeout(Duration.ofSeconds(120)))
-                    .withExposedService(TTS_SERVICE, TTS_HTTP_PORT,
-                            Wait.forHttp("/health/live")
-                                    .forStatusCode(200)
-                                    .withStartupTimeout(Duration.ofSeconds(120)));
-
-    // ---- Helper accessors --------------------------------------------------
-
-    /**
-     * Returns the externally-accessible host for the STT service.
-     *
-     * @return host string (usually {@code localhost})
-     */
-    protected static String sttHost() {
-        return COMPOSE.getServiceHost(STT_SERVICE, STT_GRPC_PORT);
+    protected static StartupResult startupRefusal(String serviceName) {
+        if (!STT_SERVICE.equals(serviceName) && !TTS_SERVICE.equals(serviceName)) {
+            throw new IllegalArgumentException("Unknown Media Compose service: " + serviceName);
+        }
+        return RESULTS.computeIfAbsent(serviceName, AudioVideoContainerBase::runStartupProbe);
     }
 
-    /**
-     * Returns the externally-mapped gRPC port for the STT service.
-     *
-     * @return ephemeral port mapped from container's {@code 50051}
-     */
-    protected static int sttGrpcPort() {
-        return COMPOSE.getServicePort(STT_SERVICE, STT_GRPC_PORT);
+    protected static CommandResult javaVersion(String serviceName) {
+        String image = imageFor(serviceName);
+        return runCommand(List.of("docker", "run", "--rm", "--entrypoint", "java", image, "-version"));
     }
 
-    /**
-     * Returns the externally-accessible host for the TTS service.
-     *
-     * @return host string (usually {@code localhost})
-     */
-    protected static String ttsHost() {
-        return COMPOSE.getServiceHost(TTS_SERVICE, TTS_GRPC_PORT);
+    private static String imageFor(String serviceName) {
+        return STT_SERVICE.equals(serviceName)
+                ? System.getenv().getOrDefault(STT_IMAGE_ENV, STT_DEFAULT_IMAGE)
+                : System.getenv().getOrDefault(TTS_IMAGE_ENV, TTS_DEFAULT_IMAGE);
     }
 
-    /**
-     * Returns the externally-mapped gRPC port for the TTS service.
-     *
-     * @return ephemeral port mapped from container's {@code 50052}
-     */
-    protected static int ttsGrpcPort() {
-        return COMPOSE.getServicePort(TTS_SERVICE, TTS_GRPC_PORT);
+    private static StartupResult runStartupProbe(String serviceName) {
+        Path composeFile = Path.of("docker-compose.integration.yml").toAbsolutePath();
+        if (!composeFile.toFile().isFile()) {
+            throw new IllegalStateException("Compose fixture is missing: " + composeFile);
+        }
+        String projectName = "avw2-" + UUID.randomUUID().toString().replace("-", "");
+        CommandResult result = runCommand(List.of(
+                "docker", "compose", "--project-name", projectName,
+                "-f", composeFile.toString(),
+                "run", "--rm", "--no-deps", serviceName));
+        CommandResult cleanup = runCommand(List.of(
+                "docker", "compose", "--project-name", projectName,
+                "-f", composeFile.toString(), "down", "--remove-orphans"));
+        return new StartupResult(serviceName, imageFor(serviceName), result.exitCode(),
+                result.timedOut(), result.output(), result.elapsed(),
+                result.command().contains("--service-ports"), cleanup.exitCode() == 0);
     }
 
-    /**
-     * Returns the externally-mapped HTTP port for the given service.
-     *
-     * @param serviceName one of {@link #STT_SERVICE} or {@link #TTS_SERVICE}
-     * @return ephemeral port mapped from the service's canonical health port
-     */
-    protected static int serviceHttpPort(String serviceName) {
-        int port = switch (serviceName) {
-            case STT_SERVICE -> STT_HTTP_PORT;
-            case TTS_SERVICE -> TTS_HTTP_PORT;
-            default -> throw new IllegalArgumentException("Unknown Media Compose service: " + serviceName);
-        };
-        return COMPOSE.getServicePort(serviceName, port);
+    private static CommandResult runCommand(List<String> command) {
+        long startedNanos = System.nanoTime();
+        Process process;
+        try {
+            process = new ProcessBuilder(command)
+                    .directory(new File(System.getProperty("user.dir")))
+                    .redirectErrorStream(true)
+                    .start();
+        } catch (IOException failure) {
+            throw new IllegalStateException("Unable to start bounded image probe", failure);
+        }
+
+        CompletableFuture<byte[]> output = CompletableFuture.supplyAsync(
+                () -> readBounded(process.getInputStream()));
+        boolean finished;
+        try {
+            finished = process.waitFor(STARTUP_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
+            if (!finished) {
+                process.descendants().forEach(ProcessHandle::destroyForcibly);
+                process.destroyForcibly();
+                process.waitFor(5, TimeUnit.SECONDS);
+            }
+            byte[] captured = output.get(5, TimeUnit.SECONDS);
+            return new CommandResult(command, finished ? process.exitValue() : -1, !finished,
+                    new String(captured, StandardCharsets.UTF_8),
+                    Duration.ofNanos(System.nanoTime() - startedNanos));
+        } catch (InterruptedException interrupted) {
+            process.descendants().forEach(ProcessHandle::destroyForcibly);
+            process.destroyForcibly();
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Image probe was interrupted", interrupted);
+        } catch (Exception failure) {
+            process.descendants().forEach(ProcessHandle::destroyForcibly);
+            process.destroyForcibly();
+            throw new IllegalStateException("Unable to collect bounded image probe result", failure);
+        }
     }
+
+    private static byte[] readBounded(InputStream stream) {
+        try (stream; ByteArrayOutputStream captured = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[4096];
+            int count;
+            while ((count = stream.read(buffer)) != -1) {
+                int remaining = MAX_CAPTURED_OUTPUT_BYTES - captured.size();
+                if (remaining > 0) captured.write(buffer, 0, Math.min(count, remaining));
+            }
+            return captured.toByteArray();
+        } catch (IOException failure) {
+            throw new IllegalStateException("Unable to capture bounded image probe output", failure);
+        }
+    }
+
+    protected record StartupResult(
+            String serviceName,
+            String image,
+            int exitCode,
+            boolean timedOut,
+            String output,
+            Duration elapsed,
+            boolean servicePortsRequested,
+            boolean cleanupSuccessful) {}
+
+    protected record CommandResult(
+            List<String> command,
+            int exitCode,
+            boolean timedOut,
+            String output,
+            Duration elapsed) {}
 }

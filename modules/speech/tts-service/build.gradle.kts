@@ -46,6 +46,7 @@ dependencies {
     // Logging
     implementation(libs.log4j.core)
     implementation(libs.log4j.api)
+    runtimeOnly(libs.log4j.slf4j.impl)
 
     // JSON processing
 

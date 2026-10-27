@@ -1,59 +1,56 @@
 package com.ghatana.audio.video.integration;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Integration tests for end-to-end audio-video workflows.
- * Tests STT and TTS services working together via the shared
- * {@link AudioVideoContainerBase} Docker Compose orchestration.
- *
- * <p>Container lifecycle and wait strategies are owned by the base class;
- * this class is responsible only for test assertions.
- *
- * @doc.type class
- * @doc.purpose End-to-end integration testing of STT + TTS service pair
- * @doc.layer integration
- * @doc.pattern Test
- */
-@Tag("integration")
-@Testcontainers
-@DisplayName("Audio-Video Integration Tests")
+/** Image-backed checks for the currently fail-closed STT and TTS compositions. */
+@DisplayName("Audio-Video Image Startup Integration Tests")
 class AudioVideoIntegrationTest extends AudioVideoContainerBase {
 
     @Test
-    @DisplayName("STT service exposes reachable gRPC and HTTP ports after startup")
-    void sttService_exposesPortsAfterStartup() { 
-        assertThat(sttGrpcPort()).isGreaterThan(0);
-        assertThat(serviceHttpPort(STT_SERVICE)).isGreaterThan(0);
-        assertThat(sttHost()).isNotBlank();
+    @DisplayName("STT image exits with its typed provider-admission refusal")
+    void sttServiceFailsClosedWithoutAdmittedProvider() {
+        StartupResult result = startupRefusal(STT_SERVICE);
+
+        assertThat(result.exitCode()).isEqualTo(1);
+        assertThat(result.timedOut()).isFalse();
+        assertThat(result.cleanupSuccessful()).isTrue();
+        assertThat(result.output()).contains(STT_PROVIDER_REFUSAL).doesNotContain("NoClassDefFoundError");
     }
 
     @Test
-    @DisplayName("TTS service exposes reachable gRPC and HTTP ports after startup")
-    void ttsService_exposesPortsAfterStartup() { 
-        assertThat(ttsGrpcPort()).isGreaterThan(0);
-        assertThat(serviceHttpPort(TTS_SERVICE)).isGreaterThan(0);
-        assertThat(ttsHost()).isNotBlank();
+    @DisplayName("TTS image exits with its typed provider-admission refusal")
+    void ttsServiceFailsClosedWithoutAdmittedProvider() {
+        StartupResult result = startupRefusal(TTS_SERVICE);
+
+        assertThat(result.exitCode()).isEqualTo(1);
+        assertThat(result.timedOut()).isFalse();
+        assertThat(result.cleanupSuccessful()).isTrue();
+        assertThat(result.output()).contains(TTS_PROVIDER_REFUSAL).doesNotContain("NoClassDefFoundError");
     }
 
     @Test
-    @DisplayName("Both services expose distinct gRPC ports (no collision)")
-    void bothServices_distinctGrpcPorts() { 
-        // Docker maps both to ephemeral host ports; assert they are distinct
-        assertThat(sttGrpcPort()).isNotEqualTo(ttsGrpcPort());
+    @DisplayName("both candidate images run Java 27")
+    void candidateImagesUseJava27Runtime() {
+        for (String service : new String[] {STT_SERVICE, TTS_SERVICE}) {
+            CommandResult version = javaVersion(service);
+            assertThat(version.exitCode()).as(service).isZero();
+            assertThat(version.timedOut()).as(service).isFalse();
+            assertThat(version.output()).as(service).contains("version \"27");
+        }
     }
 
     @Test
-    @DisplayName("STT and TTS services share the Docker Compose network")
-    void bothServices_shareNetwork() { 
-        // DockerComposeContainer wires all services to the same internal network;
-        // cross-service calls are possible using service-name aliases
-        assertThat(COMPOSE).isNotNull();
-        assertThat(sttHost()).isEqualTo(ttsHost()); // both map to the same host
+    @DisplayName("startup refusal finishes before any service port is published")
+    void rejectedProviderStartupDoesNotPublishServicePorts() {
+        for (String service : new String[] {STT_SERVICE, TTS_SERVICE}) {
+            StartupResult result = startupRefusal(service);
+            assertThat(result.servicePortsRequested()).as(service).isFalse();
+            assertThat(result.elapsed()).as(service).isLessThan(STARTUP_BUDGET);
+        }
     }
+
+    private static final java.time.Duration STARTUP_BUDGET = java.time.Duration.ofSeconds(30);
 }

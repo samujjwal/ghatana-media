@@ -1,63 +1,64 @@
 package com.ghatana.audio.video.integration;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Full end-to-end workflow integration tests.
- * Tests STT and TTS services working together via the shared
- * {@link AudioVideoContainerBase} Docker Compose orchestration.
- *
- * <p>Container lifecycle and wait strategies are owned by the base class.
- * gRPC call bodies are gated behind GH-90000 until real service images are
- * available in CI.
- *
- * @doc.type class
- * @doc.purpose Full workflow integration testing of STT and TTS service pair
- * @doc.layer integration
- * @doc.pattern Test
- */
-@Tag("integration")
-@Testcontainers
-@DisplayName("Full Workflow Integration Tests")
+/** Verifies that an end-to-end speech workflow cannot start with unadmitted providers. */
+@DisplayName("Fail-Closed Full Workflow Image Tests")
 class FullWorkflowIntegrationTest extends AudioVideoContainerBase {
 
     @Test
-    @DisplayName("STT service gRPC port is reachable before workflow")
-    void sttGrpcPort_isReachable() { 
-        assertThat(sttGrpcPort()).isGreaterThan(0);
-        assertThat(sttHost()).isNotBlank();
+    @DisplayName("STT does not report a completed transcript when startup is refused")
+    void sttStartupDoesNotClaimCompletedTranscription() {
+        StartupResult result = startupRefusal(STT_SERVICE);
+
+        assertThat(result.exitCode()).isNotZero();
+        assertThat(result.output()).contains(STT_PROVIDER_REFUSAL)
+                .doesNotContain("TRANSCRIPTION_COMPLETED", "transcription completed");
     }
 
     @Test
-    @DisplayName("TTS service gRPC port is reachable before workflow")
-    void ttsGrpcPort_isReachable() { 
-        assertThat(ttsGrpcPort()).isGreaterThan(0);
-        assertThat(ttsHost()).isNotBlank();
+    @DisplayName("TTS does not report synthesized audio when startup is refused")
+    void ttsStartupDoesNotClaimCompletedSynthesis() {
+        StartupResult result = startupRefusal(TTS_SERVICE);
+
+        assertThat(result.exitCode()).isNotZero();
+        assertThat(result.output()).contains(TTS_PROVIDER_REFUSAL)
+                .doesNotContain("SYNTHESIS_COMPLETED", "synthesis completed");
     }
 
     @Test
-    @DisplayName("STT and TTS services share network for inter-service calls")
-    void sttAndTts_shareNetwork() { 
-        // DockerComposeContainer wires both services on the same internal network,
-        // enabling service-name-based DNS resolution between them.
-        assertThat(sttHost()).isEqualTo(ttsHost()); // both expose on the same host
-        assertThat(sttGrpcPort()).isNotEqualTo(ttsGrpcPort());
+    @DisplayName("workflow requires both speech providers to pass admission")
+    void workflowCannotStartWhenEitherProviderIsNotAdmitted() {
+        assertThat(startupRefusal(STT_SERVICE).exitCode()).isNotZero();
+        assertThat(startupRefusal(TTS_SERVICE).exitCode()).isNotZero();
     }
 
     @Test
-    @DisplayName("STT HTTP health endpoint is mapped and reachable")
-    void sttHttpHealthPort_isMapped() { 
-        assertThat(serviceHttpPort(STT_SERVICE)).isGreaterThan(0);
+    @DisplayName("provider-refusal diagnostics stay bounded and contain no request payload")
+    void startupDiagnosticsAreBoundedAndPayloadFree() {
+        for (StartupResult result : new StartupResult[] {
+                startupRefusal(STT_SERVICE), startupRefusal(TTS_SERVICE)}) {
+            assertThat(result.timedOut()).isFalse();
+            assertThat(result.elapsed()).isLessThan(STARTUP_BUDGET);
+            assertThat(result.cleanupSuccessful()).isTrue();
+            assertThat(result.output()).hasSizeLessThanOrEqualTo(MAX_DIAGNOSTIC_CHARS)
+                    .doesNotContain("fixture-audio", "fixture-text", "Authorization:");
+        }
     }
 
     @Test
-    @DisplayName("TTS HTTP health endpoint is mapped and reachable")
-    void ttsHttpHealthPort_isMapped() { 
-        assertThat(serviceHttpPort(TTS_SERVICE)).isGreaterThan(0);
+    @DisplayName("Compose startup probes do not publish gRPC or HTTP ports")
+    void unavailableProvidersDoNotExposeListeners() {
+        for (String service : new String[] {STT_SERVICE, TTS_SERVICE}) {
+            StartupResult result = startupRefusal(service);
+            assertThat(result.servicePortsRequested()).as(service).isFalse();
+            assertThat(result.exitCode()).as(service).isNotZero();
+        }
     }
+
+    private static final java.time.Duration STARTUP_BUDGET = java.time.Duration.ofSeconds(30);
+    private static final int MAX_DIAGNOSTIC_CHARS = 64 * 1024;
 }

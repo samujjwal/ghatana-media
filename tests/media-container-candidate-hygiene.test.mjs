@@ -52,7 +52,7 @@ test('Docker packaging context excludes sources and secrets by default', () => {
   }
 });
 
-test('Compose HTTP ports and Testcontainers waits follow each service health listener', () => {
+test('Compose image probes preserve health ports and fail closed before publishing listeners', () => {
   const compose = read('integration-tests/docker-compose.integration.yml');
   const base = read('integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoContainerBase.java');
   for (const candidate of candidates.filter(({file}) =>
@@ -61,10 +61,17 @@ test('Compose HTTP ports and Testcontainers waits follow each service health lis
       candidate.file + ' Compose health env must use the canonical port');
     assert.ok(compose.includes('      - "' + candidate.health + '"'),
       candidate.file + ' Compose must expose its own health port');
-    const constant = candidate.file === 'stt-service' ? 'STT_HTTP_PORT' : 'TTS_HTTP_PORT';
-    assert.ok(base.includes(constant + ' = ' + candidate.health + ';'),
-      'Testcontainers must use the correct health port for ' + candidate.file);
   }
+  assert.ok(compose.includes('STT_PROVIDER_MODE: "NOP"'),
+    'STT image probe must use the explicit no-provider profile');
+  assert.ok(compose.includes('TTS_PROVIDER_MODE: "LOCAL_ONNX"'),
+    'TTS image probe must use a profile that fails closed without model rights');
+  assert.ok(base.includes('"run", "--rm", "--no-deps", serviceName'),
+    'Compose probes must run each service independently and remove the container');
+  assert.ok(base.includes('Duration.ofSeconds(30)'),
+    'Compose startup probes must have a finite timeout');
+  assert.ok(base.includes('STT_PROVIDER_NOT_ADMITTED') && base.includes('TTS_PROVIDER_NOT_ADMITTED'),
+    'Image tests must assert typed provider-admission refusals');
   assert.doesNotMatch(compose, /"8080"/u,
     'Compose must not use an unrelated default health port');
 });

@@ -1,17 +1,15 @@
 # Docker Compose configuration for audio-video integration tests.
 #
-# Used by AudioVideoContainerBase via Testcontainers' DockerComposeContainer.
+# Used by AudioVideoContainerBase via bounded `docker compose run` probes.
 # Both services expose:
 #   - a gRPC port for the core API
-#   - port 8080 for the HTTP health endpoint (/health/live, /health/ready)
+#   - an HTTP port for liveness/readiness when a service is admitted
 #
 # Real images must be built from Java 27 candidate distributions (GH-90000).
-# Testcontainers owns per-service /health/live HTTP waits on 8090 and 8091;
-# no dependency on curl being installed inside the JRE-only image.
+# Until providers are admitted, the startup probes expect each process to exit
+# with a typed NOT_ADMITTED reason before binding or publishing service ports.
 # Override image names via AUDIO_VIDEO_STT_IMAGE / AUDIO_VIDEO_TTS_IMAGE
 # environment variables when running locally against custom builds.
-
-version: "3.9"
 
 networks:
   audio-video-test:
@@ -27,8 +25,8 @@ services:
       - "50051"
       - "8090"
     environment:
-      STT_GRPC_PORT: "50051"
       AV_HEALTH_PORT: "8090"
+      STT_PROVIDER_MODE: "NOP"
       STT_DEFAULT_MODEL: "whisper-tiny"
       LOG_LEVEL: "info"
 
@@ -43,6 +41,7 @@ services:
     environment:
       TTS_GRPC_PORT: "50052"
       AV_HEALTH_PORT: "8091"
+      TTS_PROVIDER_MODE: "LOCAL_ONNX"
       TTS_DEFAULT_VOICE: "en-US-default"
       LOG_LEVEL: "info"
 
