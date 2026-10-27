@@ -8,6 +8,8 @@ import java.time.Duration;
 /** Strict validation and measurements for the PCM S16LE format currently exposed by TTS. */
 public final class PcmAudioValidator {
     public static final int MAX_AUDIO_BYTES = 50 * 1024 * 1024;
+    /** Normalized S16 RMS floor (~-80 dBFS) to reject varying dither mistaken for speech. */
+    static final double MIN_RMS_AMPLITUDE = 1.0e-4d;
 
     private PcmAudioValidator() { }
 
@@ -75,13 +77,16 @@ public final class PcmAudioValidator {
             peak = Math.max(peak, Math.abs(normalized));
         }
         // A non-empty, correctly labeled PCM buffer can still be the old fixed-byte
-        // placeholder (or digital silence). Reject a flatline before it can be reported
-        // as synthesized speech. This is only a basic signal-integrity guard; it does
-        // not establish intelligibility or provider quality.
+        // placeholder or silence with low-level dither. Reject both before it can be
+        // reported as synthesized speech. This is only a basic signal-integrity guard;
+        // it does not establish intelligibility or provider quality.
         if (!hasDifferentSample) {
             throw new IllegalStateException("TTS PCM payload contains no sample variation");
         }
         double rms = Math.sqrt(sumSquares / (bytes.length / 2.0d));
+        if (rms < MIN_RMS_AMPLITUDE) {
+            throw new IllegalStateException("TTS PCM payload is below the minimum signal level");
+        }
         if (!Double.isFinite(rms) || !Double.isFinite(peak) || rms > 1.0d || peak > 1.0d) {
             throw new IllegalStateException("TTS PCM loudness measurement is invalid");
         }

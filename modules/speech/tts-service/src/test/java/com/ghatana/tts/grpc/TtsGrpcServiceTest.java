@@ -199,8 +199,7 @@ class TtsGrpcServiceTest {
         TtsGrpcService admitted = admittedService(() -> true, () -> false, null, trace.tracing);
         when(engine.synthesize(anyString(), any())).thenAnswer(invocation -> {
             trace.assertCurrentOperationSpan();
-            byte[] pcm = new byte[44];
-            pcm[2] = 1;
+            byte[] pcm = audiblePcmFixture();
             return new AudioData(pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM);
         });
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
@@ -507,8 +506,7 @@ class TtsGrpcServiceTest {
     @Test
     void admittedFakeEngineRunsThroughRequestPathAndExportsPrivateBoundedProviderMetric() {
         TtsGrpcService admitted = admittedService(() -> true, () -> false);
-        byte[] pcm = new byte[44];
-        pcm[2] = 1;
+        byte[] pcm = audiblePcmFixture();
         when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
                 pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
@@ -612,8 +610,7 @@ class TtsGrpcServiceTest {
     @Test
     void cancellationAfterProviderReturnRecordsUnknownAndDoesNotEmitAudio() {
         TtsGrpcService admitted = admittedService(() -> true, () -> false);
-        byte[] pcm = new byte[44];
-        pcm[2] = 1;
+        byte[] pcm = audiblePcmFixture();
         when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
                 pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
         @SuppressWarnings("unchecked")
@@ -1641,6 +1638,16 @@ class TtsGrpcServiceTest {
 
     private static CanonicalAudioFormat monoPcm16Format() {
         return new CanonicalAudioFormat(22_050, 1, 16, AudioFormat.PCM);
+    }
+
+    private static byte[] audiblePcmFixture() {
+        byte[] pcm = new byte[44];
+        for (int frame = 0; frame < pcm.length / 2; frame++) {
+            int sample = frame % 2 == 0 ? 1_024 : -1_024;
+            pcm[frame * 2] = (byte) sample;
+            pcm[frame * 2 + 1] = (byte) (sample >> 8);
+        }
+        return pcm;
     }
 
     private static void assertNoProtectedMarker(SpanData span, String... markers) {

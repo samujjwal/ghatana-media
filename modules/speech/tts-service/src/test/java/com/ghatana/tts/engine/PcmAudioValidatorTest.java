@@ -48,10 +48,26 @@ class PcmAudioValidatorTest {
     void roundsHalfMillisecondFrameDurationUsingExactRationalClock() {
         // 8 frames at 16 kHz are 0.5 ms; ties round up to 1 ms.
         byte[] varyingPcm = new byte[16];
-        varyingPcm[2] = 1;
+        varyingPcm[0] = 0;
+        varyingPcm[1] = 4;
+        varyingPcm[2] = 0;
+        varyingPcm[3] = (byte) 0xfc;
         var facts = PcmAudioValidator.validate(new AudioData(
                 varyingPcm, 16_000, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
         assertThat(facts.duration()).isEqualTo(Duration.ofMillis(1));
+    }
+
+    @Test
+    void rejectsNearDigitalSilenceEvenWhenLowLevelDitherVaries() {
+        byte[] dither = new byte[16];
+        dither[0] = 1;
+        dither[2] = (byte) 0xff;
+        dither[3] = (byte) 0xff;
+
+        assertThatThrownBy(() -> PcmAudioValidator.validate(new AudioData(
+                dither, 8_000, 1, 16, Duration.ofMillis(1), AudioFormat.PCM)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("minimum signal level");
     }
 
     @Test
