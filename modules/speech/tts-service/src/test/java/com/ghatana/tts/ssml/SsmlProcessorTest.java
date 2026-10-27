@@ -364,6 +364,32 @@ class SsmlProcessorTest {
     }
 
     @Test
+    @DisplayName("preserves voice selectors as typed untrusted input")
+    void preservesVoiceSelectorInsteadOfFlatteningItIntoPlainText() {
+        var segments = processor.parse("<speak><voice name=\"voice-reference-1\">Hello</voice></speak>");
+
+        assertThat(segments).containsExactly(
+                new SsmlProcessor.SsmlSegment.VoiceSegment("Hello", "voice-reference-1"));
+        assertThat(segments.get(0).type()).isEqualTo(SsmlProcessor.SsmlSegment.SegmentType.VOICE);
+    }
+
+    @Test
+    @DisplayName("rejects missing, oversized, or nested voice selectors")
+    void rejectsAmbiguousVoiceSelectorMarkup() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><voice name=\" \">Hello</voice></speak>"))
+                .withMessageContaining("nonblank name");
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><voice name=\"" + "v".repeat(SsmlProcessor.MAX_VOICE_NAME_CHARS + 1)
+                        + "\">Hello</voice></speak>"))
+                .withMessageContaining("maximum length");
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                processor.parse("<speak><voice name=\"voice-reference-1\"><emphasis level=\"strong\">Hello</emphasis>"
+                        + "</voice></speak>"))
+                .withMessageContaining("Nested SSML elements are unsupported inside <voice>");
+    }
+
+    @Test
     @DisplayName("keeps escaped markup as text and rejects markup or attribute injection")
     void treatsEscapedMarkupAsTextAndRejectsInjection() {
         var escaped = processor.parse("<speak>&lt;script&gt;alert(1)&lt;/script&gt; &amp; safe</speak>");

@@ -1581,6 +1581,7 @@ class TtsGrpcServiceTest {
                 "<speak><phoneme alphabet=\"ipa\" ph=\"həˈloʊ\">hello</phoneme></speak>",
                 "<speak><sub alias=\"World Wide Web\">WWW</sub></speak>",
                 "<speak><emphasis level=\"strong\">hello</emphasis></speak>",
+                "<speak><voice name=\"voice-reference-1\">hello</voice></speak>",
                 "<speak><say-as interpret-as=\"characters\">hello</say-as></speak>",
                 "<speak><lang xml:lang=\"ne-NP\">नमस्ते</lang></speak>")) {
             CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();

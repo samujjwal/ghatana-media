@@ -151,12 +151,12 @@ public final class MediaResourceProfileHarness {
                     render(resources.get(Resource.CONTAINER_MEMORY_LIMIT_BYTES)),
                     render(resources.get(Resource.CONTAINER_CPU_LIMIT_CORES)),
                     render(resources.get(Resource.CONTAINER_PROCESS_LIMIT)),
-                    environment.javaVersion(),
-                    environment.operatingSystem(),
-                    environment.architecture(),
+                    tsvField(environment.javaVersion()),
+                    tsvField(environment.operatingSystem()),
+                    tsvField(environment.architecture()),
                     Integer.toString(environment.availableProcessors()),
-                    environment.modelProfile(),
-                    environment.corpusProfile());
+                    tsvField(environment.modelProfile()),
+                    tsvField(environment.corpusProfile()));
         }
 
         public static String tsvHeader() {
@@ -465,6 +465,16 @@ public final class MediaResourceProfileHarness {
 
     private static String formatMillis(long nanos) {
         return Double.toString(nanos / 1_000_000.0);
+    }
+
+    private static String tsvField(String value) {
+        if (value == null) return "";
+        StringBuilder sanitized = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char character = value.charAt(i);
+            sanitized.append(Character.isISOControl(character) ? ' ' : character);
+        }
+        return sanitized.toString();
     }
 
     private static ThreadFactory daemonFactory(String prefix) {

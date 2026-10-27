@@ -9,7 +9,7 @@ public record LetterboxTransform(
         if (sourceWidth < 1 || sourceHeight < 1 || inputSize < 1
                 || resizedWidth < 1 || resizedHeight < 1
                 || padLeft < 0 || padTop < 0
-                || resizedWidth + padLeft > inputSize || resizedHeight + padTop > inputSize) {
+                || resizedWidth > inputSize - padLeft || resizedHeight > inputSize - padTop) {
             throw new IllegalArgumentException("Invalid letterbox geometry");
         }
     }

@@ -9,6 +9,18 @@ import org.junit.jupiter.api.Test;
 import java.util.Random;
 
 class LetterboxTransformTest {
+    @Test void validatesCanvasFitWithoutIntegerOverflow() {
+        int maximum = Integer.MAX_VALUE;
+
+        var valid = new LetterboxTransform(maximum, 1, maximum, maximum, 1, 0, (maximum - 1) / 2);
+        assertThat(valid.resizedWidth() + (long) valid.padLeft()).isLessThanOrEqualTo(maximum);
+        assertThat(valid.resizedHeight() + (long) valid.padTop()).isLessThanOrEqualTo(maximum);
+
+        assertThatThrownBy(() -> new LetterboxTransform(1, 1, maximum, maximum, 1, 1, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid letterbox geometry");
+    }
+
     @Test void sourcePixelBoxesRoundTripThroughModelCanvasWithinOnePixel() {
         int[][] dimensions = {{1920, 1080}, {720, 1280}, {333, 777}, {1280, 1280}};
         for (int[] size : dimensions) {

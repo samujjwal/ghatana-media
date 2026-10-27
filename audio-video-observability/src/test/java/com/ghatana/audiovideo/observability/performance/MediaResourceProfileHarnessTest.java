@@ -115,6 +115,25 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void tsvRuntimeIdentityCannotInjectColumnsOrRows() {
+        var environment = new MediaResourceProfileHarness.Environment(
+                "JDK 27", "macOS\tforged\nrow", "arm64\rforged", 10,
+                "NOT_CONFIGURED\tinjected", "NOT_CONFIGURED\nsecond-row");
+        var report = new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1_000_000, 1_000_000, 1.0, 1.0, 1.0, 1.0, environment, java.util.Map.of());
+
+        String[] fields = report.toTsv().split("\\t", -1);
+
+        assertThat(fields).hasSize(MediaResourceProfileHarness.Report.tsvHeader().split("\\t", -1).length);
+        assertThat(fields[29]).isEqualTo("macOS forged row");
+        assertThat(fields[30]).isEqualTo("arm64 forged");
+        assertThat(fields[32]).isEqualTo("NOT_CONFIGURED injected");
+        assertThat(fields[33]).isEqualTo("NOT_CONFIGURED second-row");
+        assertThat(report.toTsv()).doesNotContain("\n", "\r");
+    }
+
+    @Test
     void parsesLinuxCgroupV2ResourceCapsAndLeavesUnlimitedValuesUnmeasured() {
         assertThat(MediaResourceProfileHarness.parseMemoryLimit("8589934592").value())
                 .isEqualTo(8_589_934_592.0);

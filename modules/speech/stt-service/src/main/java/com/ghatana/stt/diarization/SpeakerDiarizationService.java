@@ -276,6 +276,13 @@ public final class SpeakerDiarizationService {
             if (audioBytes.length == 0) throw new IllegalArgumentException("audioBytes must not be empty");
             if (startMs < 0) throw new IllegalArgumentException("startMs must be >= 0");
             if (endMs <= startMs) throw new IllegalArgumentException("endMs must be > startMs");
+            audioBytes = audioBytes.clone();
+        }
+
+        /** Return a defensive copy so callers cannot mutate audio after segment validation. */
+        @Override
+        public byte[] audioBytes() {
+            return audioBytes.clone();
         }
     }
 

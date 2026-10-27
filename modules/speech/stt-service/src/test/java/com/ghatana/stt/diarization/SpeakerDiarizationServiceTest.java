@@ -304,6 +304,20 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("audio bytes are isolated from caller mutation before and after construction")
+        void audioSegment_audioBytesAreDefensivelyCopied() {
+            byte[] input = new byte[] {1, 2, 3};
+            var segment = new SpeakerDiarizationService.AudioSegment(input, 0, 100, "t");
+
+            input[0] = 9;
+            assertThat(segment.audioBytes()).containsExactly(1, 2, 3);
+
+            byte[] returned = segment.audioBytes();
+            returned[1] = 8;
+            assertThat(segment.audioBytes()).containsExactly(1, 2, 3);
+        }
+
+        @Test
         @DisplayName("negative startMs throws IllegalArgumentException")
         void audioSegment_negativeStart_throwsIAE() { 
             assertThatIllegalArgumentException() 
