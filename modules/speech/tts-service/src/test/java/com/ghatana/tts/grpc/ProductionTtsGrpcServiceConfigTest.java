@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -276,21 +275,28 @@ class ProductionTtsGrpcServiceConfigTest {
     }
 
     @Test
-    void rejectsMacOsTmpAliasInsteadOfAllowingAnOperatingSystemSpecificModelPath() throws Exception {
-        Path tmpAlias = Path.of("/tmp");
-        assumeTrue(Files.isSymbolicLink(tmpAlias)
-                && tmpAlias.toRealPath().equals(Path.of("/private/tmp")));
-        Path model = Files.createTempFile(tmpAlias, "tts-model-canonical-tmp", ".onnx");
+    void rejectsSymlinkAliasToSystemTemporaryDirectoryOnMacAndLinux() throws Exception {
+        // Exercise a real symlinked parent on either supported OS. The former
+        // /tmp -> /private/tmp precondition skipped this protection on Linux.
+        Path canonicalTemp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath();
+        Path model = Files.createTempFile(canonicalTemp, "tts-model-temp-alias-", ".onnx");
+        Path workspace = Files.createTempDirectory(
+                Path.of(".").toAbsolutePath().normalize(), "tts-system-temp-link-");
+        Path alias = workspace.resolve("temporary-directory-alias");
         try {
-            Files.writeString(model, "model bytes through the canonical system alias");
+            Files.writeString(model, "model bytes through a symlinked temporary parent");
             writeFixtureSidecar(model);
+            Files.createSymbolicLink(alias, canonicalTemp);
+            Path aliasedModel = alias.resolve(model.getFileName());
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(Files.readAllBytes(model)));
-            var profile = ProductionTtsGrpcService.resolveProviderProfile(localProfile(model, digest));
+            var profile = ProductionTtsGrpcService.resolveProviderProfile(localProfile(aliasedModel, digest));
             assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
             assertThat(profile.reason()).contains("absolute", "normalized", "non-symbolic", "provider asset");
         } finally {
+            Files.deleteIfExists(alias);
             deleteModelFixture(model);
+            Files.deleteIfExists(workspace);
         }
     }
 
