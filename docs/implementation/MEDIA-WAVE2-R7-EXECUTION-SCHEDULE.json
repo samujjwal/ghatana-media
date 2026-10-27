@@ -1136,5 +1136,91 @@
       "gitDiffCheckPassed": true
     },
     "claim": "Execution and implementation review evidence only; no Wave 2 task acceptance, formal PDP/gtool transition, closure receipt, deployment, cutover, or release is asserted."
+  },
+  "currentCodeCutVerification": {
+    "verifiedAt": "2026-10-27",
+    "mediaCut": "206b5881e4ac11cfb78f611c9abc30cf71039582",
+    "sharedCut": "bd7ce719952ae9693d87dec09fecd12ab6693576",
+    "implementationReviews": [
+      {
+        "taskId": "TTS-04",
+        "commit": "8da210dedcb01dc728e71f9f22fffbff7ab9ad57",
+        "summary": "Accept the standard SSML default namespace while rejecting unknown default namespaces.",
+        "focusedTests": {"tests": 17, "failures": 0, "errors": 0, "skipped": 0},
+        "fullModuleTests": {"tests": 339, "failures": 0, "errors": 0, "skipped": 0},
+        "independentReview": "Luna review found no remaining blocker for this bounded parser behavior.",
+        "taskDispositionChanged": false
+      },
+      {
+        "taskIds": ["VIS-03"],
+        "commit": "206b5881e4ac11cfb78f611c9abc30cf71039582",
+        "summary": "Production video analysis fails closed before temp-file or codec-process work when trusted worker isolation is unavailable; raw-frame ProcessVideo remains available.",
+        "focusedRpcMatrixTests": {"tests": 5, "failures": 0, "errors": 0, "skipped": 0},
+        "fullModuleTests": {"tests": 430, "failures": 0, "errors": 0, "skipped": 3},
+        "skippedSelectors": [
+          "VisionNativeBoundedIT.pinnedNativeToolsBoundSyntheticH264AacVfrAndWebpInputs",
+          "VisionNativeBoundedIT.nativeTimeoutOutputByteAndInputPathGuardsFailClosedAndCleanStaging",
+          "VisionNativeBoundedIT.repeatedOpenCvMatReleaseClearsNativeDataWithoutAProviderModel"
+        ],
+        "independentReview": "Luna review accepted the fail-closed production boundary; the change is not per-worker resource enforcement.",
+        "taskDispositionChanged": false
+      }
+    ],
+    "platformCore": [
+      {
+        "mode": "macos-arm64-core",
+        "report": "/private/tmp/ghatana-wave2-current-206b5881-mac-core/mac-core.json",
+        "execution": "macOS/arm64, Temurin 27.0.1.0.2",
+        "sourceTreesClean": true,
+        "counts": {"tests": 1788, "failures": 0, "errors": 0, "skipped": 3, "suiteFiles": 244},
+        "skippedSelectors": [
+          "VisionNativeBoundedIT.pinnedNativeToolsBoundSyntheticH264AacVfrAndWebpInputs",
+          "VisionNativeBoundedIT.nativeTimeoutOutputByteAndInputPathGuardsFailClosedAndCleanStaging",
+          "VisionNativeBoundedIT.repeatedOpenCvMatReleaseClearsNativeDataWithoutAProviderModel"
+        ],
+        "resourceProfileArtifact": null
+      },
+      {
+        "mode": "linux-arm64-core",
+        "report": "/private/tmp/ghatana-wave2-current-206b5881-linux-core/linux-arm64-core.json",
+        "execution": "Linux/arm64 in Docker Desktop on macOS/arm64, Temurin 27",
+        "javaImage": "eclipse-temurin:27-jdk@sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "outerContainerBounds": {"memory": "8 GiB", "cpus": 4, "pids": 512},
+        "sourceTreesClean": true,
+        "counts": {"tests": 1788, "failures": 0, "errors": 0, "skipped": 3, "suiteFiles": 244},
+        "skippedSelectors": [
+          "VisionNativeBoundedIT.pinnedNativeToolsBoundSyntheticH264AacVfrAndWebpInputs",
+          "VisionNativeBoundedIT.nativeTimeoutOutputByteAndInputPathGuardsFailClosedAndCleanStaging",
+          "VisionNativeBoundedIT.repeatedOpenCvMatReleaseClearsNativeDataWithoutAProviderModel"
+        ],
+        "resourceProfileArtifact": "/private/tmp/ghatana-wave2-current-206b5881-linux-core/linux-arm64-core-20261027T212437Z.resource-profile.tsv",
+        "resourceProfileScope": "Synthetic no-provider workload only; modality/provider/native-process/connection-pool probes are NOT_MEASURED.",
+        "retry": "The guarded one-time chmod/retry repaired cached Linux protoc execute permission; retry succeeded."
+      }
+    ],
+    "ledgerReview": {
+      "reviewer": "Independent Luna full-ledger review",
+      "taskIds": 58,
+      "counts": {"locallyVerified": 22, "partial": 30, "ownerExternal": 6},
+      "allOpenRowsUnaccepted": true,
+      "externalRightsAdmitted": false,
+      "rowsPromoted": 0,
+      "sourceConflicts": 0,
+      "ownerExternalTaskIds": ["STT-12", "TTS-07", "TTS-12", "VIS-02", "VIS-12", "MM-12"],
+      "sourceOwnerApiAudit": {
+        "repository": "ghatana",
+        "cut": "387bfc3eede86265aa8b42340d6a32f6e19ffeee",
+        "MM-10": "No versioned cross-process Media observation API was found in Data Cloud; journey intent is not an API contract.",
+        "VIS-09": "Document Intelligence worker protocol lacks tenant, source-version, rights/consent, retention, and provenance bindings for an authorized Media OCR integration."
+      }
+    },
+    "recordValidation": {
+      "wave2PlanTests": {"tests": 7, "failures": 0},
+      "repositoryHygieneTests": {"tests": 19, "failures": 0},
+      "containerImageHygieneTests": {"tests": 3, "failures": 0},
+      "scheduleJsonValid": true,
+      "gitDiffCheckPassed": true
+    },
+    "claim": "Current-cut implementation and execution evidence only; no Wave 2 row acceptance, PDP/gtool transition, provider/rights admission, closure, deployment, cutover, or release is asserted."
   }
 }
