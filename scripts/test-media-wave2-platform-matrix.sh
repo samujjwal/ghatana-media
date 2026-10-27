@@ -299,9 +299,9 @@ cleanup() {
   if [[ "${MEDIA_MATRIX_KEEP_SCRATCH:-0}" != 1 ]]; then rm -rf "$SCRATCH"; fi
 }
 trap cleanup EXIT
-mkdir -p "$SCRATCH/ghatana-media" "$SCRATCH/ghatana-shared" "$SCRATCH/gradle-home"
-git -C "$ROOT" archive HEAD | tar -xf - -C "$SCRATCH/ghatana-media"
-git -C "$SHARED" archive HEAD | tar -xf - -C "$SCRATCH/ghatana-shared"
+mkdir -p "$SCRATCH/Development/ghatana-media" "$SCRATCH/Development/ghatana-shared" "$SCRATCH/gradle-home"
+git -C "$ROOT" archive HEAD | tar -xf - -C "$SCRATCH/Development/ghatana-media"
+git -C "$SHARED" archive HEAD | tar -xf - -C "$SCRATCH/Development/ghatana-shared"
 
 # Image must support Linux AMD64 and ARM64. Use a reviewed immutable digest for qualification.
 docker pull --platform "$PLATFORM" "$IMAGE"
@@ -327,11 +327,13 @@ DOCKER_ARGS=(
   --user "$(id -u):$(id -g)"
   --tmpfs /tmp:rw,nosuid,nodev,size=1g
   --volume "$SCRATCH:/work:rw"
-  --workdir /work/ghatana-media
+  # Keep Media two directories below the writable mount. The standalone Gradle
+  # build assigns its synthetic :services parent to rootDir.parentFile.parentFile.
+  --workdir /work/Development/ghatana-media
   --env HOME=/work --env GRADLE_USER_HOME=/work/gradle-home
 )
 if [[ "$MODE" == linux-arm64-core || "$MODE" == linux-amd64-core ]]; then
-  DOCKER_ARGS+=(--env "MEDIA_RESOURCE_PROFILE_OUTPUT=/work/ghatana-media/$PROFILE_ARTIFACT_NAME")
+  DOCKER_ARGS+=(--env "MEDIA_RESOURCE_PROFILE_OUTPUT=/work/Development/ghatana-media/$PROFILE_ARTIFACT_NAME")
 fi
 if [[ "$MODE" == *-native ]]; then
   DOCKER_ARGS+=(
@@ -352,11 +354,11 @@ set +e
 docker "${DOCKER_ARGS[@]}" "$IMAGE" ./gradlew "${TASKS[@]}" 2>&1 | tee "$RUN_LOG"
 RUN_STATUS=${PIPESTATUS[0]}
 set -e
-if [[ -f "$SCRATCH/ghatana-media/$PROFILE_ARTIFACT_NAME" ]]; then
-  cp "$SCRATCH/ghatana-media/$PROFILE_ARTIFACT_NAME" "$PROFILE_ARTIFACT"
+if [[ -f "$SCRATCH/Development/ghatana-media/$PROFILE_ARTIFACT_NAME" ]]; then
+  cp "$SCRATCH/Development/ghatana-media/$PROFILE_ARTIFACT_NAME" "$PROFILE_ARTIFACT"
 fi
 REPORT_STATUS=0
-if summarize_reports "$SCRATCH/ghatana-media" "$REPORT_DIR/$MODE.json"; then :; else REPORT_STATUS=$?; fi
+if summarize_reports "$SCRATCH/Development/ghatana-media" "$REPORT_DIR/$MODE.json"; then :; else REPORT_STATUS=$?; fi
 if [[ "$RUN_STATUS" -ne 0 || "$REPORT_STATUS" -ne 0 ]]; then
   echo "Wave 2 lane failed: docker/gradle=$RUN_STATUS summary=$REPORT_STATUS" >&2
   exit 1
