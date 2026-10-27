@@ -11,8 +11,13 @@ import java.nio.file.LinkOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.channels.FileChannel;
 import java.nio.ByteBuffer;
+import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
+import java.io.IOException;
+import java.util.EnumSet;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +41,9 @@ import java.util.function.Function;
  */
 public final class ProductionTtsGrpcService extends TtsGrpcService implements AutoCloseable {
 
+    private static final long DEFAULT_TTS_MAX_MEMORY_BYTES = 256L * 1024 * 1024;
+    private static final long MAX_TTS_MODEL_BYTES = 4L * 1024 * 1024 * 1024;
+
     record ProviderProfile(
             String modelId, String modelVersion, String modelDigest, String voiceSidecarDigest, String license,
             String language, String region, String retention, String hardware,
@@ -43,10 +51,47 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     private record RuntimeConfiguration(
             TtsConfig config, TtsProviderAdmission.Decision admission, String language,
-            Path voiceSidecarPath, String voiceSidecarDigest) {}
+            ModelSnapshot modelSnapshot) {}
     private record InitializedRuntime(
             AudioVideoLibrary library, TtsProviderAdmission.Decision admission,
             String voiceId, String language) {}
+
+    /** Private staged inputs consumed synchronously by Piper before service exposure. */
+    private record ModelSnapshot(
+            Path directory, Object directoryFileKey, Path modelPath, String modelDigest, long maxModelBytes,
+            Path voiceSidecarPath, String voiceSidecarDigest) implements AutoCloseable {
+        private void verify() {
+            try {
+                requireSnapshotDirectory(directory, directoryFileKey);
+                if (!modelDigest.equals(fileDigest(modelPath, ignored -> {}, maxModelBytes))
+                        || !voiceSidecarDigest.equals(
+                                fileDigest(voiceSidecarPath, ignored -> {}, 16L * 1024 * 1024))) {
+                    throw new IllegalStateException("TTS_MODEL_SNAPSHOT_CHANGED: staged provider assets changed");
+                }
+            } catch (IOException | RuntimeException failure) {
+                if (failure instanceof IllegalStateException illegal
+                        && illegal.getMessage() != null
+                        && illegal.getMessage().startsWith("TTS_MODEL_SNAPSHOT_CHANGED")) {
+                    throw illegal;
+                }
+                throw new IllegalStateException("TTS_MODEL_SNAPSHOT_CHANGED: staged provider assets unavailable", failure);
+            }
+        }
+
+        @Override
+        public void close() {
+            try {
+                requireSnapshotDirectory(directory, directoryFileKey);
+                Files.deleteIfExists(voiceSidecarPath);
+                Files.deleteIfExists(modelPath);
+                requireSnapshotDirectory(directory, directoryFileKey);
+                Files.delete(directory);
+            } catch (IOException | RuntimeException failure) {
+                throw new IllegalStateException(
+                        "TTS_MODEL_SNAPSHOT_CLEANUP_FAILED: private provider input cleanup was incomplete", failure);
+            }
+        }
+    }
 
     private final AudioVideoLibrary ownedLibrary;
     private final TtsProviderAdmission.Decision admission;
@@ -230,16 +275,14 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     private static TtsConfig createAdmittedConfig(
             Map<String, String> environment,
-            ProviderProfile provider) {
+            ProviderProfile provider,
+            Path modelPath) {
         String profile = firstNonBlank(
                 environment.get("MEDIA_RUNTIME_ENVIRONMENT"),
                 environment.get("MEDIA_PROFILE"),
                 "local");
         boolean productionLike = isProductionLike(profile);
 
-        Path modelPath = Path.of(environment.getOrDefault(
-                "TTS_MODEL_PATH",
-                "/models/piper-en.onnx"));
         int maxConcurrent = parseBoundedInt(
                 environment,
                 "TTS_MAX_CONCURRENT",
@@ -258,12 +301,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
                 5_000,
                 1,
                 100_000);
-        long maxMemoryBytes = parseBoundedLong(
-                environment,
-                "TTS_MAX_MEMORY_BYTES",
-                256L * 1024 * 1024,
-                1L * 1024 * 1024,
-                4L * 1024 * 1024 * 1024);
+        long maxMemoryBytes = configuredModelSizeLimit(environment);
         boolean streamingEnabled = parseBoolean(
                 environment,
                 "TTS_STREAMING_ENABLED",
@@ -341,7 +379,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             return notAdmitted(
                     "Configured model path must be an absolute, normalized, non-symbolic regular readable provider asset");
         }
-        if (!digest.equals(fileDigest(path, beforeModelHash))) {
+        if (!digest.equals(fileDigest(path, beforeModelHash, configuredModelSizeLimit(environment)))) {
             throw new IllegalArgumentException("TTS model digest does not match TTS_MODEL_SHA256");
         }
         Path voiceSidecar = voiceSidecarPath(path);
@@ -440,6 +478,133 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         }
     }
 
+    private static ModelSnapshot createModelSnapshot(
+            Path sourceModel, String expectedModelDigest, String expectedSidecarDigest, long maxModelBytes) {
+        Path directory = null;
+        Path stagedModel = null;
+        Path stagedSidecar = null;
+        Object directoryFileKey = null;
+        try {
+            Path canonicalTemp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath();
+            directory = Files.createTempDirectory(
+                    canonicalTemp, "ghatana-tts-model-", ownerOnlyDirectoryPermissions());
+            BasicFileAttributes directoryAttributes = Files.readAttributes(
+                    directory, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+            directoryFileKey = directoryAttributes.fileKey();
+            if (!directoryAttributes.isDirectory() || directoryAttributes.fileKey() == null) {
+                throw new IllegalArgumentException("Private TTS model snapshot directory identity is unavailable");
+            }
+            stagedModel = directory.resolve(sourceModel.getFileName().toString());
+            stagedSidecar = voiceSidecarPath(stagedModel);
+            String copiedModelDigest = copyVerifiedAsset(sourceModel, stagedModel, maxModelBytes);
+            if (!expectedModelDigest.equals(copiedModelDigest)) {
+                throw new IllegalArgumentException("Configured TTS model changed before private snapshotting");
+            }
+            String copiedSidecarDigest = copyVerifiedAsset(
+                    voiceSidecarPath(sourceModel), stagedSidecar, 16L * 1024 * 1024);
+            if (!expectedSidecarDigest.equals(copiedSidecarDigest)) {
+                throw new IllegalArgumentException("Configured TTS voice sidecar changed before private snapshotting");
+            }
+            return new ModelSnapshot(directory, directoryFileKey, stagedModel, copiedModelDigest, maxModelBytes,
+                    stagedSidecar, copiedSidecarDigest);
+        } catch (IOException | RuntimeException failure) {
+            if (directory != null) {
+                try {
+                    if (directoryFileKey != null) {
+                        requireSnapshotDirectory(directory, directoryFileKey);
+                        if (stagedSidecar != null) Files.deleteIfExists(stagedSidecar);
+                        if (stagedModel != null) Files.deleteIfExists(stagedModel);
+                        requireSnapshotDirectory(directory, directoryFileKey);
+                        Files.delete(directory);
+                    } else {
+                        // The fileKey failure occurs before staging files are created; delete only the empty directory.
+                        BasicFileAttributes attributes = Files.readAttributes(
+                                directory, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+                        if (!attributes.isDirectory() || attributes.isSymbolicLink()) {
+                            throw new IllegalStateException("Private TTS snapshot directory is no longer safe to clean");
+                        }
+                        Files.delete(directory);
+                    }
+                } catch (IOException | RuntimeException cleanupFailure) {
+                    failure.addSuppressed(cleanupFailure);
+                }
+            }
+            if (failure instanceof IllegalArgumentException argument) throw argument;
+            throw new IllegalArgumentException("Unable to create private TTS provider input snapshot", failure);
+        }
+    }
+
+    private static String copyVerifiedAsset(Path source, Path destination, long maxBytes) throws IOException {
+        Path absoluteSource = source.toAbsolutePath().normalize();
+        if (containsSymbolicLink(absoluteSource)) {
+            throw new IllegalArgumentException("Configured TTS provider asset contains a symbolic link");
+        }
+        BasicFileAttributes before = readModelAttributes(absoluteSource);
+        if (!before.isRegularFile() || before.fileKey() == null || before.size() > maxBytes) {
+            throw new IllegalArgumentException("Configured TTS provider asset is not a bounded regular file");
+        }
+
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
+        long copied = 0;
+        try (FileChannel input = FileChannel.open(
+                     absoluteSource, Set.of(StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS));
+             FileChannel output = FileChannel.open(
+                     destination,
+                     Set.of(StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS),
+                     ownerOnlyFilePermissions())) {
+            BasicFileAttributes opened = readModelAttributes(absoluteSource);
+            requireStableModelFile(before, opened, input.size());
+            ByteBuffer buffer = ByteBuffer.allocate(16_384);
+            while (input.read(buffer) >= 0) {
+                buffer.flip();
+                if (buffer.hasRemaining()) {
+                    ByteBuffer digestInput = buffer.asReadOnlyBuffer();
+                    digest.update(digestInput);
+                    int remaining = buffer.remaining();
+                    if (copied > maxBytes - remaining) {
+                        throw new IllegalArgumentException("Configured TTS provider asset exceeds its size bound");
+                    }
+                    copied += remaining;
+                    while (buffer.hasRemaining()) output.write(buffer);
+                }
+                buffer.clear();
+            }
+            output.force(true);
+            BasicFileAttributes after = readModelAttributes(absoluteSource);
+            requireStableModelFile(before, after, input.size());
+            if (containsSymbolicLink(absoluteSource) || copied != before.size()) {
+                throw new IllegalArgumentException("Configured TTS provider asset changed during private snapshotting");
+            }
+        }
+        return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private static void requireSnapshotDirectory(Path directory, Object expectedFileKey) throws IOException {
+        BasicFileAttributes attributes = Files.readAttributes(
+                directory, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+        if (!attributes.isDirectory() || !Objects.equals(expectedFileKey, attributes.fileKey())) {
+            throw new IllegalStateException("Private TTS model snapshot directory identity changed");
+        }
+    }
+
+    private static FileAttribute<Set<PosixFilePermission>> ownerOnlyDirectoryPermissions() {
+        return PosixFilePermissions.asFileAttribute(EnumSet.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.OWNER_EXECUTE));
+    }
+
+    private static FileAttribute<Set<PosixFilePermission>> ownerOnlyFilePermissions() {
+        return PosixFilePermissions.asFileAttribute(EnumSet.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE));
+    }
+
     private static BasicFileAttributes readModelAttributes(Path path) throws java.io.IOException {
         return Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
     }
@@ -498,17 +663,29 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         Objects.requireNonNull(environment, "environment");
         Objects.requireNonNull(libraryFactory, "libraryFactory");
         RuntimeConfiguration runtime = resolveConfiguration(environment, admissionResolver, beforeModelHash);
-        verifyVoiceSidecar(runtime);
-        AudioVideoLibrary library = Objects.requireNonNull(
-                libraryFactory.apply(runtime.config()), "libraryFactory returned null");
+        AudioVideoLibrary library = null;
         try {
-            verifyVoiceSidecar(runtime);
+            library = Objects.requireNonNull(libraryFactory.apply(runtime.config()), "libraryFactory returned null");
+            runtime.modelSnapshot().verify();
             library.getTtsEngine().warmup();
-            verifyVoiceSidecar(runtime);
-            return new InitializedRuntime(library, runtime.admission(), runtime.config().defaultVoiceId(),
-                    runtime.language());
-        } catch (RuntimeException exception) {
-            library.close();
+            runtime.modelSnapshot().verify();
+            InitializedRuntime initialized = new InitializedRuntime(
+                    library, runtime.admission(), runtime.config().defaultVoiceId(), runtime.language());
+            runtime.modelSnapshot().close();
+            return initialized;
+        } catch (RuntimeException | Error exception) {
+            if (library != null) {
+                try {
+                    library.close();
+                } catch (RuntimeException closeFailure) {
+                    exception.addSuppressed(closeFailure);
+                }
+            }
+            try {
+                runtime.modelSnapshot().close();
+            } catch (RuntimeException cleanupFailure) {
+                exception.addSuppressed(cleanupFailure);
+            }
             throw exception;
         }
     }
@@ -535,35 +712,29 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         if (!"ADMITTED".equals(provider.status())) {
             throw new IllegalStateException("TTS_PROVIDER_NOT_ADMITTED: " + provider.reason());
         }
-        TtsConfig config = createAdmittedConfig(environment, provider);
-        TtsProviderAdmission.Decision effectiveAdmission = provider.admission();
-        if (!config.enableStreaming()
-                && effectiveAdmission.allows(TtsProviderAdmission.Capability.PCM_STREAMING)) {
-            Set<TtsProviderAdmission.Capability> effectiveCapabilities =
-                    new java.util.HashSet<>(effectiveAdmission.capabilities());
-            effectiveCapabilities.remove(TtsProviderAdmission.Capability.PCM_STREAMING);
-            effectiveAdmission = new TtsProviderAdmission.Decision(
-                    effectiveCapabilities, effectiveAdmission.authorityReference(), effectiveAdmission.reason());
-        }
-        return new RuntimeConfiguration(config, effectiveAdmission, provider.language(),
-                voiceSidecarPath(Path.of(environment.get("TTS_MODEL_PATH"))), provider.voiceSidecarDigest());
-    }
-
-    private static void verifyVoiceSidecar(RuntimeConfiguration runtime) {
+        long maxModelBytes = configuredModelSizeLimit(environment);
+        ModelSnapshot snapshot = createModelSnapshot(
+                Path.of(environment.get("TTS_MODEL_PATH")), provider.modelDigest(),
+                provider.voiceSidecarDigest(), maxModelBytes);
         try {
-            if (containsSymbolicLink(runtime.voiceSidecarPath())
-                    || !Files.isRegularFile(runtime.voiceSidecarPath(), LinkOption.NOFOLLOW_LINKS)
-                    || !runtime.voiceSidecarDigest().equals(
-                            fileDigest(runtime.voiceSidecarPath(), ignored -> {}, 16L * 1024 * 1024))) {
-                throw new IllegalStateException("TTS_VOICE_SIDECAR_CHANGED: verified voice sidecar is unavailable");
+            TtsConfig config = createAdmittedConfig(environment, provider, snapshot.modelPath());
+            TtsProviderAdmission.Decision effectiveAdmission = provider.admission();
+            if (!config.enableStreaming()
+                    && effectiveAdmission.allows(TtsProviderAdmission.Capability.PCM_STREAMING)) {
+                Set<TtsProviderAdmission.Capability> effectiveCapabilities =
+                        new java.util.HashSet<>(effectiveAdmission.capabilities());
+                effectiveCapabilities.remove(TtsProviderAdmission.Capability.PCM_STREAMING);
+                effectiveAdmission = new TtsProviderAdmission.Decision(
+                        effectiveCapabilities, effectiveAdmission.authorityReference(), effectiveAdmission.reason());
             }
-        } catch (RuntimeException failure) {
-            if (failure instanceof IllegalStateException illegal
-                    && illegal.getMessage() != null
-                    && illegal.getMessage().startsWith("TTS_VOICE_SIDECAR_CHANGED")) {
-                throw illegal;
+            return new RuntimeConfiguration(config, effectiveAdmission, provider.language(), snapshot);
+        } catch (RuntimeException | Error failure) {
+            try {
+                snapshot.close();
+            } catch (RuntimeException cleanupFailure) {
+                failure.addSuppressed(cleanupFailure);
             }
-            throw new IllegalStateException("TTS_VOICE_SIDECAR_CHANGED: verified voice sidecar is unavailable", failure);
+            throw failure;
         }
     }
 
@@ -620,6 +791,16 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
                     key + " must be between " + minimum + " and " + maximum);
         }
         return parsed;
+    }
+
+    private static long configuredModelSizeLimit(Map<String, String> environment) {
+        // Reuse the existing runtime memory budget as the conservative model and snapshot byte ceiling.
+        return parseBoundedLong(
+                environment,
+                "TTS_MAX_MEMORY_BYTES",
+                DEFAULT_TTS_MAX_MEMORY_BYTES,
+                1L * 1024 * 1024,
+                MAX_TTS_MODEL_BYTES);
     }
 
     private static boolean parseBoolean(

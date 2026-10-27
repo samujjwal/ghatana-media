@@ -2,6 +2,8 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.EngineStatus;
+import com.ghatana.media.common.AudioData;
+import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.tts.core.grpc.proto.AudioChunk;
@@ -18,6 +20,7 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardCopyOption;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.HexFormat;
@@ -225,7 +228,7 @@ class ProductionTtsGrpcServiceConfigTest {
             assertThatThrownBy(() -> new ProductionTtsGrpcService(environment, new SimpleMeterRegistry(),
                     admission, config -> {
                         try {
-                            Files.writeString(Path.of(model.toString() + ".json"),
+                            Files.writeString(Path.of(config.voiceModelPath().toString() + ".json"),
                                     "{\"phoneme_id_map\":{\"^\":[9],\"$\":[8],\"_\":[7]}}\n");
                         } catch (java.io.IOException failure) {
                             throw new java.io.UncheckedIOException(failure);
@@ -233,8 +236,193 @@ class ProductionTtsGrpcServiceConfigTest {
                         return library;
                     }))
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("TTS_VOICE_SIDECAR_CHANGED");
+                    .hasMessageContaining("TTS_MODEL_SNAPSHOT_CHANGED");
             org.mockito.Mockito.verify(library).close();
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
+    void rejectsOversizedStagedModelBeforeWarmupAndCleansPrivateSnapshot() throws Exception {
+        int maxBytes = 1024 * 1024;
+        Path model = createModelFile("tts-model-staged-over-bound");
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        TtsEngine engine = mock(TtsEngine.class);
+        AtomicReference<Path> stagedModel = new AtomicReference<>();
+        when(library.getTtsEngine()).thenReturn(engine);
+        try {
+            Files.writeString(model, "small admitted fixture model");
+            writeFixtureSidecar(model);
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            Map<String, String> environment = new java.util.HashMap<>(localProfile(model, digest));
+            environment.put("TTS_MAX_MEMORY_BYTES", Integer.toString(maxBytes));
+            var admission = (TtsProviderAdmission) candidate -> new TtsProviderAdmission.Decision(
+                    java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                    "local-fixture-resolver:test-only", "controlled fixture only");
+
+            assertThatThrownBy(() -> new ProductionTtsGrpcService(
+                    environment, new SimpleMeterRegistry(), admission, readyFixtureAuthorization(), config -> {
+                        stagedModel.set(config.voiceModelPath());
+                        try {
+                            Files.write(config.voiceModelPath(), new byte[maxBytes + 1], StandardOpenOption.TRUNCATE_EXISTING);
+                        } catch (java.io.IOException failure) {
+                            throw new java.io.UncheckedIOException(failure);
+                        }
+                        return library;
+                    }))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("TTS_MODEL_SNAPSHOT_CHANGED");
+
+            assertThat(stagedModel.get()).isNotNull();
+            assertThat(Files.exists(stagedModel.get(), java.nio.file.LinkOption.NOFOLLOW_LINKS)).isFalse();
+            assertThat(Files.exists(stagedModel.get().getParent(), java.nio.file.LinkOption.NOFOLLOW_LINKS))
+                    .isFalse();
+            org.mockito.Mockito.verify(library).close();
+            org.mockito.Mockito.verify(engine, org.mockito.Mockito.never()).warmup();
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
+    void providerInitializationUsesPrivateModelAndSidecarSnapshotThenRemovesIt() throws Exception {
+        Path model = createModelFile("tts-model-snapshot");
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        TtsEngine engine = mock(TtsEngine.class);
+        AtomicReference<Path> stagedModel = new AtomicReference<>();
+        AtomicReference<Path> stagedSidecar = new AtomicReference<>();
+        String originalModel = "fixture model bytes copied into private snapshot";
+        String originalSidecar = "{\"phoneme_id_map\":{\"^\":[1],\"$\":[2],\"_\":[0]}}\n";
+        when(library.getTtsEngine()).thenReturn(engine);
+        byte[] pcm = audiblePcmFixture();
+        when(engine.synthesize(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any())).thenReturn(
+                        new AudioData(pcm, 22_050, 1, 16, Duration.ofMillis(100), AudioFormat.PCM));
+        try {
+            Files.writeString(model, originalModel);
+            writeFixtureSidecar(model);
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            var admission = (TtsProviderAdmission) candidate -> new TtsProviderAdmission.Decision(
+                    java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                    "local-fixture-resolver:test-only", "controlled fixture only");
+
+            ProductionTtsGrpcService service = new ProductionTtsGrpcService(
+                    localProfile(model, digest), new SimpleMeterRegistry(), admission,
+                    readyFixtureAuthorization(), config -> {
+                        try {
+                            Path snapshotModel = config.voiceModelPath();
+                            Path snapshotSidecar = Path.of(snapshotModel.toString() + ".json");
+                            stagedModel.set(snapshotModel);
+                            stagedSidecar.set(snapshotSidecar);
+                            assertThat(snapshotModel).isNotEqualTo(model);
+                            assertThat(Files.readString(snapshotModel)).isEqualTo(originalModel);
+                            assertThat(Files.readString(snapshotSidecar)).isEqualTo(originalSidecar);
+                            assertThat(Files.getPosixFilePermissions(snapshotModel.getParent()))
+                                    .containsExactlyInAnyOrder(
+                                            java.nio.file.attribute.PosixFilePermission.OWNER_READ,
+                                            java.nio.file.attribute.PosixFilePermission.OWNER_WRITE,
+                                            java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE);
+                            assertThat(Files.getPosixFilePermissions(snapshotModel))
+                                    .containsExactlyInAnyOrder(
+                                            java.nio.file.attribute.PosixFilePermission.OWNER_READ,
+                                            java.nio.file.attribute.PosixFilePermission.OWNER_WRITE);
+
+                            // Source replacement after snapshot creation cannot alter the files passed to the engine.
+                            Files.writeString(model, "mutated source model bytes");
+                            Files.writeString(Path.of(model.toString() + ".json"), "mutated source sidecar");
+                            assertThat(Files.readString(snapshotModel)).isEqualTo(originalModel);
+                            assertThat(Files.readString(snapshotSidecar)).isEqualTo(originalSidecar);
+                            return library;
+                        } catch (java.io.IOException failure) {
+                            throw new java.io.UncheckedIOException(failure);
+                        }
+                    });
+            try {
+                assertThat(stagedModel.get()).isNotNull();
+                assertThat(Files.exists(stagedModel.get(), java.nio.file.LinkOption.NOFOLLOW_LINKS)).isFalse();
+                assertThat(Files.exists(stagedSidecar.get(), java.nio.file.LinkOption.NOFOLLOW_LINKS)).isFalse();
+                assertThat(Files.exists(stagedModel.get().getParent(), java.nio.file.LinkOption.NOFOLLOW_LINKS))
+                        .isFalse();
+                RecordingObserver<SynthesizeResponse> observer = new RecordingObserver<>();
+                withVerifiedIdentity(() -> service.synthesize(
+                        SynthesizeRequest.newBuilder()
+                                .setText("snapshot remains loaded")
+                                .setVoiceId("piper-en")
+                                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                                        .setLanguage("en-US").build())
+                                .build(),
+                        observer));
+                assertThat(observer.error.get()).isNull();
+                assertThat(observer.value.get()).isNotNull();
+                org.mockito.Mockito.verify(engine).synthesize(
+                        org.mockito.ArgumentMatchers.eq("snapshot remains loaded"),
+                        org.mockito.ArgumentMatchers.any());
+            } finally {
+                service.close();
+            }
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
+    void modelByteCeilingIsEnforcedBeforeHashingAndAllowsExactBoundary() throws Exception {
+        int maxBytes = 1024 * 1024;
+        Path exactModel = createModelFile("tts-model-exact-bound");
+        Path oversizedModel = createModelFile("tts-model-over-bound");
+        try {
+            Files.write(exactModel, new byte[maxBytes]);
+            Files.write(oversizedModel, new byte[maxBytes + 1]);
+            Map<String, String> exactEnvironment = new java.util.HashMap<>(
+                    localProfile(exactModel, HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                            .digest(Files.readAllBytes(exactModel)))));
+            exactEnvironment.put("TTS_MAX_MEMORY_BYTES", Integer.toString(maxBytes));
+            var exactProfile = ProductionTtsGrpcService.resolveProviderProfile(exactEnvironment);
+            assertThat(exactProfile.modelDigest()).isEqualTo(exactEnvironment.get("TTS_MODEL_SHA256"));
+            assertThat(exactProfile.status()).isEqualTo("NOT_ADMITTED");
+
+            Map<String, String> oversizedEnvironment = new java.util.HashMap<>(
+                    localProfile(oversizedModel, "0".repeat(64)));
+            oversizedEnvironment.put("TTS_MAX_MEMORY_BYTES", Integer.toString(maxBytes));
+            assertRejectedBeforeInitialization(oversizedEnvironment, IllegalArgumentException.class, "size bound");
+        } finally {
+            deleteModelFixture(exactModel);
+            deleteModelFixture(oversizedModel);
+        }
+    }
+
+    @Test
+    void rejectsSourceReplacementBetweenAdmissionDigestAndPrivateSnapshotCreation() throws Exception {
+        Path model = createModelFile("tts-model-snapshot-race");
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        TtsEngine engine = mock(TtsEngine.class);
+        when(library.getTtsEngine()).thenReturn(engine);
+        try {
+            Files.writeString(model, "source bytes hashed before admission");
+            writeFixtureSidecar(model);
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            Map<String, String> environment = localProfile(model, digest);
+            var replacingAdmission = (TtsProviderAdmission) candidate -> {
+                try {
+                    Files.writeString(model, "replaced after profile digest");
+                } catch (java.io.IOException failure) {
+                    throw new java.io.UncheckedIOException(failure);
+                }
+                return new TtsProviderAdmission.Decision(
+                        java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                        "local-fixture-resolver:test-only", "controlled fixture only");
+            };
+
+            assertThatThrownBy(() -> new ProductionTtsGrpcService(
+                    environment, new SimpleMeterRegistry(), replacingAdmission,
+                    readyFixtureAuthorization(), ignored -> library))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("changed before private snapshotting");
+            org.mockito.Mockito.verifyNoInteractions(library, engine);
         } finally {
             deleteModelFixture(model);
         }
@@ -402,6 +590,36 @@ class ProductionTtsGrpcServiceConfigTest {
     private static void deleteModelFixture(Path model) throws java.io.IOException {
         Files.deleteIfExists(Path.of(model.toString() + ".json"));
         Files.deleteIfExists(model);
+    }
+
+    private static byte[] audiblePcmFixture() {
+        byte[] pcm = new byte[2 * 2_205];
+        for (int sample = 0; sample < pcm.length / 2; sample++) {
+            short value = (short) (Math.sin(2.0 * Math.PI * 440.0 * sample / 22_050.0) * 8_000.0);
+            pcm[sample * 2] = (byte) value;
+            pcm[sample * 2 + 1] = (byte) (value >>> 8);
+        }
+        return pcm;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void withVerifiedIdentity(Runnable action) throws ReflectiveOperationException {
+        java.lang.reflect.Field identityKeyField =
+                com.ghatana.audio.video.common.security.JwtServerInterceptor.class
+                        .getDeclaredField("VERIFIED_IDENTITY");
+        identityKeyField.setAccessible(true);
+        io.grpc.Context.Key<com.ghatana.audio.video.common.security.JwtServerInterceptor.VerifiedIdentity> key =
+                (io.grpc.Context.Key<com.ghatana.audio.video.common.security.JwtServerInterceptor.VerifiedIdentity>)
+                        identityKeyField.get(null);
+        io.grpc.Context context = io.grpc.Context.current().withValue(key,
+                new com.ghatana.audio.video.common.security.JwtServerInterceptor.VerifiedIdentity(
+                        "fixture-subject", "fixture-tenant"));
+        io.grpc.Context previous = context.attach();
+        try {
+            action.run();
+        } finally {
+            context.detach(previous);
+        }
     }
 
     private static Path createModelFile(String prefix) throws java.io.IOException {
