@@ -217,6 +217,36 @@ class AudioVideoHealthServiceTest {
     }
 
     @Test
+    @DisplayName("Immediate provider recovery is visible across consecutive readiness probes")
+    void immediateProviderRecoveryRemainsServingAcrossConsecutiveChecks() {
+        java.util.concurrent.atomic.AtomicBoolean providerReady = new java.util.concurrent.atomic.AtomicBoolean(true);
+        AudioVideoHealthService readiness = new AudioVideoHealthService(
+                "stt-service", metricsCollector, java.util.Set.of("provider"));
+        readiness.registerCheck("provider", providerReady::get);
+
+        try {
+            assertThat(readiness.markReady()).isTrue();
+            for (int attempt = 0; attempt < 128; attempt++) {
+                providerReady.set(false);
+                CapturingObserver unavailable = new CapturingObserver();
+                readiness.check(HealthCheckRequest.getDefaultInstance(), unavailable);
+                assertThat(unavailable.responses.get(0).getStatus())
+                        .as("provider failure at attempt %s", attempt)
+                        .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
+
+                providerReady.set(true);
+                CapturingObserver recovered = new CapturingObserver();
+                readiness.check(HealthCheckRequest.getDefaultInstance(), recovered);
+                assertThat(recovered.responses.get(0).getStatus())
+                        .as("provider recovery at attempt %s", attempt)
+                        .isEqualTo(HealthCheckResponse.ServingStatus.SERVING);
+            }
+        } finally {
+            readiness.close();
+        }
+    }
+
+    @Test
     @DisplayName("Provider failure and drain immediately make readiness false")
     void providerFailureAndDrainMakeReadinessFalse() {
         java.util.concurrent.atomic.AtomicBoolean providerReady = new java.util.concurrent.atomic.AtomicBoolean(true);

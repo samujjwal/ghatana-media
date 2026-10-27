@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Collections;
 import java.time.Duration;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -24,7 +25,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -107,8 +107,11 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
             thread.setDaemon(true);
             return thread;
         };
+        // Keep one bounded pending check. Future#get may return as soon as a task completes,
+        // just before the worker returns to its queue; a zero-capacity handoff can reject the
+        // immediately following health probe during that narrow completion window.
         this.checkExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new SynchronousQueue<>(), threadFactory, new ThreadPoolExecutor.AbortPolicy());
+                new ArrayBlockingQueue<>(1), threadFactory, new ThreadPoolExecutor.AbortPolicy());
         ThreadFactory watchThreadFactory = runnable -> {
             Thread thread = new Thread(runnable, "av-health-watch-" + this.metricServiceName);
             thread.setDaemon(true);
