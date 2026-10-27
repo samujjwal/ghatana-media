@@ -5,6 +5,8 @@
 
 **Reviewed source:** Media `9c2793604e0e2b3c92a11b77f487a9bf238b3382`, Shared `07e1e0d0f56000ecd15550d296b37695e56a9f9c`, Ghatana `387bfc3eede86265aa8b42340d6a32f6e19ffeee` before R7 edits. Fetch and pin current source before each new execution wave. No historical local `origin/main` SHA substitutes for a new fetch.
 
+**Structured independent task selections:** [R7 36-task machine-readable execution schedule](MEDIA-WAVE2-R7-EXECUTION-SCHEDULE.json), validated as 22 preserved verified + 30 partial + six external tasks, with 16 prerequisite package IDs. This file is a work-selection handoff; the canonical plan remains the only status/acceptance authority.
+
 **Current Wave 2 denominator:** 58 = **22 LOCALLY_VERIFIED + 30 PARTIAL + 6 OWNER_EXTERNAL**, 99 PDP capability memberships, 43 RPCs, 12 scenarios, five residual handoffs. Previously reported macOS and Linux ARM64 core tests and macOS integration passed on one local cut; 13 skips were classified (three native Vision, nine Compose, one Linux-specific former macOS TTS test). Those test totals establish executable boundaries, not real model effects or whole-task acceptance.
 
 ## Decisions authorized now (no additional discretionary engineering approval required)
