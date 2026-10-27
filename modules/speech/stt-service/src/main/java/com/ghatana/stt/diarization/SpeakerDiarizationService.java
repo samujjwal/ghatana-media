@@ -1,10 +1,12 @@
 package com.ghatana.stt.diarization;
 
+import com.ghatana.stt.service.SttAudioInputDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +47,10 @@ import java.util.Objects;
 public final class SpeakerDiarizationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeakerDiarizationService.class);
+    /** Keep direct diarization calls within the same decoded-audio budget as STT requests. */
+    static final long MAX_TOTAL_AUDIO_BYTES = SttAudioInputDecoder.MAX_INPUT_BYTES;
+    /** A five-minute recording should not require more than this many utterance-level turns. */
+    static final int MAX_SEGMENTS_PER_REQUEST = 4_096;
 
     private final SpeakerEmbeddingExtractor extractor;
     private final DiarizationAdmission admission;
@@ -82,7 +88,8 @@ public final class SpeakerDiarizationService {
         if (extractor == null) {
             throw new DiarizationException("STT_DIARIZATION_NOT_ADMITTED: qualified speaker embedding provider is unavailable");
         }
-        if (segments.isEmpty()) {
+        List<AudioSegment> requestSegments = snapshotSegments(segments);
+        if (requestSegments.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -91,20 +98,26 @@ public final class SpeakerDiarizationService {
         // assigned in encounter order, so accepting a reordered list would make otherwise
         // identical input produce different anonymous speaker IDs.
         long previousStartMs = -1;
-        for (AudioSegment segment : segments) {
+        long totalAudioBytes = 0;
+        for (AudioSegment segment : requestSegments) {
             Objects.requireNonNull(segment, "segments must not contain null");
             if (segment.startMs() < previousStartMs) {
                 throw new DiarizationException(
                         "STT_DIARIZATION_SEGMENTS_OUT_OF_ORDER: segments must be ordered by source start time");
             }
             previousStartMs = segment.startMs();
+            if (totalAudioBytes > MAX_TOTAL_AUDIO_BYTES - segment.audioBytes.length) {
+                throw new DiarizationException(
+                        "STT_DIARIZATION_INPUT_TOO_LARGE: segment audio exceeds the request byte limit");
+            }
+            totalAudioBytes += segment.audioBytes.length;
         }
 
-        List<SpeakerTurn> result = new ArrayList<>(segments.size());
+        List<SpeakerTurn> result = new ArrayList<>(requestSegments.size());
         List<float[]> centroids = new ArrayList<>(); // per-speaker centroid embeddings
         int embeddingDimensions = -1;
 
-        for (AudioSegment segment : segments) {
+        for (AudioSegment segment : requestSegments) {
             // Admission can change while a batch is being processed. Re-check immediately
             // before every sensitive embedding dispatch so revocation cannot authorize
             // the remainder of the batch under a stale decision.
@@ -123,8 +136,28 @@ public final class SpeakerDiarizationService {
         }
 
         LOG.info("Diarization complete: {} segments → {} speaker(s)",
-                segments.size(), centroids.size());
+                requestSegments.size(), centroids.size());
         return Collections.unmodifiableList(result);
+    }
+
+    private static List<AudioSegment> snapshotSegments(List<AudioSegment> segments) {
+        int reportedSize = segments.size();
+        if (reportedSize > MAX_SEGMENTS_PER_REQUEST) {
+            throw new DiarizationException("STT_DIARIZATION_SEGMENT_LIMIT: request exceeds the segment limit");
+        }
+        List<AudioSegment> snapshot = new ArrayList<>(reportedSize);
+        try {
+            for (AudioSegment segment : segments) {
+                if (snapshot.size() == MAX_SEGMENTS_PER_REQUEST) {
+                    throw new DiarizationException(
+                            "STT_DIARIZATION_SEGMENT_LIMIT: request exceeds the segment limit");
+                }
+                snapshot.add(Objects.requireNonNull(segment, "segments must not contain null"));
+            }
+        } catch (ConcurrentModificationException changedDuringSnapshot) {
+            throw new DiarizationException("STT_DIARIZATION_INPUT_CHANGED: segments changed during validation");
+        }
+        return List.copyOf(snapshot);
     }
 
     private void requireAdmission() {
@@ -274,6 +307,9 @@ public final class SpeakerDiarizationService {
             Objects.requireNonNull(audioBytes, "audioBytes must not be null");
             Objects.requireNonNull(text, "text must not be null");
             if (audioBytes.length == 0) throw new IllegalArgumentException("audioBytes must not be empty");
+            if (audioBytes.length > MAX_TOTAL_AUDIO_BYTES) {
+                throw new IllegalArgumentException("audioBytes exceeds the STT audio input limit");
+            }
             if (startMs < 0) throw new IllegalArgumentException("startMs must be >= 0");
             if (endMs <= startMs) throw new IllegalArgumentException("endMs must be > startMs");
             audioBytes = audioBytes.clone();

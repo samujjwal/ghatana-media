@@ -242,6 +242,67 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("aggregate audio over the STT byte budget fails before provider dispatch")
+        void diarize_aggregateAudioLimitFailsBeforeProvider() {
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> { providerCalls.incrementAndGet(); return new float[] {1}; })
+                    .admission(() -> true)
+                    .build();
+            int halfLimit = (int) (SpeakerDiarizationService.MAX_TOTAL_AUDIO_BYTES / 2);
+            var segments = List.of(
+                    new SpeakerDiarizationService.AudioSegment(new byte[halfLimit], 0, 100, "first"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[halfLimit + 2], 100, 200, "second"));
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(segments))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_INPUT_TOO_LARGE:");
+            assertThat(providerCalls).hasValue(0);
+        }
+
+        @Test
+        @DisplayName("excessive segment count fails before provider dispatch")
+        void diarize_segmentCountLimitFailsBeforeProvider() {
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> { providerCalls.incrementAndGet(); return new float[] {1}; })
+                    .admission(() -> true)
+                    .build();
+            var segment = new SpeakerDiarizationService.AudioSegment(new byte[] {1, 2}, 0, 1, "x");
+            List<SpeakerDiarizationService.AudioSegment> segments = Collections.nCopies(
+                    SpeakerDiarizationService.MAX_SEGMENTS_PER_REQUEST + 1, segment);
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(segments))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_SEGMENT_LIMIT:");
+            assertThat(providerCalls).hasValue(0);
+        }
+
+        @Test
+        @DisplayName("caller list mutation after dispatch cannot change the validated request")
+        void diarize_snapshotsSegmentsBeforeProviderDispatch() {
+            var segments = new java.util.ArrayList<>(List.of(
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {1, 2}, 0, 10, "first"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {3, 4}, 10, 20, "second")));
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> {
+                        if (providerCalls.incrementAndGet() == 1) segments.clear();
+                        return new float[] {1};
+                    })
+                    .admission(() -> true)
+                    .build();
+
+            List<SpeakerDiarizationService.SpeakerTurn> turns = service.diarize(segments);
+
+            assertThat(providerCalls).hasValue(2);
+            assertThat(segments).isEmpty();
+            assertThat(turns).hasSize(2)
+                    .extracting(SpeakerDiarizationService.SpeakerTurn::text)
+                    .containsExactly("first", "second");
+        }
+
+        @Test
         @DisplayName("existing speaker remains assignable after speaker cap is reached")
         void diarizeExistingMatchStillWorksAtSpeakerCap() {
             SpeakerDiarizationService service = SpeakerDiarizationService.builder()
@@ -315,6 +376,15 @@ class SpeakerDiarizationServiceTest {
             byte[] returned = segment.audioBytes();
             returned[1] = 8;
             assertThat(segment.audioBytes()).containsExactly(1, 2, 3);
+        }
+
+        @Test
+        @DisplayName("oversized audio is rejected before the segment takes a defensive copy")
+        void audioSegment_rejectsOversizedInput() {
+            byte[] oversized = new byte[Math.toIntExact(SpeakerDiarizationService.MAX_TOTAL_AUDIO_BYTES + 1)];
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new SpeakerDiarizationService.AudioSegment(oversized, 0, 100, "t"))
+                    .withMessageContaining("exceeds the STT audio input limit");
         }
 
         @Test
