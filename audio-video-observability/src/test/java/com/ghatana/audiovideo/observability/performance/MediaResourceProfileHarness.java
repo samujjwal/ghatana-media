@@ -315,9 +315,9 @@ public final class MediaResourceProfileHarness {
                     Reading.notMeasured("ns", "The current JVM does not expose process CPU time."));
         }
 
-        long heapPeak = samples.stream().mapToLong(ResourceSnapshot::heapUsedBytes).max().orElse(after.heapUsedBytes());
         int threadPeak = samples.stream().mapToInt(ResourceSnapshot::threadCount).max().orElse(after.threadCount());
-        result.put(Resource.HEAP_PEAK_BYTES, Reading.measured(heapPeak, "bytes"));
+        result.put(Resource.HEAP_PEAK_BYTES, summarizeHeapPeak(
+                samples.stream().mapToLong(ResourceSnapshot::heapUsedBytes).toArray()));
         result.put(Resource.THREAD_PEAK, Reading.measured(threadPeak, "threads"));
         for (Resource resource : List.of(Resource.GPU_MEMORY_BYTES, Resource.NATIVE_MEMORY_BYTES,
                 Resource.CONNECTION_POOL_SIZE, Resource.NETWORK_BYTES, Resource.FFMPEG_CHILD_PROCESSES,
@@ -339,7 +339,21 @@ public final class MediaResourceProfileHarness {
             long cpuNanos = PROCESS.getProcessCpuTime();
             if (cpuNanos >= 0) processCpu = OptionalLong.of(cpuNanos);
         }
-        return new ResourceSnapshot(Math.max(0, heapUsed), Math.max(0, threadCount), processCpu);
+        return new ResourceSnapshot(heapUsed, Math.max(0, threadCount), processCpu);
+    }
+
+    /** Preserve the JVM's -1 unknown sentinel instead of reporting an invented zero-byte peak. */
+    static Reading summarizeHeapPeak(long... samples) {
+        long peak = -1;
+        for (long sample : samples) {
+            if (sample < 0) {
+                return Reading.notMeasured("bytes", "At least one JVM heap sample was unavailable.");
+            }
+            peak = Math.max(peak, sample);
+        }
+        return peak < 0
+                ? Reading.notMeasured("bytes", "No JVM heap samples were collected.")
+                : Reading.measured(peak, "bytes");
     }
 
     private static Environment environment() {

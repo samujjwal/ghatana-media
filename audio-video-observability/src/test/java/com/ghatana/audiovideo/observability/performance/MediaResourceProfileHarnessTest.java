@@ -151,6 +151,37 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void unknownHeapSamplesRemainUnmeasuredInsteadOfBecomingZero() {
+        var unavailable = MediaResourceProfileHarness.summarizeHeapPeak(-1, -1);
+        var mixed = MediaResourceProfileHarness.summarizeHeapPeak(0, -1, 128);
+
+        assertThat(unavailable.state()).isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+        assertThat(unavailable.value()).isNaN();
+        assertThat(unavailable.reason()).contains("sample was unavailable");
+        assertThat(mixed.state()).isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+        assertThat(mixed.value()).isNaN();
+        assertThat(mixed.reason()).contains("sample was unavailable");
+    }
+
+    @Test
+    void unavailableHeapPeakRemainsNotMeasuredInReportAndTsv() {
+        var resources = new java.util.EnumMap<MediaResourceProfileHarness.Resource,
+                MediaResourceProfileHarness.Reading>(MediaResourceProfileHarness.Resource.class);
+        resources.put(MediaResourceProfileHarness.Resource.HEAP_PEAK_BYTES,
+                MediaResourceProfileHarness.summarizeHeapPeak(4096, -1, 8192));
+        var report = new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1_000_000, 1_000_000, 1.0, 1.0, 1.0, 1.0,
+                new MediaResourceProfileHarness.Environment("JDK 27", "macOS", "arm64", 1,
+                        "NOT_CONFIGURED", "NOT_CONFIGURED"), resources);
+
+        String[] fields = report.toTsv().split("\\t", -1);
+
+        assertThat(fields[16]).startsWith("NOT_MEASURED:")
+                .contains("heap sample was unavailable");
+    }
+
+    @Test
     void timeoutCancelsCooperativeWorkersAndReportsAbortInsteadOfASuccessfulBaseline() throws Exception {
         MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
                 1, 1, Duration.ofMillis(20), index -> TimeUnit.SECONDS.sleep(10));

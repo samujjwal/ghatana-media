@@ -3,6 +3,7 @@ package com.ghatana.tts.grpc;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesisOptions;
+import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +35,29 @@ class SynthesisControlPolicyTest {
         assertThat(resolved.speed()).isEqualTo(1.0);
         assertThat(resolved.pitch()).isEqualTo(1.0);
         assertThat(resolved.volume()).isEqualTo(1.0);
+    }
+
+    @Test
+    void acceptsWellFormedBcp47LanguageAndKeepsOmittedLanguageUnspecified() {
+        var request = SynthesizeRequest.newBuilder().setText("hello")
+                .setOptions(SynthesisOptions.newBuilder().setLanguage("en-US").build()).build();
+
+        assertThat(SynthesisControlPolicy.resolve(request, AudioFormat.PCM).language())
+                .isEqualTo(Locale.forLanguageTag("en-US"));
+        assertThat(SynthesisControlPolicy.resolve(
+                SynthesizeRequest.newBuilder().setText("hello").build(), AudioFormat.PCM).language())
+                .isNull();
+    }
+
+    @Test
+    void rejectsMalformedOrLanguageLessBcp47TagsInsteadOfNormalizingThem() {
+        for (String languageTag : new String[] {"en_US", "en-", "x-private"}) {
+            var request = SynthesizeRequest.newBuilder().setText("hello")
+                    .setOptions(SynthesisOptions.newBuilder().setLanguage(languageTag).build()).build();
+            assertThatThrownBy(() -> SynthesisControlPolicy.resolve(request, AudioFormat.PCM))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("BCP-47");
+        }
     }
 
     @Test

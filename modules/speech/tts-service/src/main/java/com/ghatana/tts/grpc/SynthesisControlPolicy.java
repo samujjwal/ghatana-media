@@ -5,6 +5,7 @@ import com.ghatana.media.tts.api.Emotion;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.ssml.SsmlProcessor;
+import java.util.IllformedLocaleException;
 import java.util.Locale;
 
 /** Validates wire prosody units and admits only neutral controls until effects are qualified. */
@@ -38,12 +39,15 @@ final class SynthesisControlPolicy {
 
         // Only the neutral pitch is currently admitted; non-neutral values returned above.
         double pitchRatio = 1.0;
+        String languageTag = wire.getLanguage();
+        Locale language = languageTag.isBlank() ? null : parseLanguageTag(languageTag);
+
         return SynthesisOptions.builder()
                 .voiceId(request.getVoiceId().isBlank() ? null : request.getVoiceId())
                 .speed(speed)
                 .pitch(pitchRatio)
                 .volume(energy)
-                .language(wire.getLanguage().isBlank() ? null : Locale.forLanguageTag(wire.getLanguage()))
+                .language(language)
                 .outputFormat(outputFormat)
                 .build();
     }
@@ -82,5 +86,17 @@ final class SynthesisControlPolicy {
     private static double finite(double value, String name) {
         if (!Double.isFinite(value)) throw new IllegalArgumentException(name + " must be finite");
         return value;
+    }
+
+    private static Locale parseLanguageTag(String languageTag) {
+        try {
+            Locale locale = new Locale.Builder().setLanguageTag(languageTag).build();
+            if (locale.getLanguage().isBlank()) {
+                throw new IllegalArgumentException("language must be a BCP-47 language tag");
+            }
+            return locale;
+        } catch (IllformedLocaleException malformed) {
+            throw new IllegalArgumentException("language must be a well-formed BCP-47 language tag", malformed);
+        }
     }
 }

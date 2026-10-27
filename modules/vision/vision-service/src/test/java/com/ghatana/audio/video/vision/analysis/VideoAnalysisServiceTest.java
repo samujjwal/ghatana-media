@@ -219,6 +219,35 @@ class VideoAnalysisServiceTest {
     }
 
     @Test
+    void shotBoundaryCandidateMakesCameraMotionUnknownForThatFramePair() throws IOException {
+        Path darkFrame = writeSolidPng("motion-cut-dark.png", 0x000000);
+        Path brightFrame = writeSolidPng("motion-cut-bright.png", 0xffffff);
+        Path video = tempDir.resolve("motion-cut.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(darkFrame,
+                        SourceMediaTimestamp.fromPts("0", "1/25"), 0),
+                new VideoFrameExtractor.ExtractedFrame(brightFrame,
+                        SourceMediaTimestamp.fromPts("1", "1/25"), 1)));
+        when(detector.detectObjects(any(), any())).thenReturn(List.of());
+
+        VideoAnalysisResult result = service.analyze(video,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        assertThat(result.shotBoundaryAssessments()).hasSize(1);
+        assertThat(result.shotBoundaryAssessments().getFirst().disposition())
+                .isEqualTo(ShotBoundaryHeuristic.Disposition.BOUNDARY_CANDIDATE);
+        assertThat(result.cameraMotionAssessments()).hasSize(1);
+        var cameraMotion = result.cameraMotionAssessments().getFirst();
+        assertThat(cameraMotion.disposition()).isEqualTo(CameraMotionHeuristic.Disposition.UNKNOWN);
+        assertThat(cameraMotion.unknownReason())
+                .isEqualTo(CameraMotionHeuristic.UnknownReason.SHOT_BOUNDARY_CANDIDATE);
+        assertThat(cameraMotion.xTranslationPixels()).isNull();
+        assertThat(cameraMotion.yTranslationPixels()).isNull();
+        assertThat(cameraMotion.uncertaintyDisposition()).isEqualTo("UNKNOWN");
+    }
+
+    @Test
     void unchangedFramePixelsDoNotProduceShotBoundaryCandidate() throws IOException {
         Path firstFrame = writeSolidPng("same-1.png", 0x808080);
         Path secondFrame = writeSolidPng("same-2.png", 0x808080);

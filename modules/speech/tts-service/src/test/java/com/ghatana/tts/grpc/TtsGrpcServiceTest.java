@@ -164,6 +164,27 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void malformedLanguageTagFailsBeforeProfileAdmissionOrProviderLookup() {
+        AtomicBoolean profileChecked = new AtomicBoolean();
+        TtsGrpcService strictProfileService = new TtsGrpcService(
+                library, registry, () -> true, () -> false, null, TEST_ADMITTED_AUTHORIZATION,
+                (voiceId, language) -> {
+                    profileChecked.set(true);
+                    return true;
+                });
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        strictProfileService.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                        .setLanguage("en_US").build()).build(), observer);
+
+        assertStatus(observer, Status.Code.INVALID_ARGUMENT);
+        assertThat(profileChecked).isFalse();
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
     void productionCompositionCannotReturnRepeatingByteSyntheticFallback() {
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
 

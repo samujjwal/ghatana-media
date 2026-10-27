@@ -97,13 +97,23 @@ public final class VideoAnalysisService {
                 );
                 int[] currentLuma = ShotBoundaryHeuristic.decodeSignatureOrUnknown(imageBytes);
                 if (previousFrame != null) {
-                    shotBoundaryAssessments.add(ShotBoundaryHeuristic.compare(
+                    ShotBoundaryHeuristic.Assessment shotBoundary = ShotBoundaryHeuristic.compare(
                             previousFrame.frameNumber(), previousFrame.sourceTimestamp(), previousLuma,
-                            observedFrame.frameNumber(), observedFrame.sourceTimestamp(), currentLuma));
-                    cameraMotionAssessments.add(CameraMotionHeuristic.compare(
-                            previousFrame.frameNumber(), previousFrame.sourceTimestamp(), previousImageBytes,
-                            observedFrame.frameNumber(), observedFrame.sourceTimestamp(), imageBytes,
-                            config.getFps()));
+                            observedFrame.frameNumber(), observedFrame.sourceTimestamp(), currentLuma);
+                    shotBoundaryAssessments.add(shotBoundary);
+                    if (shotBoundary.disposition() == ShotBoundaryHeuristic.Disposition.BOUNDARY_CANDIDATE) {
+                        // Optical flow across a possible cut compares different scene content; it
+                        // cannot safely be interpreted as camera movement. Preserve the unknown.
+                        cameraMotionAssessments.add(CameraMotionHeuristic.Assessment.unknown(
+                                previousFrame.frameNumber(), observedFrame.frameNumber(),
+                                observedFrame.sourceTimestamp(),
+                                CameraMotionHeuristic.UnknownReason.SHOT_BOUNDARY_CANDIDATE));
+                    } else {
+                        cameraMotionAssessments.add(CameraMotionHeuristic.compare(
+                                previousFrame.frameNumber(), previousFrame.sourceTimestamp(), previousImageBytes,
+                                observedFrame.frameNumber(), observedFrame.sourceTimestamp(), imageBytes,
+                                config.getFps()));
+                    }
                 }
                 observedFrames.add(observedFrame);
                 previousFrame = observedFrame;
