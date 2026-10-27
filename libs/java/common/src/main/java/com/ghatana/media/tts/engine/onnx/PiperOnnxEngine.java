@@ -524,23 +524,23 @@ public final class PiperOnnxEngine implements TtsEngine {
         inputs.put("scales",         scalesTensor);
 
         try (OrtSession.Result results = session.run(inputs)) {
-            for (Map.Entry<String, OnnxValue> entry : results) {
-                OnnxValue value = entry.getValue();
-                if (value.getType() == OnnxValue.OnnxValueType.ONNX_TYPE_TENSOR) {
-                    OnnxTensor outTensor = (OnnxTensor) value;
-                    if (outTensor.getInfo().type == OnnxJavaType.FLOAT) {
-                        Object raw = outTensor.getValue();
-                        return flattenAudioOutput(raw);
-                    }
-                }
+            OnnxValue value = results.get("output").orElseThrow(() ->
+                    new InferenceError("Piper model did not return its declared output tensor", null, false));
+            if (!(value instanceof OnnxTensor outTensor)
+                    || outTensor.getInfo().type != OnnxJavaType.FLOAT) {
+                throw new InferenceError("Piper output must be a float32 tensor", null, false);
             }
+            long[] shape = outTensor.getInfo().getShape();
+            if (shape.length != 3 || shape[0] != 1 || shape[1] != 1 || shape[2] < 1
+                    || shape[2] > config.maxMemoryBytes() / Float.BYTES) {
+                throw new InferenceError("Piper output must have bounded shape [1,1,samples]", null, false);
+            }
+            return flattenAudioOutput(outTensor.getValue());
         } finally {
             inputTensor.close();
             lengthTensor.close();
             scalesTensor.close();
         }
-
-        return new float[0];
     }
 
     static Path sidecarPath(Path modelPath) {
@@ -607,19 +607,21 @@ public final class PiperOnnxEngine implements TtsEngine {
         return ids;
     }
 
-    /** Flatten Piper's output tensor (can be 1D, 2D, or 3D) to a 1D sample array. */
-    private static float[] flattenAudioOutput(Object raw) {
+    /** Validate and copy Piper's documented float32[1, 1, N] output tensor. */
+    static float[] flattenAudioOutput(Object raw) {
         if (raw instanceof float[][][] arr3) {
-            // shape [1, 1, N]
-            if (arr3.length > 0 && arr3[0].length > 0) return arr3[0][0];
+            if (arr3.length == 1 && arr3[0] != null && arr3[0].length == 1
+                    && arr3[0][0] != null && arr3[0][0].length > 0) {
+                float[] samples = arr3[0][0].clone();
+                for (int index = 0; index < samples.length; index++) {
+                    if (!Float.isFinite(samples[index])) {
+                        throw new InferenceError("Piper output contains a non-finite sample", null, false);
+                    }
+                }
+                return samples;
+            }
         }
-        if (raw instanceof float[][] arr2) {
-            if (arr2.length > 0) return arr2[0];
-        }
-        if (raw instanceof float[] arr1) {
-            return arr1;
-        }
-        return new float[0];
+        throw new InferenceError("Piper output must have shape [1,1,samples]", null, false);
     }
 
     // -------------------------------------------------------------------------

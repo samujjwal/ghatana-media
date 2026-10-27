@@ -1,12 +1,14 @@
 package com.ghatana.audiovideo.observability;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
+import java.time.Instant;
 
 class MediaWorkflowMetricsTest {
     @Test
@@ -179,5 +181,71 @@ class MediaWorkflowMetricsTest {
                 .flatMap(meter -> meter.getId().getTags().stream())
                 .map(tag -> tag.getKey()))
                 .doesNotContain("tenant", "request_id", "job_id", "provider_id");
+    }
+
+    @Test
+    void exportsProviderRevisionReadinessAndQualityFreshnessWithoutInventingQuality() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "vision");
+        Instant checkedAt = Instant.parse("2026-10-26T12:00:00Z");
+        var observation = new MediaWorkflowMetrics.ProviderProfileObservation(
+                "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
+                MediaWorkflowMetrics.ProviderReadiness.HEALTHY, checkedAt, null);
+
+        assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.VISION, observation)).isTrue();
+        assertThat(registry.get("media.provider.profile.readiness")
+                .tag("service", "vision").tag("provider_id", "vision-cpu")
+                .tag("provider_version", "2.4.1").tag("model_profile", "detector-cpu")
+                .tag("model_revision", "sha256-abc123").gauge().value()).isEqualTo(1.0);
+        assertThat(registry.get("media.provider.profile.checked_at_seconds")
+                .tag("provider_id", "vision-cpu").gauge().value()).isEqualTo(checkedAt.getEpochSecond());
+        assertThat(registry.get("media.provider.quality.observation_timestamp_seconds")
+                .tag("provider_id", "vision-cpu").gauge().value()).isNaN();
+
+        Instant measuredAt = checkedAt.minusSeconds(60);
+        assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.VISION,
+                new MediaWorkflowMetrics.ProviderProfileObservation(
+                        "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
+                        MediaWorkflowMetrics.ProviderReadiness.DEGRADED, checkedAt, measuredAt))).isTrue();
+        assertThat(registry.get("media.provider.profile.readiness")
+                .tag("provider_id", "vision-cpu").gauge().value()).isZero();
+        assertThat(registry.get("media.provider.quality.observation_timestamp_seconds")
+                .tag("provider_id", "vision-cpu").gauge().value()).isEqualTo(measuredAt.getEpochSecond());
+        assertThat(registry.getMeters().stream()
+                .filter(meter -> meter.getId().getName().startsWith("media.provider."))
+                .flatMap(meter -> meter.getId().getTags().stream())
+                .map(tag -> tag.getKey()))
+                .doesNotContain("tenant", "tenant_id", "request_id", "job_id", "attempt_id");
+    }
+
+    @Test
+    void rejectsUnboundedProviderMetricIdentitiesAndFutureQualityReadings() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "vision");
+        Instant now = Instant.parse("2026-10-26T12:00:00Z");
+
+        assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderProfileObservation(
+                "provider-valid", "1.0", "profile", "revision",
+                MediaWorkflowMetrics.ProviderReadiness.HEALTHY, now, now.plusSeconds(1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("newer");
+        assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderProfileObservation(
+                "provider/tenant-secret", "1.0", "profile", "revision",
+                MediaWorkflowMetrics.ProviderReadiness.HEALTHY, now, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("metric token");
+
+        for (int index = 0; index < 64; index++) {
+            assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                    new MediaWorkflowMetrics.ProviderProfileObservation(
+                            "provider-" + index, "v1", "stt", "rev-1",
+                            MediaWorkflowMetrics.ProviderReadiness.HEALTHY, now, null))).isTrue();
+        }
+        assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                new MediaWorkflowMetrics.ProviderProfileObservation(
+                        "provider-overflow", "v1", "stt", "rev-1",
+                        MediaWorkflowMetrics.ProviderReadiness.HEALTHY, now, null))).isFalse();
+        assertThat(registry.get("media.provider.profile.observation.rejected")
+                .tag("service", "vision").counter().count()).isEqualTo(1);
     }
 }

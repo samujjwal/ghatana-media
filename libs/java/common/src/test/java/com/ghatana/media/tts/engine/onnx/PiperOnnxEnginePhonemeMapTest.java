@@ -48,4 +48,28 @@ class PiperOnnxEnginePhonemeMapTest {
             "^", java.util.List.of(1L), "$", java.util.List.of(2L), "_", java.util.List.of(0L))))
             .isInstanceOf(InferenceError.class).hasMessageContaining("does not define phoneme token");
     }
+
+    @Test
+    void acceptsOnlyTheDocumentedSingleBatchSingleChannelAudioTensorAndCopiesIt() {
+        float[][][] output = {{{0.1f, -0.25f, 0.75f}}};
+
+        float[] samples = PiperOnnxEngine.flattenAudioOutput(output);
+        output[0][0][0] = 0.9f;
+
+        assertThat(samples).containsExactly(0.1f, -0.25f, 0.75f);
+    }
+
+    @Test
+    void rejectsEmptyWrongRankAndNonFiniteProviderOutput() {
+        assertThatThrownBy(() -> PiperOnnxEngine.flattenAudioOutput(new float[0][][]))
+                .isInstanceOf(InferenceError.class).hasMessageContaining("shape [1,1,samples]");
+        assertThatThrownBy(() -> PiperOnnxEngine.flattenAudioOutput(new float[][][] {{{}}}))
+                .isInstanceOf(InferenceError.class).hasMessageContaining("shape [1,1,samples]");
+        assertThatThrownBy(() -> PiperOnnxEngine.flattenAudioOutput(new float[][][] {{{0.1f}, {0.2f}}}))
+                .isInstanceOf(InferenceError.class).hasMessageContaining("shape [1,1,samples]");
+        assertThatThrownBy(() -> PiperOnnxEngine.flattenAudioOutput(new float[][] {{0.1f}}))
+                .isInstanceOf(InferenceError.class).hasMessageContaining("shape [1,1,samples]");
+        assertThatThrownBy(() -> PiperOnnxEngine.flattenAudioOutput(new float[][][] {{{Float.NaN}}}))
+                .isInstanceOf(InferenceError.class).hasMessageContaining("non-finite sample");
+    }
 }

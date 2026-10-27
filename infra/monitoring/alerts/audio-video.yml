@@ -224,6 +224,44 @@ groups:
           description: "A fixture-only source timestamp for {{ $labels.service }} is more than 5 minutes old. This validates stale-source alert evaluation only; verify real source freshness through its owning system."
           runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
+  - name: audio_video.provider_profiles
+    rules:
+      - alert: MediaProviderProfileDegraded
+        expr: count by (service, modality) (media_provider_profile_readiness{contract_version="v1"} == 0) > 0
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: provider-profile
+        annotations:
+          summary: "A Media provider profile is degraded"
+          description: "A source-reported provider profile for {{ $labels.service }} ({{ $labels.modality }}) is degraded. Check the provider health source and keep any unqualified capability unavailable."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: MediaProviderProfileUnavailable
+        expr: count by (service, modality) (media_provider_profile_readiness{contract_version="v1"} == -1) > 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: provider-profile
+        annotations:
+          summary: "A Media provider profile is unavailable"
+          description: "A source-reported provider profile for {{ $labels.service }} ({{ $labels.modality }}) is unavailable. Keep the dependent capability closed until its owning provider reports recovery."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      - alert: MediaProviderProfileStale
+        expr: count by (service, modality) (time() - media_provider_profile_checked_at_seconds{contract_version="v1"} > 300) > 0
+        for: 1m
+        labels:
+          severity: warning
+          product: audio-video
+          component: provider-profile
+        annotations:
+          summary: "A Media provider profile health check is stale"
+          description: "The latest provider health check for {{ $labels.service }} ({{ $labels.modality }}) is over five minutes old. Keep dependent capabilities closed until the owning profile reports a fresh check."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
   # -------------------------------------------------------------------------
   # 2. STT (Speech-to-Text) Performance
   # -------------------------------------------------------------------------

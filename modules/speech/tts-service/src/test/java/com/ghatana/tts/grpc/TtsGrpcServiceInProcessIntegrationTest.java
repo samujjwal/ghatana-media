@@ -219,6 +219,8 @@ class TtsGrpcServiceInProcessIntegrationTest {
         ProductionTtsGrpcService service = null;
         try {
             Files.writeString(model, "local authorization fixture model bytes");
+            Files.writeString(Path.of(model.toString() + ".json"),
+                    "{\"phoneme_id_map\":{\"^\":[1],\"$\":[2],\"_\":[0]}}\n");
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(Files.readAllBytes(model)));
             Map<String, String> environment = Map.ofEntries(
@@ -291,6 +293,7 @@ class TtsGrpcServiceInProcessIntegrationTest {
             if (guardedChannel != null) guardedChannel.shutdownNow();
             if (guardedServer != null) guardedServer.shutdownNow();
             if (service != null) service.close();
+            Files.deleteIfExists(Path.of(model.toString() + ".json"));
             Files.deleteIfExists(model);
             if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
             else System.setProperty("AV_JWT_SECRET", previousSecret);

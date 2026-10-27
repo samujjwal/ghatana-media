@@ -14,6 +14,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobAttemptStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderObservation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactContentReader;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaConsentAuthority;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
@@ -449,6 +450,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         if (!artifact.principalId().equals(request.principalId())) {
             throw new SecurityException("Media artifact is not owned by the authenticated principal");
         }
+        requireWave2SourceRightsAdmission(request.jobType());
         List<MediaProcessingProvider> providers = selectProcessingProviders(request);
         MediaProcessingProvider provider = providers.getFirst();
         if (MediaSemanticRedactionRuntime.promotionRequested(request) && !semanticRedaction.available()) {
@@ -579,6 +581,24 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 false, // no authoritative recording-rights adapter is composed in this runtime
                 hasExactSourceClockMetadata(artifact));
         throw notAdmitted(decision);
+    }
+
+    /**
+     * Wave 2 source rights are separate from consent and require an artifact/version-bound
+     * authority. No such production resolver is installed in this composition, so do not create
+     * a job or invoke a provider for these modalities in production-like environments.
+     */
+    private void requireWave2SourceRightsAdmission(
+            com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType) {
+        if (!config.productionLike()) return;
+        if (jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
+                || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.TEXT_TO_SPEECH
+                || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION
+                || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
+                    "authoritative source rights resolver is unavailable");
+        }
     }
 
     private static MediaSpeechToTextAdmission.Request speechRequest(ProcessingJobRequest request) {
@@ -1076,6 +1096,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     private void refreshWorkflowGauges() {
         Instant observedAt = Instant.now();
+        refreshProviderProfileMetrics();
         try {
             long queueDepth = jobStore.countByStatus(JobStatus.ACCEPTED);
             long unknownBacklog = jobStore.countByStatus(JobStatus.OUTCOME_UNKNOWN);
@@ -1093,6 +1114,50 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
 
         refreshWorkflowOutboxGauge(observedAt);
+    }
+
+    /** Poll only provider-declared modality profiles; absent measured quality remains absent. */
+    private void refreshProviderProfileMetrics() {
+        for (MediaProcessingProvider provider : processingProviders) {
+            final List<MediaModalityContracts.CapabilityProfile> profiles;
+            try {
+                profiles = provider.capabilityProfiles();
+            } catch (RuntimeException failure) {
+                log.warn("Media provider profile poll failed provider={} failureType={}",
+                        safeText(provider::providerId, "unknown"), failure.getClass().getSimpleName());
+                continue;
+            }
+            if (profiles == null) continue;
+            for (MediaModalityContracts.CapabilityProfile profile : profiles) {
+                if (profile == null || profile.modelVersions().isEmpty()) continue;
+                MediaWorkflowMetrics.Modality modality = switch (profile.modality()) {
+                    case SPEECH_TO_TEXT -> MediaWorkflowMetrics.Modality.STT;
+                    case TEXT_TO_SPEECH -> MediaWorkflowMetrics.Modality.TTS;
+                    case VISION -> MediaWorkflowMetrics.Modality.VISION;
+                    case MULTIMODAL -> MediaWorkflowMetrics.Modality.MULTIMODAL;
+                    case TRANSCODE -> null;
+                };
+                if (modality == null) continue;
+                var readiness = switch (profile.health().status()) {
+                    case HEALTHY -> MediaWorkflowMetrics.ProviderReadiness.HEALTHY;
+                    case DEGRADED -> MediaWorkflowMetrics.ProviderReadiness.DEGRADED;
+                    case UNAVAILABLE -> MediaWorkflowMetrics.ProviderReadiness.UNAVAILABLE;
+                };
+                for (String modelRevision : profile.modelVersions()) {
+                    try {
+                        workflowMetrics.recordProviderProfile(modality,
+                                new MediaWorkflowMetrics.ProviderProfileObservation(
+                                        profile.providerId(), profile.providerVersion(),
+                                        profile.modality().name().toLowerCase(java.util.Locale.ROOT),
+                                        modelRevision, readiness, profile.health().checkedAt(), null));
+                    } catch (IllegalArgumentException invalidMetricIdentity) {
+                        log.warn("Media provider profile omitted from metrics provider={} modality={} reason={}",
+                                safeValue(profile.providerId(), "unknown"), profile.modality().name(),
+                                invalidMetricIdentity.getMessage());
+                    }
+                }
+            }
+        }
     }
 
     private void refreshWorkflowOutboxGauge(Instant observedAt) {
@@ -1733,7 +1798,33 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         provider.processingRegion(), provider.providerDataRetention(),
                         artifact.classification(), requestsBiometricProcessing(request.parameters()));
             }
-            ProcessingContext context = new ProcessingContext(request, artifact, cancellation, consent);
+            MediaArtifactContentReader sourceContentReader = (target, maxBytes) -> {
+                // Source ownership, exact-version and checksum are enforced by the store below.
+                // Production source rights require a separate authoritative Media rights resolver,
+                // which is not installed in this composition. Keep source bytes unavailable until
+                // that X07 authority exists; test/development fixture execution remains available.
+                if (config.productionLike()) {
+                    throw new MediaCapabilityNotAdmittedException(
+                            MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SOURCE_ARTIFACT",
+                            "authoritative source rights resolver is unavailable");
+                }
+                ConsentDecision currentConsent = consentFor(
+                        request.tenantId(), request.principalId(), request.governanceContext(),
+                        "source-read:" + request.jobType().name(), provider.processingBoundary(),
+                        provider.processingRegion(), provider.providerDataRetention());
+                if (provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
+                    requireExternalEffectAuthorization(request.governanceContext(), currentConsent,
+                            provider.processingRegion(), provider.providerDataRetention(),
+                            artifact.classification(), requestsBiometricProcessing(request.parameters()));
+                }
+                return artifactStore.copyContent(request.tenantId(), request.principalId(), artifact.artifactId(),
+                                artifact.version(), target, maxBytes)
+                        .orElseThrow(() -> new MediaCapabilityNotAdmittedException(
+                                MediaCapabilityNotAdmittedException.Reason.SOURCE_VERSION_STALE,
+                                "SOURCE_ARTIFACT"));
+            };
+            ProcessingContext context = new ProcessingContext(
+                    request, artifact, cancellation, consent, sourceContentReader);
             if (attempt == null) {
                 raw = java.util.Objects.requireNonNull(provider.process(context),
                         "Media provider returned a null future");

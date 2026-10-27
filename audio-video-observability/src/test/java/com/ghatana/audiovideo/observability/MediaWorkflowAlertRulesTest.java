@@ -39,7 +39,7 @@ class MediaWorkflowAlertRulesTest {
                 "contract_version=\"v1\"");
         assertThat(rules).doesNotContain(
                 "tenant_id", "principal_id", "request_id", "job_id", "attempt_id",
-                "provider_id", "model_id", "voice_id", "face_id", "token");
+                "model_id", "voice_id", "face_id", "token");
     }
 
     @Test
@@ -112,7 +112,7 @@ class MediaWorkflowAlertRulesTest {
     }
 
     @Test
-    void providerReadinessAlertsAreModalitySpecificAndQualityHasNoAlertRule() throws IOException {
+    void providerReadinessAlertsAreModalitySpecificAndQualityRemainsFixtureOnly() throws IOException {
         Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
         Path operationsPath = Path.of("..", "docs", "OPERATIONS.md");
         String rules = Files.readString(rulesPath);
@@ -125,7 +125,10 @@ class MediaWorkflowAlertRulesTest {
                         "alert: VisionProviderNotReady", "av_service_readiness{service=\"vision\"} == 0",
                         "component: vision", "alert: MultimodalProviderNotReady",
                         "av_service_readiness{service=\"multimodal\"} == 0", "component: multimodal")
-                .doesNotContain("alert: MediaQualityRegression", "media_provider_health", "media_model_quality");
+                .contains("alert: MediaProviderProfileDegraded", "alert: MediaProviderProfileUnavailable",
+                        "alert: MediaProviderProfileStale",
+                        "media_provider_profile_readiness{contract_version=\"v1\"}")
+                .doesNotContain("alert: MediaQualityRegression", "alert: MediaModelQualityRegression\n");
         assertThat(operations).contains(
                 "`av_service_readiness{service=\"stt|tts|vision|multimodal\"}`",
                 "Modality-specific provider-not-ready alerts fire only when an observed readiness",
@@ -182,7 +185,7 @@ class MediaWorkflowAlertRulesTest {
                     "severity: warning\n          product: audio-video\n          component: " + service,
                     "readiness gauge is NaN", "Treat provider state as unknown");
         });
-        assertThat(rules).doesNotContain("provider_id", "model_id", "tenant_id", "request_id");
+        assertThat(rules).doesNotContain("model_id", "tenant_id", "request_id");
     }
 
     @Test
@@ -225,6 +228,8 @@ class MediaWorkflowAlertRulesTest {
                 "name: reachable-target-nan-readiness-is-invalid-not-missing-or-unavailable",
                 "name: readiness-zero-is-unavailable-not-missing",
                 "name: down-target-does-not-report-stale-provider-status",
+                "name: provider-profile-health-alerts-fire-and-recover-with-fixed-labels",
+                "name: provider-profile-stale-health-check-alerts-and-recovers",
                 "alertname: SttReadinessTelemetryMissing",
                 "alertname: TtsReadinessTelemetryMissing",
                 "alertname: VisionReadinessTelemetryMissing",
@@ -233,6 +238,9 @@ class MediaWorkflowAlertRulesTest {
                 "alertname: TtsReadinessTelemetryInvalid",
                 "alertname: VisionReadinessTelemetryInvalid",
                 "alertname: MultimodalReadinessTelemetryInvalid",
+                "alertname: MediaProviderProfileDegraded",
+                "alertname: MediaProviderProfileUnavailable",
+                "alertname: MediaProviderProfileStale",
                 "values: '0x3'",
                 "values: 1x3",
                 "values: NaN NaN NaN",
@@ -248,6 +256,9 @@ class MediaWorkflowAlertRulesTest {
         String fixture = Files.readString(fixturePath);
 
         assertThat(rules).contains(
+                "alert: MediaProviderProfileDegraded",
+                "alert: MediaProviderProfileUnavailable",
+                "alert: MediaProviderProfileStale",
                 "alert: MediaModelQualityRegressionFixture",
                 "av_model_quality_regression{source=\"fixture\"} == 1",
                 "alert: MediaProviderSourceStaleFixture",
@@ -264,7 +275,7 @@ class MediaWorkflowAlertRulesTest {
                 "values: 0x11",
                 "values: 590x11");
         assertThat(rules).doesNotContain("tenant_id", "principal_id", "request_id", "job_id",
-                "attempt_id", "provider_id", "model_id", "voice_id", "face_id", "token");
+                "attempt_id", "model_id", "voice_id", "face_id", "token");
         assertThat(fixture).doesNotContain("tenant-987", "request-654", "private-media-marker");
     }
 

@@ -479,6 +479,29 @@ public final class MediaRuntimeContracts {
         public ArtifactVersion version() { return ArtifactVersion.fromSha256(sha256); }
     }
 
+    /** Receipt returned only after the complete content stream matches the immutable artifact version. */
+    public record ArtifactContentReadReceipt(ArtifactVersion version, String sha256, long bytesCopied) {
+        public ArtifactContentReadReceipt {
+            version = java.util.Objects.requireNonNull(version, "version");
+            sha256 = requireSha256(sha256);
+            if (!version.equals(ArtifactVersion.fromSha256(sha256))) {
+                throw new IllegalArgumentException("content receipt version must match its SHA-256");
+            }
+            if (bytesCopied < 1) throw new IllegalArgumentException("bytesCopied must be positive");
+        }
+    }
+
+    /** Narrow source-byte capability bound to the principal, artifact, and version of one admitted job. */
+    @FunctionalInterface
+    public interface MediaArtifactContentReader {
+        /**
+         * Copies the full source to a caller-owned staging sink under a hard byte ceiling.
+         * The caller may use the staged bytes only after this method returns its integrity receipt.
+         */
+        ArtifactContentReadReceipt copyTo(java.io.OutputStream target, long maxBytes)
+                throws java.io.IOException;
+    }
+
     /** Provenance required to register a derived version without mutating its source. */
     public record ArtifactLineage(
             String tenantId, String sourceArtifactId, ArtifactVersion sourceVersion,
@@ -991,6 +1014,16 @@ public final class MediaRuntimeContracts {
             return artifact(tenantId, artifactId)
                     .filter(value -> expectedVersion.equals(value.version()));
         }
+        /**
+         * Bounded, principal-scoped streaming read of exact immutable source bytes. Store adapters
+         * must verify tenant, owner, version, byte ceiling, final byte count, and SHA-256 before
+         * returning a receipt. Purpose/rights/consent admission remains the runtime's responsibility.
+         */
+        default Optional<ArtifactContentReadReceipt> copyContent(
+                String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+                java.io.OutputStream target, long maxBytes) throws java.io.IOException {
+            throw new UnsupportedOperationException("Verified artifact content reads are not supported by this store");
+        }
         /** Atomically register a new immutable derived artifact and its exact source lineage. */
         default MediaArtifact registerDerived(
                 MediaArtifact derivedArtifact, ArtifactLineage lineage) {
@@ -1302,15 +1335,30 @@ public final class MediaRuntimeContracts {
             ProcessingJobRequest request,
             MediaArtifact artifact,
             Cancellation cancellation,
-            ConsentDecision consentDecision) {
+            ConsentDecision consentDecision,
+            MediaArtifactContentReader sourceContentReader) {
         public ProcessingContext {
             java.util.Objects.requireNonNull(request, "request");
             java.util.Objects.requireNonNull(artifact, "artifact");
             java.util.Objects.requireNonNull(cancellation, "cancellation");
             consentDecision = consentDecision == null ? ConsentDecision.unverified() : consentDecision;
         }
+        public ProcessingContext(
+                ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
+                ConsentDecision consentDecision) {
+            this(request, artifact, cancellation, consentDecision, null);
+        }
         public ProcessingContext(ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation) {
-            this(request, artifact, cancellation, ConsentDecision.unverified());
+            this(request, artifact, cancellation, ConsentDecision.unverified(), null);
+        }
+
+        /** Copy verified source bytes to bounded staging; contexts without an admitted reader fail closed. */
+        public ArtifactContentReadReceipt copySourceContentTo(java.io.OutputStream target, long maxBytes)
+                throws java.io.IOException {
+            if (sourceContentReader == null) {
+                throw new IllegalStateException("MEDIA_SOURCE_CONTENT_NOT_ADMITTED: verified source reader is unavailable");
+            }
+            return sourceContentReader.copyTo(target, maxBytes);
         }
     }
 

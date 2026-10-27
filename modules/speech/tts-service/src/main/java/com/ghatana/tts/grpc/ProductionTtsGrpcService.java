@@ -37,12 +37,13 @@ import java.util.function.Function;
 public final class ProductionTtsGrpcService extends TtsGrpcService implements AutoCloseable {
 
     record ProviderProfile(
-            String modelId, String modelVersion, String modelDigest, String license,
+            String modelId, String modelVersion, String modelDigest, String voiceSidecarDigest, String license,
             String language, String region, String retention, String hardware,
             String status, String reason, TtsProviderAdmission.Decision admission) {}
 
     private record RuntimeConfiguration(
-            TtsConfig config, TtsProviderAdmission.Decision admission, String language) {}
+            TtsConfig config, TtsProviderAdmission.Decision admission, String language,
+            Path voiceSidecarPath, String voiceSidecarDigest) {}
     private record InitializedRuntime(
             AudioVideoLibrary library, TtsProviderAdmission.Decision admission,
             String voiceId, String language) {}
@@ -334,17 +335,27 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         String rawPath = environment.get("TTS_MODEL_PATH").trim();
         if (!digest.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("TTS_MODEL_SHA256 must be a SHA-256 digest");
         Path path = Path.of(rawPath);
-        if (containsSymbolicLink(path) || !Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)
+        if (!path.isAbsolute() || !path.normalize().equals(path) || containsSymbolicLink(path)
+                || !Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)
                 || !Files.isReadable(path)) {
-            return notAdmitted("Configured model file is unavailable or not a regular readable file");
+            return notAdmitted(
+                    "Configured model path must be an absolute, normalized, non-symbolic regular readable provider asset");
         }
         if (!digest.equals(fileDigest(path, beforeModelHash))) {
             throw new IllegalArgumentException("TTS model digest does not match TTS_MODEL_SHA256");
         }
+        Path voiceSidecar = voiceSidecarPath(path);
+        if (containsSymbolicLink(voiceSidecar)
+                || !Files.isRegularFile(voiceSidecar, LinkOption.NOFOLLOW_LINKS)
+                || !Files.isReadable(voiceSidecar)) {
+            return notAdmitted("Configured Piper voice sidecar is unavailable or not a regular readable file");
+        }
+        String voiceSidecarDigest = fileDigest(voiceSidecar, ignored -> {}, 16L * 1024 * 1024);
         String defaultVoice = requireText(
                 environment.getOrDefault("TTS_DEFAULT_VOICE", "piper-en"), "TTS_DEFAULT_VOICE");
         TtsProviderAdmission.Candidate candidate = new TtsProviderAdmission.Candidate(
-                mode, modelId, version, digest, license, language, region, retention, hardware, defaultVoice);
+                mode, modelId, version, digest, voiceSidecarDigest, license, language, region,
+                retention, hardware, defaultVoice);
         TtsProviderAdmission.Decision decision;
         try {
             decision = admissionResolver.resolve(candidate);
@@ -361,19 +372,29 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             String reason = decision.reason() == null
                     ? "trusted source admission for synthesis is unavailable"
                     : decision.reason();
-            return new ProviderProfile(modelId, version, digest, license, language, region, retention, hardware,
+            return new ProviderProfile(modelId, version, digest, voiceSidecarDigest, license,
+                    language, region, retention, hardware,
                     "NOT_ADMITTED", reason, decision);
         }
-        return new ProviderProfile(modelId, version, digest, license, language, region, retention, hardware,
+        return new ProviderProfile(modelId, version, digest, voiceSidecarDigest, license,
+                language, region, retention, hardware,
                 "ADMITTED", decision.reason(), decision);
     }
 
     private static ProviderProfile notAdmitted(String reason) {
-        return new ProviderProfile(null, null, null, null, null, null, null, null, "NOT_ADMITTED", reason,
+        return new ProviderProfile(null, null, null, null, null, null, null, null, null, "NOT_ADMITTED", reason,
                 new TtsProviderAdmission.Decision(Set.of(), null, reason));
     }
 
+    private static Path voiceSidecarPath(Path modelPath) {
+        return modelPath.resolveSibling(modelPath.getFileName().toString() + ".json");
+    }
+
     private static String fileDigest(Path path, Consumer<FileChannel> beforeHash) {
+        return fileDigest(path, beforeHash, Long.MAX_VALUE);
+    }
+
+    private static String fileDigest(Path path, Consumer<FileChannel> beforeHash, long maxBytes) {
         Path absolute = path.toAbsolutePath().normalize();
         try {
             if (containsSymbolicLink(absolute)) {
@@ -383,10 +404,16 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             if (!before.isRegularFile() || before.fileKey() == null) {
                 throw new IllegalArgumentException("Configured model file identity is unavailable");
             }
+            if (before.size() > maxBytes) {
+                throw new IllegalArgumentException("Configured TTS profile asset exceeds its size bound");
+            }
             try (FileChannel channel = FileChannel.open(
                     absolute, Set.of(StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS))) {
                 BasicFileAttributes opened = readModelAttributes(absolute);
                 requireStableModelFile(before, opened, channel.size());
+                if (channel.size() > maxBytes) {
+                    throw new IllegalArgumentException("Configured TTS profile asset exceeds its size bound");
+                }
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
                 beforeHash.accept(channel);
                 channel.position(0);
@@ -398,6 +425,9 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
                 }
                 BasicFileAttributes after = readModelAttributes(absolute);
                 requireStableModelFile(before, after, channel.size());
+                if (channel.size() > maxBytes) {
+                    throw new IllegalArgumentException("Configured TTS profile asset exceeds its size bound");
+                }
                 if (containsSymbolicLink(absolute)) {
                     throw new IllegalArgumentException("Configured model path changed to a symbolic link during verification");
                 }
@@ -432,18 +462,9 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         Path current = absolute.getRoot();
         for (Path component : absolute) {
             current = current == null ? component : current.resolve(component);
-            if (Files.isSymbolicLink(current) && !isCanonicalMacOsTmpAlias(current)) return true;
+            if (Files.isSymbolicLink(current)) return true;
         }
         return false;
-    }
-
-    private static boolean isCanonicalMacOsTmpAlias(Path path) {
-        if (!path.equals(Path.of("/tmp"))) return false;
-        try {
-            return Files.isSymbolicLink(path) && path.toRealPath().equals(Path.of("/private/tmp"));
-        } catch (java.io.IOException unavailable) {
-            return false;
-        }
     }
 
     static AudioVideoLibrary createInitializedLibrary(
@@ -477,10 +498,13 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         Objects.requireNonNull(environment, "environment");
         Objects.requireNonNull(libraryFactory, "libraryFactory");
         RuntimeConfiguration runtime = resolveConfiguration(environment, admissionResolver, beforeModelHash);
+        verifyVoiceSidecar(runtime);
         AudioVideoLibrary library = Objects.requireNonNull(
                 libraryFactory.apply(runtime.config()), "libraryFactory returned null");
         try {
+            verifyVoiceSidecar(runtime);
             library.getTtsEngine().warmup();
+            verifyVoiceSidecar(runtime);
             return new InitializedRuntime(library, runtime.admission(), runtime.config().defaultVoiceId(),
                     runtime.language());
         } catch (RuntimeException exception) {
@@ -521,7 +545,26 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             effectiveAdmission = new TtsProviderAdmission.Decision(
                     effectiveCapabilities, effectiveAdmission.authorityReference(), effectiveAdmission.reason());
         }
-        return new RuntimeConfiguration(config, effectiveAdmission, provider.language());
+        return new RuntimeConfiguration(config, effectiveAdmission, provider.language(),
+                voiceSidecarPath(Path.of(environment.get("TTS_MODEL_PATH"))), provider.voiceSidecarDigest());
+    }
+
+    private static void verifyVoiceSidecar(RuntimeConfiguration runtime) {
+        try {
+            if (containsSymbolicLink(runtime.voiceSidecarPath())
+                    || !Files.isRegularFile(runtime.voiceSidecarPath(), LinkOption.NOFOLLOW_LINKS)
+                    || !runtime.voiceSidecarDigest().equals(
+                            fileDigest(runtime.voiceSidecarPath(), ignored -> {}, 16L * 1024 * 1024))) {
+                throw new IllegalStateException("TTS_VOICE_SIDECAR_CHANGED: verified voice sidecar is unavailable");
+            }
+        } catch (RuntimeException failure) {
+            if (failure instanceof IllegalStateException illegal
+                    && illegal.getMessage() != null
+                    && illegal.getMessage().startsWith("TTS_VOICE_SIDECAR_CHANGED")) {
+                throw illegal;
+            }
+            throw new IllegalStateException("TTS_VOICE_SIDECAR_CHANGED: verified voice sidecar is unavailable", failure);
+        }
     }
 
     static boolean matchesAdmittedProfile(

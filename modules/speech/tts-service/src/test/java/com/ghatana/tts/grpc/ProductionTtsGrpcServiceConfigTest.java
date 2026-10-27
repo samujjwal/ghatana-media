@@ -65,6 +65,7 @@ class ProductionTtsGrpcServiceConfigTest {
         Path model = createModelFile("tts-model");
         try {
             Files.writeString(model, "fixture model bytes");
+            writeFixtureSidecar(model);
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(Files.readAllBytes(model)));
             Map<String, String> environment = localProfile(model, digest);
@@ -78,7 +79,7 @@ class ProductionTtsGrpcServiceConfigTest {
             assertRejectedBeforeInitialization(environment, IllegalStateException.class,
                     "TTS_PROVIDER_NOT_ADMITTED");
         } finally {
-            Files.deleteIfExists(model);
+            deleteModelFixture(model);
         }
     }
 
@@ -97,11 +98,14 @@ class ProductionTtsGrpcServiceConfigTest {
                 com.ghatana.tts.engine.TtsSynthesisEngine.FailureReason.NOT_ADMITTED));
         try {
             Files.writeString(model, "local fixture model bytes");
+            writeFixtureSidecar(model);
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(Files.readAllBytes(model)));
+            String sidecarDigest = fixtureSidecarDigest(model);
             Map<String, String> environment = localProfile(model, digest);
             TtsProviderAdmission localFixtureResolver = candidate -> {
                 assertThat(candidate.modelDigest()).isEqualTo(digest);
+                assertThat(candidate.voiceSidecarDigest()).isEqualTo(sidecarDigest);
                 assertThat(candidate.defaultVoiceId()).isEqualTo("piper-en");
                 return new TtsProviderAdmission.Decision(
                         java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
@@ -153,7 +157,7 @@ class ProductionTtsGrpcServiceConfigTest {
                 service.close();
             }
         } finally {
-            Files.deleteIfExists(model);
+            deleteModelFixture(model);
         }
     }
 
@@ -172,11 +176,68 @@ class ProductionTtsGrpcServiceConfigTest {
         Path model = createModelFile("tts-model-mismatch");
         try {
             Files.writeString(model, "immutable fixture model bytes");
+            writeFixtureSidecar(model);
             Map<String, String> environment = localProfile(model, "0".repeat(64));
             assertRejectedBeforeInitialization(environment, IllegalArgumentException.class,
                     "does not match TTS_MODEL_SHA256");
         } finally {
-            Files.deleteIfExists(model);
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
+    void missingVoiceSidecarCannotReachTrustedProviderResolver() throws Exception {
+        Path model = createModelFile("tts-model-without-voice-sidecar");
+        try {
+            Files.writeString(model, "fixture model bytes");
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            Map<String, String> environment = localProfile(model, digest);
+            Files.deleteIfExists(Path.of(model.toString() + ".json"));
+            AtomicInteger resolverCalls = new AtomicInteger();
+
+            var profile = ProductionTtsGrpcService.resolveProviderProfile(environment, candidate -> {
+                resolverCalls.incrementAndGet();
+                return new TtsProviderAdmission.Decision(java.util.Set.of(), null, "unexpected");
+            });
+
+            assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+            assertThat(profile.reason()).contains("voice sidecar", "unavailable");
+            assertThat(resolverCalls).hasValue(0);
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
+    void sidecarReplacementDuringProviderInitializationPreventsServiceExposure() throws Exception {
+        Path model = createModelFile("tts-model-sidecar-race");
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        TtsEngine engine = mock(TtsEngine.class);
+        when(library.getTtsEngine()).thenReturn(engine);
+        try {
+            Files.writeString(model, "fixture model bytes");
+            Map<String, String> environment = localProfile(model, HexFormat.of().formatHex(
+                    MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(model))));
+            var admission = (TtsProviderAdmission) candidate -> new TtsProviderAdmission.Decision(
+                    java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                    "local-fixture-resolver:test-only", "controlled fixture only");
+
+            assertThatThrownBy(() -> new ProductionTtsGrpcService(environment, new SimpleMeterRegistry(),
+                    admission, config -> {
+                        try {
+                            Files.writeString(Path.of(model.toString() + ".json"),
+                                    "{\"phoneme_id_map\":{\"^\":[9],\"$\":[8],\"_\":[7]}}\n");
+                        } catch (java.io.IOException failure) {
+                            throw new java.io.UncheckedIOException(failure);
+                        }
+                        return library;
+                    }))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("TTS_VOICE_SIDECAR_CHANGED");
+            org.mockito.Mockito.verify(library).close();
+        } finally {
+            deleteModelFixture(model);
         }
     }
 
@@ -196,38 +257,40 @@ class ProductionTtsGrpcServiceConfigTest {
         Path aliasDirectory = root.resolve("alias");
         try {
             Files.writeString(model, "model bytes behind a directory alias");
+            writeFixtureSidecar(model);
             Files.createSymbolicLink(aliasDirectory, targetDirectory);
             Path aliasedModel = aliasDirectory.resolve("model.onnx");
             Map<String, String> environment = localProfile(aliasedModel, "0".repeat(64));
 
             var profile = ProductionTtsGrpcService.resolveProviderProfile(environment);
             assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
-            assertThat(profile.reason()).contains("unavailable", "regular readable file");
+            assertThat(profile.reason()).contains("absolute", "normalized", "non-symbolic", "provider asset");
             assertRejectedBeforeInitialization(environment, IllegalStateException.class,
                     "TTS_PROVIDER_NOT_ADMITTED");
         } finally {
             Files.deleteIfExists(aliasDirectory);
-            Files.deleteIfExists(model);
+            deleteModelFixture(model);
             Files.deleteIfExists(targetDirectory);
             Files.deleteIfExists(root);
         }
     }
 
     @Test
-    void permitsOnlyCanonicalMacOsTmpSystemAlias() throws Exception {
+    void rejectsMacOsTmpAliasInsteadOfAllowingAnOperatingSystemSpecificModelPath() throws Exception {
         Path tmpAlias = Path.of("/tmp");
         assumeTrue(Files.isSymbolicLink(tmpAlias)
                 && tmpAlias.toRealPath().equals(Path.of("/private/tmp")));
         Path model = Files.createTempFile(tmpAlias, "tts-model-canonical-tmp", ".onnx");
         try {
             Files.writeString(model, "model bytes through the canonical system alias");
+            writeFixtureSidecar(model);
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(Files.readAllBytes(model)));
             var profile = ProductionTtsGrpcService.resolveProviderProfile(localProfile(model, digest));
-            assertThat(profile.modelId()).isEqualTo("fixture-model");
             assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+            assertThat(profile.reason()).contains("absolute", "normalized", "non-symbolic", "provider asset");
         } finally {
-            Files.deleteIfExists(model);
+            deleteModelFixture(model);
         }
     }
 
@@ -236,6 +299,7 @@ class ProductionTtsGrpcServiceConfigTest {
         Path model = createModelFile("tts-model-changing");
         try {
             Files.writeString(model, "stable model bytes before verification");
+            writeFixtureSidecar(model);
             Map<String, String> environment = localProfile(model, "0".repeat(64));
             assertRejectedBeforeInitialization(environment, IllegalArgumentException.class,
                     "changed during digest verification", channel -> {
@@ -247,7 +311,7 @@ class ProductionTtsGrpcServiceConfigTest {
                         }
                     });
         } finally {
-            Files.deleteIfExists(model);
+            deleteModelFixture(model);
         }
     }
 
@@ -258,6 +322,7 @@ class ProductionTtsGrpcServiceConfigTest {
         try {
             Files.writeString(model, "original model bytes for hashing");
             Files.writeString(replacement, "replacement model bytes");
+            writeFixtureSidecar(model);
             Map<String, String> environment = localProfile(model, "0".repeat(64));
             assertRejectedBeforeInitialization(environment, IllegalArgumentException.class,
                     "changed during digest verification", ignored -> {
@@ -269,7 +334,7 @@ class ProductionTtsGrpcServiceConfigTest {
                     });
         } finally {
             Files.deleteIfExists(replacement);
-            Files.deleteIfExists(model);
+            deleteModelFixture(model);
         }
     }
 
@@ -298,6 +363,9 @@ class ProductionTtsGrpcServiceConfigTest {
     }
 
     private static Map<String, String> localProfile(Path model, String digest) {
+        if (Files.isRegularFile(model, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+            writeFixtureSidecar(model);
+        }
         return Map.of(
                 "TTS_PROVIDER_MODE", "LOCAL_ONNX",
                 "TTS_MODEL_PATH", model.toString(),
@@ -309,6 +377,25 @@ class ProductionTtsGrpcServiceConfigTest {
                 "TTS_MODEL_REGION", "test-fixture-region",
                 "TTS_MODEL_RETENTION", "test-fixture-policy-placeholder",
                 "TTS_MODEL_HARDWARE", "test-fixture-hardware-placeholder");
+    }
+
+    private static void writeFixtureSidecar(Path model) {
+        Path sidecar = Path.of(model.toString() + ".json");
+        try {
+            Files.writeString(sidecar, "{\"phoneme_id_map\":{\"^\":[1],\"$\":[2],\"_\":[0]}}\n");
+        } catch (java.io.IOException failure) {
+            throw new java.io.UncheckedIOException(failure);
+        }
+    }
+
+    private static String fixtureSidecarDigest(Path model) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(Files.readAllBytes(Path.of(model.toString() + ".json"))));
+    }
+
+    private static void deleteModelFixture(Path model) throws java.io.IOException {
+        Files.deleteIfExists(Path.of(model.toString() + ".json"));
+        Files.deleteIfExists(model);
     }
 
     private static Path createModelFile(String prefix) throws java.io.IOException {

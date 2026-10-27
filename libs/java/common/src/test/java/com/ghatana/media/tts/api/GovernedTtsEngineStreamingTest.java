@@ -94,12 +94,16 @@ class GovernedTtsEngineStreamingTest {
     void cancellationCancelsTheDelegatedProviderSession() throws Exception {
         TtsEngine delegate = mock(TtsEngine.class);
         AtomicBoolean providerCancelled = new AtomicBoolean();
+        CountDownLatch providerCancellationObserved = new CountDownLatch(1);
         CompletableFuture<Void> providerCompletion = new CompletableFuture<>();
         CountDownLatch providerStarted = new CountDownLatch(1);
         when(delegate.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
             providerStarted.countDown();
             return TtsStreamingSession.create(new AtomicBoolean(), providerCompletion,
-                    () -> providerCancelled.set(true));
+                    () -> {
+                        providerCancelled.set(true);
+                        providerCancellationObserved.countDown();
+                    });
         });
         GovernedTtsEngine engine = new GovernedTtsEngine(delegate, config(8));
 
@@ -109,6 +113,10 @@ class GovernedTtsEngineStreamingTest {
             assertThat(providerStarted.await(1, TimeUnit.SECONDS)).isTrue();
             assertThat(session.cancel()).isTrue();
             assertThat(session.isCancelled()).isTrue();
+            // If cancel races with provider startup, GovernedTtsEngine cancels the session
+            // immediately after startStreaming returns; observe that bounded handoff instead
+            // of assuming the provider has already returned at the instant cancel() is called.
+            assertThat(providerCancellationObserved.await(1, TimeUnit.SECONDS)).isTrue();
             assertThat(providerCancelled).isTrue();
             assertThat(session.completion()).isCancelled();
         } finally {

@@ -122,8 +122,7 @@ public class CrossModalFusionEngine {
             String sourceId, String sourceVersion, String frameVersion,
             int x, int y, int width, int height) {
         public RegionFrame {
-            if (sourceId == null || sourceId.isBlank() || sourceVersion == null || sourceVersion.isBlank()
-                    || frameVersion == null || frameVersion.isBlank()) {
+            if (!boundedIdentity(sourceId) || !boundedIdentity(sourceVersion) || !boundedIdentity(frameVersion)) {
                 throw new IllegalArgumentException("Region source and frame versions are required");
             }
             if (x < 0 || y < 0 || width <= 0 || height <= 0) {
@@ -152,6 +151,9 @@ public class CrossModalFusionEngine {
             Objects.requireNonNull(synchronizationDisposition, "synchronizationDisposition");
             if (fusion.isPresent() == (abstentionReason != null)) {
                 throw new IllegalArgumentException("Outcome must contain either fusion or abstention reason");
+            }
+            if (abstentionReason != null && abstentionReason.isBlank()) {
+                throw new IllegalArgumentException("Abstention reason must not be blank");
             }
         }
     }
@@ -224,7 +226,10 @@ public class CrossModalFusionEngine {
         if (audioRegion == null || visualRegion == null || !audioRegion.equals(visualRegion)) {
             return abstain("SOURCE_FRAME_OR_REGION_MISMATCH");
         }
-        if (audioTime == null || visualTime == null || !audioTime.sharesClock(visualTime)
+        if (audioTime == null || visualTime == null
+                || audioTime.domain() != com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE
+                || visualTime.domain() != com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE
+                || !audioTime.sharesClock(visualTime)
                 || !sameInstant(audioTime, visualTime)) {
             return abstain("SYNC_UNDETERMINED");
         }
@@ -240,6 +245,10 @@ public class CrossModalFusionEngine {
     private FusionOutcome abstain(String reason) {
         return new FusionOutcome(Optional.empty(), ConfidenceDisposition.HEURISTIC_UNCALIBRATED,
                 SynchronizationDisposition.SYNC_UNDETERMINED, reason);
+    }
+
+    private static boolean boundedIdentity(String value) {
+        return value != null && !value.isBlank() && value.length() <= 256;
     }
 
     private boolean sameInstant(

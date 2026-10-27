@@ -2,6 +2,7 @@ package com.ghatana.media.provider.aws;
 
 import tools.jackson.core.type.TypeReference;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactLineage;
@@ -31,6 +32,8 @@ import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 import software.amazon.awssdk.services.s3.model.UploadPartRequest;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.sql.Connection;
@@ -615,6 +618,61 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         } catch (SQLException failure) {
             throw databaseFailure("read version-pinned Media artifact", failure);
         }
+    }
+
+    @Override
+    public Optional<ArtifactContentReadReceipt> copyContent(
+            String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+            OutputStream target, long maxBytes) throws IOException {
+        ensureOpen();
+        require(tenantId, "tenantId");
+        require(principalId, "principalId");
+        require(artifactId, "artifactId");
+        java.util.Objects.requireNonNull(expectedVersion, "expectedVersion");
+        java.util.Objects.requireNonNull(target, "target");
+        if (maxBytes < 1) throw new IllegalArgumentException("maxBytes must be positive");
+
+        MediaArtifact artifact = artifact(tenantId, artifactId, expectedVersion).orElse(null);
+        if (artifact == null || !artifact.principalId().equals(principalId)) return Optional.empty();
+        if (artifact.sizeBytes() > maxBytes) {
+            throw new IllegalArgumentException("MEDIA_ARTIFACT_READ_LIMIT: source exceeds the requested byte ceiling");
+        }
+
+        String bucketPrefix = "s3://" + state.bucket() + "/";
+        if (!artifact.objectReference().startsWith(bucketPrefix)
+                || artifact.objectReference().length() == bucketPrefix.length()) {
+            throw new SecurityException("Artifact object reference is outside the configured Media bucket");
+        }
+        String objectKey = artifact.objectReference().substring(bucketPrefix.length());
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
+        long copied = 0;
+        byte[] buffer = new byte[64 * 1024];
+        try (ResponseInputStream<GetObjectResponse> object = state.s3().getObject(GetObjectRequest.builder()
+                .bucket(state.bucket()).key(objectKey).build())) {
+            int read;
+            while ((read = object.read(buffer)) != -1) {
+                copied = Math.addExact(copied, read);
+                if (copied > maxBytes || copied > artifact.sizeBytes()) {
+                    throw new IOException("Stored Media artifact exceeded its immutable byte ceiling");
+                }
+                digest.update(buffer, 0, read);
+                target.write(buffer, 0, read);
+            }
+        } catch (ArithmeticException overflow) {
+            throw new IOException("Media artifact byte count overflow", overflow);
+        } catch (RuntimeException failure) {
+            throw new IOException("Unable to read exact Media artifact source bytes", failure);
+        }
+        String actualSha256 = HexFormat.of().formatHex(digest.digest());
+        if (copied != artifact.sizeBytes() || !actualSha256.equals(artifact.sha256())) {
+            throw new SecurityException("Artifact object bytes do not match the requested immutable version");
+        }
+        return Optional.of(new ArtifactContentReadReceipt(expectedVersion, actualSha256, copied));
     }
 
     @Override public boolean durable() { return true; }

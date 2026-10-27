@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.time.Instant;
 
 /**
  * Bounded-cardinality metrics for Media job processing and delivery.
@@ -86,6 +87,38 @@ public final class MediaWorkflowMetrics {
         }
     }
 
+    /** Provider readiness vocabulary exported without tenant or request identity. */
+    public enum ProviderReadiness {
+        HEALTHY,
+        DEGRADED,
+        UNAVAILABLE
+    }
+
+    /**
+     * Source-owned provider/profile observation. Quality freshness is NaN when no real quality
+     * observation exists; a readiness check alone never fabricates model quality.
+     */
+    public record ProviderProfileObservation(
+            String providerId,
+            String providerVersion,
+            String modelProfile,
+            String modelRevision,
+            ProviderReadiness readiness,
+            Instant checkedAt,
+            Instant qualityObservedAt) {
+        public ProviderProfileObservation {
+            providerId = metricIdentity(providerId, "providerId");
+            providerVersion = metricIdentity(providerVersion, "providerVersion");
+            modelProfile = metricIdentity(modelProfile, "modelProfile");
+            modelRevision = metricIdentity(modelRevision, "modelRevision");
+            java.util.Objects.requireNonNull(readiness, "readiness");
+            java.util.Objects.requireNonNull(checkedAt, "checkedAt");
+            if (qualityObservedAt != null && qualityObservedAt.isAfter(checkedAt)) {
+                throw new IllegalArgumentException("quality observation cannot be newer than the profile check");
+            }
+        }
+    }
+
     /** A single-use monotonic timer bound to its bounded modality, boundary, and outcome. */
     public static final class ModalityTimingSample {
         private final Timer.Sample sample;
@@ -102,9 +135,17 @@ public final class MediaWorkflowMetrics {
 
     private record ModalityMetricKey(Modality modality, Boundary boundary, Outcome outcome) {}
 
+    private record ProviderProfileKey(Modality modality, String providerId, String providerVersion,
+                                      String modelProfile, String modelRevision) {}
+
+    private static final int MAX_PROVIDER_PROFILES = 64;
+
     private final Map<Stage, Timer> stageTimers = new EnumMap<>(Stage.class);
     private final MeterRegistry registry;
     private final ConcurrentMap<ModalityMetricKey, Timer> modalityTimers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<ProviderProfileKey, ProviderProfileGauges> providerProfiles =
+            new ConcurrentHashMap<>();
+    private final Object providerProfileLock = new Object();
     private final Map<Event, Counter> eventCounters = new EnumMap<>(Event.class);
     private final String safeService;
     private final Counter requests;
@@ -114,6 +155,12 @@ public final class MediaWorkflowMetrics {
     private final AtomicReference<Double> aggregateStoreQueriesSupported = new AtomicReference<>(Double.NaN);
     private final AtomicReference<Double> overdueOutboxClaims = new AtomicReference<>(Double.NaN);
     private final AtomicReference<Double> outboxStoreQueriesSupported = new AtomicReference<>(Double.NaN);
+
+    private static final class ProviderProfileGauges {
+        private final AtomicReference<Double> readiness = new AtomicReference<>(Double.NaN);
+        private final AtomicReference<Double> checkedAt = new AtomicReference<>(Double.NaN);
+        private final AtomicReference<Double> qualityObservedAt = new AtomicReference<>(Double.NaN);
+    }
 
     public MediaWorkflowMetrics(MeterRegistry registry, String service) {
         this.registry = registry;
@@ -216,6 +263,78 @@ public final class MediaWorkflowMetrics {
 
     public void record(Event event) {
         if (event != null) eventCounters.get(event).increment();
+    }
+
+    /**
+     * Export the latest provider/profile readiness and measured-quality freshness. The registry
+     * keeps at most 64 provider profiles per service instance. A profile check with no measured
+     * quality timestamp exports NaN, never zero or a healthy quality value.
+     *
+     * @return false when the bounded profile series capacity has been reached
+     */
+    public boolean recordProviderProfile(Modality modality, ProviderProfileObservation observation) {
+        if (modality == null || observation == null) return false;
+        ProviderProfileKey key = new ProviderProfileKey(modality, observation.providerId(),
+                observation.providerVersion(), observation.modelProfile(), observation.modelRevision());
+        ProviderProfileGauges gauges;
+        synchronized (providerProfileLock) {
+            gauges = providerProfiles.get(key);
+            if (gauges == null) {
+                if (providerProfiles.size() >= MAX_PROVIDER_PROFILES) {
+                    registry.counter("media.provider.profile.observation.rejected",
+                            "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                    return false;
+                }
+                gauges = new ProviderProfileGauges();
+                registerProviderGauges(key, gauges);
+                providerProfiles.put(key, gauges);
+            }
+        }
+        gauges.readiness.set(switch (observation.readiness()) {
+            case HEALTHY -> 1.0;
+            case DEGRADED -> 0.0;
+            case UNAVAILABLE -> -1.0;
+        });
+        gauges.checkedAt.set(epochSeconds(observation.checkedAt()));
+        gauges.qualityObservedAt.set(observation.qualityObservedAt() == null
+                ? Double.NaN : epochSeconds(observation.qualityObservedAt()));
+        return true;
+    }
+
+    private void registerProviderGauges(ProviderProfileKey key, ProviderProfileGauges gauges) {
+        var tags = io.micrometer.core.instrument.Tags.of(
+                "service", safeService,
+                "modality", key.modality().label,
+                "provider_id", key.providerId(),
+                "provider_version", key.providerVersion(),
+                "model_profile", key.modelProfile(),
+                "model_revision", key.modelRevision(),
+                "contract_version", CONTRACT_VERSION);
+        Gauge.builder("media.provider.profile.readiness", gauges.readiness, AtomicReference::get)
+                .description("Latest provider profile readiness: 1 healthy, 0 degraded, -1 unavailable")
+                .tags(tags)
+                .register(registry);
+        Gauge.builder("media.provider.profile.checked_at_seconds", gauges.checkedAt, AtomicReference::get)
+                .description("Unix timestamp of the latest provider profile health check")
+                .tags(tags)
+                .register(registry);
+        Gauge.builder("media.provider.quality.observation_timestamp_seconds",
+                        gauges.qualityObservedAt, AtomicReference::get)
+                .description("Unix timestamp of the latest measured provider quality observation; NaN if absent")
+                .tags(tags)
+                .register(registry);
+    }
+
+    private static double epochSeconds(Instant instant) {
+        return instant.getEpochSecond() + instant.getNano() / 1_000_000_000.0;
+    }
+
+    private static String metricIdentity(String value, String name) {
+        if (value == null || value.length() > 128
+                || !value.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*")) {
+            throw new IllegalArgumentException(name + " must be a bounded metric token");
+        }
+        return value;
     }
 
     public void recordRequest() {

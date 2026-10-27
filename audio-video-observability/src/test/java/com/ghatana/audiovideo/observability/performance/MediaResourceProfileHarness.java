@@ -3,6 +3,8 @@ package com.ghatana.audiovideo.observability.performance;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.ThreadMXBean;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,7 +56,10 @@ public final class MediaResourceProfileHarness {
         NETWORK_BYTES,
         FFMPEG_CHILD_PROCESSES,
         MODEL_REAL_TIME_FACTOR,
-        VIDEO_FRAMES_PER_SECOND
+        VIDEO_FRAMES_PER_SECOND,
+        CONTAINER_MEMORY_LIMIT_BYTES,
+        CONTAINER_CPU_LIMIT_CORES,
+        CONTAINER_PROCESS_LIMIT
     }
 
     public enum State {
@@ -143,6 +148,9 @@ public final class MediaResourceProfileHarness {
                     render(resources.get(Resource.FFMPEG_CHILD_PROCESSES)),
                     render(resources.get(Resource.MODEL_REAL_TIME_FACTOR)),
                     render(resources.get(Resource.VIDEO_FRAMES_PER_SECOND)),
+                    render(resources.get(Resource.CONTAINER_MEMORY_LIMIT_BYTES)),
+                    render(resources.get(Resource.CONTAINER_CPU_LIMIT_CORES)),
+                    render(resources.get(Resource.CONTAINER_PROCESS_LIMIT)),
                     environment.javaVersion(),
                     environment.operatingSystem(),
                     environment.architecture(),
@@ -158,7 +166,8 @@ public final class MediaResourceProfileHarness {
                     "elapsed_ms", "throughput_ops_s", "p50_ms", "p95_ms", "p99_ms",
                     "process_cpu_time_nanos", "heap_peak_bytes", "thread_peak", "gpu_memory_bytes",
                     "native_memory_bytes", "connection_pool_size", "network_bytes", "ffmpeg_child_processes",
-                    "model_real_time_factor", "video_frames_per_second", "java_version", "os",
+                    "model_real_time_factor", "video_frames_per_second", "container_memory_limit_bytes",
+                    "container_cpu_limit_cores", "container_process_limit", "java_version", "os",
                     "architecture", "available_processors", "model_profile", "corpus_profile");
         }
     }
@@ -316,6 +325,9 @@ public final class MediaResourceProfileHarness {
             result.put(resource, Reading.notMeasured(unit(resource),
                     "No owning modality, provider, native-process, or connection-pool probe was registered."));
         }
+        result.put(Resource.CONTAINER_MEMORY_LIMIT_BYTES, readCgroupMemoryLimit());
+        result.put(Resource.CONTAINER_CPU_LIMIT_CORES, readCgroupCpuLimit());
+        result.put(Resource.CONTAINER_PROCESS_LIMIT, readCgroupProcessLimit());
         return result;
     }
 
@@ -336,6 +348,86 @@ public final class MediaResourceProfileHarness {
                 "NOT_CONFIGURED", "NOT_CONFIGURED");
     }
 
+    /**
+     * Read Linux cgroup-v2 limits when exposed to this JVM. Missing, unlimited, or unreadable
+     * limits stay NOT_MEASURED; host RSS and availableProcessors are not substituted for them.
+     */
+    private static Reading readCgroupMemoryLimit() {
+        return readCgroupValue(Path.of("/sys/fs/cgroup/memory.max"),
+                MediaResourceProfileHarness::parseMemoryLimit);
+    }
+
+    private static Reading readCgroupCpuLimit() {
+        return readCgroupValue(Path.of("/sys/fs/cgroup/cpu.max"),
+                MediaResourceProfileHarness::parseCpuLimit);
+    }
+
+    private static Reading readCgroupProcessLimit() {
+        return readCgroupValue(Path.of("/sys/fs/cgroup/pids.max"),
+                MediaResourceProfileHarness::parseProcessLimit);
+    }
+
+    @FunctionalInterface
+    private interface CgroupParser {
+        Reading parse(String value);
+    }
+
+    private static Reading readCgroupValue(Path path, CgroupParser parser) {
+        try {
+            return parser.parse(Files.readString(path).trim());
+        } catch (java.io.IOException | SecurityException unavailable) {
+            return Reading.notMeasured(unitForCgroup(path), "Linux cgroup-v2 limit is not exposed to this process.");
+        }
+    }
+
+    static Reading parseMemoryLimit(String value) {
+        if ("max".equals(value)) return Reading.notMeasured("bytes", "The cgroup memory limit is unlimited.");
+        try {
+            long bytes = Long.parseLong(value);
+            return bytes >= 0 ? Reading.measured(bytes, "bytes")
+                    : Reading.notMeasured("bytes", "The cgroup memory limit is invalid.");
+        } catch (NumberFormatException invalid) {
+            return Reading.notMeasured("bytes", "The cgroup memory limit is invalid.");
+        }
+    }
+
+    static Reading parseCpuLimit(String value) {
+        String[] fields = value.trim().split("\\s+");
+        if (fields.length == 2 && "max".equals(fields[0])) {
+            return Reading.notMeasured("cores", "The cgroup CPU limit is unlimited.");
+        }
+        try {
+            if (fields.length != 2) throw new NumberFormatException();
+            long quota = Long.parseLong(fields[0]);
+            long period = Long.parseLong(fields[1]);
+            if (quota < 0 || period <= 0) throw new NumberFormatException();
+            return Reading.measured((double) quota / period, "cores");
+        } catch (NumberFormatException invalid) {
+            return Reading.notMeasured("cores", "The cgroup CPU limit is invalid.");
+        }
+    }
+
+    static Reading parseProcessLimit(String value) {
+        if ("max".equals(value)) {
+            return Reading.notMeasured("processes", "The cgroup process limit is unlimited.");
+        }
+        try {
+            long processes = Long.parseLong(value);
+            return processes >= 0 ? Reading.measured(processes, "processes")
+                    : Reading.notMeasured("processes", "The cgroup process limit is invalid.");
+        } catch (NumberFormatException invalid) {
+            return Reading.notMeasured("processes", "The cgroup process limit is invalid.");
+        }
+    }
+
+    private static String unitForCgroup(Path path) {
+        return switch (path.getFileName().toString()) {
+            case "memory.max" -> "bytes";
+            case "cpu.max" -> "cores";
+            default -> "processes";
+        };
+    }
+
     private static double percentileMillis(List<Long> sortedNanos, double percentile) {
         if (sortedNanos.isEmpty()) return Double.NaN;
         int index = Math.max(0, (int) Math.ceil(percentile * sortedNanos.size()) - 1);
@@ -351,9 +443,11 @@ public final class MediaResourceProfileHarness {
 
     private static String unit(Resource resource) {
         return switch (resource) {
-            case GPU_MEMORY_BYTES, NATIVE_MEMORY_BYTES, NETWORK_BYTES -> "bytes";
+            case GPU_MEMORY_BYTES, NATIVE_MEMORY_BYTES, NETWORK_BYTES, CONTAINER_MEMORY_LIMIT_BYTES -> "bytes";
             case CONNECTION_POOL_SIZE, FFMPEG_CHILD_PROCESSES -> "count";
             case MODEL_REAL_TIME_FACTOR, VIDEO_FRAMES_PER_SECOND -> "ratio_or_frames_per_second";
+            case CONTAINER_CPU_LIMIT_CORES -> "cores";
+            case CONTAINER_PROCESS_LIMIT -> "processes";
             case PROCESS_CPU_TIME_NANOS -> "ns";
             case HEAP_PEAK_BYTES -> "bytes";
             case THREAD_PEAK -> "threads";
@@ -361,7 +455,11 @@ public final class MediaResourceProfileHarness {
     }
 
     private static String render(Reading reading) {
-        if (reading == null || reading.state() == State.NOT_MEASURED) return "NOT_MEASURED";
+        if (reading == null) return "NOT_MEASURED:not reported";
+        if (reading.state() == State.NOT_MEASURED) {
+            String reason = reading.reason().replace('\t', ' ').replace('\n', ' ').replace('\r', ' ');
+            return "NOT_MEASURED:" + reason;
+        }
         return Double.toString(reading.value());
     }
 

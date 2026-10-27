@@ -272,7 +272,7 @@ class CrossModalFusionEngineTest {
     void sourceBoundFusionAbstainsOnIncompatibleRegions() {
         var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),
                 region("source-v1", 10, 20), region("source-v1", 11, 20),
-                mediaTime(100), mediaTime(100));
+                sourceTime(100, 1, 1_000), sourceTime(100, 1, 1_000));
 
         assertThat(outcome.fusion()).isEmpty();
         assertThat(outcome.abstentionReason()).isEqualTo("SOURCE_FRAME_OR_REGION_MISMATCH");
@@ -286,7 +286,7 @@ class CrossModalFusionEngineTest {
     void sourceBoundFusionAcceptsMatchingFramesAndInstant() {
         var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),
                 region("source-v1", 10, 20), region("source-v1", 10, 20),
-                mediaTime(100), mediaTime(100));
+                sourceTime(100, 1, 1_000), sourceTime(50, 1, 500));
 
         assertThat(outcome.fusion()).isPresent();
         assertThat(outcome.abstentionReason()).isNull();
@@ -300,11 +300,24 @@ class CrossModalFusionEngineTest {
     void sourceBoundFusionAbstainsOnInvalidWeights() {
         var outcome = engine.fuseAudioVisual(makeAudio(DIM, Double.NaN), makeVisual(DIM, 0.5),
                 region("source-v1", 10, 20), region("source-v1", 10, 20),
-                mediaTime(100), mediaTime(100));
+                sourceTime(100, 1, 1_000), sourceTime(100, 1, 1_000));
 
         assertThat(outcome.fusion()).isEmpty();
         assertThat(outcome.abstentionReason()).isEqualTo("INVALID_FUSION_INPUT");
         assertThat(outcome.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+    }
+
+    @Test
+    @DisplayName("source-bound fusion does not treat a shared media clock as source provenance")
+    void sourceBoundFusionAbstainsOnNonSourceClock() {
+        var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),
+                region("source-v1", 10, 20), region("source-v1", 10, 20),
+                mediaTime(100), mediaTime(100));
+
+        assertThat(outcome.fusion()).isEmpty();
+        assertThat(outcome.abstentionReason()).isEqualTo("SYNC_UNDETERMINED");
+        assertThat(outcome.synchronizationDisposition())
+                .isEqualTo(CrossModalFusionEngine.SynchronizationDisposition.SYNC_UNDETERMINED);
     }
 
     @Test
@@ -535,6 +548,15 @@ class CrossModalFusionEngineTest {
 
     private com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp mediaTime(long millis) {
         return com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.mediaMilliseconds(millis);
+    }
+
+    private com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp sourceTime(
+            long ticks, long numerator, long denominator) {
+        return new com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp(
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.Status.KNOWN,
+                ticks, numerator, denominator,
+                com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE,
+                "source-id:source-v1:source-timeline", null);
     }
 
     private void assertInvalidAudioConfidence(double confidence) {

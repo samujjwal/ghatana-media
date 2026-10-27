@@ -138,7 +138,7 @@ class TtsGrpcServerReadinessTest {
                 java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
                 "local-fixture-resolver:test-only", "readiness fixture only");
         return localFixtureResolver.resolve(new TtsProviderAdmission.Candidate(
-                "LOCAL_FIXTURE", "fixture", "fixture", "fixture", "fixture", "en-US",
+                "LOCAL_FIXTURE", "fixture", "fixture", "fixture", "fixture-sidecar-digest", "fixture", "en-US",
                 "test", "test", "test", "fixture-voice"));
     }
 

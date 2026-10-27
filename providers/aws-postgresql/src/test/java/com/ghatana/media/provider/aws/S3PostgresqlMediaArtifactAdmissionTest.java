@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.sql.DriverManager;
 import java.time.Duration;
@@ -59,6 +60,59 @@ class S3PostgresqlMediaArtifactAdmissionTest {
             assertThat(store.artifact("tenant-a", artifact.artifactId(),
                     new ArtifactVersion("sha256:" + "0".repeat(64)))).isEmpty();
             assertThat(store.artifact("tenant-b", artifact.artifactId(), artifact.version())).isEmpty();
+        });
+    }
+
+    @Test
+    void contentReadStreamsOnlyOwnedExactVersionAndReturnsReceiptAfterFullDigestCheck() throws Exception {
+        withStore((store, admin, bucket, environment) -> {
+            byte[] bytes = new byte[] {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10, 1, 2, 3, 4};
+            var artifact = upload(store, bytes, "content-read.png");
+
+            ByteArrayOutputStream valid = new ByteArrayOutputStream();
+            var receipt = store.copyContent("tenant-a", "principal-a", artifact.artifactId(),
+                    artifact.version(), valid, bytes.length).orElseThrow();
+            assertThat(valid.toByteArray()).containsExactly(bytes);
+            assertThat(receipt.version()).isEqualTo(artifact.version());
+            assertThat(receipt.sha256()).isEqualTo(artifact.sha256());
+            assertThat(receipt.bytesCopied()).isEqualTo(bytes.length);
+
+            ByteArrayOutputStream wrongPrincipal = new ByteArrayOutputStream();
+            assertThat(store.copyContent("tenant-a", "principal-b", artifact.artifactId(),
+                    artifact.version(), wrongPrincipal, bytes.length)).isEmpty();
+            assertThat(wrongPrincipal.size()).isZero();
+
+            ByteArrayOutputStream wrongTenant = new ByteArrayOutputStream();
+            assertThat(store.copyContent("tenant-b", "principal-a", artifact.artifactId(),
+                    artifact.version(), wrongTenant, bytes.length)).isEmpty();
+            assertThat(wrongTenant.size()).isZero();
+
+            ByteArrayOutputStream staleVersion = new ByteArrayOutputStream();
+            assertThat(store.copyContent("tenant-a", "principal-a", artifact.artifactId(),
+                    new ArtifactVersion("sha256:" + "0".repeat(64)), staleVersion, bytes.length)).isEmpty();
+            assertThat(staleVersion.size()).isZero();
+
+            ByteArrayOutputStream tooSmall = new ByteArrayOutputStream();
+            assertThatThrownBy(() -> store.copyContent("tenant-a", "principal-a", artifact.artifactId(),
+                    artifact.version(), tooSmall, bytes.length - 1))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("MEDIA_ARTIFACT_READ_LIMIT");
+            assertThat(tooSmall.size()).isZero();
+
+            String prefix = "s3://" + bucket + "/";
+            String objectReference = artifact.objectReference();
+            assertThat(objectReference).startsWith(prefix);
+            byte[] altered = Arrays.copyOf(bytes, bytes.length);
+            altered[altered.length - 1] ^= 0x01;
+            admin.putObject(PutObjectRequest.builder().bucket(bucket)
+                            .key(objectReference.substring(prefix.length()))
+                            .contentLength((long) altered.length).build(), RequestBody.fromBytes(altered));
+
+            ByteArrayOutputStream corrupted = new ByteArrayOutputStream();
+            assertThatThrownBy(() -> store.copyContent("tenant-a", "principal-a", artifact.artifactId(),
+                    artifact.version(), corrupted, bytes.length))
+                    .isInstanceOf(SecurityException.class)
+                    .hasMessageContaining("immutable version");
         });
     }
 

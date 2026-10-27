@@ -220,6 +220,21 @@ deployed and that gRPC call series are present; absent series are not evidence
 of a healthy model. The latency thresholds in candidate rules are not approved
 reference-host budgets or model-quality claims.
 
+The test-only `MediaResourceProfileHarness` records the JVM version, OS,
+architecture, processor count, heap/thread samples, and readable Linux cgroup-v2
+memory, CPU, and process limits. An absent or unlimited cgroup value is emitted
+as `NOT_MEASURED` with its reason; host processor count is not substituted for a
+CPU quota. GPU, native allocator, network, FFmpeg-child, and model-specific
+values remain `NOT_MEASURED` until an owning probe exists. The platform-matrix
+JSON separately records the Docker limit arguments for its Linux test lane.
+These fixtures do not measure real model throughput or qualify a provider.
+
+Provider profile readiness exports the source-reported status and check time by
+bounded provider/model revision labels. Degraded, unavailable, and checks older
+than five minutes have modality-scoped alert rules. Quality freshness remains
+unknown (`NaN`) until an admitted provider supplies a measured observation;
+fixture quality alerts do not represent a live model result.
+
 For privacy-safe triage, use public liveness/readiness and
 `av_service_readiness` only for a yes/no signal.
 Scrape Prometheus text from `/metrics` with an explicit Prometheus `Accept`

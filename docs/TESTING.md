@@ -105,6 +105,58 @@ It runs integration-tagged workflows and requires Docker/Testcontainers. Use
 it when durable infrastructure and external test dependencies are available,
 not as the fast local closure command.
 
+## Wave 2 macOS and Linux platform matrix
+
+The repository runner `scripts/test-media-wave2-platform-matrix.sh` captures
+the Media and Shared commit IDs, host and execution OS/architecture, Java
+version, selected Docker image/digest and resource caps, native codec digests,
+JUnit counts, and each skipped test with its reason. Reports are written as
+`$MEDIA_MATRIX_REPORT_DIR/<mode>.json`, with a matching Gradle log and a
+run-stamped resource-profile TSV for core lanes (default report directory:
+`${TMPDIR:-/tmp}/ghatana-media-wave2-platform-results`). The report describes
+test execution only; it does not promote a Wave 2 task or qualify a provider,
+model, rights grant, deployment, or release.
+
+Run the primary Apple Silicon lanes with JDK 27 and an adjacent
+`ghatana-shared` checkout:
+
+```bash
+./scripts/test-media-wave2-platform-matrix.sh mac-core
+./scripts/test-media-wave2-platform-matrix.sh mac-integration
+GHATANA_MEDIA_FFMPEG=/absolute/pinned/mac/ffmpeg \
+GHATANA_MEDIA_FFPROBE=/absolute/pinned/mac/ffprobe \
+  ./scripts/test-media-wave2-platform-matrix.sh mac-native
+```
+
+The native lane requires the exact macOS SHA-256 pins already recorded in
+`VisionNativeBoundedIT`; the test refuses a different binary and fails if any
+native test is skipped. Mac RSS is sampled for diagnostics and is not a hard
+per-child memory limit. `mac-integration` runs the existing integration,
+launcher, and PostgreSQL provider projects. Its JSON lists GH-90000 Compose
+skips individually when the required STT/TTS images are unavailable.
+
+Run Linux ARM64 JVM tests in Docker Desktop on the same Mac. The lane archives
+clean committed Media and Shared sources into a fresh scratch directory and
+applies container memory, CPU, PID, and temporary-storage limits. It refuses
+dirty source checkouts because they would not match the archived source cut.
+Gradle outputs and the build cache are not shared with the host lane.
+
+```bash
+MEDIA_MATRIX_IMAGE='eclipse-temurin:27-jdk@sha256:<reviewed-digest>' \
+  ./scripts/test-media-wave2-platform-matrix.sh linux-arm64-core
+MEDIA_LINUX_CODECS_DIR=/absolute/pinned/linux-arm64-codecs \
+MEDIA_MATRIX_IMAGE='eclipse-temurin:27-jdk@sha256:<reviewed-digest>' \
+  ./scripts/test-media-wave2-platform-matrix.sh linux-arm64-native
+```
+
+The Linux native lane requires FFmpeg/FFprobe files matching the Linux ARM64
+pins in `VisionNativeBoundedIT`, mounted read-only. The outer Docker cgroup
+limits are hard limits for the test container, not per-child production
+sandbox proof. An unpinned image is reported as smoke-only. Optional
+`linux-amd64-core` / `linux-amd64-native` lanes check functional compatibility;
+emulated timings are never host performance evidence. Windows remains outside
+this Wave 2 matrix.
+
 ## Product-definition generation order
 
 After changing Product Definition sources, regenerate the manifest and Explorer

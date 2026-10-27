@@ -5,6 +5,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobLease;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
@@ -33,6 +35,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -328,6 +332,59 @@ public final class LocalMediaRuntimeSupport {
             ensureActive();
             return Optional.ofNullable(artifacts.get(key(tenantId, artifactId)))
                     .filter(value -> value.expiresAt().isAfter(Instant.now()));
+        }
+        @Override
+        public Optional<ArtifactContentReadReceipt> copyContent(
+                String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+                OutputStream target, long maxBytes) throws IOException {
+            ensureActive();
+            java.util.Objects.requireNonNull(expectedVersion, "expectedVersion");
+            java.util.Objects.requireNonNull(target, "target");
+            if (maxBytes < 1) throw new IllegalArgumentException("maxBytes must be positive");
+            MediaArtifact artifact = artifacts.get(key(tenantId, artifactId));
+            if (artifact == null || !artifact.expiresAt().isAfter(Instant.now())
+                    || !artifact.principalId().equals(principalId)
+                    || !artifact.version().equals(expectedVersion)) {
+                return Optional.empty();
+            }
+            if (artifact.sizeBytes() > maxBytes) {
+                throw new IllegalArgumentException("MEDIA_ARTIFACT_READ_LIMIT: source exceeds the requested byte ceiling");
+            }
+
+            Path source = artifactPath(checkedUuid(artifactId));
+            validateRegularFileIfPresent(source);
+            if (!Files.exists(source, java.nio.file.LinkOption.NOFOLLOW_LINKS)
+                    || Files.size(source) != artifact.sizeBytes()) {
+                failedClosed.set(true);
+                throw new IOException("Stored Media artifact size does not match its immutable metadata");
+            }
+            MessageDigest digest;
+            try {
+                digest = MessageDigest.getInstance("SHA-256");
+            } catch (java.security.NoSuchAlgorithmException impossible) {
+                throw new IllegalStateException("SHA-256 is unavailable", impossible);
+            }
+            long copied = 0;
+            byte[] buffer = new byte[64 * 1024];
+            try (InputStream input = Files.newInputStream(source, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+                int read;
+                while ((read = input.read(buffer)) != -1) {
+                    copied = Math.addExact(copied, read);
+                    if (copied > maxBytes || copied > artifact.sizeBytes()) {
+                        throw new IOException("Stored Media artifact exceeded its immutable byte ceiling");
+                    }
+                    digest.update(buffer, 0, read);
+                    target.write(buffer, 0, read);
+                }
+            } catch (ArithmeticException overflow) {
+                throw new IOException("Media artifact byte count overflow", overflow);
+            }
+            String actualSha256 = HexFormat.of().formatHex(digest.digest());
+            if (copied != artifact.sizeBytes() || !actualSha256.equals(artifact.sha256())) {
+                failedClosed.set(true);
+                throw new IOException("Stored Media artifact bytes do not match their immutable version");
+            }
+            return Optional.of(new ArtifactContentReadReceipt(expectedVersion, actualSha256, copied));
         }
         @Override public boolean durable() { return false; }
         @Override public boolean productionEligible() { return false; }

@@ -59,7 +59,7 @@ class MediaMigrationLineageFixtureTest {
         }
 
         MigrateResult forward = flyway(ds, null).migrate();
-        assertThat(forward.migrationsExecuted).isEqualTo(9); // V010..V018 only
+        assertThat(forward.migrationsExecuted).isEqualTo(11); // V010..V020 only
 
         try (Connection connection = ds.getConnection()) {
             assertThat(count(connection, "media_processing_jobs")).isEqualTo(3);
@@ -113,7 +113,7 @@ class MediaMigrationLineageFixtureTest {
                     "SELECT COUNT(*), SUM(CASE WHEN success THEN 0 ELSE 1 END)"
                             + " FROM flyway_schema_history WHERE version IS NOT NULL")) {
                 history.next();
-                assertThat(history.getLong(1)).isEqualTo(18);
+                assertThat(history.getLong(1)).isEqualTo(20);
                 assertThat(history.getLong(2)).isZero();
             }
         }

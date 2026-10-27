@@ -17,6 +17,7 @@ interface TtsProviderAdmission {
             String modelId,
             String modelVersion,
             String modelDigest,
+            String voiceSidecarDigest,
             String modelLicenseReference,
             String language,
             String region,

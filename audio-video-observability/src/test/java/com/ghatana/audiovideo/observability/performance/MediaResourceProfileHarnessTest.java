@@ -52,6 +52,18 @@ class MediaResourceProfileHarnessTest {
                         .as("unwired external resource %s stays explicitly unmeasured", resource)
                         .isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
             }
+            for (MediaResourceProfileHarness.Resource resource : EnumSet.of(
+                    MediaResourceProfileHarness.Resource.CONTAINER_MEMORY_LIMIT_BYTES,
+                    MediaResourceProfileHarness.Resource.CONTAINER_CPU_LIMIT_CORES,
+                    MediaResourceProfileHarness.Resource.CONTAINER_PROCESS_LIMIT)) {
+                MediaResourceProfileHarness.Reading reading = report.resources().get(resource);
+                if (reading.state() == MediaResourceProfileHarness.State.NOT_MEASURED) {
+                    assertThat(reading.reason()).as("unavailable cgroup value has a reason").isNotBlank();
+                    assertThat(report.toTsv()).contains("NOT_MEASURED:" + reading.reason());
+                } else {
+                    assertThat(reading.value()).as("observed cgroup limit is nonnegative").isGreaterThanOrEqualTo(0.0);
+                }
+            }
             assertThat(report.environment().modelProfile()).isEqualTo("NOT_CONFIGURED");
             assertThat(report.environment().corpusProfile()).isEqualTo("NOT_CONFIGURED");
             assertThat(report.toTsv()).startsWith("local-test-workload-no-provider\t");
@@ -100,6 +112,23 @@ class MediaResourceProfileHarnessTest {
         assertThat(report.resources().get(MediaResourceProfileHarness.Resource.THREAD_PEAK).unit())
                 .isEqualTo("threads");
         assertThat(report.toTsv()).contains("NOT_ADMITTED", "NOT_MEASURED", "NOT_CONFIGURED");
+    }
+
+    @Test
+    void parsesLinuxCgroupV2ResourceCapsAndLeavesUnlimitedValuesUnmeasured() {
+        assertThat(MediaResourceProfileHarness.parseMemoryLimit("8589934592").value())
+                .isEqualTo(8_589_934_592.0);
+        assertThat(MediaResourceProfileHarness.parseMemoryLimit("max").state())
+                .isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+
+        assertThat(MediaResourceProfileHarness.parseCpuLimit("400000 100000").value()).isEqualTo(4.0);
+        assertThat(MediaResourceProfileHarness.parseCpuLimit("max 100000").state())
+                .isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+
+        assertThat(MediaResourceProfileHarness.parseProcessLimit("256").value()).isEqualTo(256.0);
+        assertThat(MediaResourceProfileHarness.parseProcessLimit("max").state())
+                .isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+        assertThat(MediaResourceProfileHarness.parseProcessLimit("not-a-limit").reason()).isNotBlank();
     }
 
     @Test
