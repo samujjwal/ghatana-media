@@ -70,6 +70,27 @@ class SsmlProcessorTest {
         }
 
         @Test
+        @DisplayName("standard SSML default namespace is accepted")
+        void parse_standardDefaultNamespace_isAccepted() {
+            List<SsmlProcessor.SsmlSegment> segments = processor.parse(
+                    "<speak xmlns=\"http://www.w3.org/2001/10/synthesis\">Hello"
+                            + "<break time=\"1s\"/>world</speak>");
+
+            assertThat(segments).containsExactly(
+                    SsmlProcessor.SsmlSegment.text("Hello"),
+                    SsmlProcessor.SsmlSegment.pause(1_000),
+                    SsmlProcessor.SsmlSegment.text("world"));
+        }
+
+        @Test
+        @DisplayName("unrecognized default namespace is rejected")
+        void parse_unrecognizedDefaultNamespace_isRejected() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> processor.parse("<speak xmlns=\"urn:other\">Hello</speak>"))
+                    .withMessageContaining("Unsupported SSML attribute xmlns");
+        }
+
+        @Test
         @DisplayName("empty speak element produces no segments")
         void parse_emptySpeak_noSegments() { 
             List<SsmlProcessor.SsmlSegment> segments =

@@ -15,6 +15,7 @@ import org.xml.sax.InputSource;
 
 /** Bounded, hardened parser for the supported canonical SSML subset. */
 public final class SsmlProcessor {
+    private static final String SSML_NAMESPACE = "http://www.w3.org/2001/10/synthesis";
     public static final int MAX_INPUT_CHARS = 65_536;
     public static final int MAX_DEPTH = 16;
     public static final long MAX_PAUSE_MS = 10_000;
@@ -152,7 +153,8 @@ public final class SsmlProcessor {
     private static void validateAttributes(Element element, String tag) {
         var attrs = element.getAttributes();
         for (int i = 0; i < attrs.getLength(); i++) {
-            String name = attrs.item(i).getNodeName().toLowerCase(Locale.ROOT);
+            var attribute = attrs.item(i);
+            String name = attribute.getNodeName().toLowerCase(Locale.ROOT);
             boolean allowed = switch (tag) {
                 case "break" -> name.equals("time");
                 case "prosody" -> List.of("rate", "pitch", "volume").contains(name);
@@ -165,6 +167,13 @@ public final class SsmlProcessor {
                 case "speak" -> List.of("version", "xml:lang", "lang").contains(name);
                 default -> false;
             };
+            // The standard SSML document declares its default namespace on <speak>.
+            // Keep namespace support narrow: prefixed/nested declarations and other
+            // namespace URIs are not part of the currently supported subset.
+            if (!allowed && tag.equals("speak") && name.equals("xmlns")
+                    && SSML_NAMESPACE.equals(attribute.getNodeValue())) {
+                allowed = true;
+            }
             if (!allowed) throw new IllegalArgumentException("Unsupported SSML attribute " + name + " on " + tag);
         }
         if (tag.equals("emphasis") && !List.of("strong", "moderate", "reduced", "none").contains(element.getAttribute("level").toLowerCase(Locale.ROOT))) {
