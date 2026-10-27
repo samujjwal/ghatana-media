@@ -1,5 +1,8 @@
 # Ghatana Media — backend modalities + observability, five-surface implementation wave
 
+> **ACTIVE OWNER EXECUTION DIRECTIVE — 2026-10-27:** [R7 engineering decisions, portability gates, 36 remaining tasks and canonical acceptance sequencing](MEDIA-WAVE2-OWNER-IMPLEMENTATION-DIRECTIVE-2026-10-27.md). Implementation permission is approved; no third-party model/voice/corpus/consent rights, production provider, native task closure, release or gtool/PDP status is implied. Source truth and complete task statuses remain below. The last reported ledger is **58 = 22 LOCALLY_VERIFIED + 30 PARTIAL + 6 OWNER_EXTERNAL**. R7 source-pinned codec provisioning and the Mac/Linux TTS test correction are committed but await current-cut native/Gradle verification.
+
+
 **Status:** IMPLEMENTATION-READY_PLAN / NO RUNTIME CHANGES IN THIS DOCUMENT / NOT VERIFIED_OR_CLOSED  
 **Reviewed source:** `samujjwal/ghatana-media/main@0ee65a460665eeb0df118655f93f4112c0be7d9f` (2026-10-25; local `HEAD` matched remote `main` at execution start); source truth is `.product-experience/pdp-0-product-truth`, `pdp-1-domain-data`, `pdp-2-design-interface-system`, `pdp-3-product-experience`. Current uncommitted execution changes are recorded below; this source pin identifies the inspected baseline only.
 **Canonical Build owner:** [MEDIA-BUILD-IMPLEMENTATION-PLAN.md](MEDIA-BUILD-IMPLEMENTATION-PLAN.md), especially **F08** provider admission, **F09** headless contract grammar, **F11** temporal/codec primitives, **F12** observability, and **V03/V04/V05/V06/V16/V27** outcome journeys.  
