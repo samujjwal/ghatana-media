@@ -311,6 +311,17 @@ if [[ "$MODE" == *-native ]]; then
   CODECS="$(cd "$MEDIA_LINUX_CODECS_DIR" && pwd -P)"
   FFMPEG_PATH="$CODECS/ffmpeg"
   FFPROBE_PATH="$CODECS/ffprobe"
+  # Optional extra provenance: source-pinned LGPL archive distributed by
+  # scripts/prepare-wave2-codecs.sh. The Java native test checks the fixed
+  # release archive hash AND that both executing files match archive members.
+  CODEC_ARCHIVE_NAME=''
+  case "$PLATFORM" in
+    linux/arm64) candidate='ffmpeg-8.1.2-aarch64-unknown-linux-gnu.tar.gz' ;;
+    linux/amd64) candidate='ffmpeg-8.1.2-x86_64-unknown-linux-gnu.tar.gz' ;;
+  esac
+  if [[ -f "$CODECS/$candidate" ]]; then
+    CODEC_ARCHIVE_NAME="$candidate"
+  fi
 fi
 if [[ "$MODE" == *-core ]]; then
   TEST_PROJECTS="libs/java/common,modules/speech/stt-service,modules/speech/tts-service,modules/vision/vision-service,modules/intelligence/multimodal-service,audio-video-observability"
@@ -372,6 +383,9 @@ if [[ "$MODE" == *-native ]]; then
     --env GHATANA_MEDIA_NATIVE_VISION_REQUIRED=true
     --env PATH=/opt/media-codecs:/opt/java/openjdk/bin:/usr/local/bin:/usr/bin:/bin
   )
+  if [[ -n "$CODEC_ARCHIVE_NAME" ]]; then
+    DOCKER_ARGS+=(--env "GHATANA_MEDIA_CODEC_ARCHIVE=/opt/media-codecs/$CODEC_ARCHIVE_NAME")
+  fi
   TASKS=("${native_args[@]}")
 else
   TASKS=("${core_args[@]}")
