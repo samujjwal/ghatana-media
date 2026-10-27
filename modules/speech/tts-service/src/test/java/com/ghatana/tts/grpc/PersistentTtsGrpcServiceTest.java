@@ -169,9 +169,13 @@ class PersistentTtsGrpcServiceTest {
     @DisplayName("test-double result exercises response mapping only; it is not provider audio")
     void testDoubleResultExercisesResponseMappingOnly() {
         UUID audioFileId = UUID.randomUUID();
-        // Test-only varying PCM-shaped bytes validate response mapping; they are not speech.
+        // Test-only 440 Hz PCM validates response mapping and the signal-integrity floor; it is not speech.
         byte[] audioBytes = new byte[44_100];
-        audioBytes[2] = 1;
+        for (int frame = 0; frame < audioBytes.length / 2; frame++) {
+            short sample = (short) Math.round(1_000 * Math.sin(2 * Math.PI * 440 * frame / 22_050));
+            audioBytes[frame * 2] = (byte) sample;
+            audioBytes[frame * 2 + 1] = (byte) (sample >>> 8);
+        }
         PersistentTtsService.SynthesisResult result =
             new PersistentTtsService.SynthesisResult(audioFileId, audioBytes, 22050, 123L,
                 1_000L, 1, 16, "PCM_S16LE");
