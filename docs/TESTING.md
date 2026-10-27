@@ -10,6 +10,20 @@ See [the five-modality/observability execution plan](implementation/MEDIA-BACKEN
 
 **GH-90000 is an operational integration-test residual:** previously reported nine compose-stack tests skipped with explicit reason until pinned STT/TTS images are built/published or `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE` are supplied. The image-gated assertions are NOT VERIFIED by green in-process tests; re-run when images and Docker/test provider admission are available. Warn-level Checkstyle is tracked separately; formal gtool/PDP native closure, live deployed writer cutover and Shared convention `VerifyIntentionalPublicApiTask` NO-SOURCE bug are not part of Wave 2 package completion.
 
+**R7 image/Compose correction (October 27):** The STT, TTS, Vision and
+Multimodal candidate Dockerfiles now use a Java 27 JRE to match the current
+Media bytecode; their hygiene test reads the target from the canonical
+Gradle version catalog. The STT/TTS Docker Compose test maps health listeners
+to **8090/8091** (not 8080); Testcontainers' HTTP wait owns the health check
+without requiring `curl` inside the JRE image. The fixed candidate images
+have **not** been built or run on this source cut. They are still not real
+provider-eligible images; STT and TTS must fail closed on missing model/voice
+admission. The nine Compose skips continue to mean unverified, not accepted.
+For negative image bootstrap or positive admitted-provider testing, build the
+existing `:installDist` tasks using the appropriate FOCUSED graph, then
+use the existing `docker/Dockerfile.*` and explicit image tags. Test image
+construction/startup separately from provider effect/quality qualification.
+
 ## Scope and intent
 
 The active Media test surface covers runtime contracts, artifact upload and
