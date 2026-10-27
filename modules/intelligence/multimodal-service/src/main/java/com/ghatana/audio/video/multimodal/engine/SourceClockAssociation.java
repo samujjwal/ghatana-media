@@ -58,7 +58,7 @@ record SourceClockAssociation(
         }
         if (audioSampleIndex < 0) return Association.undetermined("AUDIO_SAMPLE_INDEX_INVALID");
 
-        String timelineClockId = sourceArtifactId + ":" + sourceVersionId + ":source-timeline";
+        String timelineClockId = sourceTimelineClockId(sourceArtifactId, sourceVersionId);
         MediaClockTimestamp audioTime = audioClock.toSourceTimestamp(audioSampleIndex, timelineClockId);
         MediaClockTimestamp videoTime = videoClock.toSourceTimestamp(videoPts, timelineClockId);
         if (!audioTime.isKnown() || !videoTime.isKnown()) {
@@ -74,6 +74,12 @@ record SourceClockAssociation(
                 uncertaintyNanos,
                 provenance,
                 null);
+    }
+
+    /** Length-prefix both opaque identifiers so punctuation cannot alias another source/version pair. */
+    private static String sourceTimelineClockId(String artifactId, String versionId) {
+        return "source-timeline:" + artifactId.length() + ":" + artifactId
+                + ":" + versionId.length() + ":" + versionId;
     }
 
     private static String requireId(String value, String label) {

@@ -38,6 +38,19 @@ class SourceClockAssociationTest {
     }
 
     @Test
+    void sourceClockIdentityDoesNotAliasColonSeparatedArtifactAndVersionIds() {
+        var left = associationFor("tenant:artifact", "v2");
+        var right = associationFor("tenant", "artifact:v2");
+
+        var leftResult = left.associateAudioSampleWithVideoPts("tenant:artifact", "v2", 2, 0, 0);
+        var rightResult = right.associateAudioSampleWithVideoPts("tenant", "artifact:v2", 2, 0, 0);
+
+        assertThat(leftResult.audioSourceTime().sharesClock(leftResult.videoSourceTime())).isTrue();
+        assertThat(rightResult.audioSourceTime().sharesClock(rightResult.videoSourceTime())).isTrue();
+        assertThat(leftResult.audioSourceTime().sharesClock(rightResult.audioSourceTime())).isFalse();
+    }
+
+    @Test
     void reducesNanosecondRationalBeforeConvertingToTheTimestampTimebase() {
         var association = new SourceClockAssociation(
                 "artifact-1", "version-7",
@@ -154,8 +167,12 @@ class SourceClockAssociationTest {
     }
 
     private static SourceClockAssociation mappedFixture() {
+        return associationFor("artifact-1", "version-7");
+    }
+
+    private static SourceClockAssociation associationFor(String artifactId, String versionId) {
         return new SourceClockAssociation(
-                "artifact-1", "version-7",
+                artifactId, versionId,
                 new SourceClockAssociation.StreamClock("audio-0", "audio-clock-0", "origin-v1", 1, 16_000, 0, 1, 2),
                 new SourceClockAssociation.StreamClock("video-0", "video-clock-0", "origin-v1", 1, 90_000, 0, 1, 2),
                 SourceClockAssociation.MappingProvenance.OWNER_VERIFIED_SOURCE_MAPPING, 0);
