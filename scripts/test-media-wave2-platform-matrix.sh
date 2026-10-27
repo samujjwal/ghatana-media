@@ -24,7 +24,7 @@ Environment:
                               For qualification, set an immutable @sha256 digest.
   MEDIA_MATRIX_MEMORY         Docker memory cap, default 8g.
   MEDIA_MATRIX_CPUS           Docker CPU cap, default 4.
-  MEDIA_MATRIX_PIDS           Docker PID cap, default 256.
+  MEDIA_MATRIX_PIDS           Docker PID cap, default 512.
   MEDIA_MATRIX_GRADLE_CACHE  Optional persistent host directory for the Linux Gradle user cache.
                               Defaults to a report-directory cache isolated by Linux architecture.
   MEDIA_LINUX_CODECS_DIR     Host directory with platform-correct ffmpeg and ffprobe
@@ -297,7 +297,7 @@ fi
 IMAGE="${MEDIA_MATRIX_IMAGE:-eclipse-temurin:27-jdk}"
 MEMORY="${MEDIA_MATRIX_MEMORY:-8g}"
 CPUS="${MEDIA_MATRIX_CPUS:-4}"
-PIDS="${MEDIA_MATRIX_PIDS:-256}"
+PIDS="${MEDIA_MATRIX_PIDS:-512}"
 IMAGE_REF="$IMAGE"
 case "$MODE" in
   linux-arm64-*) PLATFORM=linux/arm64 ;;
@@ -351,7 +351,9 @@ DOCKER_ARGS=(
   run --rm --init --platform "$PLATFORM"
   --memory "$MEMORY" --cpus "$CPUS" --pids-limit "$PIDS"
   --user "$(id -u):$(id -g)"
-  --tmpfs /tmp:rw,nosuid,nodev,size=1g
+  # OpenCV's pinned JNI library is extracted under java.io.tmpdir and must be mmap'd
+  # executable by the Linux JVM. Keep that extraction inside the capped test container.
+  --tmpfs /tmp:rw,nosuid,nodev,exec,size=1g
   --volume "$SCRATCH:/work:rw"
   --volume "$GRADLE_CACHE:/gradle-home:rw"
   # Keep Media two directories below the writable mount. The standalone Gradle
