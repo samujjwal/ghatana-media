@@ -215,7 +215,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -226,7 +226,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -237,7 +237,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -248,7 +248,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -259,7 +259,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -270,7 +270,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -281,7 +281,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -292,7 +292,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -303,7 +303,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -314,7 +314,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -325,7 +325,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -336,7 +336,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -347,7 +347,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -358,7 +358,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -369,7 +369,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -380,7 +380,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -391,7 +391,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -402,7 +402,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -413,7 +413,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -424,7 +424,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -435,7 +435,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -446,7 +446,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -457,7 +457,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -468,7 +468,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -479,7 +479,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -490,7 +490,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -501,7 +501,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -512,7 +512,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -523,7 +523,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -534,7 +534,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -545,7 +545,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -556,7 +556,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -567,7 +567,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -578,7 +578,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -589,7 +589,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     },
     {
@@ -600,7 +600,7 @@
       "engineeringApproved": true,
       "fullAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
       "taskAccepted": false,
-      "testsRerunAfterR7": false,
+      "testsRerunAfterR7": true,
       "externalRightsAdmitted": false
     }
   ],
@@ -635,12 +635,138 @@
     "./scripts/test-media-wave2-platform-matrix.sh mac-integration"
   ],
   "knownRemainingUnverified": [
-    "Linux native codec suite and product sandbox/resource limits",
-    "Nine GH-90000 Compose-image tests",
+    "Per-worker native codec sandbox/resource limits and VIS-03 required-host resource qualification",
     "Shared/Media source rights and policy admission",
     "Real qualified STT/TTS/Vision positive outputs and canonical persistence",
     "Document Intelligence public OCR integration",
     "Data Cloud Java21/Media Java27 public process contract",
     "Real corpus quality and named-host 1/16/64 load"
-  ]
+  ],
+  "latestVerification": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "c40a60a730e5bf11f6ffc05644253f2c130ffbb7",
+      "shared": "bd7ce719952ae9693d87dec09fecd12ab6693576",
+      "ghatana": "387bfc3eede86265aa8b42340d6a32f6e19ffeee",
+      "allWorktreesCleanAndAtOriginMain": true
+    },
+    "reportDirectory": "/private/tmp/ghatana-media-wave2-final-c40",
+    "runs": [
+      {
+        "mode": "mac-core",
+        "execution": "macOS/arm64",
+        "java": "Temurin 27.0.1.0.2",
+        "counts": {
+          "tests": 1770,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3
+        },
+        "upToDateProjects": [
+          "libs/java/common",
+          "modules/speech/stt-service",
+          "modules/speech/tts-service",
+          "audio-video-observability"
+        ],
+        "executedProjects": [
+          "modules/vision/vision-service",
+          "modules/intelligence/multimodal-service"
+        ],
+        "skipReason": "Three opt-in VisionNativeBoundedIT tests; passed in mac-native."
+      },
+      {
+        "mode": "linux-arm64-core",
+        "execution": "Linux/arm64 in Docker Desktop on macOS/arm64",
+        "javaImage": "eclipse-temurin:27-jdk@sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "outerContainerBounds": {
+          "memory": "8 GiB",
+          "cpus": 4,
+          "pids": 512
+        },
+        "allSelectedProjectsExecuted": true,
+        "counts": {
+          "tests": 1770,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3
+        },
+        "skipReason": "Three opt-in VisionNativeBoundedIT tests; passed in linux-arm64-native."
+      },
+      {
+        "mode": "mac-native",
+        "execution": "macOS/arm64",
+        "java": "Temurin 27.0.1.0.2",
+        "codecArchiveSha256": "ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332",
+        "counts": {
+          "tests": 48,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "mode": "linux-arm64-native",
+        "execution": "Linux/arm64 in Docker Desktop on macOS/arm64",
+        "javaImage": "eclipse-temurin:27-jdk@sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "nativeRuntimeImage": "ubuntu:24.04@sha256:19cad59657037cffa0ac9a48107019b768900ff1071140965827513ac866bd5e",
+        "outerContainerBounds": {
+          "memory": "8 GiB",
+          "cpus": 4,
+          "pids": 512
+        },
+        "codecArchiveSha256": "ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586",
+        "counts": {
+          "tests": 48,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "retry": "One documented retry after fixing executable permissions on mounted Linux Gradle tools."
+      },
+      {
+        "mode": "mac-integration",
+        "execution": "macOS/arm64",
+        "java": "Temurin 27.0.1.0.2",
+        "selectedProjects": [
+          "integration-tests",
+          "launcher",
+          "providers/aws-postgresql"
+        ],
+        "composeImages": [
+          "ghatana/stt-service:r7-local-20261027",
+          "ghatana/tts-service:r7-local-20261027"
+        ],
+        "gh90000ComposeTests": {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "counts": {
+          "tests": 246,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "independentReview": {
+      "fullLedgerAudit": {
+        "taskIds": 58,
+        "locallyVerified": 22,
+        "partial": 30,
+        "ownerExternal": 6,
+        "rowsPromoted": 0
+      },
+      "boundedRepairReviewsAccepted": [
+        "H1 provider handoff finality and UNKNOWN replay blocking",
+        "H2 source-rights admission before external stream effects",
+        "strict HTTP streaming ACK validation",
+        "Vision descendant process cleanup",
+        "Compose cleanup after interruption"
+      ],
+      "taskAcceptanceChanged": false
+    },
+    "testsRerunAfterR7Meaning": "The relevant full core/native/integration selectors executed on this source cut. This records regression execution only; it does not mean original whole-row acceptance passed. All 36 taskAccepted flags remain false."
+  }
 }
