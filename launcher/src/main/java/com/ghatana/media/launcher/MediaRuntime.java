@@ -4,6 +4,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.Cancellation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.BiometricSensitivity;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ConsentDecision;
 import com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification;
@@ -431,6 +432,132 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         requirePrincipal(principalId);
         return artifactStore.artifact(tenantId, artifactId)
                 .filter(value -> value.principalId().equals(principalId));
+    }
+
+    @Override
+    public Optional<ArtifactContentReadReceipt> copyArtifactContent(
+            String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+            java.io.OutputStream target, long maxBytes) throws java.io.IOException {
+        ensureOpen();
+        requirePrincipal(principalId);
+        java.util.Objects.requireNonNull(expectedVersion, "expectedVersion");
+        java.util.Objects.requireNonNull(target, "target");
+        if (maxBytes < 1) throw new IllegalArgumentException("maxBytes must be positive");
+        if (config.productionLike()) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SOURCE_ARTIFACT",
+                    "authoritative source rights resolver is unavailable");
+        }
+        return copyVerifiedArtifactContent(tenantId, principalId, artifactId, expectedVersion, target, maxBytes);
+    }
+
+    private Optional<ArtifactContentReadReceipt> copyVerifiedArtifactContent(
+            String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+            java.io.OutputStream target, long maxBytes) throws java.io.IOException {
+        return copyVerifiedArtifactContent(tenantId, principalId, artifactId, expectedVersion, target, maxBytes, () -> { });
+    }
+
+    private Optional<ArtifactContentReadReceipt> copyVerifiedArtifactContent(
+            String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+            java.io.OutputStream target, long maxBytes, Runnable beforeExposure) throws java.io.IOException {
+        long effectiveMaxBytes = Math.min(maxBytes, config.maximumArtifactBytes());
+        java.nio.file.Path staging = privateStagingFile();
+        try (java.nio.channels.FileChannel stagedFile = java.nio.channels.FileChannel.open(staging,
+                java.nio.file.StandardOpenOption.READ, java.nio.file.StandardOpenOption.WRITE,
+                java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+            Optional<ArtifactContentReadReceipt> copied;
+            try (java.io.OutputStream bounded = new BoundedArtifactReadOutputStream(
+                    new NonClosingOutputStream(java.nio.channels.Channels.newOutputStream(stagedFile)), effectiveMaxBytes)) {
+                copied = artifactStore.copyContent(tenantId, principalId, artifactId, expectedVersion,
+                        bounded, effectiveMaxBytes);
+            }
+            if (copied.isEmpty()) return Optional.empty();
+            ArtifactContentReadReceipt receipt = copied.orElseThrow();
+            long stagedBytes = stagedFile.size();
+            if (!receipt.version().equals(expectedVersion) || stagedBytes != receipt.bytesCopied()
+                    || stagedBytes > effectiveMaxBytes
+                    || !receipt.sha256().equals(expectedVersion.value().substring(7))
+                    || !sha256File(stagedFile).equals(receipt.sha256())) {
+                throw new java.io.IOException("Media artifact content did not match its verified read receipt");
+            }
+            beforeExposure.run();
+            stagedFile.position(0);
+            transferVerified(stagedFile, target);
+            return Optional.of(receipt);
+        } finally {
+            java.nio.file.Files.deleteIfExists(staging);
+        }
+    }
+
+    private static java.nio.file.Path privateStagingFile() throws java.io.IOException {
+        try {
+            return java.nio.file.Files.createTempFile("media-source-read-", ".stage",
+                    java.nio.file.attribute.PosixFilePermissions.asFileAttribute(
+                            java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")));
+        } catch (UnsupportedOperationException unsupportedPosixPermissions) {
+            return java.nio.file.Files.createTempFile("media-source-read-", ".stage");
+        }
+    }
+
+    private static String sha256File(java.nio.channels.FileChannel stagedFile) throws java.io.IOException {
+        final MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
+        stagedFile.position(0);
+        java.nio.ByteBuffer buffer = java.nio.ByteBuffer.allocate(64 * 1024);
+        while (stagedFile.read(buffer) != -1) {
+            buffer.flip();
+            digest.update(buffer);
+            buffer.clear();
+        }
+        stagedFile.position(0);
+        return java.util.HexFormat.of().formatHex(digest.digest());
+    }
+
+    private static void transferVerified(java.nio.channels.FileChannel stagedFile, java.io.OutputStream target)
+            throws java.io.IOException {
+        java.nio.ByteBuffer buffer = java.nio.ByteBuffer.allocate(64 * 1024);
+        while (stagedFile.read(buffer) != -1) {
+            buffer.flip();
+            target.write(buffer.array(), buffer.position(), buffer.remaining());
+            buffer.clear();
+        }
+    }
+
+    private static final class NonClosingOutputStream extends java.io.FilterOutputStream {
+        private NonClosingOutputStream(java.io.OutputStream target) { super(target); }
+        @Override public void close() throws java.io.IOException { flush(); }
+    }
+
+    private static final class BoundedArtifactReadOutputStream extends java.io.FilterOutputStream {
+        private final long maxBytes;
+        private long written;
+
+        private BoundedArtifactReadOutputStream(java.io.OutputStream target, long maxBytes) {
+            super(target);
+            this.maxBytes = maxBytes;
+        }
+
+        @Override public void write(int value) throws java.io.IOException {
+            reserve(1);
+            out.write(value);
+        }
+
+        @Override public void write(byte[] bytes, int offset, int length) throws java.io.IOException {
+            java.util.Objects.checkFromIndexSize(offset, length, bytes.length);
+            reserve(length);
+            out.write(bytes, offset, length);
+        }
+
+        private void reserve(int length) throws java.io.IOException {
+            if (length < 0 || written > maxBytes - length) {
+                throw new java.io.IOException("Media artifact source exceeded the requested byte ceiling");
+            }
+            written += length;
+        }
     }
 
     @Override
@@ -1822,8 +1949,20 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                             provider.processingRegion(), provider.providerDataRetention(),
                             artifact.classification(), requestsBiometricProcessing(request.parameters()));
                 }
-                return artifactStore.copyContent(request.tenantId(), request.principalId(), artifact.artifactId(),
-                                artifact.version(), target, maxBytes)
+                return copyVerifiedArtifactContent(request.tenantId(), request.principalId(), artifact.artifactId(),
+                                artifact.version(), target, maxBytes, () -> {
+                                    if (provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
+                                        ConsentDecision latestConsent = consentFor(
+                                                request.tenantId(), request.principalId(), request.governanceContext(),
+                                                "source-read:" + request.jobType().name(),
+                                                provider.processingBoundary(), provider.processingRegion(),
+                                                provider.providerDataRetention());
+                                        requireExternalEffectAuthorization(request.governanceContext(), latestConsent,
+                                                provider.processingRegion(), provider.providerDataRetention(),
+                                                artifact.classification(),
+                                                requestsBiometricProcessing(request.parameters()));
+                                    }
+                                })
                         .orElseThrow(() -> new MediaCapabilityNotAdmittedException(
                                 MediaCapabilityNotAdmittedException.Reason.SOURCE_VERSION_STALE,
                                 "SOURCE_ARTIFACT"));

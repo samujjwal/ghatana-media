@@ -37,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -366,6 +367,105 @@ class MediaRuntimeJobGovernanceTest {
                 assertThat(terminal.failureCode()).isEqualTo("PROCESSING_BLOCKED_BEFORE_PROVIDER");
                 assertThat(terminal.result()).containsKey("authorizationDenialReason");
                 assertThat(providerCalls).as("denial case %s", index).hasValue(0);
+            } finally {
+                runtime.close();
+            }
+        }
+    }
+
+    @Test
+    void internalSourceReaderNeverExposesUnverifiedBytesAndRechecksRevocationBeforeExposure() throws Exception {
+        for (String mode : List.of("corrupt", "interrupted", "revoked-during-stage")) {
+            var root = Files.createTempDirectory("media-provider-source-integrity-" + mode + "-");
+            byte[] source = "media".getBytes(StandardCharsets.UTF_8);
+            var revoked = new AtomicBoolean();
+            var providerEffects = new AtomicInteger();
+            var providerSink = new AtomicReference<java.io.ByteArrayOutputStream>();
+            var delegate = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+            var artifactStore = (com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore)
+                    java.lang.reflect.Proxy.newProxyInstance(
+                            com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore.class.getClassLoader(),
+                            new Class<?>[] {com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore.class},
+                            (proxy, method, arguments) -> {
+                                if (method.getName().equals("copyContent")) {
+                                    if (mode.equals("corrupt")) {
+                                        byte[] changed = source.clone();
+                                        changed[0] ^= 1;
+                                        ((java.io.OutputStream) arguments[4]).write(changed);
+                                        var version = (com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion) arguments[3];
+                                        return java.util.Optional.of(
+                                                new com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt(
+                                                        version, version.value().substring(7), changed.length));
+                                    }
+                                    if (mode.equals("interrupted")) {
+                                        ((java.io.OutputStream) arguments[4]).write(source, 0, 2);
+                                        throw new IOException("injected interruption after staging a prefix");
+                                    }
+                                    Object result;
+                                    try {
+                                        result = method.invoke(delegate, arguments);
+                                    } catch (java.lang.reflect.InvocationTargetException failure) {
+                                        throw failure.getCause();
+                                    }
+                                    revoked.set(true);
+                                    return result;
+                                }
+                                try {
+                                    return method.invoke(delegate, arguments);
+                                } catch (java.lang.reflect.InvocationTargetException failure) {
+                                    throw failure.getCause();
+                                }
+                            });
+            MediaConsentAuthority authority = new MediaConsentAuthority() {
+                @Override public String authorityId() { return "test-authority"; }
+                @Override public boolean ready() { return true; }
+                @Override public boolean productionEligible() { return false; }
+                @Override public ConsentDecision verify(String tenant, String principal,
+                        MediaGovernanceContext governance, String operation) {
+                    return revoked.get() ? ConsentDecision.unverified() : allowedConsent();
+                }
+            };
+            MediaProcessingProvider provider = new MediaProcessingProvider() {
+                @Override public String providerId() { return "source-reader-" + mode; }
+                @Override public String providerVersion() { return "source-reader-v1"; }
+                @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+                @Override public boolean ready() { return true; }
+                @Override public boolean productionEligible() { return false; }
+                @Override public int priority() { return 0; }
+                @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.EXTERNAL; }
+                @Override public String processingRegion() { return "us"; }
+                @Override public com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention
+                        providerDataRetention() {
+                    return com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE;
+                }
+                @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                    var sink = new java.io.ByteArrayOutputStream();
+                    providerSink.set(sink);
+                    try {
+                        context.copySourceContentTo(sink, source.length);
+                        providerEffects.incrementAndGet();
+                        return CompletableFuture.completedFuture(Map.of("effect", "after-verified-read"));
+                    } catch (Exception failure) {
+                        return CompletableFuture.failedFuture(failure);
+                    }
+                }
+            };
+            MediaRuntime runtime = new MediaRuntime(
+                    new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                            Duration.ofSeconds(2), 2, "", "", true, false, root),
+                    artifactStore, new LocalMediaRuntimeSupport.JobStore(),
+                    new LocalMediaRuntimeSupport.StreamStore(), authority,
+                    List.of(provider), List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+            try {
+                var artifact = artifact(runtime);
+                var job = runtime.submit(new ProcessingJobRequest(
+                        "source-integrity-" + mode, "tenant-a", "principal-a", "correlation-source-integrity-" + mode,
+                        artifact.artifactId(), artifact.version().value(), JobType.VISION, provider.providerId(), Map.of(),
+                        governance()));
+                awaitTerminal(runtime, job.jobId());
+                assertThat(providerEffects).as(mode).hasValue(0);
+                assertThat(providerSink.get()).as(mode).isNotNull();
+                assertThat(providerSink.get().toByteArray()).as(mode).isEmpty();
             } finally {
                 runtime.close();
             }

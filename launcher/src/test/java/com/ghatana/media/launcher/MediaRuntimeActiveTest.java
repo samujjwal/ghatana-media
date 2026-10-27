@@ -88,6 +88,176 @@ class MediaRuntimeActiveTest {
         assertThat(events).containsExactly("media.upload.started", "media.artifact.completed");
     }
 
+    @Test
+    void sourceContentCopyRequiresOwnerExactVersionAndByteCeiling() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-source-copy-");
+        byte[] content = "bounded-source-content".getBytes(StandardCharsets.UTF_8);
+        MediaRuntime runtime = uploadRuntime(root, MediaLifecyclePublisher.disabled());
+        try {
+            var upload = runtime.beginUpload(new UploadRequest("tenant-copy", "principal-copy", "source.bin",
+                    "application/octet-stream", content.length, sha256(content), "RESTRICTED",
+                    Duration.ofMinutes(10), Map.of()), "copy-key");
+            appendChunks(runtime, "tenant-copy", "principal-copy", upload, content);
+            var artifact = runtime.completeUpload("tenant-copy", "principal-copy", upload.uploadId());
+            var port = runtime.modalityPort();
+
+            var accepted = new java.io.ByteArrayOutputStream();
+            var receipt = port.copyArtifactContent("tenant-copy", "principal-copy", artifact.artifactId(),
+                    artifact.version(), accepted, content.length);
+            assertThat(receipt).isPresent();
+            assertThat(receipt.orElseThrow().bytesCopied()).isEqualTo(content.length);
+            assertThat(accepted.toByteArray()).containsExactly(content);
+
+            for (var denied : List.<Object[]>of(
+                    new Object[] {"other-tenant", "principal-copy", artifact.artifactId(), artifact.version()},
+                    new Object[] {"tenant-copy", "other-principal", artifact.artifactId(), artifact.version()},
+                    new Object[] {"tenant-copy", "principal-copy", artifact.artifactId(),
+                            com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion.fromSha256("0".repeat(64))},
+                    new Object[] {"tenant-copy", "principal-copy", "missing-artifact", artifact.version()})) {
+                var sink = new java.io.ByteArrayOutputStream();
+                assertThat(port.copyArtifactContent((String) denied[0], (String) denied[1],
+                        (String) denied[2], (com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion) denied[3],
+                        sink, content.length)).isEmpty();
+                assertThat(sink.toByteArray()).isEmpty();
+            }
+
+            var tooSmall = new java.io.ByteArrayOutputStream();
+            assertThatThrownBy(() -> port.copyArtifactContent("tenant-copy", "principal-copy", artifact.artifactId(),
+                    artifact.version(), tooSmall, content.length - 1))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("byte ceiling");
+            assertThat(tooSmall.toByteArray()).isEmpty();
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void productionLikeSourceCopyFailsNotAdmittedBeforeWritingContent() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-production-source-copy-");
+        byte[] content = "protected-source-content".getBytes(StandardCharsets.UTF_8);
+        MediaRuntimeConfig localConfig = MediaRuntimeConfig.fromEnvironment(localEnvironment(root));
+        MediaRuntime local = new MediaRuntime(localConfig,
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(), new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaRuntime production = null;
+        try {
+            var upload = local.beginUpload(new UploadRequest("tenant-copy", "principal-copy", "source.bin",
+                    "application/octet-stream", content.length, sha256(content), "RESTRICTED",
+                    Duration.ofMinutes(10), Map.of()), "production-copy-key");
+            appendChunks(local, "tenant-copy", "principal-copy", upload, content);
+            var artifact = local.completeUpload("tenant-copy", "principal-copy", upload.uploadId());
+
+            MediaRuntimeConfig productionConfig = new MediaRuntimeConfig(true, "production",
+                    localConfig.httpPort(), localConfig.maximumBodyBytes(), localConfig.maximumChunkBytes(),
+                    localConfig.maximumArtifactBytes(), localConfig.jobTimeout(), localConfig.maximumConcurrentJobs(),
+                    "authoritative-artifact-store", "authoritative-job-store", false, false, root,
+                    localConfig.maximumConcurrentJobsPerTenant());
+            production = new MediaRuntime(productionConfig,
+                    new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                    new LocalMediaRuntimeSupport.JobStore(), new LocalMediaRuntimeSupport.StreamStore(), null,
+                    List.of(), List.of());
+            var sink = new java.io.ByteArrayOutputStream();
+            var productionPort = production.modalityPort();
+            assertThatThrownBy(() -> productionPort.copyArtifactContent(
+                    "tenant-copy", "principal-copy", artifact.artifactId(), artifact.version(), sink, content.length))
+                    .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(
+                            ((com.ghatana.media.runtime.MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED));
+            assertThat(sink.toByteArray()).isEmpty();
+        } finally {
+            if (production != null) production.close();
+            local.close();
+        }
+    }
+
+    @Test
+    void sourceCopyStagesBeforeExposingCorruptOrInterruptedStoreOutput() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-source-integrity-");
+        byte[] content = "integrity-pinned-source".getBytes(StandardCharsets.UTF_8);
+        MediaRuntime seed = MediaRuntime.compose(localEnvironment(root));
+        com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact artifact;
+        try {
+            var upload = seed.beginUpload(new UploadRequest("tenant-integrity", "principal-integrity", "source.bin",
+                    "application/octet-stream", content.length, sha256(content), "RESTRICTED",
+                    Duration.ofMinutes(10), Map.of()), "integrity-copy-key");
+            appendChunks(seed, "tenant-integrity", "principal-integrity", upload, content);
+            artifact = seed.completeUpload("tenant-integrity", "principal-integrity", upload.uploadId());
+        } finally {
+            seed.close();
+        }
+
+        for (boolean corrupt : List.of(true, false)) {
+            var delegate = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+            var intercepted = (com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore)
+                    java.lang.reflect.Proxy.newProxyInstance(
+                            com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore.class.getClassLoader(),
+                            new Class<?>[] {com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore.class},
+                            (proxy, method, arguments) -> {
+                                if (method.getName().equals("copyContent")) {
+                                    var supplied = (java.io.OutputStream) arguments[4];
+                                    if (corrupt) {
+                                        byte[] changed = content.clone();
+                                        changed[0] ^= 1;
+                                        supplied.write(changed);
+                                        return java.util.Optional.of(new com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt(
+                                                artifact.version(), artifact.sha256(), content.length));
+                                    }
+                                    supplied.write(content, 0, 5);
+                                    throw new java.io.IOException("injected store interruption after partial copy");
+                                }
+                                try {
+                                    return method.invoke(delegate, arguments);
+                                } catch (java.lang.reflect.InvocationTargetException failure) {
+                                    throw failure.getCause();
+                                }
+                            });
+            MediaRuntimeConfig config = MediaRuntimeConfig.fromEnvironment(localEnvironment(root));
+            MediaRuntime runtime = new MediaRuntime(config, intercepted,
+                    new LocalMediaRuntimeSupport.JobStore(), new LocalMediaRuntimeSupport.StreamStore(), null,
+                    List.of(), List.of());
+            try {
+                var sink = new java.io.ByteArrayOutputStream();
+                assertThatThrownBy(() -> runtime.modalityPort().copyArtifactContent(
+                        "tenant-integrity", "principal-integrity", artifact.artifactId(), artifact.version(),
+                        sink, content.length)).isInstanceOf(java.io.IOException.class);
+                assertThat(sink.toByteArray()).isEmpty();
+            } finally {
+                runtime.close();
+            }
+        }
+    }
+
+    @Test
+    void sourceCopyConfiguredArtifactCeilingRejectsBeforeExposingContent() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-source-configured-cap-");
+        byte[] content = "source-over-cap".getBytes(StandardCharsets.UTF_8);
+        var seedStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+        var upload = seedStore.begin(new UploadRequest("tenant-cap", "principal-cap", "source.bin",
+                "application/octet-stream", content.length, sha256(content), "RESTRICTED",
+                Duration.ofMinutes(10), Map.of()), "cap-upload-key");
+        seedStore.append("tenant-cap", "principal-cap", upload.uploadId(), 0, content);
+        var artifact = seedStore.complete("tenant-cap", "principal-cap", upload.uploadId());
+        seedStore.close();
+
+        MediaRuntimeConfig capped = new MediaRuntimeConfig(true, "local", 8093, 64, 4, 8,
+                Duration.ofSeconds(2), 2, "", "", true, false, root, 0);
+        MediaRuntime runtime = new MediaRuntime(capped, new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(), new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(), List.of());
+        try {
+            var sink = new java.io.ByteArrayOutputStream();
+            assertThatThrownBy(() -> runtime.modalityPort().copyArtifactContent(
+                    "tenant-cap", "principal-cap", artifact.artifactId(), artifact.version(), sink, content.length))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("byte ceiling");
+            assertThat(sink.toByteArray()).isEmpty();
+        } finally {
+            runtime.close();
+        }
+    }
+
     private static MediaRuntime uploadRuntime(java.nio.file.Path root, MediaLifecycleEventPublisher publisher) {
         MediaRuntimeConfig config = MediaRuntimeConfig.fromEnvironment(localEnvironment(root));
         return new MediaRuntime(config,
@@ -99,6 +269,16 @@ class MediaRuntimeActiveTest {
                 publisher,
                 List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
                 List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+    }
+
+    private static void appendChunks(MediaRuntime runtime, String tenantId, String principalId,
+            com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession upload, byte[] content) {
+        int index = 0;
+        for (int offset = 0; offset < content.length; offset += 16) {
+            int length = Math.min(16, content.length - offset);
+            runtime.appendChunk(tenantId, principalId, upload.uploadId(), index++,
+                    java.util.Arrays.copyOfRange(content, offset, offset + length));
+        }
     }
 
     @Test
