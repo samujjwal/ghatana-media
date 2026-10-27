@@ -28,7 +28,7 @@ Environment:
   MEDIA_MATRIX_GRADLE_CACHE  Optional persistent host directory for the Linux Gradle user cache.
                               Defaults to a report-directory cache isolated by Linux architecture.
   MEDIA_LINUX_CODECS_DIR     Host directory with platform-correct ffmpeg and ffprobe
-                              binaries, required for Linux native lanes.
+                              binaries plus SHA-locked Noble runtime packages, required for Linux native lanes.
   GHATANA_MEDIA_FFMPEG        Mac ffmpeg binary, required for mac-native.
   GHATANA_MEDIA_FFPROBE       Mac ffprobe binary, required for mac-native.
   MEDIA_MATRIX_REPORT_DIR    Output summary folder; default under /tmp.
@@ -119,12 +119,17 @@ summarize_reports() {
   python3 - "$1" "$2" "$MODE" "$MEDIA_SHA" "$SHARED_SHA" "$START_UTC" \
     "$TEST_PROJECTS" "$HOST_OS" "$HOST_ARCH" "$EXECUTION_OS" "$EXECUTION_ARCH" \
     "$JAVA_VERSION" "$IMAGE_REF" "$IMAGE_DIGEST" "$MEMORY" "$CPUS" "$PIDS" \
-    "$FFMPEG_PATH" "$FFPROBE_PATH" "$MEDIA_CLEAN" "$SHARED_CLEAN" "$RUN_LOG" "$PROFILE_ARTIFACT" "$RUN_STATUS" "$CODEC_ARCHIVE_PATH" <<'PY'
+    "$FFMPEG_PATH" "$FFPROBE_PATH" "$MEDIA_CLEAN" "$SHARED_CLEAN" "$RUN_LOG" "$PROFILE_ARTIFACT" "$RUN_STATUS" "$CODEC_ARCHIVE_PATH" \
+    "$NATIVE_RUNTIME_PROFILE" "$NATIVE_RUNTIME_ARCH" "$NATIVE_RUNTIME_SIDECAR_IMAGE" "$NATIVE_RUNTIME_SIDECAR_DIGEST" \
+    "$NATIVE_TEST_IMAGE_REF" "$NATIVE_TEST_IMAGE_ID" "$NATIVE_PREFLIGHT_LOG" "$NATIVE_IMAGE_BUILD_LOG" <<'PY'
 import hashlib, json, pathlib, re, sys, xml.etree.ElementTree as ET
 (source, output, mode, media_sha, shared_sha, start_utc, test_projects,
  host_os, host_arch, execution_os, execution_arch, java_version, image_ref,
  image_digest, memory, cpus, pids, ffmpeg_path, ffprobe_path,
- media_clean, shared_clean, run_log, profile_artifact, run_status, codec_archive_path) = sys.argv[1:]
+ media_clean, shared_clean, run_log, profile_artifact, run_status, codec_archive_path,
+ native_runtime_profile, native_runtime_arch, native_runtime_sidecar_image,
+ native_runtime_sidecar_digest, native_test_image_ref, native_test_image_id,
+ native_preflight_log, native_image_build_log) = sys.argv[1:]
 root = pathlib.Path(source)
 planned_projects = list(filter(None, test_projects.split(',')))
 log_file = pathlib.Path(run_log)
@@ -198,6 +203,14 @@ result = dict(mode=mode, startUTC=start_utc,
                                executionOS=execution_os, executionArchitecture=execution_arch,
                                javaVersion=java_version, dockerImage=image_ref or None,
                                dockerImageDigest=image_digest or None,
+                               nativeRuntimeProfile=native_runtime_profile or None,
+                               nativeRuntimeArchitecture=native_runtime_arch or None,
+                               nativeRuntimeSidecarImage=native_runtime_sidecar_image or None,
+                               nativeRuntimeSidecarDigest=native_runtime_sidecar_digest or None,
+                               nativeTestImageRef=native_test_image_ref or None,
+                               nativeTestImageId=native_test_image_id or None,
+                               nativeRuntimePreflightLog=native_preflight_log or None,
+                               nativeRuntimeBuildLog=native_image_build_log or None,
                                dockerLimits=dict(memory=memory or None, cpus=cpus or None, pids=pids or None),
                                ffmpegSha256=digest(ffmpeg_path), ffprobeSha256=digest(ffprobe_path),
                                codecSourceArchiveSha256=digest(codec_archive_path)),
@@ -234,6 +247,14 @@ IMAGE_DIGEST=""
 MEMORY=""
 CPUS=""
 PIDS=""
+NATIVE_RUNTIME_PROFILE=""
+NATIVE_RUNTIME_ARCH=""
+NATIVE_RUNTIME_SIDECAR_IMAGE=""
+NATIVE_RUNTIME_SIDECAR_DIGEST=""
+NATIVE_TEST_IMAGE_REF=""
+NATIVE_TEST_IMAGE_ID=""
+NATIVE_PREFLIGHT_LOG=""
+NATIVE_IMAGE_BUILD_LOG=""
 if [[ "$MODE" == mac-core ]]; then
   TEST_PROJECTS="libs/java/common,modules/speech/stt-service,modules/speech/tts-service,modules/vision/vision-service,modules/intelligence/multimodal-service,audio-video-observability"
 elif [[ "$MODE" == mac-integration ]]; then
@@ -297,6 +318,7 @@ if [[ "$MEDIA_CLEAN" != true || "$SHARED_CLEAN" != true ]]; then
   exit 4
 fi
 IMAGE="${MEDIA_MATRIX_IMAGE:-eclipse-temurin:27-jdk}"
+RUN_IMAGE="$IMAGE"
 MEMORY="${MEDIA_MATRIX_MEMORY:-8g}"
 CPUS="${MEDIA_MATRIX_CPUS:-4}"
 PIDS="${MEDIA_MATRIX_PIDS:-512}"
@@ -325,6 +347,19 @@ if [[ "$MODE" == *-native ]]; then
     CODEC_ARCHIVE_NAME="$candidate"
     CODEC_ARCHIVE_PATH="$CODECS/$candidate"
   fi
+  if [[ -d "$CODECS/native-runtime-packages" ]]; then
+    RUNTIME_PROFILE="${MODE%-native}"
+    RUNTIME_LOCK_LINE="$(bash "$ROOT/scripts/prepare-wave2-codecs.sh" --verify-runtime \
+      "$RUNTIME_PROFILE" "$CODECS/native-runtime-packages")"
+    IFS=$'\t' read -r NATIVE_RUNTIME_PROFILE NATIVE_RUNTIME_ARCH NATIVE_RUNTIME_SIDECAR_IMAGE <<< "$RUNTIME_LOCK_LINE"
+    NATIVE_RUNTIME_SIDECAR_DIGEST="${NATIVE_RUNTIME_SIDECAR_IMAGE##*@}"
+    [[ "$NATIVE_RUNTIME_SIDECAR_DIGEST" == sha256:* ]] || {
+      echo 'Pinned Noble runtime sidecar is missing its image digest.' >&2; exit 4;
+    }
+  elif [[ -n "$CODEC_ARCHIVE_NAME" ]]; then
+    echo 'The pinned LGPL codec archive requires the SHA-locked native runtime packages; rerun scripts/prepare-wave2-codecs.sh for this Linux architecture.' >&2
+    exit 4
+  fi
 fi
 if [[ "$MODE" == *-core ]]; then
   TEST_PROJECTS="libs/java/common,modules/speech/stt-service,modules/speech/tts-service,modules/vision/vision-service,modules/intelligence/multimodal-service,audio-video-observability"
@@ -346,6 +381,7 @@ git -C "$SHARED" archive HEAD | tar -xf - -C "$SCRATCH/Development/ghatana-share
 # Image must support Linux AMD64 and ARM64. Use a reviewed immutable digest for qualification.
 docker pull --platform "$PLATFORM" "$IMAGE"
 IMAGE_DIGEST="$(docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE" 2>/dev/null || true)"
+JAVA_IMAGE_BUILD_REF="${IMAGE_DIGEST:-$IMAGE}"
 printf 'WAVE2_LINUX_IMAGE platform=%s selected=%s inspected=%s\n' "$PLATFORM" "$IMAGE" "$IMAGE_DIGEST"
 if [[ "$IMAGE" != *@sha256:* ]]; then
   echo 'WARNING: unpinned image is a smoke/compatibility run, not fully pinned qualification.' >&2
@@ -359,6 +395,57 @@ JAVA_VERSION="$(docker run --rm --platform "$PLATFORM" "$IMAGE" java -version 2>
 printf 'WAVE2_LINUX_JAVA %s\n' "$JAVA_VERSION"
 if ! grep -Eq '(version "27|openjdk 27| 27[.])' <<<"$JAVA_VERSION"; then
   echo 'Selected container image does not run JDK 27.' >&2; exit 4
+fi
+
+if [[ "$MODE" == *-native && -n "$NATIVE_RUNTIME_SIDECAR_IMAGE" ]]; then
+  RUNTIME_CONTEXT="$SCRATCH/native-runtime-image"
+  mkdir -p "$RUNTIME_CONTEXT/native-runtime-packages"
+  cp "$ROOT/scripts/Dockerfile.wave2-native-test" "$RUNTIME_CONTEXT/Dockerfile"
+  cp "$CODECS/native-runtime-packages/"*.deb "$RUNTIME_CONTEXT/native-runtime-packages/"
+  cp "$CODECS/native-runtime-packages/SHA256SUMS" "$RUNTIME_CONTEXT/native-runtime-packages/"
+  docker pull --platform "$PLATFORM" "$NATIVE_RUNTIME_SIDECAR_IMAGE"
+  SIDECAR_OBSERVED="$(docker image inspect --format '{{index .RepoDigests 0}}' "$NATIVE_RUNTIME_SIDECAR_IMAGE" 2>/dev/null || true)"
+  if [[ "$SIDECAR_OBSERVED" != *"$NATIVE_RUNTIME_SIDECAR_DIGEST"* ]]; then
+    echo "Noble sidecar digest mismatch: expected=$NATIVE_RUNTIME_SIDECAR_DIGEST observed=$SIDECAR_OBSERVED" >&2
+    exit 4
+  fi
+  NATIVE_TEST_IMAGE_REF="ghatana-media-wave2-native-test:$RUN_ID"
+  NATIVE_IMAGE_BUILD_LOG="$REPORT_DIR/$MODE.native-image-build.log"
+  if ! docker build --pull --platform "$PLATFORM" \
+      --build-arg "JAVA_IMAGE=$JAVA_IMAGE_BUILD_REF" --build-arg "NOBLE_IMAGE=$NATIVE_RUNTIME_SIDECAR_IMAGE" \
+      --label "org.ghatana.media.wave2.media-commit=$MEDIA_SHA" \
+      --label "org.ghatana.media.wave2.shared-commit=$SHARED_SHA" \
+      --tag "$NATIVE_TEST_IMAGE_REF" --file "$RUNTIME_CONTEXT/Dockerfile" "$RUNTIME_CONTEXT" \
+      >"$NATIVE_IMAGE_BUILD_LOG" 2>&1; then
+    cat "$NATIVE_IMAGE_BUILD_LOG" >&2
+    echo 'Failed to build the pinned native-test runtime image.' >&2
+    exit 4
+  fi
+  NATIVE_TEST_IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$NATIVE_TEST_IMAGE_REF")"
+  NATIVE_PREFLIGHT_LOG="$REPORT_DIR/$MODE.native-preflight.log"
+  if ! docker run --rm --init --platform "$PLATFORM" \
+      --memory "$MEMORY" --cpus "$CPUS" --pids-limit "$PIDS" \
+      --user "$(id -u):$(id -g)" --volume "$CODECS:/opt/media-codecs:ro" \
+      "$NATIVE_TEST_IMAGE_REF" sh -eu -c '
+for binary in /opt/media-codecs/ffmpeg /opt/media-codecs/ffprobe; do
+  details="$(ldd "$binary")"
+  printf "%s\n%s\n" "$binary" "$details"
+  if printf "%s\n" "$details" | grep -Fq "not found"; then
+    echo "Unresolved native codec dependency: $binary" >&2
+    exit 7
+  fi
+done
+/opt/media-codecs/ffmpeg -version
+/opt/media-codecs/ffprobe -version
+/opt/media-codecs/ffmpeg -hide_banner -encoders 2>&1 | grep -F libopenh264
+/opt/media-codecs/ffmpeg -hide_banner -formats 2>&1 | awk '\''$1 ~ /D/ && $2 == "image2" { print; found=1 } END { exit !found }'\''
+' >"$NATIVE_PREFLIGHT_LOG" 2>&1; then
+    cat "$NATIVE_PREFLIGHT_LOG" >&2
+    echo 'Pinned native codec runtime preflight failed before Gradle.' >&2
+    exit 4
+  fi
+  cat "$NATIVE_PREFLIGHT_LOG"
+  RUN_IMAGE="$NATIVE_TEST_IMAGE_REF"
 fi
 
 DOCKER_ARGS=(
@@ -397,7 +484,7 @@ fi
 RUN_LOG="$REPORT_DIR/$MODE.gradle.log"
 RUN_STATUS=0
 set +e
-docker "${DOCKER_ARGS[@]}" "$IMAGE" sh -c '
+docker "${DOCKER_ARGS[@]}" "$RUN_IMAGE" sh -c '
 set -eu
 native_tools_dir=/gradle-home/caches/modules-2/files-2.1
 if [ -d "$native_tools_dir" ]; then

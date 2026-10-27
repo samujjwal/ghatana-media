@@ -22,9 +22,13 @@ const candidates = [
 
 test('one canonical runtime-only image candidate per Media service', () => {
   const dockerfiles = [...tracked]
-    .filter((path) => /(?:^|\/)Dockerfile(?:\.[^/]+)?$/u.test(path)).sort();
+    .filter((path) => /(?:^|\/)Dockerfile(?:\.[^/]+)?$/u.test(path)
+      && path !== 'scripts/Dockerfile.wave2-native-test').sort();
   assert.deepEqual(dockerfiles,
     candidates.map((candidate) => 'docker/Dockerfile.' + candidate.file).sort());
+  const nativeTestDockerfile = read('scripts/Dockerfile.wave2-native-test');
+  assert.match(nativeTestDockerfile, /test-only="true"/u,
+    'Linux codec runtime image must be explicitly test-only');
   const target = read('gradle/libs.versions.toml').match(/^java = "(\d+)"$/mu)?.[1];
   assert.ok(target, 'Media canonical Java bytecode target must be declared');
   for (const candidate of candidates) {

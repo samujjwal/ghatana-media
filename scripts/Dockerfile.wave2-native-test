@@ -1,0 +1,42 @@
+# syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+# Test-only derived Temurin image. Package archives are supplied by the
+# SHA-locked codec provisioner; this build never runs apt or contacts a package
+# repository.
+ARG JAVA_IMAGE
+ARG NOBLE_IMAGE
+
+FROM --platform=$TARGETPLATFORM ${NOBLE_IMAGE} AS native-runtime-libraries
+WORKDIR /tmp/wave2-runtime-packages
+COPY native-runtime-packages/ ./
+ARG TARGETARCH
+RUN set -eu; \
+    sha256sum -c SHA256SUMS; \
+    mkdir -p /tmp/extracted /runtime-libraries; \
+    for package in ./*.deb; do dpkg-deb -x "$package" /tmp/extracted; done; \
+    case "$TARGETARCH" in \
+      arm64) triplet=aarch64-linux-gnu ;; \
+      amd64) triplet=x86_64-linux-gnu ;; \
+      *) echo "Unsupported native-test architecture: $TARGETARCH" >&2; exit 2 ;; \
+    esac; \
+    cp -a "/tmp/extracted/usr/lib/$triplet/"*.so* /runtime-libraries/; \
+    test -e /runtime-libraries/libgnutls.so.30; \
+    test -e /runtime-libraries/libopenh264.so.7
+
+FROM --platform=$TARGETPLATFORM ${JAVA_IMAGE} AS native-test
+ARG JAVA_IMAGE
+ARG NOBLE_IMAGE
+ARG TARGETARCH
+LABEL org.ghatana.media.wave2.java-base="${JAVA_IMAGE}" \
+      org.ghatana.media.wave2.runtime-sidecar="${NOBLE_IMAGE}" \
+      org.ghatana.media.wave2.test-only="true"
+COPY --from=native-runtime-libraries /runtime-libraries/ /tmp/wave2-runtime-libraries/
+RUN set -eu; \
+    case "$TARGETARCH" in \
+      arm64) triplet=aarch64-linux-gnu ;; \
+      amd64) triplet=x86_64-linux-gnu ;; \
+      *) echo "Unsupported native-test architecture: $TARGETARCH" >&2; exit 2 ;; \
+    esac; \
+    mkdir -p "/usr/lib/$triplet"; \
+    cp -a /tmp/wave2-runtime-libraries/. "/usr/lib/$triplet/"; \
+    ldconfig; \
+    rm -rf /tmp/wave2-runtime-libraries /tmp/wave2-runtime-packages
