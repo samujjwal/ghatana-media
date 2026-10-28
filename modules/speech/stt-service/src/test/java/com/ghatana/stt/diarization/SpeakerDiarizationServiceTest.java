@@ -219,6 +219,24 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("adjacent turns may reuse an anonymous speaker label at the exact endpoint")
+        void adjacentTurnsReuseSpeakerLabelAtExactEndpoint() {
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> new float[] {1.0f, 0.0f})
+                    .admission(() -> true) // test fixture; no production rights authority is wired
+                    .maxSpeakers(1)
+                    .similarityThreshold(0.8)
+                    .build();
+
+            var turns = service.diarize(List.of(
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {1}, 0, 1000, "first"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {2}, 1000, 1500, "adjacent")));
+
+            assertThat(turns).extracting(SpeakerDiarizationService.SpeakerTurn::speakerId)
+                    .containsExactly("SPEAKER_0", "SPEAKER_0");
+        }
+
+        @Test
         @DisplayName("chooses an available matching label when the closest label is still active")
         void choosesAvailableSpeakerWhenClosestSpeakerOverlaps() {
             var service = SpeakerDiarizationService.builder()
