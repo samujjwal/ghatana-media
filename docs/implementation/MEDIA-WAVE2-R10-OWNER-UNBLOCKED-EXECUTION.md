@@ -62,7 +62,7 @@ The [R10 machine map](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json) routes **al
 
 Existing `LinuxVisionWorkerSandbox` requires writable delegated cgroup v2 and bubblewrap *within its process*. Docker Desktop successfully enforces **outer** container caps but does not expose the required inner cgroup delegation in the reported setup. **Stop retrying the same nested cgroup host.** The resolution is a trusted host-side OCI supervisor that creates **one container for one video processing job**. The untrusted worker is a child of the OCI runtime, not a Docker client.
 
-Use Docker's documented hard boundaries in the *trusted supervisor's* spawn parameters (not an application-user controlled shell):
+Use Docker's documented hard boundaries in the *trusted supervisor's* spawn parameters (not an application-user controlled shell). The host supervisor creates an owner-scoped private source staging file and supplies the matching **unprivileged UID/GID** to the container, never chmods protected media world-readable. On a Kubernetes worker, use an equivalent pre-provisioned read-only file owner/group binding rather than assuming the host user ID is present:
 
 ```bash
 # Illustrative supervisor-owned effective flags; not a command to expose to
@@ -73,7 +73,7 @@ docker run --rm --init --platform linux/arm64 \
   --security-opt=no-new-privileges:true \
   --tmpfs /tmp:rw,nosuid,nodev,exec,size=128m \
   --mount type=bind,src="<trusted-source-file>",dst=/source/input,readonly \
-  --user 10001:10001 --pull=never \
+  --user "$(id -u):$(id -g)" --pull=never \
   "<reviewed-worker-image>@sha256:<digest>" \
   <only-allowlisted-FFmpeg-operation-and-output>
 ```
