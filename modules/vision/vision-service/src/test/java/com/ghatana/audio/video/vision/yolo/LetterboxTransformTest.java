@@ -21,6 +21,13 @@ class LetterboxTransformTest {
                 .hasMessageContaining("Invalid letterbox geometry");
     }
 
+    @Test void rejectsBoxesWhoseRightOrBottomEdgeOverflows() {
+        assertThatThrownBy(() -> new LetterboxTransform.Box(Double.MAX_VALUE, 0, Double.MAX_VALUE, 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new LetterboxTransform.Box(0, Double.MAX_VALUE, 1, Double.MAX_VALUE))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
     @Test void sourcePixelBoxesRoundTripThroughModelCanvasWithinOnePixel() {
         int[][] dimensions = {{1920, 1080}, {720, 1280}, {333, 777}, {1280, 1280}};
         for (int[] size : dimensions) {

@@ -51,7 +51,8 @@ public record LetterboxTransform(
         public Box {
             if (!Double.isFinite(x) || !Double.isFinite(y)
                     || !Double.isFinite(width) || !Double.isFinite(height)
-                    || width < 0 || height < 0) {
+                    || width < 0 || height < 0
+                    || !Double.isFinite(x + width) || !Double.isFinite(y + height)) {
                 throw new IllegalArgumentException("Bounding box must contain finite coordinates and non-negative size");
             }
         }
