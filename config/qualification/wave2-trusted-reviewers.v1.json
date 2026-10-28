@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "ghatana.media.wave2.trusted-reviewers.v1",
+  "purpose": "Trust anchors for OFFLINE evidence packet integrity only; actual dispatch still depends on Shared PolicyEngine and MediaConsentAuthority",
+  "trustedReviewers": [],
+  "status": "NO_TRUSTED_REVIEWER_KEYS_INSTALLED",
+  "securityRequirements": [
+    "Owner must approve public key fingerprint and allowed evidence kinds by reviewed code change",
+    "Private signed grants remain outside repository",
+    "One signer cannot self-certify both commercial rights and quality if independence required",
+    "No key in a user-supplied evidence packet is trusted implicitly"
+  ]
+}
