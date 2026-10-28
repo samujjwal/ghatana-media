@@ -1,5 +1,8 @@
 # Ghatana Media — backend modalities + observability, five-surface implementation wave
 
+> **ACTIVE WORK QUEUE — 2026-10-28:** [Single current executable Media Wave 2 plan](MEDIA-WAVE2-ACTIVE-EXECUTION.md). It consumes this file's original 58 task acceptance, the R8 exact 36-row criteria and R10 owner decision gates; no parallel plan can silently promote tasks. Latest `4196698a` host OCI implementation has real OOM/PID and real FFmpeg opt-in test **source** committed; Docker/JDK27 re-execution on that code is still required. STT remains pre-job denied until genuine source rights and durable transcript-store authority are composed. Baseline **22 verified / 30 partial / 6 external**.
+
+
 > **ACTIVE R10 EXECUTION CHOICE — 2026-10-28:** [Outcome-first owner-approved unblock and precise host-OCI/real-provider plan](MEDIA-WAVE2-R10-OWNER-UNBLOCKED-EXECUTION.md) plus [36-row 12-gate machine-readable disposition](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json). Latest R9 real Whisper/Piper/YOLOX candidate output and Mac/Linux perf are development observations, not 58-task promotions. R10 changes the stalled native path from unavailable nested cgroup delegation to a **trusted per-invocation OCI host supervisor**, approves opt-in Whisper thread-pool A/B and full independent gold, and routes all genuine external rights/API work to named owners. Task authority, 99 memberships, 43 RPCs and 12 scenarios remain here; **22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL** until original whole-row proof. New R10 source tests and decode safeguards require actual JDK27 reruns.
 
 
