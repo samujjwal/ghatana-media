@@ -145,6 +145,30 @@ class EmbeddingEncryptionServiceTest {
             assertThatThrownBy(() -> service.encryptEmbedding(new float[0], key))
                     .isInstanceOf(IllegalArgumentException.class);
         }
+
+        @Test
+        @DisplayName("rejects non-finite components before encryption")
+        void encrypt_nonFiniteEmbedding_throws() {
+            for (float invalid : new float[] {Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY}) {
+                assertThatThrownBy(() -> service.encryptEmbedding(new float[] {0.25f, invalid}, key))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("finite");
+            }
+        }
+
+        @Test
+        @DisplayName("rejects authenticated ciphertext containing a non-finite embedding component")
+        void decrypt_authenticatedNonFiniteEmbedding_throws() {
+            byte[] nan = java.nio.ByteBuffer.allocate(Float.BYTES)
+                    .order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                    .putFloat(Float.NaN)
+                    .array();
+            String ciphertext = service.encryptBytes(nan, key);
+
+            assertThatThrownBy(() -> service.decryptEmbedding(ciphertext, key))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("finite");
+        }
     }
 
     @Nested

@@ -111,9 +111,10 @@ public final class EmbeddingEncryptionService {
      * <p>Wire format: {@code Base64([12-byte IV][encrypted float bytes][16-byte GCM tag])}</p>
      *
      * @param embedding plaintext embedding vector (must not be {@code null} or empty)
-     * @param key       AES-256 encryption key
+     * @param key       AES-256 encryption key (must not be {@code null})
      * @return Base64-encoded ciphertext string
-     * @throws IllegalArgumentException if {@code embedding} is null or empty
+     * @throws NullPointerException if {@code embedding} or {@code key} is {@code null}
+     * @throws IllegalArgumentException if {@code embedding} is empty or contains a non-finite component
      * @throws EmbeddingEncryptionException if encryption fails
      */
     public String encryptEmbedding(float[] embedding, SecretKey key) {
@@ -122,6 +123,7 @@ public final class EmbeddingEncryptionService {
         if (embedding.length == 0) {
             throw new IllegalArgumentException("embedding must not be empty");
         }
+        validateFiniteEmbedding(embedding);
         byte[] plaintext = floatsToBytes(embedding);
         return encryptBytes(plaintext, key);
     }
@@ -129,10 +131,12 @@ public final class EmbeddingEncryptionService {
     /**
      * Decrypts a Base64-encoded ciphertext string back to a float-array voice embedding.
      *
-     * @param ciphertext Base64-encoded ciphertext produced by {@link #encryptEmbedding}
-     * @param key        AES-256 decryption key
+     * @param ciphertext Base64-encoded ciphertext produced by {@link #encryptEmbedding} (must not be {@code null})
+     * @param key        AES-256 decryption key (must not be {@code null})
      * @return decrypted embedding vector
-     * @throws IllegalArgumentException if {@code ciphertext} is null or blank
+     * @throws NullPointerException if {@code ciphertext} or {@code key} is {@code null}
+     * @throws IllegalArgumentException if {@code ciphertext} is blank or authenticated plaintext contains a
+     *         non-finite component
      * @throws EmbeddingEncryptionException if decryption or authentication fails
      */
     public float[] decryptEmbedding(String ciphertext, SecretKey key) {
@@ -142,7 +146,9 @@ public final class EmbeddingEncryptionService {
             throw new IllegalArgumentException("ciphertext must not be blank");
         }
         byte[] plaintext = decryptBytes(ciphertext, key);
-        return bytesToFloats(plaintext);
+        float[] embedding = bytesToFloats(plaintext);
+        validateFiniteEmbedding(embedding);
+        return embedding;
     }
 
     /**
@@ -219,6 +225,14 @@ public final class EmbeddingEncryptionService {
             buf.putFloat(f);
         }
         return buf.array();
+    }
+
+    private static void validateFiniteEmbedding(float[] embedding) {
+        for (int i = 0; i < embedding.length; i++) {
+            if (!Float.isFinite(embedding[i])) {
+                throw new IllegalArgumentException("embedding component must be finite at index " + i);
+            }
+        }
     }
 
     private static float[] bytesToFloats(byte[] bytes) {
