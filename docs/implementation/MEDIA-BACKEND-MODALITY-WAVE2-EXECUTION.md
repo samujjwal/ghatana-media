@@ -1,5 +1,8 @@
 # Ghatana Media — backend modalities + observability, five-surface implementation wave
 
+> **ACTIVE R10 EXECUTION CHOICE — 2026-10-28:** [Outcome-first owner-approved unblock and precise host-OCI/real-provider plan](MEDIA-WAVE2-R10-OWNER-UNBLOCKED-EXECUTION.md) plus [36-row 12-gate machine-readable disposition](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json). Latest R9 real Whisper/Piper/YOLOX candidate output and Mac/Linux perf are development observations, not 58-task promotions. R10 changes the stalled native path from unavailable nested cgroup delegation to a **trusted per-invocation OCI host supervisor**, approves opt-in Whisper thread-pool A/B and full independent gold, and routes all genuine external rights/API work to named owners. Task authority, 99 memberships, 43 RPCs and 12 scenarios remain here; **22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL** until original whole-row proof. New R10 source tests and decode safeguards require actual JDK27 reruns.
+
+
 > **Media-wide candidate decisions (2026-10-28):** [Consolidated 22-domain decision register](MEDIA-CANDIDATE-DECISIONS-CONSOLIDATED-2026-10-28.md) and its [source-linked index](observations/media-candidate-decision-crosswalk-2026-10-28.json) reconcile 38 source-selected PDP-0 technology roles, prior editor/voice/image/video/music/animation/simulation choices, R9 six evaluation assets and historical alternatives. This index never replaces the PDP-0 selection authority or promotes a model. Run `pnpm check:candidate-decision-crosswalk` after a change. The Wave 2 ledger and all original acceptance criteria remain unchanged.
 
 
