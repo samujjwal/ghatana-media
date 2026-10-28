@@ -1,5 +1,8 @@
 # Ghatana Media Wave 2 — R9 consolidated evidence acquisition and qualification execution
 
+> **ACTIVE R10 continuation:** [Owner-approved working unblock plan](MEDIA-WAVE2-R10-OWNER-UNBLOCKED-EXECUTION.md) and [12 exact evidence/implementation gates](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json) supersede retrying an unavailable delegated cgroup setup and accepting keyword-only Whisper text. R9 original candidate catalog, rights protections, provenance pins, and test tools stay authoritative for their respective sources and are not deleted.
+
+
 > **Candidate inventory boundary:** The six reference assets in [R9's candidate catalog](../../config/qualification/wave2-reference-candidates.v1.json) are **not** all historical Ghatana Media selections. The [Media-wide 22-domain candidate decision register](MEDIA-CANDIDATE-DECISIONS-CONSOLIDATED-2026-10-28.md) reconciles the prior PDP-0 38 technology choices, blueprint/migration source research and earlier discussion-only options. Model asset qualification remains R9-only and does not modify earlier technology selection status.
 
 
