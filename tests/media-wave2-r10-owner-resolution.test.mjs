@@ -62,3 +62,57 @@ test('host OCI resolution does not weaken cross-platform safety or promote VIS-0
   assert.equal(plan.remainingTasks.find((x) => x.taskId === 'VIS-03').taskAccepted, false);
   assert.deepEqual(plan.approvedReferenceQualificationProfiles.referenceEnvironment.windows, 'DEFERRED');
 });
+
+
+test('current source owner dispositions never silently admit a provider or task', () => {
+  assert.equal(plan.latestOwnerResolution.protectedLedger.total, 58);
+  assert.equal(plan.latestOwnerResolution.protectedLedger.verified, 22);
+  assert.equal(plan.latestOwnerResolution.protectedLedger.partial, 30);
+  assert.equal(plan.latestOwnerResolution.protectedLedger.external, 6);
+  assert.equal(plan.latestOwnerResolution.protectedLedger.change, 0);
+  assert.equal(plan.latestOwnerResolution.currentReviewedSource,
+    'samujjwal/ghatana-media@ef823571b1dbbed2c1ea38fa291657cb04855103');
+  const ownerDecisions = plan.latestOwnerResolution.decisions;
+  assert.equal(ownerDecisions.length, 13);
+  assert.equal(new Set(ownerDecisions.map((row) => row.id)).size, ownerDecisions.length);
+  assert.ok(ownerDecisions.some((row) => row.disposition === 'EXTERNAL_EVIDENCE_NEEDED_NOT_APPROVABLE'));
+  for (const row of plan.remainingTasks) {
+    assert.ok(row.executionOwnership.accountableMediaRole, row.taskId + ' missing owned role');
+    assert.equal(row.executionOwnership.implementationRepository, 'samujjwal/ghatana-media');
+    assert.equal(row.executionOwnership.taskAcceptance, 'UNCHANGED_FULL_ORIGINAL_ROW');
+    assert.equal(row.taskAccepted, false);
+    assert.equal(row.qualifiedResult, null);
+    assert.equal(row.executionOwnership.exogenousProofRequired,
+      row.currentDisposition === 'OWNER_EXTERNAL');
+  }
+  assert.match(plan.remainingTasks.find((x) => x.taskId === 'VIS-09')
+    .executionOwnership.platformHandoff, /Ghatana Document Intelligence/);
+  assert.match(plan.remainingTasks.find((x) => x.taskId === 'MM-10')
+    .executionOwnership.platformHandoff, /Ghatana Data Cloud/);
+});
+
+test('reported OCI BMP passes never certify missing PNG or a production broker', () => {
+  const latest = plan.activeExecutionReadback;
+  assert.deepEqual(latest.verifiedObservationFromUser.visionStubOci, { passed: 4, total: 4 });
+  assert.equal(latest.verifiedObservationFromUser.visionRealFfmpeg.passed, 3);
+  assert.equal(latest.verifiedObservationFromUser.visionRealFfmpeg.positiveCodec, 'BMP');
+  assert.equal(latest.verifiedObservationFromUser.visionRealFfmpeg.pngPositive, 'NOT_VERIFIED');
+  assert.equal(latest.verifiedObservationFromUser.delegatedCgroup.skipped, 1);
+  assert.ok(latest.verifiedObservationFromUser.noAcceptedRowsPromoted);
+  assert.ok(Object.values(latest.gateStates).every((gate) => gate.wholeRowAcceptance === 'NOT_ACCEPTED'));
+  assert.match(latest.gateStates.G06.nextAction, /PNG-capable pinned licensed codec image/);
+  assert.match(latest.gateStates.G06.nextAction, /authenticated separate OCI host broker/);
+  assert.match(latest.gateStates.G02.observedGap, /no actual production source-owner/);
+  assert.match(latest.gateStates.G03.observedGap, /candidate fenced-attempt CAS/);
+});
+
+test('the authoritative Media privacy policy distinguishes engineering from legal admission', () => {
+  const policy = readFileSync(resolve(root, 'docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md'), 'utf8');
+  assert.match(policy, /## 13\. Wave 2 source-rights/);
+  assert.match(policy, /APPROVED FOR ENGINEERING IMPLEMENTATION; NO PRODUCTION RIGHTS OR QUALITY GRANT/);
+  assert.match(policy, /current Shared ALLOW decision/);
+  assert.match(policy, /CANDIDATE/);
+  assert.match(policy, /not PNG proof/);
+  assert.match(policy, /real human recording still requires/);
+  assert.match(policy, /separately authenticated, least-privilege host\/CRI broker/);
+});
