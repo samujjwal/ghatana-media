@@ -2102,3 +2102,13 @@ Record validation on this cut: `pnpm test:backend-modality-wave2-plan` **7/7**, 
 The focused suites run for the two changes were `:services:media:audio-video-observability:test --tests 'com.ghatana.audiovideo.observability.performance.MediaResourceProfileHarnessTest'` (**8/8**) and `:services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineTest'` (**36/36**), serialized on Temurin 27.0.1.0.2. The 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**; all 36 open rows remain unaccepted and none is promoted. These code reviews are not owner/product approval or formal PDP/gtool closure.
 
 Record validation after these commits: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse and `git diff --check` passed. The plan test reconciled all 58 rows, 99 capability memberships and 43 RPC identities; all 36 open tasks remain unaccepted.
+
+### R7 Vision timestamp ambiguity follow-up — 2026-10-27
+
+**Media code cut:** `650e77883a8e0e83914904b86d884bc174f27d7a`. `VideoFrameExtractor.timestampForOutputFrame` now returns `UNKNOWN` with reason `SOURCE_PTS_AMBIGUOUS` when more than one FFmpeg `showinfo` record claims the same emitted frame ordinal; it no longer arbitrarily selects the first timestamp. A focused regression covers duplicate ordinals. `VideoFrameExtractorProcessTest` passed **53/53, 0 failures, 0 errors, 0 skips** on macOS ARM64 / Temurin 27.0.1.0.2. Independent Luna review approved the fail-closed result and confirmed single-match/missing-match behavior remains unchanged.
+
+This parser safeguard is a narrow VIS-07 improvement. **VIS-07 remains PARTIAL:** production source-clock mapping and canonical source/version provenance are incomplete, and tracks, shot boundaries, and camera-motion outputs still lack qualified model/corpus evidence. A parallel OBS-06 review found no local defect: durable metric refresh already preserves unknown/stale semantics and its source row is `LOCALLY_VERIFIED`; live alert delivery remains tracked under OBS-07.
+
+The 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**. All 36 open rows remain unaccepted; no row was promoted and no owner or lifecycle approval is inferred.
+
+Record validation: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse and `git diff --check` passed. The plan test reconfirmed the 58-row denominator, 99 capability memberships, and 43 gRPC RPC identities.
