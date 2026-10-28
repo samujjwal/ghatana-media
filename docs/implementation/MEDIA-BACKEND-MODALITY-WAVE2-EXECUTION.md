@@ -2410,6 +2410,11 @@ The JDK 27 runtime-contract suite passed **85/85** (0 failures, errors, or
 skips). Focused PostgreSQL provider tests passed **11/11** (artifact admission
 8/8; attempt readback 2/2; transcript attempt binding 1/1; 0 failures,
 errors, or skips) with PostgreSQL 16 and LocalStack 3.8 Testcontainers.
+The existing `MediaDurableWorkerCrashIT` also passed **9/9** with Docker and
+LocalStack available. It exercises recovery between two store instances over
+an H2 in-memory database: the simulated crash abandons a lease, and restart
+recreates the store and runs recovery. It does not terminate or restart an OS
+process, and it does not test PostgreSQL restart.
 The Wave 2 plan validator passed **7/7**, repository hygiene passed **19/19**,
 schedule JSON parsing passed, and `git diff --check` passed.
 The processing-attempt suite covers successful, failed, no-effect-proven,
