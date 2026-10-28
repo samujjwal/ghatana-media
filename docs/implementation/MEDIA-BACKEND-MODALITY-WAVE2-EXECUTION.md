@@ -2355,3 +2355,21 @@ The STT-05 review found no remaining safe validator-only change: sequence/sessio
 These increments improve isolated persistence and projection boundaries only. **STT-08, STT-09, and STT-05 remain PARTIAL** because canonical source/rights admission, actual authorized provider result readback, and end-to-end streaming are not established. No row was promoted; all 36 open rows remain unaccepted.
 
 An independent Luna current-cut reread at `8533cb023a60833d92c37179f294c3ff09e64d44` reconfirmed that the Markdown inventory and schedule contain the same **58 unique task IDs**, with no missing or duplicate rows. The partition remains **22 locally verified / 30 partial / 6 owner-external**; every one of the 36 open rows remains `taskAccepted=false`. The STT-08/09 increments do not satisfy their remaining row-level acceptance criteria.
+
+### R7 STT-07 timeline bound and current STT suite — 2026-10-28
+
+At code cut `0317eb06109066016cae7b0e96a82c5666c7dbd4`, `SpeakerDiarizationService` enforces PDP-1's `maximumTimelineDurationMilliseconds: 86400000` across the complete source timeline. Over-bound segments fail before embedding dispatch and before borrowed input payloads are copied; exactly one day is accepted. The focused `SpeakerDiarizationServiceTest` passed **36/36** on Temurin 27.0.1.0.2, covering the exact bound, +1 ms rejection/no provider call, and the borrowed-input path. Independent Luna review confirmed the bound and pre-effect ordering. This does not enable speaker identity or establish diarization quality.
+
+```sh
+env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.diarization.SpeakerDiarizationServiceTest --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+The complete STT module suite then passed **351/351**, 0 failures/errors/skips, on the combined STT-04/07/09 source cut. The Gradle graph completed successfully with 56 tasks (2 executed, 54 up-to-date).
+
+```sh
+JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:modules:speech:stt-service:test --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+The STT-03/08 fingerprint review found PDP-1's canonical transcription submission fingerprint is a fixed 22-field ordered value. `MediaRuntime.submit` rejects STT before job creation or fingerprint computation. The current request path lacks trusted delegation, exact typed operation/request inputs, purpose and ordered rights evidence, authoritative consent/retention/policy resolutions, and policy-resolved processing location; the profile digest representation also differs (`sha256:<hex>` versus v4's bare lowercase 64-hex). No safe fingerprint or job admission can be produced from the current inputs, so STT stays `NOT_ADMITTED` pending those authorities and the public binding.
+
+An independent Luna reread at `0317eb06109066016cae7b0e96a82c5666c7dbd4` reconfirmed **58 unique Markdown task IDs**, exact schedule agreement, and **22 locally verified / 30 partial / 6 owner-external**. **STT-07 remains PARTIAL**: the duration guard does not supply trusted purpose/rights authority, an admitted embedding provider, or corpus-backed quality evidence. No task was promoted; all 36 open rows remain unaccepted.

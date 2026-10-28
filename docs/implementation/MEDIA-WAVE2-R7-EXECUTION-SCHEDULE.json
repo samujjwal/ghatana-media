@@ -3951,5 +3951,43 @@
       "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
     },
     "claim": "Local persistence bounds and cross-service job projection are stronger and verified, but no STT task is complete or accepted without its remaining canonical bindings and authorized provider evidence."
+  },
+  "postR7Oct28Stt07AndFingerprintReview": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {"media": "0317eb06109066016cae7b0e96a82c5666c7dbd4", "branch": "main"},
+    "STT-07": {
+      "change": "SpeakerDiarizationService enforces PDP-1 maximumTimelineDurationMilliseconds=86400000 over the full source span before embedding dispatch and borrowed payload copies.",
+      "focusedTest": {"SpeakerDiarizationServiceTest": 36, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "independentReview": "Luna confirmed one-day maximum, safe duration arithmetic under start/end constructor bounds, and pre-effect placement.",
+      "disposition": "PARTIAL",
+      "remaining": "No trusted rights/purpose authority, admitted embedding provider, or corpus-backed quality/uncertainty evidence."
+    },
+    "currentSttModuleSuite": {"tests": 351, "failures": 0, "errors": 0, "skipped": 0, "gradleTasks": 56, "executed": 2, "upToDate": 54, "result": "PASS"},
+    "sttSubmissionFingerprintV4Review": {
+      "source": ".product-experience/pdp-1-domain-data/operations.yaml#media.transcription-submission-fingerprint.v4",
+      "fieldCount": 22,
+      "runtimeStatus": "MediaRuntime rejects STT before job creation or fingerprint computation.",
+      "missingTrustedInputs": ["delegation", "typed operation/request", "purpose", "ordered rights evidence", "consent/retention/policy resolutions", "policy-resolved processing location"],
+      "formatMismatch": "Runtime profile configuration digest uses sha256:<hex>, while v4 requires a bare lowercase 64-hex digest.",
+      "disposition": "Remain NOT_ADMITTED; no safe v4 fingerprint or job admission can be produced from current inputs."
+    },
+    "currentCutAudit": {
+      "reviewer": "Independent Luna current-cut audit",
+      "markdownRows": 58,
+      "scheduleRows": 58,
+      "uniqueIds": 58,
+      "missingOrDuplicateIds": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "aggregate": {"locallyVerified": 22, "partial": 30, "ownerExternal": 6},
+      "STT-07": "PARTIAL",
+      "rowsPromoted": 0,
+      "result": "PASS"
+    },
+    "disposition": {
+      "rowsPromoted": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "claim": "The STT-07 bound is implemented and verified locally; broader diarization, fingerprint admission, and the 58-row acceptance state remain incomplete."
   }
 }
