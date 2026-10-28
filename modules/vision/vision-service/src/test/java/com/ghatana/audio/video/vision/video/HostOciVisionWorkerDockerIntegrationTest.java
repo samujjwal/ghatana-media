@@ -86,6 +86,8 @@ class HostOciVisionWorkerDockerIntegrationTest {
                         java.nio.charset.StandardCharsets.UTF_8);
                 assertThat(diagnostic).as("Require actual pids.events max>0, not a synthetic denial")
                         .contains("HOST_OCI_PID_LIMIT_HIT");
+                assertThat(process.exitValue()).as("A PID-exhausted codec must never report success")
+                        .isNotZero();
                 assertThat(Files.exists(fixture.output().resolve("frame.jpg"))).isFalse();
             }
         }
