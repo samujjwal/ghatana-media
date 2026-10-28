@@ -3,6 +3,7 @@ package com.ghatana.media.runtime;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -162,7 +163,8 @@ public final class MediaSpeechToTextAdmission {
         if (request.expectedArtifactVersion().isBlank()) {
             reasons.add(Reason.EXACT_SOURCE_VERSION_REQUIRED);
         } else if (artifact == null
-                || !request.expectedArtifactVersion().equals(artifact.version().value())) {
+                || !request.expectedArtifactVersion().equals(artifact.version().value())
+                || !artifact.expiresAt().isAfter(Instant.now())) {
             reasons.add(Reason.SOURCE_VERSION_STALE_OR_NOT_FOUND);
         }
 
