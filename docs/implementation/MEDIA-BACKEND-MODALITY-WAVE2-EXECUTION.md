@@ -2505,3 +2505,74 @@ runtime, quality, process-recovery, host-measurement, or public-API gates.
 After the record update, the Wave 2 plan validator passed **7/7**, repository
 hygiene passed **19/19**, and the schedule JSON parse and `git diff --check`
 both passed.
+
+### R7 owner-requested native, core, and candidate-image verification — 2026-10-28
+
+At Media cut `fb087be4b159d7a5f7824320a338800210b924a4` and Shared cut
+`0b19e750bf3906e187e8d804c9313bd451a58667`, the pinned macOS ARM64 and Linux
+ARM64 native Vision suites each passed **56/56** with zero failures, errors,
+or skips. The Linux run used Temurin 27, the pinned Ubuntu 24.04 ARM64 codec
+runtime, and an outer Docker limit of 8 GiB, 4 CPUs, and 512 PIDs. These are
+fixture execution bounds, not per-worker CPU/RSS/PID-tree or scratch
+enforcement. Machine-readable evidence is in
+`/private/tmp/ghatana-media-wave2-r7-fb087be4/{mac-native,linux-arm64-native}.json`.
+
+The same cut's macOS and Linux ARM64 core lanes each reported **1,837 tests,
+zero failures, zero errors, and 3 opt-in native skips** across 244 suite files.
+Linux executed all 108 selected tasks; macOS executed STT/TTS/Vision and reused
+unchanged Multimodal/Observability outputs. The three skips are
+`pinnedNativeToolsBoundSyntheticH264AacVfrAndWebpInputs`,
+`nativeTimeoutOutputByteAndInputPathGuardsFailClosedAndCleanStaging`, and
+`repeatedOpenCvMatReleaseClearsNativeDataWithoutAProviderModel`; each passed
+in both separate same-cut native lanes above. Preserve the core skip count as
+reported. Current-cut Multimodal evidence for the MM-02 privacy fix remains
+**318/318** from its full module suite; Linux core also executed its current
+Multimodal tests. Core/native reports are
+`/private/tmp/ghatana-media-wave2-r7-fb087be4/{mac-core,linux-arm64-core}.json`.
+
+At `fb087be4`, `PersistentMultimodalService.search(tenantId, query)` was
+changed to fail closed with `MULTIMODAL_SEARCH_NOT_ADMITTED` before querying
+stored transcript text, until principal-scoped read authority exists. Its
+regression verifies that `findByTenantId` is never called. The full Multimodal
+suite passed **318/318**, and an independent Luna review found no must-fix;
+repository search found no production callers of this legacy tenant-only
+method. This closes that local unauthorized-read path but does not satisfy
+MM-02's trusted rights/consent, immutable source/version binding, or authorized
+per-modality provider-egress criteria. **MM-02 remains PARTIAL.**
+
+The speech distribution tasks passed on Temurin 27, then local STT/TTS images
+were built from the current install distributions. At clean Media cut
+`aba8369a33388475fe86c1ca82e7382f8ced6f87`, the candidate image tags were
+`ghatana/stt-service:wave2-aba8369a` (image
+`sha256:7e118871ba4a753a53768f2f60e0425010e734a088add308493f3741b590480b`)
+and `ghatana/tts-service:wave2-aba8369a` (image
+`sha256:14afebd30aa144247571493c2b0a8b995eeeb92dd928b3831fb5051039260599`).
+The `mac-integration` lane passed **269/269**, across 55 suite files, with no
+failures, errors, or skips. Its 9 GH-90000 image-gated cases all ran and
+passed: typed STT/TTS admission refusal, no false transcript/audio success,
+no published service ports, Java 27 runtime, and bounded payload-free refusal
+diagnostics. The lane also ran 63 integration-test cases and 87 PostgreSQL
+provider cases; its 119 launcher results were reused from the complete
+119/119 launcher suite pass on the unchanged launcher source. The migration
+lineage fixture had stale V021-era expectations; test-only commit `aba8369a`
+updates its forward migration count to 14 (V010–V023) and total versioned
+history to 23. The focused fixture passed 1/1 and the full current-cut
+integration lane passed. Evidence is
+`/private/tmp/ghatana-media-wave2-r7-aba8369a/mac-integration.json`.
+
+The first integration attempt also hit a non-reproduced staging-file timing
+assertion in the launcher suite. The focused test and full 119-test launcher
+suite passed on rerun; the final current-cut matrix reused that unchanged,
+passing launcher result. No launcher implementation or test was changed.
+
+These executions do not satisfy model/voice/license/rights admission, positive
+provider behavior, licensed-corpus quality, real provider load measurements,
+the public Data Cloud or Document Intelligence APIs, or trusted per-worker
+isolation. The current all-row audit still reconciles **58 unique IDs** to
+**22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL**; all 36 open rows
+remain unaccepted and **no task was promoted**. The six owner-external rows
+remain **TTS-07, VIS-02, STT-12, TTS-12, VIS-12, and MM-12**. Owner confirmation
+is still “Nothing available yet” for rights/consent, model/license/corpus
+approvals, the named owner APIs, and trusted worker isolation. Test execution
+and local candidate images are not owner acceptance, formal PDP/gtool
+closure, deployment, or release evidence.

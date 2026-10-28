@@ -4140,5 +4140,204 @@
     "disposition": {"rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "externalRightsAdmitted": false, "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}},
     "recordValidation": {"backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"}, "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"}, "scheduleJson": "PASS", "gitDiffCheck": "PASS"},
     "claim": "All 58 task identities and current dispositions were independently audited at this code cut. This verifies inventory and evidence/disposition consistency, not 58 task acceptances, formal PDP/gtool closure, deployment, or release."
+  },
+  "postR7Oct28OwnerRequestedPlatformAndImageVerification": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {
+      "media": "aba8369a33388475fe86c1ca82e7382f8ced6f87",
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "branch": "main",
+      "mediaWorkingTreeCleanBeforeRecord": true,
+      "sharedWorkingTreeClean": true
+    },
+    "previousRuntimeAndCoreCut": {
+      "media": "fb087be4b159d7a5f7824320a338800210b924a4",
+      "relation": "aba8369a changes only MediaMigrationLineageFixtureTest expectations/comments for existing V022/V023; no runtime, native, or core test source changed"
+    },
+    "independentReview": {
+      "all58RowAudit": {
+        "sourceCut": "fb087be4b159d7a5f7824320a338800210b924a4",
+        "rows": 58,
+        "uniqueIds": 58,
+        "locallyVerified": 22,
+        "partial": 30,
+        "ownerExternal": 6,
+        "all36OpenRowsTaskAccepted": false,
+        "dispositionMismatch": false,
+        "rowsPromoted": 0,
+        "result": "PASS"
+      },
+      "migrationFixture": {
+        "independentLunaReviews": 2,
+        "result": "PASS",
+        "finding": "All V001..V023 migrations exist; V010..V023 is 14 forward migrations and total versioned history is 23. No migration source change is required."
+      }
+    },
+    "mm02PrivacyFix": {
+      "commit": "fb087be4b159d7a5f7824320a338800210b924a4",
+      "path": "modules/intelligence/multimodal-service/src/main/java/com/ghatana/audio/video/multimodal/service/PersistentMultimodalService.java",
+      "behavior": "search(tenantId, query) returns MULTIMODAL_SEARCH_NOT_ADMITTED before transcript storage access until principal-scoped read authority is supplied",
+      "regressionPath": "modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/service/PersistentMultimodalServiceMetricPrivacyTest.java",
+      "regression": "findByTenantId is never called",
+      "fullSuite": {"tests": 318, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "independentLunaReview": "PASS_NO_MUST_FIX",
+      "productionCallersFound": 0,
+      "disposition": "MM-02 remains PARTIAL; source rights/consent, immutable source/version binding, and authorized modality provider egress remain unavailable."
+    },
+    "nativeRuns": {
+      "macNative": {
+        "sourceCut": "fb087be4b159d7a5f7824320a338800210b924a4",
+        "tests": 56,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "result": "PASS",
+        "report": "/private/tmp/ghatana-media-wave2-r7-fb087be4/mac-native.json"
+      },
+      "linuxArm64Native": {
+        "sourceCut": "fb087be4b159d7a5f7824320a338800210b924a4",
+        "tests": 56,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "result": "PASS",
+        "outerDockerLimits": {
+          "memory": "8g",
+          "cpus": "4",
+          "pids": "512"
+        },
+        "report": "/private/tmp/ghatana-media-wave2-r7-fb087be4/linux-arm64-native.json",
+        "limitation": "Container-wide limits and fixture/native execution do not enforce per-worker CPU/RSS/PID-tree or scratch ceilings."
+      }
+    },
+    "coreRuns": {
+      "macCore": {
+        "tests": 1837,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 3,
+        "suiteFiles": 244,
+        "gradleTasks": 109,
+        "executed": 5,
+        "upToDate": 104,
+        "report": "/private/tmp/ghatana-media-wave2-r7-fb087be4/mac-core.json"
+      },
+      "linuxArm64Core": {
+        "tests": 1837,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 3,
+        "suiteFiles": 244,
+        "gradleTasks": 108,
+        "executed": 108,
+        "upToDate": 0,
+        "report": "/private/tmp/ghatana-media-wave2-r7-fb087be4/linux-arm64-core.json"
+      },
+      "skips": [
+        "VisionNativeBoundedIT.pinnedNativeToolsBoundSyntheticH264AacVfrAndWebpInputs",
+        "VisionNativeBoundedIT.nativeTimeoutOutputByteAndInputPathGuardsFailClosedAndCleanStaging",
+        "VisionNativeBoundedIT.repeatedOpenCvMatReleaseClearsNativeDataWithoutAProviderModel"
+      ],
+      "skipDisposition": "All three skipped in each core invocation and passed in both same-cut native invocations.",
+      "limitation": "Core/native execution does not provide real-provider quality or named-host provider resource measurements; no per-worker resource profile was emitted."
+    },
+    "candidateImages": {
+      "installDist": {
+        "result": "BUILD_SUCCESSFUL",
+        "gradleTasks": 63,
+        "executed": 1,
+        "upToDate": 62,
+        "java": "Temurin 27"
+      },
+      "stt": {
+        "tag": "ghatana/stt-service:wave2-aba8369a",
+        "imageId": "sha256:7e118871ba4a753a53768f2f60e0425010e734a088add308493f3741b590480b"
+      },
+      "tts": {
+        "tag": "ghatana/tts-service:wave2-aba8369a",
+        "imageId": "sha256:14afebd30aa144247571493c2b0a8b995eeeb92dd928b3831fb5051039260599"
+      },
+      "claim": "Local fail-closed test candidates only; no model, voice, rights, or provider effect is admitted."
+    },
+    "macIntegration": {
+      "sourceCut": "aba8369a33388475fe86c1ca82e7382f8ced6f87",
+      "tests": 269,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "suiteFiles": 55,
+      "projectCounts": {
+        "integrationTests": 63,
+        "launcher": 119,
+        "awsPostgresql": 87
+      },
+      "projectExecution": {
+        "integrationTests": "EXECUTED",
+        "launcher": "UP-TO-DATE_REUSED_119_OF_119_PASSING_LAUNCHER_SUITE_ON_UNCHANGED_LAUNCHER_INPUTS",
+        "awsPostgresql": "EXECUTED"
+      },
+      "gh90000ImageGatedCases": {
+        "tests": 9,
+        "passed": 9,
+        "failures": 0,
+        "skips": 0
+      },
+      "report": "/private/tmp/ghatana-media-wave2-r7-aba8369a/mac-integration.json",
+      "result": "BUILD_SUCCESSFUL"
+    },
+    "migrationLineageFixtureCorrection": {
+      "commit": "aba8369a33388475fe86c1ca82e7382f8ced6f87",
+      "changed": "test expectation/comments only; seeded V001..V009 fixture still migrates all current versions",
+      "forwardMigrationsExpected": 14,
+      "totalVersionedHistoryExpected": 23,
+      "focusedTest": {
+        "tests": 1,
+        "failures": 0,
+        "result": "PASS"
+      },
+      "noMigrationFilesChanged": true
+    },
+    "ownerEvidenceAvailability": {
+      "confirmedByUser": "Nothing available yet",
+      "missing": [
+        "rights/consent",
+        "model/license/corpus approvals",
+        "Data Cloud or Document Intelligence public APIs",
+        "trusted worker isolation"
+      ]
+    },
+    "disposition": {
+      "rowsPromoted": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "aggregate": {
+        "total": 58,
+        "locallyVerified": 22,
+        "partial": 30,
+        "ownerExternal": 6
+      },
+      "ownerExternalRows": [
+        "TTS-07",
+        "VIS-02",
+        "STT-12",
+        "TTS-12",
+        "VIS-12",
+        "MM-12"
+      ]
+    },
+    "recordValidation": {
+      "backendModalityWave2Plan": {
+        "tests": 7,
+        "failures": 0,
+        "result": "PASS"
+      },
+      "repositoryHygiene": {
+        "tests": 19,
+        "failures": 0,
+        "result": "PASS"
+      },
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "claim": "All 58 task identities and existing dispositions remain reconciled; this records native/core/current image integration execution evidence and one stale-test expectation correction. It is not 58 task acceptances, formal PDP/gtool closure, owner approval, deployment, or release."
   }
 }
