@@ -3620,5 +3620,33 @@
       "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
     },
     "claim": "Documentation path correction only; no OCR capability or owner API is implemented or admitted."
+  },
+  "postR7Oct28FullRowAudit": {
+    "verifiedAt": "2026-10-28",
+    "currentCut": {
+      "media": "b91977faa3605314bd66e6d75f5357827f0698d9",
+      "originMain": "1d528684ed24e8ba3fc75dbff369680505078eac",
+      "mediaAheadOfOrigin": 65,
+      "worktreeCleanBeforeRecord": true
+    },
+    "independentLunaAudits": {
+      "sttTts": {"rows": 24, "locallyVerified": 6, "partial": 15, "ownerExternal": 3, "uniqueIds": 24, "allOpenUnaccepted": true, "result": "PASS"},
+      "vision": {"rows": 12, "locallyVerified": 4, "partial": 6, "ownerExternal": 2, "uniqueIds": 12, "allOpenUnaccepted": true, "result": "PASS"},
+      "multimodalObservability": {"rows": 22, "locallyVerified": 12, "partial": 9, "ownerExternal": 1, "uniqueIds": 22, "allOpenUnaccepted": true, "result": "PASS"},
+      "aggregate": {"rows": 58, "uniqueIds": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "sourceConflicts": 0, "all36OpenUnaccepted": true, "dispositionMismatch": false}
+    },
+    "notableFindings": [
+      "MM-08 historical source conflict is superseded; its current PARTIAL state is consistent with fail-closed family routes and missing per-operation durable finality/readback.",
+      "VIS-09 remains NOT_ADMITTED before legacy model calls; the public Document Intelligence API and rights/retention mapping are absent.",
+      "The STT-08 and TTS-10 increments at commits 68a32afd and 6d1c6bcf support bounded local behavior only and do not meet full-row acceptance."
+    ],
+    "validation": {
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+      "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "disposition": {"rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "externalRightsAdmitted": false},
+    "claim": "Independent current-plan/source audit across all 58 rows. It verifies task partition and evidence/disposition consistency, not formal owner acceptance or completion of the 36 open rows."
   }
 }
