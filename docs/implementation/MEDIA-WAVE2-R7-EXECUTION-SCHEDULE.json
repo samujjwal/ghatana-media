@@ -3057,5 +3057,109 @@
       "currentCounts": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
     },
     "nextWork": "Continue with independently testable source-defined subcriteria while preserving row-level acceptance gates. Keep the complete 58-task inventory; do not promote rows without their complete positive, negative, durability, resource, provenance, and owner evidence."
+  },
+  "postR7SpeechLocalBoundaryIncrements": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "6e26ee6f33149aab189320369ed2a049a9cb1e7e",
+      "sttImplementationCommit": "00855950",
+      "ttsTestCommit": "6e26ee6f",
+      "mediaCleanAfterCodeCommitsBeforeRecord": true,
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "sharedWorkingTreeClean": true,
+      "kernel": "cd6fed02b4ab5871b070fac373b2c9a54e702fca",
+      "kernelWorkingTreeClean": true,
+      "ghatanaTools": "2bb5f359da0dd58d8dc2932c3740e9ee06b42938",
+      "ghatanaToolsWorkingTreeClean": false,
+      "ghatanaToolsNote": "Gradle configured the dirty Tools composite in the test environment; no Tools test target ran and no Media source was written there."
+    },
+    "artifactsRoot": "/private/tmp/ghatana-wave2-r7-speech-evidence-b2da0871",
+    "localIncrements": {
+      "STT-10": {
+        "commit": "00855950",
+        "changedFiles": [
+          "modules/speech/stt-service/src/main/java/com/ghatana/stt/detection/LanguageDetectionService.java",
+          "modules/speech/stt-service/src/test/java/com/ghatana/stt/detection/LanguageDetectionServiceTest.java"
+        ],
+        "summary": "Rejects a reported candidate count above MAX_CANDIDATES before allocation, bounds iterator copying against understated sizes, and validates/returns the same immutable candidate snapshot. Adversarial tests cover inconsistent toArray ordering, understated size, and no traversal on reported oversize.",
+        "verification": {
+          "command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.detection.LanguageDetectionServiceTest --no-build-cache --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks",
+          "runtime": "macOS arm64, Temurin OpenJDK 27.0.1.0.2+1",
+          "tests": 32,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "reportGlob": "stt10/TEST-com.ghatana.stt.detection.LanguageDetectionServiceTest*.xml",
+          "gradleResult": "BUILD SUCCESSFUL; 56 actionable tasks executed"
+        },
+        "independentReview": "Luna confirmed early reported-size rejection, bounded copying at element 17, same-snapshot validation/result, and that the regressions distinguish the prior validate-then-copy behavior; no API or correctness issue found.",
+        "disposition": "PARTIAL",
+        "remaining": "Model, licensed corpus, accuracy, calibration, language coverage, and fairness evidence are still required for the full task."
+      },
+      "TTS-08": {
+        "commit": "6e26ee6f",
+        "changedFiles": [
+          "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsGrpcServiceTest.java"
+        ],
+        "summary": "Adds an admitted-fixture slow-reader regression: a producer blocks on downstream readiness, then the 5-second deadline returns DEADLINE_EXCEEDED, cancels the session once, and suppresses chunk/completion delivery. Cleanup cancels before signaling readiness, joins up to 10 seconds, and asserts producer exit.",
+        "verification": {
+          "command": "JAVA_HOME=\"$(/usr/libexec/java_home -v 27)\" PATH=\"$(/usr/libexec/java_home -v 27)/bin:$PATH\" ./gradlew :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.TtsGrpcServiceTest.admittedStreamDeadlineUnblocksBackpressuredChunkAndCancelsSession --rerun-tasks",
+          "runtime": "macOS arm64, Temurin OpenJDK 27.0.1.0.2+1",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "report": "tts08/TEST-com.ghatana.tts.grpc.TtsGrpcServiceTest.xml",
+          "gradleResult": "BUILD SUCCESSFUL; 56 actions executed"
+        },
+        "independentReview": "Luna approved cleanup order and timing margins. The test proves only the bounded slow-reader deadline/cancel path, not provider quality, real-provider cancellation/finality, or full TTS-08 completion.",
+        "disposition": "PARTIAL",
+        "remaining": "Qualified provider streaming, realistic slow-reader behavior, authoritative provider cancellation/finality, and external rights remain unverified."
+      }
+    },
+    "readOnlyTaskAudits": {
+      "STT-04": {
+        "result": "No local code gap found: input bounds precede materialization; RIFF/chunks are validated before PCM allocation; sample, channel, frame, duration, rational clock, malformed input, and unsupported format cases are covered.",
+        "verification": {
+          "command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.service.SttAudioInputDecoderTest --no-build-cache --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks",
+          "tests": 18,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "report": "stt04/TEST-com.ghatana.stt.service.SttAudioInputDecoderTest.xml",
+          "gradleResult": "BUILD SUCCESSFUL; 56 tasks executed"
+        },
+        "disposition": "PARTIAL",
+        "remaining": "Governed source/version binding, admitted positive provider/decoder behavior, and durable transcript persistence/readback remain open."
+      },
+      "TTS-02": {
+        "result": "No local gap found in typed NOT_ADMITTED behavior or PCM format, sample framing, byte bound, exact duration, flatline, and near-silence validation; clipping remains a separate quality-assessment capability without a source-defined rejection threshold.",
+        "verification": {
+          "command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.engine.PcmAudioValidatorTest --no-build-cache --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "report": "tts02/TEST-com.ghatana.tts.engine.PcmAudioValidatorTest.xml",
+          "gradleResult": "BUILD SUCCESSFUL; 56 actionable tasks executed"
+        },
+        "disposition": "PARTIAL",
+        "remaining": "An authorized provider and rights-cleared playable decoded speech evidence are still required."
+      }
+    },
+    "aggregateDispositionUnchanged": {
+      "total": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "sourceConflicts": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "rowsPromoted": 0,
+      "externalRightsAdmitted": false,
+      "ownerExternalTaskIds": ["STT-12", "TTS-07", "TTS-12", "VIS-02", "VIS-12", "MM-12"]
+    },
+    "ownerEvidenceResponse": "Owner reported no approved rights/consent, model/license/corpus, Data Cloud or Document Intelligence API, or trusted worker-isolation evidence available yet.",
+    "claims": "Focused local implementation, boundary tests, and source audits only. No Wave 2 row acceptance, owner authority, formal PDP/gtool status, closure, cutover, deployment, or release is claimed.",
+    "nextWork": "Continue independently testable slices while preserving full-row gates. Obtain owner-bound source rights/consent, licensed provider/model/corpus, trusted worker isolation, Data Cloud and Document Intelligence public APIs, and real provider/quality/load evidence before any dependent row is accepted."
   }
 }
