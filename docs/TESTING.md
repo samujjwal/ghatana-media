@@ -15,6 +15,27 @@ pnpm test:candidate-decision-crosswalk
 
 These checks intentionally fail on changed source selections or lost researched candidates; reconcile the source first, then refresh the read-only index under owner review. They do not execute or approve any model.
 
+## R10 real-model and native host qualification
+
+The [current R10 execution directive](implementation/MEDIA-WAVE2-R10-OWNER-UNBLOCKED-EXECUTION.md) fixes real-model quality/worker-isolation acceptance without changing original task status. Run changed JDK27 selectors on the Mac and Linux ARM64, then affected full suites:
+
+```bash
+./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+ -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt \
+ :services:media:libs:java:common:test \
+ --tests 'com.ghatana.media.stt.engine.onnx.WhisperOnnxThreadPolicyTest' \
+ --tests 'com.ghatana.media.stt.engine.onnx.WhisperDecoderPolicyTest' \
+ --no-daemon --max-workers=2 --console=plain
+
+# Real-model integration requires a private rights-cleared source WAV and
+# independently authored FULL transcript in GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT.
+# A keyword match or the model's own output chosen as "gold" is not accepted.
+# WHISPER_PERF_QUALIFICATION=RUN enables 1/16/64 model load; the optional
+# GHATANA_MEDIA_WHISPER_ORT_INTRA_OP_THREADS={1,2,4} selects an A/B candidate.
+```
+
+Linux Vision native **functional** tests from the existing platform matrix do not prove hard native worker isolation. The previous direct cgroup+bubblewrap backend fails closed when delegated v2 cgroups are unavailable inside Docker Desktop. R10 approves a **trusted host-owned per-request OCI supervisor**, preserving no network, bounded image/source mounts and effective CPU/RAM/PID/tmpfs/wall enforcement without supplying Docker socket to the untrusted worker. OOM/fork/time adversarial checks plus actual runtime integration are mandatory before VIS-03 promotion.
+
 ## Next five-surface backend conformance (implementation Wave 2)
 
 See [the five-modality/observability execution plan](implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md) for exact STT/TTS/Vision/Multimodal/observability module test commands, 43 RPCs, 99 PDP-0 capability memberships and 12 real/fault/quality scenarios. For source-only plan parity, run `pnpm test:backend-modality-wave2-plan`. Gradle in-process module tests and deterministic negative assertions run independently of the external Docker Compose images.
