@@ -2122,3 +2122,22 @@ Two additional parallel source reviews found no safe independent patch: **STT-06
 The 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**. All 36 open rows remain unaccepted; no row was promoted and no owner or lifecycle approval is inferred.
 
 Record validation: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse and `git diff --check` passed. All 58 rows and the existing 22/30/6 disposition partition remain unchanged.
+
+### R7 STT diarization and retry-safety follow-up — 2026-10-27
+
+**Media code cut:** `48d3a597fb77ea65de35387c4be45b0b552f226b`; **Shared cut:** `0b19e750bf3906e187e8d804c9313bd451a58667`; **Ghatana cut:** `387bfc3eede86265aa8b42340d6a32f6e19ffeee`.
+
+| Commit / scope | Change and focused verification | Remaining disposition |
+| --- | --- | --- |
+| `a84e8cd3fea0cb8c944eef90f950fc31e4518572` — STT-07 anonymous overlap assignment | Diarization now excludes speaker clusters whose previous turn still overlaps the incoming segment before selecting the closest eligible embedding. It reuses a lower-similarity eligible label when the closest label is active, creates a new anonymous label for an overlapping turn, and fails at the configured speaker cap. Regression coverage includes all three cases. | **STT-07 remains PARTIAL:** no qualified production caller, rights-cleared embedding provider/model, source-data rights, authorized biometric path, or declared-corpus DER evidence is available. |
+| `48d3a597fb77ea65de35387c4be45b0b552f226b` — STT-09 retry fail-closed boundary | `scheduleRetry()` now returns `STT_JOB_RETRY_NOT_ADMITTED` while durable no-effect evidence and an attempt idempotency fence are absent. `RETRY_PENDING` and legacy `RETRYING` snapshots cannot transition back to `PROCESSING`; compatibility projections remain readable. | **STT-09 remains PARTIAL:** this local job model now has no retry dispatch path. Safe bounded retries require the canonical durable job/attempt integration, provider idempotency, authoritative reconciliation, and crash/restart result readback. |
+
+The combined focused command `./gradlew :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.diarization.SpeakerDiarizationServiceTest' --tests 'com.ghatana.stt.job.AvJobLifecycleAdapterTest' --no-daemon --no-parallel --max-workers=2 --console=plain` passed **44 tests, 0 failures, 0 errors, 0 skips** on macOS ARM64 with Temurin 27.0.1.0.2. JUnit XML is under `modules/speech/stt-service/build/test-results/test/`; the two selectors emitted four suite files. The first independent STT-07 review found that an unavailable top-similarity cluster could hide another eligible match; the matcher and regression test were corrected and then approved. The STT-09 review found a second retry route through `RETRY_PENDING`/`RETRYING`; that transition was blocked and tested. A final independent review approved both local changes.
+
+An independent Luna record review approved the commit ancestry and changed paths, the four JUnit XML counts, the per-surface 58-row partition, and the no-promotion/no-external-approval caveats; it found no factual discrepancy.
+
+Independent current-source audits reconciled the full 58-row denominator by surface: STT/TTS **6 LOCALLY_VERIFIED, 15 PARTIAL, 3 OWNER_EXTERNAL**; Vision **4, 6, 2**; Multimodal/observability **12, 9, 1**. They found no further safe local code patch in their inspected rows. The aggregate remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**; all 36 open rows remain `taskAccepted=false`. No task was promoted and no external rights, product-owner acceptance, formal PDP/gtool status, lifecycle closure, deployment, or release is inferred.
+
+Focused tests and independent code reviews establish only these local safety improvements. Full-row acceptance still depends on the original task criteria, including source/consent authority, admitted modality providers and qualified quality evidence, canonical durable attempts/results and restart readback, hard worker resource enforcement, authoritative clocks, external public APIs, and deployed quality/load evidence.
+
+Record validation after this follow-up: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse, and `git diff --check` passed. The full macOS/Linux platform matrix was not rerun on this source cut; prior matrix evidence remains tied to its recorded earlier commits.
