@@ -3596,5 +3596,29 @@
     },
     "claims": "Two additional bounded STT-08 and TTS-10 correctness increments with focused tests and independent reviews. No Wave 2 row is promoted; no owner rights/provider evidence, formal PDP/gtool acceptance, closure, production cutover, deployment, or release is claimed.",
     "nextWork": "Continue source-backed local implementation while preserving 22/30/6. External gates still require owner-approved rights/consent, model/license/corpus and Data Cloud/Document Intelligence API contracts; qualified provider effects and durable readback, trusted worker isolation, source-clock/sync proof, and named-host quality/load evidence."
+  },
+  "postR7Oct28VisionPathCorrection": {
+    "verifiedAt": "2026-10-28",
+    "sourceCut": {
+      "branch": "main",
+      "media": "a5deae6c20ea1125dc94487e0545f52fec62ffd5",
+      "originMain": "1d528684ed24e8ba3fc75dbff369680505078eac",
+      "mediaAheadOfOrigin": 64
+    },
+    "changedFile": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+    "summary": "Corrected the duplicated Vision proto path and replaced abbreviated VIS-09 source references with actual repository paths. The planned OCR adapter is explicitly future-only, pending the public Document Intelligence owner contract; no adapter source currently exists.",
+    "verification": {
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+      "existingSourcePathChecks": "PASS",
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "disposition": {
+      "VIS-01": "PARTIAL",
+      "VIS-09": "PARTIAL",
+      "rowsPromoted": 0,
+      "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "claim": "Documentation path correction only; no OCR capability or owner API is implemented or admitted."
   }
 }
