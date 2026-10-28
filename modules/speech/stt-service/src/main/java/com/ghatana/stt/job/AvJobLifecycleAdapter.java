@@ -36,6 +36,7 @@ import java.util.Objects;
  * @doc.pattern Adapter
  */
 public final class AvJobLifecycleAdapter {
+    private static final String JOB_TYPE = "media.transcribe";
 
     private AvJobLifecycleAdapter() {
         // utility class
@@ -67,7 +68,7 @@ public final class AvJobLifecycleAdapter {
 
         return new CanonicalJobRecord(
                 job.jobId(),
-                "media.transcribe",
+                JOB_TYPE,
                 mapStatus(job.status()),
                 job.tenantId(),
                 job.requestId(),
@@ -120,6 +121,9 @@ public final class AvJobLifecycleAdapter {
      */
     public static AvTranscriptionJob.JobStatus fromCanonical(CanonicalJobRecord record) {
         Objects.requireNonNull(record, "record must not be null");
+        // The Media state marker is meaningful only on this adapter's canonical job type.
+        // Never interpret another service's similarly named metadata as an STT lifecycle state.
+        if (!JOB_TYPE.equals(record.jobType())) return null;
         if (record.metadata().containsKey("mediaCanonicalState")) {
             Object mediaState = record.metadata().get("mediaCanonicalState");
             if (!(mediaState instanceof String state)) return null;

@@ -97,6 +97,27 @@ class AvJobLifecycleAdapterTest {
     }
 
     @Test
+    void ignoresMediaStateMarkerOnAnotherCanonicalJobType() {
+        CanonicalJobRecord projected = AvJobLifecycleAdapter.toCanonical(
+                jobAt(AvTranscriptionJob.JobStatus.QUEUED));
+        CanonicalJobRecord foreignJobWithForgedMediaMarker = new CanonicalJobRecord(
+                projected.jobId(), "document.ocr", CanonicalJobStatus.QUEUED, projected.tenantId(),
+                projected.correlationId(), projected.traceId(), projected.createdAt(), projected.startedAt(),
+                projected.completedAt(), projected.progressPercent(), projected.input(), projected.resultId(),
+                projected.resultType(), projected.failureCode(), projected.failureMessage(), projected.retryCount(),
+                projected.maxRetries(), projected.tags(), projected.metadata());
+        CanonicalJobRecord foreignLegacyJob = new CanonicalJobRecord(
+                projected.jobId(), "document.ocr", CanonicalJobStatus.QUEUED, projected.tenantId(),
+                projected.correlationId(), projected.traceId(), projected.createdAt(), projected.startedAt(),
+                projected.completedAt(), projected.progressPercent(), projected.input(), projected.resultId(),
+                projected.resultType(), projected.failureCode(), projected.failureMessage(), projected.retryCount(),
+                projected.maxRetries(), projected.tags(), null);
+
+        assertThat(AvJobLifecycleAdapter.fromCanonical(foreignJobWithForgedMediaMarker)).isNull();
+        assertThat(AvJobLifecycleAdapter.fromCanonical(foreignLegacyJob)).isNull();
+    }
+
+    @Test
     @DisplayName("does not project unknown outcome as canonical RUNNING")
     void doesNotProjectUnknownAsRunning() {
         for (AvTranscriptionJob.JobStatus status : java.util.List.of(
