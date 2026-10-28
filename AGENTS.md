@@ -60,6 +60,12 @@ pnpm test:candidate-decision-crosswalk
 
 Do not use these source-history checks as acceptance evidence for unqualified model weights, user consent, voice likeness, worker isolation or production behavior. Current runtime provider/rights gates and canonical original acceptance remain separate.
 
+### R10 outcome-first continuation (current implementation owner direction)
+
+Immediately use [R10 exact owner engineering execution](docs/implementation/MEDIA-WAVE2-R10-OWNER-UNBLOCKED-EXECUTION.md) and [36-task/12-gate blocker dispositions](docs/implementation/MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json) for the remaining five physical Wave 2 services. The reported 58-row ledger is still 22 locally verified, 30 partial and six external-owner. **Do not do another unchanged-read-only 58-row audit as the next work package.** First: run new Whisper gold/CPU-thread tests, compare real model against independently authored complete transcript; in parallel implement trusted host OCI per-invocation worker instead of unavailable delegated inner cgroups. Then wire an authentic rights-bound STT provider into Media job/outbox/transcript/restart readback and qualify genuine TTS/Vision/MM effects. Ghatana #252/#254 own missing public OCR and Data Cloud contracts.
+
+Engineering decisions and reference-only development profile caps/locales are approved in R10. Real human voice/biometric consent, source/weight copyrights and actual independent quality/host results still require genuine external evidence. Do not set a Boolean, self-sign a fake review, disable the admission guard, or promote a Wave 2 row to bypass them. Preserve unrelated dirty Shared files, existing source ownership and one writer. After two pulses without an accepted original row, switch to the first missing actual input/effect or a previously selected eligible model, not another high-level proposal.
+
 ## 4. Required backend development method
 
 - **Inspect before changing:** read the owning Media repository source, legacy code as a **read-only** source-difference reference, tests and shared/public dependencies. Classify reuse, extension, obsolete compatibility path and genuine gap. Prefer surgical change to broad rewrite.
