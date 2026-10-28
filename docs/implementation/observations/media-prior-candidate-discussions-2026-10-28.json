@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "media.prior-candidate-discussions.v1",
+  "asOf": "2026-10-28",
+  "authority": "SUPPLEMENTAL_HISTORICAL_RECONCILIATION_NOT_PDP_SELECTION_OR_RUNTIME_ADMISSION",
+  "explanation": "Capture earlier candidate/architecture discussions not already listed by exact name in the current PDP0 technology register or source blueprint; citations to past conversations are descriptive, not immutable Git source; publication does not approve any candidate.",
+  "unrecordedPastCandidates": [
+    {
+      "id": "HIST-001",
+      "name": "OmniVoice",
+      "role": "voice-synthesis",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "Reported default/GGUF in VoiceStudio study; ~6 GiB VRAM minimum and 8–12 GiB practical profiling; source reportedly CC-BY-NC; do not use commercially without real license clearance.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "RESTRICTED_RESEARCH_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    },
+    {
+      "id": "HIST-002",
+      "name": "PocketTTS",
+      "role": "voice-synthesis",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "MIT code and reportedly CC-BY/gated model weights; exact weight, voice, gate, and speaker rights require separate verification.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    },
+    {
+      "id": "HIST-003",
+      "name": "Supertonic-3",
+      "role": "voice-synthesis",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "Reported MIT SDK / OpenRAIL-M model license; restricted model-use duties and exact version not verified.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    },
+    {
+      "id": "HIST-004",
+      "name": "KittenTTS",
+      "role": "voice-synthesis",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "CPU-friendly English TTS reference, no cloning implied; exact release, model rights, architecture and quality require qualification.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    },
+    {
+      "id": "HIST-005",
+      "name": "WhisperX",
+      "role": "speech-to-text",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "Earlier ASR/word alignment/diarization alternative; check exact pipeline checkpoint/model dependencies, timebase, speaker rights and licenses.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    },
+    {
+      "id": "HIST-006",
+      "name": "Faster-Whisper",
+      "role": "speech-to-text",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "Earlier optimized Whisper ASR backend alternative; verify checkpoint conversion, runtime library/license and actual CPU/memory/quality.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    },
+    {
+      "id": "HIST-007",
+      "name": "Parakeet",
+      "role": "speech-to-text",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "Earlier ASR candidate; separate exact family/checkpoint, tokenization, hardware, model license and locale quality needed.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    },
+    {
+      "id": "HIST-008",
+      "name": "NLLB",
+      "role": "translation-dubbing",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "Earlier multilingual translation option; checkpoint licensing, language coverage and usage rights unresolved; not automatically a commercial candidate.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    },
+    {
+      "id": "HIST-009",
+      "name": "AudioSeal",
+      "role": "voice-watermark-provenance",
+      "source": "2026-10-17 VoiceStudio/Media technical candidate discussion, preserved from earlier conversation; not independently restated in the present source-controlled authority",
+      "sourceClass": "PRIOR_CONVERSATION_ONLY",
+      "priorNotes": "Earlier synthetic-audio watermark/detection option; validate exact code/model restrictions, error rates, provenance and noncommercial usage before any selection.",
+      "sourceLicenseIsIndependentlyVerified": false,
+      "p0Selected": false,
+      "artifactAdmitted": false,
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "relationToCurrent": "Earlier alternatives preserved for evaluation only; current Media role/Model R9 source must be consulted first."
+    }
+  ],
+  "decisionHistory": [
+    {
+      "id": "H-ARCH-001",
+      "date": "2026-10-04",
+      "title": "Media owns the media product; Shared/Kernel/Ghatana retain public primitives; no hidden cross-repository implementation imports",
+      "laterAuthority": "BOUNDARY.md; docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+      "disposition": "RETAIN_EXISTING_AUTHORITY"
+    },
+    {
+      "id": "H-ARCH-002",
+      "date": "2026-10-06",
+      "title": "Initial proposal to move neutral experience-recorder core toward Tools; keep product-specific GharBatai scenarios separate",
+      "laterAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#F13; docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+      "disposition": "HISTORICAL_DIRECTION_SUPERSEDED_BY_LATER_OWNER_BOUNDARY: Media owns capture mechanics; GharBatai neutral recorder candidate; Tools owns generic Product Definition/Experience, not a duplicate runtime"
+    },
+    {
+      "id": "H-ARCH-003",
+      "date": "2026-10-06",
+      "title": "Initial capture strategy: Chromium DevTools screen recording preferred when reliably supported; Playwright screencast/video practical fallback; screenshots diagnostic not final film",
+      "laterAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#F13; Recorder/Studio source PDP0-3",
+      "disposition": "EVALUATION_PRIORITY_ONLY; verify browser API/output MP4 and host compatibility"
+    },
+    {
+      "id": "H-ARCH-004",
+      "date": "2026-10-17",
+      "title": "Selective reuse of VoiceStudio and Voicebox ideas; prohibit copying AGPL VoiceStudio or GPL Pedalboard into permissive Media bundle",
+      "laterAuthority": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#13",
+      "disposition": "CONFIRMED_HISTORICAL_REUSE_POLICY"
+    },
+    {
+      "id": "H-ARCH-005",
+      "date": "2026-10-17",
+      "title": "Media Recorder/Studio, Declarative Animation, Declarative Simulation first-class; TutorPutor owns science and pedagogy; Media owns rendering, artifacts and UI",
+      "laterAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md; unified blueprint sections 18-23",
+      "disposition": "RETAIN"
+    },
+    {
+      "id": "H-ARCH-006",
+      "date": "2026-10-21",
+      "title": "PDP-3 defines demoable scenarios with narration and realistic static fixtures; later Build recreates the same semantic outcome from real product effects",
+      "laterAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5A",
+      "disposition": "RETAIN_SEPARATE_EXPLORER_VS_ACTUAL_PRODUCT_PROOFS"
+    },
+    {
+      "id": "H-ARCH-007",
+      "date": "2026-10-24",
+      "title": "All new Media backend implementation belongs in ghatana-media; legacy ghatana/services/media remains read-only source until authorized one-writer cutover",
+      "laterAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+      "disposition": "RETAIN"
+    },
+    {
+      "id": "H-ARCH-008",
+      "date": "2026-10-27",
+      "title": "macOS ARM64 and Linux ARM64 functional verification; Windows-only platform tasks deferred; Linux cgroup-backed worker for untrusted media on both hosts",
+      "laterAuthority": "docs/implementation/MEDIA-WAVE2-OWNER-IMPLEMENTATION-DIRECTIVE-2026-10-27.md",
+      "disposition": "RETAIN"
+    },
+    {
+      "id": "H-ARCH-009",
+      "date": "2026-10-28",
+      "title": "Whisper tiny, Piper LJSpeech medium, YOLOX Nano are R9 candidate asset references for initial STT/TTS/Vision qualification; no inference of provider or copyright admission",
+      "laterAuthority": "config/qualification/wave2-reference-candidates.v1.json; docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md",
+      "disposition": "R9_REFERENCE_EVALUATION_PRIORITY_NOT_REPLACING_OTHER_CAPABILITIES"
+    }
+  ]
+}
