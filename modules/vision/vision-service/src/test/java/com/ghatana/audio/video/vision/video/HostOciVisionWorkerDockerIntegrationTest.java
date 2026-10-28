@@ -49,6 +49,48 @@ class HostOciVisionWorkerDockerIntegrationTest {
         }
     }
 
+    @Test
+    void actualCgroupOomKillsOnlyTheWorkerAndCannotPublishOutput() throws Exception {
+        try (Fixture fixture = fixture("oom")) {
+            List<String> codec = List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),
+                    fixture.output().resolve("frame.jpg").toString());
+            try (var worker = HostOciVisionWorkerSupervisor.prepare(
+                    codec, fixture.source().getParent(), fixture.output())) {
+                Process process = new ProcessBuilder(worker.command())
+                        .redirectErrorStream(true).start();
+                boolean finished = process.waitFor(60, java.util.concurrent.TimeUnit.SECONDS);
+                if (!finished) worker.killAll();
+                assertThat(finished).as("The worker must reach its hard memory ceiling within one bounded test").isTrue();
+                assertThat(worker.wasOomKilled())
+                        .as("The OCI runtime must report kernel OOMKilled, not timeout or a simulated error")
+                        .isTrue();
+                assertThat(process.exitValue()).as("An OOM-killed codec must not appear successful").isNotZero();
+                assertThat(Files.exists(fixture.output().resolve("frame.jpg"))).isFalse();
+            }
+        }
+    }
+
+    @Test
+    void actualPidsCgroupRejectsExcessChildrenWithoutSuccessfulMedia() throws Exception {
+        try (Fixture fixture = fixture("pid-limit")) {
+            List<String> codec = List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),
+                    fixture.output().resolve("frame.jpg").toString());
+            try (var worker = HostOciVisionWorkerSupervisor.prepare(
+                    codec, fixture.source().getParent(), fixture.output())) {
+                Process process = new ProcessBuilder(worker.command())
+                        .redirectErrorStream(true).start();
+                boolean finished = process.waitFor(40, java.util.concurrent.TimeUnit.SECONDS);
+                if (!finished) worker.killAll();
+                assertThat(finished).as("Excess child processes must be stopped within the worker budget").isTrue();
+                String diagnostic = new String(process.getInputStream().readAllBytes(),
+                        java.nio.charset.StandardCharsets.UTF_8);
+                assertThat(diagnostic).as("Require actual pids.events max>0, not a synthetic denial")
+                        .contains("HOST_OCI_PID_LIMIT_HIT");
+                assertThat(Files.exists(fixture.output().resolve("frame.jpg"))).isFalse();
+            }
+        }
+    }
+
     private static Fixture fixture(String sourceContents) throws IOException {
         Path temp = Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath().normalize();
         Path root = Files.createTempDirectory(temp, "media-vision-oci-test-");
