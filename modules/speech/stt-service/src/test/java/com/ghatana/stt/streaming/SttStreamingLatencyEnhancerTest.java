@@ -85,7 +85,7 @@ class SttStreamingLatencyEnhancerTest {
                 .emitter(boundedEmitted::add)
                 .build();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i <= 4; i++) {
             assertThat(bounded.ingest(new byte[] {(byte) i}, i, i * 10L)).isTrue();
         }
         assertThat(bounded.bufferSize()).isEqualTo(4);
@@ -93,7 +93,7 @@ class SttStreamingLatencyEnhancerTest {
         assertThat(bounded.isBackPressureActive()).isTrue();
         assertThat(bounded.stats().chunksReceived()).isEqualTo(4);
 
-        assertThat(bounded.ingest(new byte[] {5}, 4, 40L)).isFalse();
+        assertThat(bounded.ingest(new byte[] {5}, 5, 50L)).isFalse();
         assertThat(bounded.bufferSize()).isEqualTo(4);
         assertThat(bounded.bufferedBytes()).isEqualTo(4);
         assertThat(bounded.stats().chunksReceived()).isEqualTo(4);
@@ -105,7 +105,7 @@ class SttStreamingLatencyEnhancerTest {
         assertThat(boundedEmitted).hasSize(1);
         assertThat(boundedEmitted.get(0).chunkCount()).isEqualTo(4);
 
-        assertThat(bounded.ingest(new byte[] {6}, 5, 50L)).isTrue();
+        assertThat(bounded.ingest(new byte[] {5}, 5, 50L)).isTrue();
         assertThat(bounded.bufferedBytes()).isEqualTo(1);
         assertThat(bounded.stats().chunksReceived()).isEqualTo(5);
     }
@@ -163,36 +163,42 @@ class SttStreamingLatencyEnhancerTest {
     }
 
     @Test
-    @DisplayName("Rejects repeated sequence and backward timestamps without consuming the next accepted chunk")
-    void ingestRequiresIncreasingSequenceAndNondecreasingTimestamp() {
+    @DisplayName("Rejects repeated or gapped sequence and backward timestamps without consuming the next accepted chunk")
+    void ingestRequiresContiguousSequenceAndNondecreasingTimestamp() {
         List<SttStreamingLatencyEnhancer.AudioChunkBatch> orderedBatches = new ArrayList<>();
         SttStreamingLatencyEnhancer ordered = SttStreamingLatencyEnhancer.builder()
                 .maxBufferChunks(20)
                 .emitter(orderedBatches::add)
                 .build();
 
-        assertThat(ordered.ingest(new byte[] {1, 2}, 10, 1_000)).isTrue();
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {1, 2}, 10, 1_000))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("first sequence must be 1");
+        assertThat(ordered.ingest(new byte[] {1, 2}, 1, 1_000)).isTrue();
         assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, -1, 1_010))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("STT_STREAM_SEQUENCE_INVALID");
-        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 10, 1_010))
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 1, 1_010))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("STT_STREAM_SEQUENCE_INVALID");
-        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 9, 1_010))
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 0, 1_010))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("STT_STREAM_SEQUENCE_INVALID");
-        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 11, 999))
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 3, 1_010))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence must be contiguous");
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 2, 999))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("STT_STREAM_TIMESTAMP_INVALID");
-        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 11, -1))
+        assertThatThrownBy(() -> ordered.ingest(new byte[] {3, 4}, 2, -1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("STT_STREAM_TIMESTAMP_INVALID");
 
-        assertThat(ordered.ingest(new byte[] {3, 4}, 11, 1_000)).isTrue();
+        assertThat(ordered.ingest(new byte[] {3, 4}, 2, 1_000)).isTrue();
         ordered.flush();
 
         assertThat(orderedBatches).hasSize(1);
-        assertThat(orderedBatches.getFirst().firstSequenceNumber()).isEqualTo(10);
+        assertThat(orderedBatches.getFirst().firstSequenceNumber()).isEqualTo(1);
         assertThat(orderedBatches.getFirst().firstTimestampMs()).isEqualTo(1_000);
         assertThat(orderedBatches.getFirst().chunkCount()).isEqualTo(2);
         assertThat(ordered.stats().chunksReceived()).isEqualTo(2);

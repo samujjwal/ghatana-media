@@ -79,7 +79,7 @@ public final class SttStreamingLatencyEnhancer {
      * Accepts a raw audio chunk for buffering.
      *
      * @param audioBytes raw PCM audio bytes
-     * @param sequenceNumber monotonically increasing chunk identifier
+     * @param sequenceNumber chunk identifier starting at 1 and contiguous thereafter
      * @param timestampMs stream timestamp in milliseconds
      * @return {@code true} if the chunk was accepted; {@code false} if the buffer is full
      */
@@ -94,12 +94,17 @@ public final class SttStreamingLatencyEnhancer {
             if (sequenceNumber < 0) {
                 throw new IllegalArgumentException("STT_STREAM_SEQUENCE_INVALID: sequence cannot be negative");
             }
+            if (lastAcceptedSequence < 0 && sequenceNumber != 1) {
+                throw new IllegalArgumentException("STT_STREAM_SEQUENCE_INVALID: first sequence must be 1");
+            }
             if (timestampMs < 0) {
                 throw new IllegalArgumentException("STT_STREAM_TIMESTAMP_INVALID: timestamp cannot be negative");
             }
-            if (lastAcceptedSequence >= 0 && sequenceNumber <= lastAcceptedSequence) {
+            if (lastAcceptedSequence >= 0
+                    && (lastAcceptedSequence == Integer.MAX_VALUE
+                            || sequenceNumber != lastAcceptedSequence + 1)) {
                 throw new IllegalArgumentException(
-                        "STT_STREAM_SEQUENCE_INVALID: sequence must increase within the stream");
+                        "STT_STREAM_SEQUENCE_INVALID: sequence must be contiguous within the stream");
             }
             if (lastAcceptedTimestampMs >= 0 && timestampMs < lastAcceptedTimestampMs) {
                 throw new IllegalArgumentException("STT_STREAM_TIMESTAMP_INVALID: timestamps must not move backwards");
