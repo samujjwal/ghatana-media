@@ -115,6 +115,10 @@ class MediaResourceProfileHarnessTest {
                 .isEqualTo("bytes");
         assertThat(report.resources().get(MediaResourceProfileHarness.Resource.THREAD_PEAK).unit())
                 .isEqualTo("threads");
+        assertThat(report.resources().get(MediaResourceProfileHarness.Resource.MODEL_REAL_TIME_FACTOR).unit())
+                .isEqualTo("ratio");
+        assertThat(report.resources().get(MediaResourceProfileHarness.Resource.VIDEO_FRAMES_PER_SECOND).unit())
+                .isEqualTo("frames/s");
         assertThat(report.toTsv()).contains("NOT_ADMITTED", "NOT_MEASURED", "NOT_CONFIGURED");
     }
 

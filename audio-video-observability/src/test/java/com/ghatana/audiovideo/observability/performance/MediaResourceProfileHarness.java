@@ -466,7 +466,8 @@ public final class MediaResourceProfileHarness {
         return switch (resource) {
             case GPU_MEMORY_BYTES, NATIVE_MEMORY_BYTES, NETWORK_BYTES, CONTAINER_MEMORY_LIMIT_BYTES -> "bytes";
             case CONNECTION_POOL_SIZE, FFMPEG_CHILD_PROCESSES -> "count";
-            case MODEL_REAL_TIME_FACTOR, VIDEO_FRAMES_PER_SECOND -> "ratio_or_frames_per_second";
+            case MODEL_REAL_TIME_FACTOR -> "ratio";
+            case VIDEO_FRAMES_PER_SECOND -> "frames/s";
             case CONTAINER_CPU_LIMIT_CORES -> "cores";
             case CONTAINER_PROCESS_LIMIT -> "processes";
             case PROCESS_CPU_TIME_NANOS -> "ns";
