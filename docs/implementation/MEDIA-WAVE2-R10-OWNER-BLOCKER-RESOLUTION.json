@@ -1293,10 +1293,10 @@
       },
       "G07": {
         "implementationDisposition": "EXTERNAL_LICENSED_DATA_THEN_ENGINEERING_METRICS",
-        "observedGap": "FLEURS pinned manifest is metadata only; no selected per-clip licensed audio digest, independently frozen gold or metric threshold.",
-        "nextAction": "Download at most selected lawful per-clip audio under source-pinned rights and bounded quota, freeze hashes/speaker-disjoint splits/annotation BEFORE inference, compute per-locale WER/CER and uncertainty; otherwise use smaller lawful alternate corpus without relaxing 58 rows.",
+        "observedGap": "Source-pinned qualification evaluator now supports separate <=24 pilot and >=100 holdout per locale with 120MiB cap and 1000 speaker-cluster bootstrap; provisional R10 en/hi/ne WER thresholds are pre-registered. Real FLEURS per-clip audio/ground truth/speaker/rights are still absent, and no native Node on-repo run is claimed.",
+        "nextAction": "Execute pnpm test:wave2-r10-owner-resolution and node --test tests/media-fleurs-asr-evaluation.test.mjs on the current checkout; acquire selected lawful source bytes/hashes/authentic speaker IDs, freeze 100/locale independent holdout, run genuine model predictions and independent reviewer/rights gate. Keep METADATA_ONLY_NOT_FROZEN until actual data.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "CODE_UPDATED_IN_MEMORY_FUNCTIONAL_CHECKS_PASS_NODE_ON_REPO_NOT_RUN_REAL_CORPUS_ABSENT"
       },
       "G08": {
         "implementationDisposition": "ENGINEERING_BENCHMARK_AFTER_REAL_MODEL",
@@ -1333,6 +1333,20 @@
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       }
+    },
+    "localEngineeringDeltas": {
+      "asOf": "2026-10-28",
+      "fleursEvaluator": "32f8c32bb13f888abf79c96a939d761dc7f263a7",
+      "fleursReferenceThresholds": "a7410e9f6cfdcf95bbbdca072d900012fdbf5175",
+      "fleursNegativeTests": "a86ac3d6729114cc1ffe176e8381aefe8b51baef",
+      "verification": "IN_MEMORY_JS_303_SELECTED_ENTRIES_PASSED_GOLD_AND_FAILED_DEGRADED_AND_REJECTED_SMALL_HOLDOUT; NODE_TESTS_AND_REAL_LICENSED_DATA_NOT_RUN",
+      "taskStatusEffect": "NO_58_ROW_PROMOTION",
+      "qualityHoldout": {
+        "pilotMaxPerLocale": 24,
+        "qualificationHoldoutMinPerLocale": 100,
+        "selectedByteBudget": 125829120
+      },
+      "originalCorpusState": "METADATA_ONLY_NOT_FROZEN"
     }
   },
   "latestOwnerResolution": {
@@ -1388,7 +1402,7 @@
         "id": "OD-C08",
         "disposition": "APPROVED_BOUNDED_EVALUATION",
         "owner": "Media STT Evaluation",
-        "action": "Freeze selected attributed FLEURS en/hi/ne clips and gold before inference; alternate lawful small corpus if retrieval fails"
+        "action": "Use the now-coded 24 pilot + >=100 holdout/locale evaluator with pre-registered provisional R10 WER and deterministic speaker-cluster confidence intervals, still requiring actual attributed lawful audio, independent gold, and source/trust proof"
       },
       {
         "id": "OD-C09",
