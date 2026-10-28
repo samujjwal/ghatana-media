@@ -34,8 +34,35 @@ done
 [ "$input" = "/source/input" ] || fail source-argument
 [ -n "$output" ] || fail output-argument
 
-if [ "$(cat "$input")" = "sleep" ]; then
+mode=$(cat "$input")
+if [ "$mode" = "sleep" ]; then
   sleep 30
+  exit 0
+fi
+
+# Deliberate kernel OOM against this single container's 1.5GiB cgroup, never
+# the host. The shell replaces itself so Docker records OOMKilled on the
+# container's main process. This runs only in the explicitly opt-in test image.
+if [ "$mode" = "oom" ]; then
+  exec /bin/bash -c 'x=x; i=0; while [ "$i" -lt 32 ]; do x="${x}${x}"; i=$((i + 1)); done; exit 86'
+fi
+
+# Try to exceed this container's 32-PID hard cgroup limit. Nothing runs outside
+# the worker; the init process kills remaining sleepers when the script exits.
+if [ "$mode" = "pid-limit" ]; then
+  set +e
+  n=0
+  while [ "$n" -lt 80 ]; do
+    sleep 25 &
+    n=$((n + 1))
+  done
+  set -e
+  blocked=0
+  while read -r kind number; do
+    if [ "$kind" = "max" ]; then blocked=$number; fi
+  done < /sys/fs/cgroup/pids.events
+  [ "$blocked" -gt 0 ] || fail pid-hard-limit-not-hit
+  printf 'HOST_OCI_PID_LIMIT_HIT\n'
   exit 0
 fi
 
