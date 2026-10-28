@@ -2567,12 +2567,52 @@ passing launcher result. No launcher implementation or test was changed.
 
 These executions do not satisfy model/voice/license/rights admission, positive
 provider behavior, licensed-corpus quality, real provider load measurements,
-the public Data Cloud or Document Intelligence APIs, or trusted per-worker
-isolation. The current all-row audit still reconciles **58 unique IDs** to
+the owner-required Data Cloud observation and Document Intelligence Media OCR
+contracts/rights mapping, or trusted per-worker isolation. The current all-row
+audit still reconciles **58 unique IDs** to
 **22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL**; all 36 open rows
 remain unaccepted and **no task was promoted**. The six owner-external rows
 remain **TTS-07, VIS-02, STT-12, TTS-12, VIS-12, and MM-12**. Owner confirmation
 is still “Nothing available yet” for rights/consent, model/license/corpus
-approvals, the named owner APIs, and trusted worker isolation. Test execution
-and local candidate images are not owner acceptance, formal PDP/gtool
-closure, deployment, or release evidence.
+approvals, the owner-required API contracts, and trusted worker isolation.
+Test execution and local candidate images are not owner acceptance, formal
+PDP/gtool closure, deployment, or release evidence.
+
+### Current cross-repository API contract audit — 2026-10-28
+
+At clean Ghatana cut `387bfc3eede86265aa8b42340d6a32f6e19ffeee`, the current
+source contains public Data Cloud v1 media routes, including artifact upload,
+transcription, vision, multimodal indexing, job and transcript routes. They do
+not provide the requested versioned Media observation contract or its required
+end-to-end effect/finality semantics. The existing Data Cloud
+`MediaProcessorPort` accepts artifact and tenant strings plus an untyped
+parameter map, returns
+`Promise<String>`, and reports availability as a boolean; it cannot express
+Media's required source-version digest, principal/purpose, rights/consent/
+policy decision provenance, idempotency, terminal finality, or
+`OUTCOME_UNKNOWN`. The observed v1 processing route returns pending work and
+requires separate readback. The route-contract test verifies OpenAPI metadata
+and IDs, not the missing effect semantics.
+
+Document Intelligence exposes a worker protocol, `POST /v1/parse`, rather than
+the owner-required public Media OCR API. Its parse metadata is limited to
+protocol version, operation id/generation, provider ref, media type, language
+hint, timeout, and limits. It has no tenant/principal, Media artifact/source
+version, ROI, rights, consent, or retention fields. The Media owner directs
+Document Intelligence to own that public source-version/ROI/rights/retention
+contract, so binding Media directly to the worker protocol would bypass the
+required public authority mapping.
+
+Evidence is from the clean external checkout at Ghatana `387bfc3e`:
+`services/data-cloud/contracts/openapi/data-cloud.yaml`,
+`services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaProcessorPort.java`,
+`services/data-cloud/delivery/api-contract-tests/src/test/java/com/ghatana/datacloud/api/openapi/RuntimeTruthAndMediaContractTest.java`,
+`services/document-intelligence/contracts/protocol-v1.md`,
+`services/document-intelligence/contracts/schemas/v1/parse.request.schema.json`,
+`services/document-intelligence/src/document_intelligence/contracts.py`, and
+`services/document-intelligence/src/document_intelligence/app.py`. No files in
+Ghatana were changed. The existing routes are not treated as nonexistent, but
+they do not supply the owner-required contracts; **VIS-09 and MM-10 remain
+PARTIAL**, and no adapter/status promotion is justified by these APIs. The
+user's “Nothing available yet” remains the authority for absent owner-approved
+API/rights/model/isolation material.

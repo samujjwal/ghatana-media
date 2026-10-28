@@ -4302,9 +4302,48 @@
       "missing": [
         "rights/consent",
         "model/license/corpus approvals",
-        "Data Cloud or Document Intelligence public APIs",
+        "owner-required Data Cloud observation and Document Intelligence Media OCR public contracts/rights mapping",
         "trusted worker isolation"
       ]
+    },
+    "currentExternalApiAudit": {
+      "verifiedAt": "2026-10-28",
+      "ghatanaSource": {
+        "commit": "387bfc3eede86265aa8b42340d6a32f6e19ffeee",
+        "branch": "main",
+        "workingTreeClean": true,
+        "changed": false
+      },
+      "dataCloud": {
+        "publicV1RoutesExist": [
+          "POST /api/v1/media/artifacts",
+          "POST /api/v1/media/artifacts/{artifactId}/transcribe",
+          "POST /api/v1/media/artifacts/{artifactId}/analyze",
+          "POST /api/v1/media/artifacts/{artifactId}/index-multimodal",
+          "GET /api/v1/media/artifacts/{artifactId}/jobs",
+          "GET /api/v1/media/artifacts/{artifactId}/transcript"
+        ],
+        "openApiPath": "services/data-cloud/contracts/openapi/data-cloud.yaml:19191-20259",
+        "processorPortPath": "services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaProcessorPort.java:31-72",
+        "processorPortShape": "operation-specific string parameters plus Map<String,String>; Promise<String> result and boolean availability",
+        "contractTestPath": "services/data-cloud/delivery/api-contract-tests/src/test/java/com/ghatana/datacloud/api/openapi/RuntimeTruthAndMediaContractTest.java:62",
+        "gap": "Existing public v1 upload/queue/readback routes do not constitute the requested Media-owned versioned observation contract carrying source version/result digest/classification and rights/consent/policy provenance with terminal finality or OUTCOME_UNKNOWN. The in-process port cannot represent those semantics.",
+        "disposition": "No safe complete Media adapter or MM-10 promotion from this contract; preserve only fail-closed behavior pending owner contract."
+      },
+      "documentIntelligence": {
+        "workerProtocolPath": "services/document-intelligence/contracts/protocol-v1.md:3-17",
+        "schemaPath": "services/document-intelligence/contracts/schemas/v1/parse.request.schema.json:5-30",
+        "parserPath": "services/document-intelligence/src/document_intelligence/contracts.py:46-96",
+        "routePath": "services/document-intelligence/src/document_intelligence/app.py:261-287",
+        "workerRoute": "POST /v1/parse",
+        "metadataFields": ["protocolVersion", "operationId", "operationGeneration", "providerRef", "mediaType", "languageHint", "timeoutMs", "limits"],
+        "missingMediaAuthorityFields": ["tenant/principal", "Media source artifact/version/digest", "ROI", "rights", "consent", "retention"],
+        "disposition": "Internal worker protocol is not the required public Media OCR API; no safe VIS-09 adapter/status promotion until Document Intelligence owner supplies that contract and rights mapping."
+      },
+      "independentLunaReview": "PASS_CURRENT_SOURCE_GAP_CONFIRMED",
+      "affectedRows": ["VIS-09", "MM-10"],
+      "rowsPromoted": 0,
+      "claim": "Current owner-owned repository source was inspected; existing public/worker APIs were not misreported as nonexistent, but neither meets the required owner contract. This is a nonblocking evidence note, not owner approval or API admission."
     },
     "disposition": {
       "rowsPromoted": 0,
