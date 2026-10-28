@@ -23,6 +23,22 @@
 
 **Legal/human external gates:** independently authenticate copyright/weight author/voice rights holder, source recording owner, and any human subject/independent reviewer. Obtain source-valid signed, purpose/region/retention/version-limited records in the private authority. If unavailable, run controlled development paths and continue unaffected implementation. Neither this owner directive nor a model README creates consent, a license to redistribute restricted weights, or a benchmark result.
 
+
+### Approved initial reference qualification profile (not production SLO)
+
+To stop repeating open-ended locale/threshold questions, the owner predeclares these **engineering evaluation profiles** in the R10 machine record. They do not overwrite the 99 source capabilities, count as provider/legal admission, or resolve the production SLO's explicitly separate `NFR-DEC-SLO` decision.
+
+| Profile | Initial accepted evaluation scope and freeze-before-run exit |
+|---|---|
+| Source host | **Mac ARM64 JDK27** and **Linux ARM64 JDK27 under Docker Desktop**, CPU-first; named 4-CPU/8GiB baseline for cross-host functional comparison only. Any GPU evidence names a separate reference host. |
+| Whisper STT | Source-pinned multilingual tiny, **en-US clean short speech reference**. Exact independent full-transcript normalized match on the original rights-approved utterance. Hindi and Nepali are **evaluation-only** until their own quality gates pass. Start with ≤24 pilot clips/locale; for a final claim use ≥100 independently licensed held-out clips/locale and bootstrap intervals. **Provisional maxima:** WER en-US 0.30, hi-IN 0.45, ne-NP 0.55; freeze before running any final holdout. If tiny fails, try legitimately cleared base/small or another previously selected provider; never relax gold after seeing output. |
+| Piper TTS | LJSpeech medium, **en-US only**, no clone/identity inference. Canonical eSpeak phonemes or independently proven equivalent, ≥20 independent utterances in an evaluation pilot, real decoded audio and listening/intelligibility review; actual voice/phonemizer rights mandatory. |
+| YOLOX Vision | Source-pinned Nano, independently declared COCO80 class subset and ordinary **nonhuman** objects. First-party original labeled positive + true negative; ≥25 pilot photos, ≥200 genuinely licensed/labeled images for final held-out mAP. **Provisional minimum:** mAP@0.5 ≥0.35 on the declared domain with CI reported; a failure selects a better legitimate detector. |
+| MM source clock | **No identity matching**, at least 30 independent labeled offset/VFR/discontinuity fixtures; predeclared p95 timing error ≤50 ms only for source-supported measured sync. Comparable timestamps alone do not qualify an A/V synchronization claim. |
+| Performance | Measure c1/c16/c64 with real exact model/source on named hosts; typed saturation and safely lower admitted tier are allowed. No blanket 64 concurrent successful requests or production p95/SLO is inferred. |
+
+These are reference development gates, intentionally separate from stronger source-domain normative requirements, commercial distribution approval and genuine production SLOs. The actual held-out threshold may only change by an explicit source-owning decision **before** new independent validation; failing output is not a reason to alter an accepted result.
+
 ## 2. Blocker disposition by exact implementation surface
 
 | Outcome | What / where / how (code-first) | Proof and explicit fallback |
