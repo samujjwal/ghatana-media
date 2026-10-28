@@ -2563,5 +2563,22 @@
     "migration": "docs/migration/expert-reviewed-master-plan.md",
     "r9": "config/qualification/wave2-reference-candidates.v1.json",
     "history": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json"
+  },
+  "auditFeatureCoverage": {
+    "recordClass": "SOURCE_LINKS_ONLY_NOT_ATOMIC_FEATURE_ADMISSION",
+    "total": 501,
+    "base": 428,
+    "thirdPass": 73,
+    "originalCombinedAudit": {
+      "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
+      "githubBlobSha": "49b7a83e286431f3b5df3eb4919721f9f7e783e7",
+      "sourceSchema": "ghatana.media.sota-coverage-audit.local.v3"
+    },
+    "existingFeatureToPdpReconciliation": {
+      "path": "docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json",
+      "githubBlobSha": "9d4e1c30bc8bf518c02ee0701873185b8f441fcc",
+      "sourceSchema": "media.unified-production-feature-reconciliation.v1"
+    },
+    "interpretation": "Original 501 audit-local feature identities and reused candidate sources remain in their existing authoritative audit/reconciliation sources. The 22-domain candidate crosswalk indexes technology choices but does NOT replace or individually admit those 501."
   }
 }
