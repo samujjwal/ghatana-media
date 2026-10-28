@@ -137,4 +137,32 @@ class SynthesisControlPolicyTest {
                 .isInstanceOf(SynthesisControlPolicy.NotAdmittedException.class)
                 .hasMessageStartingWith("NOT_ADMITTED:");
     }
+
+    @Test
+    void validProsodyAndPronunciationAreParsedButNeverReportedAsApplied() {
+        for (String ssml : new String[] {
+                "<speak><prosody rate=\"120%\" pitch=\"2st\" volume=\"3dB\">hello</prosody></speak>",
+                "<speak><phoneme alphabet=\"ipa\" ph=\"həˈloʊ\">hello</phoneme></speak>"
+        }) {
+            assertThatThrownBy(() -> SynthesisControlPolicy.rejectUnqualifiedSsml(ssml))
+                    .isInstanceOf(SynthesisControlPolicy.UnsupportedControlException.class)
+                    .satisfies(error -> assertThat(
+                            ((SynthesisControlPolicy.UnsupportedControlException) error).control())
+                            .isEqualTo("ssml"))
+                    .hasMessageContaining("no qualified observable effect or mapping");
+        }
+    }
+
+    @Test
+    void malformedOrUnboundedSsmlControlsAreInvalidRatherThanCapabilityDenials() {
+        for (String ssml : new String[] {
+                "<speak><prosody rate=\"201%\">hello</prosody></speak>",
+                "<speak><prosody pitch=\"2\">hello</prosody></speak>",
+                "<speak><prosody volume=\"7dB\">hello</prosody></speak>"
+        }) {
+            assertThatThrownBy(() -> SynthesisControlPolicy.rejectUnqualifiedSsml(ssml))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .isNotInstanceOf(SynthesisControlPolicy.NotAdmittedException.class);
+        }
+    }
 }
