@@ -46,6 +46,32 @@ class FacialRecognitionServiceAdmissionTest {
     }
 
     @Test
+    void authorizationDecisionForTrimmedSelectorsCannotAuthorizeDifferentSubmittedReferences() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        AtomicInteger resolverCalls = new AtomicInteger();
+        var service = service(providerCalls, (identity, request) -> {
+            resolverCalls.incrementAndGet();
+            return new FacialRecognitionService.BiometricAdmission(
+                    true, identity.tenantId(), identity.subject(), request.operation(),
+                    "artifact-1", "version-2", "safety-review", "region-a", "ephemeral",
+                    "authority-decision-1", NOW, NOW.plusSeconds(30), "");
+        });
+        var paddedRequest = new FacialRecognitionService.BiometricRequest(
+                FacialRecognitionService.BiometricOperation.FACE_DETECTION,
+                " artifact-1 ", " version-2 ", " safety-review ", " region-a ", " ephemeral ");
+
+        assertThat(paddedRequest.sourceArtifactId()).isEqualTo(" artifact-1 ");
+        assertThat(paddedRequest.sourceVersion()).isEqualTo(" version-2 ");
+        assertThat(paddedRequest.purpose()).isEqualTo(" safety-review ");
+        assertThat(paddedRequest.region()).isEqualTo(" region-a ");
+        assertThat(paddedRequest.retentionPolicy()).isEqualTo(" ephemeral ");
+        assertThatThrownBy(() -> service.detect(new byte[] {1}, paddedRequest))
+                .isInstanceOf(FacialRecognitionService.NotAdmittedException.class);
+        assertThat(resolverCalls).hasValue(1);
+        assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
     void revokedOrPurposeDeniedDecisionHasNoProviderEffect() {
         AtomicInteger providerCalls = new AtomicInteger();
         var service = service(providerCalls,

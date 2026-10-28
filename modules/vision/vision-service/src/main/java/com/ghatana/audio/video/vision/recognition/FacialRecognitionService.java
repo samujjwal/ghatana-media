@@ -261,11 +261,11 @@ public final class FacialRecognitionService {
             String retentionPolicy) {
         public BiometricRequest {
             Objects.requireNonNull(operation, "operation");
-            sourceArtifactId = required(sourceArtifactId, "sourceArtifactId");
-            sourceVersion = required(sourceVersion, "sourceVersion");
-            purpose = required(purpose, "purpose");
-            region = required(region, "region");
-            retentionPolicy = required(retentionPolicy, "retentionPolicy");
+            sourceArtifactId = requiredExact(sourceArtifactId, "sourceArtifactId");
+            sourceVersion = requiredExact(sourceVersion, "sourceVersion");
+            purpose = requiredExact(purpose, "purpose");
+            region = requiredExact(region, "region");
+            retentionPolicy = requiredExact(retentionPolicy, "retentionPolicy");
         }
     }
 
@@ -293,6 +293,12 @@ public final class FacialRecognitionService {
     private static String required(String value, String field) {
         if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " is required");
         return value.trim();
+    }
+
+    /** Preserve opaque authority selectors exactly; normalization could change the scope being authorized. */
+    private static String requiredExact(String value, String field) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " is required");
+        return value;
     }
 
     // ─── domain types ─────────────────────────────────────────────────────────
