@@ -272,6 +272,14 @@ class PostgresqlMediaTranscriptStoreTest {
             seed(state, "tenant-attempt", "principal-a", "source-attempt", "job-attempt", "consent-attempt", digest, false);
             seedSuccessfulAttempt(state, "tenant-attempt", "principal-a", "source-attempt", "job-attempt",
                     digest, fingerprint, 1, 17, versionRef, "candidate words", "provider-op-1", "provider-receipt-1");
+            try (Connection connection = state.connection(); PreparedStatement query = connection.prepareStatement(
+                    "SELECT request_fingerprint FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
+                query.setString(1, "tenant-attempt"); query.setString(2, "job-attempt");
+                try (var row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getString(1)).isEqualTo("sha256:" + fingerprint).isNotEqualTo(fingerprint);
+                }
+            }
             TranscriptDraft candidate = draft("tenant-attempt", "principal-a", "transcript-attempt", "source-attempt",
                     "job-attempt", "consent-attempt", digest, "candidate words");
 
@@ -719,7 +727,7 @@ class PostgresqlMediaTranscriptStoreTest {
         try (Connection connection = state.connection()) {
             try (PreparedStatement updateJob = connection.prepareStatement(
                     "UPDATE media_processing_jobs SET request_fingerprint=? WHERE tenant_id=? AND job_id=?")) {
-                updateJob.setString(1, fingerprint); updateJob.setString(2, tenant); updateJob.setString(3, job);
+                updateJob.setString(1, "sha256:" + fingerprint); updateJob.setString(2, tenant); updateJob.setString(3, job);
                 assertThat(updateJob.executeUpdate()).isEqualTo(1);
             }
             try (PreparedStatement insert = connection.prepareStatement("""

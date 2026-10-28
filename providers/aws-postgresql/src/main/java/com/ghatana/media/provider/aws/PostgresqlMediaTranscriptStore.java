@@ -196,7 +196,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             long fencingToken, String requestFingerprint, String transcriptVersionRef) throws SQLException {
         try (PreparedStatement query = connection.prepareStatement("""
                 SELECT a.provider_id,a.provider_operation_id,a.provider_receipt_id,a.request_fingerprint,
-                       a.fencing_token,a.state,a.result_json,a.result_digest,j.request_fingerprint AS job_fingerprint,
+                       a.fencing_token,a.state,a.result_json,a.result_digest,
                        j.provider_id AS job_provider,j.status AS job_status,j.artifact_id,j.expected_artifact_version,
                        j.principal_id
                   FROM media_processing_attempts a JOIN media_processing_jobs j
@@ -214,7 +214,6 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 if (!"SUCCEEDED".equals(row.getString("state")) || blank(operation) || blank(receipt)
                         || row.getLong("fencing_token") != fencingToken
                         || !requestFingerprint.equals(row.getString("request_fingerprint"))
-                        || !requestFingerprint.equals(row.getString("job_fingerprint"))
                         || !draft.providerId().equals(provider) || !provider.equals(row.getString("job_provider"))
                         || !"COMPLETED".equals(row.getString("job_status"))
                         || !draft.sourceArtifactId().equals(row.getString("artifact_id"))
