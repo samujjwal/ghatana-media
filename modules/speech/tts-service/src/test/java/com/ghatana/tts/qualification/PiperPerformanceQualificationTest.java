@@ -205,9 +205,10 @@ class PiperPerformanceQualificationTest {
         for (int index = 0; index < concurrency; index++) {
             futures.add(workers.submit(() -> {
                 ready.countDown();
-                if (!start.await(START_BARRIER_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                    throw new TimeoutException("Piper benchmark start barrier timed out");
-                }
+                // The coordinator owns the bounded readiness wait and releases this latch
+                // immediately after all workers are ready. Keep workers interruptible rather
+                // than adding a second timer that can expire under native inference load.
+                start.await();
                 long started = System.nanoTime();
                 AudioData audio = engine.synthesize(TEXT, SynthesisOptions.defaults());
                 long elapsed = System.nanoTime() - started;

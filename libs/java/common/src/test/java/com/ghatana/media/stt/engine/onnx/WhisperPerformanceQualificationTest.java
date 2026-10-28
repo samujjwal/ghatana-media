@@ -188,9 +188,10 @@ class WhisperPerformanceQualificationTest {
         for (int i = 0; i < concurrency; i++) {
             futures.add(workers.submit(() -> {
                 ready.countDown();
-                if (!start.await(START_BARRIER_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                    throw new TimeoutException("Whisper benchmark start barrier timed out");
-                }
+                // The coordinator owns the bounded readiness wait and releases this latch
+                // immediately after all workers are ready. A second worker-side timer can
+                // expire while virtual threads are pinned in the native ONNX runtime.
+                start.await();
                 long requestStarted = System.nanoTime();
                 var result = engine.transcribe(audio, options);
                 long latency = System.nanoTime() - requestStarted;
