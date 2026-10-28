@@ -3709,5 +3709,30 @@
       "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "sourceConflicts": 0}
     },
     "claim": "Two verified local implementation slices and three read-only gap audits; no whole task was accepted, no owner evidence was fabricated, and no formal stage/closure/release claim is made."
+  },
+  "postR7Oct28CurrentCut58RowAudit": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {"media": "28a81830aa97bbbb5dbceccc26de923b1eb3249a", "branch": "main", "worktreeClean": true},
+    "independentLunaAudits": {
+      "sttTts": {"rows": 24, "uniqueIds": 24, "locallyVerified": 6, "partial": 15, "ownerExternal": 3, "allOpenUnaccepted": true, "result": "PASS"},
+      "vision": {"rows": 12, "uniqueIds": 12, "locallyVerified": 4, "partial": 6, "ownerExternal": 2, "allOpenUnaccepted": true, "result": "PASS"},
+      "multimodalObservability": {"rows": 22, "uniqueIds": 22, "locallyVerified": 12, "partial": 9, "ownerExternal": 1, "allOpenUnaccepted": true, "result": "PASS"},
+      "aggregate": {"rows": 58, "uniqueIds": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "all36OpenUnaccepted": true, "dispositionMismatch": false}
+    },
+    "notes": [
+      "STT-06 and OBS-08 current-cut increments have focused passing tests and independent bounded reviews but remain PARTIAL.",
+      "The audit cross-checks recorded evidence and dispositions; it does not rerun historical tests for every row or confer owner acceptance.",
+      "Owner confirmed no rights/consent, model/license/corpus, Data Cloud/Document Intelligence API, or trusted worker-isolation evidence is currently available."
+    ],
+    "validation": {
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+      "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
+      "sttLanguageDetectionServiceTest": {"tests": 33, "failures": 0, "result": "PASS"},
+      "mediaResourceProfileHarnessTest": {"tests": 9, "failures": 0, "result": "PASS"},
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "disposition": {"rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "externalRightsAdmitted": false},
+    "claim": "All 58 task rows have a current-cut independent disposition/evidence-consistency audit, not 58 complete task acceptances or fresh execution of every historical test gate."
   }
 }

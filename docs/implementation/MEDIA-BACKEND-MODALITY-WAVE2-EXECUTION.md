@@ -2274,6 +2274,10 @@ Parallel audits found no safe source-backed edit in MM-09/MM-10, the remaining V
 
 Additional bounded Luna audits found no new edit in three other areas: the STT text-only helper has no source-defined text-input encoding/bound, so the audio request-byte bound was not generalized to it; MM-03 already rejects unknown or conflicting clock provenance and covers exact rational conversion, while the authoritative source origin/conversion-loss rule is absent; and TTS-08 already covers local chunk order, framing, bounds, backpressure and cancellation, with real-provider framing/finality qualification still outstanding. No files changed in those audits and no additional acceptance was claimed.
 
+### R7 current-cut 58-row audit — 2026-10-28
+
+Three independent Luna audits cross-checked the schedule's STT/TTS, Vision, and Multimodal/Observability task partitions against the current code and source at `28a81830aa97bbbb5dbceccc26de923b1eb3249a` on `main`. Together they covered 24 + 12 + 22 unique task IDs, with no duplicate or missing IDs and no disposition mismatch. The per-domain counts reconcile to **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL**; all 36 open rows remain `taskAccepted=false`, and no row was promoted. The auditors verified consistency of the recorded implementation evidence and dispositions at this cut; they did not rerun the historical per-row tests or provide product-owner acceptance. The focused STT/OBS tests and repository validators listed above were run separately during this continuation.
+
 ### R7 exact STT admission input follow-up — 2026-10-27
 
 **Media code cut:** `d2c51419c0c4146cb0312bdfb233135c9fd7c0f6`. `MediaSpeechToTextAdmission.Request` and `Profile` now preserve nonblank scalar strings exactly and reject blank required values instead of trimming them. `MediaRuntime.speechRequest` now parses `languageIntent.mode` without trimming, so whitespace-wrapped enum values remain invalid and cannot match a valid profile. A focused launcher test verifies this refusal occurs with no job or provider effect.
