@@ -4071,6 +4071,26 @@
     "disposition": {"rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}},
     "ownerEvidenceAvailability": {"confirmedByUser": "Nothing available yet", "missing": ["rights/consent", "model/license/corpus approvals", "Data Cloud or Document Intelligence APIs", "trusted worker isolation"]},
     "limitations": ["No STT runtime wiring or positive provider admission was added.", "Store/runtime-state reconstruction does not establish process-level restart/replay.", "Temporary-file cleanup after abrupt process or host failure is not proven.", "The V023 bounded request snapshot and glossary presence checks are already implemented; filler observations remain rejected until trusted source-duration/timebase validation and qualified detector output are available.", "No task acceptance, formal PDP/gtool status, closure, cutover, deployment, or release is claimed."],
-    "nextWork": "No additional safe source-backed STT-08/STT-09 store-only slice was identified after this increment. Continue other nonblocked implementation whose source meaning is complete; obtain the owner-bound rights/model/API/worker evidence and trusted source-duration/timebase validation plus qualified filler detector output before enabling dependent positive paths. Preserve all 58 rows and current dispositions."
+    "nextWork": "A fresh Luna audit of all 30 PARTIAL rows found no independent owner-authorized Track A code slice still open. Continue when new authoritative evidence or source-complete semantics become available; obtain the owner-bound rights/model/API/worker evidence and trusted source-duration/timebase validation plus qualified filler detector output before enabling dependent positive paths. Preserve all 58 rows and current dispositions."
+  },
+  "postR7Oct28OpenPartialRowsTrackAAudit": {
+    "verifiedAt": "2026-10-28",
+    "sourceCut": {"media": "0827493042b452f247bead0f700dc25f2d8cd5bb", "branch": "main"},
+    "reviewer": "Independent Luna read-only Track A audit",
+    "partialRowsAudited": 30,
+    "additionalSafeTrackAImplementation": false,
+    "groups": {
+      "trustedRightsConsentOwnershipOrSourceAuthority": ["STT-03", "STT-04", "STT-05", "TTS-05", "VIS-10", "MM-02"],
+      "admittedProviderModelOrLicensedQualityEvidence": ["STT-06", "STT-07", "STT-10", "TTS-02", "TTS-03", "TTS-06", "TTS-08", "TTS-09", "TTS-10", "VIS-05", "VIS-06", "VIS-07", "MM-05", "MM-06", "OBS-07"],
+      "trustedWorkerIsolation": ["VIS-03"],
+      "owningDocumentIntelligenceApiAndRightsMapping": ["VIS-09"],
+      "multimodalClockOperationFinalityOrPublicApi": ["MM-03", "MM-08", "MM-09", "MM-10"],
+      "namedHostProviderMeasurements": ["OBS-08"],
+      "authorizedRuntimeIntegrationAndProcessRestartEvidence": ["STT-08", "STT-09"]
+    },
+    "semanticsFollowUp": "STT-10's local default confidence threshold remains a semantics-owner question; do not promote it to a PDP parameter or product claim.",
+    "ownerEvidenceAvailability": {"confirmedByUser": "Nothing available yet", "missing": ["rights/consent", "model/license/corpus approvals", "Data Cloud or Document Intelligence APIs", "trusted worker isolation"]},
+    "disposition": {"rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}},
+    "claims": "This audit compared the 30 PARTIAL row criteria with the current schedule/source and live implementation. It did not promote any row, rerun every historical test, or establish formal PDP/gtool acceptance. The six OWNER_EXTERNAL rows remain TTS-07, VIS-02, STT-12, TTS-12, VIS-12, and MM-12."
   }
 }

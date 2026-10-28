@@ -2443,3 +2443,11 @@ isolation evidence. A parallel Luna reread found no additional safe,
 source-backed code increment among the remaining partial rows; continue with
 new nonblocked implementation where its existing source semantics are
 complete, and keep the named owner/external evidence gates open.
+
+A final independent Luna audit at code cut `08274930` compared all 30 PARTIAL
+rows with the live implementation and found no additional safe, owner-authorized
+Track A slice currently open. The remaining row groups and exact gates are
+recorded in `MEDIA-WAVE2-R7-EXECUTION-SCHEDULE.json` under
+`postR7Oct28OpenPartialRowsTrackAAudit`. This audit did not rerun every
+historical acceptance test or promote a row; all 36 open rows remain
+unaccepted.
