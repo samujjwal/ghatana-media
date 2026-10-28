@@ -1,0 +1,43 @@
+#!/bin/sh
+set -eu
+
+fail() { printf 'fixture-failed: %s\n' "$1" >&2; exit 1; }
+[ "$(cat /sys/fs/cgroup/memory.max)" = "1610612736" ] || fail memory-limit
+[ "$(cat /sys/fs/cgroup/memory.swap.max)" = "0" ] || fail swap-limit
+[ "$(cat /sys/fs/cgroup/cpu.max)" = "200000 100000" ] || fail cpu-limit
+[ "$(cat /sys/fs/cgroup/pids.max)" = "32" ] || fail pids-limit
+grep -q '^CapEff:[[:space:]]*0000000000000000$' /proc/self/status || fail capabilities
+tmpfs_options=$(awk '$2 == "/tmp" && $3 == "tmpfs" { print $4 }' /proc/mounts)
+[ -n "$tmpfs_options" ] || fail tmpfs-missing
+case "$tmpfs_options" in *noexec*) fail tmpfs-noexec ;; esac
+case "$tmpfs_options" in *size=131072k*|*size=134217728*) ;; *) fail tmpfs-size ;; esac
+printf '#!/bin/sh\nexit 0\n' > /tmp/exec-probe
+chmod 700 /tmp/exec-probe
+/tmp/exec-probe || fail tmpfs-exec
+[ ! -e /var/run/docker.sock ] || fail docker-socket
+[ ! -w /source/input ] || fail source-readonly
+[ -w /output ] || fail output-writable
+if ( : > /vision-rootfs-write-test ) 2>/dev/null; then
+  fail rootfs-readonly
+else
+  :
+fi
+
+input=""
+output=""
+for argument in "$@"; do
+  case "$argument" in
+    /source/input) input="$argument" ;;
+    /output/*) output="$argument" ;;
+  esac
+done
+[ "$input" = "/source/input" ] || fail source-argument
+[ -n "$output" ] || fail output-argument
+
+if [ "$(cat "$input")" = "sleep" ]; then
+  sleep 30
+  exit 0
+fi
+
+printf 'host-oci-limits-and-mounts-verified\n' > "$output"
+printf 'HOST_OCI_BOUNDARY_OK\n'

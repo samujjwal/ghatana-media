@@ -989,38 +989,29 @@ public class VideoFrameExtractor {
         if (timeout.isNegative() || timeout.isZero()) throw new IllegalArgumentException("timeout must be positive");
         if (maxOutputChars < 0) throw new IllegalArgumentException("maxOutputChars must not be negative");
         try (ProcessAdmission ignored = acquireProcessAdmission()) {
-            LinuxVisionWorkerSandbox.Prepared sandbox = null;
+            HostOciVisionWorkerSupervisor.Prepared hostOciWorker = null;
             Path sandboxWorkspace = null;
             List<String> launchCommand = command;
             if (LinuxVisionWorkerSandbox.isCodecCommand(command)) {
-                sandboxWorkspace = LinuxVisionWorkerSandbox.workspaceFor(command);
-                try {
-                    sandbox = LinuxVisionWorkerSandbox.prepare(command, sandboxWorkspace);
-                } catch (IOException | RuntimeException failure) {
-                    if (command.stream().skip(1).anyMatch("-version"::equals)
-                            && sandboxWorkspace.startsWith(Path.of("/dev/shm"))
-                            && sandboxWorkspace.getFileName().toString().startsWith(".media-video-codec-")) {
-                        try { Files.deleteIfExists(sandboxWorkspace); }
-                        catch (IOException cleanup) { failure.addSuppressed(cleanup); }
-                    }
-                    throw failure;
+                if (!command.stream().skip(1).anyMatch("-version"::equals)) {
+                    sandboxWorkspace = LinuxVisionWorkerSandbox.workspaceFor(command);
                 }
-                launchCommand = sandbox.command();
+                hostOciWorker = HostOciVisionWorkerSupervisor.prepare(command, sandboxWorkspace, monitoredOutput);
+                launchCommand = hostOciWorker.command();
             }
             Process process;
             try {
                 ProcessBuilder processBuilder = new ProcessBuilder(launchCommand).redirectErrorStream(true);
-                if (sandbox != null) {
-                    processBuilder.environment().clear();
-                    processBuilder.environment().putAll(
-                            LinuxVisionWorkerSandbox.workerEnvironment(sandboxWorkspace));
-                }
                 process = processBuilder.start();
             } catch (IOException | RuntimeException failure) {
-                if (sandbox != null) sandbox.close();
+                if (hostOciWorker != null) {
+                    try { hostOciWorker.close(); }
+                    catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+                }
                 throw failure;
             }
-            LinuxVisionWorkerSandbox.Prepared workerSandbox = sandbox;
+            HostOciVisionWorkerSupervisor.Prepared workerOci = hostOciWorker;
+            Throwable processFailure = null;
             try {
                 ByteArrayOutputStream captured = new ByteArrayOutputStream(Math.min(maxOutputChars, 1024));
                 AtomicReference<IOException> drainFailure = new AtomicReference<>();
@@ -1054,11 +1045,11 @@ public class VideoFrameExtractor {
                 }
                 observeDescendants(process, observedDescendants);
                 if (!finished) {
-                    if (workerSandbox != null) workerSandbox.killAll();
+                    if (workerOci != null) workerOci.killAll();
                     terminateProcessTree(process, observedDescendants);
                     process.waitFor(2, TimeUnit.SECONDS);
                 } else if (!observedDescendants.isEmpty()) {
-                    if (workerSandbox != null) workerSandbox.killAll();
+                    if (workerOci != null) workerOci.killAll();
                     terminateProcessTree(process, observedDescendants);
                 }
                 drain.join(2_000);
@@ -1077,16 +1068,27 @@ public class VideoFrameExtractor {
                 return new ProcessResult(finished ? process.exitValue() : -1,
                         !finished && !outputExceeded && !diagnosticsExceeded, output, outputExceeded, diagnosticsExceeded);
             } catch (InterruptedException interrupted) {
-                if (workerSandbox != null) workerSandbox.killAll();
+                if (workerOci != null) workerOci.killAll();
                 terminateProcessTree(process);
                 Thread.currentThread().interrupt();
-                throw new IOException("Media child process interrupted", interrupted);
+                IOException failure = new IOException("Media child process interrupted", interrupted);
+                processFailure = failure;
+                throw failure;
+            } catch (IOException | RuntimeException | Error failure) {
+                processFailure = failure;
+                throw failure;
             } finally {
                 if (process.isAlive()) {
-                    if (workerSandbox != null) workerSandbox.killAll();
+                    if (workerOci != null) workerOci.killAll();
                     terminateProcessTree(process);
                 }
-                if (workerSandbox != null) workerSandbox.close();
+                if (workerOci != null) {
+                    try { workerOci.close(); }
+                    catch (IOException cleanup) {
+                        if (processFailure != null) processFailure.addSuppressed(cleanup);
+                        else throw cleanup;
+                    }
+                }
             }
         }
     }

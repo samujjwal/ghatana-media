@@ -132,17 +132,18 @@ final class LinuxVisionWorkerSandbox {
     }
 
     static Path workspaceFor(List<String> command) throws IOException {
-        Path temp = Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath().normalize();
+        Path temp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath(LinkOption.NOFOLLOW_LINKS);
         for (String argument : command) {
             try {
-                Path candidate = Path.of(argument).toAbsolutePath().normalize();
+                Path candidate = Path.of(argument).toAbsolutePath().normalize()
+                        .toRealPath(LinkOption.NOFOLLOW_LINKS);
                 if (!candidate.startsWith(temp)) continue;
                 for (Path cursor = candidate; cursor != null && cursor.startsWith(temp); cursor = cursor.getParent()) {
                     if (cursor.getFileName() != null && cursor.getFileName().toString().startsWith(".media-video-codec-")) {
                         return cursor;
                     }
                 }
-            } catch (RuntimeException ignored) { }
+            } catch (IOException | RuntimeException ignored) { }
         }
         if (command.size() > 1 && command.stream().skip(1).anyMatch("-version"::equals)) {
             Path shm = Path.of("/dev/shm");
