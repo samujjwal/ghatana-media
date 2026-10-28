@@ -1,11 +1,24 @@
 #!/usr/bin/env node
 
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 const LOCALES = new Set(['eng', 'hin', 'npi']);
 const SHA256 = /^[a-f0-9]{64}$/i;
-const MAX_CLIPS_PER_LOCALE = 24;
+// Approved provisional reference thresholds are owned by the existing R10 decision map,
+// not by an independently editable user-supplied evaluation manifest.
+const ownerDecision = JSON.parse(readFileSync(new URL('../../docs/implementation/MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json', import.meta.url), 'utf8'));
+const STT_REFERENCE = ownerDecision.approvedReferenceQualificationProfiles.stt;
+const PILOT_MAX_CLIPS_PER_LOCALE = STT_REFERENCE.qualityPilotClipsPerLocale;
+const QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE = STT_REFERENCE.qualityHoldoutMinimumPerLocale;
+const QUALIFICATION_MAX_CLIPS_PER_LOCALE = PILOT_MAX_CLIPS_PER_LOCALE + QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE;
+const REFERENCE_WER_THRESHOLDS = Object.freeze({
+  eng: STT_REFERENCE.qualityGateProvisional.enUsWerMax,
+  hin: STT_REFERENCE.qualityGateProvisional.hiInWerMax,
+  npi: STT_REFERENCE.qualityGateProvisional.neNpWerMax,
+});
+const BOOTSTRAP_REPLICATES = 1000;
 const MAX_CLIP_SECONDS = 30;
 const MAX_TOTAL_BYTES = 120 * 1024 * 1024;
 
@@ -81,11 +94,16 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
   for (const locale of LOCALES) assert(manifest.dataset?.locales?.[locale], `missing locale ${locale}`);
   const clips = manifest.selection?.clips;
   assert(Array.isArray(clips), 'selection.clips must be an array');
+  const mode = manifest.selection?.mode ?? 'PILOT';
+  assert(mode === 'PILOT' || mode === 'QUALIFICATION', 'invalid evaluation selection mode');
   if (requireFrozen) assert(manifest.status === 'FROZEN', 'manifest is not frozen; refusing to score');
   const ids = new Set();
   const sourceRows = new Set();
   const speakersByPartition = { training: new Set(), holdout: new Set() };
   const counts = Object.fromEntries([...LOCALES].map((locale) => [locale, 0]));
+  const holdoutCounts = Object.fromEntries([...LOCALES].map((locale) => [locale, 0]));
+  const trainingCounts = Object.fromEntries([...LOCALES].map((locale) => [locale, 0]));
+  const holdoutSpeakers = Object.fromEntries([...LOCALES].map((locale) => [locale, new Set()]));
   let totalBytes = 0;
   for (const clip of clips) {
     assert(LOCALES.has(clip.locale), `unsupported locale ${clip.locale}`);
@@ -116,7 +134,17 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
     const set = speakersByPartition[clip.partition];
     set.add(`${clip.locale}:${clip.speakerId}`);
     counts[clip.locale] += 1;
-    assert(counts[clip.locale] <= MAX_CLIPS_PER_LOCALE, `locale cap exceeded for ${clip.locale}`);
+    if (clip.partition === 'holdout') {
+      holdoutCounts[clip.locale] += 1;
+      holdoutSpeakers[clip.locale].add(clip.speakerId);
+    } else {
+      trainingCounts[clip.locale] += 1;
+    }
+    assert(counts[clip.locale] <= (mode === 'QUALIFICATION'
+      ? QUALIFICATION_MAX_CLIPS_PER_LOCALE : PILOT_MAX_CLIPS_PER_LOCALE),
+    `locale cap exceeded for ${clip.locale}`);
+    assert(trainingCounts[clip.locale] <= PILOT_MAX_CLIPS_PER_LOCALE,
+      `pilot/training cap exceeded for ${clip.locale}`);
   }
   for (const speaker of speakersByPartition.holdout) {
     assert(!speakersByPartition.training.has(speaker), `speaker overlaps training and holdout: ${speaker}`);
@@ -125,10 +153,68 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
   if (requireFrozen) {
     for (const locale of LOCALES) {
       assert(counts[locale] > 0, `frozen manifest has no clips for ${locale}`);
-      assert(clips.some((clip) => clip.locale === locale && clip.partition === 'holdout'), `no holdout clips for ${locale}`);
+      assert(holdoutCounts[locale] > 0, `no holdout clips for ${locale}`);
+    }
+    if (mode === 'QUALIFICATION') {
+      const preregistered = manifest.metricProtocol?.thresholds;
+      assert(preregistered?.scope === 'REFERENCE_ONLY_NOT_PRODUCTION_SLO'
+        && preregistered.minHoldoutClipsPerLocale === QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE,
+      'source-pinned reference qualification threshold policy required');
+      for (const locale of LOCALES) {
+        assert(preregistered?.werMaxByLocale?.[locale] === REFERENCE_WER_THRESHOLDS[locale],
+          `reference WER threshold mismatch for ${locale}`);
+        assert(holdoutCounts[locale] >= QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE,
+          `qualification requires at least ${QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE} holdout clips for ${locale}`);
+        assert(holdoutSpeakers[locale].size >= 2,
+          `qualification requires at least two distinct grounded holdout speakers for ${locale}`);
+      }
     }
   }
-  return { clipCount: clips.length, counts, totalBytes };
+  return { clipCount: clips.length, counts, holdoutCounts, mode, totalBytes };
+}
+
+
+/** Deterministic speaker-clustered uncertainty; not license/provider admission. */
+function speakerBootstrapWer(clips, predictions, locale) {
+  const byId = new Map(predictions.map((row) => [row.clipId, row.text]));
+  const bySpeaker = new Map();
+  for (const clip of clips) {
+    const reference = tokens(clip.transcript);
+    const hypothesis = tokens(byId.get(clip.clipId));
+    const contribution = { errors: editDistance(reference, hypothesis), words: reference.length };
+    const previous = bySpeaker.get(clip.speakerId) ?? { errors: 0, words: 0 };
+    previous.errors += contribution.errors;
+    previous.words += contribution.words;
+    bySpeaker.set(clip.speakerId, previous);
+  }
+  const clusters = [...bySpeaker.values()];
+  assert(clusters.length >= 2, 'qualification requires distinct holdout speaker clusters');
+  let seed = (20261028 + [...locale].reduce((n, ch) => n + ch.codePointAt(0), 0)) >>> 0;
+  const draws = [];
+  for (let replicate = 0; replicate < BOOTSTRAP_REPLICATES; replicate += 1) {
+    let errors = 0;
+    let words = 0;
+    for (let i = 0; i < clusters.length; i += 1) {
+      seed ^= (seed << 13) >>> 0;
+      seed ^= seed >>> 17;
+      seed ^= (seed << 5) >>> 0;
+      const sample = clusters[(seed >>> 0) % clusters.length];
+      errors += sample.errors;
+      words += sample.words;
+    }
+    assert(words > 0, 'bootstrap sample has no reference words');
+    draws.push(errors / words);
+  }
+  draws.sort((a, b) => a - b);
+  return {
+    method: 'SPEAKER_CLUSTER_PERCENTILE_BOOTSTRAP',
+    seed: 20261028,
+    confidence: 0.95,
+    replicates: BOOTSTRAP_REPLICATES,
+    holdoutSpeakerClusters: clusters.length,
+    lower: draws[Math.floor(0.025 * BOOTSTRAP_REPLICATES)],
+    upper: draws[Math.ceil(0.975 * BOOTSTRAP_REPLICATES) - 1],
+  };
 }
 
 export function evaluate(manifest, predictions) {
@@ -148,11 +234,32 @@ export function evaluate(manifest, predictions) {
     assert(clips.length > 0, `no holdout gold clips for ${locale}`);
     results[locale] = scoreLocale(clips, rows);
   }
+  const mode = manifest.selection?.mode ?? 'PILOT';
+  const qualityDecision = mode === 'QUALIFICATION' ? Object.fromEntries([...LOCALES].map((locale) => {
+    const clips = holdout.filter((clip) => clip.locale === locale);
+    const interval = speakerBootstrapWer(clips, predictionGroups.get(locale) ?? [], locale);
+    const werMax = REFERENCE_WER_THRESHOLDS[locale];
+    return [locale, {
+      werMax,
+      observedWer: results[locale].wer,
+      interval,
+      provisionalReferenceThresholdMet: interval.upper <= werMax,
+    }];
+  })) : null;
   return {
     status: 'MEASURED_ON_FROZEN_HOLDOUT',
     sourceRevision: manifest.dataset.sourceRevision,
     results,
-    thresholds: null,
+    thresholds: mode === 'QUALIFICATION' ? REFERENCE_WER_THRESHOLDS : null,
+    ...(qualityDecision ? {
+      qualityDecision: {
+        status: 'PROVISIONAL_REFERENCE_EVALUATED_NOT_MODEL_OR_PRODUCTION_ADMISSION',
+        byLocale: qualityDecision,
+        allReferenceThresholdsMet: Object.values(qualityDecision)
+          .every((decision) => decision.provisionalReferenceThresholdMet),
+        legalRightsAndProviderQualification: 'NOT_EVALUATED_BY_THIS_TOOL',
+      },
+    } : {}),
   };
 }
 
