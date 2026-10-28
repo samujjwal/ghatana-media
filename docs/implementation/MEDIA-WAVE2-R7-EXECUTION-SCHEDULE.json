@@ -2859,5 +2859,47 @@
     },
     "limitations": "STT submit remains NOT_ADMITTED before job creation, so the canonical submit-to-provider path and authorized result readback are not proven. The generic media.job-request-fingerprint.v1 remains; media.transcription-submission-fingerprint.v4 is not separately implemented or admitted. No owner rights, provider/license/model quality, source-clock, formal lifecycle acceptance, closure, cutover, deployment, or release is established.",
     "nextWork": "Obtain an owner-bound Shared/Media source-rights and live-consent contract plus authority covering principal/artifact/source-version, purpose, expiry/revocation, region and retention; obtain qualified rights-cleared provider/model/license artifacts and trusted worker isolation before canonical STT admission. Then verify an authorized result through durable attempt/outbox and principal-scoped readback after process restart. Other rows also require the owning Data Cloud and Document Intelligence APIs, signed rights-cleared quality corpora, provider exporters/alert delivery and named-host workload evidence. Keep the 58-row denominator and all six owner/external gates open."
+  },
+  "postR7SttExactInputValidation": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "d2c51419c0c4146cb0312bdfb233135c9fd7c0f6",
+      "baseCommit": "338b6acb8edd6f68bf63eeeb7c87f22fff7aa853"
+    },
+    "implementation": {
+      "commit": "d2c51419c0c4146cb0312bdfb233135c9fd7c0f6",
+      "taskSupport": ["STT-03", "STT-08"],
+      "changedFiles": [
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaSpeechToTextAdmission.java",
+        "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaSpeechToTextAdmissionTest.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeSpeechAdmissionTest.java"
+      ],
+      "summary": "Admission Request/Profile scalar values preserve exact nonblank strings; required profile fields reject blank input; profile configuration digest validation no longer normalizes whitespace; languageIntent.mode is parsed as an exact enum without trimming. Whitespace-wrapped identity values mismatch and whitespace-wrapped mode remains NOT_ADMITTED before job or provider effects.",
+      "independentReview": "Luna approved exact-input preservation, fail-closed behavior, unchanged signatures, and no-effect test coverage."
+    },
+    "verification": {
+      "command": "env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:runtime-contracts:test --tests com.ghatana.media.runtime.MediaSpeechToTextAdmissionTest :services:media:launcher:test --tests com.ghatana.media.launcher.MediaRuntimeSpeechAdmissionTest --no-build-cache --no-parallel --max-workers=2 --console=plain",
+      "runtime": "macOS ARM64, Temurin 27.0.1.0.2",
+      "junitXml": [
+        "runtime-contracts/build/test-results/test/TEST-com.ghatana.media.runtime.MediaSpeechToTextAdmissionTest.xml",
+        "launcher/build/test-results/test/TEST-com.ghatana.media.launcher.MediaRuntimeSpeechAdmissionTest.xml"
+      ],
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "gradleResult": "BUILD SUCCESSFUL",
+      "gitDiffCheck": "PASS"
+    },
+    "disposition": {
+      "STT-03": "PARTIAL",
+      "STT-08": "PARTIAL",
+      "rowsPromoted": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "currentCounts": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "limitations": "STT remains NOT_ADMITTED. This change does not implement media.transcription-submission-fingerprint.v4; trusted delegation, rights/consent/policy/retention resolution and processing location are unavailable, and generic request construction may normalize values before admission.",
+    "nextWork": "Do not infer canonical v4 fields from caller input. Obtain the owner-bound authority/source API and trusted profile/location values, then implement and verify the exact ordered fingerprint at the admitted STT boundary. Keep task dispositions unchanged."
   }
 }
