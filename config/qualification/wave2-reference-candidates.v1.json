@@ -159,7 +159,64 @@
               "distinctTranscriptDigests": 1
             }
           ],
-          "qualificationNote": "Synthetic locally produced speech fixture; transcript quality was materially incomplete in single-request inference and no authorized holdout, parity, privacy, or acceptance threshold is established."
+          "qualificationNote": "Synthetic locally produced speech fixture; transcript quality was materially incomplete in single-request inference. Linux ARM64 concurrency 16/64 also exceeded real-time factor 2 under a 4-CPU cap. No authorized holdout, parity, privacy, or acceptance threshold is established.",
+          "linuxArm64": {
+            "status": "LOCAL_CPU_LOAD_EVIDENCE_NOT_PROVIDER_QUALIFICATION",
+            "host": "Linux ARM64 Docker Desktop; JDK 27; 4 reported processors; 8 GiB memory cap; 512 PID cap",
+            "containerImage": "eclipse-temurin:27-jdk@sha256:473d02d477a8152a05dc42fde10b965754f1863d45e586a97763ef298965c48b",
+            "runtime": "Microsoft ONNX Runtime Java 1.29.0 CPU",
+            "inputWavSha256": "3a4b3edcd1b2bd6b9237434f92d9225c2907cfbb85054348a03d4341c235be75",
+            "inputPcmSha256": "9dfb1b2f033873cc08266bb0ffb2754a52e6c23b3c071e55969ad1c6d8af4c26",
+            "audioSeconds": 3.181625,
+            "modelLoadMs": 1033,
+            "maxConcurrentRequests": 64,
+            "requestsPerConcurrencyLevel": 64,
+            "processRssPeakBytes": 1533026304,
+            "processRssAvailable": true,
+            "overloadRejection": "PASS_TYPED_RESOURCE_EXHAUSTED_WITH_ALL_PERMITS_HELD",
+            "levels": [
+              {
+                "concurrency": 1,
+                "requests": 64,
+                "elapsedSeconds": 102.523124,
+                "requestsPerSecond": 0.624249,
+                "latencyP50Ms": 1596.444,
+                "latencyP95Ms": 1992.19,
+                "latencyP99Ms": 2710.509,
+                "aggregateRealTimeFactor": 0.503492,
+                "processCpuSeconds": 243.09,
+                "cpuPercentOfHost": 59.277,
+                "distinctTranscriptDigests": 1
+              },
+              {
+                "concurrency": 16,
+                "requests": 64,
+                "elapsedSeconds": 436.183509,
+                "requestsPerSecond": 0.146727,
+                "latencyP50Ms": 27895.612,
+                "latencyP95Ms": 30411.32,
+                "latencyP99Ms": 30713.922,
+                "aggregateRealTimeFactor": 2.142103,
+                "processCpuSeconds": 1702.25,
+                "cpuPercentOfHost": 97.565,
+                "distinctTranscriptDigests": 1
+              },
+              {
+                "concurrency": 64,
+                "requests": 64,
+                "elapsedSeconds": 419.395849,
+                "requestsPerSecond": 0.1526,
+                "latencyP50Ms": 26605.222,
+                "latencyP95Ms": 32773.382,
+                "latencyP99Ms": 34235.622,
+                "aggregateRealTimeFactor": 2.059658,
+                "processCpuSeconds": 1659.44,
+                "cpuPercentOfHost": 98.918,
+                "distinctTranscriptDigests": 1
+              }
+            ],
+            "qualificationNote": "The 4-CPU container sustained near-full CPU at concurrency 16/64, with aggregate RTF >2 and p95 latency >30 seconds; this local profile demonstrates a material CPU-saturation limitation and is not a production performance qualification."
+          }
         }
       }
     },
@@ -315,7 +372,70 @@
             "maximumSamplesPerResponse": 77824
           }
         ],
-        "qualificationNote": "The benchmark exercises real pinned model inference but uses the runtime heuristic converter; eSpeak phoneme mapping was separately verified through a private harness and is not wired as the canonical runtime converter. No voice likeness or pronunciation acceptance is established."
+        "qualificationNote": "The benchmark exercises real pinned model inference but uses the runtime heuristic converter; eSpeak phoneme mapping was separately verified through a private harness and is not wired as the canonical runtime converter. No voice likeness or pronunciation acceptance is established.",
+        "linuxArm64": {
+          "status": "LOCAL_CPU_LOAD_EVIDENCE_NOT_PROVIDER_QUALIFICATION",
+          "host": "Linux ARM64 Docker Desktop; JDK 27; 4 reported processors; 8 GiB memory cap; 512 PID cap",
+          "containerImage": "eclipse-temurin:27-jdk@sha256:473d02d477a8152a05dc42fde10b965754f1863d45e586a97763ef298965c48b",
+          "runtime": "Microsoft ONNX Runtime Java 1.29.0 CPU",
+          "modelLoadMs": 2598,
+          "sampleRateHz": 22050,
+          "measuredRequestsPerLevel": 64,
+          "maxConcurrentRequests": 64,
+          "phonemizer": "HeuristicPhonemeConverter",
+          "phonemizerQualityTier": 1,
+          "jvmRssPeakBytes": 910622720,
+          "jvmRssAvailable": true,
+          "overloadRejection": "PASS_TYPED_RESOURCE_EXHAUSTED_WITH_ALL_PERMITS_HELD",
+          "levels": [
+            {
+              "concurrency": 1,
+              "requests": 64,
+              "elapsedSeconds": 42.180904,
+              "requestsPerSecond": 1.517274,
+              "latencyP50Ms": 616.432,
+              "latencyP95Ms": 983.132,
+              "latencyP99Ms": 1000.213,
+              "aggregateRealTimeFactor": 0.218352,
+              "processCpuSeconds": 168.1,
+              "cpuPercentOfHost": 99.63,
+              "totalAudioSeconds": 193.178413,
+              "minimumSamplesPerResponse": 56832,
+              "maximumSamplesPerResponse": 79360
+            },
+            {
+              "concurrency": 16,
+              "requests": 64,
+              "elapsedSeconds": 24.589829,
+              "requestsPerSecond": 2.602702,
+              "latencyP50Ms": 1403.228,
+              "latencyP95Ms": 1826.447,
+              "latencyP99Ms": 2295.444,
+              "aggregateRealTimeFactor": 0.128745,
+              "processCpuSeconds": 97.48,
+              "cpuPercentOfHost": 99.106,
+              "totalAudioSeconds": 190.995737,
+              "minimumSamplesPerResponse": 57088,
+              "maximumSamplesPerResponse": 75008
+            },
+            {
+              "concurrency": 64,
+              "requests": 64,
+              "elapsedSeconds": 20.701128,
+              "requestsPerSecond": 3.091619,
+              "latencyP50Ms": 1217.341,
+              "latencyP95Ms": 1692.72,
+              "latencyP99Ms": 2122.778,
+              "aggregateRealTimeFactor": 0.107737,
+              "processCpuSeconds": 82.64,
+              "cpuPercentOfHost": 99.801,
+              "totalAudioSeconds": 192.145125,
+              "minimumSamplesPerResponse": 58880,
+              "maximumSamplesPerResponse": 75008
+            }
+          ],
+          "qualificationNote": "Real pinned voice inference produced bounded PCM responses at 1/16/64 concurrency with typed saturation rejection. Linux measures the heuristic phonemizer; rights, pronunciation/intelligibility, and production phonemizer qualification remain open."
+        }
       }
     },
     {
@@ -404,7 +524,52 @@
             "sampledProcessPeakRssBytes": 322256896
           }
         ],
-        "result": "Zero detections on the synthetic glyph at 0.01 confidence; these numbers measure execution only and establish neither mAP nor real-world quality."
+        "result": "Zero detections on the synthetic glyph at 0.01 confidence; these numbers measure execution only and establish neither mAP nor real-world quality.",
+        "linuxArm64": {
+          "status": "LOCAL_CPU_LOAD_EVIDENCE_NEGATIVE_SMOKE_NOT_QUALITY_ADMISSION",
+          "host": "Linux ARM64 Docker Desktop; JDK 27; 4 reported processors; 8 GiB memory cap; 512 PID cap",
+          "containerImage": "eclipse-temurin:27-jdk@sha256:473d02d477a8152a05dc42fde10b965754f1863d45e586a97763ef298965c48b",
+          "runtime": "OpenCV 4.9.0 DNN CPU",
+          "inputFixture": "synthetic-person-glyph; 416x416 BGR8; raw pixel SHA-256 4bbcd93e971d3ba0c5237b0a4996aae50f2ee6934e6539ef0197ed43f665912e",
+          "modelSha256": "c789161ed43c8269fcd4e67c67eeeb4e80c622da2eb296a20bc6007bd18a0b7d",
+          "framesPerLevel": 64,
+          "networkConcurrency": "one mutable OpenCV Net; setInput/forward serialized like adapter; preprocessing/parser/postprocessor execute per request",
+          "rssMeasurement": "sampled process RSS every 250 ms; not a hard resource bound",
+          "overloadRejection": "NOT_MEASURED; test stayed at configured tiers 1, 16 and 64",
+          "levels": [
+            {
+              "concurrency": 1,
+              "wallSeconds": 2.987,
+              "latencyP50Ms": 43.176,
+              "latencyP95Ms": 70.845,
+              "latencyP99Ms": 74.097,
+              "framesPerSecond": 21.425,
+              "processCpuSeconds": 11.87,
+              "sampledProcessPeakRssBytes": 346497024
+            },
+            {
+              "concurrency": 16,
+              "wallSeconds": 3.978,
+              "latencyP50Ms": 839.692,
+              "latencyP95Ms": 1378.408,
+              "latencyP99Ms": 1412.261,
+              "framesPerSecond": 16.088,
+              "processCpuSeconds": 15.79,
+              "sampledProcessPeakRssBytes": 554045440
+            },
+            {
+              "concurrency": 64,
+              "wallSeconds": 4.116,
+              "latencyP50Ms": 1731.253,
+              "latencyP95Ms": 3360.329,
+              "latencyP99Ms": 3509.552,
+              "framesPerSecond": 15.548,
+              "processCpuSeconds": 15.77,
+              "sampledProcessPeakRssBytes": 898097152
+            }
+          ],
+          "result": "Zero detections on the original synthetic glyph; these numbers measure execution only and establish neither mAP nor real-world quality."
+        }
       }
     },
     {
