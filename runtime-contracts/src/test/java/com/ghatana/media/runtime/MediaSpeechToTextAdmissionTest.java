@@ -175,6 +175,16 @@ class MediaSpeechToTextAdmissionTest {
                 qualifiedRequest, exactArtifact, qualifiedProfile, true, true, false, true);
         assertThat(noClock.reasons()).contains(MediaSpeechToTextAdmission.Reason.SOURCE_CLOCK_NOT_QUALIFIED);
 
+        var expiredArtifact = new MediaArtifact(
+                "tenant-a", "principal-a", "artifact-a", "source.wav", "audio/wav", 1,
+                "a".repeat(64), "local://source", "CONFIDENTIAL",
+                Instant.now().minusSeconds(120), Instant.now().minusSeconds(1), Map.of());
+        var expired = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, expiredArtifact, qualifiedProfile, true, true, true, true);
+        assertThat(expired.disposition()).isEqualTo(MediaSpeechToTextAdmission.Disposition.NOT_ADMITTED);
+        assertThat(expired.reasons()).contains(
+                MediaSpeechToTextAdmission.Reason.SOURCE_VERSION_STALE_OR_NOT_FOUND);
+
         var admitted = MediaSpeechToTextAdmission.evaluate(
                 qualifiedRequest, exactArtifact, qualifiedProfile, true, true, true, true);
         assertThat(admitted.disposition()).isEqualTo(MediaSpeechToTextAdmission.Disposition.ADMITTED);
