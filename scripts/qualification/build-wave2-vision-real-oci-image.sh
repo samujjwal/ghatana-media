@@ -11,7 +11,7 @@ test -f "$root/PROVISION.json" || { echo "Pinned codec provenance missing" >&2; 
 for cmd in docker python3; do
   command -v "$cmd" >/dev/null || { echo "Required command unavailable: $cmd" >&2; exit 3; }
 done
-script_root="$(cd "$(dirname "\${BASH_SOURCE[0]}")/../.." && pwd -P)"
+script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 bash "$script_root/scripts/prepare-wave2-codecs.sh" --verify-runtime linux-arm64 "$root/native-runtime-packages" >/dev/null
 python3 - "$root" <<'PY'
 import hashlib
