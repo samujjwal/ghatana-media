@@ -487,6 +487,17 @@ final class HostOciVisionWorkerSupervisor {
 
         List<String> command() { return List.of(plan.dockerCli(), "start", "--attach", containerId); }
 
+        /** Check the kernel-backed OOM observation before this one-shot container is removed. */
+        boolean wasOomKilled() throws IOException {
+            CommandResult result = runAuxiliary(List.of(plan.dockerCli(), "inspect",
+                    "--format", "{{.State.OOMKilled}}", containerId), Duration.ofSeconds(10));
+            if (result.exitCode() != 0 || (!result.output().trim().equals("true")
+                    && !result.output().trim().equals("false"))) {
+                throw new IOException("Vision OCI OOM observation is unavailable");
+            }
+            return result.output().trim().equals("true");
+        }
+
         void killAll() {
             try { runAuxiliary(List.of(plan.dockerCli(), "kill", "--signal=KILL", containerId), Duration.ofSeconds(5)); }
             catch (IOException ignored) { }
