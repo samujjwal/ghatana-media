@@ -3771,5 +3771,56 @@
       "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
     },
     "claim": "Current-input service test suites and opt-in native Vision fixtures pass. Their results do not satisfy owner/provider, real-model/corpus, worker-isolation, durable modality result, formal acceptance, or release gates."
+  },
+  "postR7Oct28Stt04Obs07Followup": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {"media": "8a23de06", "branch": "main"},
+    "stt04": {
+      "change": "Both canonical and persistent unary Transcribe handlers reject omitted proto3 sample_rate=0 as INVALID_ARGUMENT instead of silently assuming 16 kHz.",
+      "source": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file/explicitUnsupportedCases",
+      "tests": {"SttGrpcServiceTest": 48, "PersistentSttGrpcServiceTest": 19, "total": 67, "failures": 0, "errors": 0, "skipped": 0, "selectedGradleTasksExecuted": 56, "forcedRerunAtCodeCut": true, "result": "PASS"},
+      "independentReview": "Luna confirmed the operation source defines no RPC sample-rate default; the 16 kHz client default is not a universal gRPC fallback. No provider or persistence call is reached.",
+      "compatibility": "Clients relying on the previous implicit server fallback must send sample_rate explicitly.",
+      "disposition": "PARTIAL"
+    },
+    "obs07": {
+      "promtoolCheckRules": {"rules": 43, "result": "PASS", "image": "prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2"},
+      "promtoolTestRules": "PASS",
+      "localAlertDeliverySmoke": "PASS: deterministic Media exporter fixture fired and recovered through local Prometheus and Alertmanager with redacted finite labels; quality freshness remained NaN.",
+      "limitations": "Local fixture wiring only; no admitted provider-quality signal/threshold, deployment, or production receiver delivery. OBS-07 remains PARTIAL. The first smoke attempt stopped before compilation on Java 21; the Temurin 27 rerun passed."
+    },
+    "ownerEvidenceAvailability": {
+      "confirmedByUser": "Nothing available yet",
+      "missing": ["rights/consent", "model/license/corpus approvals", "Data Cloud or Document Intelligence APIs", "trusted worker isolation"]
+    },
+    "currentCutAudit": {
+      "media": "8a23de06502a7380f96cd94142bcdaaab4605afe",
+      "reviewer": "Independent Luna current-cut audit",
+      "markdownTaskTableIds": 58,
+      "uniqueIds": 58,
+      "markdownAndScheduleMatch": true,
+      "missingOrExtraIds": 0,
+      "duplicateOrOverlappingIds": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "aggregate": {"locallyVerified": 22, "partial": 30, "ownerExternal": 6},
+      "result": "PASS",
+      "scope": "Disposition/evidence consistency only; not formal task acceptance or rerun of historical tests for every row. STT-04 focused tests were separately forced at this code cut."
+    },
+    "validation": {
+      "sttFocusedTests": {"tests": 67, "failures": 0, "errors": 0, "skipped": 0, "gradleTasksExecuted": 56, "result": "PASS"},
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+      "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "disposition": {
+      "rowsPromoted": 0,
+      "STT-04": "PARTIAL",
+      "OBS-07": "PARTIAL",
+      "all36OpenRowsTaskAccepted": false,
+      "externalRightsAdmitted": false,
+      "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "claim": "Bounded STT-04 validation and OBS-07 local rule/delivery evidence is recorded. No row acceptance, owner approval, real provider quality, deployment, formal closure, or release is inferred."
   }
 }
