@@ -1,5 +1,8 @@
 # Ghatana Media Wave 2 — R10 outcome-first engineering recovery and owner dispositions
 
+> **Historical R10 decision snapshot.** The current implementation sequence is now [MEDIA-WAVE2-ACTIVE-EXECUTION.md](MEDIA-WAVE2-ACTIVE-EXECUTION.md). Keep R10 model/rights/resource decisions as provenance; do not run this older queue concurrently or treat it as fresh test evidence.
+
+
 **Approved engineering directive:** 2026-10-28. **Target:** complete the ORIGINAL 58 Wave 2 rows; source status still 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL. This plan changes implementation routes, **not** PDP0–3 requirements, licensing facts, original task IDs, provider manifest admission or Lifecycle/gtool closure. [Machine-readable 12-gate / 36-task action map](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json) and [original full-row exit matrix](MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json) remain linked. All R9 candidate/source/history decisions are preserved.
 
 **Observed Media source baseline:** `53f9b355e4e9979c2f259c499ccd7269fb6e653f`. At review, Shared `607989541754097814a7c91611dea18ececaa970` and Ghatana `a0df4bdf8282b27051bf625331651e92925fdc70` are newer remote cuts than those used in some of the earlier Mac/Linux tests. Re-fetch/pin clean source for every new executed claim. **Do not touch Shared's reported two dirty, unrelated files.** Subsequent R10 Media code commits require their own Mac/Linux JDK27/native/real-provider verification, and do not change 22/30/6.
