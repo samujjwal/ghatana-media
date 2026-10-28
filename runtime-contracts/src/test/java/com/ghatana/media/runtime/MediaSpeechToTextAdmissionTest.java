@@ -142,6 +142,51 @@ class MediaSpeechToTextAdmissionTest {
                 .hasMessageContaining("configurationDigest must be sha256:");
     }
 
+    @Test
+    void completeTrustedPrerequisitesRequireARealVersionedWriterForPositiveAdmission() {
+        var qualifiedProfile = new MediaSpeechToTextAdmission.Profile(
+                "admitted-reference-provider", "v1", "profile-a", "v1",
+                CONFIG_DIGEST, MediaSpeechToTextAdmission.ProfileQualification.QUALIFIED,
+                Set.of("en-US"), false,
+                MediaSpeechToTextAdmission.TimingDisposition.SOURCE_CLOCK_BOUND,
+                "urn:ghatana:media-qualification:reference-profile-v1");
+        var qualifiedRequest = request(VERSION, LanguageMode.EXPLICIT, "en-US");
+        var exactArtifact = artifact(Map.of());
+
+        // Legacy callers do not have an authoritative transcript store witness.
+        var legacy = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, exactArtifact, qualifiedProfile, true, true, true);
+        assertThat(legacy.disposition()).isEqualTo(MediaSpeechToTextAdmission.Disposition.NOT_ADMITTED);
+        assertThat(legacy.reasons()).containsExactly(
+                MediaSpeechToTextAdmission.Reason.TRANSCRIPT_VERSION_STORE_NOT_ADMITTED);
+
+        // The new runtime-only admission path remains closed until every source
+        // fact is verified; only the complete combination can be ADMITTED.
+        var noStore = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, exactArtifact, qualifiedProfile, true, true, true, false);
+        assertThat(noStore.disposition()).isEqualTo(MediaSpeechToTextAdmission.Disposition.NOT_ADMITTED);
+        var noRights = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, exactArtifact, qualifiedProfile, true, false, true, true);
+        assertThat(noRights.reasons()).contains(MediaSpeechToTextAdmission.Reason.RIGHTS_AUTHORITY_UNAVAILABLE);
+        var noConsent = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, exactArtifact, qualifiedProfile, false, true, true, true);
+        assertThat(noConsent.reasons()).contains(MediaSpeechToTextAdmission.Reason.CONSENT_NOT_ADMITTED);
+        var noClock = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, exactArtifact, qualifiedProfile, true, true, false, true);
+        assertThat(noClock.reasons()).contains(MediaSpeechToTextAdmission.Reason.SOURCE_CLOCK_NOT_QUALIFIED);
+
+        var admitted = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, exactArtifact, qualifiedProfile, true, true, true, true);
+        assertThat(admitted.disposition()).isEqualTo(MediaSpeechToTextAdmission.Disposition.ADMITTED);
+        assertThat(admitted.reasons()).isEmpty();
+        assertThatThrownBy(() -> new MediaSpeechToTextAdmission.NotAdmittedException(admitted))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaSpeechToTextAdmission.Decision(
+                MediaSpeechToTextAdmission.Disposition.ADMITTED,
+                java.util.List.of(MediaSpeechToTextAdmission.Reason.PROFILE_ABSENT)))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
     private static MediaSpeechToTextAdmission.Request request(
             String version, MediaSpeechToTextAdmission.LanguageMode mode, String languageTag) {
         return new MediaSpeechToTextAdmission.Request(
