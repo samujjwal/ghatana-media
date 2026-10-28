@@ -3,7 +3,9 @@ package com.ghatana.stt.detection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.IllformedLocaleException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -140,23 +142,35 @@ public final class LanguageDetectionService {
         public DetectionResult {
             Objects.requireNonNull(candidates, "candidates must not be null");
             requireConfidence(confidenceThreshold, "confidenceThreshold");
+            // Reject an oversized provider declaration before allocating a copy. The bounded
+            // iterator copy also protects against a collection whose reported size is stale or
+            // understated, while ensuring validation and the immutable result use one snapshot.
             if (candidates.size() > MAX_CANDIDATES) {
                 throw new IllegalArgumentException(
                         "STT_LANGUAGE_CANDIDATE_LIMIT: candidates cannot exceed " + MAX_CANDIDATES);
             }
-            if (candidates.stream().anyMatch(Objects::isNull)) {
+            List<LanguageCandidate> snapshot = new ArrayList<>(Math.min(candidates.size(), MAX_CANDIDATES));
+            Iterator<LanguageCandidate> iterator = candidates.iterator();
+            while (iterator.hasNext()) {
+                if (snapshot.size() == MAX_CANDIDATES) {
+                    throw new IllegalArgumentException(
+                            "STT_LANGUAGE_CANDIDATE_LIMIT: candidates cannot exceed " + MAX_CANDIDATES);
+                }
+                snapshot.add(iterator.next());
+            }
+            if (snapshot.stream().anyMatch(Objects::isNull)) {
                 throw new IllegalArgumentException("STT_LANGUAGE_CANDIDATE_INVALID: candidates cannot contain null");
             }
-            for (int index = 1; index < candidates.size(); index++) {
-                if (candidates.get(index - 1).confidence() < candidates.get(index).confidence()) {
+            for (int index = 1; index < snapshot.size(); index++) {
+                if (snapshot.get(index - 1).confidence() < snapshot.get(index).confidence()) {
                     throw new IllegalArgumentException(
                             "STT_LANGUAGE_CANDIDATE_ORDER_INVALID: candidates must be ordered by "
                                     + "confidence descending");
                 }
             }
-            // Provider-owned lists may be mutable. Copy them so a result remains stable after
-            // this boundary and callers cannot mutate its candidate ordering or contents.
-            candidates = List.copyOf(candidates);
+            // The validated snapshot keeps the result stable after this boundary and callers
+            // cannot mutate its candidate ordering or contents.
+            candidates = List.copyOf(snapshot);
         }
 
         /** @return the top-ranked language tag if any candidate exceeds the threshold */

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -160,6 +161,40 @@ class LanguageDetectionServiceTest {
             assertThatThrownBy(() -> LanguageDetectionService.of(model).detect("hello world"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("STT_LANGUAGE_CANDIDATE_INVALID");
+        }
+
+        @Test
+        @DisplayName("validates and returns one bounded iterator snapshot")
+        void detect_validatesAndReturnsIteratorSnapshot() {
+            var initiallyOrdered = List.of(
+                    LanguageDetectionService.LanguageCandidate.of("en", 0.9),
+                    LanguageDetectionService.LanguageCandidate.of("fr", 0.8));
+            var changedOrder = List.of(initiallyOrdered.get(1), initiallyOrdered.get(0));
+            List<LanguageDetectionService.LanguageCandidate> providerCandidates = new AbstractList<>() {
+                @Override
+                public LanguageDetectionService.LanguageCandidate get(int index) {
+                    return initiallyOrdered.get(index);
+                }
+
+                @Override
+                public int size() {
+                    return initiallyOrdered.size();
+                }
+
+                @Override
+                public Object[] toArray() {
+                    // Simulates a provider-owned list changing after traversal validation but
+                    // before the consumer makes its immutable copy.
+                    return changedOrder.toArray();
+                }
+            };
+            var model = (LanguageDetectionService.LanguageDetectionModel) text -> providerCandidates;
+
+            var result = LanguageDetectionService.of(model).detect("hello world");
+
+            assertThat(result.candidates()).containsExactlyElementsOf(initiallyOrdered);
+            assertThatThrownBy(() -> result.candidates().add(initiallyOrdered.get(0)))
+                    .isInstanceOf(UnsupportedOperationException.class);
         }
     }
 
@@ -449,6 +484,51 @@ class LanguageDetectionServiceTest {
                                     "en-x-c" + Integer.toString(index, 36), 0.5))
                             .toList();
             assertThatThrownBy(() -> new LanguageDetectionService.DetectionResult(excessive, 0.7))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_CANDIDATE_LIMIT");
+
+            List<LanguageDetectionService.LanguageCandidate> oversizedWithoutTraversal = new AbstractList<>() {
+                @Override
+                public LanguageDetectionService.LanguageCandidate get(int index) {
+                    throw new AssertionError("oversized candidate list must not be traversed");
+                }
+
+                @Override
+                public int size() {
+                    return LanguageDetectionService.MAX_CANDIDATES + 1;
+                }
+
+                @Override
+                public java.util.Iterator<LanguageDetectionService.LanguageCandidate> iterator() {
+                    throw new AssertionError("oversized candidate list must not be iterated");
+                }
+
+                @Override
+                public Object[] toArray() {
+                    throw new AssertionError("oversized candidate list must not be copied");
+                }
+            };
+            assertThatThrownBy(() -> new LanguageDetectionService.DetectionResult(oversizedWithoutTraversal, 0.7))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("STT_LANGUAGE_CANDIDATE_LIMIT");
+
+            List<LanguageDetectionService.LanguageCandidate> understatedView = new AbstractList<>() {
+                @Override
+                public LanguageDetectionService.LanguageCandidate get(int index) {
+                    return excessive.get(index);
+                }
+
+                @Override
+                public int size() {
+                    return 1;
+                }
+
+                @Override
+                public java.util.Iterator<LanguageDetectionService.LanguageCandidate> iterator() {
+                    return excessive.iterator();
+                }
+            };
+            assertThatThrownBy(() -> new LanguageDetectionService.DetectionResult(understatedView, 0.7))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("STT_LANGUAGE_CANDIDATE_LIMIT");
         }
