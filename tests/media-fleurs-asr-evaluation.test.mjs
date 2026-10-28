@@ -130,7 +130,7 @@ function qualificationManifest() {
   return config;
 }
 
-test('qualification mode admits 100 source-grounded holdout clips per locale within strict budget', () => {
+test('qualification mode handles 100 synthetic test rows per locale without claiming real corpus', () => {
   const manifest = qualificationManifest();
   const validated = validateManifest(manifest, { requireFrozen: true });
   assert.equal(validated.mode, 'QUALIFICATION');
@@ -147,6 +147,8 @@ test('qualification mode admits 100 source-grounded holdout clips per locale wit
   assert.equal(measured.qualityDecision.allReferenceThresholdsMet, true);
   assert.equal(measured.qualityDecision.byLocale.eng.interval.replicates, 1000);
   assert.equal(measured.qualityDecision.byLocale.eng.interval.upper, 0);
+  assert.equal(measured.qualityDecision.byLocale.eng.interval.seed,
+    20261028 + [...'eng'].reduce((n, ch) => n + ch.codePointAt(0), 0));
   assert.equal(measured.thresholds.npi, 0.55);
   const degraded = gold.map((row) => ({ ...row, text: 'unrelated prediction' }));
   assert.equal(evaluate(manifest, degraded).qualityDecision.allReferenceThresholdsMet, false);
