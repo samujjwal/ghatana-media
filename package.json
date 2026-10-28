@@ -81,7 +81,9 @@
     "test:build-bridge-blockers": "node --test tests/media-build-bridge-blocker-inventory.test.mjs tests/media-build-bridge-blocker-inventory-generator.test.mjs",
     "generate:build-f00-t01-observation": "node scripts/generate-media-build-f00-t01-observation.mjs",
     "test:build-f00-t01-observation": "node --test tests/media-build-f00-t01-observation.test.mjs",
-    "test:backend-modality-wave2-plan": "node --test tests/media-backend-modality-wave2-plan.test.mjs"
+    "test:backend-modality-wave2-plan": "node --test tests/media-backend-modality-wave2-plan.test.mjs",
+    "test:wave2-evidence-intake": "node --test tests/media-wave2-evidence-intake.test.mjs",
+    "check:wave2-reference-sources": "node scripts/qualification/verify-wave2-evidence.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
