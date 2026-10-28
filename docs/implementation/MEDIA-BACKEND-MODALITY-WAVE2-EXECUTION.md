@@ -2451,3 +2451,57 @@ recorded in `MEDIA-WAVE2-R7-EXECUTION-SCHEDULE.json` under
 `postR7Oct28OpenPartialRowsTrackAAudit`. This audit did not rerun every
 historical acceptance test or promote a row; all 36 open rows remain
 unaccepted.
+
+### R7 coordinator current-cut audit and downstream compatibility compile — 2026-10-28
+
+At code cut `54f703c8809bcb834d3b089daff22d292f9b7900`, an independent Luna
+review re-enumerated all **58 unique task rows** and cross-checked their
+recorded evidence and dispositions: **22 LOCALLY_VERIFIED, 30 PARTIAL, 6
+OWNER_EXTERNAL**, zero source conflicts, and all 36 open rows still
+`taskAccepted=false`. It found no disposition mismatch and no row supported
+for promotion. This is a current inventory/disposition audit, not acceptance
+of all 58 tasks or a fresh rerun of every historical row test. The six
+owner-external rows remain **TTS-07, VIS-02, STT-12, TTS-12, VIS-12, and
+MM-12**.
+
+The latest recorded full module evidence covers every Wave 2 service at its
+latest relevant source cut: STT **351/351** at `0317eb06`; TTS **350/350** and
+Observability **136/136** at `454d37db`; Vision **441 tests, 0 failures, 3
+opt-in native skips** at `dc96d52d`, plus the separate pinned native fixture
+run **56/56**; and Multimodal **317/317** at `19cf8897`. The later runtime
+contract/provider increment at `600a271c` passed runtime contracts **85/85**,
+focused PostgreSQL/LocalStack provider tests **11/11**, and worker recovery
+tests **9/9**. The recovery test recreates stores over H2 in-memory state; it
+does not prove PostgreSQL or OS-process restart behavior.
+
+To check reverse-dependents of the new runtime SPI, the focused source
+composite compiled the launcher and integration-test consumers on Temurin 27:
+
+```sh
+env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:launcher:compileJava :services:media:integration-tests:compileTestJava -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration --no-daemon --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+Gradle completed successfully: **67 tasks** (3 executed, 64 up-to-date), with
+30 pre-existing deprecation warnings and no compile errors. This is
+downstream-compilation evidence, not runtime integration or row acceptance.
+
+An independent Luna review examined the artifact-copy contract and callers.
+The SPI returns its verified receipt only on success and does not promise
+atomic writes. Any output-stream error can leave an uncertain prefix, so a
+cleanup `IOException` after verified bytes are written has the same uncertain
+stream outcome. Keep propagating cleanup failure rather than hiding a
+potential sensitive temp-file leak. Deleting before streaming is not a
+portable narrow fix; an atomic sink contract would be required. Ordinary
+success/failure cleanup is tested, while abrupt host cleanup and injected
+delete-failure behavior remain unverified.
+
+The owner confirmed that no rights/consent, model/license/corpus,
+Data Cloud/Document Intelligence API, or trusted worker-isolation evidence is
+available. A fresh independent audit of all 30 PARTIAL rows found no
+additional owner-authorized Track A implementation slice currently open.
+Therefore no row was promoted; **22/58** remain locally verified and **36/58**
+remain open pending the named owner/external evidence and other row-specific
+runtime, quality, process-recovery, host-measurement, or public-API gates.
+After the record update, the Wave 2 plan validator passed **7/7**, repository
+hygiene passed **19/19**, and the schedule JSON parse and `git diff --check`
+both passed.
