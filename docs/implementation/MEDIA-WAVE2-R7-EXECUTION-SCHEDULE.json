@@ -3484,7 +3484,30 @@
       "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
       "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
       "scheduleJson": "PASS",
-      "gitDiffCheck": "PASS"
+      "gitDiffCheck": "PASS",
+      "parallelAudits": {
+        "auditCut": "c24e4391a79e595c73b8193a569efd02390d909c",
+        "OBS-07": {
+          "disposition": "PARTIAL",
+          "safeLocalPatch": false,
+          "review": "Local readiness alerts, allowlisted labels/redaction, false-alarm fixtures, fixture-only quality regression and stale-source rules, and an opt-in Prometheus-to-Alertmanager smoke are covered. Remaining acceptance requires owner-approved provider quality/stale-source thresholds plus real exporter-to-receiver or deployed alert evaluation."
+        },
+        "OBS-08": {
+          "disposition": "PARTIAL",
+          "safeLocalPatch": false,
+          "review": "Fixture harness covers bounded latency/throughput, JVM CPU/heap/thread metrics, concurrency 1/16/64, sanitization, cgroup/unknown semantics, and timeout behavior. Remaining acceptance requires named-host per-modality/provider measurements and reproducible native resource profiles."
+        },
+        "ledger58": {
+          "uniqueTaskIds": 58,
+          "preservedVerified": 22,
+          "partial": 30,
+          "ownerExternal": 6,
+          "all36OpenRowsTaskAccepted": false,
+          "ownerExternalTaskIds": ["STT-12", "TTS-07", "TTS-12", "VIS-02", "VIS-12", "MM-12"],
+          "result": "PASS"
+        },
+        "reviewers": "Two Luna audits: OBS-07/08 safe-slice review and independent exact-ID/disposition audit; neither found a ledger mismatch or justified row promotion."
+      }
     },
     "claims": "One bounded STT-09 reverse-projection guard and 12 focused tests passed. This does not complete STT-09 or promote any task row; no owner authority, external provider result, formal PDP/gtool acceptance, closure, deployment, or release is claimed.",
     "nextWork": "Keep the 22/30/6 disposition. Continue source-backed local correctness work where independent; full remaining acceptance still needs owner-approved rights/consent and model/license/corpus evidence, trusted worker isolation, qualified provider output and canonical durable readback, source-clock/sync evidence, and Data Cloud/Document Intelligence APIs."
