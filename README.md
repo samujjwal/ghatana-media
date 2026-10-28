@@ -10,7 +10,9 @@ The [PDP-0](docs/implementation/pdp-0-phase-dev-status.json), [PDP-1](docs/imple
 
 ## Start here
 
-Read the [documentation index](docs/README.md) for product, architecture, testing, integration, operations and migration references. The primary contract owners are:
+Read the [documentation index](docs/README.md) for product, architecture, testing, integration, operations and migration references.
+
+**Previously selected technologies and candidates:** Start with the [Media-wide consolidated decision register](docs/implementation/MEDIA-CANDIDATE-DECISIONS-CONSOLIDATED-2026-10-28.md) and [source-linked index](docs/implementation/observations/media-candidate-decision-crosswalk-2026-10-28.json). The canonical PDP-0 38 technology decisions remain authoritative; the six R9 reference models/assets cover only Wave 2. Earlier editor/voice/image/video/music/animation/simulation decisions and historical alternatives are preserved without granting new licenses or runtime acceptance. The primary contract owners are:
 
 - [Product Truth](.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md): outcomes, capability scope, rights, trust, quality and requirements.
 - [Domain/Data](.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md): exact identities, operations, states, guards, versions, events and finality.
