@@ -98,7 +98,24 @@
           "observedText": "The weather is so good.",
           "observedTextSha256": "49b20e308438f68028e65102a1d3181856ccaa12f604fad6003fd3658eb2860c",
           "qualityObservation": "Nonempty genuine model output, but materially incomplete recognition; no acceptance threshold was present and no task is promoted.",
-          "silenceObservation": "Exact all-zero PCM is explicitly returned blank before inference. The raw model previously produced `you` for exact-zero features; nonzero-silence behavior remains unqualified."
+          "silenceObservation": "Exact all-zero PCM is explicitly returned blank before inference. The raw model previously produced `you` for exact-zero features; nonzero-silence behavior remains unqualified.",
+          "platformOutputs": [
+            {
+              "host": "macOS ARM64",
+              "runtime": "JDK 27.0.1.0.2; Microsoft ONNX Runtime Java 1.29.0 CPU",
+              "inputWavSha256": "3a4b3edcd1b2bd6b9237434f92d9225c2907cfbb85054348a03d4341c235be75",
+              "outputText": "The weather is so good.",
+              "outputTextSha256": "49b20e308438f68028e65102a1d3181856ccaa12f604fad6003fd3658eb2860c"
+            },
+            {
+              "host": "Linux ARM64",
+              "runtime": "JDK 27; Microsoft ONNX Runtime Java 1.29.0 CPU",
+              "inputWavSha256": "3a4b3edcd1b2bd6b9237434f92d9225c2907cfbb85054348a03d4341c235be75",
+              "outputText": "the weather is so good.",
+              "outputTextSha256": "c2010dabd447c6f9ba11c07dc8a55428deacdd1ec83de8d6824a211397326266"
+            }
+          ],
+          "crossPlatformObservation": "Both hosts decoded nonempty genuine model output for the same pinned input, but the transcript is materially incomplete; capitalization also differs across runtimes. No quality threshold, export parity, or authorized holdout has been established."
         },
         "frontendAsset": {
           "file": "mel_filters.npz",
