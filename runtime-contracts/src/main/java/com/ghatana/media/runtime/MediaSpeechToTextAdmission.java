@@ -12,15 +12,16 @@ import java.util.Set;
 /**
  * Fail-closed admission decision for the source-version-bound STT path.
  *
- * <p>This contract deliberately has no ADMITTED result. The current Media runtime has no
- * authoritative speech-profile qualification source, rights authority, or immutable transcript
- * version store. Providers can describe a candidate profile, but that description alone is not
- * owner qualification or permission to dispatch.</p>
+ * <p>Positive admission is conditional on a server-owned, verified profile, immutable artifact,
+ * current source rights and consent, source-clock proof and production-eligible transcript store.
+ * Missing any such source remains NOT_ADMITTED. Provider metadata, environment variables or
+ * request fields alone never constitute authority. The current Media runtime still has no
+ * production rights resolver or admitted transcript store, so it remains fail-closed.</p>
  */
 public final class MediaSpeechToTextAdmission {
     private MediaSpeechToTextAdmission() { }
 
-    public enum Disposition { NOT_ADMITTED }
+    public enum Disposition { ADMITTED, NOT_ADMITTED }
 
     public enum Reason {
         EXACT_SOURCE_VERSION_REQUIRED,
@@ -98,7 +99,12 @@ public final class MediaSpeechToTextAdmission {
         public Decision {
             disposition = Objects.requireNonNull(disposition, "disposition");
             reasons = List.copyOf(reasons == null ? List.of() : reasons);
-            if (reasons.isEmpty()) throw new IllegalArgumentException("NOT_ADMITTED requires at least one reason");
+            if (disposition == Disposition.NOT_ADMITTED && reasons.isEmpty()) {
+                throw new IllegalArgumentException("NOT_ADMITTED requires at least one reason");
+            }
+            if (disposition == Disposition.ADMITTED && !reasons.isEmpty()) {
+                throw new IllegalArgumentException("ADMITTED cannot contain rejection reasons");
+            }
         }
     }
 
@@ -111,6 +117,9 @@ public final class MediaSpeechToTextAdmission {
             super(Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
                     "Speech-to-text request is NOT_ADMITTED: "
                             + Objects.requireNonNull(decision, "decision").reasons());
+            if (decision.disposition() != Disposition.NOT_ADMITTED) {
+                throw new IllegalArgumentException("NotAdmittedException requires a refused decision");
+            }
             this.decision = decision;
         }
 
@@ -128,6 +137,26 @@ public final class MediaSpeechToTextAdmission {
             boolean consentVerified,
             boolean rightsAuthorityAvailable,
             boolean exactSourceClockMetadataAvailable) {
+        // The legacy entrypoint has no authority to prove a production transcript store.
+        // Preserve its historical fail-closed contract even if all other flags are true.
+        return evaluate(request, artifact, profile, consentVerified,
+                rightsAuthorityAvailable, exactSourceClockMetadataAvailable, false);
+    }
+
+    /**
+     * Only the server-owned runtime composition may supply a truthful store-admission fact.
+     * The admission method itself performs no provider, database or remote effects.
+     * Before using ADMITTED, the runtime must revalidate source ownership, revocation,
+     * policy version and exact store availability at dispatch time.
+     */
+    public static Decision evaluate(
+            Request request,
+            MediaArtifact artifact,
+            Profile profile,
+            boolean consentVerified,
+            boolean rightsAuthorityAvailable,
+            boolean exactSourceClockMetadataAvailable,
+            boolean transcriptVersionStoreReady) {
         Objects.requireNonNull(request, "request");
         List<Reason> reasons = new ArrayList<>();
         if (request.expectedArtifactVersion().isBlank()) {
@@ -186,9 +215,13 @@ public final class MediaSpeechToTextAdmission {
         if (!consentVerified) reasons.add(Reason.CONSENT_NOT_ADMITTED);
         if (!rightsAuthorityAvailable) reasons.add(Reason.RIGHTS_AUTHORITY_UNAVAILABLE);
 
-        // No implementation in the current runtime can issue or reconcile immutable transcript versions.
-        reasons.add(Reason.TRANSCRIPT_VERSION_STORE_NOT_ADMITTED);
-        return new Decision(Disposition.NOT_ADMITTED, reasons.stream().distinct().toList());
+        if (!transcriptVersionStoreReady) {
+            reasons.add(Reason.TRANSCRIPT_VERSION_STORE_NOT_ADMITTED);
+        }
+        List<Reason> blockers = reasons.stream().distinct().toList();
+        return blockers.isEmpty()
+                ? new Decision(Disposition.ADMITTED, List.of())
+                : new Decision(Disposition.NOT_ADMITTED, blockers);
     }
 
     private static String required(String value, String name) {
