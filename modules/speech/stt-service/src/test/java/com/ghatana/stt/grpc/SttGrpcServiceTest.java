@@ -457,14 +457,8 @@ class SttGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("transcribe: default sample rate applied when not set in request")
-    void transcribe_defaultSampleRate_noNullPointer() throws Exception { 
-        TranscriptionResult result = new TranscriptionResult( 
-            "test", 1.0, Collections.emptyList(), Collections.emptyList(), 
-            Duration.ofMillis(10), "en", "whisper-base" 
-        );
-        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(result); 
-
+    @DisplayName("transcribe: omitted sample rate is rejected without provider dispatch")
+    void transcribe_omittedSampleRate_returnsInvalidArgument() {
         TranscribeRequest request = TranscribeRequest.newBuilder() 
             .setAudioData(ByteString.copyFrom(new byte[]{0x01, 0x02})) 
             .build(); 
@@ -472,8 +466,10 @@ class SttGrpcServiceTest {
 
         service.transcribe(request, observer); 
 
-        assertThat(observer.hasError()).isFalse(); 
-        assertThat(observer.getValue().getText()).isEqualTo("test");
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockEngine);
     }
 
     @Test

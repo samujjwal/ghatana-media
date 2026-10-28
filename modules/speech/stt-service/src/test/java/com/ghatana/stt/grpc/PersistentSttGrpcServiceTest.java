@@ -209,6 +209,7 @@ class PersistentSttGrpcServiceTest {
     void transcribeValidatesInputBeforeTranscriptVersionAdmission() {
         TranscribeRequest[] malformedRequests = {
             TranscribeRequest.getDefaultInstance(),
+            TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("en").build(),
             TranscribeRequest.newBuilder().setAudioData(ByteString.copyFrom(new byte[] {1}))
                     .setLanguage("en").setSampleRate(16_000).build(),
             TranscribeRequest.newBuilder().setAudioData(AUDIO).setLanguage("xx").setSampleRate(16_000).build(),

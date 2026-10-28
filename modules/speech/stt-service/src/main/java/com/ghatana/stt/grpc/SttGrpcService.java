@@ -133,8 +133,9 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                 SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
                 byte[] audioBytes = request.getAudioData().toByteArray();
 
-                    // AV-P1-004: Validate and resolve sample rate
-                    int sampleRate = request.getSampleRate() == 0 ? 16_000 : request.getSampleRate();
+                    // The product contract defines no implicit sample-rate default. A proto3
+                    // zero therefore remains an omitted value and must be rejected explicitly.
+                    int sampleRate = request.getSampleRate();
                     SttAudioInputDecoder.requireSampleRate(sampleRate);
 
                     // AV-P1-004: Validate language if provided

@@ -119,7 +119,9 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
 
         try {
             SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
-            int sampleRate = request.getSampleRate() == 0 ? 16000 : request.getSampleRate();
+            // The product contract defines no implicit sample-rate default. A proto3
+            // zero therefore remains an omitted value and must be rejected explicitly.
+            int sampleRate = request.getSampleRate();
             SttAudioInputDecoder.requireSampleRate(sampleRate);
             String language = request.getLanguage();
             if (!PersistentSttService.isSupportedLanguage(language)) {
