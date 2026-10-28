@@ -83,6 +83,8 @@
     "test:build-f00-t01-observation": "node --test tests/media-build-f00-t01-observation.test.mjs",
     "test:backend-modality-wave2-plan": "node --test tests/media-backend-modality-wave2-plan.test.mjs",
     "test:wave2-evidence-intake": "node --test tests/media-wave2-evidence-intake.test.mjs",
+    "check:candidate-decision-crosswalk": "node scripts/qualification/check-media-candidate-crosswalk.mjs",
+    "test:candidate-decision-crosswalk": "node --test tests/media-candidate-decision-crosswalk.test.mjs",
     "check:wave2-reference-sources": "node scripts/qualification/verify-wave2-evidence.mjs",
     "test:wave2-reference-staging": "node --test tests/media-wave2-reference-staging.test.mjs",
     "prepare:wave2-reference": "node scripts/qualification/prepare-wave2-reference-assets.mjs"
