@@ -38,6 +38,17 @@ class MediaResourceProfileHarnessTest {
             assertThat(report.p99Millis()).isGreaterThanOrEqualTo(report.p95Millis());
             assertThat(report.resources().get(MediaResourceProfileHarness.Resource.HEAP_PEAK_BYTES).state())
                     .isEqualTo(MediaResourceProfileHarness.State.MEASURED);
+            String operatingSystem = report.environment().operatingSystem().toLowerCase(java.util.Locale.ROOT);
+            MediaResourceProfileHarness.Reading processRss = report.resources()
+                    .get(MediaResourceProfileHarness.Resource.PROCESS_RSS_BYTES);
+            if (operatingSystem.contains("linux") || operatingSystem.contains("mac")
+                    || operatingSystem.contains("darwin")) {
+                assertThat(processRss.state()).isEqualTo(MediaResourceProfileHarness.State.MEASURED);
+                assertThat(processRss.value()).isPositive();
+            } else {
+                assertThat(processRss.state()).isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+                assertThat(processRss.reason()).isNotBlank();
+            }
             assertThat(report.resources().get(MediaResourceProfileHarness.Resource.THREAD_PEAK).state())
                     .isEqualTo(MediaResourceProfileHarness.State.MEASURED);
             for (MediaResourceProfileHarness.Resource resource : EnumSet.of(
@@ -135,13 +146,13 @@ class MediaResourceProfileHarnessTest {
         String[] fields = report.toTsv().split("\\t", -1);
 
         assertThat(fields).hasSize(MediaResourceProfileHarness.Report.tsvHeader().split("\\t", -1).length);
-        assertThat(fields[29]).isEqualTo("Vendor forged");
-        assertThat(fields[30]).isEqualTo("runtime forged");
-        assertThat(fields[31]).isEqualTo("macOS forged row");
-        assertThat(fields[32]).isEqualTo("version forged");
-        assertThat(fields[33]).isEqualTo("arm64 forged");
-        assertThat(fields[35]).isEqualTo("NOT_CONFIGURED injected");
-        assertThat(fields[36]).isEqualTo("NOT_CONFIGURED second-row");
+        assertThat(fields[30]).isEqualTo("Vendor forged");
+        assertThat(fields[31]).isEqualTo("runtime forged");
+        assertThat(fields[32]).isEqualTo("macOS forged row");
+        assertThat(fields[33]).isEqualTo("version forged");
+        assertThat(fields[34]).isEqualTo("arm64 forged");
+        assertThat(fields[36]).isEqualTo("NOT_CONFIGURED injected");
+        assertThat(fields[37]).isEqualTo("NOT_CONFIGURED second-row");
         assertThat(report.toTsv()).doesNotContain("\n", "\r");
     }
 
@@ -173,6 +184,20 @@ class MediaResourceProfileHarnessTest {
         assertThat(mixed.state()).isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
         assertThat(mixed.value()).isNaN();
         assertThat(mixed.reason()).contains("sample was unavailable");
+    }
+
+    @Test
+    void processRssAdaptersParseUnitsAndKeepUnavailableSamplesUnknown() {
+        assertThat(MediaResourceProfileHarness.parseLinuxProcessRss("Name:\tjava\nVmRSS:\t1024 kB\n")
+                .value()).isEqualTo(1_048_576.0);
+        assertThat(MediaResourceProfileHarness.parseLinuxProcessRss("Name:\tjava\n")
+                .state()).isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+        assertThat(MediaResourceProfileHarness.parsePsProcessRss(" 256\n").value()).isEqualTo(262_144.0);
+        assertThat(MediaResourceProfileHarness.parsePsProcessRss("not-rss").state())
+                .isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+        assertThat(MediaResourceProfileHarness.summarizeProcessRss(128, -1, 256).state())
+                .isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+        assertThat(MediaResourceProfileHarness.summarizeProcessRss(128, 256).value()).isEqualTo(256.0);
     }
 
     @Test

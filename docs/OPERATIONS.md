@@ -225,9 +225,13 @@ of a healthy model. The latency thresholds in candidate rules are not approved
 reference-host budgets or model-quality claims.
 
 The test-only `MediaResourceProfileHarness` records the JVM version, OS,
-architecture, processor count, heap/thread samples, and readable Linux cgroup-v2
-memory, CPU, and process limits. An absent or unlimited cgroup value is emitted
-as `NOT_MEASURED` with its reason; host processor count is not substituted for a
+architecture, processor count, heap/thread samples, process RSS samples, and
+readable Linux cgroup-v2 memory, CPU, and process limits. Linux RSS is sampled
+from `/proc/self/status`; macOS RSS is sampled with `ps` every 250 ms. The
+reported RSS is the maximum observed sample, so shorter workloads may miss
+transient peaks. RSS is total resident process memory, not native-only memory
+or a worker-isolation limit. An absent or unlimited cgroup value is emitted as
+`NOT_MEASURED` with its reason; host processor count is not substituted for a
 CPU quota. GPU, native allocator, network, FFmpeg-child, and model-specific
 values remain `NOT_MEASURED` until an owning probe exists. The platform-matrix
 JSON separately records the Docker limit arguments for its Linux test lane.

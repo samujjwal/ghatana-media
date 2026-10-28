@@ -3,6 +3,7 @@ package com.ghatana.audiovideo.observability.performance;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.ThreadMXBean;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalLong;
@@ -37,6 +39,7 @@ public final class MediaResourceProfileHarness {
     public static final Duration MAX_BUDGET = Duration.ofSeconds(30);
 
     private static final long SAMPLE_PERIOD_NANOS = TimeUnit.MILLISECONDS.toNanos(10);
+    private static final long PROCESS_RSS_SAMPLE_PERIOD_NANOS = TimeUnit.MILLISECONDS.toNanos(250);
     private static final long TERMINATION_GRACE_MILLIS = 500;
     private static final AtomicInteger THREAD_SEQUENCE = new AtomicInteger();
     private static final MemoryMXBean MEMORY = ManagementFactory.getMemoryMXBean();
@@ -49,6 +52,7 @@ public final class MediaResourceProfileHarness {
     public enum Resource {
         PROCESS_CPU_TIME_NANOS,
         HEAP_PEAK_BYTES,
+        PROCESS_RSS_BYTES,
         THREAD_PEAK,
         GPU_MEMORY_BYTES,
         NATIVE_MEMORY_BYTES,
@@ -141,6 +145,7 @@ public final class MediaResourceProfileHarness {
                     Double.toString(p99Millis),
                     render(resources.get(Resource.PROCESS_CPU_TIME_NANOS)),
                     render(resources.get(Resource.HEAP_PEAK_BYTES)),
+                    render(resources.get(Resource.PROCESS_RSS_BYTES)),
                     render(resources.get(Resource.THREAD_PEAK)),
                     render(resources.get(Resource.GPU_MEMORY_BYTES)),
                     render(resources.get(Resource.NATIVE_MEMORY_BYTES)),
@@ -168,8 +173,9 @@ public final class MediaResourceProfileHarness {
                     "scope", "admission", "concurrency", "requested_operations", "budget_ms", "completed_operations",
                     "failed_operations", "incomplete_operations", "outcome", "worker_pool_terminated",
                     "elapsed_ms", "throughput_ops_s", "p50_ms", "p95_ms", "p99_ms",
-                    "process_cpu_time_nanos", "heap_peak_bytes", "thread_peak", "gpu_memory_bytes",
-                    "native_memory_bytes", "connection_pool_size", "network_bytes", "ffmpeg_child_processes",
+                    "process_cpu_time_nanos", "heap_peak_bytes", "process_rss_bytes", "thread_peak",
+                    "gpu_memory_bytes", "native_memory_bytes", "connection_pool_size", "network_bytes",
+                    "ffmpeg_child_processes",
                     "model_real_time_factor", "video_frames_per_second", "container_memory_limit_bytes",
                     "container_cpu_limit_cores", "container_process_limit", "java_version", "java_vendor",
                     "runtime_name", "os", "os_version", "architecture", "available_processors",
@@ -211,18 +217,22 @@ public final class MediaResourceProfileHarness {
 
         var latencies = new ConcurrentLinkedQueue<Long>();
         var snapshots = new ConcurrentLinkedQueue<ResourceSnapshot>();
+        var processRssSamples = new ConcurrentLinkedQueue<Long>();
         var failures = new AtomicInteger();
         var completed = new AtomicInteger();
         var workerFactory = daemonFactory("media-profile-worker-");
         var workers = new ThreadPoolExecutor(concurrency, concurrency, 0, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(operations), workerFactory, new ThreadPoolExecutor.AbortPolicy());
         workers.prestartAllCoreThreads();
-        ScheduledExecutorService sampler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(
+        ScheduledExecutorService sampler = java.util.concurrent.Executors.newScheduledThreadPool(2,
                 daemonFactory("media-profile-sampler-"));
         ResourceSnapshot before = snapshot();
         snapshots.add(before);
+        processRssSamples.add(readProcessRssBytes().orElse(-1));
         sampler.scheduleAtFixedRate(() -> snapshots.add(snapshot()), 0, SAMPLE_PERIOD_NANOS,
                 TimeUnit.NANOSECONDS);
+        sampler.scheduleAtFixedRate(() -> processRssSamples.add(readProcessRssBytes().orElse(-1)),
+                PROCESS_RSS_SAMPLE_PERIOD_NANOS, PROCESS_RSS_SAMPLE_PERIOD_NANOS, TimeUnit.NANOSECONDS);
 
         long started = System.nanoTime();
         long deadline = started + budget.toNanos();
@@ -292,6 +302,7 @@ public final class MediaResourceProfileHarness {
         long finished = System.nanoTime();
         ResourceSnapshot after = snapshot();
         snapshots.add(after);
+        processRssSamples.add(readProcessRssBytes().orElse(-1));
 
         List<Long> orderedLatencies = new ArrayList<>(latencies);
         orderedLatencies.sort(Comparator.naturalOrder());
@@ -300,7 +311,7 @@ public final class MediaResourceProfileHarness {
         int failedCount = Math.min(failures.get(), completedCount);
         int incompleteCount = Math.max(0, operations - completedCount);
         double throughput = Math.max(0, completedCount - failedCount) / (elapsed / 1_000_000_000.0);
-        Map<Resource, Reading> resources = summarizeResources(before, after, snapshots);
+        Map<Resource, Reading> resources = summarizeResources(before, after, snapshots, processRssSamples);
 
         return new Report(concurrency, operations, completedCount, failedCount, incompleteCount,
                 aborted ? Outcome.ABORTED : failedCount > 0 ? Outcome.FAILED : Outcome.COMPLETED,
@@ -310,7 +321,8 @@ public final class MediaResourceProfileHarness {
     }
 
     private static Map<Resource, Reading> summarizeResources(
-            ResourceSnapshot before, ResourceSnapshot after, ConcurrentLinkedQueue<ResourceSnapshot> samples) {
+            ResourceSnapshot before, ResourceSnapshot after, ConcurrentLinkedQueue<ResourceSnapshot> samples,
+            ConcurrentLinkedQueue<Long> processRssSamples) {
         var result = new EnumMap<Resource, Reading>(Resource.class);
         if (before.processCpuNanos().isPresent() && after.processCpuNanos().isPresent()) {
             result.put(Resource.PROCESS_CPU_TIME_NANOS, Reading.measured(
@@ -323,6 +335,8 @@ public final class MediaResourceProfileHarness {
         int threadPeak = samples.stream().mapToInt(ResourceSnapshot::threadCount).max().orElse(after.threadCount());
         result.put(Resource.HEAP_PEAK_BYTES, summarizeHeapPeak(
                 samples.stream().mapToLong(ResourceSnapshot::heapUsedBytes).toArray()));
+        result.put(Resource.PROCESS_RSS_BYTES, summarizeProcessRss(
+                processRssSamples.stream().mapToLong(Long::longValue).toArray()));
         result.put(Resource.THREAD_PEAK, Reading.measured(threadPeak, "threads"));
         for (Resource resource : List.of(Resource.GPU_MEMORY_BYTES, Resource.NATIVE_MEMORY_BYTES,
                 Resource.CONNECTION_POOL_SIZE, Resource.NETWORK_BYTES, Resource.FFMPEG_CHILD_PROCESSES,
@@ -359,6 +373,88 @@ public final class MediaResourceProfileHarness {
         return peak < 0
                 ? Reading.notMeasured("bytes", "No JVM heap samples were collected.")
                 : Reading.measured(peak, "bytes");
+    }
+
+    /** Preserve missing OS samples instead of presenting a partial or fabricated RSS peak. */
+    static Reading summarizeProcessRss(long... samples) {
+        long peak = -1;
+        for (long sample : samples) {
+            if (sample < 0) {
+                return Reading.notMeasured("bytes", "At least one process RSS sample was unavailable.");
+            }
+            peak = Math.max(peak, sample);
+        }
+        return peak < 0
+                ? Reading.notMeasured("bytes", "No process RSS samples were collected.")
+                : Reading.measured(peak, "bytes");
+    }
+
+    private static OptionalLong readProcessRssBytes() {
+        String operatingSystem = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+        if (operatingSystem.contains("linux")) {
+            try {
+                Reading reading = parseLinuxProcessRss(Files.readString(Path.of("/proc/self/status")));
+                return reading.state() == State.MEASURED
+                        ? OptionalLong.of((long) reading.value())
+                        : OptionalLong.empty();
+            } catch (java.io.IOException | SecurityException unavailable) {
+                return OptionalLong.empty();
+            }
+        }
+        if (operatingSystem.contains("mac") || operatingSystem.contains("darwin")) {
+            Process process = null;
+            try {
+                process = new ProcessBuilder("/bin/ps", "-o", "rss=", "-p",
+                        Long.toString(ProcessHandle.current().pid()))
+                        .redirectError(ProcessBuilder.Redirect.DISCARD)
+                        .start();
+                if (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
+                    process.destroyForcibly();
+                    process.waitFor(100, TimeUnit.MILLISECONDS);
+                    return OptionalLong.empty();
+                }
+                byte[] output;
+                try (var stream = process.getInputStream()) {
+                    output = stream.readNBytes(128);
+                }
+                if (process.exitValue() != 0) return OptionalLong.empty();
+                Reading reading = parsePsProcessRss(new String(output, StandardCharsets.UTF_8));
+                return reading.state() == State.MEASURED
+                        ? OptionalLong.of((long) reading.value())
+                        : OptionalLong.empty();
+            } catch (java.io.IOException | SecurityException unavailable) {
+                return OptionalLong.empty();
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                if (process != null) process.destroyForcibly();
+                return OptionalLong.empty();
+            }
+        }
+        return OptionalLong.empty();
+    }
+
+    static Reading parseLinuxProcessRss(String status) {
+        for (String line : status.split("\\R")) {
+            if (!line.startsWith("VmRSS:")) continue;
+            String[] fields = line.substring("VmRSS:".length()).trim().split("\\s+");
+            if (fields.length != 2 || !"kB".equals(fields[1])) break;
+            return parseKilobytes(fields[0], "Linux /proc process RSS is invalid.");
+        }
+        return Reading.notMeasured("bytes", "Linux /proc process RSS is unavailable.");
+    }
+
+    static Reading parsePsProcessRss(String output) {
+        return parseKilobytes(output.trim(), "The operating-system process RSS command returned invalid output.");
+    }
+
+    private static Reading parseKilobytes(String value, String invalidReason) {
+        try {
+            long kilobytes = Long.parseLong(value);
+            if (kilobytes < 0) throw new NumberFormatException();
+            return Reading.measured(Math.multiplyExact(kilobytes, 1024L), "bytes");
+        } catch (NumberFormatException | ArithmeticException invalid) {
+            return Reading.notMeasured("bytes", invalidReason);
+        }
     }
 
     private static Environment environment() {
@@ -464,7 +560,8 @@ public final class MediaResourceProfileHarness {
 
     private static String unit(Resource resource) {
         return switch (resource) {
-            case GPU_MEMORY_BYTES, NATIVE_MEMORY_BYTES, NETWORK_BYTES, CONTAINER_MEMORY_LIMIT_BYTES -> "bytes";
+            case GPU_MEMORY_BYTES, NATIVE_MEMORY_BYTES, NETWORK_BYTES, CONTAINER_MEMORY_LIMIT_BYTES,
+                    PROCESS_RSS_BYTES -> "bytes";
             case CONNECTION_POOL_SIZE, FFMPEG_CHILD_PROCESSES -> "count";
             case MODEL_REAL_TIME_FACTOR -> "ratio";
             case VIDEO_FRAMES_PER_SECOND -> "frames/s";
