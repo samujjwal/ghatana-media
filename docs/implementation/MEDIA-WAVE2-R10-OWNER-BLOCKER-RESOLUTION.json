@@ -131,7 +131,7 @@
       "engineeringDecision": "APPROVE_HOST_SUPERVISOR_OVER_UNAVAILABLE_DELEGATED_IN_CONTAINER_CGROUP; never expose docker socket to untrusted codec",
       "input": "Docker Desktop Linux VM/host daemon authorized for launcher, digest-pinned worker+codec image, no-network read-only image/mounted source",
       "action": "Implement trusted host-only OCI supervisor and Media ProcessRunner public seam; one request per container, --memory=1536m --memory-swap=1536m --cpus=2 --pids-limit=32 --network none --read-only --cap-drop ALL --security-opt no-new-privileges, private 128m tmpfs, explicit timeout and cleanup; read cgroup effective limits and test OOM/PID/time attacks",
-      "pass": "Adversarial request dies inside hard per-worker CPU/RAM/PID/tmp bounds on Docker Desktop and Linux; no service socket, process leak, output overrun, partial success or hidden global privileged access",
+      "pass": "Adversarial request dies inside hard per-worker CPU/RAM/PID/tmp bounds on Docker Desktop and Linux; no service socket, process leak, output overrun, partial success or hidden global privileged access The present HostOciVisionWorkerSupervisor runs Docker CLI inside the Media JVM; it qualifies only trusted local host testing until a separate authenticated narrow host broker is implemented. Production Media JVM must have no general Docker/CRI daemon authority.",
       "fallback": "Current in-container cgroup/bwrap backend remains supported ONLY if delegated writable cgroups are proven; otherwise require host OCI adapter and fail closed"
     },
     {
@@ -967,8 +967,9 @@
       "G06": {
         "implementationDisposition": "CODED_SOURCE_WITH_NATIVE_VERIFICATION_PENDING",
         "observedGap": "Host OCI resource fixture 2/2 reported passed; new kernel OOM, fork-limit and real FFmpeg positive/malformed/overflow source tests committed but not run",
-        "nextAction": "Run dedicated stub then real pinned-image suites with effective cgroup evidence; repeat original VIS-03 adversarial corpus",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "nextAction": "Run four existing/stub OOM/PID OCI tests and three genuine pinned FFmpeg tests; implement authenticated separate Docker/CRI host broker before production deployment",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "productionPrivilegeBoundary": "DEVELOPMENT_ONLY_CURRENT_DIRECT_JVM_DOCKER_CLI; PRODUCTION_REQUIRES_SEPARATE_AUTHENTICATED_LEAST_PRIVILEGE_BROKER_AND_SOURCE_OWNER_PROTOCOL"
       },
       "G07": {
         "implementationDisposition": "EXTERNAL_LICENSED_DATA_THEN_ENGINEERING_METRICS",
