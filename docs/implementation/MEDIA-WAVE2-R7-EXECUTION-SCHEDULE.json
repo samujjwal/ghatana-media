@@ -3734,5 +3734,42 @@
     },
     "disposition": {"rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "externalRightsAdmitted": false},
     "claim": "All 58 task rows have a current-cut independent disposition/evidence-consistency audit, not 58 complete task acceptances or fresh execution of every historical test gate."
+  },
+  "postR7Oct28FiveServiceSuite": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {"media": "454d37db", "branch": "main"},
+    "fullModuleResults": {
+      "STT": {"tests": 347, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "TTS": {"tests": 350, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "Vision": {"tests": 440, "failures": 0, "errors": 0, "skipped": 3, "result": "PASS_WITH_OPT_IN_NATIVE_SKIPS"},
+      "Multimodal": {"tests": 316, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "Observability": {"tests": 136, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "aggregate": {"tests": 1589, "failures": 0, "errors": 0, "skipped": 3, "result": "PASS_WITH_OPT_IN_NATIVE_SKIPS"}
+    },
+    "gradleExecution": {
+      "STT": "The suite ran and passed in the first combined attempt; its output was UP-TO-DATE on the corrected successful rerun.",
+      "TTS": "First attempt exposed four stale NOT_ADMITTED assertions; commit 454d37db updates affected expected descriptions only, and the full 350-test suite then passed.",
+      "Vision": "UP-TO-DATE for unchanged module inputs; three VisionNativeBoundedIT cases are opt-in and were run separately.",
+      "Multimodal": "Full module suite executed and passed.",
+      "Observability": "Full module suite executed and passed."
+    },
+    "independentReview": "Luna confirmed TTS production behavior is correct: the exact local voice/language/rights NOT_ADMITTED explanation maps to UNAVAILABLE before provider dispatch; stale test assertions were updated without production changes.",
+    "visionNativeRun": {
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "selectors": ["VisionNativeBoundedIT (3)", "VideoFrameExtractorProcessTest (53)"],
+      "tools": "Pinned FFmpeg/FFprobe 8.1.2",
+      "result": "PASS",
+      "limitation": "Generated-fixture process behavior only; hard per-worker CPU/RSS/PID and aggregate scratch enforcement remain absent."
+    },
+    "disposition": {
+      "rowsPromoted": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "VIS-03": "PARTIAL",
+      "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "claim": "Current-input service test suites and opt-in native Vision fixtures pass. Their results do not satisfy owner/provider, real-model/corpus, worker-isolation, durable modality result, formal acceptance, or release gates."
   }
 }
