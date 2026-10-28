@@ -74,4 +74,16 @@ class PersistentMultimodalServiceMetricPrivacyTest extends EventloopTestBase {
         verify(auditService, never()).record(any(AuditEvent.class));
         assertThat(meterRegistry.find("multimodal.fuse.duration").timer().count()).isZero();
     }
+
+    @Test
+    void legacyTranscriptSearchFailsClosedWithoutPrincipalScopedReadAuthority() {
+        TranscriptionService transcriptionService = mock(TranscriptionService.class);
+        PersistentMultimodalService service = new PersistentMultimodalService(
+                mock(AudioFileService.class), transcriptionService, new SimpleMeterRegistry());
+
+        assertThatThrownBy(() -> runPromise(() -> service.search("tenant-marker", "private-marker")))
+                .hasMessage("MULTIMODAL_SEARCH_NOT_ADMITTED: principal-scoped transcript read authority is unavailable");
+
+        verify(transcriptionService, never()).findByTenantId(anyString());
+    }
 }

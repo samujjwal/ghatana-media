@@ -148,23 +148,15 @@ public class PersistentMultimodalService {
     }
 
     /**
-     * Search across all persisted multimodal content.
+     * Legacy transcript search cannot be exposed without a principal-scoped source/read authority.
+     * The current signature accepts only a caller-supplied tenant ID and query, so neither value
+     * proves access to the persisted transcripts.
      */
     public Promise<java.util.List<MultimodalSearchResult>> search(String tenantId, String query) {
-        // Search transcriptions
-        return transcriptionService.findByTenantId(tenantId)
-            .map(transcriptions -> {
-                return transcriptions.stream()
-                    .filter(t -> t.getText().toLowerCase().contains(query.toLowerCase()))
-                    .map(t -> new MultimodalSearchResult(
-                        t.getAudioFileId(),
-                        "transcription",
-                        t.getText(),
-                        t.getConfidence(),
-                        t.getCreatedAt()
-                    ))
-                    .toList();
-            });
+        Objects.requireNonNull(tenantId, "tenantId cannot be null");
+        Objects.requireNonNull(query, "query cannot be null");
+        return Promise.ofException(new IllegalStateException(
+                "MULTIMODAL_SEARCH_NOT_ADMITTED: principal-scoped transcript read authority is unavailable"));
     }
 
     /**
