@@ -1,0 +1,2567 @@
+{
+  "schemaVersion": "media.candidate-decision-crosswalk.v1",
+  "asOf": "2026-10-28",
+  "authority": "READ_ONLY_DISCOVERABILITY_INDEX_NOT_A_SECOND_PDP_SELECTION_PROVIDER_MANIFEST_OR_LICENSE_APPROVAL",
+  "precedence": [
+    "CURRENT_PDP0_reuse-decisions.yaml controls owner-level SELECTED/CONDITIONAL/REJECTED/NOT_REQUIRED",
+    "BLUEPRINT_AND_MIGRATION references preserve research options, NOT runtime selections",
+    "R9_SOURCE_CATALOG pins narrow Wave2 artifacts only, all REVIEW_ONLY; no selection over other capability profiles",
+    "PRIOR_CONVERSATION supplemental notes are historical, tentative, not source-pinned approvals",
+    "Actual deployment requires signed rights/consent, exact artifact license, model+hardware performance, secure provider readiness and existing Media/Shared authority"
+  ],
+  "canonicalSourceSnapshots": [
+    {
+      "id": "p0",
+      "path": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
+      "githubBlobSha": "dab8b81f3d41372f0ce017deec65f47b4b1b4c36"
+    },
+    {
+      "id": "bp",
+      "path": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+      "githubBlobSha": "90ef1b3963bbb28dae5516846deb7050943e6ca3"
+    },
+    {
+      "id": "mig",
+      "path": "docs/migration/expert-reviewed-master-plan.md",
+      "githubBlobSha": "ab0acc326d9e2317bce956b6195ca156f500ac00"
+    },
+    {
+      "id": "r9",
+      "path": "config/qualification/wave2-reference-candidates.v1.json",
+      "githubBlobSha": "efef7f2d34f31df1e23bf5006c49daa5646467d2"
+    },
+    {
+      "id": "history",
+      "path": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json",
+      "githubBlobSha": "8943750e44cc8a67689accb24105ffa47fd52e6d"
+    }
+  ],
+  "counts": {
+    "pdp0TechDecisions": 38,
+    "blueprintOssRoles": 32,
+    "blueprintHigherValueCandidates": 30,
+    "animationCandidates": 5,
+    "simulationCandidates": 5,
+    "migrationAppendixCandidates": 32,
+    "r9ExactSourceAssets": 6,
+    "conversationOnlyAlternatives": 9,
+    "sourceDomainFamilies": 22
+  },
+  "pdp0ArchitecturalSelections": [
+    {
+      "id": "TECH-GHATANA-PRODUCT-DEFINITION",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-tools",
+      "purpose": "neutral-Product-Definition-shape-validation-and-development-authority",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-PRODUCT-DEFINITION",
+      "sourceLine": 234,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-TRACEABILITY",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-tools; ghatana-lifecycle",
+      "purpose": "domain-cross-phase-traceability-and-documentation-model",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-TRACEABILITY",
+      "sourceLine": 248,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-EXPERIENCE-CONTRACTS",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-tools",
+      "purpose": "neutral-experience-language-screen-specification-and-product-execution-contracts",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-EXPERIENCE-CONTRACTS",
+      "sourceLine": 264,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-EXPLORER",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-tools",
+      "purpose": "generic-product-review-host-and-explorer-mechanics",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-EXPLORER",
+      "sourceLine": 281,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-DESIGN-SYSTEM",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-shared; ghatana-tools",
+      "purpose": "governed-design-tokens-accessible-primitives-and-reusable-composition-validation",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-DESIGN-SYSTEM",
+      "sourceLine": 297,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-EXPERIENCE-ASSURANCE",
+      "decision": "CONDITIONAL",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "ghatana-tools",
+      "purpose": "browser-API-accessibility-and-experience-evidence",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-EXPERIENCE-ASSURANCE",
+      "sourceLine": 316,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-CONTRACT-MOCK-SERVER",
+      "decision": "CONDITIONAL",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "ghatana-tools",
+      "purpose": "deterministic-API-simulation-if-Lifecycle-RC1-package-compatibility-is-resolved",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-CONTRACT-MOCK-SERVER",
+      "sourceLine": 331,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-VERIFICATION-PLANNER",
+      "decision": "CONDITIONAL",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "ghatana-tools; ghatana-lifecycle",
+      "purpose": "affected-verification-planning",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-VERIFICATION-PLANNER",
+      "sourceLine": 346,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-LIFECYCLE-CLOSURE",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-lifecycle",
+      "purpose": "closure-evidence-admission-currentness-receipts-and-convergence-owned-by-Lifecycle",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-LIFECYCLE-CLOSURE",
+      "sourceLine": 362,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-SHARED-FOUNDATIONS",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-shared",
+      "purpose": "generic-platform-mechanics; Media-retains-domain-rules-and-event-meaning",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-SHARED-FOUNDATIONS",
+      "sourceLine": 379,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-AI-INFERENCE",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-services-ai-inference",
+      "purpose": "model-selection-routing-secrets-quota-and-governance;",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-AI-INFERENCE",
+      "sourceLine": 393,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-DOCUMENT-INTELLIGENCE",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-services-document-intelligence; ghatana-shared",
+      "purpose": "generic-OCR-parser-and-document-extraction-outside-Media",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-DOCUMENT-INTELLIGENCE",
+      "sourceLine": 411,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-DATA-CLOUD",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-services-data-cloud",
+      "purpose": "downstream-governed-metadata-and-customer-read-model-only",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-DATA-CLOUD",
+      "sourceLine": 426,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GHATANA-EVENT-ACTION-PLANE",
+      "decision": "SELECTED",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ghatana-platform",
+      "purpose": "durable-event-delivery-and-privileged-effect-execution",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GHATANA-EVENT-ACTION-PLANE",
+      "sourceLine": 440,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-TUTORPUTOR-SIMULATION",
+      "decision": "CONDITIONAL",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "ghatana-products-tutorputor",
+      "purpose": "evaluate-reusable-animation-rendering-physics-simulation-and-AEF-contracts",
+      "licenseClaim": "NOASSERTION",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-TUTORPUTOR-SIMULATION",
+      "sourceLine": 455,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-WAVESURFER",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "WaveSurfer.js project,",
+      "purpose": "waveform-region-navigation-and-playback-adapter,",
+      "licenseClaim": "BSD-3-Clause,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-WAVESURFER",
+      "sourceLine": 472,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-OPENTIMELINEIO",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "OpenTimelineIO project,",
+      "purpose": "editorial-timeline-import-export-and-loss-reporting,",
+      "licenseClaim": "Apache-2.0,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-OPENTIMELINEIO",
+      "sourceLine": 487,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-OPENCOLORIO",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "OpenColorIO project,",
+      "purpose": "color-space-and-transformation-adapter,",
+      "licenseClaim": "BSD-3-Clause,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-OPENCOLORIO",
+      "sourceLine": 502,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-OPENIMAGEIO",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "OpenImageIO project,",
+      "purpose": "advanced-image-format-I-O-only-if-Ghatana-gap-is-proven,",
+      "licenseClaim": "NOASSERTION,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-OPENIMAGEIO",
+      "sourceLine": 517,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-C2PA-RS",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "Content Authenticity Initiative; c2pa-rs maintainers,",
+      "purpose": "governed-content-provenance-adapter-with-managed-keys,",
+      "licenseClaim": "MIT OR Apache-2.0,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-C2PA-RS",
+      "sourceLine": 534,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-THREEJS",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "Three.js project,",
+      "purpose": "browser-scene-preview-and-inspection,",
+      "licenseClaim": "MIT,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-THREEJS",
+      "sourceLine": 550,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-GLTF-TRANSFORM",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "glTF Transform project,",
+      "purpose": "versioned-glTF-GLB-read-transform-optimize-write-adapter,",
+      "licenseClaim": "MIT,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GLTF-TRANSFORM",
+      "sourceLine": 565,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-SHAKA-PACKAGER",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "Shaka Project,",
+      "purpose": "approved-HLS-DASH-packaging-only,",
+      "licenseClaim": "BSD-3-Clause,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-SHAKA-PACKAGER",
+      "sourceLine": 580,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-SHAKA-PLAYER",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "Shaka Project,",
+      "purpose": "unified-adaptive-player-only-if-requirements-need-it,",
+      "licenseClaim": "Apache-2.0,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-SHAKA-PLAYER",
+      "sourceLine": 595,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-LIBEBUR128",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "libebur128 project,",
+      "purpose": "reference-grade-EBU-R128-measurement-when-contract-requires,",
+      "licenseClaim": "MIT,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-LIBEBUR128",
+      "sourceLine": 610,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-VMAF",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "Netflix VMAF project,",
+      "purpose": "reference-based-quality-domain-only,",
+      "licenseClaim": "NOASSERTION,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-VMAF",
+      "sourceLine": 625,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-RAPIER",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "Rapier project,",
+      "purpose": "fallback-only-if-TutorPutor-neutral-simulation-contract-is-unavailable,",
+      "licenseClaim": "Apache-2.0,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-RAPIER",
+      "sourceLine": 642,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-LIVEKIT-SERVER",
+      "decision": "NOT_REQUIRED,",
+      "qualificationStatus": "NOT_SELECTED",
+      "owner": "LiveKit project,",
+      "purpose": "reserve-for-accepted-SFU-multiparty-requirement; not-installed,",
+      "licenseClaim": "Apache-2.0,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-LIVEKIT-SERVER",
+      "sourceLine": 657,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-ONNX-RUNTIME",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "ONNX Runtime project; AI Inference or specialized provider owner,",
+      "purpose": "general-ONNX-model-execution-outside-a-new-Media-router,",
+      "licenseClaim": "MIT,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-ONNX-RUNTIME",
+      "sourceLine": 672,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-SVT-AV1",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "SVT-AV1 project,",
+      "purpose": "preferred-AV1-encoder-candidate-for-permissive-codec-profile,",
+      "licenseClaim": "BSD-3-Clause,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-SVT-AV1",
+      "sourceLine": 687,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-DAV1D",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "VideoLAN,",
+      "purpose": "preferred-AV1-software-decoder-candidate,",
+      "licenseClaim": "BSD-2-Clause,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-DAV1D",
+      "sourceLine": 702,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-LIBVPX",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "libvpx project,",
+      "purpose": "accepted-VP8-VP9-interoperability-profiles-only,",
+      "licenseClaim": "BSD-3-Clause,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-LIBVPX",
+      "sourceLine": 717,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-LIBOPUS",
+      "decision": "SELECTED,",
+      "qualificationStatus": "SELECTED_NOT_QUALIFIED",
+      "owner": "Opus Codec project,",
+      "purpose": "preferred-speech-realtime-audio-codec-candidate,",
+      "licenseClaim": "BSD-3-Clause,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-LIBOPUS",
+      "sourceLine": 732,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-OPENCV",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "OpenCV project,",
+      "purpose": "demonstrated-CV-or-frame-processing-gaps-only,",
+      "licenseClaim": "Apache-2.0,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-OPENCV",
+      "sourceLine": 747,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-WHISPER-CPP",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "whisper.cpp project,",
+      "purpose": "retain-existing-fit; do-not-add-duplicate-STT-engine,",
+      "licenseClaim": "MIT,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-WHISPER-CPP",
+      "sourceLine": 762,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-SHERPA-ONNX",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "sherpa-onnx project,",
+      "purpose": "reserve-for-verified-streaming-speech-capability-gaps,",
+      "licenseClaim": "Apache-2.0,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-SHERPA-ONNX",
+      "sourceLine": 777,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-DIFFUSERS",
+      "decision": "CONDITIONAL,",
+      "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
+      "owner": "Hugging Face Diffusers project,",
+      "purpose": "generative-pipeline-integration-only-at-owning-provider-boundary,",
+      "licenseClaim": "Apache-2.0,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-DIFFUSERS",
+      "sourceLine": 792,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    },
+    {
+      "id": "TECH-FFMPEG",
+      "decision": "REJECTED,",
+      "qualificationStatus": "REJECTED",
+      "owner": "FFmpeg project,",
+      "purpose": "core-bundled-media-framework-rejected-under-permissive-only-policy,",
+      "licenseClaim": "NOASSERTION,",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-FFMPEG",
+      "sourceLine": 807,
+      "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
+    }
+  ],
+  "preservedResearchSourceTables": {
+    "B3": [
+      {
+        "id": "B3-01",
+        "label": "Ghatana owned Media/Shared/Tools",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 59,
+        "originalSourceColumns": [
+          "Ghatana owned Media/Shared/Tools",
+          "Internal approved ownership",
+          "Existing projects, ops, rights, Jobs, OTel, Experience",
+          "**REUSE FIRST**; never fork owners"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-02",
+        "label": "Voicebox (`jamiepine/voicebox`)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 60,
+        "originalSourceColumns": [
+          "Voicebox (`jamiepine/voicebox`)",
+          "MIT application",
+          "Voice profile editor, TTS workflow, take selection, Stories UI, model management concepts and isolated MIT code",
+          "**SELECTIVE COPY/ADAPT**; remove GPL Pedalboard and independently audit model rights"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-03",
+        "label": "VoiceStudio (`debpalash/VoiceStudio`)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 61,
+        "originalSourceColumns": [
+          "VoiceStudio (`debpalash/VoiceStudio`)",
+          "AGPL-3.0",
+          "Dubbing, audiobook, speaker/voice features and UX behavior",
+          "**REIMPLEMENT FROM REQUIREMENTS**; no AGPL source copying"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-04",
+        "label": "OpenReel (`Augani/openreel-video`)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 62,
+        "originalSourceColumns": [
+          "OpenReel (`Augani/openreel-video`)",
+          "MIT application, but package imports FFmpeg wasm and MPL-2.0 MediaBunny",
+          "Timeline UI/operations, agent dry-run/diff, editor interactions",
+          "**SELECTIVE COPY/ADAPT** MIT subsets only; do not import entire dependency graph"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-05",
+        "label": "FireRed-OpenStoryline",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 63,
+        "originalSourceColumns": [
+          "FireRed-OpenStoryline",
+          "Apache-2.0",
+          "Script-to-rough-cut, editor skills, prompts/media matching, agent planning",
+          "**SELECTIVE COPY/ADAPT** code with notice/attribution; avoid unmanaged media scraping and non-permissive downstream binaries"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-06",
+        "label": "Open-Generative-AI",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 64,
+        "originalSourceColumns": [
+          "Open-Generative-AI",
+          "MIT application code",
+          "Generator catalog, job UX, optional provider interface",
+          "**SELECTIVE COPY/ADAPT**; no assumption that cloud endpoints or WanGP are permissive"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-07",
+        "label": "OpenCut",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 65,
+        "originalSourceColumns": [
+          "OpenCut",
+          "MIT app; roadmap includes unimplemented APIs",
+          "UX/architecture research or isolated copy once verified",
+          "**QUALIFY FIRST**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-08",
+        "label": "OpenChatCut",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 66,
+        "originalSourceColumns": [
+          "OpenChatCut",
+          "AGPL-3.0",
+          "AI editor and transcript timeline behavior",
+          "**SPECIFICATION/BEHAVIOR ONLY**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-09",
+        "label": "`whisper.cpp`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 67,
+        "originalSourceColumns": [
+          "`whisper.cpp`",
+          "MIT",
+          "CPU/offline and native ASR, streaming, timestamps",
+          "**CANDIDATE**; checkpoint and runtime QA"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-10",
+        "label": "`sherpa-onnx`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 68,
+        "originalSourceColumns": [
+          "`sherpa-onnx`",
+          "Apache-2.0",
+          "ASR/TTS/VAD/diarization/identification and low-resource runtime",
+          "**CANDIDATE**; model/phonemizer audit"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-11",
+        "label": "Legacy `rhasspy/piper`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 69,
+        "originalSourceColumns": [
+          "Legacy `rhasspy/piper`",
+          "MIT code; model license varies",
+          "Existing Piper voice path; bundled voices only if admitted",
+          "**RETAIN/QUALIFY**; independent phonemization deps"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-12",
+        "label": "`resemble-ai/chatterbox`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 70,
+        "originalSourceColumns": [
+          "`resemble-ai/chatterbox`",
+          "MIT code; model card MIT for identified checkpoint",
+          "Expressive multilingual/clone option",
+          "**CANDIDATE AFTER CONSENT/MODEL QA**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-13",
+        "label": "Qwen3-TTS",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 71,
+        "originalSourceColumns": [
+          "Qwen3-TTS",
+          "Apache-2.0 code",
+          "Optional voice design, clone and delivery style",
+          "**CANDIDATE AFTER MODEL/ASSET LICENSE AND HARDWARE QA**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-14",
+        "label": "`Diffusers`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 72,
+        "originalSourceColumns": [
+          "`Diffusers`",
+          "Apache-2.0",
+          "Local conditional image/video generation API",
+          "**CANDIDATE**, per-checkpoint terms mandatory"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-15",
+        "label": "Wan-family upstream",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 73,
+        "originalSourceColumns": [
+          "Wan-family upstream",
+          "Apache-2.0 for relevant code/checkpoints where published",
+          "Local text/image video model option",
+          "**PER-CHECKPOINT REVIEW**; large VRAM and memory budgets"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-16",
+        "label": "`PySceneDetect`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 74,
+        "originalSourceColumns": [
+          "`PySceneDetect`",
+          "BSD-3-Clause",
+          "Scene/shot detection",
+          "**CANDIDATE**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-17",
+        "label": "`OpenTimelineIO`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 75,
+        "originalSourceColumns": [
+          "`OpenTimelineIO`",
+          "Apache-2.0",
+          "Project interchange (not canonical DB/timeline)",
+          "**CANDIDATE**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-18",
+        "label": "`WaveSurfer.js`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 76,
+        "originalSourceColumns": [
+          "`WaveSurfer.js`",
+          "BSD-3-Clause",
+          "Waveform/editing UI",
+          "**CANDIDATE**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-19",
+        "label": "`OpenColorIO`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 77,
+        "originalSourceColumns": [
+          "`OpenColorIO`",
+          "BSD-3-Clause",
+          "Color conversion/interchange",
+          "**CANDIDATE**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-20",
+        "label": "Three.js / glTF Transform",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 78,
+        "originalSourceColumns": [
+          "Three.js / glTF Transform",
+          "MIT",
+          "2D/3D preview and glTF asset transforms",
+          "**CANDIDATE**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-21",
+        "label": "`gpac/mp4box.js`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 79,
+        "originalSourceColumns": [
+          "`gpac/mp4box.js`",
+          "BSD-3-Clause",
+          "MP4 container parsing/muxing where licensed video encoding exists",
+          "**CANDIDATE**; muxing is not encoding"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-22",
+        "label": "`rubato`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 80,
+        "originalSourceColumns": [
+          "`rubato`",
+          "MIT OR Apache-2.0",
+          "High-quality audio resampling",
+          "**CANDIDATE**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-23",
+        "label": "`libebur128`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 81,
+        "originalSourceColumns": [
+          "`libebur128`",
+          "Permissive code; exact pin to verify",
+          "Loudness measurements",
+          "**CANDIDATE**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-24",
+        "label": "`rnnoise`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 82,
+        "originalSourceColumns": [
+          "`rnnoise`",
+          "BSD-3-Clause code; published pretrained weight terms need confirmation",
+          "Denoise DSP",
+          "**CODE CANDIDATE, WEIGHTS NOT YET ADMITTED**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-25",
+        "label": "`spotify/pedalboard`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 83,
+        "originalSourceColumns": [
+          "`spotify/pedalboard`",
+          "GPL-3.0 (JUCE/VST3)",
+          "Audio effects feature behavior only",
+          "**REIMPLEMENT / APPROVED EXTERNAL ONLY**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-26",
+        "label": "FFmpeg / FFmpeg.wasm",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 84,
+        "originalSourceColumns": [
+          "FFmpeg / FFmpeg.wasm",
+          "LGPL/GPL depending exact build/plugins/codecs, **not strictly permissive**",
+          "Compatibility/reference, optional user-managed external tool",
+          "**NOT DEFAULT PERMISSIVE RENDERER**; independently approved fallback only"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-27",
+        "label": "`mediabunny`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 85,
+        "originalSourceColumns": [
+          "`mediabunny`",
+          "MPL-2.0",
+          "Browser media I/O ideas",
+          "**NOT PERMISSIVE DEFAULT**; prefer WebCodecs + BSD mux where feasible"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-28",
+        "label": "MLT",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 86,
+        "originalSourceColumns": [
+          "MLT",
+          "LGPL core; certain utilities and modules GPL",
+          "Timeline renderer ideas",
+          "**NOT PERMISSIVE DEFAULT**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-29",
+        "label": "Remotion",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 87,
+        "originalSourceColumns": [
+          "Remotion",
+          "Conditional commercial licensing",
+          "Motion/video render behavior",
+          "**NOT DEFAULT; SEPARATE LICENSE APPROVAL**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-30",
+        "label": "ComfyUI",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 88,
+        "originalSourceColumns": [
+          "ComfyUI",
+          "GPL-3.0",
+          "Optional locally managed workflow provider, only with legal review",
+          "**NO BUNDLING**; protocol boundary if approved"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-31",
+        "label": "WanGP/Wan2GP",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 89,
+        "originalSourceColumns": [
+          "WanGP/Wan2GP",
+          "Restricted community terms",
+          "Low-VRAM execution concepts only",
+          "**DO NOT EMBED/WHITE-LABEL BY DEFAULT**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B3-32",
+        "label": "Voice and speech presets/models",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "## 3. Permissive OSS",
+        "sourceLine": 90,
+        "originalSourceColumns": [
+          "Voice and speech presets/models",
+          "Per-model/per-voice",
+          "Cloning/presets/speech features",
+          "**DENY UNVERIFIED RIGHTS/MODEL HASH**"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      }
+    ],
+    "B13": [
+      {
+        "id": "B13-01",
+        "label": "`jamiepine/voicebox`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 875,
+        "originalSourceColumns": [
+          "`jamiepine/voicebox`",
+          "MIT app",
+          "Selective application/code patterns: voice profiles, Stories, expression/UI, local LLM personality, narration chunking",
+          "COPY_CANDIDATE; strip/reimplement GPL Pedalboard and independently audit pretrained voice/model graph"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-02",
+        "label": "`Augani/openreel-video`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 876,
+        "originalSourceColumns": [
+          "`Augani/openreel-video`",
+          "MIT app",
+          "Timeline operations/agent typed calls, keyframes, editing UI, color, resource-aware export interfaces",
+          "COPY_CANDIDATE; do not transplant MediaBunny MPL or FFmpeg/FFmpeg.wasm LGPL/GPL transitively"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-03",
+        "label": "`FireRedTeam/FireRed-OpenStoryline`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 877,
+        "originalSourceColumns": [
+          "`FireRedTeam/FireRed-OpenStoryline`",
+          "Apache-2.0",
+          "Scene/shot planning, speech rough-cut logic, reusable Style Skills, generated transitions",
+          "COPY_CANDIDATE; generated transition may require paid service and rights review"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-04",
+        "label": "`Anil-matcha/Open-Generative-AI`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 878,
+        "originalSourceColumns": [
+          "`Anil-matcha/Open-Generative-AI`",
+          "MIT app",
+          "Generation UI/model catalog, cinema controls, marketing variants, multi-image inputs, workflow canvas",
+          "COPY_CANDIDATE; hosted Muapi models not free/local by default; reject unsafe no-guardrail claims"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-05",
+        "label": "`OpenCut-app/OpenCut`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 879,
+        "originalSourceColumns": [
+          "`OpenCut-app/OpenCut`",
+          "MIT app",
+          "Navigation, editing UX, future plugin/API abstractions",
+          "QUALIFY_IMPLEMENTATION (many planned capabilities are roadmap)"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-06",
+        "label": "`debpalash/VoiceStudio`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 880,
+        "originalSourceColumns": [
+          "`debpalash/VoiceStudio`",
+          "AGPL-3.0",
+          "Dubbing, voice design/clone, model catalog, 646-language engine registry, AudioSeal, batch, remote workers",
+          "REIMPLEMENT_BEHAVIOR_NOT_SOURCE; 646 catalog languages do not imply identical engine quality"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-07",
+        "label": "`0xsline/OpenChatCut`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 881,
+        "originalSourceColumns": [
+          "`0xsline/OpenChatCut`",
+          "AGPL-3.0",
+          "Speech-based editing, face-safe captions, shader/motion effects, render/agent parity",
+          "REIMPLEMENT_BEHAVIOR_NOT_SOURCE; commercial Remotion/FFmpeg separately gated"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-08",
+        "label": "`ggml-org/whisper.cpp`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 882,
+        "originalSourceColumns": [
+          "`ggml-org/whisper.cpp`",
+          "MIT",
+          "Offline ASR / speech alignment and CPU/GPU variants",
+          "PERMISSIVE_CANDIDATE; exact model checkpoint pin"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-09",
+        "label": "`k2-fsa/sherpa-onnx`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 883,
+        "originalSourceColumns": [
+          "`k2-fsa/sherpa-onnx`",
+          "Apache-2.0",
+          "ASR, TTS, VAD, on-device speech/low resource",
+          "PERMISSIVE_CANDIDATE; voice models and linguistic deps separately reviewed"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-10",
+        "label": "`QwenLM/Qwen3-TTS`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 884,
+        "originalSourceColumns": [
+          "`QwenLM/Qwen3-TTS`",
+          "Apache-2.0 project",
+          "Prompt-guided voice design, cloned/preset multilingual speech",
+          "PERMISSIVE_CODE_CANDIDATE; pin exact weight and tokenizer use rights"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-11",
+        "label": "`QwenAudio/CosyVoice`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 885,
+        "originalSourceColumns": [
+          "`QwenAudio/CosyVoice`",
+          "Apache-2.0 project",
+          "Expressive/ref voice TTS, multilingual dubbing",
+          "PERMISSIVE_CODE_CANDIDATE; audit model checkpoints and derivatives"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-12",
+        "label": "`resemble-ai/chatterbox`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 886,
+        "originalSourceColumns": [
+          "`resemble-ai/chatterbox`",
+          "MIT project",
+          "Expressive paralinguistic speech, approved speaker cloning, watermark",
+          "PERMISSIVE_CANDIDATE; verify watermark dependencies and weight rights"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-13",
+        "label": "`Rikorose/DeepFilterNet`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 887,
+        "originalSourceColumns": [
+          "`Rikorose/DeepFilterNet`",
+          "MIT OR Apache-2.0",
+          "Denoise and speech cleanup Rust/Python components",
+          "PERMISSIVE_CODE_CANDIDATE; actual weights/deps must be pinned"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-14",
+        "label": "`facebookresearch/sam2`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 888,
+        "originalSourceColumns": [
+          "`facebookresearch/sam2`",
+          "Apache-2.0 code/checkpoints",
+          "Video scene masks, spatial tracking, safe overlay and smart reframe",
+          "PERMISSIVE_CANDIDATE; demo fonts optional licenses"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-15",
+        "label": "`TMElyralab/MuseTalk`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 889,
+        "originalSourceColumns": [
+          "`TMElyralab/MuseTalk`",
+          "MIT project code; commercial use stated for its model",
+          "Video dubbing and optional permitted portrait lip sync",
+          "PERMISSIVE_CANDIDATE; model dependencies, identity retention and jitter benchmark required"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-16",
+        "label": "`bytedance/LatentSync`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 890,
+        "originalSourceColumns": [
+          "`bytedance/LatentSync`",
+          "Apache-2.0 code",
+          "Lip-sync alternative candidate",
+          "PERMISSIVE_CODE_CANDIDATE; underlying diffusion model/weights dependencies to audit"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-17",
+        "label": "`Wan-Video/Wan2.2`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 891,
+        "originalSourceColumns": [
+          "`Wan-Video/Wan2.2`",
+          "Apache-2.0 upstream models",
+          "Local T2V/I2V and scenic control",
+          "CHECKPOINT_LEVEL_CANDIDATE; VRAM/quality qualification"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-18",
+        "label": "`genmoai/mochi`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 892,
+        "originalSourceColumns": [
+          "`genmoai/mochi`",
+          "Apache-2.0 upstream",
+          "Alternative text-to-video model for comparison",
+          "CANDIDATE; costly GPU/decoder and distribution graph review"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-19",
+        "label": "`kandinskylab/kandinsky-6`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 893,
+        "originalSourceColumns": [
+          "`kandinskylab/kandinsky-6`",
+          "MIT repository and MIT-labeled published model card",
+          "Native synchronized 5-second video+audio generation, lip-synced speech, video super-resolution",
+          "HIGH_PRIORITY_CANDIDATE; exact checkpoint and CUDA/dependency license and VRAM test"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-20",
+        "label": "`ace-step/ACE-Step-1.5`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 894,
+        "originalSourceColumns": [
+          "`ace-step/ACE-Step-1.5`",
+          "MIT source and model card",
+          "Music, lyrics, vocal generation, repainting, melody and cover conditioning",
+          "HIGH_PRIORITY_CANDIDATE; chosen checkpoint/license and rights/originality tests"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-21",
+        "label": "`HeartMuLa/heartlib`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 895,
+        "originalSourceColumns": [
+          "`HeartMuLa/heartlib`",
+          "Apache-2.0 source and stated model-family weights",
+          "Multilingual music/lyrics, audio codec, music remix and provenance",
+          "HIGH_PRIORITY_CANDIDATE; exact weights/mix and memory benchmark"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-22",
+        "label": "`huggingface/diffusers`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 896,
+        "originalSourceColumns": [
+          "`huggingface/diffusers`",
+          "Apache-2.0",
+          "General local image/video inference API",
+          "CANDIDATE; not a model license"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-23",
+        "label": "`AcademySoftwareFoundation/OpenColorIO`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 897,
+        "originalSourceColumns": [
+          "`AcademySoftwareFoundation/OpenColorIO`",
+          "BSD-3-Clause",
+          "Managed SDR/ACES/HDR color transforms",
+          "CANDIDATE with config/license and color QA"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-24",
+        "label": "`AcademySoftwareFoundation/OpenTimelineIO`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 898,
+        "originalSourceColumns": [
+          "`AcademySoftwareFoundation/OpenTimelineIO`",
+          "Apache-2.0",
+          "Project interchange only, optional approved format adapters",
+          "CANDIDATE; OTIO is not a canonical asset/video renderer"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-25",
+        "label": "`contentauth/c2pa-rs`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 899,
+        "originalSourceColumns": [
+          "`contentauth/c2pa-rs`",
+          "MIT OR Apache-2.0",
+          "Signed content provenance, verify/edit/export content credentials",
+          "CANDIDATE; dependencies, signing identity and container modes checked"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-26",
+        "label": "`xiph/rav1e`, `webmproject/libvpx`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 900,
+        "originalSourceColumns": [
+          "`xiph/rav1e`, `webmproject/libvpx`",
+          "BSD family with codec patent notices",
+          "Native AV1/VPx source encoding in qualified containers",
+          "CANDIDATE; muxer, OS/browser and codec patent/legal validation"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-27",
+        "label": "`facebookresearch/audiocraft`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 901,
+        "originalSourceColumns": [
+          "`facebookresearch/audiocraft`",
+          "MIT code; **CC-BY-NC weights**",
+          "Audio/music generation algorithms reference",
+          "CODE_ONLY / RESEARCH; no default noncommercial weights"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-28",
+        "label": "`Lightricks/LTX-2`, `Tencent-Hunyuan/HunyuanVideo`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 902,
+        "originalSourceColumns": [
+          "`Lightricks/LTX-2`, `Tencent-Hunyuan/HunyuanVideo`",
+          "Community/custom terms",
+          "Joint A/V or model capability research",
+          "RESEARCH_OR_SEPARATELY_LICENSED; NOT permissive default"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-29",
+        "label": "`ffmpeg`, `MediaBunny`, `MLT`, `Remotion`, `WanGP`, `Pedalboard`",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 903,
+        "originalSourceColumns": [
+          "`ffmpeg`, `MediaBunny`, `MLT`, `Remotion`, `WanGP`, `Pedalboard`",
+          "LGPL/GPL, MPL, commercial, community respectively",
+          "Video/audio processing or rendering concepts",
+          "NOT_DEFAULT_BUNDLED; separately approved protocol/process adapter only if compliant"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      },
+      {
+        "id": "B13-30",
+        "label": "`Wav2Lip` original",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 13.2 Higher-value OSS candidates",
+        "sourceLine": 904,
+        "originalSourceColumns": [
+          "`Wav2Lip` original",
+          "Noncommercial/research restrictions",
+          "Lip-sync feature reference",
+          "DO_NOT_COPY_OR_BUNDLE; MuseTalk or admitted LatentSync preferred"
+        ],
+        "dispositionSource": "BLUEPRINT_RESEARCH_ADOPTION_DISPOSITION",
+        "productionAdmitted": false
+      }
+    ],
+    "ANIM": [
+      {
+        "id": "ANIM-01",
+        "label": "[Motion Canvas](https://github.com/motion-canvas/motion-canvas)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 20.2 Candidate permissive OSS adoption",
+        "sourceLine": 1184,
+        "originalSourceColumns": [
+          "[Motion Canvas](https://github.com/motion-canvas/motion-canvas)",
+          "MIT repository",
+          "Timed procedural educational vector rendering, narration-linked animations",
+          "Native authoring is TypeScript/generators, *not* a safe untrusted declarative AST. Build a bounded compiler/adapter; no arbitrary generated TypeScript execution."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "ANIM-02",
+        "label": "[Manim Community](https://github.com/ManimCommunity/manim)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 20.2 Candidate permissive OSS adoption",
+        "sourceLine": 1185,
+        "originalSourceColumns": [
+          "[Manim Community](https://github.com/ManimCommunity/manim)",
+          "MIT source code",
+          "Off-line mathematical/explanatory render worker, math scenes",
+          "Python/dependent TeX/FFmpeg/binaries/assets need separate admission; do not expose raw user Python."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "ANIM-03",
+        "label": "[Theatre.js core](https://github.com/theatre-js/theatre)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 20.2 Candidate permissive OSS adoption",
+        "sourceLine": 1186,
+        "originalSourceColumns": [
+          "[Theatre.js core](https://github.com/theatre-js/theatre)",
+          "Apache-2.0 core",
+          "Property sequence/runtime interpolation",
+          "`@theatre/studio` is **AGPL-3.0**; do not embed Studio into strict permissive bundle. Implement our own Media inspector/editor."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "ANIM-04",
+        "label": "[Three.js](https://github.com/mrdoob/three.js), [PixiJS](https://github.com/pixijs/pixijs)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 20.2 Candidate permissive OSS adoption",
+        "sourceLine": 1187,
+        "originalSourceColumns": [
+          "[Three.js](https://github.com/mrdoob/three.js), [PixiJS](https://github.com/pixijs/pixijs)",
+          "MIT project sources",
+          "3D/2D renderer backends",
+          "Their scene/raster APIs are adapters only, never canonical Model IR."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "ANIM-05",
+        "label": "[OpenTimelineIO](https://github.com/AcademySoftwareFoundation/OpenTimelineIO)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 20.2 Candidate permissive OSS adoption",
+        "sourceLine": 1188,
+        "originalSourceColumns": [
+          "[OpenTimelineIO](https://github.com/AcademySoftwareFoundation/OpenTimelineIO)",
+          "Apache-2.0",
+          "Import/export timeline interchange",
+          "Export loss metadata and versioned mappings; never overwrite canonical MediaProject."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      }
+    ],
+    "SIM": [
+      {
+        "id": "SIM-01",
+        "label": "[Rapier](https://github.com/dimforge/rapier)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 21.3 Permissive solver/render candidates",
+        "sourceLine": 1216,
+        "originalSourceColumns": [
+          "[Rapier](https://github.com/dimforge/rapier)",
+          "Apache-2.0",
+          "WASM/native rigid-body physics backend",
+          "JavaScript bindings now live under main Rapier repository; verify packaged binary version and numerical behavior."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "SIM-02",
+        "label": "[Box2D](https://github.com/erincatto/box2d)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 21.3 Permissive solver/render candidates",
+        "sourceLine": 1217,
+        "originalSourceColumns": [
+          "[Box2D](https://github.com/erincatto/box2d)",
+          "MIT/Zlib-style upstream licensing by version (verify exact lock)",
+          "2D rigid-body dynamics and joints",
+          "Choose one canonical physics adapter for an admitted profile; don't silently mix engine outcomes."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "SIM-03",
+        "label": "[SimPy](https://simpy.readthedocs.io/en/stable/about/license.html)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 21.3 Permissive solver/render candidates",
+        "sourceLine": 1218,
+        "originalSourceColumns": [
+          "[SimPy](https://simpy.readthedocs.io/en/stable/about/license.html)",
+          "MIT",
+          "Discrete-event/queue/process simulation workers",
+          "Trusted Python worker only, sandbox and resource caps; does not replace domain model truth."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "SIM-04",
+        "label": "[SciPy](https://github.com/scipy/scipy)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 21.3 Permissive solver/render candidates",
+        "sourceLine": 1219,
+        "originalSourceColumns": [
+          "[SciPy](https://github.com/scipy/scipy)",
+          "BSD-3-Clause",
+          "Numerical reference solutions and scientific ODE/integration worker",
+          "Pin BLAS/backend and floating-point tolerance; validate each qualified model family."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "SIM-05",
+        "label": "[Three.js](https://github.com/mrdoob/three.js) / [PixiJS](https://github.com/pixijs/pixijs)",
+        "sourceFile": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+        "sourceSection": "### 21.3 Permissive solver/render candidates",
+        "sourceLine": 1220,
+        "originalSourceColumns": [
+          "[Three.js](https://github.com/mrdoob/three.js) / [PixiJS](https://github.com/pixijs/pixijs)",
+          "MIT",
+          "Visual representation of model state",
+          "Never substitute renderer physics or presentation state for scientific authority."
+        ],
+        "dispositionSource": "CAPABILITY_CANDIDATE_ONLY",
+        "productionAdmitted": false
+      }
+    ],
+    "MIG": [
+      {
+        "id": "MIG-01",
+        "label": "OpenCV",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2690,
+        "originalSourceColumns": [
+          "OpenCV",
+          "CV, geometry, filtering and supported tracking/flow primitives",
+          "Reuse existing Media/Ghatana adapters first; qualify exact algorithms, build flags, native distribution and hardware path"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-02",
+        "label": "OpenImageIO",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2691,
+        "originalSourceColumns": [
+          "OpenImageIO",
+          "Professional image I/O/processing",
+          "Evaluate current format support and transitive codec/format libraries; not a full compositor"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-03",
+        "label": "OpenEXR",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2692,
+        "originalSourceColumns": [
+          "OpenEXR",
+          "HDR/intermediate image representation",
+          "Verify chosen release, channels/precision/compression and interoperability; not color-management policy"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-04",
+        "label": "OpenColorIO",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2693,
+        "originalSourceColumns": [
+          "OpenColorIO",
+          "Color transforms/configuration",
+          "Prefer existing owner integration; qualify exact configuration/LUTs and rendering pipeline rather than an unversioned default"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-05",
+        "label": "MaterialX",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2694,
+        "originalSourceColumns": [
+          "MaterialX",
+          "Material/look interchange",
+          "Supported subset and renderer translation losses; not automatic look identity across engines"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-06",
+        "label": "OpenVDB",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2695,
+        "originalSourceColumns": [
+          "OpenVDB",
+          "Sparse volumetric representation/tools",
+          "Official license page identifies MPL-2.0 [W02]; not Apache-2.0 by assumption and not a complete fluid/fire solver"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-07",
+        "label": "Draco",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2696,
+        "originalSourceColumns": [
+          "Draco",
+          "Geometry compression",
+          "Validate glTF/asset feature support, quality/error bounds and decode compatibility"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-08",
+        "label": "Assimp",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2697,
+        "originalSourceColumns": [
+          "Assimp",
+          "Asset import/conversion",
+          "Sandbox imports and report format losses; actual model/texture asset licenses remain independent"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-09",
+        "label": "Three.js, React Three Fiber/Drei, PixiJS, D3, Konva/React Konva",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2698,
+        "originalSourceColumns": [
+          "Three.js, React Three Fiber/Drei, PixiJS, D3, Konva/React Konva",
+          "Web scene/2D/data visualization/authoring",
+          "Already declared in TutorPutor package [R05]; evaluate reusable Ghatana mechanics first rather than duplicating adapters"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-10",
+        "label": "Rive runtime",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2699,
+        "originalSourceColumns": [
+          "Rive runtime",
+          "Interactive vector animation",
+          "Runtime, editor/service terms, asset licenses and supported export features are distinct; no assumption the full authoring tool is open/permissive"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-11",
+        "label": "Lottie-web",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2700,
+        "originalSourceColumns": [
+          "Lottie-web",
+          "Vector animation playback",
+          "Renderer feature subset, text/fonts and expressions/interactivity limits; not a universal authoring format"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-12",
+        "label": "Manim",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2701,
+        "originalSourceColumns": [
+          "Manim",
+          "Procedural mathematical/explanatory animation",
+          "Prefer existing Ghatana/TutorPutor authoring mechanisms; template or sandbox execution, no unrestricted generated Python"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-13",
+        "label": "Godot",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2702,
+        "originalSourceColumns": [
+          "Godot",
+          "Rich authored 2D/3D animation/interactive rendering",
+          "Evaluate one justified engine target; imported scripts/plugins and third-party modules require separate admission"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-14",
+        "label": "Bevy",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2703,
+        "originalSourceColumns": [
+          "Bevy",
+          "Rust ECS-oriented rendering/animation",
+          "ECS is implementation detail; do not duplicate a product/world schema or mandate a parallel runtime without need"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-15",
+        "label": "Filament",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2704,
+        "originalSourceColumns": [
+          "Filament",
+          "Physically based rendering target",
+          "Qualify materials/color/render determinism and compare against existing rendering reuse"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-16",
+        "label": "Box2D, Matter.js",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2705,
+        "originalSourceColumns": [
+          "Box2D, Matter.js",
+          "2D physics",
+          "Choose by actual needed numeric behavior, supported platforms, deterministic envelope and existing adapters, not both by default"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-17",
+        "label": "Jolt Physics, PhysX",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2706,
+        "originalSourceColumns": [
+          "Jolt Physics, PhysX",
+          "3D physics alternatives",
+          "Qualified solver/contact/constraint behavior, platform footprint and replay; one chosen adapter per initial need"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-18",
+        "label": "MuJoCo",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2707,
+        "originalSourceColumns": [
+          "MuJoCo",
+          "Articulated/robotics/scientific model execution",
+          "Domain model/calibration authority stays external; qualify units, dynamics, integration and supported outputs"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-19",
+        "label": "Taichi",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2708,
+        "originalSourceColumns": [
+          "Taichi",
+          "GPU/procedural computation/simulation kernels",
+          "Does not supply every validated scientific model; control kernel code execution and numerical/hardware envelope"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-20",
+        "label": "ONNX Runtime, PyTorch",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2709,
+        "originalSourceColumns": [
+          "ONNX Runtime, PyTorch",
+          "Specialized model execution runtimes",
+          "AI-owned public execution or admitted bounded worker; exact runtime/backend/model/weights/licenses and replay limits [W03]"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-21",
+        "label": "Hugging Face Diffusers",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2710,
+        "originalSourceColumns": [
+          "Hugging Face Diffusers",
+          "Image/video diffusion pipeline implementation",
+          "Belongs inside admitted model-execution owner; pipeline-code license does not govern every checkpoint"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-22",
+        "label": "SAM 2 and future segmentation/tracking model candidates",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2711,
+        "originalSourceColumns": [
+          "SAM 2 and future segmentation/tracking model candidates",
+          "Reference/mask/track inference",
+          "Qualify code/checkpoints separately, mask/temporal accuracy, local/remote governance and media-domain failure cases; not guaranteed to segment every object"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-23",
+        "label": "miniaudio",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2712,
+        "originalSourceColumns": [
+          "miniaudio",
+          "Low-level audio I/O/mixing primitives",
+          "Reuse existing audio device/processing bridges; qualify exact platform and realtime constraints"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-24",
+        "label": "libsamplerate",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2713,
+        "originalSourceColumns": [
+          "libsamplerate",
+          "Audio sample-rate conversion",
+          "Verify exact bundle license and precision/delay behavior; account for resampling in timing/provenance"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-25",
+        "label": "Opus reference codec",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2714,
+        "originalSourceColumns": [
+          "Opus reference codec",
+          "Speech/audio encoding",
+          "Exact implementation/codec patent and distribution review; output compatibility separate from code license"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-26",
+        "label": "SVT-AV1 and other admitted AV1 implementations",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2715,
+        "originalSourceColumns": [
+          "SVT-AV1 and other admitted AV1 implementations",
+          "Video encoding",
+          "Exact build, patent/license obligations, profile/hardware/player qualification and performance"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-27",
+        "label": "FFmpeg",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2716,
+        "originalSourceColumns": [
+          "FFmpeg",
+          "Decode/filter/mux/transcode/encode adapter",
+          "Controlled exact build; LGPL/GPL/nonfree/external codec choices reviewed [W01]; shell-free invocation and parser sandbox"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-28",
+        "label": "GStreamer",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2717,
+        "originalSourceColumns": [
+          "GStreamer",
+          "Streaming/media pipeline alternative",
+          "Examine existing Ghatana streaming first; plugin licenses differ and the pipeline is not a replacement Media domain authority"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-29",
+        "label": "Blender",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2718,
+        "originalSourceColumns": [
+          "Blender",
+          "Optional external 3D/animation/simulation/render tool",
+          "Review GPL/distribution/plugin obligations for exact integration; optional adapter, not a required core API or unrestricted scripting host"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-30",
+        "label": "glTF/GLB",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2719,
+        "originalSourceColumns": [
+          "glTF/GLB",
+          "Runtime scene/asset delivery",
+          "Format specification and implementations have separate licenses; supported extensions and loss reports required [W07]"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-31",
+        "label": "OpenTimelineIO",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2720,
+        "originalSourceColumns": [
+          "OpenTimelineIO",
+          "Editorial timeline exchange",
+          "References media/time/cuts/tracks; does not render or embed media payloads [W08]"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      },
+      {
+        "id": "MIG-32",
+        "label": "OpenUSD",
+        "sourceFile": "docs/migration/expert-reviewed-master-plan.md",
+        "sourceSection": "# Appendix B. External candidate inventory",
+        "sourceLine": 2721,
+        "originalSourceColumns": [
+          "OpenUSD",
+          "Rich scene interchange/composition",
+          "Review the exact release/license rather than assuming plain Apache-2.0; native plugins, subset compatibility and deployment footprint"
+        ],
+        "dispositionSource": "MIGRATION_REVIEW_ONLY",
+        "productionAdmitted": false
+      }
+    ]
+  },
+  "r9AssetCandidates": [
+    {
+      "id": "stt-whisper-tiny-multilingual",
+      "kind": "MODEL_CHECKPOINT",
+      "sourceCandidateStatus": "REVIEW_ONLY",
+      "exactAssetDigest": "65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9",
+      "sourceRef": "config/qualification/wave2-reference-candidates.v1.json#candidates/stt-whisper-tiny-multilingual",
+      "productionAdmitted": false
+    },
+    {
+      "id": "stt-whisper-multilingual-tokenizer",
+      "kind": "TOKENIZER",
+      "sourceCandidateStatus": "REVIEW_ONLY",
+      "exactAssetDigest": "b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126",
+      "sourceRef": "config/qualification/wave2-reference-candidates.v1.json#candidates/stt-whisper-multilingual-tokenizer",
+      "productionAdmitted": false
+    },
+    {
+      "id": "tts-piper-ljspeech-medium",
+      "kind": "VOICE_MODEL",
+      "sourceCandidateStatus": "REVIEW_ONLY",
+      "exactAssetDigest": "6f52a751e2349abe7a76735eb09dc1875298c77ea2342ffd2fef79ff81b87f22",
+      "sourceRef": "config/qualification/wave2-reference-candidates.v1.json#candidates/tts-piper-ljspeech-medium",
+      "productionAdmitted": false
+    },
+    {
+      "id": "vision-yolox-nano-onnx",
+      "kind": "MODEL_ONNX",
+      "sourceCandidateStatus": "REVIEW_ONLY",
+      "exactAssetDigest": null,
+      "sourceRef": "config/qualification/wave2-reference-candidates.v1.json#candidates/vision-yolox-nano-onnx",
+      "productionAdmitted": false
+    },
+    {
+      "id": "stt-fleurs-en-hi-ne",
+      "kind": "EVALUATION_CORPUS",
+      "sourceCandidateStatus": "REVIEW_ONLY",
+      "exactAssetDigest": null,
+      "sourceRef": "config/qualification/wave2-reference-candidates.v1.json#candidates/stt-fleurs-en-hi-ne",
+      "productionAdmitted": false
+    },
+    {
+      "id": "mm-original-sync-signals",
+      "kind": "ORIGINAL_SYNTHETIC_TIMING_CORPUS",
+      "sourceCandidateStatus": "REVIEW_ONLY",
+      "exactAssetDigest": null,
+      "sourceRef": "config/qualification/wave2-reference-candidates.v1.json#candidates/mm-original-sync-signals",
+      "productionAdmitted": false
+    }
+  ],
+  "discussionOnlyCandidates": [
+    {
+      "id": "HIST-001",
+      "name": "OmniVoice",
+      "role": "voice-synthesis",
+      "selectionDisposition": "RESTRICTED_RESEARCH_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-001",
+      "productionAdmitted": false
+    },
+    {
+      "id": "HIST-002",
+      "name": "PocketTTS",
+      "role": "voice-synthesis",
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-002",
+      "productionAdmitted": false
+    },
+    {
+      "id": "HIST-003",
+      "name": "Supertonic-3",
+      "role": "voice-synthesis",
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-003",
+      "productionAdmitted": false
+    },
+    {
+      "id": "HIST-004",
+      "name": "KittenTTS",
+      "role": "voice-synthesis",
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-004",
+      "productionAdmitted": false
+    },
+    {
+      "id": "HIST-005",
+      "name": "WhisperX",
+      "role": "speech-to-text",
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-005",
+      "productionAdmitted": false
+    },
+    {
+      "id": "HIST-006",
+      "name": "Faster-Whisper",
+      "role": "speech-to-text",
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-006",
+      "productionAdmitted": false
+    },
+    {
+      "id": "HIST-007",
+      "name": "Parakeet",
+      "role": "speech-to-text",
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-007",
+      "productionAdmitted": false
+    },
+    {
+      "id": "HIST-008",
+      "name": "NLLB",
+      "role": "translation-dubbing",
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-008",
+      "productionAdmitted": false
+    },
+    {
+      "id": "HIST-009",
+      "name": "AudioSeal",
+      "role": "voice-watermark-provenance",
+      "selectionDisposition": "DISCUSSION_CANDIDATE_ONLY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#unrecordedPastCandidates/HIST-009",
+      "productionAdmitted": false
+    }
+  ],
+  "sourceCapabilityFamilies": [
+    {
+      "domainId": "SPEC",
+      "candidateSourceRefs": [
+        "P0:TECH-GHATANA-PRODUCT-DEFINITION",
+        "P0:TECH-GHATANA-EXPERIENCE-CONTRACTS",
+        "REVIEW:B3-05",
+        "REVIEW:B13-03"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "CAP",
+      "candidateSourceRefs": [
+        "REVIEW:B3-04",
+        "REVIEW:B13-02"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "ASSET",
+      "candidateSourceRefs": [
+        "P0:TECH-OPENIMAGEIO",
+        "P0:TECH-GLTF-TRANSFORM",
+        "REVIEW:B3-20",
+        "REVIEW:MIG-02",
+        "REVIEW:MIG-07",
+        "REVIEW:MIG-08",
+        "REVIEW:MIG-30"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "EDIT",
+      "candidateSourceRefs": [
+        "P0:TECH-OPENTIMELINEIO",
+        "REVIEW:B3-04",
+        "REVIEW:B3-07",
+        "REVIEW:B3-08",
+        "REVIEW:B3-17",
+        "REVIEW:B13-02",
+        "REVIEW:B13-05",
+        "REVIEW:B13-07",
+        "REVIEW:B13-24",
+        "REVIEW:ANIM-05",
+        "REVIEW:MIG-31"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "COLOR",
+      "candidateSourceRefs": [
+        "P0:TECH-OPENCOLORIO",
+        "REVIEW:B3-19",
+        "REVIEW:B13-23",
+        "REVIEW:MIG-03",
+        "REVIEW:MIG-04",
+        "REVIEW:MIG-05"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "ASR",
+      "candidateSourceRefs": [
+        "P0:TECH-WHISPER-CPP",
+        "P0:TECH-SHERPA-ONNX",
+        "REVIEW:B3-09",
+        "REVIEW:B3-10",
+        "REVIEW:B13-08",
+        "REVIEW:B13-09",
+        "R9:stt-whisper-tiny-multilingual",
+        "R9:stt-whisper-multilingual-tokenizer",
+        "HIST:HIST-005",
+        "HIST:HIST-006",
+        "HIST:HIST-007"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "TTS",
+      "candidateSourceRefs": [
+        "REVIEW:B3-11",
+        "REVIEW:B3-12",
+        "REVIEW:B3-13",
+        "REVIEW:B13-10",
+        "REVIEW:B13-11",
+        "REVIEW:B13-12",
+        "R9:tts-piper-ljspeech-medium",
+        "HIST:HIST-002",
+        "HIST:HIST-003",
+        "HIST:HIST-004"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "CLONE",
+      "candidateSourceRefs": [
+        "REVIEW:B3-02",
+        "REVIEW:B3-03",
+        "REVIEW:B3-12",
+        "REVIEW:B3-13",
+        "REVIEW:B13-01",
+        "REVIEW:B13-06",
+        "REVIEW:B13-10",
+        "REVIEW:B13-12",
+        "HIST:HIST-001"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "DUB",
+      "candidateSourceRefs": [
+        "P0:TECH-WHISPER-CPP",
+        "REVIEW:B3-09",
+        "REVIEW:B13-08",
+        "REVIEW:B13-15",
+        "REVIEW:B13-16",
+        "R9:stt-whisper-tiny-multilingual",
+        "R9:stt-whisper-multilingual-tokenizer",
+        "HIST:HIST-005",
+        "HIST:HIST-006",
+        "HIST:HIST-008"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "DSP",
+      "candidateSourceRefs": [
+        "P0:TECH-LIBEBUR128",
+        "REVIEW:B3-22",
+        "REVIEW:B3-23",
+        "REVIEW:B3-24",
+        "REVIEW:B13-13",
+        "REVIEW:MIG-24"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "MUSIC",
+      "candidateSourceRefs": [
+        "REVIEW:B13-20",
+        "REVIEW:B13-21",
+        "REVIEW:B13-27"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "GEN",
+      "candidateSourceRefs": [
+        "P0:TECH-DIFFUSERS",
+        "REVIEW:B3-06",
+        "REVIEW:B3-14",
+        "REVIEW:B3-15",
+        "REVIEW:B3-31",
+        "REVIEW:B13-04",
+        "REVIEW:B13-17",
+        "REVIEW:B13-18",
+        "REVIEW:B13-19",
+        "REVIEW:B13-22",
+        "REVIEW:B13-28",
+        "REVIEW:B13-29",
+        "REVIEW:MIG-21"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "VISION",
+      "candidateSourceRefs": [
+        "P0:TECH-OPENIMAGEIO",
+        "P0:TECH-OPENCV",
+        "REVIEW:B3-16",
+        "REVIEW:B13-14",
+        "REVIEW:MIG-01",
+        "REVIEW:MIG-02",
+        "R9:vision-yolox-nano-onnx"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "MOTION",
+      "candidateSourceRefs": [
+        "P0:TECH-THREEJS",
+        "REVIEW:B3-20",
+        "REVIEW:ANIM-01",
+        "REVIEW:ANIM-02",
+        "REVIEW:ANIM-03",
+        "REVIEW:ANIM-04",
+        "REVIEW:SIM-05",
+        "REVIEW:MIG-09",
+        "REVIEW:MIG-10",
+        "REVIEW:MIG-11",
+        "REVIEW:MIG-12"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "DIRECT",
+      "candidateSourceRefs": [
+        "REVIEW:B3-04",
+        "REVIEW:B3-05",
+        "REVIEW:B3-08",
+        "REVIEW:B13-02",
+        "REVIEW:B13-03",
+        "REVIEW:B13-07"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "SOCIAL",
+      "candidateSourceRefs": [
+        "REVIEW:B3-04",
+        "REVIEW:B3-06",
+        "REVIEW:B3-08",
+        "REVIEW:B13-02",
+        "REVIEW:B13-04",
+        "REVIEW:B13-07"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "INTER",
+      "candidateSourceRefs": [
+        "P0:TECH-THREEJS",
+        "P0:TECH-SHAKA-PLAYER",
+        "P0:TECH-LIVEKIT-SERVER",
+        "REVIEW:B3-20",
+        "REVIEW:ANIM-04",
+        "REVIEW:SIM-05",
+        "REVIEW:MIG-09",
+        "REVIEW:MIG-10",
+        "REVIEW:MIG-11"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "COLLAB",
+      "candidateSourceRefs": [
+        "P0:TECH-GHATANA-EXPERIENCE-CONTRACTS",
+        "P0:TECH-GHATANA-SHARED-FOUNDATIONS"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "DELIV",
+      "candidateSourceRefs": [
+        "P0:TECH-SHAKA-PACKAGER",
+        "P0:TECH-SVT-AV1",
+        "P0:TECH-DAV1D",
+        "P0:TECH-LIBVPX",
+        "P0:TECH-LIBOPUS",
+        "P0:TECH-FFMPEG",
+        "REVIEW:B3-21",
+        "REVIEW:B3-26",
+        "REVIEW:B13-26",
+        "REVIEW:B13-29",
+        "REVIEW:MIG-26",
+        "REVIEW:MIG-27",
+        "REVIEW:MIG-28"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "QA",
+      "candidateSourceRefs": [
+        "P0:TECH-GHATANA-EXPERIENCE-ASSURANCE",
+        "P0:TECH-LIBEBUR128",
+        "P0:TECH-VMAF",
+        "REVIEW:B3-23"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "TRUST",
+      "candidateSourceRefs": [
+        "P0:TECH-GHATANA-SHARED-FOUNDATIONS",
+        "P0:TECH-C2PA-RS",
+        "REVIEW:B13-25",
+        "HIST:HIST-009"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    },
+    {
+      "domainId": "OPS",
+      "candidateSourceRefs": [
+        "P0:TECH-GHATANA-AI-INFERENCE",
+        "P0:TECH-LIVEKIT-SERVER",
+        "P0:TECH-ONNX-RUNTIME",
+        "P0:TECH-DIFFUSERS",
+        "REVIEW:B3-14",
+        "REVIEW:B13-22",
+        "REVIEW:MIG-21"
+      ],
+      "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+    }
+  ],
+  "historicalArchitectureDecisions": [
+    {
+      "id": "H-ARCH-001",
+      "date": "2026-10-04",
+      "title": "Media owns the media product; Shared/Kernel/Ghatana retain public primitives; no hidden cross-repository implementation imports",
+      "disposition": "RETAIN_EXISTING_AUTHORITY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-001"
+    },
+    {
+      "id": "H-ARCH-002",
+      "date": "2026-10-06",
+      "title": "Initial proposal to move neutral experience-recorder core toward Tools; keep product-specific GharBatai scenarios separate",
+      "disposition": "HISTORICAL_DIRECTION_SUPERSEDED_BY_LATER_OWNER_BOUNDARY: Media owns capture mechanics; GharBatai neutral recorder candidate; Tools owns generic Product Definition/Experience, not a duplicate runtime",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-002"
+    },
+    {
+      "id": "H-ARCH-003",
+      "date": "2026-10-06",
+      "title": "Initial capture strategy: Chromium DevTools screen recording preferred when reliably supported; Playwright screencast/video practical fallback; screenshots diagnostic not final film",
+      "disposition": "EVALUATION_PRIORITY_ONLY; verify browser API/output MP4 and host compatibility",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-003"
+    },
+    {
+      "id": "H-ARCH-004",
+      "date": "2026-10-17",
+      "title": "Selective reuse of VoiceStudio and Voicebox ideas; prohibit copying AGPL VoiceStudio or GPL Pedalboard into permissive Media bundle",
+      "disposition": "CONFIRMED_HISTORICAL_REUSE_POLICY",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-004"
+    },
+    {
+      "id": "H-ARCH-005",
+      "date": "2026-10-17",
+      "title": "Media Recorder/Studio, Declarative Animation, Declarative Simulation first-class; TutorPutor owns science and pedagogy; Media owns rendering, artifacts and UI",
+      "disposition": "RETAIN",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-005"
+    },
+    {
+      "id": "H-ARCH-006",
+      "date": "2026-10-21",
+      "title": "PDP-3 defines demoable scenarios with narration and realistic static fixtures; later Build recreates the same semantic outcome from real product effects",
+      "disposition": "RETAIN_SEPARATE_EXPLORER_VS_ACTUAL_PRODUCT_PROOFS",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-006"
+    },
+    {
+      "id": "H-ARCH-007",
+      "date": "2026-10-24",
+      "title": "All new Media backend implementation belongs in ghatana-media; legacy ghatana/services/media remains read-only source until authorized one-writer cutover",
+      "disposition": "RETAIN",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-007"
+    },
+    {
+      "id": "H-ARCH-008",
+      "date": "2026-10-27",
+      "title": "macOS ARM64 and Linux ARM64 functional verification; Windows-only platform tasks deferred; Linux cgroup-backed worker for untrusted media on both hosts",
+      "disposition": "RETAIN",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-008"
+    },
+    {
+      "id": "H-ARCH-009",
+      "date": "2026-10-28",
+      "title": "Whisper tiny, Piper LJSpeech medium, YOLOX Nano are R9 candidate asset references for initial STT/TTS/Vision qualification; no inference of provider or copyright admission",
+      "disposition": "R9_REFERENCE_EVALUATION_PRIORITY_NOT_REPLACING_OTHER_CAPABILITIES",
+      "sourceRef": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json#decisionHistory/H-ARCH-009"
+    }
+  ],
+  "explicitReconciliations": [
+    {
+      "key": "whisper",
+      "active": "R9 official multilingual tiny reference asset, not runtime admitted",
+      "earlier": "P0 whisper.cpp conditional engine; sherpa-onnx conditional fallback; WhisperX/Faster-Whisper/Parakeet discussion-only",
+      "conflict": "NONE—different engine/backend/reference model roles"
+    },
+    {
+      "key": "piper",
+      "active": "R9 en_US-ljspeech-medium reference candidate, not voice rights granted",
+      "earlier": "P0 existing Piper reuse; older Lessac/other voices researched; voice studio optional",
+      "conflict": "MODEL_SPECIFIC_USE_AND_LIKENESS_RIGHTS_STILL_REQUIRED"
+    },
+    {
+      "key": "vision",
+      "active": "R9 YOLOX Nano ONNX evaluation candidate requires its own adapter and SHA pin",
+      "earlier": "existing Media YOLOv8 decoder; SAM2 considered masks/tracking",
+      "conflict": "Different tensor layouts; no interchangeability/implicit conversion"
+    },
+    {
+      "key": "ffmpeg",
+      "active": "Source-pinned LGPL test-only external FFmpeg profile",
+      "earlier": "P0 TECH-FFMPEG REJECTED for default embedded strictly permissive bundled runtime",
+      "conflict": "COMPATIBLE_SCOPES; no override of bundled runtime rejection"
+    },
+    {
+      "key": "recording",
+      "active": "Media capture/studio mechanics; GharBatai neutral recorder reused only when published/qualified",
+      "earlier": "Proposed Tools-owned neutral recorder in Oct6 discussion",
+      "conflict": "Earlier direction superseded by later Media Build owner boundary; Tools retains generic Product Definition/Experience"
+    },
+    {
+      "key": "voiceApps",
+      "active": "Media single project/jobs/rights authority",
+      "earlier": "Voicebox/OpenReel permissible subsets; VoiceStudio/OpenChatCut behavior-only AGPL",
+      "conflict": "No license bypass; do not copy transitive GPL/MPL code"
+    },
+    {
+      "key": "animationSimulation",
+      "active": "Media owns animation/render; TutorPutor domain Model IR and pedagogical/scientific truth; owner-selected solver by fidelity",
+      "earlier": "Manim/Motion Canvas/Theatre/Three/Pixi, Rapier/Box2D/SimPy/SciPy, Godot/Bevy etc explored",
+      "conflict": "Candidate only, no second simulation authority"
+    }
+  ],
+  "sourceLinks": {
+    "pdp0": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
+    "blueprint": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+    "migration": "docs/migration/expert-reviewed-master-plan.md",
+    "r9": "config/qualification/wave2-reference-candidates.v1.json",
+    "history": "docs/implementation/observations/media-prior-candidate-discussions-2026-10-28.json"
+  }
+}
