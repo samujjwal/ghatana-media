@@ -1626,5 +1626,301 @@
       "gitDiffCheckPassed": true,
       "ledgerIntegrity": {"taskIds": 58, "uniqueTaskIds": 58, "partial": 30, "ownerExternal": 6, "openRowsUnaccepted": true}
     }
+  },
+  "finalCoordinatorVerification": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "cd6c9d5b3fc151d947a8fb94cf4548fb315816c4",
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "mediaWorkingTreeClean": true,
+      "sharedWorkingTreeClean": true
+    },
+    "codeCommits": [
+      {
+        "commit": "1d528684ed24e8ba3fc75dbff369680505078eac",
+        "package": "X10",
+        "taskIdsSupported": [
+          "STT-03",
+          "TTS-05",
+          "VIS-10",
+          "MM-02"
+        ],
+        "summary": "Added bounded exact-version staged artifact reads; verify tenant/principal/version/receipt/size/SHA before sink exposure and revalidate consent. Production source reads remain NOT_ADMITTED without X07 authority; no modality caller is wired.",
+        "focusedTestsAtImplementationCut": {
+          "runtime-contracts": {
+            "tests": 80,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "launcher": {
+            "tests": 39,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "s3PostgresqlArtifactStoreSelector": {
+            "tests": 8,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "independentReview": "No staged-read blocker found; abrupt process exit may leave a private staged file because no crash scavenger exists.",
+        "wholeTaskPromotion": false
+      },
+      {
+        "commit": "cd6c9d5b3fc151d947a8fb94cf4548fb315816c4",
+        "package": "X05",
+        "taskIdsSupported": [
+          "VIS-03"
+        ],
+        "summary": "Snapshot and rehash validated video inputs on one no-follow channel before probe/decode; same-size mutation with restored mtime is rejected before codec access or output publication.",
+        "focusedTestsAtImplementationCut": {
+          "tests": 57,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "independentReview": "Input snapshot integrity improvement accepted; aggregate scratch admission, hard per-worker CPU/RSS/PID limits, path/open identity continuity, duplicate metadata/frame snapshots, and crash scavenging remain open.",
+        "wholeTaskPromotion": false
+      }
+    ],
+    "referenceEvaluation": {
+      "evaluationId": "ghatana-media-wave2-r7-whisper-fleurs-smoke-2026-10-27",
+      "manifest": "/private/tmp/ghatana-wave2-r7-whisper-env/evaluation-manifest.json",
+      "manifestSha256": "b252b776126c2ab613ad85645c64a6a68ac0d4e3ffd8b16471a00af34a7fa04f",
+      "modelSha256": "65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9",
+      "datasetRevision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "datasetLicenseAttribution": "CC-BY-4.0; Google FLEURS/XTREME-S, Conneau et al. 2022",
+      "samplesPerLocale": 1,
+      "metrics": {
+        "en_us": {
+          "wer": 0.125,
+          "cer": 0.0403,
+          "detectedLanguage": "en",
+          "inferenceSecondsSinglePassAfterLoad": 0.884
+        },
+        "hi_in": {
+          "wer": 1.0,
+          "cer": 0.9732,
+          "detectedLanguage": "hi",
+          "inferenceSecondsSinglePassAfterLoad": 0.749
+        },
+        "ne_np": {
+          "wer": 1.0,
+          "cer": 1.0159,
+          "detectedLanguage": "bn",
+          "languageTop1Probability": 0.323035,
+          "inferenceSecondsSinglePassAfterLoad": 0.326
+        }
+      },
+      "limitations": [
+        "one deterministic dev row per locale; no aggregate quality claim",
+        "single pass after model load; no warm-up or repeat",
+        "official PyTorch checkpoint is not compatible with Media WhisperOnnxEngine",
+        "no owner rights signature, voice consent, compatible export, Media request, or production admission"
+      ],
+      "taskPromotion": false
+    },
+    "platformRuns": [
+      {
+        "mode": "mac-native",
+        "report": "/private/tmp/ghatana-media-wave2-r7-cd6c9d5b-mac-native/mac-native.json",
+        "sourceCut": {
+          "media": "cd6c9d5b3fc151d947a8fb94cf4548fb315816c4",
+          "shared": "0b19e750bf3906e187e8d804c9313bd451a58667"
+        },
+        "execution": "macOS/arm64, Temurin 27.0.1.0.2",
+        "counts": {
+          "tests": 54,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "suiteFiles": 2
+        },
+        "codecArchiveSha256": "ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332",
+        "ffmpegSha256": "5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33",
+        "ffprobeSha256": "b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f",
+        "resourceProfile": "none"
+      },
+      {
+        "mode": "linux-arm64-native-first-run",
+        "report": "/private/tmp/ghatana-media-wave2-r7-cd6c9d5b-linux-native/linux-arm64-native.json",
+        "sourceCut": {
+          "media": "cd6c9d5b3fc151d947a8fb94cf4548fb315816c4",
+          "shared": "0b19e750bf3906e187e8d804c9313bd451a58667"
+        },
+        "counts": {
+          "tests": 54,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0,
+          "suiteFiles": 2
+        },
+        "failedTestNames": [
+          "VideoFrameExtractorProcessTest.outputByteBudgetStopsChildAndReportsOverflow()"
+        ],
+        "gradleRetry": "First protoc attempt failed with permission denied; guarded executable-bit repair and retry ran the test selector.",
+        "interpretation": "The single test failure did not reproduce in the retained diagnostic rerun; no assertion/code change was made. The report gradleFailure field describes the initial protoc failure; the Gradle log records full chronology."
+      },
+      {
+        "mode": "linux-arm64-native-diagnostic-rerun",
+        "report": "/private/tmp/ghatana-media-wave2-r7-cd6c9d5b-linux-native-diagnose/linux-arm64-native.json",
+        "sourceCut": {
+          "media": "cd6c9d5b3fc151d947a8fb94cf4548fb315816c4",
+          "shared": "0b19e750bf3906e187e8d804c9313bd451a58667"
+        },
+        "counts": {
+          "tests": 54,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "suiteFiles": 2
+        },
+        "retainedJUnit": "/var/folders/ct/rbzll5l91xj9hw30s3j768yc0000gn/T/ghatana-media-matrix.HIej4Zus/Development/ghatana-media/modules/vision/vision-service/build/test-results/test/TEST-com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest.xml",
+        "previousFailureReproduced": false,
+        "resourceProfile": "none"
+      },
+      {
+        "mode": "mac-core",
+        "report": "/private/tmp/ghatana-media-wave2-r7-cd6c9d5b-mac-core/mac-core.json",
+        "execution": "macOS/arm64, Temurin 27.0.1.0.2",
+        "counts": {
+          "tests": 1806,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3,
+          "suiteFiles": 244
+        },
+        "skippedTests": 3,
+        "skipReason": "Three opt-in VisionNativeBoundedIT selectors; passed in mac-native.",
+        "executedProjects": [
+          "stt-service",
+          "tts-service",
+          "vision-service",
+          "multimodal-service"
+        ],
+        "resourceProfile": "none"
+      },
+      {
+        "mode": "linux-arm64-core",
+        "report": "/private/tmp/ghatana-media-wave2-r7-cd6c9d5b-linux-core/linux-arm64-core.json",
+        "execution": "Linux/arm64 in Docker Desktop on macOS/arm64, pinned Temurin 27",
+        "imageDigest": "eclipse-temurin@sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "outerContainerCaps": {
+          "memory": "8g",
+          "cpus": "4",
+          "pids": "512"
+        },
+        "counts": {
+          "tests": 1806,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3,
+          "suiteFiles": 244
+        },
+        "skippedTests": 3,
+        "protocRetry": "Guarded executable-bit retry passed.",
+        "resourceProfile": "/private/tmp/ghatana-media-wave2-r7-cd6c9d5b-linux-core/linux-arm64-core-20261028T004116Z.resource-profile.tsv",
+        "resourceProfileLimit": "Synthetic no-provider workload at concurrency 1/16/64; modality/provider/native-child/connection-pool measurements NOT_MEASURED; not per-worker isolation evidence."
+      },
+      {
+        "mode": "mac-integration",
+        "report": "/private/tmp/ghatana-media-wave2-r7-cd6c9d5b-mac-integration/mac-integration.json",
+        "execution": "macOS/arm64, Temurin 27.0.1.0.2",
+        "counts": {
+          "tests": 251,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "suiteFiles": 53
+        },
+        "executedProjects": [
+          "integration-tests",
+          "launcher",
+          "providers/aws-postgresql"
+        ],
+        "composeCases": {
+          "audioVideoImageStartup": 4,
+          "failClosedWorkflow": 5,
+          "total": 9,
+          "allPassed": true
+        },
+        "candidateImages": [
+          {
+            "tag": "ghatana/stt-service:r7-local-cd6c9d5b",
+            "imageId": "sha256:a80ab3335513fad5426744dd4d2b6a6f3195a63f40970032bb358846bacb99f9"
+          },
+          {
+            "tag": "ghatana/tts-service:r7-local-cd6c9d5b",
+            "imageId": "sha256:cefe584bbe6b5756e786c9526f7aa9e1fe127d2e0a05ccf9ef3ec46c0cbc658f"
+          }
+        ],
+        "baseJreImageDigest": "sha256:51257b92f824d962d7e742ecd9bb326c0b0ddb34329f8ac5e905a0a8db245e14",
+        "claim": "Startup refusal/no-port/bounded-redacted diagnostic/Java 27 parity only; no positive external provider effect."
+      }
+    ],
+    "independentReviews": [
+      {
+        "scope": "58-row whole-task disposition audit",
+        "reviewer": "Independent Luna ledger audit",
+        "taskIds": 58,
+        "counts": {
+          "locallyVerified": 22,
+          "partial": 30,
+          "ownerExternal": 6,
+          "sourceConflicts": 0
+        },
+        "ownerExternalTaskIds": [
+          "STT-12",
+          "TTS-07",
+          "TTS-12",
+          "VIS-02",
+          "VIS-12",
+          "MM-12"
+        ],
+        "allOpenRowsTaskAccepted": false,
+        "rowsPromoted": 0,
+        "externalRightsAdmitted": false
+      },
+      {
+        "scope": "platform evidence",
+        "reviewer": "Independent Luna evidence review",
+        "result": "Reports match the stated clean source cut and counts; nine Compose cases passed; native first-run test failure did not reproduce; execution is not whole-task acceptance."
+      },
+      {
+        "scope": "X05 and VIS-03 delta",
+        "reviewer": "Independent Luna Vision review",
+        "result": "Snapshot/hash integrity improvement confirmed; hard per-worker CPU/RSS/PID limits and aggregate scratch admission remain open."
+      },
+      {
+        "scope": "X10 and modality dispatch delta",
+        "reviewer": "Independent Luna caller-path review",
+        "result": "Positive dispatch wiring is not safe without X07 authority and a defined source-to-modality binding; current NOT_ADMITTED behavior is preserved."
+      }
+    ],
+    "disposition": {
+      "totalTasks": 58,
+      "currentReportedCounts": {
+        "locallyVerified": 22,
+        "partial": 30,
+        "ownerExternal": 6
+      },
+      "all36OpenRowsTaskAccepted": false,
+      "rowsPromoted": 0,
+      "externalRightsAdmitted": false,
+      "sourceConflicts": 0,
+      "ownerExternalTaskIds": [
+        "STT-12",
+        "TTS-07",
+        "TTS-12",
+        "VIS-02",
+        "VIS-12",
+        "MM-12"
+      ],
+      "taskAcceptanceUnchanged": true
+    },
+    "claim": "CURRENT_CUT_LOCAL_IMPLEMENTATION_AND_EXECUTION_EVIDENCE_ONLY_NOT_WAVE2_TASK_ACCEPTANCE_PDP_GTOOL_CLOSURE_PRODUCTION_ADMISSION_CUTOVER_DEPLOYMENT_OR_RELEASE"
   }
 }
