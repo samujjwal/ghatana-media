@@ -2305,3 +2305,15 @@ JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Con
 The checked-in pinned Prometheus image passed `check rules` with **43 rules** and `test rules` exited successfully. The opt-in local alert-delivery smoke passed: a deterministic exporter fixture fired and recovered through Prometheus and Alertmanager using finite, redacted labels. It retained unknown quality freshness as `NaN`; this is local fixture wiring only and proves no real provider quality, deployment, or production receiver delivery. The first smoke attempt selected Java 21 and stopped before compilation because the Shared composite requires Java 27; the rerun with Temurin 27 passed.
 
 The owner confirmed no approved rights/consent, model/license/corpus, Data Cloud/Document Intelligence API, or trusted worker-isolation evidence is available. Consequently **STT-04 remains PARTIAL**, **OBS-07 remains PARTIAL**, no row was promoted, and no owner/external gate is inferred. The 58-row disposition counts remain recorded as **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL** pending the new current-cut aggregate consistency reread; all 36 open rows remain unaccepted.
+
+### R7 VIS-10 exact-selector authorization follow-up — 2026-10-28
+
+At code cut `dc96d52d1a752f61a9e14dfbde5fda7d7ae9c89a`, `BiometricRequest` now preserves the exact submitted source artifact, source version, purpose, region, and retention selectors rather than trimming them before comparing them with the trusted resolver's decision. This prevents an authorization decision for a normalized/different scope from matching the submitted request. The regression supplies padded selectors, has the resolver return decisions for trimmed values, and verifies `NOT_ADMITTED` with one resolver call and zero face-provider calls. A second Luna reviewed the source binding and found no normalization contract or correctness issue.
+
+`FacialRecognitionServiceAdmissionTest` passed **8/8** on macOS ARM64 / Temurin 27.0.1.0.2:
+
+```sh
+env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH AV_JWT_SECRET= ./gradlew --no-daemon :services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.recognition.FacialRecognitionServiceAdmissionTest --no-build-cache --console=plain
+```
+
+The code-cut reread reconfirmed **58 unique rows** and an exact match between the Markdown inventory and schedule JSON; the disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL**. All 36 open rows have `taskAccepted=false`. **VIS-10 remains PARTIAL** because trusted biometric rights, consent, revocation, and retention authority plus an admitted provider remain unavailable. The selector fix does not grant access or prove provider output; no row was promoted.

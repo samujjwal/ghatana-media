@@ -3822,5 +3822,42 @@
       "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
     },
     "claim": "Bounded STT-04 validation and OBS-07 local rule/delivery evidence is recorded. No row acceptance, owner approval, real provider quality, deployment, formal closure, or release is inferred."
+  },
+  "postR7Oct28Vis10AndCurrentCutAudit": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {"media": "dc96d52d1a752f61a9e14dfbde5fda7d7ae9c89a", "branch": "main"},
+    "vis10": {
+      "change": "BiometricRequest now preserves exact source artifact, version, purpose, region, and retention selectors; a normalized resolver decision cannot authorize different submitted strings.",
+      "regression": "Padded selectors with a resolver decision for trimmed values return NOT_ADMITTED after one resolver call and before any face-provider call.",
+      "test": {"FacialRecognitionServiceAdmissionTest": 8, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "independentReview": "Luna found no source contract requiring selector normalization; the exact-match behavior follows source-lineage and request-specific authority requirements.",
+      "disposition": "PARTIAL",
+      "remaining": "Trusted biometric rights/consent/revocation/retention authority and an admitted provider remain unavailable."
+    },
+    "currentCutAudit": {
+      "reviewer": "Independent Luna current-cut audit",
+      "markdownTaskTableIds": 58,
+      "uniqueIds": 58,
+      "markdownAndScheduleMatch": true,
+      "missingOrExtraIds": 0,
+      "duplicateOrOverlappingIds": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "aggregate": {"locallyVerified": 22, "partial": 30, "ownerExternal": 6},
+      "VIS-10": "PARTIAL",
+      "externalRightsAdmitted": false,
+      "rowsPromoted": 0,
+      "result": "PASS",
+      "scope": "Disposition/evidence consistency at this source cut; no historical tests were rerun by the auditor. VIS-10 focused test evidence is recorded separately."
+    },
+    "ownerEvidenceAvailability": {
+      "confirmedByUser": "Nothing available yet",
+      "missing": ["rights/consent", "model/license/corpus approvals", "Data Cloud or Document Intelligence APIs", "trusted worker isolation"]
+    },
+    "validation": {
+      "FacialRecognitionServiceAdmissionTest": {"tests": 8, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "claim": "VIS-10 exact-selector mismatch is safely rejected before provider use. The current 58-row ledger remains 22 locally verified, 30 partial, and 6 owner-external; no acceptance or external authority is inferred."
   }
 }
