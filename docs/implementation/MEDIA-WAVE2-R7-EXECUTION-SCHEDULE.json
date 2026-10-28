@@ -2730,7 +2730,7 @@
   "postR7TranscriptAttemptBinding": {
     "verifiedAt": "2026-10-27",
     "sourceCut": {
-      "media": "ac4a9d669cc61ebe780bd0488c632ba2c71f362b",
+      "media": "f8f7b27530d9e79fb885ee558ace0b07041c78d8",
       "baseCommit": "695c6e3199d6c1fbcbdfac5a5b31ad332ef8284e",
       "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
       "ghatana": "387bfc3eede86265aa8b42340d6a32f6e19ffeee"
@@ -2738,7 +2738,8 @@
     "implementation": {
       "commits": [
         "5834dbecbabe34ca01760ad7ef79b34260382142",
-        "ac4a9d669cc61ebe780bd0488c632ba2c71f362b"
+        "ac4a9d669cc61ebe780bd0488c632ba2c71f362b",
+        "f8f7b27530d9e79fb885ee558ace0b07041c78d8"
       ],
       "taskSupport": ["STT-08", "STT-09"],
       "changedFiles": [
@@ -2747,9 +2748,9 @@
         "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/PostgresqlMediaTranscriptStoreTest.java",
         "providers/aws-postgresql/src/main/resources/db/media-runtime/V022__media_transcript_attempt_binding.sql"
       ],
-      "summary": "Adds a package-private candidate persistence path that binds an immutable transcript revision to one exact successful durable attempt, validates tenant/principal/job/provider/source/fingerprint/fence and persisted result digest, stores the binding atomically, preserves transcriptVersionRef as a separate opaque reference, supports CAS and exact retry idempotency, and keeps productionEligible false. TTS-06 gains positive-control and malformed-control boundary cases; production behavior remains fail-closed.",
+      "summary": "Adds a package-private candidate persistence path that binds an immutable transcript revision to one exact successful durable attempt, validates tenant/principal/job/provider/source/attempt-fingerprint/fence and persisted result digest, stores the binding atomically, preserves transcriptVersionRef as a separate opaque reference, supports CAS and exact retry idempotency, and keeps productionEligible false. Follow-up corrects the fingerprint-domain boundary: the generic job fingerprint is sha256-prefixed while the attempt fingerprint is raw 64-hex; the candidate path binds the latter and does not compare unrelated values. TTS-06 gains positive-control and malformed-control boundary cases; production behavior remains fail-closed.",
       "requestSnapshotLimitation": "The durable job stores only request fingerprints, not the exact accepted request snapshot. The candidate helper cannot verify that APPLIED glossaryApplication.exactGlossaryRef equals the exact submitted glossary ref, or that NOT_REQUESTED corresponds to omission. It rejects fillerRetakeCandidateObservations because their request/source-time conditions also cannot be checked. Keep this helper package-private and candidate-only until an additive bounded request snapshot is persisted through the canonical job/attempt path.",
-      "independentReview": "Luna reviewed the final binding path, additive migration, package-private readback and concurrent retry behavior. It found no migration or package-boundary blocker, but withheld exact PDP validation and logical task completion pending the accepted request snapshot and request-relative glossary checks."
+      "independentReview": "Luna reviewed the final binding path, additive migration, package-private readback, concurrent retry behavior and fingerprint-domain fix. It found no migration or package-boundary blocker, but withheld exact PDP validation and logical task completion pending the accepted request snapshot and request-relative glossary checks."
     },
     "verification": {
       "postgresTranscriptBinding": {
