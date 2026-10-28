@@ -11,6 +11,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptStart;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
@@ -45,6 +46,11 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
 
     @Override
     public ProcessingJob create(ProcessingJob job, String submissionDigest) {
+        return create(job, submissionDigest, null);
+    }
+
+    @Override
+    public ProcessingJob create(ProcessingJob job, String submissionDigest, SttSubmissionSnapshot sttSnapshot) {
         ensureOpen();
         java.util.Objects.requireNonNull(job, "job");
         if (submissionDigest == null || !submissionDigest.isBlank()
@@ -52,6 +58,11 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             throw new IllegalArgumentException("Media submission digest must be a lowercase SHA-256 value");
         }
         ProcessingJob persistable = sanitizeForPersistence(job);
+        if (persistable.jobType() == JobType.SPEECH_TO_TEXT && sttSnapshot == null) {
+            throw new IllegalArgumentException("New speech-to-text jobs require a retained request snapshot");
+        }
+        if (persistable.jobType() != JobType.SPEECH_TO_TEXT && sttSnapshot != null)
+            throw new IllegalArgumentException("STT request snapshot is only valid for speech-to-text jobs");
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
@@ -66,11 +77,12 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                         "INSERT INTO media_processing_jobs "
                                 + "(tenant_id,job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,"
                                 + "started_at,completed_at,result_json,failure_code,version,expected_artifact_version,"
-                                + "submission_digest,request_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                                + "submission_digest,request_fingerprint,stt_request_snapshot) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
                     bind(statement, persistable);
                     statement.setString(16, submissionDigest.isBlank()
                             ? persistable.requestFingerprint() : submissionDigest);
                     statement.setString(17, persistable.requestFingerprint());
+                    statement.setString(18, encodeSttSnapshot(sttSnapshot));
                     statement.executeUpdate();
                 }
                 PostgresqlMediaOutboxPublicationSource.append(connection,
@@ -1302,6 +1314,15 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     private String json(Object value) {
         try { return state.mapper().writeValueAsString(value); }
         catch (Exception failure) { throw new IllegalArgumentException("Media job result is not serializable", failure); }
+    }
+
+    private String encodeSttSnapshot(SttSubmissionSnapshot snapshot) {
+        if (snapshot == null) return null;
+        Map<String, Object> encoded = new java.util.LinkedHashMap<>();
+        encoded.put("version", snapshot.version());
+        encoded.put("customGlossaryRef", snapshot.customGlossaryRef());
+        encoded.put("fillerRetakeCandidates", snapshot.fillerRetakeCandidates());
+        return json(encoded);
     }
 
     private Map<String, Object> objectMap(String json) {

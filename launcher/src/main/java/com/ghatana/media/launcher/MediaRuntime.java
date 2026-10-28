@@ -637,7 +637,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     jobId, request.requestId(), request.tenantId(), request.principalId(), request.artifactId(),
                     request.jobType(), provider.providerId(), JobStatus.ACCEPTED, Instant.now(), null, null,
                     Map.of(), "", 1, artifact.version().value(), requestFingerprint),
-                    MediaSubmissionDigest.compute(request, artifact.version().value(), providers));
+                    MediaSubmissionDigest.compute(request, artifact.version().value(), providers),
+                    com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.from(request));
         } finally {
             workflowMetrics.stopTimer(jobSample, MediaWorkflowMetrics.Stage.JOB);
         }

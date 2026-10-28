@@ -322,6 +322,78 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void requestSnapshotMustMatchGlossaryObservationAndLegacyUnknownFailsClosed() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store(); var state = fixture.state();
+            String digest = "d".repeat(64), fingerprint = "e".repeat(64), ref = "glossary:en:v4";
+            seed(state, "tenant-snapshot", "principal-a", "source-snapshot", "job-snapshot",
+                    "consent-snapshot", digest, false);
+            setSttSnapshot(state, "tenant-snapshot", "job-snapshot", ref, false);
+            seedSuccessfulAttempt(state, "tenant-snapshot", "principal-a", "source-snapshot", "job-snapshot",
+                    digest, fingerprint, 1, 41, "transcript-snapshot", "exact words", "op-snapshot", "receipt-snapshot");
+            String applied = semanticResult(state, digest, fingerprint, "transcript-snapshot", "exact words",
+                    "APPLIED", ref, null, false, false, false);
+            replaceAttemptResult(state, "tenant-snapshot", "job-snapshot", applied);
+            var candidate = draft("tenant-snapshot", "principal-a", "transcript-snapshot", "source-snapshot",
+                    "job-snapshot", "consent-snapshot", digest, "exact words");
+            assertThat(store.appendFromSuccessfulAttempt(candidate, 0, 1, 41, fingerprint, "transcript-snapshot").revision())
+                    .isEqualTo(1);
+
+            String mismatch = semanticResult(state, digest, fingerprint, "transcript-snapshot-2", "exact words",
+                    "APPLIED", "glossary:en:other", null, false, false, false);
+            seed(state, "tenant-snapshot-mismatch", "principal-a", "source-snapshot-mismatch", "job-snapshot-mismatch",
+                    "consent-snapshot-mismatch", digest, false);
+            setSttSnapshot(state, "tenant-snapshot-mismatch", "job-snapshot-mismatch", ref, false);
+            seedSuccessfulAttempt(state, "tenant-snapshot-mismatch", "principal-a", "source-snapshot-mismatch", "job-snapshot-mismatch",
+                    digest, fingerprint, 1, 42, "transcript-snapshot-2", "exact words", "op-mismatch", "receipt-mismatch");
+            replaceAttemptResult(state, "tenant-snapshot-mismatch", "job-snapshot-mismatch", mismatch);
+            assertNoBoundRevision(store, draft("tenant-snapshot-mismatch", "principal-a", "transcript-snapshot-2",
+                    "source-snapshot-mismatch", "job-snapshot-mismatch", "consent-snapshot-mismatch", digest, "exact words"),
+                    0, 1, 42, fingerprint, "transcript-snapshot-2");
+
+            seed(state, "tenant-snapshot-legacy", "principal-a", "source-snapshot-legacy", "job-snapshot-legacy",
+                    "consent-snapshot-legacy", digest, false);
+            clearSttSnapshot(state, "tenant-snapshot-legacy", "job-snapshot-legacy");
+            seedSuccessfulAttempt(state, "tenant-snapshot-legacy", "principal-a", "source-snapshot-legacy", "job-snapshot-legacy",
+                    digest, fingerprint, 1, 43, "transcript-snapshot-legacy", "exact words", "op-legacy", "receipt-legacy");
+            assertNoBoundRevision(store, draft("tenant-snapshot-legacy", "principal-a", "transcript-snapshot-legacy",
+                    "source-snapshot-legacy", "job-snapshot-legacy", "consent-snapshot-legacy", digest, "exact words"),
+                    0, 1, 43, fingerprint, "transcript-snapshot-legacy");
+
+            seed(state, "tenant-snapshot-corrupt", "principal-a", "source-snapshot-corrupt", "job-snapshot-corrupt",
+                    "consent-snapshot-corrupt", digest, false);
+            setRawSttSnapshot(state, "tenant-snapshot-corrupt", "job-snapshot-corrupt",
+                    "{\"version\":\"media.stt-request-snapshot.v1\",\"customGlossaryRef\":\""
+                            + "x".repeat(385) + "\",\"fillerRetakeCandidates\":\"false\",\"unexpected\":true}");
+            seedSuccessfulAttempt(state, "tenant-snapshot-corrupt", "principal-a", "source-snapshot-corrupt", "job-snapshot-corrupt",
+                    digest, fingerprint, 1, 44, "transcript-snapshot-corrupt", "exact words", "op-corrupt", "receipt-corrupt");
+            assertNoBoundRevision(store, draft("tenant-snapshot-corrupt", "principal-a", "transcript-snapshot-corrupt",
+                    "source-snapshot-corrupt", "job-snapshot-corrupt", "consent-snapshot-corrupt", digest, "exact words"),
+                    0, 1, 44, fingerprint, "transcript-snapshot-corrupt");
+
+            seed(state, "tenant-snapshot-contradictory", "principal-a", "source-snapshot-contradictory", "job-snapshot-contradictory",
+                    "consent-snapshot-contradictory", digest, false);
+            seedSuccessfulAttempt(state, "tenant-snapshot-contradictory", "principal-a", "source-snapshot-contradictory", "job-snapshot-contradictory",
+                    digest, fingerprint, 1, 45, "transcript-snapshot-contradictory", "exact words", "op-contradictory", "receipt-contradictory");
+            String contradictory = semanticResult(state, digest, fingerprint, "transcript-snapshot-contradictory", "exact words",
+                    "NOT_REQUESTED", "glossary:unexpected", null, false, false, false);
+            replaceAttemptResult(state, "tenant-snapshot-contradictory", "job-snapshot-contradictory", contradictory);
+            assertNoBoundRevision(store, draft("tenant-snapshot-contradictory", "principal-a", "transcript-snapshot-contradictory",
+                    "source-snapshot-contradictory", "job-snapshot-contradictory", "consent-snapshot-contradictory", digest, "exact words"),
+                    0, 1, 45, fingerprint, "transcript-snapshot-contradictory");
+
+            seed(state, "tenant-snapshot-oversized", "principal-a", "source-snapshot-oversized", "job-snapshot-oversized",
+                    "consent-snapshot-oversized", digest, false);
+            setRawSttSnapshot(state, "tenant-snapshot-oversized", "job-snapshot-oversized", " ".repeat(4_097));
+            seedSuccessfulAttempt(state, "tenant-snapshot-oversized", "principal-a", "source-snapshot-oversized", "job-snapshot-oversized",
+                    digest, fingerprint, 1, 46, "transcript-snapshot-oversized", "exact words", "op-oversized", "receipt-oversized");
+            assertNoBoundRevision(store, draft("tenant-snapshot-oversized", "principal-a", "transcript-snapshot-oversized",
+                    "source-snapshot-oversized", "job-snapshot-oversized", "consent-snapshot-oversized", digest, "exact words"),
+                    0, 1, 46, fingerprint, "transcript-snapshot-oversized");
+        }
+    }
+
+    @Test
     void rejectsUnknownAndDigestCorruptAttemptsWithoutTranscriptWrites() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store();
@@ -692,10 +764,11 @@ class PostgresqlMediaTranscriptStoreTest {
             String jobSql = "INSERT INTO media_processing_jobs (tenant_id,job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,result_json,failure_code,version,expected_artifact_version) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
             try (PreparedStatement s = c.prepareStatement(jobSql)) {
                 s.setString(1,tenant); s.setString(2,job); s.setString(3,"request-"+job); s.setString(4,principal);
-                s.setString(5,artifact); s.setString(6,"STT"); s.setString(7,"provider-a"); s.setString(8,"COMPLETED");
+                s.setString(5,artifact); s.setString(6,"SPEECH_TO_TEXT"); s.setString(7,"provider-a"); s.setString(8,"COMPLETED");
                 s.setLong(9,System.currentTimeMillis()); s.setString(10,"{}"); s.setString(11,""); s.setLong(12,3);
                 s.setString(13,"sha256:"+digest); s.executeUpdate();
             }
+            setSttSnapshot(state, tenant, job, null, null);
             try (PreparedStatement s = c.prepareStatement("INSERT INTO media_consents (tenant_id,consent_id,principal_id,purposes_csv,allowed_regions_csv,external_processing_allowed,biometric_processing_allowed,granted_at,revoked_at,version) VALUES (?,?,?,?,?,?,?,?,?,?)")) {
                 s.setString(1,tenant); s.setString(2,consent); s.setString(3,principal); s.setString(4,allowedPurposes);
                 s.setString(5,"local"); s.setBoolean(6,false); s.setBoolean(7,false); s.setLong(8,System.currentTimeMillis());
@@ -705,16 +778,47 @@ class PostgresqlMediaTranscriptStoreTest {
         }
     }
 
+    private static void setSttSnapshot(MediaAwsPostgresqlRuntimeState state, String tenant, String job,
+            String glossaryRef, Boolean filler) throws Exception {
+        Map<String, Object> snapshot = new HashMap<>();
+        snapshot.put("version", "media.stt-request-snapshot.v1");
+        snapshot.put("customGlossaryRef", glossaryRef);
+        snapshot.put("fillerRetakeCandidates", filler);
+        try (Connection c = state.connection(); PreparedStatement s = c.prepareStatement(
+                "UPDATE media_processing_jobs SET stt_request_snapshot=? WHERE tenant_id=? AND job_id=?")) {
+            s.setString(1, state.mapper().writeValueAsString(snapshot)); s.setString(2, tenant); s.setString(3, job);
+            assertThat(s.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static void clearSttSnapshot(MediaAwsPostgresqlRuntimeState state, String tenant, String job)
+            throws Exception {
+        try (Connection c = state.connection(); PreparedStatement s = c.prepareStatement(
+                "UPDATE media_processing_jobs SET stt_request_snapshot=NULL WHERE tenant_id=? AND job_id=?")) {
+            s.setString(1, tenant); s.setString(2, job); assertThat(s.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static void setRawSttSnapshot(MediaAwsPostgresqlRuntimeState state, String tenant, String job, String value)
+            throws Exception {
+        try (Connection c = state.connection(); PreparedStatement s = c.prepareStatement(
+                "UPDATE media_processing_jobs SET stt_request_snapshot=? WHERE tenant_id=? AND job_id=?")) {
+            s.setString(1, value); s.setString(2, tenant); s.setString(3, job);
+            assertThat(s.executeUpdate()).isEqualTo(1);
+        }
+    }
+
     private static void seedCompletedJob(MediaAwsPostgresqlRuntimeState state, String tenant, String principal,
                                          String artifact, String job, String digest) throws Exception {
         try (Connection c = state.connection(); PreparedStatement s = c.prepareStatement(
                 "INSERT INTO media_processing_jobs (tenant_id,job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,result_json,failure_code,version,expected_artifact_version) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
             s.setString(1, tenant); s.setString(2, job); s.setString(3, "request-" + job);
-            s.setString(4, principal); s.setString(5, artifact); s.setString(6, "STT");
+            s.setString(4, principal); s.setString(5, artifact); s.setString(6, "SPEECH_TO_TEXT");
             s.setString(7, "provider-a"); s.setString(8, "COMPLETED"); s.setLong(9, System.currentTimeMillis());
             s.setString(10, "{}"); s.setString(11, ""); s.setLong(12, 3); s.setString(13, "sha256:" + digest);
             s.executeUpdate();
         }
+        setSttSnapshot(state, tenant, job, null, null);
     }
 
     private static void seedSuccessfulAttempt(MediaAwsPostgresqlRuntimeState state, String tenant, String principal,

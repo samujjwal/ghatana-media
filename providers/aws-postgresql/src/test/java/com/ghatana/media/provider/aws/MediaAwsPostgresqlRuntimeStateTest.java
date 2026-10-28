@@ -4,6 +4,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
@@ -211,6 +212,26 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             Instant.now().truncatedTo(ChronoUnit.MILLIS), null, null,
                             Map.of(), "", 1, "", sha256("request-a-payload".getBytes(StandardCharsets.UTF_8)));
                     assertThat(jobs.create(accepted)).isEqualTo(accepted);
+                    ProcessingJob stt = new ProcessingJob(
+                            "job-stt-snapshot", "request-stt-snapshot", "tenant-a", "principal-a",
+                            artifact.artifactId(), JobType.SPEECH_TO_TEXT, "candidate-provider",
+                            JobStatus.ACCEPTED, Instant.now().truncatedTo(ChronoUnit.MILLIS), null, null,
+                            Map.of(), "", 1, "", sha256("stt-snapshot".getBytes(StandardCharsets.UTF_8)));
+                    assertThatThrownBy(() -> jobs.create(stt, stt.requestFingerprint()))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("require a retained request snapshot");
+                    jobs.create(stt, stt.requestFingerprint(), new SttSubmissionSnapshot(
+                            SttSubmissionSnapshot.VERSION, "glossary:en:v3", false));
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var query = connection.prepareStatement(
+                                 "SELECT stt_request_snapshot FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
+                        query.setString(1, "tenant-a"); query.setString(2, "job-stt-snapshot");
+                        try (var row = query.executeQuery()) {
+                            assertThat(row.next()).isTrue();
+                            assertThat(row.getString(1)).contains("glossary:en:v3").contains("false");
+                        }
+                    }
+                    assertThat(jobs.find("tenant-b", "job-stt-snapshot")).isEmpty();
                     ProcessingJob duplicateRequest = new ProcessingJob(
                             "job-other", "request-a", "tenant-a", "principal-a", artifact.artifactId(), JobType.VISION,
                             "http-media-processing", JobStatus.ACCEPTED, Instant.now(), null, null,

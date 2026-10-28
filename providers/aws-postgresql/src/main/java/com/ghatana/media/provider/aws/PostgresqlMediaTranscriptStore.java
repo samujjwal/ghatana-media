@@ -197,8 +197,8 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         try (PreparedStatement query = connection.prepareStatement("""
                 SELECT a.provider_id,a.provider_operation_id,a.provider_receipt_id,a.request_fingerprint,
                        a.fencing_token,a.state,a.result_json,a.result_digest,
-                       j.provider_id AS job_provider,j.status AS job_status,j.artifact_id,j.expected_artifact_version,
-                       j.principal_id
+                       j.provider_id AS job_provider,j.status AS job_status,j.job_type,j.artifact_id,j.expected_artifact_version,
+                       j.principal_id,j.stt_request_snapshot
                   FROM media_processing_attempts a JOIN media_processing_jobs j
                     ON j.tenant_id=a.tenant_id AND j.job_id=a.job_id
                  WHERE a.tenant_id=? AND a.job_id=? AND a.attempt_number=? FOR UPDATE OF a,j
@@ -216,6 +216,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                         || !requestFingerprint.equals(row.getString("request_fingerprint"))
                         || !draft.providerId().equals(provider) || !provider.equals(row.getString("job_provider"))
                         || !"COMPLETED".equals(row.getString("job_status"))
+                        || !"SPEECH_TO_TEXT".equals(row.getString("job_type"))
                         || !draft.sourceArtifactId().equals(row.getString("artifact_id"))
                         || !draft.sourceVersion().equals(row.getString("expected_artifact_version"))
                         || !draft.principalId().equals(row.getString("principal_id"))) {
@@ -229,6 +230,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 JsonNode observations = root == null ? null : root.get("semanticObservations");
                 JsonNode response = observations == null ? null : observations.get("transcriptResponse");
                 JsonNode glossary = observations == null ? null : observations.get("glossaryApplication");
+                String sttSnapshotJson = row.getString("stt_request_snapshot");
                 String observedFingerprint = observations == null ? null : text(observations, "requestFingerprint");
                 if (!requestFingerprint.equals(observedFingerprint)
                         || !validSemanticObservations(observations)
@@ -241,6 +243,23 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                         || !draft.text().equals(text(response, "transcriptText"))
                         || !text(glossary, "disposition").equals(text(response, "glossaryDisposition"))) {
                     throw new IllegalStateException("Candidate transcript is not an exact projection of the persisted provider result");
+                }
+                // NULL means legacy/unknown, never omission. Unknown request context cannot prove binding.
+                if (sttSnapshotJson == null) {
+                    throw new IllegalStateException("Transcript request snapshot is unknown for this legacy job");
+                }
+                // 4 KiB admits worst-case JSON escaping for the 384-codepoint glossary string plus keys/version.
+                if (sttSnapshotJson.length() > 4_096) {
+                    throw new IllegalStateException("Transcript request snapshot exceeds its persisted size bound");
+                }
+                JsonNode snapshot = state.mapper().readTree(sttSnapshotJson);
+                String requestedGlossary = text(snapshot, "customGlossaryRef");
+                String disposition = text(glossary, "disposition");
+                String appliedGlossary = text(glossary, "exactGlossaryRef");
+                if (!validSttSnapshot(snapshot)
+                        || "APPLIED".equals(disposition) && !java.util.Objects.equals(requestedGlossary, appliedGlossary)
+                        || "NOT_REQUESTED".equals(disposition) && requestedGlossary != null) {
+                    throw new IllegalStateException("Transcript glossary observation does not match the retained request snapshot");
                 }
                 return new AttemptBinding(draft.jobId(), attemptNumber, fencingToken, provider, operation, receipt,
                         requestFingerprint, draft.sourceVersion(), transcriptVersionRef, resultDigest);
@@ -308,16 +327,15 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             String ref = text(glossary, "exactGlossaryRef");
             return validOpaqueRef(ref);
         }
-        return true;
+        return glossary.get("exactGlossaryRef") == null;
     }
     private static boolean validSemanticObservations(JsonNode observations) {
         if (observations == null || !observations.isObject()
                 || hasExtraProperties(observations, java.util.Set.of(
                         "requestFingerprint", "glossaryApplication", "transcriptResponse",
                         "fillerRetakeCandidateObservations"))) return false;
-        // Request-relative glossary and filler-observation invariants cannot be proven here because
-        // the canonical accepted request snapshot is not durably available with the job fingerprint.
-        // Reject filler observations until exact request/source-time context can be checked.
+        // Filler candidate observation shape/source-time semantics are not admitted yet.
+        // Keep rejecting them even though request-option presence is now retained.
         return observations.get("fillerRetakeCandidateObservations") == null;
     }
     private static boolean validTranscriptResponse(JsonNode response) {
@@ -336,6 +354,17 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
     }
     private static boolean validOpaqueRef(String value) {
         return value != null && !value.isBlank() && value.codePointCount(0, value.length()) <= 384;
+    }
+    private static boolean validSttSnapshot(JsonNode snapshot) {
+        if (snapshot == null || !snapshot.isObject()
+                || hasExtraProperties(snapshot, java.util.Set.of(
+                        "version", "customGlossaryRef", "fillerRetakeCandidates"))
+                || !"media.stt-request-snapshot.v1".equals(text(snapshot, "version"))) return false;
+        JsonNode glossary = snapshot.get("customGlossaryRef");
+        JsonNode filler = snapshot.get("fillerRetakeCandidates");
+        return glossary != null && (glossary.isNull()
+                || glossary.isString() && validOpaqueRef(glossary.stringValue()))
+                && filler != null && (filler.isNull() || filler.isBoolean());
     }
     private static boolean hasExtraProperties(JsonNode node, java.util.Set<String> allowed) {
         java.util.Iterator<String> fields = node.properties().stream().map(java.util.Map.Entry::getKey).iterator();

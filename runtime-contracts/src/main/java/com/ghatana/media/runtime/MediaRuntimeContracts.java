@@ -585,6 +585,30 @@ public final class MediaRuntimeContracts {
         }
     }
 
+    /** Bounded request-relative STT options passed only to canonical persistence on create. */
+    public record SttSubmissionSnapshot(String version, String customGlossaryRef,
+                                        Boolean fillerRetakeCandidates) {
+        public static final String VERSION = "media.stt-request-snapshot.v1";
+        public SttSubmissionSnapshot {
+            if (!VERSION.equals(version)) throw new IllegalArgumentException("unsupported STT snapshot version");
+            if (customGlossaryRef != null && (customGlossaryRef.isBlank()
+                    || customGlossaryRef.codePointCount(0, customGlossaryRef.length()) > 384))
+                throw new IllegalArgumentException("customGlossaryRef is malformed or too long");
+        }
+        public static SttSubmissionSnapshot from(ProcessingJobRequest request) {
+            if (request.jobType() != JobType.SPEECH_TO_TEXT) return null;
+            Map<String, Object> p = request.parameters();
+            Object glossary = p.get("customGlossaryRef");
+            Object filler = p.get("fillerRetakeCandidates");
+            if (p.containsKey("customGlossaryRef") && (!(glossary instanceof String s)
+                    || s.isBlank() || s.codePointCount(0, s.length()) > 384))
+                throw new IllegalArgumentException("customGlossaryRef must be a bounded non-empty string");
+            if (p.containsKey("fillerRetakeCandidates") && !(filler instanceof Boolean))
+                throw new IllegalArgumentException("fillerRetakeCandidates must be a JSON boolean");
+            return new SttSubmissionSnapshot(VERSION, (String) glossary, (Boolean) filler);
+        }
+    }
+
     public record ProcessingJob(
             String jobId,
             String requestId,
@@ -1043,6 +1067,12 @@ public final class MediaRuntimeContracts {
         }
         /** Creates an idempotent job bound to the digest of its normalized submission and provider plan. */
         ProcessingJob create(ProcessingJob job, String submissionDigest);
+        /** Persists sensitive STT request options for the internal transcript-binding path only. */
+        default ProcessingJob create(ProcessingJob job, String submissionDigest, SttSubmissionSnapshot snapshot) {
+            if (snapshot != null || job.jobType() == JobType.SPEECH_TO_TEXT)
+                throw new UnsupportedOperationException("STT request snapshot persistence is not supported");
+            return create(job, submissionDigest);
+        }
         ProcessingJob update(ProcessingJob expected, ProcessingJob updated);
         /** Update a worker-owned job only while the supplied lease fence is current and unexpired. */
         ProcessingJob update(JobLease lease, ProcessingJob expected, ProcessingJob updated);
