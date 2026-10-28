@@ -1,5 +1,8 @@
 # Ghatana Media — backend modalities + observability, five-surface implementation wave
 
+> **Media-wide candidate decisions (2026-10-28):** [Consolidated 22-domain decision register](MEDIA-CANDIDATE-DECISIONS-CONSOLIDATED-2026-10-28.md) and its [source-linked index](observations/media-candidate-decision-crosswalk-2026-10-28.json) reconcile 38 source-selected PDP-0 technology roles, prior editor/voice/image/video/music/animation/simulation choices, R9 six evaluation assets and historical alternatives. This index never replaces the PDP-0 selection authority or promotes a model. Run `pnpm check:candidate-decision-crosswalk` after a change. The Wave 2 ledger and all original acceptance criteria remain unchanged.
+
+
 > **ACTIVE R9 EXTERNAL-EVIDENCE ACQUISITION — 2026-10-28:** [Consolidated exact what/where/how qualification plan](MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md) identifies official Whisper tiny, Piper LJSpeech and YOLOX-Nano candidate assets, FLEURS `eng/hin/npi` evaluation, voice/biometric and source-recording rights acquisition, actual provider/output/quality/capacity proof, and an owner-controlled private evidence intake. [Six source candidates](../../config/qualification/wave2-reference-candidates.v1.json), [all 36 evidence-task mappings](../../config/qualification/wave2-evidence-to-task-map.v1.json) and [offline integrity checks](../../scripts/qualification/verify-wave2-evidence.mjs) are implementation aids, not product/source rights authorization. Exact original row acceptance remains here; **22 verified / 30 partial / six external** pending real owner input and measured results. No public GitHub file, signed-claim fixture or author-declared plan can automatically authorize provider effects.
 
 
