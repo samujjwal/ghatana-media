@@ -113,6 +113,6 @@ test('the authoritative Media privacy policy distinguishes engineering from lega
   assert.match(policy, /current Shared ALLOW decision/);
   assert.match(policy, /CANDIDATE/);
   assert.match(policy, /not PNG proof/);
-  assert.match(policy, /real human recording still requires/);
+  assert.match(policy, /original audio clip recorded by an actual human still requires/);
   assert.match(policy, /separately authenticated, least-privilege host\/CRI broker/);
 });
