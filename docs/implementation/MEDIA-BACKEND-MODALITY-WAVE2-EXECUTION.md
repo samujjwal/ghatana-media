@@ -2255,6 +2255,23 @@ The runtime still rejects STT before job creation because rights/consent authori
 
 A follow-on read-only Luna audit checked Shared at clean `main` cut `0b19e750bf3906e187e8d804c9313bd451a58667`. It found generic `PolicyDecision` records and `TenantIsolationEnforcer`, but no trusted Media source-rights/live-consent authority, Data Cloud public projection API, Document Intelligence OCR API, or worker CPU/RSS/PID/scratch isolation contract. Those generic primitives do not define Media authority, so no mapping was invented. The audit found no independent local implementation slice beyond this snapshot work. The next executable lane needs an owner-bound source-rights/consent contract and live decision semantics, qualified rights-cleared provider/model/license artifacts, and trusted worker enforcement; downstream rows additionally need owning public APIs, signed quality corpora, exporter/alert delivery, and named-host workload evidence.
 
+### R7 October 28 local progress — STT request bound and OBS RSS sampler
+
+Media commits `cd60d487` and `2664c717` add two bounded local increments. `LanguageDetectionService.detectFromAudio` now rejects payloads above the PDP-1 `media.capability-bounds.media-speech-transcription-language-detect.maximumRequestBytes` limit of 65,536 bytes with `BOUNDS_EXCEEDED` before model dispatch; the test proves exact-limit dispatch and overflow rejection without a second model call. The test-only `MediaResourceProfileHarness` now samples total process RSS from Linux `/proc/self/status` and macOS `ps` at 250 ms intervals, reports missing probe data as `NOT_MEASURED`, and does not relabel process RSS as native-only memory or worker isolation. The TSV schema and operations guide identify the sample cadence and short-workload peak limitation.
+
+On macOS ARM64 / Temurin 27.0.1.0.2, the focused selectors passed with no failures, errors, or skips:
+
+| Selector | Result |
+| --- | --- |
+| `:services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.detection.LanguageDetectionServiceTest'` | **33/33** |
+| `:services:media:audio-video-observability:test --tests 'com.ghatana.audiovideo.observability.performance.MediaResourceProfileHarnessTest'` | **9/9** |
+
+Independent Luna review confirmed the STT bound and `BOUNDS_EXCEEDED` source alignment. The RSS review found that denied `ps` execution needed to remain `NOT_MEASURED` and that short runs could miss transient peaks; both points were addressed, and follow-up review found no remaining issue. These are scoped code reviews, not whole-row task acceptance.
+
+Parallel audits found no safe source-backed edit in MM-09/MM-10, the remaining Vision rows, or OBS-07 without the missing public APIs, owner thresholds, qualified rights-cleared model/corpus, or trusted execution authority. The owner confirmed those artifacts are not available yet. This increment does not implement an admitted provider effect, durable modality result path, native worker enforcement, or production alert delivery. **STT-06 and OBS-08 remain PARTIAL; no row was promoted.** The current disposition remains **58 = 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**, with all 36 open rows unaccepted.
+
+Additional bounded Luna audits found no new edit in three other areas: the STT text-only helper has no source-defined text-input encoding/bound, so the audio request-byte bound was not generalized to it; MM-03 already rejects unknown or conflicting clock provenance and covers exact rational conversion, while the authoritative source origin/conversion-loss rule is absent; and TTS-08 already covers local chunk order, framing, bounds, backpressure and cancellation, with real-provider framing/finality qualification still outstanding. No files changed in those audits and no additional acceptance was claimed.
+
 ### R7 exact STT admission input follow-up — 2026-10-27
 
 **Media code cut:** `d2c51419c0c4146cb0312bdfb233135c9fd7c0f6`. `MediaSpeechToTextAdmission.Request` and `Profile` now preserve nonblank scalar strings exactly and reject blank required values instead of trimming them. `MediaRuntime.speechRequest` now parses `languageIntent.mode` without trimming, so whitespace-wrapped enum values remain invalid and cannot match a valid profile. A focused launcher test verifies this refusal occurs with no job or provider effect.

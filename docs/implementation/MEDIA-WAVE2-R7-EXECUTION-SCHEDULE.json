@@ -3648,5 +3648,57 @@
     },
     "disposition": {"rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "externalRightsAdmitted": false},
     "claim": "Independent current-plan/source audit across all 58 rows. It verifies task partition and evidence/disposition consistency, not formal owner acceptance or completion of the 36 open rows."
+  },
+  "postR7Oct28SttAndObsLocalIncrements": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {
+      "base": "f163f18c16bb93701e675325f06664507a313ac6",
+      "sttCommit": "cd60d487",
+      "observabilityCommit": "2664c717",
+      "branch": "main"
+    },
+    "increments": {
+      "STT-06": {
+        "sourceBound": ".product-experience/pdp-1-domain-data/operations.yaml#media.capability-bounds.media-speech-transcription-language-detect",
+        "maximumRequestBytes": 65536,
+        "overflow": "BOUNDS_EXCEEDED before model dispatch",
+        "test": "LanguageDetectionServiceTest verifies exact-limit dispatch and no provider call for overflow"
+      },
+      "OBS-08": {
+        "sourceAdapters": {"linux": "/proc/self/status VmRSS", "macOS": "/bin/ps rss"},
+        "samplePeriodMillis": 250,
+        "measurement": "sampled total process RSS in bytes; unavailable readings remain NOT_MEASURED",
+        "limitation": "not native-only memory, process-tree enforcement, or a guaranteed peak for workloads shorter than the sample interval"
+      }
+    },
+    "independentReviews": {
+      "sttBound": "PASS: boundary and BOUNDS_EXCEEDED match PDP-1; no transport-level mapping or full-task claim",
+      "rssSampler": "PASS after SecurityException fail-closed handling and sampled-peak limitation were documented"
+    },
+    "parallelAudits": {
+      "mm09Mm10": "No module-local safe change without canonical job/artifact/outbox SPI or public Data Cloud API; no edit",
+      "vision": "Remaining rows require owner/model/rights/API or trusted-isolation evidence; no edit",
+      "obs07": "No owner-approved provider-quality signals/thresholds or deployed exporter-to-receiver evidence; no edit",
+      "sttTextInput": "PDP operation does not define a text input field or encoding for detect(String); no bound generalized",
+      "mm03": "Existing exact rational mapping and provenance guards cover local invariants; authoritative source origin/conversion-loss rule remains absent",
+      "tts08": "Local order/framing/bounds/backpressure/cancel checks already present; real provider streaming qualification remains external"
+    },
+    "validation": {
+      "sttLanguageDetectionServiceTest": {"tests": 33, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "mediaResourceProfileHarnessTest": {"tests": 9, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+      "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "disposition": {
+      "STT-06": "PARTIAL",
+      "OBS-08": "PARTIAL",
+      "rowsPromoted": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "externalRightsAdmitted": false,
+      "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "sourceConflicts": 0}
+    },
+    "claim": "Two verified local implementation slices and three read-only gap audits; no whole task was accepted, no owner evidence was fabricated, and no formal stage/closure/release claim is made."
   }
 }
