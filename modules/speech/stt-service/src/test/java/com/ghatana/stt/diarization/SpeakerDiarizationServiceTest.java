@@ -313,6 +313,52 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("one-day source timeline boundary is accepted")
+        void oneDayTimelineBoundaryIsAccepted() {
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> new float[] {1.0f})
+                    .admission(() -> true)
+                    .build();
+
+            var turns = service.diarize(List.of(new SpeakerDiarizationService.AudioSegment(
+                    new byte[] {1}, 0, SpeakerDiarizationService.MAX_TIMELINE_DURATION_MILLIS, "boundary")));
+
+            assertThat(turns).hasSize(1).first().satisfies(turn -> {
+                assertThat(turn.startMs()).isZero();
+                assertThat(turn.endMs()).isEqualTo(SpeakerDiarizationService.MAX_TIMELINE_DURATION_MILLIS);
+            });
+        }
+
+        @Test
+        @DisplayName("timeline beyond the PDP duration bound fails before embedding dispatch")
+        void timelineOverOneDayFailsBeforeProvider() {
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> { providerCalls.incrementAndGet(); return new float[] {1}; })
+                    .admission(() -> true)
+                    .build();
+            var segment = new SpeakerDiarizationService.AudioSegment(new byte[] {1}, 0,
+                    SpeakerDiarizationService.MAX_TIMELINE_DURATION_MILLIS + 1, "over-bound");
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(List.of(segment)))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_TIMELINE_LIMIT:");
+            assertThat(providerCalls).hasValue(0);
+        }
+
+        @Test
+        @DisplayName("borrowed-input copy rejects timeline overflow before creating segment copies")
+        void copySegmentsRejectsTimelineOverOneDay() {
+            var input = new SpeakerDiarizationService.AudioSegmentInput(new byte[] {1}, 0,
+                    SpeakerDiarizationService.MAX_TIMELINE_DURATION_MILLIS + 1, "over-bound");
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                            SpeakerDiarizationService.copySegments(List.of(input)))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageStartingWith("STT_DIARIZATION_TIMELINE_LIMIT:");
+        }
+
+        @Test
         @DisplayName("acoustically similar segments → same speaker label")
         void diarize_sameSpeaker_sameLabel() { 
             SpeakerDiarizationService service = buildService(); 

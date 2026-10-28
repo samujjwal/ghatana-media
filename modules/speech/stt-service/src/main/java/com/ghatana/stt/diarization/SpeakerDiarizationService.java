@@ -51,6 +51,8 @@ public final class SpeakerDiarizationService {
     static final long MAX_TOTAL_AUDIO_BYTES = SttAudioInputDecoder.MAX_INPUT_BYTES;
     /** A five-minute recording should not require more than this many utterance-level turns. */
     static final int MAX_SEGMENTS_PER_REQUEST = 4_096;
+    /** PDP-1 bounds diarization to a maximum one-day source timeline. */
+    static final long MAX_TIMELINE_DURATION_MILLIS = 86_400_000L;
 
     private final SpeakerEmbeddingExtractor extractor;
     private final DiarizationAdmission admission;
@@ -98,6 +100,7 @@ public final class SpeakerDiarizationService {
         // assigned in encounter order, so accepting a reordered list would make otherwise
         // identical input produce different anonymous speaker IDs.
         long previousStartMs = -1;
+        long firstStartMs = -1;
         long totalAudioBytes = 0;
         for (AudioSegment segment : requestSegments) {
             Objects.requireNonNull(segment, "segments must not contain null");
@@ -105,6 +108,8 @@ public final class SpeakerDiarizationService {
                 throw new DiarizationException(
                         "STT_DIARIZATION_SEGMENTS_OUT_OF_ORDER: segments must be ordered by source start time");
             }
+            if (firstStartMs < 0) firstStartMs = segment.startMs();
+            validateTimelineDuration(firstStartMs, segment.endMs());
             previousStartMs = segment.startMs();
             if (totalAudioBytes > MAX_TOTAL_AUDIO_BYTES - segment.audioBytes.length) {
                 throw new DiarizationException(
@@ -173,6 +178,7 @@ public final class SpeakerDiarizationService {
         List<AudioSegmentInput> snapshot = new ArrayList<>(reportedSize);
         long totalAudioBytes = 0;
         long previousStartMs = -1;
+        long firstStartMs = -1;
         try {
             for (AudioSegmentInput input : inputs) {
                 if (snapshot.size() == MAX_SEGMENTS_PER_REQUEST) {
@@ -184,6 +190,8 @@ public final class SpeakerDiarizationService {
                     throw new DiarizationException(
                             "STT_DIARIZATION_SEGMENTS_OUT_OF_ORDER: segments must be ordered by source start time");
                 }
+                if (firstStartMs < 0) firstStartMs = input.startMs;
+                validateTimelineDuration(firstStartMs, input.endMs);
                 previousStartMs = input.startMs;
                 if (totalAudioBytes > MAX_TOTAL_AUDIO_BYTES - input.audioBytes.length) {
                     throw new DiarizationException(
@@ -221,6 +229,13 @@ public final class SpeakerDiarizationService {
             throw new DiarizationException("STT_DIARIZATION_INPUT_CHANGED: segments changed during validation");
         }
         return List.copyOf(snapshot);
+    }
+
+    private static void validateTimelineDuration(long firstStartMs, long endMs) {
+        if (endMs - firstStartMs > MAX_TIMELINE_DURATION_MILLIS) {
+            throw new DiarizationException(
+                    "STT_DIARIZATION_TIMELINE_LIMIT: source timeline exceeds the one-day duration limit");
+        }
     }
 
     private void requireAdmission() {
