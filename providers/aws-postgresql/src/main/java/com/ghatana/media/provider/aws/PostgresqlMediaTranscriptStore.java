@@ -13,9 +13,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import tools.jackson.databind.JsonNode;
 
 /** PostgreSQL-backed append-only transcript revisions, with candidate-only authority provenance. */
 public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStore {
@@ -85,6 +88,265 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         } catch (SQLException failure) {
             throw dbFailure("open transcript transaction", failure);
         }
+    }
+
+    /**
+     * Persists a candidate only when its content is an exact projection of the named durable,
+     * successful provider attempt. Rights/provider admission remains candidate-only.
+     */
+    TranscriptRevision appendFromSuccessfulAttempt(TranscriptDraft draft, int expectedLatestRevision,
+            int attemptNumber, long fencingToken, String requestFingerprint, String transcriptVersionRef) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(draft, "draft");
+        requireNonBlank(requestFingerprint, "requestFingerprint");
+        requireNonBlank(transcriptVersionRef, "transcriptVersionRef");
+        if (attemptNumber <= 0 || fencingToken <= 0 || expectedLatestRevision < 0
+                || !requestFingerprint.matches("[0-9a-f]{64}")
+                || transcriptVersionRef.codePointCount(0, transcriptVersionRef.length()) > 384) {
+            throw new IllegalArgumentException("Transcript attempt binding is malformed or does not identify this candidate");
+        }
+        if (state.productionEligible()) {
+            throw new UnsupportedOperationException("Transcript rights and profile admission is pending");
+        }
+        if (MediaTranscriptContracts.UNBOUND_PURPOSE_REF.equals(draft.purposeRef())
+                || MediaTranscriptContracts.UNRESOLVED_PROCESSING_PURPOSE.equals(draft.processingPurpose())) {
+            throw new IllegalArgumentException("Transcript purpose reference and effective processing purpose must be bound");
+        }
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                validateSourceJobConsent(connection, draft);
+                AttemptBinding binding = validateAttempt(connection, draft, attemptNumber, fencingToken,
+                        requestFingerprint, transcriptVersionRef);
+                TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), true);
+                if (latest != null && sameDraft(latest.draft(), draft)) {
+                    AttemptBinding existing = binding(connection, draft.tenantId(), draft.transcriptId(), latest.revision());
+                    if (binding.equals(existing)) {
+                        connection.commit();
+                        return latest;
+                    }
+                    throw new TranscriptRevisionConflictException(expectedLatestRevision, latest.revision());
+                }
+                if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
+                    throw new TranscriptPrincipalConflictException();
+                }
+                int actualLatestRevision = latest == null ? 0 : latest.revision();
+                if (expectedLatestRevision != actualLatestRevision) {
+                    throw new TranscriptRevisionConflictException(expectedLatestRevision, actualLatestRevision);
+                }
+                int revision = actualLatestRevision + 1;
+                long now = System.currentTimeMillis();
+                try (PreparedStatement insert = connection.prepareStatement("""
+                        INSERT INTO media_transcript_revisions
+                          (tenant_id,transcript_id,revision,principal_id,source_artifact_id,
+                           source_artifact_version,source_sha256,job_id,profile_id,provider_id,model_id,
+                           language,timebase,transcript_text,consent_decision_id,purpose_ref,processing_purpose,
+                           rights_decision_id,policy_version,admission_status,created_at)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'CANDIDATE',?)
+                        """)) {
+                    bind(insert, draft, revision, now);
+                    insert.executeUpdate();
+                }
+                try (PreparedStatement insertBinding = connection.prepareStatement("""
+                        INSERT INTO media_transcript_attempt_bindings
+                          (tenant_id,transcript_id,transcript_revision,job_id,attempt_number,fencing_token,
+                           provider_id,provider_operation_id,provider_receipt_id,request_fingerprint,
+                           source_artifact_version_ref,transcript_version_ref,result_digest)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        """)) {
+                    insertBinding.setString(1, draft.tenantId()); insertBinding.setString(2, draft.transcriptId());
+                    insertBinding.setInt(3, revision); insertBinding.setString(4, draft.jobId());
+                    insertBinding.setInt(5, attemptNumber); insertBinding.setLong(6, fencingToken);
+                    insertBinding.setString(7, draft.providerId()); insertBinding.setString(8, binding.providerOperationId());
+                    insertBinding.setString(9, binding.providerReceiptId()); insertBinding.setString(10, requestFingerprint);
+                    insertBinding.setString(11, draft.sourceVersion()); insertBinding.setString(12, transcriptVersionRef);
+                    insertBinding.setString(13, binding.resultDigest()); insertBinding.executeUpdate();
+                }
+                connection.commit();
+                return new TranscriptRevision(draft, revision, now, "CANDIDATE");
+            } catch (RuntimeException | SQLException failure) {
+                rollback(connection, failure);
+                if (failure instanceof RuntimeException runtime) throw runtime;
+                if (isUniqueViolation((SQLException) failure)) {
+                    return resolveConcurrentAttemptAppend(draft, expectedLatestRevision, attemptNumber, fencingToken,
+                            requestFingerprint, transcriptVersionRef, (SQLException) failure);
+                }
+                throw dbFailure("append transcript revision from provider attempt", (SQLException) failure);
+            }
+        } catch (SQLException failure) {
+            throw dbFailure("open transcript attempt-binding transaction", failure);
+        }
+    }
+
+    /** Durable association readback; it exposes identifiers and digests, never transcript content. */
+    AttemptBinding attemptBinding(String tenantId, String transcriptId, int revision) {
+        ensureOpen();
+        try (Connection connection = state.connection()) {
+            return binding(connection, tenantId, transcriptId, revision);
+        } catch (SQLException failure) {
+            throw dbFailure("read transcript attempt binding", failure);
+        }
+    }
+
+    public record AttemptBinding(String jobId, int attemptNumber, long fencingToken, String providerId,
+            String providerOperationId, String providerReceiptId, String requestFingerprint,
+            String sourceArtifactVersionRef, String transcriptVersionRef, String resultDigest) { }
+
+    private AttemptBinding validateAttempt(Connection connection, TranscriptDraft draft, int attemptNumber,
+            long fencingToken, String requestFingerprint, String transcriptVersionRef) throws SQLException {
+        try (PreparedStatement query = connection.prepareStatement("""
+                SELECT a.provider_id,a.provider_operation_id,a.provider_receipt_id,a.request_fingerprint,
+                       a.fencing_token,a.state,a.result_json,a.result_digest,j.request_fingerprint AS job_fingerprint,
+                       j.provider_id AS job_provider,j.status AS job_status,j.artifact_id,j.expected_artifact_version,
+                       j.principal_id
+                  FROM media_processing_attempts a JOIN media_processing_jobs j
+                    ON j.tenant_id=a.tenant_id AND j.job_id=a.job_id
+                 WHERE a.tenant_id=? AND a.job_id=? AND a.attempt_number=? FOR UPDATE OF a,j
+                """)) {
+            query.setString(1, draft.tenantId()); query.setString(2, draft.jobId()); query.setInt(3, attemptNumber);
+            try (ResultSet row = query.executeQuery()) {
+                if (!row.next()) throw new IllegalStateException("Successful durable provider attempt is missing");
+                String operation = row.getString("provider_operation_id");
+                String receipt = row.getString("provider_receipt_id");
+                String resultJson = row.getString("result_json");
+                String resultDigest = row.getString("result_digest");
+                String provider = row.getString("provider_id");
+                if (!"SUCCEEDED".equals(row.getString("state")) || blank(operation) || blank(receipt)
+                        || row.getLong("fencing_token") != fencingToken
+                        || !requestFingerprint.equals(row.getString("request_fingerprint"))
+                        || !requestFingerprint.equals(row.getString("job_fingerprint"))
+                        || !draft.providerId().equals(provider) || !provider.equals(row.getString("job_provider"))
+                        || !"COMPLETED".equals(row.getString("job_status"))
+                        || !draft.sourceArtifactId().equals(row.getString("artifact_id"))
+                        || !draft.sourceVersion().equals(row.getString("expected_artifact_version"))
+                        || !draft.principalId().equals(row.getString("principal_id"))) {
+                    throw new IllegalStateException("Provider attempt does not exactly match candidate tenant, job, provider, source, fingerprint, or fence");
+                }
+                String computedDigest = sha256(resultJson);
+                if (resultDigest == null || !resultDigest.equals(computedDigest)) {
+                    throw new IllegalStateException("Provider attempt result digest is missing or inconsistent");
+                }
+                JsonNode root = state.mapper().readTree(resultJson);
+                JsonNode observations = root == null ? null : root.get("semanticObservations");
+                JsonNode response = observations == null ? null : observations.get("transcriptResponse");
+                JsonNode glossary = observations == null ? null : observations.get("glossaryApplication");
+                String observedFingerprint = observations == null ? null : text(observations, "requestFingerprint");
+                if (!requestFingerprint.equals(observedFingerprint)
+                        || !validSemanticObservations(observations)
+                        || !validGlossary(glossary)
+                        || response == null
+                        || !validTranscriptResponse(response)
+                        || !draft.sourceVersion().equals(text(response, "sourceArtifactVersionRef"))
+                        || !requestFingerprint.equals(text(response, "requestFingerprint"))
+                        || !transcriptVersionRef.equals(text(response, "transcriptVersionRef"))
+                        || !draft.text().equals(text(response, "transcriptText"))
+                        || !text(glossary, "disposition").equals(text(response, "glossaryDisposition"))) {
+                    throw new IllegalStateException("Candidate transcript is not an exact projection of the persisted provider result");
+                }
+                return new AttemptBinding(draft.jobId(), attemptNumber, fencingToken, provider, operation, receipt,
+                        requestFingerprint, draft.sourceVersion(), transcriptVersionRef, resultDigest);
+            } catch (tools.jackson.core.JacksonException malformed) {
+                throw new IllegalStateException("Provider attempt result is malformed", malformed);
+            }
+        }
+    }
+
+    private static AttemptBinding binding(Connection connection, String tenantId, String transcriptId, int revision)
+            throws SQLException {
+        try (PreparedStatement query = connection.prepareStatement("""
+                SELECT job_id,attempt_number,fencing_token,provider_id,provider_operation_id,provider_receipt_id,
+                       request_fingerprint,source_artifact_version_ref,transcript_version_ref,result_digest
+                  FROM media_transcript_attempt_bindings
+                 WHERE tenant_id=? AND transcript_id=? AND transcript_revision=?
+                """)) {
+            query.setString(1, tenantId); query.setString(2, transcriptId); query.setInt(3, revision);
+            try (ResultSet row = query.executeQuery()) {
+                if (!row.next()) throw new IllegalStateException("Transcript attempt binding is missing");
+                return new AttemptBinding(row.getString("job_id"), row.getInt("attempt_number"),
+                        row.getLong("fencing_token"), row.getString("provider_id"),
+                        row.getString("provider_operation_id"), row.getString("provider_receipt_id"),
+                        row.getString("request_fingerprint"), row.getString("source_artifact_version_ref"),
+                        row.getString("transcript_version_ref"), row.getString("result_digest"));
+            }
+        }
+    }
+
+    private TranscriptRevision resolveConcurrentAttemptAppend(TranscriptDraft draft, int expectedLatestRevision,
+            int attemptNumber, long fencingToken, String requestFingerprint, String transcriptVersionRef,
+            SQLException insertFailure) {
+        try (Connection connection = state.connection()) {
+            TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), false);
+            if (latest == null) throw dbFailure("resolve concurrent transcript attempt append", insertFailure);
+            if (!latest.draft().principalId().equals(draft.principalId())) throw new TranscriptPrincipalConflictException();
+            if (sameDraft(latest.draft(), draft)) {
+                try {
+                    AttemptBinding actual = binding(connection, draft.tenantId(), draft.transcriptId(), latest.revision());
+                    if (actual.jobId().equals(draft.jobId()) && actual.attemptNumber() == attemptNumber
+                            && actual.fencingToken() == fencingToken && actual.providerId().equals(draft.providerId())
+                            && actual.requestFingerprint().equals(requestFingerprint)
+                            && actual.sourceArtifactVersionRef().equals(draft.sourceVersion())
+                            && actual.transcriptVersionRef().equals(transcriptVersionRef)) return latest;
+                } catch (IllegalStateException missingBinding) {
+                    // A legacy, unbound candidate won the unique insert race; it cannot satisfy this retry.
+                }
+            }
+            throw new TranscriptRevisionConflictException(expectedLatestRevision, latest.revision());
+        } catch (SQLException readFailure) {
+            readFailure.addSuppressed(insertFailure);
+            throw dbFailure("resolve concurrent transcript attempt append", readFailure);
+        }
+    }
+
+    private static String text(JsonNode node, String field) {
+        JsonNode value = node.get(field);
+        return value != null && value.isString() ? value.stringValue() : null;
+    }
+    private static boolean validGlossary(JsonNode glossary) {
+        if (glossary == null || !glossary.isObject() || hasExtraProperties(glossary, java.util.Set.of("disposition", "exactGlossaryRef"))) return false;
+        String disposition = text(glossary, "disposition");
+        if (!"APPLIED".equals(disposition) && !"NOT_REQUESTED".equals(disposition)) return false;
+        if ("APPLIED".equals(disposition)) {
+            String ref = text(glossary, "exactGlossaryRef");
+            return validOpaqueRef(ref);
+        }
+        return true;
+    }
+    private static boolean validSemanticObservations(JsonNode observations) {
+        if (observations == null || !observations.isObject()
+                || hasExtraProperties(observations, java.util.Set.of(
+                        "requestFingerprint", "glossaryApplication", "transcriptResponse",
+                        "fillerRetakeCandidateObservations"))) return false;
+        // Request-relative glossary and filler-observation invariants cannot be proven here because
+        // the canonical accepted request snapshot is not durably available with the job fingerprint.
+        // Reject filler observations until exact request/source-time context can be checked.
+        return observations.get("fillerRetakeCandidateObservations") == null;
+    }
+    private static boolean validTranscriptResponse(JsonNode response) {
+        if (!response.isObject() || hasExtraProperties(response, java.util.Set.of("sourceArtifactVersionRef",
+                "requestFingerprint", "transcriptVersionRef", "glossaryDisposition", "transcriptText"))) return false;
+        String source = text(response, "sourceArtifactVersionRef");
+        String fingerprint = text(response, "requestFingerprint");
+        String version = text(response, "transcriptVersionRef");
+        String disposition = text(response, "glossaryDisposition");
+        JsonNode transcript = response.get("transcriptText");
+        return validOpaqueRef(source) && fingerprint != null && fingerprint.matches("[0-9a-f]{64}")
+                && validOpaqueRef(version)
+                && ("APPLIED".equals(disposition) || "NOT_REQUESTED".equals(disposition))
+                && transcript != null && transcript.isString()
+                && transcript.stringValue().codePointCount(0, transcript.stringValue().length()) <= 1_000_000;
+    }
+    private static boolean validOpaqueRef(String value) {
+        return value != null && !value.isBlank() && value.codePointCount(0, value.length()) <= 384;
+    }
+    private static boolean hasExtraProperties(JsonNode node, java.util.Set<String> allowed) {
+        java.util.Iterator<String> fields = node.properties().stream().map(java.util.Map.Entry::getKey).iterator();
+        while (fields.hasNext()) if (!allowed.contains(fields.next())) return true;
+        return false;
+    }
+    private static boolean blank(String value) { return value == null || value.isBlank(); }
+    private static String sha256(String value) {
+        try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8))); }
+        catch (java.security.NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
     }
 
     private static void validateSourceJobConsent(Connection connection, TranscriptDraft draft) throws SQLException {

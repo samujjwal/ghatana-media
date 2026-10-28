@@ -262,6 +262,281 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void candidateFinalizationRequiresExactSuccessfulAttemptResultAndBindsItAtomically() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "8".repeat(64);
+            String fingerprint = "a".repeat(64);
+            String versionRef = "urn:media:transcript-version:attempt-v1";
+            seed(state, "tenant-attempt", "principal-a", "source-attempt", "job-attempt", "consent-attempt", digest, false);
+            seedSuccessfulAttempt(state, "tenant-attempt", "principal-a", "source-attempt", "job-attempt",
+                    digest, fingerprint, 1, 17, versionRef, "candidate words", "provider-op-1", "provider-receipt-1");
+            TranscriptDraft candidate = draft("tenant-attempt", "principal-a", "transcript-attempt", "source-attempt",
+                    "job-attempt", "consent-attempt", digest, "candidate words");
+
+            var first = store.appendFromSuccessfulAttempt(candidate, 0, 1, 17, fingerprint, versionRef);
+            assertThat(first.admissionStatus()).isEqualTo("CANDIDATE");
+            assertThat(store.productionEligible()).isFalse();
+            assertThat(store.attemptBinding("tenant-attempt", "transcript-attempt", 1))
+                    .satisfies(binding -> {
+                        assertThat(binding.attemptNumber()).isEqualTo(1);
+                        assertThat(binding.fencingToken()).isEqualTo(17);
+                        assertThat(binding.providerId()).isEqualTo("provider-a");
+                        assertThat(binding.providerOperationId()).isEqualTo("provider-op-1");
+                        assertThat(binding.providerReceiptId()).isEqualTo("provider-receipt-1");
+                        assertThat(binding.requestFingerprint()).isEqualTo(fingerprint);
+                        assertThat(binding.sourceArtifactVersionRef()).isEqualTo("sha256:" + digest);
+                        assertThat(binding.transcriptVersionRef()).isEqualTo(versionRef);
+                    });
+            assertThat(store.appendFromSuccessfulAttempt(candidate, 0, 1, 17, fingerprint, versionRef))
+                    .isEqualTo(first);
+
+            assertNoBoundRevision(store, candidate, 0, 1, 17, "b".repeat(64), versionRef);
+            assertNoBoundRevision(store, candidate, 0, 1, 17, fingerprint, "urn:media:transcript-version:other");
+            assertNoBoundRevision(store, draft("tenant-attempt", "principal-a", "wrong-ref", "source-attempt",
+                    "job-attempt", "consent-attempt", digest, "candidate words"), 0, 1, 17, fingerprint, "wrong-ref");
+            assertNoBoundRevision(store, draft("tenant-attempt", "principal-a", "wrong-text", "source-attempt",
+                    "job-attempt", "consent-attempt", digest, "caller invented text"), 0, 1, 17, fingerprint, "wrong-text");
+            TranscriptDraft foreignTenant = draft("tenant-other", "principal-a", "transcript-other", "source-attempt",
+                    "job-attempt", "consent-attempt", digest, "candidate words");
+            assertNoBoundRevision(store, foreignTenant, 0, 1, 17, fingerprint, "transcript-other");
+            assertNoBoundRevision(store, candidate, 0, 1, 18, fingerprint, versionRef);
+            assertNoBoundRevision(store, candidate, 0, 2, 17, fingerprint, versionRef);
+            TranscriptDraft wrongProvider = new TranscriptDraft(candidate.tenantId(), candidate.principalId(),
+                    candidate.transcriptId(), candidate.sourceArtifactId(), candidate.sourceVersion(),
+                    candidate.sourceSha256(), candidate.jobId(), candidate.profileId(), "provider-b", candidate.modelId(),
+                    candidate.language(), candidate.timebase(), candidate.text(), candidate.consentDecisionId(),
+                    candidate.rightsDecisionId(), candidate.policyVersion(), candidate.purposeRef(), candidate.processingPurpose());
+            assertNoBoundRevision(store, wrongProvider, 0, 1, 17, fingerprint, versionRef);
+            assertThat(store.revisions("tenant-attempt", "principal-a", "transcript-attempt")).containsExactly(first);
+        }
+    }
+
+    @Test
+    void rejectsUnknownAndDigestCorruptAttemptsWithoutTranscriptWrites() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "9".repeat(64);
+            String fingerprint = "c".repeat(64);
+            seed(state, "tenant-attempt-bad", "principal-a", "source-attempt-bad", "job-attempt-bad", "consent-attempt-bad", digest, false);
+            TranscriptDraft candidate = draft("tenant-attempt-bad", "principal-a", "transcript-bad", "source-attempt-bad",
+                    "job-attempt-bad", "consent-attempt-bad", digest, "stored words");
+            assertNoBoundRevision(store, candidate, 0, 1, 27, fingerprint, "transcript-bad");
+            seedSuccessfulAttempt(state, "tenant-attempt-bad", "principal-a", "source-attempt-bad", "job-attempt-bad",
+                    digest, fingerprint, 1, 27, "transcript-bad", "stored words", "provider-op-2", "provider-receipt-2");
+
+            String matchingResult = semanticResult(state, digest, fingerprint, "transcript-bad", "stored words",
+                    "NOT_REQUESTED", null, null, false, false, false);
+            String matchingResultDigest = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(matchingResult.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            try (Connection connection = state.connection(); PreparedStatement corrupt = connection.prepareStatement(
+                    "UPDATE media_processing_attempts SET result_digest=? WHERE tenant_id=? AND job_id=? AND attempt_number=1")) {
+                corrupt.setString(1, "0".repeat(64)); corrupt.setString(2, "tenant-attempt-bad");
+                corrupt.setString(3, "job-attempt-bad"); corrupt.executeUpdate();
+            }
+            assertNoBoundRevision(store, candidate, 0, 1, 27, fingerprint, "transcript-bad");
+            try (Connection connection = state.connection(); PreparedStatement unknown = connection.prepareStatement(
+                    "UPDATE media_processing_attempts SET state='OUTCOME_UNKNOWN',result_digest=? WHERE tenant_id=? AND job_id=? AND attempt_number=1")) {
+                unknown.setString(1, matchingResultDigest); unknown.setString(2, "tenant-attempt-bad");
+                unknown.setString(3, "job-attempt-bad"); unknown.executeUpdate();
+            }
+            assertNoBoundRevision(store, candidate, 0, 1, 27, fingerprint, "transcript-bad");
+            assertThat(store.revisions("tenant-attempt-bad", "principal-a", "transcript-bad")).isEmpty();
+        }
+    }
+
+    @Test
+    void rejectsMalformedPdpTranscriptResponseWithoutWritingCandidates() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "f".repeat(64);
+            String fingerprint = "1".repeat(64);
+            String versionRef = "urn:media:transcript-version:shape-v1";
+            seed(state, "tenant-response-shape", "principal-a", "source-response-shape", "job-response-shape",
+                    "consent-response-shape", digest, false);
+            seedSuccessfulAttempt(state, "tenant-response-shape", "principal-a", "source-response-shape",
+                    "job-response-shape", digest, fingerprint, 1, 47, versionRef, "exact words",
+                    "provider-op-shape", "provider-receipt-shape");
+            TranscriptDraft candidate = draft("tenant-response-shape", "principal-a", "transcript-response-shape",
+                    "source-response-shape", "job-response-shape", "consent-response-shape", digest, "exact words");
+
+            String missingDisposition = semanticResult(state, digest, fingerprint, versionRef, "exact words",
+                    "NOT_REQUESTED", null, null, true, false, false);
+            replaceAttemptResult(state, "tenant-response-shape", "job-response-shape", missingDisposition);
+            assertNoBoundRevision(store, candidate, 0, 1, 47, fingerprint, versionRef);
+
+            String invalidDisposition = semanticResult(state, digest, fingerprint, versionRef, "exact words",
+                    "NOT_REQUESTED", null, "UNKNOWN", false, false, false);
+            replaceAttemptResult(state, "tenant-response-shape", "job-response-shape", invalidDisposition);
+            assertNoBoundRevision(store, candidate, 0, 1, 47, fingerprint, versionRef);
+
+            String extraProperty = semanticResult(state, digest, fingerprint, versionRef, "exact words",
+                    "NOT_REQUESTED", null, null, false, true, false);
+            replaceAttemptResult(state, "tenant-response-shape", "job-response-shape", extraProperty);
+            assertNoBoundRevision(store, candidate, 0, 1, 47, fingerprint, versionRef);
+
+            String overlongText = semanticResult(state, digest, fingerprint, versionRef, "exact words",
+                    "NOT_REQUESTED", null, null, false, false, true);
+            replaceAttemptResult(state, "tenant-response-shape", "job-response-shape", overlongText);
+            assertNoBoundRevision(store, candidate, 0, 1, 47, fingerprint, versionRef);
+            assertThat(store.revisions("tenant-response-shape", "principal-a", "transcript-response-shape")).isEmpty();
+        }
+    }
+
+    @Test
+    void concurrentExactBoundAppendsResolveAsOneIdempotentRevision() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "2".repeat(64);
+            String fingerprint = "3".repeat(64);
+            String versionRef = "urn:media:transcript-version:concurrent-v1";
+            seed(state, "tenant-attempt-race", "principal-a", "source-attempt-race", "job-attempt-race",
+                    "consent-attempt-race", digest, false);
+            seedSuccessfulAttempt(state, "tenant-attempt-race", "principal-a", "source-attempt-race",
+                    "job-attempt-race", digest, fingerprint, 1, 57, versionRef, "same exact text",
+                    "provider-op-race", "provider-receipt-race");
+            TranscriptDraft candidate = draft("tenant-attempt-race", "principal-a", "transcript-attempt-race",
+                    "source-attempt-race", "job-attempt-race", "consent-attempt-race", digest, "same exact text");
+            int writers = 4;
+            ExecutorService executor = Executors.newFixedThreadPool(writers);
+            CountDownLatch ready = new CountDownLatch(writers);
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision>> futures = new ArrayList<>();
+            try {
+                for (int i = 0; i < writers; i++) {
+                    futures.add(executor.submit(() -> {
+                        ready.countDown();
+                        if (!start.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("writers did not start");
+                        return store.appendFromSuccessfulAttempt(candidate, 0, 1, 57, fingerprint, versionRef);
+                    }));
+                }
+                assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
+                start.countDown();
+                var revisions = new ArrayList<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision>();
+                for (Future<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision> future : futures) {
+                    revisions.add(future.get(20, TimeUnit.SECONDS));
+                }
+                assertThat(revisions).hasSize(writers).containsOnly(revisions.get(0));
+                assertThat(store.revisions("tenant-attempt-race", "principal-a", "transcript-attempt-race"))
+                        .containsExactly(revisions.get(0));
+
+                seedSuccessfulAttempt(state, "tenant-attempt-race", "principal-a", "source-attempt-race",
+                        "job-attempt-race", digest, fingerprint, 2, 58, versionRef, "same exact text",
+                        "provider-op-race-2", "provider-receipt-race-2");
+                assertThatThrownBy(() -> store.appendFromSuccessfulAttempt(candidate, 1, 2, 58, fingerprint, versionRef))
+                        .isInstanceOf(TranscriptRevisionConflictException.class);
+                assertThat(store.revisions("tenant-attempt-race", "principal-a", "transcript-attempt-race"))
+                        .containsExactly(revisions.get(0));
+            } finally {
+                start.countDown(); executor.shutdownNow();
+            }
+        }
+    }
+
+    @Test
+    void concurrentDifferentBoundDraftsProduceTypedCasConflict() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "4".repeat(64);
+            String fingerprint = "5".repeat(64);
+            seed(state, "tenant-attempt-different-race", "principal-a", "source-attempt-different-race",
+                    "job-attempt-different-race", "consent-attempt-different-race", digest, false);
+            seedSuccessfulAttempt(state, "tenant-attempt-different-race", "principal-a", "source-attempt-different-race",
+                    "job-attempt-different-race", digest, fingerprint, 1, 67,
+                    "urn:media:transcript-version:different-a", "candidate alpha", "provider-op-different-a",
+                    "provider-receipt-different-a");
+            seedSuccessfulAttempt(state, "tenant-attempt-different-race", "principal-a", "source-attempt-different-race",
+                    "job-attempt-different-race", digest, fingerprint, 2, 68,
+                    "urn:media:transcript-version:different-b", "candidate beta", "provider-op-different-b",
+                    "provider-receipt-different-b");
+            TranscriptDraft first = draft("tenant-attempt-different-race", "principal-a", "transcript-different-race",
+                    "source-attempt-different-race", "job-attempt-different-race", "consent-attempt-different-race",
+                    digest, "candidate alpha");
+            TranscriptDraft second = draft("tenant-attempt-different-race", "principal-a", "transcript-different-race",
+                    "source-attempt-different-race", "job-attempt-different-race", "consent-attempt-different-race",
+                    digest, "candidate beta");
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            CountDownLatch ready = new CountDownLatch(2);
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<TranscriptRevisionOutcome>> futures = new ArrayList<>();
+            try {
+                futures.add(executor.submit(() -> appendOutcome(store, first, 1, 67, fingerprint,
+                        "urn:media:transcript-version:different-a", ready, start)));
+                futures.add(executor.submit(() -> appendOutcome(store, second, 2, 68, fingerprint,
+                        "urn:media:transcript-version:different-b", ready, start)));
+                assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue(); start.countDown();
+                var outcomes = List.of(futures.get(0).get(20, TimeUnit.SECONDS), futures.get(1).get(20, TimeUnit.SECONDS));
+                assertThat(outcomes).filteredOn(TranscriptRevisionOutcome::committed).hasSize(1);
+                assertThat(outcomes).filteredOn(outcome -> !outcome.committed()).hasSize(1);
+                assertThat(outcomes.stream().filter(outcome -> !outcome.committed())
+                        .map(TranscriptRevisionOutcome::conflict)).allSatisfy(conflict -> {
+                            assertThat(conflict.expectedLatestRevision()).isZero();
+                            assertThat(conflict.actualLatestRevision()).isEqualTo(1);
+                        });
+                assertThat(store.revisions("tenant-attempt-different-race", "principal-a", "transcript-different-race"))
+                        .hasSize(1);
+            } finally {
+                start.countDown(); executor.shutdownNow();
+            }
+        }
+    }
+
+    private static TranscriptRevisionOutcome appendOutcome(PostgresqlMediaTranscriptStore store, TranscriptDraft draft,
+            int attempt, long fence, String fingerprint, String versionRef, CountDownLatch ready, CountDownLatch start)
+            throws Exception {
+        ready.countDown();
+        if (!start.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("writers did not start");
+        try {
+            return TranscriptRevisionOutcome.committed(store.appendFromSuccessfulAttempt(draft, 0, attempt, fence,
+                    fingerprint, versionRef));
+        } catch (TranscriptRevisionConflictException conflict) {
+            return TranscriptRevisionOutcome.conflict(conflict);
+        }
+    }
+
+    @Test
+    void attemptBindingReadsBackAfterRuntimeStateRecreation() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var state = fixture.state();
+            String bucket = state.bucket();
+            String digest = "d".repeat(64);
+            String fingerprint = "e".repeat(64);
+            String versionRef = "urn:media:transcript-version:reopen-v1";
+            seed(state, "tenant-binding-reopen", "principal-a", "source-binding-reopen", "job-binding-reopen",
+                    "consent-binding-reopen", digest, false);
+            seedSuccessfulAttempt(state, "tenant-binding-reopen", "principal-a", "source-binding-reopen",
+                    "job-binding-reopen", digest, fingerprint, 1, 37, versionRef, "durable words",
+                    "provider-op-reopen", "provider-receipt-reopen");
+            TranscriptDraft draft = draft("tenant-binding-reopen", "principal-a", "transcript-binding-reopen",
+                    "source-binding-reopen", "job-binding-reopen", "consent-binding-reopen", digest, "durable words");
+            var revision = fixture.store().appendFromSuccessfulAttempt(draft, 0, 1, 37, fingerprint, versionRef);
+            var expected = fixture.store().attemptBinding("tenant-binding-reopen", "transcript-binding-reopen", 1);
+            fixture.store().close(); state.release(); fixture.installed().close();
+
+            AutoCloseable installation = MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket));
+            try (installation; PostgresqlMediaTranscriptStore reopened = new PostgresqlMediaTranscriptStore()) {
+                assertThat(reopened.revisions("tenant-binding-reopen", "principal-a", "transcript-binding-reopen"))
+                        .containsExactly(revision);
+                assertThat(reopened.attemptBinding("tenant-binding-reopen", "transcript-binding-reopen", 1))
+                        .isEqualTo(expected);
+            }
+        }
+    }
+
+    private static void assertNoBoundRevision(PostgresqlMediaTranscriptStore store, TranscriptDraft draft,
+            int expectedRevision, int attempt, long fence, String fingerprint, String transcriptVersionRef) {
+        int before = store.revisions(draft.tenantId(), draft.principalId(), draft.transcriptId()).size();
+        assertThatThrownBy(() -> store.appendFromSuccessfulAttempt(draft, expectedRevision, attempt, fence,
+                fingerprint, transcriptVersionRef)).isInstanceOf(RuntimeException.class);
+        assertThat(store.revisions(draft.tenantId(), draft.principalId(), draft.transcriptId())).hasSize(before);
+    }
+
+    @Test
     void concurrentInitialWritersCommitOneRevisionAndReportTypedConflicts() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store();
@@ -432,6 +707,70 @@ class PostgresqlMediaTranscriptStoreTest {
             s.setString(10, "{}"); s.setString(11, ""); s.setLong(12, 3); s.setString(13, "sha256:" + digest);
             s.executeUpdate();
         }
+    }
+
+    private static void seedSuccessfulAttempt(MediaAwsPostgresqlRuntimeState state, String tenant, String principal,
+            String artifact, String job, String digest, String fingerprint, int attempt, long fence,
+            String transcriptVersionRef, String transcriptText, String operation, String receipt) throws Exception {
+        String result = semanticResult(state, digest, fingerprint, transcriptVersionRef, transcriptText,
+                "NOT_REQUESTED", null, null, false, false, false);
+        String resultDigest = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                .digest(result.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        try (Connection connection = state.connection()) {
+            try (PreparedStatement updateJob = connection.prepareStatement(
+                    "UPDATE media_processing_jobs SET request_fingerprint=? WHERE tenant_id=? AND job_id=?")) {
+                updateJob.setString(1, fingerprint); updateJob.setString(2, tenant); updateJob.setString(3, job);
+                assertThat(updateJob.executeUpdate()).isEqualTo(1);
+            }
+            try (PreparedStatement insert = connection.prepareStatement("""
+                    INSERT INTO media_processing_attempts
+                      (tenant_id,job_id,attempt_number,request_id,provider_id,request_fingerprint,lease_owner,
+                       fencing_token,state,provider_operation_id,provider_receipt_id,result_json,result_digest,
+                       provenance_json,observation_json,created_at,updated_at,observed_at)
+                    VALUES (?,?,?,?,?,?,?,?,'SUCCEEDED',?,?,?,?,?,?,?, ?,?)
+                    """)) {
+                long now = System.currentTimeMillis();
+                insert.setString(1, tenant); insert.setString(2, job); insert.setInt(3, attempt);
+                insert.setString(4, "request-" + job); insert.setString(5, "provider-a");
+                insert.setString(6, fingerprint); insert.setString(7, "fixture-worker"); insert.setLong(8, fence);
+                insert.setString(9, operation); insert.setString(10, receipt); insert.setString(11, result);
+                insert.setString(12, resultDigest); insert.setString(13, "{}"); insert.setString(14, "{}");
+                insert.setLong(15, now); insert.setLong(16, now); insert.setLong(17, now);
+                insert.executeUpdate();
+            }
+        }
+    }
+
+    private static void replaceAttemptResult(MediaAwsPostgresqlRuntimeState state, String tenant, String job,
+            String result) throws Exception {
+        String resultDigest = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                .digest(result.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        try (Connection connection = state.connection(); PreparedStatement update = connection.prepareStatement(
+                "UPDATE media_processing_attempts SET result_json=?,result_digest=? WHERE tenant_id=? AND job_id=? AND attempt_number=1")) {
+            update.setString(1, result); update.setString(2, resultDigest); update.setString(3, tenant);
+            update.setString(4, job); assertThat(update.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static String semanticResult(MediaAwsPostgresqlRuntimeState state, String digest, String fingerprint, String versionRef, String transcriptText,
+            String glossaryDisposition, String glossaryRef, String responseDispositionOverride,
+            boolean omitGlossaryDisposition, boolean extraResponseProperty, boolean overlongText) throws Exception {
+        Map<String, Object> response = new HashMap<>();
+        response.put("sourceArtifactVersionRef", "sha256:" + digest);
+        response.put("requestFingerprint", fingerprint);
+        response.put("transcriptVersionRef", versionRef);
+        if (!omitGlossaryDisposition) response.put("glossaryDisposition",
+                responseDispositionOverride == null ? glossaryDisposition : responseDispositionOverride);
+        response.put("transcriptText", overlongText ? "x".repeat(1_000_001) : transcriptText);
+        if (extraResponseProperty) response.put("unregistered", "extra");
+        Map<String, Object> glossary = new HashMap<>();
+        glossary.put("disposition", glossaryDisposition);
+        if (glossaryRef != null) glossary.put("exactGlossaryRef", glossaryRef);
+        Map<String, Object> observations = new HashMap<>();
+        observations.put("requestFingerprint", fingerprint);
+        observations.put("glossaryApplication", glossary);
+        observations.put("transcriptResponse", response);
+        return state.mapper().writeValueAsString(Map.of("semanticObservations", observations));
     }
 
     private static TranscriptDraft draft(String tenant, String principal, String transcript, String artifact,
