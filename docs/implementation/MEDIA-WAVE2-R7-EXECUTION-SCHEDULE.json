@@ -1966,5 +1966,130 @@
       "sourceConflicts": 0,
       "rowsPromoted": 0
     }
+  },
+  "r7FinalCoordinatorVerification": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "64c13346c192d7bf9539e08c43f28ce3df9944da",
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "mediaWorkingTreeCleanAtExecution": true,
+      "sharedWorkingTreeCleanAtExecution": true
+    },
+    "implementationCommits": [
+      {
+        "commit": "79bed6c4952c0c41477206e6afacfffe3d7854fa",
+        "package": "X04",
+        "taskIdsSupported": ["VIS-03"],
+        "changedFiles": [
+          "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java",
+          "modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/video/VideoFrameExtractorProcessTest.java"
+        ],
+        "summary": "Reserve the existing fair two-slot codec-process budget before validation snapshots/workspaces in the four public video operations; nested probes and codecs reuse the permit through cleanup. The deterministic test proves a third metadata request fails before creating a snapshot or workspace.",
+        "focusedProcessTests": {"tests": 52, "failures": 0, "errors": 0, "skipped": 0},
+        "independentReview": "Luna code review found no blocker; bounded admission and latch-test behavior are sound.",
+        "wholeTaskPromotion": false,
+        "remaining": "No hard per-worker CPU, RSS, PID-tree, or aggregate scratch-disk enforcement/threshold evidence; VIS-03 remains PARTIAL."
+      },
+      {
+        "commit": "64c13346c192d7bf9539e08c43f28ce3df9944da",
+        "package": "X11",
+        "taskIdsSupported": ["STT-05"],
+        "changedFiles": [
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java",
+          "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java"
+        ],
+        "summary": "Repeated reconnect of the same in-flight reservation now recognizes an already persisted UNKNOWN only after reloading the exact tenant/session/sequence/attempt identity. It returns the stable replay-blocked result without rewriting the row; other CAS conflicts remain errors.",
+        "focusedTest": {"selector": "MediaAwsPostgresqlRuntimeStateTest", "tests": 1, "failures": 0, "errors": 0, "skipped": 0, "fixture": "H2 plus LocalStack integration fixture"},
+        "independentReview": "Initial Luna review exposed a stale-object retry gap; that case was added and the final review found no remaining finding.",
+        "wholeTaskPromotion": false,
+        "remaining": "Canonical RPC/session/resume, durable ACKs, provider finality, VAD, partial/final semantics, disconnect recovery, and revoked-consent behavior remain incomplete or unverified; STT-05 remains PARTIAL."
+      }
+    ],
+    "platformRuns": [
+      {
+        "mode": "mac-native",
+        "report": "/private/tmp/ghatana-media-wave2-r7-64c13346-mac-native-rerun/mac-native.json",
+        "execution": "macOS ARM64, Temurin 27.0.1.0.2",
+        "counts": {"tests": 55, "failures": 0, "errors": 0, "skipped": 0, "suiteFiles": 2},
+        "initialCachedResult": {
+          "report": "/private/tmp/ghatana-media-wave2-r7-64c13346-mac-native/mac-native.json",
+          "counts": {"tests": 55, "failures": 0, "errors": 0, "skipped": 3, "suiteFiles": 2},
+          "outcome": "Runner rejected the UP-TO-DATE report's stale opt-in skips; only generated Vision test outputs were cleared before the fresh passing rerun."
+        },
+        "ffmpegSha256": "5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33",
+        "ffprobeSha256": "b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f",
+        "codecArchiveSha256": "ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332",
+        "resourceProfile": "none"
+      },
+      {
+        "mode": "linux-arm64-native",
+        "report": "/private/tmp/ghatana-media-wave2-r7-64c13346-linux-native/linux-arm64-native.json",
+        "execution": "Linux ARM64 container on macOS ARM64, Temurin 27 image and Ubuntu 24.04 sidecar",
+        "counts": {"tests": 55, "failures": 0, "errors": 0, "skipped": 0, "suiteFiles": 2},
+        "dockerLimits": {"memory": "8g", "cpus": "4", "pids": "512"},
+        "temurinImage": "eclipse-temurin:27-jdk@sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "ubuntuSidecar": "ubuntu:24.04@sha256:19cad59657037cffa0ac9a48107019b768900ff1071140965827513ac866bd5e",
+        "ffmpegSha256": "020b113f52f1e44515538d965d143ea8bb38066d5893b8a3c502eece23bb3db0",
+        "ffprobeSha256": "c3a51d1aa8afa398a778192e67b26e94ddd541ce350d0a527dbcbba278c660be",
+        "codecArchiveSha256": "ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586",
+        "firstAttempt": "Cached protoc executable-bit permission failure; runner repaired the bit and guarded retry passed.",
+        "resourceProfile": "outer container limits only; no per-worker measurements"
+      },
+      {
+        "mode": "mac-core",
+        "report": "/private/tmp/ghatana-media-wave2-r7-64c13346-mac-core/mac-core.json",
+        "execution": "macOS ARM64, Temurin 27.0.1.0.2",
+        "counts": {"tests": 1807, "failures": 0, "errors": 0, "skipped": 3, "suiteFiles": 244},
+        "projectStatus": {"common": "UP-TO-DATE", "stt": "EXECUTED", "tts": "UP-TO-DATE", "vision": "EXECUTED", "multimodal": "EXECUTED", "observability": "UP-TO-DATE"},
+        "skipReason": "Three opt-in native Vision selectors executed and passed in the separate mac-native lane."
+      },
+      {
+        "mode": "linux-arm64-core",
+        "report": "/private/tmp/ghatana-media-wave2-r7-64c13346-linux-native/linux-arm64-core.json",
+        "execution": "Linux ARM64 container on macOS ARM64, Temurin 27 image",
+        "counts": {"tests": 1807, "failures": 0, "errors": 0, "skipped": 3, "suiteFiles": 244},
+        "dockerLimits": {"memory": "8g", "cpus": "4", "pids": "512"},
+        "allSixSelectedProjectsExecuted": true,
+        "skipReason": "Three opt-in native Vision selectors executed and passed in the separate linux-arm64-native lane.",
+        "resourceProfile": "/private/tmp/ghatana-media-wave2-r7-64c13346-linux-native/linux-arm64-core-20261028T014405Z.resource-profile.tsv",
+        "resourceProfileLimits": "synthetic no-provider load only; modality/provider/native-worker/connection-pool measurements are not measured"
+      },
+      {
+        "mode": "mac-integration",
+        "report": "/private/tmp/ghatana-media-wave2-r7-64c13346-mac-integration/mac-integration.json",
+        "execution": "macOS ARM64, Temurin 27.0.1.0.2",
+        "counts": {"tests": 251, "failures": 0, "errors": 0, "skipped": 0, "suiteFiles": 53},
+        "executedProjects": ["integration-tests", "launcher", "providers/aws-postgresql"],
+        "gh90000ComposeCases": {"executed": 9, "passed": 9, "skipped": 0},
+        "sttImage": {"tag": "ghatana/stt-service:r7-local-64c13346", "imageId": "sha256:3f1fbfe75af2fb4cf840c3a2816112e01e880b484fdea8c1f90e8fc20d31c905"},
+        "ttsImage": {"tag": "ghatana/tts-service:r7-local-64c13346", "imageId": "sha256:70f38cf474f54cfab643c170f41e551e4c28ab47700c6922799ff7cae8c61569"},
+        "semantics": "Fail-closed provider startup, no published service ports, bounded/no-payload diagnostics, Java 27; no positive external provider effect."
+      }
+    ],
+    "independentLedgerReview": {
+      "reviewer": "Independent Luna current-cut full-ledger audit",
+      "sourceCut": "64c13346c192d7bf9539e08c43f28ce3df9944da",
+      "totalUniqueTaskIds": 58,
+      "missingExtraDuplicateIds": 0,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "sourceConflicts": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "rowsPromoted": 0,
+      "externalRightsAdmitted": false,
+      "ownerExternalTaskIds": ["STT-12", "TTS-07", "TTS-12", "VIS-02", "VIS-12", "MM-12"],
+      "result": "Canonical markdown inventory and JSON partition reconcile exactly. X04 and X11 do not meet whole-row criteria; dispositions remain unchanged."
+    },
+    "aggregateDispositionUnchanged": {
+      "total": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "sourceConflicts": 0,
+      "rowsPromoted": 0,
+      "allOpenRowsTaskAccepted": false
+    },
+    "claims": "Current-cut implementation and execution evidence only. No owner/rights approval, task acceptance, PDP/gtool transition or closure, deployment, data cutover, or release is asserted."
   }
 }
