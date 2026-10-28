@@ -1,7 +1,7 @@
 # Media Privacy, Consent, and Retention Policy
 
 **Status:** Authoritative requirements + executable implementation map  
-**Last Updated:** 2026-08-09  
+**Last Updated:** 2026-10-28  
 **Owner:** Media Engineering  
 **Compliance Scope:** privacy, tenant isolation, consent, retention, biometric handling, auditability  
 **Review Cadence:** on every runtime/privacy boundary change
@@ -35,6 +35,9 @@ The current canonical implementation uses these authorities:
 | Consent verification SPI | `MediaRuntimeContracts.MediaConsentAuthority` |
 | Durable consent verifier | `PostgresqlMediaConsentAuthority` |
 | Consent state | PostgreSQL `media_consents` (`V003__media_consent_authority.sql`) |
+| STT source-rights request and evidence shape (not a live decision issuer) | `MediaSourceAuthorizationContracts.{Request,Evidence,Decision,Authority}` |
+| STT pre-job policy/rights/consent/store conjunction | `MediaSpeechToTextAdmission` + `MediaRuntime` (source authority not yet installed) |
+| Immutable candidate transcript, fenced attempt, and content-free outbox | `PostgresqlMediaTranscriptStore` + canonical PostgreSQL attempt/outbox; production finalization **not admitted** |
 | External provider residency/egress enforcement | `HttpMediaProcessingProvider`, `HttpMediaStreamingProvider` |
 | Physical retention/erasure SPI | `MediaPrivacyMaintenance` |
 | Durable S3/PostgreSQL retention authority | `PostgresqlMediaPrivacyMaintenance` |
@@ -275,6 +278,10 @@ The following are requirements, not implementation claims:
 ## 12. Source references
 
 - `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java`
+- `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaSourceAuthorizationContracts.java`
+- `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaSpeechToTextAdmission.java`
+- `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaTranscriptContracts.java`
+- `providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaTranscriptStore.java`
 - `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java`
 - `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaMetadataSanitizer.java`
 - `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobResultSanitizer.java`
@@ -286,3 +293,41 @@ The following are requirements, not implementation claims:
 - `launcher/src/main/java/com/ghatana/media/launcher/MediaConsentAdministrationRuntime.java`
 - `launcher/src/main/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntime.java`
 - `launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java`
+
+
+---
+
+## 13. Wave 2 source-rights, model admission and independent acceptance policy
+
+**Policy disposition (2026-10-28): APPROVED FOR ENGINEERING IMPLEMENTATION; NO PRODUCTION RIGHTS OR QUALITY GRANT.** The exact engineering owner execution authority is [the single active Wave 2 plan](implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md), and the original 58 requirements and 36 unfinished task decisions are in the existing [R8 matrix](implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json) and [R10 owner gate map](implementation/MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json). This section is a normative Media privacy/security rule, **not** a new approval, PDP phase, provider profile, audit receipt, or duplicative policy engine. All source/code/negative-test work below can proceed now without asking again for routine engineering approval.
+
+### 13.1 One authentic rights and policy decision path (STT first)
+
+- Media is the **source/version/rights record owner** for its own immutable uploads and original production assets; Shared owns the public `PolicyEngine`, `VerifiedPolicyContext`, policy snapshot and decision semantics. Media's `MediaSourceAuthorizationContracts.Authority` is **one composition adapter**, not a policy decision substitute. `MediaConsentAuthority` remains a different revocation-aware authority; the applicable human consent decision cannot be forged or bypassed by a Media receipt.
+- The producer/rights holder must authenticate through an **independent trusted security boundary** that binds tenant, principal, creator/rights holder, source artifact ID, immutable source version and actual SHA-256, provenance, permitted operation and purpose, region, retention, permitted transformations/egress, validity and revocation epoch. Store the actual durable signed/attributed provenance and revocation state in a restricted owner-controlled source-of-truth; do not accept a JSON object, caller metadata, user-provided signature/key, an uploaded declaration or an environment flag as independent approval.
+- Evaluate the **actual current Shared ALLOW decision** with `VerifiedPolicyContext` created from authenticated identity and an exact source/resource/action/purpose, then intersect it with the current Media source-rights grant, Media consent as applicable, provider/license/locale/model qualification, source clock, source classification and transcript-store readiness. Deny on any missing/stale/mismatched/unknown component. Bound decision freshness and re-evaluate on every provider effect/retry; an old success does not authorize a new effect.
+- `MediaSourceAuthorizationContracts.Evidence` is a **validated value returned by a trusted authority**, not a credential solely because its record constructor passed. Its IDs, expiration, permitted scope and revocation epoch must be checked against the actual authority on dispatch and recovery. One successful request cannot be replayed against a different tenant, source hash, model/export, provider, operation or purpose. Race between source-rights revocation and transcript commit requires a transactionally consistent authority snapshot/lock or a documented strong fencing/lease reconciliation; when that cannot be guaranteed, keep the outcome `UNKNOWN` or `NOT_ADMITTED`.
+- For durable output, reuse the **existing** Media artifact/job/attempt/fence/outbox and PostgreSQL transcript CAS. A transcript is `CANDIDATE` while its source, profile and commit-time authority are unqualified. Production promotion requires a real successful provider receipt, result digest, expected revision, current source authorization and immutable readback verified at the same authoritative commit boundary. Never simply change the SQL literal `CANDIDATE` or remove the production eligibility check.
+
+### 13.2 First-party engineering media versus real human rights
+
+- **Approved now:** reproducible self-authored nonhuman-generated images, screen flows, VFR videos, simple tones and text fixtures for codec, timing, security, interface and failure-recovery verification, with generator/source SHA, creator-owned immutable artifact and actual scoped rights record. These assets do not grant speaker, face, voice likeness, biometric, training or unrelated third-party rights.
+- **Engineering-only speech positive:** an original scripted speech clip may be created using a **separately permitted, genuinely licensed synthetic voice** with explicit rights for this use, bound source/version/owner and independently authored exact words. It is suitable to prove actual speech decoding and a correctly authorized candidate job path after real Media/Shared decisions are installed, but **not** to establish human speaker generalization, speaker-disjoint quality, independent human consent or commercial voice rights by itself. An original audio clip recorded by an actual human still requires an authentic scope-specific recording authorization/consent; internal employment or ownership of the software is not consent.
+- Any human voice cloning, individual speaker identity, face matching, gaze/face landmarks subject to biometric processing, or outside-party recordings requires **a separately verified rights-holder grant and revocable subject consent** for that exact purpose, along with region, retention, external recipient and revocation. There is no blanket owner override; if unavailable, only that restricted operation remains `NOT_ADMITTED`. All other nonbiometric Media engineering and tests continue.
+- An external evaluator/rights reviewer must be an actual independent identity whose signing/approval authority was registered before the evaluation; the current `wave2-trusted-reviewers.v1.json` has **no trusted reviewer keys**. Owner engineers can prepare candidate receipts and a private intake, not self-issue a missing independent final approval.
+
+### 13.3 Model, corpus and native worker decisions
+
+- Official Whisper checkpoint, compatible ONNX export/tokenizer, Piper LJSpeech voice/sidecar, YOLOX Nano weights/export and FLEURS are **candidate artifacts**, independently hash- and license-reviewed before qualified effects. Source-code licenses do not automatically prove derivative weight, voice/personality, dataset redistributions or production model-quality rights. Use exact pinned models/exports with complete independently authored gold; partial text, keyword success, nonexistent EOT or metadata-only corpora cannot establish qualification.
+- **Whisper fallback chosen:** first repair source-pinned ONNX encoder/decoder parity; if that fails, evaluate the existing official Whisper reference checkpoint through an isolated, pinned, authorized inference adapter to the **same** Media processing job/attempt SPI. Do not create another job/transcript writer or change the 58 original acceptance rows. A fallback may unblock a genuine local functional result after legal/quality admission, but cannot silently become a production profile.
+- **Piper fallback chosen:** actual source-licensed eSpeak-NG-compatible phonemization behind the existing adapter or an independently validated original phonemizer; heuristic mode is nonproduction only. No subject voice/likeness cloning without consent.
+- **YOLOX fallback chosen:** a team-owned original nonhuman-object photograph with independent gold boxes is the first functional positive; a rights-reviewed, speaker/subject-disjoint held-out corpus and actual mAP/PR evaluation still gate full accuracy acceptance. Synthetic glyph zero detections remain a valid negative only.
+- **FLEURS evaluation:** obtain a bounded, attributed, source-revision-pinned and independently labeled subset of `eng`, `hin` and `npi`; select before evaluation, freeze per-clip hashes and splits, and preserve corpus and speaker-use rights. Only selected clips, not full tar archives or 100s of GB, may enter the local qualification cache; evict only owner-scoped cache after recording digest and rights/metadata.
+- **Vision JNI/OCI:** 4/4 stub and 3/3 real BMP FFmpeg cases and 54/54 extractor adversarial cases are *user-reported focused passes*. BMP is legitimate **BMP-only codec-path evidence**, not PNG proof. The original required PNG path remains outstanding: obtain or build a separately source-pinned, audited, appropriately licensed PNG-capable FFmpeg worker with exact runtime dependency closure and a true pixel-exact PNG test. Keep it opt-in; never replace original test truth with a mislabeled BMP. A skipped delegated-cgroup test on an unsupported host is a reported nonapplicable host capability for that test **only**, not a successful delegated-cgroup assertion. A direct Docker CLI in the Media JVM is developer-host qualification only; production must use a separately authenticated, least-privilege host/CRI broker with no general container-management access in the service process.
+- **Capacity and alerts:** measure real admitted/completed/rejected/UNKNOWN outcomes on the exact named host at requested 1/16/64; saturation may yield typed rejection but not 64 falsely successful operations. Only real provider quality errors and Alertmanager notification to a named receiver count as integrated observability proof.
+
+### 13.4 Restricted evidence and acceptance accounting
+
+Proof files can contain nonsecret IDs/digests/versions, source revision, profiler results and public test source. Full identity documents, consent forms, reviewer private keys, raw media containing personal data and rights-holder communications remain in the access-controlled intake—not in public Git or application logs. In the absence of a real trust anchor or authority, record `EXTERNAL_INPUT_UNAVAILABLE` with owner, evidence type and recheck point rather than inventing approvals.
+
+All 36 remaining tasks retain their original `PARTIAL` or `OWNER_EXTERNAL` ledger status. Engineering permission and passing unit/OCI fixtures **never** promote a row until its original positive, negative, fault/restart, privacy, source-rights and quality expectations are independently satisfied. PDP closure, operational writer migration, deployment and release remain different gates.
