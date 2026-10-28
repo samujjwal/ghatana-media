@@ -114,6 +114,7 @@ class WhisperPerformanceQualificationTest {
                             + "\"inputSamples\":%d,\"audioSeconds\":%.6f,\"hostOs\":\"%s\","
                             + "\"hostArch\":\"%s\",\"javaVersion\":\"%s\",\"runtime\":\"ONNX Runtime Java 1.29.0 CPU\","
                             + "\"modelLoadMs\":%d,\"availableProcessors\":%d,\"maxConcurrentRequests\":%d,"
+                            + "\"ortIntraOpThreadsConfigured\":%d,"
                             + "\"saturationRejection\":\"PASS_TYPED_RESOURCE_EXHAUSTED_WITH_ALL_PERMITS_HELD\","
                             + "\"measuredRequestsPerLevel\":%d,\"qualificationBoundary\":\"REVIEW_ONLY_LOCAL_EVALUATION_NO_RIGHTS_OR_QUALITY_ADMISSION\","
                             + "\"timeoutSeconds\":%d,\"processRssPeakBytes\":%d,\"processRssAvailable\":%s,"
@@ -123,6 +124,8 @@ class WhisperPerformanceQualificationTest {
                     System.getProperty("os.name"), System.getProperty("os.arch"),
                     System.getProperty("java.version"), modelLoadMillis,
                     Runtime.getRuntime().availableProcessors(), MAX_CONCURRENCY,
+                    WhisperOnnxThreadPolicy.intraOpThreads(
+                            System.getenv(), Runtime.getRuntime().availableProcessors()),
                     MEASURED_REQUESTS_PER_LEVEL, timeoutSeconds(), rssSampler.peakBytes(),
                     rssSampler.available(),
                     results.stream().map(LevelResult::toJson).reduce((a, b) -> a + "," + b).orElse("")
