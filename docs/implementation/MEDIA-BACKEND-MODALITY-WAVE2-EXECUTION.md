@@ -414,9 +414,11 @@ Result: BUILD SUCCESSFUL in 2m54s; all 127 actionable Gradle tasks executed. The
 
 pnpm test:backend-modality-wave2-plan passed all 6 structural checks for task IDs/dependencies, 99 capability memberships, 43 RPC mappings and residual separation. It checks plan structure, not runtime scenarios. git diff --check passed.
 
-### Exclusive task dispositions
+### Exclusive task dispositions — 2026-10-25 snapshot
 
 LOCALLY_VERIFIED means the task's bounded local behavior or inventory acceptance is covered by implementation and passing tests. It does not mean the physical surface is complete. PARTIAL means implementation/evidence exists but one or more row acceptance conditions remain. EXTERNAL/OWNER means a required admitted provider, rights source, licensed corpus, hardware, service, or operational input is still missing. SOURCE_CONFLICT records a conflict with canonical product meaning.
+
+The table below is the historical disposition at this 2026-10-25 cut, not the current ledger. Later R7 reviews supersede it; the current full 58-row disposition is **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**, recorded in the latest schedule and R7 follow-ups.
 
 | Surface | LOCALLY_VERIFIED | PARTIAL | EXTERNAL/OWNER | SOURCE_CONFLICT |
 | --- | --- | --- | --- | --- |
