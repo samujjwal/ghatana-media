@@ -94,3 +94,39 @@ node scripts/qualification/verify-wave2-evidence.mjs \
 - FLEURS official dataset description: https://huggingface.co/datasets/google/fleurs and https://huggingface.co/api/datasets/google/fleurs
 - Common Voice restrictions for any optional use: https://mozilladatacollective.com/datasets/cmu61478v00j9o107alzuue1z
 - Data Cloud and Document Intelligence owning API work: https://github.com/samujjwal/ghatana/issues/254 and https://github.com/samujjwal/ghatana/issues/252
+
+## G. Source-pinned reference asset staging (implemented R9 extension)
+
+The opt-in `scripts/qualification/prepare-wave2-reference-assets.mjs` stages a public reference asset **only when** the catalog already contains an independently sourced SHA-256. It uses HTTPS host and redirect allowlists, bounded downloads, a timeout, owner-only off-repository storage, exact digest verification, no overwrites, and atomic publication after verification. No runtime, test or launcher implicitly downloads weights. `SOURCE-RECEIPT.json` proves content bytes alone and is explicitly **not license, consent, model-compatibility, quality or production admission**.
+
+```bash
+export MEDIA_QUALIFICATION_HOME="$HOME/.ghatana-media-wave2-qualification"
+mkdir -p "$MEDIA_QUALIFICATION_HOME/assets"
+chmod 700 "$MEDIA_QUALIFICATION_HOME" "$MEDIA_QUALIFICATION_HOME/assets"
+
+node scripts/qualification/prepare-wave2-reference-assets.mjs \
+  --candidate stt-whisper-tiny-multilingual \
+  --private-destination "$MEDIA_QUALIFICATION_HOME/assets" \
+  --acknowledge-review-only
+node scripts/qualification/prepare-wave2-reference-assets.mjs \
+  --candidate stt-whisper-multilingual-tokenizer \
+  --private-destination "$MEDIA_QUALIFICATION_HOME/assets" \
+  --acknowledge-review-only
+node scripts/qualification/prepare-wave2-reference-assets.mjs \
+  --candidate tts-piper-ljspeech-medium \
+  --private-destination "$MEDIA_QUALIFICATION_HOME/assets" \
+  --acknowledge-review-only
+```
+
+The YOLOX ONNX record deliberately has **no independent SHA-256 pin yet**, so the staging tool refuses to fetch it: obtain and verify the exact upstream release file first, then amend the same catalog without assigning any admission status. FLEURS is sampled by *clip*, not as one bulk model file, and the chosen clip/gold/attribution manifests must be separately reviewed.
+
+Commands to verify the current source-only implementation:
+
+```bash
+pnpm test:wave2-reference-staging
+pnpm test:wave2-evidence-intake
+pnpm check:wave2-reference-sources
+```
+
+The local test design includes **5** reference-staging cases and **9** signed-evidence/source-crosswalk cases. These tests exercise synthetic files and review-only signatures; they cannot grant a third-party license or a person's consent. A real packet is checked using `node scripts/qualification/verify-wave2-evidence.mjs --packet "$MEDIA_QUALIFICATION_HOME/packets/<id>.json" --private-root "$MEDIA_QUALIFICATION_HOME"`. The checked-in trusted-reviewer public-key set is currently empty, so a packet cannot be accepted until independent reviewers authenticate and register their permitted signing keys under source review. A reviewer receipt is never a substitute for an actual subject's private revocable consent or for current MediaConsentAuthority/Shared PolicyEngine admission at dispatch.
+
