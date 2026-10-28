@@ -372,6 +372,9 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         String hardware = environment.get("TTS_MODEL_HARDWARE").trim();
         String rawPath = environment.get("TTS_MODEL_PATH").trim();
         if (!digest.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("TTS_MODEL_SHA256 must be a SHA-256 digest");
+        if (!isUsableLanguageTag(language)) {
+            return notAdmitted("TTS_MODEL_LANGUAGE must be a well-formed BCP 47 language tag with a language subtag");
+        }
         Path path = Path.of(rawPath);
         if (!path.isAbsolute() || !path.normalize().equals(path) || containsSymbolicLink(path)
                 || !Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)
@@ -754,6 +757,15 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     private static String normalizeLanguage(String language) {
         return java.util.Locale.forLanguageTag(language).toLanguageTag();
+    }
+
+    private static boolean isUsableLanguageTag(String language) {
+        try {
+            java.util.Locale locale = new java.util.Locale.Builder().setLanguageTag(language).build();
+            return !locale.getLanguage().isBlank() && !"und".equalsIgnoreCase(locale.getLanguage());
+        } catch (java.util.IllformedLocaleException malformed) {
+            return false;
+        }
     }
 
     @Override
