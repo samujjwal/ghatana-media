@@ -53,6 +53,23 @@ tasks.test {
     useJUnitPlatform {
         includeTags("integration")
     }
+
+    // The image-gated test conditions inspect these environment-selected images.
+    // Keep Gradle's up-to-date checks aligned with that runtime input so changing
+    // candidates cannot silently reuse an earlier skip result.
+    inputs.property(
+        "audioVideoSttImage",
+        providers.environmentVariable("AUDIO_VIDEO_STT_IMAGE").orElse("ghatana/stt-service:latest")
+    )
+    inputs.property(
+        "audioVideoTtsImage",
+        providers.environmentVariable("AUDIO_VIDEO_TTS_IMAGE").orElse("ghatana/tts-service:latest")
+    )
+
+    // Docker tags and daemon availability can change without Gradle inputs
+    // changing, so always reevaluate image-gated integration conditions.
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
 }
 
 // A JavaExec host gives the process-boundary fixture an explicit, Gradle-resolved
