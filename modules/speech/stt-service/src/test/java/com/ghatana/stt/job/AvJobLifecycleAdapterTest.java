@@ -162,6 +162,20 @@ class AvJobLifecycleAdapterTest {
                 .as("source-state metadata that conflicts with the shared projection fails closed")
                 .isNull();
 
+        for (String unrepresentableState : java.util.List.of("OUTCOME_UNKNOWN", "RECONCILING")) {
+            CanonicalJobRecord forgedRunningUnknown = new CanonicalJobRecord(
+                    projected.jobId(), projected.jobType(), CanonicalJobStatus.RUNNING, projected.tenantId(),
+                    projected.correlationId(), projected.traceId(), projected.createdAt(), projected.startedAt(),
+                    projected.completedAt(), projected.progressPercent(), projected.input(), projected.resultId(),
+                    projected.resultType(), projected.failureCode(), projected.failureMessage(), projected.retryCount(),
+                    projected.maxRetries(), projected.tags(),
+                    projected.metadata().with("mediaCanonicalState", unrepresentableState));
+            assertThat(AvJobLifecycleAdapter.fromCanonical(forgedRunningUnknown))
+                    .as("unrepresentable %s state cannot be recovered from a lossy RUNNING projection",
+                            unrepresentableState)
+                    .isNull();
+        }
+
         CanonicalJobRecord malformedSourceState = new CanonicalJobRecord(
                 projected.jobId(), projected.jobType(), projected.status(), projected.tenantId(),
                 projected.correlationId(), projected.traceId(), projected.createdAt(), projected.startedAt(),

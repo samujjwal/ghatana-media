@@ -125,6 +125,12 @@ public final class AvJobLifecycleAdapter {
             if (!(mediaState instanceof String state)) return null;
             try {
                 AvTranscriptionJob.JobStatus sourceState = AvTranscriptionJob.JobStatus.valueOf(state);
+                if (sourceState == AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN
+                        || sourceState == AvTranscriptionJob.JobStatus.RECONCILING) {
+                    // These states have no lossless canonical representation. Do not
+                    // trust metadata to reintroduce them on a RUNNING projection.
+                    return null;
+                }
                 return mapStatus(sourceState) == record.status() ? sourceState : null;
             } catch (IllegalArgumentException ignored) {
                 // Unknown or conflicting source spellings are not silently coerced into a Media state.
