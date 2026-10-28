@@ -102,6 +102,30 @@ class MediaRuntimeSpeechAdmissionTest {
     }
 
     @Test
+    void whitespaceWrappedLanguageModeIsRejectedBeforeJobOrProviderEffects() throws Exception {
+        var root = Files.createTempDirectory("media-stt-admission-language-mode-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        AtomicInteger providerCalls = new AtomicInteger();
+        Profile profile = unqualifiedProfile("profile-a", TimingDisposition.PROVIDER_TIME_UNQUALIFIED);
+        var runtime = runtime(root, jobStore,
+                List.of(candidate(providerCalls, profile, ProcessingBoundary.LOCAL)), null);
+        try {
+            var source = artifact(runtime);
+            Map<String, Object> parameters = new java.util.LinkedHashMap<>(speechParameters("profile-a", "en-US"));
+            parameters.put("languageIntent", Map.of("mode", " EXPLICIT ", "languageTag", "en-US"));
+            ProcessingJobRequest request = request(source.artifactId(), source.version().value(), parameters);
+
+            assertThatThrownBy(() -> runtime.submit(request))
+                    .isInstanceOf(MediaSpeechToTextAdmission.NotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaSpeechToTextAdmission.NotAdmittedException) failure)
+                            .decision().reasons()).contains(Reason.LANGUAGE_INTENT_REQUIRED));
+            assertNoJobOrProviderEffect(jobStore, providerCalls);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void revokedOrUnverifiedConsentIsTypedNotAdmittedBeforeProviderEffect() throws Exception {
         var root = Files.createTempDirectory("media-stt-admission-consent-");
         var jobStore = new LocalMediaRuntimeSupport.JobStore();

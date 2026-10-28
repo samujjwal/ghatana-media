@@ -192,12 +192,11 @@ public final class MediaSpeechToTextAdmission {
     }
 
     private static String required(String value, String name) {
-        String normalized = optional(value);
-        if (normalized.isBlank()) throw new IllegalArgumentException(name + " is required");
-        return normalized;
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " is required");
+        return value;
     }
 
     private static String optional(String value) {
-        return value == null ? "" : value.trim();
+        return value == null ? "" : value;
     }
 }

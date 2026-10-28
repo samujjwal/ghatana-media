@@ -778,7 +778,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             Object rawMode = intent.get("mode");
             if (rawMode instanceof String value) {
                 try {
-                    mode = MediaSpeechToTextAdmission.LanguageMode.valueOf(value.trim());
+                    mode = MediaSpeechToTextAdmission.LanguageMode.valueOf(value);
                 } catch (IllegalArgumentException ignored) {
                     mode = null;
                 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MediaSpeechToTextAdmissionTest {
     private static final String VERSION = "sha256:" + "a".repeat(64);
@@ -88,6 +89,57 @@ class MediaSpeechToTextAdmissionTest {
                 MediaSpeechToTextAdmission.Reason.CONSENT_NOT_ADMITTED,
                 MediaSpeechToTextAdmission.Reason.RIGHTS_AUTHORITY_UNAVAILABLE,
                 MediaSpeechToTextAdmission.Reason.TRANSCRIPT_VERSION_STORE_NOT_ADMITTED);
+    }
+
+    @Test
+    void requestAndProfileIdentityScalarsArePreservedExactly() {
+        var artifact = artifact(Map.of());
+        String wrappedProfileId = " profile-a ";
+        String wrappedProfileVersion = " v1 ";
+        String wrappedDigest = " " + CONFIG_DIGEST + " ";
+        var wrappedRequest = new MediaSpeechToTextAdmission.Request(
+                VERSION, wrappedProfileId, wrappedProfileVersion, wrappedDigest,
+                LanguageMode.EXPLICIT, " en-US ");
+        assertThat(wrappedRequest.profileId()).isEqualTo(wrappedProfileId);
+        assertThat(wrappedRequest.profileVersion()).isEqualTo(wrappedProfileVersion);
+        assertThat(wrappedRequest.profileConfigurationDigest()).isEqualTo(wrappedDigest);
+        assertThat(wrappedRequest.languageTag()).isEqualTo(" en-US ");
+
+        var canonicalProfile = profile(MediaSpeechToTextAdmission.ProfileQualification.NOT_QUALIFIED,
+                Set.of("en-US"), false, MediaSpeechToTextAdmission.TimingDisposition.PROVIDER_TIME_UNQUALIFIED);
+        var mismatch = MediaSpeechToTextAdmission.evaluate(
+                wrappedRequest, artifact, canonicalProfile, false, false, false);
+        assertThat(mismatch.reasons()).contains(MediaSpeechToTextAdmission.Reason.PROFILE_IDENTITY_MISMATCH);
+
+        var whitespaceProfile = new MediaSpeechToTextAdmission.Profile(
+                " candidate-provider ", " candidate-v1 ", wrappedProfileId, wrappedProfileVersion,
+                CONFIG_DIGEST, MediaSpeechToTextAdmission.ProfileQualification.NOT_QUALIFIED,
+                Set.of("en-US"), false, MediaSpeechToTextAdmission.TimingDisposition.PROVIDER_TIME_UNQUALIFIED, "");
+        assertThat(whitespaceProfile.providerId()).isEqualTo(" candidate-provider ");
+        assertThat(whitespaceProfile.providerVersion()).isEqualTo(" candidate-v1 ");
+        assertThat(whitespaceProfile.profileId()).isEqualTo(wrappedProfileId);
+        assertThat(whitespaceProfile.profileVersion()).isEqualTo(wrappedProfileVersion);
+
+        var canonicalRequest = request(VERSION, LanguageMode.EXPLICIT, "en-US");
+        var profileMismatch = MediaSpeechToTextAdmission.evaluate(
+                canonicalRequest, artifact, whitespaceProfile, false, false, false);
+        assertThat(profileMismatch.reasons()).contains(MediaSpeechToTextAdmission.Reason.PROFILE_IDENTITY_MISMATCH);
+    }
+
+    @Test
+    void requiredProfileScalarsRejectWhitespaceAndDigestDoesNotNormalize() {
+        assertThatThrownBy(() -> new MediaSpeechToTextAdmission.Profile(
+                "   ", "candidate-v1", "profile-a", "v1", CONFIG_DIGEST,
+                MediaSpeechToTextAdmission.ProfileQualification.NOT_QUALIFIED,
+                Set.of("en-US"), false, MediaSpeechToTextAdmission.TimingDisposition.NOT_SUPPLIED, ""))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("providerId is required");
+        assertThatThrownBy(() -> new MediaSpeechToTextAdmission.Profile(
+                "candidate-provider", "candidate-v1", "profile-a", "v1", " " + CONFIG_DIGEST + " ",
+                MediaSpeechToTextAdmission.ProfileQualification.NOT_QUALIFIED,
+                Set.of("en-US"), false, MediaSpeechToTextAdmission.TimingDisposition.NOT_SUPPLIED, ""))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("configurationDigest must be sha256:");
     }
 
     private static MediaSpeechToTextAdmission.Request request(
