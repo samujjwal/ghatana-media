@@ -1,10 +1,15 @@
 package com.ghatana.media.runtime;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission.LanguageMode;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.Clock;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Set;
 
@@ -151,13 +156,19 @@ class MediaSpeechToTextAdmissionTest {
                 MediaSpeechToTextAdmission.TimingDisposition.SOURCE_CLOCK_BOUND,
                 "urn:ghatana:media-qualification:reference-profile-v1");
         var qualifiedRequest = request(VERSION, LanguageMode.EXPLICIT, "en-US");
-        var exactArtifact = artifact(Map.of());
+        var exactArtifact = artifact(Map.of(
+                "sourceClockId", "fixture-clock",
+                "sourceClockMappingEvidenceRef", "fixture-source-clock",
+                "sourceClockTicksPerSecond", 1,
+                "sourceDurationTicks", 1));
 
         // Legacy callers do not have an authoritative transcript store witness.
         var legacy = MediaSpeechToTextAdmission.evaluate(
                 qualifiedRequest, exactArtifact, qualifiedProfile, true, true, true);
         assertThat(legacy.disposition()).isEqualTo(MediaSpeechToTextAdmission.Disposition.NOT_ADMITTED);
-        assertThat(legacy.reasons()).containsExactly(
+        assertThat(legacy.reasons()).contains(
+                MediaSpeechToTextAdmission.Reason.RIGHTS_AUTHORITY_UNAVAILABLE,
+                MediaSpeechToTextAdmission.Reason.CONSENT_NOT_ADMITTED,
                 MediaSpeechToTextAdmission.Reason.TRANSCRIPT_VERSION_STORE_NOT_ADMITTED);
 
         // The new runtime-only admission path remains closed until every source
@@ -185,10 +196,58 @@ class MediaSpeechToTextAdmissionTest {
         assertThat(expired.reasons()).contains(
                 MediaSpeechToTextAdmission.Reason.SOURCE_VERSION_STALE_OR_NOT_FOUND);
 
+        Instant now = Instant.now().plusSeconds(1);
+        Clock clock = Clock.fixed(now, ZoneOffset.UTC);
+        var authorizationRequest = new MediaSourceAuthorizationContracts.Request(
+                exactArtifact.tenantId(), exactArtifact.principalId(), exactArtifact.artifactId(),
+                exactArtifact.version(), exactArtifact.sha256(), "SPEECH_TO_TEXT", "speech-transcription",
+                qualifiedProfile.providerId(), qualifiedProfile.providerVersion(), ProcessingBoundary.LOCAL,
+                "us", ProviderDataRetention.NONE);
+        var authorizationEvidence = new MediaSourceAuthorizationContracts.Evidence(
+                "fixture-authority", "decision-1", exactArtifact.tenantId(), exactArtifact.principalId(),
+                exactArtifact.principalId(), exactArtifact.artifactId(), exactArtifact.version(),
+                exactArtifact.sha256(), "SPEECH_TO_TEXT", "speech-transcription",
+                qualifiedProfile.providerId(), qualifiedProfile.providerVersion(), ProcessingBoundary.LOCAL,
+                "us", ProviderDataRetention.NONE, Set.of("speech_to_text"), Set.of("us"),
+                Set.of(ProviderDataRetention.NONE), "rights-1", "policy-1", "policy-v1",
+                MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
+                "", "fixture-clock-evidence", 0, now.minusSeconds(1), now.plusSeconds(30));
         var admitted = MediaSpeechToTextAdmission.evaluate(
-                qualifiedRequest, exactArtifact, qualifiedProfile, true, true, true, true);
+                qualifiedRequest, exactArtifact, qualifiedProfile, null, authorizationRequest,
+                new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.ALLOWED, authorizationEvidence),
+                true, true, clock);
         assertThat(admitted.disposition()).isEqualTo(MediaSpeechToTextAdmission.Disposition.ADMITTED);
         assertThat(admitted.reasons()).isEmpty();
+        var missingWriter = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, exactArtifact, qualifiedProfile, null, authorizationRequest,
+                new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.ALLOWED, authorizationEvidence),
+                true, false, clock);
+        assertThat(missingWriter.reasons()).contains(
+                MediaSpeechToTextAdmission.Reason.TRANSCRIPT_VERSION_STORE_NOT_ADMITTED);
+        var staleEvidence = new MediaSourceAuthorizationContracts.Evidence(
+                authorizationEvidence.authorityId(), authorizationEvidence.decisionId(),
+                authorizationEvidence.tenantId(), authorizationEvidence.principalId(),
+                authorizationEvidence.sourceOwnerId(), authorizationEvidence.artifactId(),
+                authorizationEvidence.sourceVersion(), authorizationEvidence.sourceSha256(),
+                authorizationEvidence.operation(), authorizationEvidence.purpose(),
+                authorizationEvidence.providerId(), authorizationEvidence.providerVersion(),
+                authorizationEvidence.processingBoundary(), authorizationEvidence.processingRegion(),
+                authorizationEvidence.providerRetention(), authorizationEvidence.allowedOperations(),
+                authorizationEvidence.allowedRegions(), authorizationEvidence.allowedProviderRetentions(),
+                authorizationEvidence.rightsDecisionId(), authorizationEvidence.policyDecisionId(),
+                authorizationEvidence.policyVersion(), authorizationEvidence.sourceKind(),
+                authorizationEvidence.humanConsentDisposition(), authorizationEvidence.consentDecisionId(),
+                authorizationEvidence.sourceClockEvidenceRef(), authorizationEvidence.revocationEpoch(),
+                now.minusSeconds(31), now.minusSeconds(1));
+        var staleAuthority = MediaSpeechToTextAdmission.evaluate(
+                qualifiedRequest, exactArtifact, qualifiedProfile, null, authorizationRequest,
+                new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.ALLOWED, staleEvidence),
+                true, true, clock);
+        assertThat(staleAuthority.reasons()).contains(MediaSpeechToTextAdmission.Reason.RIGHTS_DECISION_STALE);
         assertThatThrownBy(() -> new MediaSpeechToTextAdmission.NotAdmittedException(admitted))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new MediaSpeechToTextAdmission.Decision(

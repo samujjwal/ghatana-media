@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -eu
 
 fail() { printf 'fixture-failed: %s\n' "$1" >&2; exit 1; }
@@ -6,11 +6,13 @@ fail() { printf 'fixture-failed: %s\n' "$1" >&2; exit 1; }
 [ "$(cat /sys/fs/cgroup/memory.swap.max)" = "0" ] || fail swap-limit
 [ "$(cat /sys/fs/cgroup/cpu.max)" = "200000 100000" ] || fail cpu-limit
 [ "$(cat /sys/fs/cgroup/pids.max)" = "32" ] || fail pids-limit
+[ "$(ulimit -n)" = "64" ] || fail nofile-limit
 grep -q '^CapEff:[[:space:]]*0000000000000000$' /proc/self/status || fail capabilities
 tmpfs_options=$(awk '$2 == "/tmp" && $3 == "tmpfs" { print $4 }' /proc/mounts)
 [ -n "$tmpfs_options" ] || fail tmpfs-missing
 case "$tmpfs_options" in *noexec*) fail tmpfs-noexec ;; esac
 case "$tmpfs_options" in *size=131072k*|*size=134217728*) ;; *) fail tmpfs-size ;; esac
+case "$tmpfs_options" in *nr_inodes=4096*) ;; *) fail tmpfs-inode-limit ;; esac
 printf '#!/bin/sh\nexit 0\n' > /tmp/exec-probe
 chmod 700 /tmp/exec-probe
 /tmp/exec-probe || fail tmpfs-exec
@@ -50,20 +52,17 @@ fi
 # Try to exceed this container's 32-PID hard cgroup limit. Nothing runs outside
 # the worker; the init process kills remaining sleepers when the script exits.
 if [ "$mode" = "pid-limit" ]; then
-  set +e
-  n=0
-  while [ "$n" -lt 80 ]; do
-    sleep 25 &
-    n=$((n + 1))
+  /bin/bash -c 'set +e; for ((n=0; n<31; n++)); do sleep 5 & done' &
+  while true; do
+    blocked=0
+    while read -r kind number; do
+      if [ "$kind" = "max" ]; then blocked=$number; fi
+    done < /sys/fs/cgroup/pids.events
+    if [ "$blocked" -gt 0 ]; then
+      printf 'HOST_OCI_PID_LIMIT_HIT\n'
+      exit 85
+    fi
   done
-  set -e
-  blocked=0
-  while read -r kind number; do
-    if [ "$kind" = "max" ]; then blocked=$number; fi
-  done < /sys/fs/cgroup/pids.events
-  [ "$blocked" -gt 0 ] || fail pid-hard-limit-not-hit
-  printf 'HOST_OCI_PID_LIMIT_HIT\n'
-  exit 85
 fi
 
 printf 'host-oci-limits-and-mounts-verified\n' > "$output"

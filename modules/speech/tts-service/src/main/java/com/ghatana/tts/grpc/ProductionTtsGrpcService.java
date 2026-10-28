@@ -3,6 +3,8 @@ package com.ghatana.tts.grpc;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
+import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.media.tts.engine.onnx.PiperOnnxEngine;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import java.nio.file.Path;
@@ -55,6 +57,30 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     private record InitializedRuntime(
             AudioVideoLibrary library, TtsProviderAdmission.Decision admission,
             String voiceId, String language) {}
+    private record RuntimeAdmission(
+            AudioVideoLibrary library, TtsProviderAdmission.Decision admission,
+            boolean compatiblePiperPhonemizer) {
+        private static RuntimeAdmission capture(
+                AudioVideoLibrary library, TtsProviderAdmission.Decision admission) {
+            Objects.requireNonNull(library, "library");
+            Objects.requireNonNull(admission, "admission");
+            boolean admitted = admission.allows(TtsProviderAdmission.Capability.SYNTHESIS)
+                    || admission.allows(TtsProviderAdmission.Capability.PCM_STREAMING);
+            boolean phonemizerCompatible = !admitted;
+            if (admitted) {
+                try {
+                    phonemizerCompatible = hasCompatiblePiperPhonemizer(library.getTtsEngine());
+                } catch (RuntimeException unavailable) {
+                    phonemizerCompatible = false;
+                }
+            }
+            return new RuntimeAdmission(library, admission, phonemizerCompatible);
+        }
+
+        private boolean allows(TtsProviderAdmission.Capability capability) {
+            return compatiblePiperPhonemizer && admission.allows(capability);
+        }
+    }
 
     /** Private staged inputs consumed synchronously by Piper before service exposure. */
     private record ModelSnapshot(
@@ -95,6 +121,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     private final AudioVideoLibrary ownedLibrary;
     private final TtsProviderAdmission.Decision admission;
+    private final boolean compatiblePiperPhonemizer;
     private final String admittedVoiceId;
     private final String admittedLanguage;
     private final TtsRequestAuthorization requestAuthorization;
@@ -188,15 +215,27 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             String admittedLanguage,
             TtsRequestAuthorization requestAuthorization,
             MediaProcessingRuntimePort mediaRuntimePort) {
-        super(library, metrics,
-                () -> admission.allows(TtsProviderAdmission.Capability.SYNTHESIS),
-                () -> admission.allows(TtsProviderAdmission.Capability.PCM_STREAMING),
+        this(RuntimeAdmission.capture(library, admission), metrics, admittedVoiceId, admittedLanguage,
+                requestAuthorization, mediaRuntimePort);
+    }
+
+    private ProductionTtsGrpcService(
+            RuntimeAdmission runtimeAdmission,
+            MeterRegistry metrics,
+            String admittedVoiceId,
+            String admittedLanguage,
+            TtsRequestAuthorization requestAuthorization,
+            MediaProcessingRuntimePort mediaRuntimePort) {
+        super(runtimeAdmission.library(), metrics,
+                () -> runtimeAdmission.allows(TtsProviderAdmission.Capability.SYNTHESIS),
+                () -> runtimeAdmission.allows(TtsProviderAdmission.Capability.PCM_STREAMING),
                 null,
                 bindConfiguredDefaultVoice(requestAuthorization, admittedVoiceId),
                 (requestedVoice, requestedLanguage) -> matchesAdmittedProfile(
                         admittedVoiceId, admittedLanguage, requestedVoice, requestedLanguage));
-        this.ownedLibrary = Objects.requireNonNull(library, "library");
-        this.admission = Objects.requireNonNull(admission, "admission");
+        this.ownedLibrary = runtimeAdmission.library();
+        this.admission = runtimeAdmission.admission();
+        this.compatiblePiperPhonemizer = runtimeAdmission.compatiblePiperPhonemizer();
         this.admittedVoiceId = admittedVoiceId;
         this.admittedLanguage = admittedLanguage;
         this.requestAuthorization = Objects.requireNonNull(requestAuthorization, "requestAuthorization");
@@ -250,10 +289,15 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         }
         try {
             if (!requestAuthorization.isConfigured() || !requestAuthorization.isReady()) return false;
-            return ownedLibrary.getTtsEngine().getStatus().isHealthy();
+            TtsEngine engine = ownedLibrary.getTtsEngine();
+            return engine.getStatus().isHealthy() && compatiblePiperPhonemizer;
         } catch (RuntimeException unavailable) {
             return false;
         }
+    }
+
+    private static boolean hasCompatiblePiperPhonemizer(TtsEngine engine) {
+        return !(engine instanceof PiperOnnxEngine piper) || piper.hasProductionCompatiblePhonemizer();
     }
 
     static TtsConfig createConfig(Map<String, String> environment) {

@@ -45,6 +45,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
+import com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore;
 import com.ghatana.media.runtime.MediaJobView;
 import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
@@ -64,6 +66,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.Duration;
+import java.time.Clock;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -137,6 +140,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private final MediaJobStore jobStore;
     private final MediaStreamSessionStore streamStore;
     private final MediaConsentAuthority consentAuthority;
+    private final MediaSourceAuthorizationContracts.Authority sourceAuthorizationAuthority;
+    private final MediaTranscriptStore transcriptStore;
+    private final Clock clock;
     private final MediaSemanticRedactionRuntime semanticRedaction;
     private final MediaLifecycleEventPublisher lifecyclePublisher;
     private final List<MediaLifecycleOutboxSource> lifecycleOutboxSources;
@@ -205,11 +211,33 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             List<MediaProcessingProvider> processingProviders,
             List<MediaStreamingProvider> streamingProviders,
             List<MediaLifecycleOutboxSource> lifecycleOutboxSources) {
+        this(config, artifactStore, jobStore, streamStore, consentAuthority, semanticRedaction,
+                lifecyclePublisher, processingProviders, streamingProviders, lifecycleOutboxSources,
+                null, null, Clock.systemUTC());
+    }
+
+    MediaRuntime(
+            MediaRuntimeConfig config,
+            MediaArtifactStore artifactStore,
+            MediaJobStore jobStore,
+            MediaStreamSessionStore streamStore,
+            MediaConsentAuthority consentAuthority,
+            MediaSemanticRedactionRuntime semanticRedaction,
+            MediaLifecycleEventPublisher lifecyclePublisher,
+            List<MediaProcessingProvider> processingProviders,
+            List<MediaStreamingProvider> streamingProviders,
+            List<MediaLifecycleOutboxSource> lifecycleOutboxSources,
+            MediaSourceAuthorizationContracts.Authority sourceAuthorizationAuthority,
+            MediaTranscriptStore transcriptStore,
+            Clock clock) {
         this.config = java.util.Objects.requireNonNull(config, "config");
         this.artifactStore = java.util.Objects.requireNonNull(artifactStore, "artifactStore");
         this.jobStore = java.util.Objects.requireNonNull(jobStore, "jobStore");
         this.streamStore = java.util.Objects.requireNonNull(streamStore, "streamStore");
         this.consentAuthority = consentAuthority;
+        this.sourceAuthorizationAuthority = sourceAuthorizationAuthority;
+        this.transcriptStore = transcriptStore;
+        this.clock = java.util.Objects.requireNonNull(clock, "clock");
         this.semanticRedaction = java.util.Objects.requireNonNull(semanticRedaction, "semanticRedaction");
         this.lifecyclePublisher = java.util.Objects.requireNonNull(lifecyclePublisher, "lifecyclePublisher");
         this.lifecycleOutboxSources = List.copyOf(lifecycleOutboxSources);
@@ -245,11 +273,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         MediaJobStore jobStore = null;
         MediaStreamSessionStore streamStore = null;
         MediaConsentAuthority consentAuthority = null;
+        MediaSourceAuthorizationContracts.Authority sourceAuthorizationAuthority = null;
+        MediaTranscriptStore transcriptStore = null;
         MediaSemanticRedactionRuntime semanticRedaction = null;
         MediaLifecyclePublisher lifecyclePublisher = null;
         List<MediaProcessingProvider> processing = new ArrayList<>();
         List<MediaStreamingProvider> streaming = new ArrayList<>();
         List<MediaConsentAuthority> consentAuthorities = new ArrayList<>();
+        List<MediaSourceAuthorizationContracts.Authority> sourceAuthorizationAuthorities = new ArrayList<>();
+        List<MediaTranscriptStore> transcriptStores = new ArrayList<>();
+        List<MediaLifecycleOutboxSource> lifecycleOutboxSources = new ArrayList<>();
         try {
             List<MediaArtifactStore> artifactStores = loadUnique(MediaArtifactStore.class, MediaArtifactStore::storeId);
             List<MediaJobStore> jobStores = loadUnique(MediaJobStore.class, MediaJobStore::storeId);
@@ -258,6 +291,13 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             for (MediaConsentAuthority authority : ServiceLoader.load(MediaConsentAuthority.class)) {
                 register(consentAuthorities, authority, MediaConsentAuthority::authorityId);
             }
+            sourceAuthorizationAuthorities.addAll(loadUnique(
+                    MediaSourceAuthorizationContracts.Authority.class,
+                    MediaSourceAuthorizationContracts.Authority::authorityId));
+            transcriptStores = loadUnique(MediaTranscriptStore.class,
+                    store -> store.getClass().getName());
+            lifecycleOutboxSources = loadUnique(MediaLifecycleOutboxSource.class,
+                    source -> source.getClass().getName());
             for (MediaProcessingProvider provider : ServiceLoader.load(MediaProcessingProvider.class)) {
                 register(processing, provider, MediaProcessingProvider::providerId);
             }
@@ -307,22 +347,35 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     canonicalOptional(environment.getOrDefault("MEDIA_CONSENT_AUTHORITY_ID", "")),
                     config.productionLike(),
                     externalProcessingReady);
+            sourceAuthorizationAuthority = selectOptionalSourceAuthorizationAuthority(
+                    sourceAuthorizationAuthorities,
+                    canonicalOptional(environment.getOrDefault("MEDIA_SOURCE_AUTHORIZATION_AUTHORITY_ID", "")));
+            transcriptStore = selectOptionalTranscriptStore(transcriptStores);
             semanticRedaction = MediaSemanticRedactionRuntime.compose(
                     environment, config.productionLike(), config.jobTimeout());
             lifecyclePublisher = MediaLifecyclePublisher.compose(environment, config.productionLike());
 
             MediaRuntime runtime = new MediaRuntime(
                     config, artifactStore, jobStore, streamStore, consentAuthority, semanticRedaction,
-                    lifecyclePublisher,
-                    processing, streaming);
+                    lifecyclePublisher, processing, streaming, lifecycleOutboxSources,
+                    sourceAuthorizationAuthority, transcriptStore, Clock.systemUTC());
             if (!runtime.ready()) throw new IllegalStateException("Media Runtime dependencies are not ready");
             return runtime;
         } catch (RuntimeException failure) {
             safeClose(lifecyclePublisher, failure);
             safeClose(semanticRedaction, failure);
+            safeClose(sourceAuthorizationAuthority, failure);
+            safeClose(transcriptStore, failure);
             streaming.forEach(provider -> safeClose(provider, failure));
             processing.forEach(provider -> safeClose(provider, failure));
             consentAuthorities.forEach(authority -> safeClose(authority, failure));
+            for (MediaSourceAuthorizationContracts.Authority authority : sourceAuthorizationAuthorities) {
+                if (authority != sourceAuthorizationAuthority) safeClose(authority, failure);
+            }
+            for (MediaTranscriptStore store : transcriptStores) {
+                if (store != transcriptStore) safeClose(store, failure);
+            }
+            lifecycleOutboxSources.forEach(source -> safeClose(source, failure));
             safeClose(streamStore, failure);
             safeClose(jobStore, failure);
             safeClose(artifactStore, failure);
@@ -603,9 +656,6 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     @Override
     public ProcessingJob submit(ProcessingJobRequest request) {
         ensureOpen();
-        if (request.jobType() == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
-            admitSpeechToTextOrThrow(request);
-        }
         ArtifactVersion requestedVersion = request.requestedArtifactVersion().orElse(null);
         MediaArtifact artifact = requestedVersion == null
                 ? artifactStore.artifact(request.tenantId(), request.artifactId())
@@ -617,9 +667,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         if (!artifact.principalId().equals(request.principalId())) {
             throw new SecurityException("Media artifact is not owned by the authenticated principal");
         }
-        requireWave2SourceRightsAdmission(request.jobType());
         List<MediaProcessingProvider> providers = selectProcessingProviders(request);
         MediaProcessingProvider provider = providers.getFirst();
+        MediaSourceAuthorizationContracts.Evidence sourceAuthorization = null;
+        if (request.jobType() == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
+            sourceAuthorization = admitSpeechToTextOrThrow(request, artifact, provider);
+            // The authorization evidence is bound to the exact provider/profile. STT must not
+            // silently fall back to a provider with a different model or processing boundary.
+            providers = List.of(provider);
+        }
+        requireWave2SourceRightsAdmission(request.jobType(), sourceAuthorization);
         if (MediaSemanticRedactionRuntime.promotionRequested(request) && !semanticRedaction.available()) {
             throw new IllegalStateException(
                     "DEIDENTIFIED promotion requires a ready Media semantic redaction provider");
@@ -638,7 +695,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     request.jobType(), provider.providerId(), JobStatus.ACCEPTED, Instant.now(), null, null,
                     Map.of(), "", 1, artifact.version().value(), requestFingerprint),
                     MediaSubmissionDigest.compute(request, artifact.version().value(), providers),
-                    com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.from(request));
+                    com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.from(
+                            request, sourceAuthorization));
         } finally {
             workflowMetrics.stopTimer(jobSample, MediaWorkflowMetrics.Stage.JOB);
         }
@@ -649,7 +707,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
         Cancellation cancellation = new Cancellation();
         CompletableFuture<?> future = startJob(
-                accepted, request, providers, cancellation);
+                accepted, request, providers, cancellation, sourceAuthorization);
         JobControl control = new JobControl(cancellation, future);
         activeJobs.put(jobId, control);
         future.whenComplete((result, failure) -> activeJobs.remove(jobId, control));
@@ -673,92 +731,72 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
      * Keeps STT outside the generic job lane until a real qualified profile, rights authority,
      * and immutable transcript-version store are composed. This gate runs before job creation.
      */
-    private void admitSpeechToTextOrThrow(ProcessingJobRequest request) {
+    private MediaSourceAuthorizationContracts.Evidence admitSpeechToTextOrThrow(
+            ProcessingJobRequest request,
+            MediaArtifact artifact,
+            MediaProcessingProvider provider) {
         MediaSpeechToTextAdmission.Request speechRequest = speechRequest(request);
-        if (speechRequest.expectedArtifactVersion().isBlank()) {
-            throw notAdmitted(MediaSpeechToTextAdmission.evaluate(
-                    speechRequest, null, null, false, false, false));
-        }
-
-        final MediaArtifact artifact;
+        MediaSpeechToTextAdmission.Profile profile = null;
         try {
-            artifact = artifactStore.artifact(
-                    request.tenantId(), request.artifactId(),
-                    new ArtifactVersion(speechRequest.expectedArtifactVersion())).orElse(null);
-        } catch (RuntimeException staleOrUnavailable) {
-            throw notAdmitted(MediaSpeechToTextAdmission.evaluate(
-                    speechRequest, null, null, false, false, false));
-        }
-        if (artifact == null) {
-            throw notAdmitted(MediaSpeechToTextAdmission.evaluate(
-                    speechRequest, null, null, false, false, false));
-        }
-        if (!artifact.principalId().equals(request.principalId())) {
-            throw notAdmitted(new MediaSpeechToTextAdmission.Decision(
-                    MediaSpeechToTextAdmission.Disposition.NOT_ADMITTED,
-                    List.of(MediaSpeechToTextAdmission.Reason.SOURCE_SCOPE_DENIED,
-                            MediaSpeechToTextAdmission.Reason.RIGHTS_AUTHORITY_UNAVAILABLE,
-                            MediaSpeechToTextAdmission.Reason.TRANSCRIPT_VERSION_STORE_NOT_ADMITTED)));
+            profile = provider.speechToTextProfile()
+                    .filter(candidate -> candidate.providerId().equals(provider.providerId()))
+                    .filter(candidate -> candidate.providerVersion().equals(provider.providerVersion()))
+                    .filter(candidate -> candidate.profileId().equals(speechRequest.profileId()))
+                    .orElse(null);
+        } catch (RuntimeException unavailable) {
+            // The evaluator reports an absent profile as a typed pre-job refusal.
         }
 
-        List<MediaProcessingProvider> candidates = processingProviders.stream()
-                .filter(provider -> usableProcessingProvider(provider, config.productionLike())
-                        && provider.capabilities().contains(
-                                com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT))
-                .filter(provider -> request.providerHint().isBlank()
-                        || provider.providerId().equalsIgnoreCase(request.providerHint()))
-                .toList();
-        MediaSpeechToTextAdmission.Profile profile = candidates.stream()
-                .map(provider -> {
-                    try {
-                        return provider.speechToTextProfile()
-                                .filter(candidate -> candidate.providerId().equals(provider.providerId()))
-                                .filter(candidate -> candidate.providerVersion().equals(provider.providerVersion()))
-                                .orElse(null);
-                    } catch (RuntimeException unavailable) {
-                        return null;
-                    }
-                })
-                .filter(java.util.Objects::nonNull)
-                .filter(candidate -> candidate.profileId().equals(speechRequest.profileId()))
-                .findFirst().orElse(null);
-
-        boolean consentVerified = false;
-        if (profile != null) {
-            MediaProcessingProvider selected = candidates.stream()
-                    .filter(provider -> provider.providerId().equals(profile.providerId()))
-                    .findFirst().orElse(null);
-            if (selected != null && selected.processingBoundary() == ProcessingBoundary.EXTERNAL) {
-                try {
-                    ConsentDecision decision = consentFor(
-                            request.tenantId(), request.principalId(), request.governanceContext(),
-                            "job:SPEECH_TO_TEXT", selected.processingBoundary(),
-                            selected.processingRegion(), selected.providerDataRetention());
-                    consentVerified = decision.verified();
-                } catch (RuntimeException denied) {
-                    consentVerified = false;
+        MediaSourceAuthorizationContracts.Request authorizationRequest = null;
+        MediaSourceAuthorizationContracts.Decision authorizationDecision = null;
+        if (artifact != null && speechRequest.expectedArtifactVersion().equals(artifact.version().value())) {
+            try {
+                authorizationRequest = sourceAuthorizationRequest(request, artifact, provider);
+                if (sourceAuthorizationAuthority != null && sourceAuthorizationAuthority.ready()) {
+                    authorizationDecision = sourceAuthorizationAuthority.resolve(authorizationRequest);
                 }
+            } catch (RuntimeException unavailable) {
+                authorizationDecision = new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.UNAVAILABLE, null);
             }
         }
 
+        ConsentDecision consent = consentForSourceAuthorization(
+                request, provider, authorizationDecision == null ? null : authorizationDecision.evidence());
+        boolean transcriptStoreReady = transcriptStore != null
+                && transcriptStore.ready()
+                && transcriptStore.productionEligible();
         MediaSpeechToTextAdmission.Decision decision = MediaSpeechToTextAdmission.evaluate(
                 speechRequest,
                 artifact,
                 profile,
-                consentVerified,
-                false, // no authoritative recording-rights adapter is composed in this runtime
-                hasExactSourceClockMetadata(artifact));
-        throw notAdmitted(decision);
+                consent,
+                authorizationRequest,
+                authorizationDecision,
+                hasExactSourceClockMetadata(artifact,
+                        authorizationDecision == null ? null : authorizationDecision.evidence()),
+                transcriptStoreReady,
+                clock);
+        if (decision.disposition() != MediaSpeechToTextAdmission.Disposition.ADMITTED) {
+            throw notAdmitted(decision);
+        }
+        MediaSourceAuthorizationContracts.Evidence evidence = authorizationDecision.evidence();
+        if (config.productionLike() && (sourceAuthorizationAuthority == null
+                || !sourceAuthorizationAuthority.productionEligible())) {
+            throw notAdmitted(new MediaSpeechToTextAdmission.Decision(
+                    MediaSpeechToTextAdmission.Disposition.NOT_ADMITTED,
+                    List.of(MediaSpeechToTextAdmission.Reason.RIGHTS_AUTHORITY_UNAVAILABLE)));
+        }
+        return evidence;
     }
 
-    /**
-     * Wave 2 source rights are separate from consent and require an artifact/version-bound
-     * authority. No such production resolver is installed in this composition, so do not create
-     * a job or invoke a provider for these modalities in production-like environments.
-     */
+    /** Source rights are separate from consent; only STT currently has an evidence-bearing path. */
     private void requireWave2SourceRightsAdmission(
-            com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType) {
+            com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType,
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
         if (!config.productionLike()) return;
+        if (jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
+                && sourceAuthorization != null) return;
         if (jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
                 || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.TEXT_TO_SPEECH
                 || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION
@@ -767,6 +805,156 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
                     "authoritative source rights resolver is unavailable");
         }
+    }
+
+    private MediaSourceAuthorizationContracts.Request sourceAuthorizationRequest(
+            ProcessingJobRequest request,
+            MediaArtifact artifact,
+            MediaProcessingProvider provider) {
+        return new MediaSourceAuthorizationContracts.Request(
+                request.tenantId(), request.principalId(), artifact.artifactId(), artifact.version(),
+                artifact.sha256(), "SPEECH_TO_TEXT", request.governanceContext().purpose(),
+                provider.providerId(), provider.providerVersion(), provider.processingBoundary(),
+                provider.processingRegion(), provider.providerDataRetention());
+    }
+
+    private ConsentDecision consentForSourceAuthorization(
+            ProcessingJobRequest request,
+            MediaProcessingProvider provider,
+            MediaSourceAuthorizationContracts.Evidence evidence) {
+        if (evidence == null) return ConsentDecision.unverified();
+        boolean humanConsentRequired = evidence.humanConsentDisposition()
+                == MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED;
+        boolean external = provider.processingBoundary() == ProcessingBoundary.EXTERNAL;
+        if (!humanConsentRequired && !external) return ConsentDecision.unverified();
+        if (consentAuthority == null || !consentAuthority.ready()) return ConsentDecision.unverified();
+        try {
+            ConsentDecision decision = consentAuthority.verify(
+                    request.tenantId(), request.principalId(), request.governanceContext(),
+                    "job:SPEECH_TO_TEXT");
+            Instant now = clock.instant();
+            if (decision == null || !decision.activeAt(now)
+                    || decision.verifiedAt().isAfter(now.plusSeconds(1))
+                    || decision.verifiedAt().plus(MAX_CONSENT_DECISION_AGE).isBefore(now)
+                    || (humanConsentRequired
+                            && !evidence.consentDecisionId().equals(decision.consentId()))
+                    || (external && !request.governanceContext().consentId().equals(decision.consentId()))) {
+                return ConsentDecision.unverified();
+            }
+            return decision;
+        } catch (RuntimeException unavailable) {
+            return ConsentDecision.unverified();
+        }
+    }
+
+    /** Re-reads the exact source and current source/policy decision at every STT effect boundary. */
+    private void requireCurrentSourceAuthorization(
+            ProcessingJobRequest request,
+            MediaArtifact artifact,
+            MediaProcessingProvider provider,
+            MediaSourceAuthorizationContracts.Evidence expectedEvidence) {
+        if (request.jobType()
+                != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) return;
+        if (expectedEvidence == null || sourceAuthorizationAuthority == null) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                    "source rights authority is unavailable at the provider effect boundary");
+        }
+        try {
+            if (!sourceAuthorizationAuthority.ready()
+                    || (config.productionLike() && !sourceAuthorizationAuthority.productionEligible())) {
+                throw new MediaCapabilityNotAdmittedException(
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                        "source rights authority is not currently eligible");
+            }
+            MediaArtifact current = artifactStore.artifact(
+                            request.tenantId(), request.artifactId(), artifact.version())
+                    .filter(value -> value.principalId().equals(request.principalId()))
+                    .filter(value -> value.sha256().equals(artifact.sha256()))
+                    .filter(value -> value.expiresAt().isAfter(clock.instant()))
+                    .orElseThrow(() -> new MediaCapabilityNotAdmittedException(
+                            MediaCapabilityNotAdmittedException.Reason.SOURCE_VERSION_STALE,
+                            "SPEECH_TO_TEXT"));
+            MediaSourceAuthorizationContracts.Request authorizationRequest =
+                    sourceAuthorizationRequest(request, current, provider);
+            if (!expectedEvidence.matches(authorizationRequest)
+                    || !expectedEvidence.currentAt(clock)) {
+                throw new MediaCapabilityNotAdmittedException(
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                        "source rights evidence is mismatched or expired");
+            }
+            MediaSourceAuthorizationContracts.Decision refreshed =
+                    sourceAuthorizationAuthority.revalidate(authorizationRequest, expectedEvidence);
+            if (refreshed == null
+                    || refreshed.status() != MediaSourceAuthorizationContracts.Status.ALLOWED
+                    || !sameAuthorityBinding(expectedEvidence, refreshed.evidence())
+                    || !refreshed.evidence().currentAt(clock)) {
+                throw new MediaCapabilityNotAdmittedException(
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                        "source rights or Shared policy changed, expired, or was revoked");
+            }
+            boolean consentRequired = expectedEvidence.humanConsentDisposition()
+                    == MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED
+                    || expectedEvidence.processingBoundary() == ProcessingBoundary.EXTERNAL;
+            if (consentRequired && !sourceConsentCurrent(
+                    consentForSourceAuthorization(request, provider, expectedEvidence), expectedEvidence)) {
+                throw new MediaCapabilityNotAdmittedException(
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                        "source-bound consent is missing, stale, or revoked");
+            }
+        } catch (MediaCapabilityNotAdmittedException denied) {
+            throw denied;
+        } catch (RuntimeException unavailable) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                    "source rights revalidation is unavailable");
+        }
+    }
+
+    private boolean sourceConsentCurrent(
+            ConsentDecision consent,
+            MediaSourceAuthorizationContracts.Evidence evidence) {
+        Instant now = clock.instant();
+        boolean humanConsentRequired = evidence.humanConsentDisposition()
+                == MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED;
+        boolean external = evidence.processingBoundary() == ProcessingBoundary.EXTERNAL;
+        return consent != null
+                && consent.activeAt(now)
+                && !consent.verifiedAt().isAfter(now.plusSeconds(1))
+                && !consent.verifiedAt().plus(MAX_CONSENT_DECISION_AGE).isBefore(now)
+                && (!humanConsentRequired || evidence.consentDecisionId().equals(consent.consentId()))
+                && consent.permitsPurpose(evidence.purpose())
+                && consent.permitsRegion(evidence.processingRegion())
+                && consent.permitsProviderRetention(evidence.providerRetention())
+                && (!external || consent.externalProcessingAllowed());
+    }
+
+    private static boolean sameAuthorityBinding(
+            MediaSourceAuthorizationContracts.Evidence expected,
+            MediaSourceAuthorizationContracts.Evidence refreshed) {
+        return refreshed != null
+                && expected.decisionId().equals(refreshed.decisionId())
+                && expected.tenantId().equals(refreshed.tenantId())
+                && expected.principalId().equals(refreshed.principalId())
+                && expected.sourceOwnerId().equals(refreshed.sourceOwnerId())
+                && expected.artifactId().equals(refreshed.artifactId())
+                && expected.sourceVersion().equals(refreshed.sourceVersion())
+                && expected.sourceSha256().equals(refreshed.sourceSha256())
+                && expected.operation().equals(refreshed.operation())
+                && expected.purpose().equals(refreshed.purpose())
+                && expected.providerId().equals(refreshed.providerId())
+                && expected.providerVersion().equals(refreshed.providerVersion())
+                && expected.processingBoundary() == refreshed.processingBoundary()
+                && expected.processingRegion().equals(refreshed.processingRegion())
+                && expected.providerRetention() == refreshed.providerRetention()
+                && expected.rightsDecisionId().equals(refreshed.rightsDecisionId())
+                && expected.policyDecisionId().equals(refreshed.policyDecisionId())
+                && expected.policyVersion().equals(refreshed.policyVersion())
+                && expected.sourceKind() == refreshed.sourceKind()
+                && expected.humanConsentDisposition() == refreshed.humanConsentDisposition()
+                && expected.consentDecisionId().equals(refreshed.consentDecisionId())
+                && expected.sourceClockEvidenceRef().equals(refreshed.sourceClockEvidenceRef())
+                && expected.revocationEpoch() == refreshed.revocationEpoch();
     }
 
     private static MediaSpeechToTextAdmission.Request speechRequest(ProcessingJobRequest request) {
@@ -795,7 +983,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 languageTag);
     }
 
-    private static boolean hasExactSourceClockMetadata(MediaArtifact artifact) {
+    private static boolean hasExactSourceClockMetadata(
+            MediaArtifact artifact, MediaSourceAuthorizationContracts.Evidence evidence) {
+        if (artifact == null || evidence == null || evidence.sourceClockEvidenceRef().isBlank()) return false;
         Map<String, Object> metadata = artifact.metadata();
         Object ticksPerSecond = metadata.get("sourceClockTicksPerSecond");
         Object durationTicks = metadata.get("sourceDurationTicks");
@@ -1705,6 +1895,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             failure = close(processingProviders.get(index), failure);
         }
         if (consentAuthority != null) failure = close(consentAuthority, failure);
+        if (sourceAuthorizationAuthority != null) failure = close(sourceAuthorizationAuthority, failure);
+        if (transcriptStore != null) failure = close(transcriptStore, failure);
         failure = close(streamStore, failure);
         failure = close(jobStore, failure);
         failure = close(artifactStore, failure);
@@ -1717,7 +1909,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ProcessingJob accepted,
             ProcessingJobRequest request,
             List<MediaProcessingProvider> providers,
-            Cancellation cancellation) {
+            Cancellation cancellation,
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
         ArtifactVersion expectedVersion;
         try {
             expectedVersion = new ArtifactVersion(accepted.expectedArtifactVersion());
@@ -1791,12 +1984,13 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         final java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> activeProvider =
                 new java.util.concurrent.atomic.AtomicReference<>();
         CompletableFuture<ProcessingOutcome> providerFuture = dispatchProcessing(
-                request, dispatchArtifact, providers, 0, attempt, cancellation, activeProvider);
+                request, dispatchArtifact, providers, 0, attempt, cancellation, activeProvider,
+                sourceAuthorization);
         CompletableFuture<ProcessingOutcome> terminalFuture = providerFuture.whenComplete((outcome, failure) -> {
             concurrency.release();
             releaseTenantPermit(accepted.tenantId(), tenantPermits);
             Throwable cause = failure == null ? null : unwrap(failure);
-            boolean policyDeniedBeforeDispatch = cause instanceof PreDispatchNoEffectException;
+            boolean preDispatchNoEffect = cause instanceof PreDispatchNoEffectException;
             boolean timedOut = isProviderTimeout(cause);
             if (timedOut) {
                 cancellation.cancel();
@@ -1838,21 +2032,30 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                 "cancellationOutcome", "UNCONFIRMED",
                                 "providerOutcome", "UNKNOWN"),
                         "PROCESSING_CANCELLED_UNCONFIRMED");
-            } else if (policyDeniedBeforeDispatch) {
+            } else if (preDispatchNoEffect) {
                 Map<String, Object> denial = new LinkedHashMap<>();
-                denial.put("policyOutcome", "DENIED");
                 denial.put("providerOutcome", "NO_EFFECT_PROVEN");
                 Throwable denialCause = cause.getCause();
+                boolean policyDenied = false;
                 if (denialCause instanceof MediaAuthorizationDeniedException denied) {
+                    denial.put("authorizationOutcome", "DENIED");
                     denial.put("authorizationDenialReason", denied.reasonCode());
                 } else if (denialCause instanceof MediaCapabilityNotAdmittedException denied) {
-                    denial.put("authorizationDenialReason", denied.reason().name());
+                    if (denied.reason() == MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED) {
+                        denial.put("policyOutcome", "DENIED");
+                        policyDenied = true;
+                    } else {
+                        denial.put("capabilityOutcome", "NOT_ADMITTED");
+                    }
+                    denial.put("capabilityReason", denied.reason().name());
                 }
                 workflowMetrics.record(MediaWorkflowMetrics.Event.DENIED);
                 terminal = transition(value, JobStatus.FAILED,
                         denial,
-                        denialCause instanceof MediaCapabilityNotAdmittedException
-                                ? "MEDIA_POLICY_DENIED" : "PROCESSING_BLOCKED_BEFORE_PROVIDER");
+                        policyDenied ? "MEDIA_POLICY_DENIED"
+                                : denialCause instanceof MediaCapabilityNotAdmittedException
+                                        ? "MEDIA_CAPABILITY_NOT_ADMITTED"
+                                        : "PROCESSING_BLOCKED_BEFORE_PROVIDER");
             } else if (cause != null) {
                 // The provider call was dispatched. Network errors, malformed replies and local
                 // cancellation cannot establish that the remote side had no effect.
@@ -1907,7 +2110,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
             try {
                 ProviderSubmission submission = outcome == null ? null : outcome.submission();
-                if (attempt != null && policyDeniedBeforeDispatch) {
+                if (attempt != null && preDispatchNoEffect) {
                     terminal = jobStore.markPreDispatchNoEffect(value, attempt, terminal,
                             lifecycleEvent(value, terminal, request, dispatchArtifact));
                 } else if (attempt != null && submission != null
@@ -1970,7 +2173,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             int index,
             ProcessingAttempt attempt,
             Cancellation cancellation,
-            java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> active) {
+            java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> active,
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
         MediaProcessingProvider provider = providers.get(index);
         final ConsentDecision consent;
         final CompletableFuture<Map<String, Object>> raw;
@@ -1978,6 +2182,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         final java.util.concurrent.atomic.AtomicReference<ProviderSubmission> submission =
                 new java.util.concurrent.atomic.AtomicReference<>();
         try {
+            requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization);
             consent = consentFor(
                     request.tenantId(), request.principalId(), request.governanceContext(),
                     "job:" + request.jobType().name(), provider.processingBoundary(),
@@ -1988,11 +2193,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         artifact.classification(), requestsBiometricProcessing(request.parameters()));
             }
             MediaArtifactContentReader sourceContentReader = (target, maxBytes) -> {
-                // Source ownership, exact-version and checksum are enforced by the store below.
-                // Production source rights require a separate authoritative Media rights resolver,
-                // which is not installed in this composition. Keep source bytes unavailable until
-                // that X07 authority exists; test/development fixture execution remains available.
-                if (config.productionLike()) {
+                if (request.jobType()
+                        == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
+                    requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization);
+                } else if (config.productionLike()) {
                     throw new MediaCapabilityNotAdmittedException(
                             MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SOURCE_ARTIFACT",
                             "authoritative source rights resolver is unavailable");
@@ -2025,7 +2229,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                 "SOURCE_ARTIFACT"));
             };
             ProcessingContext context = new ProcessingContext(
-                    request, artifact, cancellation, consent, sourceContentReader);
+                    request, artifact, cancellation, consent, sourceContentReader, sourceAuthorization);
+            // Rights, Shared policy, source digest, and provider binding are refreshed at the
+            // effect boundary. The source reader repeats this check before each content copy.
+            requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization);
             providerHandoffStarted = true;
             if (attempt == null) {
                 raw = java.util.Objects.requireNonNull(provider.process(context),
@@ -2045,7 +2252,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 });
             }
         } catch (RuntimeException failure) {
-            if (!providerHandoffStarted && isPolicyDenial(failure)) {
+            if (!providerHandoffStarted && isPreDispatchNoEffect(failure)) {
                 return CompletableFuture.failedFuture(new PreDispatchNoEffectException(failure));
             }
             if (providerHandoffStarted && provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
@@ -2053,7 +2260,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
             if (failure instanceof SecurityException) return CompletableFuture.failedFuture(failure);
             return fallbackOrFail(
-                    request, artifact, providers, index, attempt, cancellation, active, provider, failure);
+                    request, artifact, providers, index, attempt, cancellation, active, provider, failure,
+                    sourceAuthorization);
         }
         active.set(raw);
         io.micrometer.core.instrument.Timer.Sample providerSample = workflowMetrics.startTimer();
@@ -2073,7 +2281,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
                 cause = new ProviderHandoffFailure(cause);
             }
-            fallbackOrFail(request, artifact, providers, index, attempt, cancellation, active, provider, cause)
+            fallbackOrFail(request, artifact, providers, index, attempt, cancellation, active, provider, cause,
+                    sourceAuthorization)
                     .whenComplete((next, nextFailure) -> {
                         if (nextFailure == null) result.complete(next);
                         else result.completeExceptionally(unwrap(nextFailure));
@@ -2097,7 +2306,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             Cancellation cancellation,
             java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> active,
             MediaProcessingProvider failedProvider,
-            Throwable failure) {
+            Throwable failure,
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
         if (attempt == null
                 && !(unwrap(failure) instanceof ProviderHandoffFailure)
                 && !(unwrap(failure) instanceof PreDispatchNoEffectException)
@@ -2111,7 +2321,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     request.tenantId(), request.requestId(), failedProvider.providerId(),
                     fallback.providerId(), failure.getClass().getSimpleName());
             return dispatchProcessing(
-                    request, artifact, providers, index + 1, null, cancellation, active);
+                    request, artifact, providers, index + 1, null, cancellation, active,
+                    sourceAuthorization);
         }
         return CompletableFuture.failedFuture(failure);
     }
@@ -2351,11 +2562,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ConsentDecision decision = java.util.Objects.requireNonNull(
                     consentAuthority.verify(tenantId, principalId, governance, operation),
                     "Media consent authority returned null decision");
-            if (!decision.activeAt(Instant.now())) {
+            if (!decision.activeAt(clock.instant())) {
                 throw denied("CONSENT_UNVERIFIED_OR_EXPIRED",
                         "Media consent is not active for external processing");
             }
-            Instant now = Instant.now();
+            Instant now = clock.instant();
             if (decision.verifiedAt().isAfter(now.plusSeconds(1))
                     || decision.verifiedAt().plus(MAX_CONSENT_DECISION_AGE).isBefore(now)) {
                 throw denied("CONSENT_STALE", "Media consent decision is stale for external processing");
@@ -2488,10 +2699,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
     }
 
-    private static boolean isPolicyDenial(Throwable failure) {
+    private static boolean isPreDispatchNoEffect(Throwable failure) {
         return failure instanceof MediaAuthorizationDeniedException
-                || failure instanceof MediaCapabilityNotAdmittedException denied
-                && denied.reason() == MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED;
+                || failure instanceof MediaCapabilityNotAdmittedException;
     }
 
     private static boolean isProviderTimeout(Throwable failure) {
@@ -2699,6 +2909,40 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             throw new IllegalStateException("Media consent authority is not production eligible");
         }
         return selected;
+    }
+
+    private static MediaSourceAuthorizationContracts.Authority selectOptionalSourceAuthorizationAuthority(
+            List<MediaSourceAuthorizationContracts.Authority> authorities,
+            String configuredId) {
+        List<MediaSourceAuthorizationContracts.Authority> ready = authorities.stream()
+                .filter(authority -> {
+                    try { return authority.ready(); }
+                    catch (RuntimeException unavailable) { return false; }
+                })
+                .sorted(Comparator.comparing(authority -> canonical(authority.authorityId())))
+                .toList();
+        if (!configuredId.isBlank()) {
+            ready = ready.stream()
+                    .filter(authority -> canonical(authority.authorityId()).equals(configuredId))
+                    .toList();
+        }
+        if (ready.isEmpty()) return null;
+        if (ready.size() != 1) {
+            throw new IllegalStateException(
+                    "Expected at most one ready Media source authorization authority, found " + ready.size());
+        }
+        // Production qualification is checked at operation admission, so an unavailable STT
+        // authority does not prevent unrelated Media surfaces from starting.
+        return ready.getFirst();
+    }
+
+    private static MediaTranscriptStore selectOptionalTranscriptStore(List<MediaTranscriptStore> stores) {
+        if (stores.isEmpty()) return null;
+        if (stores.size() != 1) {
+            throw new IllegalStateException(
+                    "Expected at most one canonical Media transcript store, found " + stores.size());
+        }
+        return stores.getFirst();
     }
 
     private static <T> T selectStore(

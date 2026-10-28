@@ -416,6 +416,21 @@ class PersistentTtsGrpcServiceTest {
         verifyNoInteractions(library, engine, audioFileService);
     }
 
+    @Test
+    @DisplayName("persistent synthesis reports the exact unsupported SSML control before persistence")
+    void persistentSynthesisReportsExactUnsupportedPronunciationControl() {
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+        String markup = "<speak><phoneme alphabet=\"ipa\" ph=\"həˈloʊ\">hello</phoneme></speak>";
+
+        withContext(TENANT_ID, USER_ID, () -> synthesisService.synthesize(
+                SynthesizeRequest.newBuilder().setText(markup).build(), observer));
+
+        assertThat(statusCode(observer)).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(description(observer)).isEqualTo(
+                "TTS_NOT_ADMITTED: control pronunciation has no qualified effect or mapping for the admitted provider");
+        verifyNoInteractions(persistentTtsService);
+    }
+
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private static Status.Code statusCode(CapturingObserver<?> observer) {

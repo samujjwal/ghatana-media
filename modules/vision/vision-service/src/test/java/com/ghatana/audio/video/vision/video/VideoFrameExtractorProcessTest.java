@@ -665,8 +665,10 @@ class VideoFrameExtractorProcessTest {
         List<String> command = new VideoFrameExtractor().buildFFmpegCommand(
                 tempDir.resolve("safe.mp4"), tempDir.resolve("frames"), config);
         assertThat(command).containsSubsequence("-protocol_whitelist", "file", "-max_alloc", "268435456",
-                "-max_pixels", "16000000", "-f", "mov", "-i", tempDir.resolve("safe.mp4").toString());
+                "-max_pixels", "16000000", "-threads", "2", "-filter_threads", "1",
+                "-f", "mov", "-i", tempDir.resolve("safe.mp4").toString());
         assertThat(command).containsSubsequence("-copyts", "-i", tempDir.resolve("safe.mp4").toString(),
+                "-threads", "2",
                 "-vf", "select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/1)',showinfo,scale=640:480",
                 "-fps_mode", "passthrough", "-enc_time_base", "demux");
         assertThat(command).noneMatch(value -> value.startsWith("fps="));
@@ -891,6 +893,15 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void outputEntryBudgetStopsInodeExpansionAndReportsOverflow() throws Exception {
+        Path output = Files.createDirectory(tempDir.resolve("bounded-entry-output"));
+        var result = VideoFrameExtractor.runProcess(childCommand("write-many", output.toString()),
+                Duration.ofSeconds(10), 128, output, 1024 * 1024);
+        assertThat(result.outputExceeded()).isTrue();
+        assertThat(result.timedOut()).isFalse();
+    }
+
+    @Test
     void publishesValidatedStagedFramesAndRemovesPrivateStagingDirectory() throws Exception {
         Path staging = Files.createDirectory(tempDir.resolve("private-ffmpeg-stage"));
         Path stagedFrame = Files.write(staging.resolve("frame_0001.jpg"), new byte[] {1, 2, 3});
@@ -1068,6 +1079,9 @@ class VideoFrameExtractorProcessTest {
             }
         } else if ("write-once".equals(args[0])) {
             Files.write(Path.of(args[1]).resolve("frame_0000.jpg"), new byte[2048]);
+        } else if ("write-many".equals(args[0])) {
+            Path output = Path.of(args[1]);
+            for (int i = 0; i < 5000; i++) Files.createFile(output.resolve("frame_" + i + ".jpg"));
         } else {
             throw new IllegalArgumentException("unknown child mode");
         }

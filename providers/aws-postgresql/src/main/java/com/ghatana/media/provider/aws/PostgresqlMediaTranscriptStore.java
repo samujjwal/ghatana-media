@@ -9,6 +9,8 @@ import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptAttemptBindi
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDerivedCapability;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptCapabilityResult;
 import com.ghatana.media.runtime.MediaTranscriptContracts;
+import com.ghatana.media.runtime.MediaRuntimeContracts;
+import com.ghatana.media.runtime.MediaLifecycleEvent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -167,6 +169,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                     insertBinding.setString(11, draft.sourceVersion()); insertBinding.setString(12, transcriptVersionRef);
                     insertBinding.setString(13, binding.resultDigest()); insertBinding.executeUpdate();
                 }
+                insertRevisionOutbox(connection, draft, revision, now);
                 connection.commit();
                 return new TranscriptRevision(draft, revision, now, "CANDIDATE");
             } catch (RuntimeException | SQLException failure) {
@@ -312,6 +315,15 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                         || "NOT_REQUESTED".equals(disposition) && requestedGlossary != null) {
                     throw new IllegalStateException("Transcript glossary observation does not match the retained request snapshot");
                 }
+                if (MediaRuntimeContracts.SttSubmissionSnapshot.AUTHORIZED_VERSION.equals(
+                        text(snapshot, "version"))
+                        && (!draft.rightsDecisionId().equals(text(snapshot, "rightsDecisionId"))
+                        || !draft.policyVersion().equals(text(snapshot, "policyVersion"))
+                        || !draft.consentDecisionId().equals(text(snapshot, "consentDecisionId"))
+                        || blank(text(snapshot, "policyDecisionId")))) {
+                    throw new IllegalStateException(
+                            "Transcript authority references do not match the immutable job authorization snapshot");
+                }
                 return new AttemptBinding(draft.jobId(), attemptNumber, fencingToken, provider, operation, receipt,
                         requestFingerprint, draft.sourceVersion(), transcriptVersionRef, resultDigest);
             } catch (tools.jackson.core.JacksonException malformed) {
@@ -337,6 +349,59 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                         row.getString("request_fingerprint"), row.getString("source_artifact_version_ref"),
                         row.getString("transcript_version_ref"), row.getString("result_digest"));
             }
+        }
+    }
+
+    /** Content-free transcript revision event is committed atomically with its candidate revision. */
+    private void insertRevisionOutbox(Connection connection, TranscriptDraft draft, int revision, long now)
+            throws SQLException {
+        String identity = draft.tenantId() + "\u0000" + draft.transcriptId() + "\u0000" + revision;
+        String eventId = "media:transcript-revision:" + sha256(identity);
+        MediaLifecycleEvent event = new MediaLifecycleEvent(
+                eventId,
+                "media.transcript.revision.created",
+                draft.tenantId(),
+                draft.principalId(),
+                draft.jobId(),
+                draft.jobId(),
+                "transcript",
+                draft.transcriptId(),
+                revision,
+                "RESTRICTED",
+                java.time.Instant.ofEpochMilli(now),
+                java.util.Map.of(
+                        "transcriptId", draft.transcriptId(),
+                        "revision", revision,
+                        "sourceArtifactId", draft.sourceArtifactId(),
+                        "sourceArtifactVersion", draft.sourceVersion(),
+                        "providerId", draft.providerId(),
+                        "modelId", draft.modelId(),
+                        "language", draft.language(),
+                        "rightsDecisionId", draft.rightsDecisionId(),
+                        "policyVersion", draft.policyVersion(),
+                        "processingPurpose", draft.processingPurpose()));
+        final String payload;
+        try {
+            payload = state.mapper().writeValueAsString(event);
+        } catch (Exception failure) {
+            throw new IllegalArgumentException("Transcript lifecycle event is not serializable", failure);
+        }
+        try (PreparedStatement insert = connection.prepareStatement("""
+                INSERT INTO media_processing_lifecycle_outbox
+                  (event_id,tenant_id,aggregate_type,aggregate_id,aggregate_version,event_type,
+                   payload_json,classification,created_at,published_at,attempts,last_error)
+                VALUES (?,?,?,?,?,?,?,?,?,NULL,0,NULL)
+                """)) {
+            insert.setString(1, event.eventId());
+            insert.setString(2, event.tenantId());
+            insert.setString(3, event.aggregateType());
+            insert.setString(4, event.aggregateId());
+            insert.setLong(5, event.aggregateVersion());
+            insert.setString(6, event.eventType());
+            insert.setString(7, payload);
+            insert.setString(8, event.classification());
+            insert.setLong(9, now);
+            insert.executeUpdate();
         }
     }
 
@@ -413,15 +478,29 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         return value != null && !value.isBlank() && value.codePointCount(0, value.length()) <= 384;
     }
     private static boolean validSttSnapshot(JsonNode snapshot) {
-        if (snapshot == null || !snapshot.isObject()
-                || hasExtraProperties(snapshot, java.util.Set.of(
-                        "version", "customGlossaryRef", "fillerRetakeCandidates"))
-                || !"media.stt-request-snapshot.v1".equals(text(snapshot, "version"))) return false;
+        if (snapshot == null || !snapshot.isObject()) return false;
+        String version = text(snapshot, "version");
+        boolean authorized = MediaRuntimeContracts.SttSubmissionSnapshot.AUTHORIZED_VERSION.equals(version);
+        java.util.Set<String> fields = authorized
+                ? java.util.Set.of("version", "customGlossaryRef", "fillerRetakeCandidates",
+                        "rightsDecisionId", "policyDecisionId", "policyVersion", "consentDecisionId",
+                        "sourceClockEvidenceRef", "revocationEpoch")
+                : java.util.Set.of("version", "customGlossaryRef", "fillerRetakeCandidates");
+        if (hasExtraProperties(snapshot, fields)
+                || !MediaRuntimeContracts.SttSubmissionSnapshot.VERSION.equals(version) && !authorized) return false;
         JsonNode glossary = snapshot.get("customGlossaryRef");
         JsonNode filler = snapshot.get("fillerRetakeCandidates");
-        return glossary != null && (glossary.isNull()
+        boolean baseValid = glossary != null && (glossary.isNull()
                 || glossary.isString() && validOpaqueRef(glossary.stringValue()))
                 && filler != null && (filler.isNull() || filler.isBoolean());
+        if (!baseValid || !authorized) return baseValid;
+        JsonNode epoch = snapshot.get("revocationEpoch");
+        return validOpaqueRef(text(snapshot, "rightsDecisionId"))
+                && validOpaqueRef(text(snapshot, "policyDecisionId"))
+                && validOpaqueRef(text(snapshot, "policyVersion"))
+                && validOpaqueRef(text(snapshot, "consentDecisionId"))
+                && validOpaqueRef(text(snapshot, "sourceClockEvidenceRef"))
+                && epoch != null && epoch.isIntegralNumber() && epoch.longValue() >= 0;
     }
     private static boolean hasExtraProperties(JsonNode node, java.util.Set<String> allowed) {
         java.util.Iterator<String> fields = node.properties().stream().map(java.util.Map.Entry::getKey).iterator();
@@ -434,7 +513,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         catch (java.security.NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
     }
 
-    private static void validateSourceJobConsent(Connection connection, TranscriptDraft draft) throws SQLException {
+    private void validateSourceJobConsent(Connection connection, TranscriptDraft draft) throws SQLException {
         try (PreparedStatement source = connection.prepareStatement("""
                 SELECT 1 FROM media_artifacts
                  WHERE tenant_id=? AND artifact_id=? AND principal_id=? AND sha256=?
@@ -447,8 +526,9 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 if (!result.next()) throw new IllegalStateException("Transcript source is missing, stale, or not admitted");
             }
         }
+        String sttSnapshot;
         try (PreparedStatement job = connection.prepareStatement("""
-                SELECT 1 FROM media_processing_jobs
+                SELECT stt_request_snapshot FROM media_processing_jobs
                  WHERE tenant_id=? AND job_id=? AND principal_id=? AND artifact_id=?
                    AND expected_artifact_version=? AND provider_id=? AND status='COMPLETED' FOR UPDATE
                 """)) {
@@ -457,7 +537,26 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             job.setString(5, draft.sourceVersion()); job.setString(6, draft.providerId());
             try (ResultSet result = job.executeQuery()) {
                 if (!result.next()) throw new IllegalStateException("Transcript job does not match tenant, principal, source, version, provider, or completion state");
+                sttSnapshot = result.getString("stt_request_snapshot");
             }
+        }
+        if ("NOT_APPLICABLE_HUMAN_CONSENT".equals(draft.consentDecisionId())) {
+            try {
+                JsonNode snapshot = sttSnapshot == null ? null : state.mapper().readTree(sttSnapshot);
+                if (!validSttSnapshot(snapshot)
+                        || !MediaRuntimeContracts.SttSubmissionSnapshot.AUTHORIZED_VERSION.equals(
+                                text(snapshot, "version"))
+                        || !draft.rightsDecisionId().equals(text(snapshot, "rightsDecisionId"))
+                        || !draft.policyVersion().equals(text(snapshot, "policyVersion"))
+                        || !draft.consentDecisionId().equals(text(snapshot, "consentDecisionId"))
+                        || blank(text(snapshot, "policyDecisionId"))) {
+                    throw new IllegalStateException(
+                            "Nonhuman consent disposition is not bound to an authorized STT job snapshot");
+                }
+            } catch (tools.jackson.core.JacksonException malformed) {
+                throw new IllegalStateException("STT job authorization snapshot is malformed", malformed);
+            }
+            return;
         }
         try (PreparedStatement consent = connection.prepareStatement("""
                 SELECT purposes_csv,revoked_at,expires_at FROM media_consents
@@ -595,6 +694,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
     private void ensureOpen() {
         if (closed.get()) throw new IllegalStateException("Transcript store is closed");
     }
+    @Override public boolean ready() { return !closed.get() && state.ready(); }
     @Override public boolean productionEligible() { return false; }
     @Override public void close() { if (closed.compareAndSet(false, true)) state.release(); }
 }

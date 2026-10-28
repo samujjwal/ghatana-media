@@ -53,7 +53,10 @@ final class YoloXNanoOutputParser {
                         }
                     }
                     double confidence = objectness * bestClassScore;
-                    if (confidence < confidenceThreshold) continue;
+                    // A zero score is never a positive model prediction, including when callers
+                    // deliberately select the lowest legal threshold (0.0). Skipping it also
+                    // keeps an all-zero tensor from expanding into thousands of empty boxes.
+                    if (confidence <= 0.0 || confidence < confidenceThreshold) continue;
 
                     double centerX = (rawX + gx) * stride;
                     double centerY = (rawY + gy) * stride;

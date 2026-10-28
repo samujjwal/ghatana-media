@@ -63,6 +63,11 @@ class YoloXNanoOutputParserTest {
         assertThat(YoloXNanoOutputParser.ATTRIBUTES).isEqualTo(85);
     }
 
+    @Test
+    void zeroConfidenceRowsAreNotDetectionsAtZeroThreshold() {
+        assertThat(YoloXNanoOutputParser.decode(1, 3549, 85, emptyOutput(), 0.0)).isEmpty();
+    }
+
     private static float[] emptyOutput() {
         return new float[YoloXNanoOutputParser.PREDICTION_COUNT * YoloXNanoOutputParser.ATTRIBUTES];
     }

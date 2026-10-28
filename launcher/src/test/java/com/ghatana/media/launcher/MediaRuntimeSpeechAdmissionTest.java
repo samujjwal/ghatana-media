@@ -10,8 +10,14 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
+import com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
+import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission.Decision;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission.LanguageMode;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission.Profile;
@@ -21,10 +27,12 @@ import com.ghatana.media.runtime.MediaSpeechToTextAdmission.TimingDisposition;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.Clock;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
@@ -92,9 +100,9 @@ class MediaRuntimeSpeechAdmissionTest {
                     Map.of("languageIntent", Map.of("mode", "EXPLICIT", "languageTag", "en-US")));
 
             assertThatThrownBy(() -> runtime.submit(request))
-                    .isInstanceOf(MediaSpeechToTextAdmission.NotAdmittedException.class)
-                    .satisfies(failure -> assertThat(((MediaSpeechToTextAdmission.NotAdmittedException) failure)
-                            .decision().reasons()).contains(Reason.SOURCE_VERSION_STALE_OR_NOT_FOUND));
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.SOURCE_VERSION_STALE));
             assertNoJobOrProviderEffect(jobStore, providerCalls);
         } finally {
             runtime.close();
@@ -159,6 +167,82 @@ class MediaRuntimeSpeechAdmissionTest {
     }
 
     @Test
+    void deniedSourceRightsProduceNoJobOrProviderEffect() throws Exception {
+        var root = Files.createTempDirectory("media-stt-admission-rights-denied-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        AtomicInteger providerCalls = new AtomicInteger();
+        AtomicInteger revalidations = new AtomicInteger();
+        Profile qualified = qualifiedProfile("profile-a");
+        MediaProcessingProvider provider = admittedProvider(providerCalls, qualified);
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(provider), authority(false, true, revalidations),
+                transcriptStore());
+        try {
+            var source = artifact(runtime, sourceClockMetadata());
+            ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
+                    speechParameters("profile-a", "en-US"), governance());
+            assertThatThrownBy(() -> runtime.submit(request))
+                    .isInstanceOf(MediaSpeechToTextAdmission.NotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaSpeechToTextAdmission.NotAdmittedException) failure)
+                            .decision().reasons()).contains(Reason.RIGHTS_DECISION_DENIED));
+            assertNoJobOrProviderEffect(jobStore, providerCalls);
+            assertThat(revalidations).hasValue(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void sourceAuthorizationIsRevalidatedBeforeProviderAndBoundedSourceRead() throws Exception {
+        var root = Files.createTempDirectory("media-stt-admission-authorized-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        AtomicInteger providerCalls = new AtomicInteger();
+        AtomicInteger revalidations = new AtomicInteger();
+        Profile qualified = qualifiedProfile("profile-a");
+        MediaProcessingProvider provider = admittedProvider(providerCalls, qualified);
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(provider), authority(true, true, revalidations),
+                transcriptStore());
+        try {
+            var source = artifact(runtime, sourceClockMetadata());
+            ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
+                    speechParameters("profile-a", "en-US"), governance());
+            var accepted = runtime.submit(request);
+            assertThat(accepted.status()).isEqualTo(JobStatus.ACCEPTED);
+            var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
+            assertThat(terminal.status()).isEqualTo(JobStatus.FAILED);
+            assertThat(terminal.failureCode()).isEqualTo("MEDIA_CAPABILITY_NOT_ADMITTED");
+            assertThat(providerCalls).hasValue(0);
+            assertThat(revalidations.get()).isGreaterThanOrEqualTo(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void authorizedFixtureCanReachProviderOnlyAfterExactSourceAndPolicyChecks() throws Exception {
+        var root = Files.createTempDirectory("media-stt-admission-authorized-fixture-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        AtomicInteger providerCalls = new AtomicInteger();
+        AtomicInteger revalidations = new AtomicInteger();
+        Profile qualified = qualifiedProfile("profile-a");
+        MediaProcessingProvider provider = admittedProvider(providerCalls, qualified);
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(provider), authority(true, false, revalidations),
+                transcriptStore());
+        try {
+            var source = artifact(runtime, sourceClockMetadata());
+            ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
+                    speechParameters("profile-a", "en-US"), governance());
+            var accepted = runtime.submit(request);
+            var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
+            assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
+            assertThat(terminal.result()).containsEntry("text", "test transcript");
+            assertThat(providerCalls).hasValue(1);
+            assertThat(revalidations.get()).isGreaterThanOrEqualTo(3);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void speechAdmissionReportsImplicitUnsupportedAndUnqualifiedTimeInputs() throws Exception {
         var root = Files.createTempDirectory("media-stt-admission-contract-");
         var runtime = runtime(root, new LocalMediaRuntimeSupport.JobStore(), List.of(), null);
@@ -202,6 +286,131 @@ class MediaRuntimeSpeechAdmissionTest {
                 authority,
                 providers,
                 List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+    }
+
+    private static MediaRuntime runtimeWithAuthority(
+            java.nio.file.Path root,
+            LocalMediaRuntimeSupport.JobStore jobStore,
+            List<MediaProcessingProvider> providers,
+            MediaSourceAuthorizationContracts.Authority authority,
+            MediaTranscriptStore transcriptStore) {
+        return new MediaRuntime(
+                new MediaRuntimeConfig(
+                        true, "local", 8093, 1_024, 64, 1_024, Duration.ofSeconds(2), 1,
+                        "", "", false, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                jobStore,
+                new LocalMediaRuntimeSupport.StreamStore(),
+                null,
+                com.ghatana.media.launcher.MediaSemanticRedactionRuntime.disabled(Duration.ofSeconds(2)),
+                MediaLifecyclePublisher.disabled(),
+                providers,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()),
+                List.of(), authority, transcriptStore, Clock.systemUTC());
+    }
+
+    private static MediaSourceAuthorizationContracts.Authority authority(
+            boolean allowResolve,
+            boolean revokeOnRevalidate,
+            AtomicInteger revalidations) {
+        return new MediaSourceAuthorizationContracts.Authority() {
+            @Override public String authorityId() { return "fixture-source-policy-authority"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public MediaSourceAuthorizationContracts.Decision resolve(
+                    MediaSourceAuthorizationContracts.Request request) {
+                if (!allowResolve) return new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.DENIED, null);
+                return new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.ALLOWED, evidence(request));
+            }
+            @Override public MediaSourceAuthorizationContracts.Decision revalidate(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.Evidence expectedEvidence) {
+                revalidations.incrementAndGet();
+                if (!revokeOnRevalidate) {
+                    return new MediaSourceAuthorizationContracts.Decision(
+                            MediaSourceAuthorizationContracts.Status.ALLOWED, expectedEvidence);
+                }
+                return new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.REVOKED, null);
+            }
+        };
+    }
+
+    private static MediaSourceAuthorizationContracts.Evidence evidence(
+            MediaSourceAuthorizationContracts.Request request) {
+        Instant now = Instant.now();
+        return new MediaSourceAuthorizationContracts.Evidence(
+                "fixture-source-policy-authority", "decision-" + request.artifactId(),
+                request.tenantId(), request.principalId(), "fixture-source-owner", request.artifactId(),
+                request.sourceVersion(), request.sourceSha256(), request.operation(), request.purpose(),
+                request.providerId(), request.providerVersion(), request.processingBoundary(),
+                request.processingRegion(), request.providerRetention(), Set.of("speech_to_text"),
+                Set.of(request.processingRegion()), Set.of(request.providerRetention()),
+                "rights-" + request.artifactId(), "policy-" + request.artifactId(), "policy-v1",
+                MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
+                "", "fixture-source-clock-evidence", 0, now.minusSeconds(1), now.plusSeconds(60));
+    }
+
+    private static MediaTranscriptStore transcriptStore() {
+        return new MediaTranscriptStore() {
+            @Override public TranscriptRevision append(TranscriptDraft draft) {
+                throw new UnsupportedOperationException("test store does not write transcripts");
+            }
+            @Override public List<TranscriptRevision> revisions(String tenantId, String transcriptId) {
+                return List.of();
+            }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return true; }
+            @Override public void close() { }
+        };
+    }
+
+    private static MediaProcessingProvider admittedProvider(
+            AtomicInteger providerCalls, Profile profile) {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return profile.providerId(); }
+            @Override public String providerVersion() { return profile.providerVersion(); }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.SPEECH_TO_TEXT); }
+            @Override public java.util.Optional<Profile> speechToTextProfile() {
+                return java.util.Optional.of(profile);
+            }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "us"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                providerCalls.incrementAndGet();
+                try {
+                    ByteArrayOutputStream copied = new ByteArrayOutputStream();
+                    context.copySourceContentTo(copied, 1_024);
+                    if (copied.size() == 0 || context.sourceAuthorization() == null) {
+                        return CompletableFuture.failedFuture(new AssertionError("admitted STT context is incomplete"));
+                    }
+                    return CompletableFuture.completedFuture(Map.of("text", "test transcript"));
+                } catch (Exception failure) {
+                    return CompletableFuture.failedFuture(failure);
+                }
+            }
+        };
+    }
+
+    private static Profile qualifiedProfile(String profileId) {
+        return new Profile("test-authorized-provider", "test-authorized-v1", profileId, "v1",
+                "sha256:" + "a".repeat(64), ProfileQualification.QUALIFIED,
+                Set.of("en-US"), false, TimingDisposition.SOURCE_CLOCK_BOUND,
+                "fixture-qualification-evidence");
+    }
+
+    private static Map<String, Object> sourceClockMetadata() {
+        return Map.of("sourceClockId", "fixture-clock",
+                "sourceClockMappingEvidenceRef", "fixture-clock-evidence",
+                "sourceClockTicksPerSecond", 1,
+                "sourceDurationTicks", 1);
     }
 
     private static MediaProcessingProvider candidate(
@@ -264,11 +473,16 @@ class MediaRuntimeSpeechAdmissionTest {
 
     private static com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact artifact(
             MediaRuntime runtime) throws Exception {
+        return artifact(runtime, Map.of());
+    }
+
+    private static com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact artifact(
+            MediaRuntime runtime, Map<String, Object> metadata) throws Exception {
         byte[] bytes = "stt-admission-source".getBytes(StandardCharsets.UTF_8);
         var upload = runtime.beginUpload(new com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest(
                 "tenant-a", "principal-a", "source.wav", "audio/wav", bytes.length,
                 HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),
-                "CONFIDENTIAL", Duration.ofMinutes(10), Map.of()), "stt-admission-upload");
+                "CONFIDENTIAL", Duration.ofMinutes(10), metadata), "stt-admission-upload");
         runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, bytes);
         return runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
     }

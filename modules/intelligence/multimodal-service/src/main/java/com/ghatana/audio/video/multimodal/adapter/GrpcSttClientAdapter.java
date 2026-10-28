@@ -2,11 +2,14 @@ package com.ghatana.audio.video.multimodal.adapter;
 
 import com.ghatana.audio.video.common.observability.TracingClientInterceptor;
 import com.ghatana.audio.video.multimodal.engine.AudioResult;
+import com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp;
 import com.ghatana.audio.video.multimodal.engine.SttClientAdapter;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.core.grpc.proto.ConfidenceCalibration;
+import com.ghatana.stt.core.grpc.proto.TimestampTimebase;
+import com.ghatana.stt.core.grpc.proto.TranscriptionOptions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -18,7 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +46,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseable {
 
+    private static final int SUBMITTED_SAMPLE_RATE_HZ = 16_000;
     private static final Logger LOG = LoggerFactory.getLogger(GrpcSttClientAdapter.class);
     private static final long CALL_DEADLINE_SECONDS = 30L;
 
@@ -148,8 +155,9 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
 
         TranscribeRequest request = TranscribeRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(audioData))
-                .setSampleRate(16_000)
+                .setSampleRate(SUBMITTED_SAMPLE_RATE_HZ)
                 .setLanguage("")
+                .setOptions(TranscriptionOptions.newBuilder().setEnableWordTimings(true).build())
                 .build();
 
         ListenableFuture<TranscribeResponse> call = client.transcribe(request);
@@ -190,9 +198,54 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
                 confidence);
         AudioResult.Builder result = AudioResult.builder()
                 .transcription(transcription)
-                .confidenceCalibration(calibration);
+                .confidenceCalibration(calibration)
+                .timedSegments(sourceWordTimings(response, audioData.length));
         if (confidence != null) result.confidence(confidence);
         return result.build();
+    }
+
+    /**
+     * Preserve word timing only when the provider explicitly identifies sample-zero as its
+     * clock origin. The ephemeral response-local clock identity prevents these relative
+     * timestamps from being compared with video PTS or another request without an admitted
+     * source mapping; it does not identify an artifact or establish provenance.
+     */
+    private static List<AudioResult.TimedSegment> sourceWordTimings(
+            TranscribeResponse response, int pcmByteLength) {
+        if (response.getWordTimingTimebase() != TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO
+                || response.getWordTimingsCount() == 0) {
+            return List.of();
+        }
+        // This adapter submits raw signed 16-bit mono PCM at 16 kHz. Compare against the exact
+        // source sample duration instead of a rounded millisecond value so a provider cannot
+        // attach a word to audio that was not part of this request.
+        long submittedSamples = pcmByteLength / Short.BYTES;
+        String clockId = "stt-response:" + UUID.randomUUID();
+        List<AudioResult.TimedSegment> segments = new ArrayList<>(response.getWordTimingsCount());
+        long previousStartMs = -1;
+        long previousEndMs = -1;
+        for (var timing : response.getWordTimingsList()) {
+            long startMs = timing.getStartMs();
+            long endMs = timing.getEndMs();
+            if (startMs < 0 || endMs <= startMs
+                    || startMs < previousStartMs || endMs < previousEndMs
+                    || endMs * SUBMITTED_SAMPLE_RATE_HZ > submittedSamples * 1_000L) {
+                throw new IllegalArgumentException(
+                        "STT word timing is outside the submitted PCM or not ordered");
+            }
+            var start = new MediaClockTimestamp(
+                    MediaClockTimestamp.Status.KNOWN,
+                    startMs, 1L, 1_000L,
+                    MediaClockTimestamp.ClockDomain.SOURCE, clockId, null);
+            var end = new MediaClockTimestamp(
+                    MediaClockTimestamp.Status.KNOWN,
+                    endMs, 1L, 1_000L,
+                    MediaClockTimestamp.ClockDomain.SOURCE, clockId, null);
+            segments.add(new AudioResult.TimedSegment(start, end, timing.getWord()));
+            previousStartMs = startMs;
+            previousEndMs = endMs;
+        }
+        return List.copyOf(segments);
     }
 
     private static ManagedChannel buildChannel(

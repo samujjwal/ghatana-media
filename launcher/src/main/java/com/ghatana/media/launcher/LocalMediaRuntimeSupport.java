@@ -16,6 +16,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
 import com.ghatana.media.runtime.MediaRuntimeContracts.RecoveryCursor;
@@ -748,6 +749,7 @@ public final class LocalMediaRuntimeSupport {
         private final ConcurrentMap<String, ProcessingJob> jobs = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, String> requests = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, String> submissionDigests = new ConcurrentHashMap<>();
+        private final ConcurrentMap<String, SttSubmissionSnapshot> sttSubmissionSnapshots = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, JobLease> leases = new ConcurrentHashMap<>();
         private final boolean clearStateOnClose;
 
@@ -769,6 +771,27 @@ public final class LocalMediaRuntimeSupport {
         @Override public String storeId() { return "local-job-store"; }
         @Override public ProcessingJob create(ProcessingJob job) {
             return create(job, job.requestFingerprint());
+        }
+        @Override public ProcessingJob create(
+                ProcessingJob job, String submissionDigest, SttSubmissionSnapshot snapshot) {
+            if (job.jobType() == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
+                    && snapshot == null) {
+                throw new IllegalArgumentException("Speech-to-text jobs require a retained request snapshot");
+            }
+            if (job.jobType() != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
+                    && snapshot != null) {
+                throw new IllegalArgumentException("STT request snapshot is only valid for speech-to-text jobs");
+            }
+            String requestKey = key(job.tenantId(), job.requestId());
+            synchronized (requestKey.intern()) {
+                ProcessingJob stored = create(job, submissionDigest);
+                SttSubmissionSnapshot existing = sttSubmissionSnapshots.get(requestKey);
+                if (existing != null && !existing.equals(snapshot)) {
+                    throw new IllegalStateException("Media request ID was reused with a different STT request snapshot");
+                }
+                if (snapshot != null) sttSubmissionSnapshots.putIfAbsent(requestKey, snapshot);
+                return stored;
+            }
         }
         @Override public ProcessingJob create(ProcessingJob job, String submissionDigest) {
             if (submissionDigest == null || !submissionDigest.isBlank()
@@ -923,6 +946,7 @@ public final class LocalMediaRuntimeSupport {
                 jobs.clear();
                 requests.clear();
                 submissionDigests.clear();
+                sttSubmissionSnapshots.clear();
                 leases.clear();
             }
         }

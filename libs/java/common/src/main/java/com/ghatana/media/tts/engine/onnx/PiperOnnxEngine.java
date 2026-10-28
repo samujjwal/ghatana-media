@@ -44,6 +44,8 @@ public final class PiperOnnxEngine implements TtsEngine {
     private final AtomicReference<String> activeVoiceId;
     private final TextToPhonemeConverter phonemeConverter;
     private final Map<String, List<Long>> phonemeIdMap;
+    private final int voiceSampleRate;
+    private final boolean productionPhonemizerCompatible;
 
     public PiperOnnxEngine(TtsConfig config, AudioVideoLibrary.LibraryState libraryState) throws ModelLoadingError {
         this.config = config;
@@ -56,6 +58,10 @@ public final class PiperOnnxEngine implements TtsEngine {
             LOG.info("Loading Piper ONNX model from: " + config.voiceModelPath());
 
             this.phonemeIdMap = loadPhonemeIdMap(config.voiceModelPath());
+            this.voiceSampleRate = loadVoiceSampleRate(config.voiceModelPath());
+            if (config.sampleRate() != voiceSampleRate) {
+                throw new ModelLoadingError("Configured Piper sample rate does not match the voice sidecar");
+            }
 
             this.environment = OrtEnvironment.getEnvironment();
 
@@ -76,8 +82,10 @@ public final class PiperOnnxEngine implements TtsEngine {
 
             LOG.info("Piper TTS model loaded. Sample rate: " + config.sampleRate());
 
-            state.set(EngineStatus.State.READY);
             this.phonemeConverter = TextToPhonemeConverter.forLocale(java.util.Locale.ENGLISH);
+            this.productionPhonemizerCompatible = supportsProductionVoicePhonemizer(
+                    phonemeConverter, phonemeIdMap, java.util.Locale.ENGLISH);
+            state.set(EngineStatus.State.READY);
 
         } catch (OrtException e) {
             state.set(EngineStatus.State.ERROR);
@@ -89,6 +97,7 @@ public final class PiperOnnxEngine implements TtsEngine {
     public AudioData synthesize(String text, SynthesisOptions options) {
         ensureReady();
         validateText(text);
+        validateRequestedSampleRate(options.sampleRate(), voiceSampleRate);
 
         requestCount.incrementAndGet();
         if (!concurrencyLimiter.tryAcquire()) {
@@ -96,7 +105,7 @@ public final class PiperOnnxEngine implements TtsEngine {
         }
         try {
             // Preprocess text to phonemes
-            String phonemes = textToPhonemes(text);
+            String phonemes = textToPhonemes(text, options.language());
 
             // Run ONNX inference
             float[] audioSamples = runInference(phonemes, options);
@@ -111,7 +120,7 @@ public final class PiperOnnxEngine implements TtsEngine {
 
             return AudioData.builder()
                 .data(audioBytes)
-                .sampleRate(options.sampleRate() > 0 ? options.sampleRate() : config.sampleRate())
+                .sampleRate(voiceSampleRate)
                 .channels(1)
                 .bitsPerSample(16)
                 .build();
@@ -268,6 +277,15 @@ public final class PiperOnnxEngine implements TtsEngine {
         );
     }
 
+    /**
+     * True only when the selected non-heuristic phonemizer can encode a fixed probe using this
+     * voice's exact sidecar map. This is a runtime compatibility check, not voice quality or
+     * rights qualification.
+     */
+    public boolean hasProductionCompatiblePhonemizer() {
+        return productionPhonemizerCompatible;
+    }
+
     @Override
     public EngineMetrics getMetrics() {
         return new EngineMetrics(
@@ -301,13 +319,17 @@ public final class PiperOnnxEngine implements TtsEngine {
     /**
      * Convert input text to a phoneme string.
      *
-     * <p>Delegates to the best available {@link TextToPhonemeConverter}:
-     * espeak-ng JNI when present (quality tier 10), otherwise the built-in
-     * heuristic English rule engine (quality tier 1).
+     * <p>Delegates to the best available {@link TextToPhonemeConverter}, preserving
+     * the requested voice locale. The built-in heuristic fallback supports English only;
+     * unsupported locales fail rather than being phonemised as English.
      */
-    private String textToPhonemes(String text) {
+    private String textToPhonemes(String text, Locale language) {
+        return textToPhonemes(text, language, phonemeConverter);
+    }
+
+    static String textToPhonemes(String text, Locale language, TextToPhonemeConverter converter) {
         if (text == null || text.isEmpty()) return "";
-        return phonemeConverter.convert(text);
+        return converter.convert(text, language == null ? Locale.ENGLISH : language);
     }
 
     // Legacy helpers retained only for backward-compat callers within this class.
@@ -587,6 +609,27 @@ public final class PiperOnnxEngine implements TtsEngine {
         }
     }
 
+    static int loadVoiceSampleRate(Path modelPath) throws ModelLoadingError {
+        Path sidecar = sidecarPath(modelPath);
+        try {
+            JsonNode root = new ObjectMapper().readTree(sidecar.toFile());
+            JsonNode sampleRate = root == null ? null : root.path("audio").get("sample_rate");
+            if (sampleRate == null || !sampleRate.isIntegralNumber()
+                    || sampleRate.intValue() < 8_000 || sampleRate.intValue() > 192_000) {
+                throw new IllegalArgumentException("audio.sample_rate must be an integer in [8000,192000]");
+            }
+            return sampleRate.intValue();
+        } catch (Exception failure) {
+            throw new ModelLoadingError("Invalid Piper voice sample rate in sidecar: " + sidecar, failure);
+        }
+    }
+
+    static void validateRequestedSampleRate(int requestedSampleRate, int voiceSampleRate) {
+        if (requestedSampleRate > 0 && requestedSampleRate != voiceSampleRate) {
+            throw new ValidationError("Piper voice cannot resample; requested sample rate does not match the model");
+        }
+    }
+
     static long[] encodePhonemes(String phonemes, Map<String, List<Long>> map) {
         if (phonemes.length() > 40_000) throw new ValidationError("Phoneme sequence exceeds Piper limit");
         List<Long> bos = map.get("^");
@@ -608,6 +651,17 @@ public final class PiperOnnxEngine implements TtsEngine {
         long[] ids = new long[sequence.size()];
         for (int i = 0; i < ids.length; i++) ids[i] = sequence.get(i);
         return ids;
+    }
+
+    static boolean supportsProductionVoicePhonemizer(
+            TextToPhonemeConverter converter, Map<String, List<Long>> map, Locale locale) {
+        if (converter == null || map == null || locale == null || converter.qualityTier() < 10) return false;
+        try {
+            String probe = converter.convert("The quick brown fox jumps over the lazy dog.", locale);
+            return probe != null && !probe.isBlank() && encodePhonemes(probe, map).length > 0;
+        } catch (RuntimeException incompatible) {
+            return false;
+        }
     }
 
     /** Validate and copy a supported Piper float32 single-batch, single-channel output tensor. */

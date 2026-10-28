@@ -142,6 +142,11 @@ public class HeuristicPhonemeConverter implements TextToPhonemeConverter {
 
     @Override
     public String convert(String text, Locale locale) {
+        if (locale == null || !"en".equals(locale.getLanguage())) {
+            throw new TextToPhonemeConverter.PhonemeConversionException(
+                "The heuristic phonemiser only supports English; requested locale: "
+                    + (locale == null ? "unspecified" : locale.toLanguageTag()));
+        }
         String normalised = normalise(text);
         String[] words = normalised.split("\\s+");
         StringBuilder sb = new StringBuilder();

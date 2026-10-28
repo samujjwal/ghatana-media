@@ -79,6 +79,7 @@ public class VideoFrameExtractor {
     private static final ThreadLocal<ProcessAdmissionState> PROCESS_ADMISSION = new ThreadLocal<>();
     /** Bound cleanup bookkeeping even if a compromised child creates a large process tree. */
     private static final int MAX_OBSERVED_CHILD_PROCESSES = 256;
+    private static final int MAX_OUTPUT_ENTRIES = 4096;
     private static final java.util.Set<String> ALLOWED_VIDEO_EXTENSIONS =
             java.util.Set.of("mp4", "mov", "mkv", "avi", "webm");
 
@@ -320,9 +321,9 @@ public class VideoFrameExtractor {
                 Path decoded = staging.resolve("audio.pcm");
                 List<String> command = List.of(
                         FFMPEG_COMMAND, "-nostdin", "-v", "error", "-protocol_whitelist", "file",
-                        "-max_alloc", "268435456", "-i", canonicalSource.toString(),
+                        "-max_alloc", "268435456", "-threads", "2", "-i", canonicalSource.toString(),
                         "-map", "0:" + metadata.streamIndex(), "-vn", "-sn", "-dn",
-                        "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", "-f", "s16le",
+                        "-threads", "2", "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", "-f", "s16le",
                         "-fs", Long.toString(MAX_DEMUXED_AUDIO_BYTES), decoded.toString(), "-n");
                 ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(120), MAX_DIAGNOSTIC_BYTES,
                         staging, MAX_DEMUXED_AUDIO_BYTES);
@@ -378,9 +379,13 @@ public class VideoFrameExtractor {
         throw new IOException("Video container signature is not allow-listed");
     }
 
-    private static Path createPrivateWorkspace() throws IOException {
+    static Path createPrivateWorkspace() throws IOException {
         Path configuredTemp = Path.of(System.getProperty("java.io.tmpdir"));
-        Path temp = configuredTemp.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        // Keep the staging root's canonical spelling aligned with the native worker's
+        // workspace lookup. On macOS java.io.tmpdir can be /var/... while real paths
+        // resolve through /private/var/...; retaining the alias makes source containment
+        // checks reject our own workspace before dispatch.
+        Path temp = configuredTemp.toRealPath();
         requireSafeWritableAncestors(temp);
         Path workspace = Files.createTempDirectory(temp, ".media-video-codec-");
         try {
@@ -729,10 +734,16 @@ public class VideoFrameExtractor {
         command.add("268435456");
         command.add("-max_pixels");
         command.add(Long.toString(MAX_PIXELS));
+        command.add("-threads");
+        command.add("2");
+        command.add("-filter_threads");
+        command.add("1");
         command.add("-f");
         command.add(inputFormat(videoPath));
         command.add("-i");
         command.add(videoPath.toString());
+        command.add("-threads");
+        command.add("2");
 
         // Select by source media time while retaining exact input PTS. An fps filter would
         // manufacture CFR timestamps for variable-rate input.
@@ -988,6 +999,9 @@ public class VideoFrameExtractor {
             Path monitoredOutput, long maxOutputBytes) throws IOException {
         if (timeout.isNegative() || timeout.isZero()) throw new IllegalArgumentException("timeout must be positive");
         if (maxOutputChars < 0) throw new IllegalArgumentException("maxOutputChars must not be negative");
+        if (monitoredOutput != null && maxOutputBytes <= 0) {
+            throw new IllegalArgumentException("maxOutputBytes must be positive when output is monitored");
+        }
         try (ProcessAdmission ignored = acquireProcessAdmission()) {
             HostOciVisionWorkerSupervisor.Prepared hostOciWorker = null;
             Path sandboxWorkspace = null;
@@ -996,7 +1010,8 @@ public class VideoFrameExtractor {
                 if (!command.stream().skip(1).anyMatch("-version"::equals)) {
                     sandboxWorkspace = LinuxVisionWorkerSandbox.workspaceFor(command);
                 }
-                hostOciWorker = HostOciVisionWorkerSupervisor.prepare(command, sandboxWorkspace, monitoredOutput);
+                hostOciWorker = HostOciVisionWorkerSupervisor.prepare(
+                        command, sandboxWorkspace, monitoredOutput, maxOutputBytes);
                 launchCommand = hostOciWorker.command();
             }
             Process process;
@@ -1031,17 +1046,11 @@ public class VideoFrameExtractor {
                             TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime()))), TimeUnit.MILLISECONDS);
                     if (!finished) {
                         if (diagnosticExceeded.get()) break;
-                        if (monitoredOutput != null && directoryBytes(monitoredOutput) > maxOutputBytes) {
+                        if (monitoredOutput != null && outputBudgetExceeded(monitoredOutput, maxOutputBytes)) {
                             outputExceeded = true;
                             break;
                         }
                     }
-                }
-                // A short-lived child can finish and exit after producing more than the budget
-                // between polling intervals. Check once after exit so that fast overflow cannot
-                // be mistaken for a successful bounded extraction.
-                if (finished && monitoredOutput != null && directoryBytes(monitoredOutput) > maxOutputBytes) {
-                    outputExceeded = true;
                 }
                 observeDescendants(process, observedDescendants);
                 if (!finished) {
@@ -1065,6 +1074,11 @@ public class VideoFrameExtractor {
                     output = captured.toString(StandardCharsets.UTF_8);
                 }
                 boolean diagnosticsExceeded = diagnosticExceeded.get();
+                // The worker writes to a private owner-only host directory. RLIMIT_FSIZE bounds
+                // each file and this live/final walk bounds aggregate bytes and entry count.
+                if (finished && monitoredOutput != null && outputBudgetExceeded(monitoredOutput, maxOutputBytes)) {
+                    outputExceeded = true;
+                }
                 return new ProcessResult(finished ? process.exitValue() : -1,
                         !finished && !outputExceeded && !diagnosticsExceeded, output, outputExceeded, diagnosticsExceeded);
             } catch (InterruptedException interrupted) {
@@ -1400,20 +1414,27 @@ public class VideoFrameExtractor {
         } catch (IOException ignored) { }
     }
 
-    private static long directoryBytes(Path directory) throws IOException {
-        if (!Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)) return 0;
-        try (var paths = Files.list(directory)) {
-            long total = 0;
-            for (Path path : paths.toList()) {
-                if (Files.isSymbolicLink(path)) return Long.MAX_VALUE;
+    private static boolean outputBudgetExceeded(Path directory, long maxOutputBytes) throws IOException {
+        if (!Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)) return false;
+        try (var paths = Files.walk(directory)) {
+            var iterator = paths.iterator();
+            int entries = 0;
+            long totalBytes = 0;
+            while (iterator.hasNext()) {
+                Path path = iterator.next();
+                if (path.equals(directory)) continue;
+                if (++entries > MAX_OUTPUT_ENTRIES || Files.isSymbolicLink(path)) return true;
                 if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
-                    total = Math.addExact(total, Files.size(path));
+                    totalBytes = Math.addExact(totalBytes, Files.size(path));
+                    // The container RLIMIT_FSIZE can stop a write exactly at the limit.
+                    // Treat an output touching that boundary as potentially truncated even
+                    // when the codec reports the file-size signal before exceeding it.
+                    if (totalBytes >= maxOutputBytes || totalBytes > MAX_EXTRACTED_BYTES) return true;
                 }
-                if (total > MAX_EXTRACTED_BYTES) return total;
             }
-            return total;
+            return false;
         } catch (ArithmeticException overflow) {
-            return Long.MAX_VALUE;
+            return true;
         }
     }
 

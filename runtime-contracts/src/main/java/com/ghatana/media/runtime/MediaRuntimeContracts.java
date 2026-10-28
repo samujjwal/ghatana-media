@@ -585,15 +585,44 @@ public final class MediaRuntimeContracts {
         }
     }
 
-    /** Bounded request-relative STT options passed only to canonical persistence on create. */
-    public record SttSubmissionSnapshot(String version, String customGlossaryRef,
-                                        Boolean fillerRetakeCandidates) {
+    /** Bounded STT options and trusted authorization references persisted with the job create. */
+    public record SttSubmissionSnapshot(
+            String version,
+            String customGlossaryRef,
+            Boolean fillerRetakeCandidates,
+            String rightsDecisionId,
+            String policyDecisionId,
+            String policyVersion,
+            String consentDecisionId,
+            String sourceClockEvidenceRef,
+            Long revocationEpoch) {
         public static final String VERSION = "media.stt-request-snapshot.v1";
+        public static final String AUTHORIZED_VERSION = "media.stt-request-snapshot.v2";
         public SttSubmissionSnapshot {
-            if (!VERSION.equals(version)) throw new IllegalArgumentException("unsupported STT snapshot version");
+            if (!VERSION.equals(version) && !AUTHORIZED_VERSION.equals(version)) {
+                throw new IllegalArgumentException("unsupported STT snapshot version");
+            }
             if (customGlossaryRef != null && (customGlossaryRef.isBlank()
                     || customGlossaryRef.codePointCount(0, customGlossaryRef.length()) > 384))
                 throw new IllegalArgumentException("customGlossaryRef is malformed or too long");
+            rightsDecisionId = optionalSnapshotReference(rightsDecisionId, "rightsDecisionId");
+            policyDecisionId = optionalSnapshotReference(policyDecisionId, "policyDecisionId");
+            policyVersion = optionalSnapshotReference(policyVersion, "policyVersion");
+            consentDecisionId = optionalSnapshotReference(consentDecisionId, "consentDecisionId");
+            sourceClockEvidenceRef = optionalSnapshotReference(sourceClockEvidenceRef, "sourceClockEvidenceRef");
+            if (AUTHORIZED_VERSION.equals(version)) {
+                if (rightsDecisionId.isBlank() || policyDecisionId.isBlank() || policyVersion.isBlank()
+                        || revocationEpoch == null || revocationEpoch < 0 || consentDecisionId.isBlank()
+                        || sourceClockEvidenceRef.isBlank()) {
+                    throw new IllegalArgumentException("authorized STT snapshot requires exact current authority references");
+                }
+            } else if (!rightsDecisionId.isBlank() || !policyDecisionId.isBlank() || !policyVersion.isBlank()
+                    || !consentDecisionId.isBlank() || !sourceClockEvidenceRef.isBlank() || revocationEpoch != null) {
+                throw new IllegalArgumentException("legacy STT snapshot cannot contain authorization evidence");
+            }
+        }
+        public SttSubmissionSnapshot(String version, String customGlossaryRef, Boolean fillerRetakeCandidates) {
+            this(version, customGlossaryRef, fillerRetakeCandidates, "", "", "", "", "", null);
         }
         public static SttSubmissionSnapshot from(ProcessingJobRequest request) {
             if (request.jobType() != JobType.SPEECH_TO_TEXT) return null;
@@ -606,6 +635,29 @@ public final class MediaRuntimeContracts {
             if (p.containsKey("fillerRetakeCandidates") && !(filler instanceof Boolean))
                 throw new IllegalArgumentException("fillerRetakeCandidates must be a JSON boolean");
             return new SttSubmissionSnapshot(VERSION, (String) glossary, (Boolean) filler);
+        }
+
+        public static SttSubmissionSnapshot from(
+                ProcessingJobRequest request,
+                MediaSourceAuthorizationContracts.Evidence authorization) {
+            SttSubmissionSnapshot options = from(request);
+            if (options == null || authorization == null) return options;
+            String consentId = authorization.consentDecisionId().isBlank()
+                    ? "NOT_APPLICABLE_HUMAN_CONSENT" : authorization.consentDecisionId();
+            return new SttSubmissionSnapshot(AUTHORIZED_VERSION,
+                    options.customGlossaryRef(), options.fillerRetakeCandidates(),
+                    authorization.rightsDecisionId(), authorization.policyDecisionId(),
+                    authorization.policyVersion(), consentId, authorization.sourceClockEvidenceRef(),
+                    authorization.revocationEpoch());
+        }
+
+        private static String optionalSnapshotReference(String value, String name) {
+            if (value == null) return "";
+            String normalized = value.trim();
+            if (normalized.length() > 512 || normalized.chars().anyMatch(Character::isISOControl)) {
+                throw new IllegalArgumentException(name + " is malformed");
+            }
+            return normalized;
         }
     }
 
@@ -1371,7 +1423,8 @@ public final class MediaRuntimeContracts {
             MediaArtifact artifact,
             Cancellation cancellation,
             ConsentDecision consentDecision,
-            MediaArtifactContentReader sourceContentReader) {
+            MediaArtifactContentReader sourceContentReader,
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
         public ProcessingContext {
             java.util.Objects.requireNonNull(request, "request");
             java.util.Objects.requireNonNull(artifact, "artifact");
@@ -1381,10 +1434,15 @@ public final class MediaRuntimeContracts {
         public ProcessingContext(
                 ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
                 ConsentDecision consentDecision) {
-            this(request, artifact, cancellation, consentDecision, null);
+            this(request, artifact, cancellation, consentDecision, null, null);
+        }
+        public ProcessingContext(
+                ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
+                ConsentDecision consentDecision, MediaArtifactContentReader sourceContentReader) {
+            this(request, artifact, cancellation, consentDecision, sourceContentReader, null);
         }
         public ProcessingContext(ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation) {
-            this(request, artifact, cancellation, ConsentDecision.unverified(), null);
+            this(request, artifact, cancellation, ConsentDecision.unverified(), null, null);
         }
 
         /** Copy verified source bytes to bounded staging; contexts without an admitted reader fail closed. */

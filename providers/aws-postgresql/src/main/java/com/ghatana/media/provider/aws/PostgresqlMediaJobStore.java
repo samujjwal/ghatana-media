@@ -1391,6 +1391,14 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         encoded.put("version", snapshot.version());
         encoded.put("customGlossaryRef", snapshot.customGlossaryRef());
         encoded.put("fillerRetakeCandidates", snapshot.fillerRetakeCandidates());
+        if (SttSubmissionSnapshot.AUTHORIZED_VERSION.equals(snapshot.version())) {
+            encoded.put("rightsDecisionId", snapshot.rightsDecisionId());
+            encoded.put("policyDecisionId", snapshot.policyDecisionId());
+            encoded.put("policyVersion", snapshot.policyVersion());
+            encoded.put("consentDecisionId", snapshot.consentDecisionId());
+            encoded.put("sourceClockEvidenceRef", snapshot.sourceClockEvidenceRef());
+            encoded.put("revocationEpoch", snapshot.revocationEpoch());
+        }
         return json(encoded);
     }
 

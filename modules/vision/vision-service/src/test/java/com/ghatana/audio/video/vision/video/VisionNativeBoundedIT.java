@@ -5,11 +5,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.ghatana.audio.video.vision.image.BoundedImageDecoder;
+import com.ghatana.audio.video.vision.analysis.VideoAnalysisService;
+import com.ghatana.audio.video.vision.detection.VisionDetector;
+import com.ghatana.audio.video.vision.model.DetectionOptions;
+import com.ghatana.audio.video.vision.yolo.LetterboxTransform;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import nu.pattern.OpenCV;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,9 +35,9 @@ import org.junit.jupiter.api.io.TempDir;
  * Development-only native codec regression using generated, synthetic media fixtures.
  *
  * <p>The test refuses tools other than the verified platform-specific FFmpeg/FFprobe 8.1.2
- * executables. The Linux pins identify GPL test tools used only as external processes; no tool
- * binaries are bundled or exercised in the Media runtime. This does not exercise model inference:
- * no admitted Vision model is needed or implied by these codec checks.
+ * executables. They generate and inspect local fixtures. Media's codec processing path runs
+ * through the separately digest-pinned host OCI worker; no tool binaries are bundled. This does
+ * not exercise model inference: no admitted Vision model is needed or implied by these checks.
  */
 class VisionNativeBoundedIT {
     private static final Path FFMPEG = configuredToolPath("media.vision.ffmpeg", "GHATANA_MEDIA_FFMPEG", "ffmpeg");
@@ -81,8 +86,6 @@ class VisionNativeBoundedIT {
         assertThat(audio.sampleRate()).isEqualTo(16_000);
         assertThat(audio.channels()).isEqualTo(1);
         assertThat(audio.sampleCount()).isPositive();
-        assertPathCommandResolvesTo("ffmpeg", FFMPEG);
-        assertPathCommandResolvesTo("ffprobe", FFPROBE);
         Path extracted = temp.resolve("frames-run-one");
         List<VideoFrameExtractor.ExtractedFrame> extractedFrames = extractor.extractFrames(
                 avc, extracted, VideoFrameExtractor.ExtractionConfig.builder().fps(2).maxFrames(4).build());
@@ -109,7 +112,7 @@ class VisionNativeBoundedIT {
         assertThat(Files.size(vfr)).isBetween(1L, MAX_FIXTURE_BYTES);
         String frames = probe(vfr, "-select_streams", "v:0", "-show_entries",
                 "frame=best_effort_timestamp_time", "-of", "csv=p=0");
-        List<Double> timestamps = frames.lines().map(String::trim)
+        List<Double> timestamps = frames.lines().map(VisionNativeBoundedIT::firstCsvField)
                 .filter(line -> line.matches("\\d+(?:\\.\\d+)?"))
                 .map(Double::parseDouble).toList();
         assertThat(timestamps).hasSizeGreaterThan(2);
@@ -129,6 +132,57 @@ class VisionNativeBoundedIT {
                         - sourceTimestamps.get(index - 1).timestampMs()).toList();
         assertThat(sourceIntervals.stream().distinct().count())
                 .as("extracted VFR timestamps preserve nonuniform source intervals").isGreaterThan(1);
+
+        // Compare the extracted frames to the source's exact decoded PTS clock, not just the
+        // rounded millisecond projection. The analysis timeline must preserve the same rational
+        // timestamp and emitted ordinal without inferring media time from frame index.
+        String sourceTimeBaseText = probe(vfr, "-select_streams", "v:0", "-show_entries",
+                "stream=time_base", "-of", "default=noprint_wrappers=1:nokey=1")
+                .lines().findFirst().orElse("").trim();
+        SourceMediaTimestamp.RationalTimeBase sourceTimeBase =
+                SourceMediaTimestamp.parseTimeBase(sourceTimeBaseText);
+        List<Long> probedPts = probe(vfr, "-select_streams", "v:0", "-show_entries",
+                "frame=best_effort_timestamp", "-of", "csv=p=0").lines()
+                .map(VisionNativeBoundedIT::firstCsvField).filter(value -> value.matches("-?\\d+"))
+                .map(Long::parseLong).toList();
+        assertThat(probedPts).isNotEmpty();
+        assertThat(sourceTimestamps).allSatisfy(timestamp -> {
+            assertThat(timestamp.timeBaseNumerator()).isEqualTo(sourceTimeBase.numerator());
+            assertThat(timestamp.timeBaseDenominator()).isEqualTo(sourceTimeBase.denominator());
+            assertThat(probedPts).contains(timestamp.pts());
+        });
+
+        VisionDetector noFindings = new VisionDetector() {
+            @Override public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
+                    byte[] imageData, DetectionOptions options) {
+                return List.of();
+            }
+            @Override public boolean isInitialized() { return true; }
+        };
+        VideoAnalysisService.VideoAnalysisResult vfrAnalysis = VideoAnalysisService.builder()
+                .detector(noFindings).frameExtractor(extractor).build()
+                .analyze(vfr, VideoFrameExtractor.ExtractionConfig.builder().fps(60).maxFrames(20).build(),
+                        DetectionOptions.builder().build());
+        assertThat(vfrAnalysis.frameDetections()).hasSize(extractedVfr.size());
+        assertThat(vfrAnalysis.frameDetections()).extracting(VideoAnalysisService.FrameDetections::frameNumber)
+                .containsExactlyElementsOf(extractedVfr.stream()
+                        .map(VideoFrameExtractor.ExtractedFrame::getFrameNumber).toList());
+        assertThat(vfrAnalysis.frameDetections()).extracting(VideoAnalysisService.FrameDetections::sourceTimestamp)
+                .containsExactlyElementsOf(sourceTimestamps);
+
+        BufferedImage decodedVfrFrame = javax.imageio.ImageIO.read(extractedVfr.getFirst().getPath().toFile());
+        assertThat(decodedVfrFrame).isNotNull();
+        LetterboxTransform actualFrameTransform = LetterboxTransform.fit(
+                decodedVfrFrame.getWidth(), decodedVfrFrame.getHeight(), 640);
+        LetterboxTransform.Box actualSourceBox = new LetterboxTransform.Box(
+                decodedVfrFrame.getWidth() * 0.25, decodedVfrFrame.getHeight() * 0.25,
+                decodedVfrFrame.getWidth() * 0.5, decodedVfrFrame.getHeight() * 0.5);
+        LetterboxTransform.Box restoredSourceBox = actualFrameTransform.toSourcePixels(
+                actualFrameTransform.toModelPixels(actualSourceBox));
+        assertThat(Math.abs(restoredSourceBox.x() - actualSourceBox.x())).isLessThanOrEqualTo(1.0);
+        assertThat(Math.abs(restoredSourceBox.y() - actualSourceBox.y())).isLessThanOrEqualTo(1.0);
+        assertThat(Math.abs(restoredSourceBox.width() - actualSourceBox.width())).isLessThanOrEqualTo(1.0);
+        assertThat(Math.abs(restoredSourceBox.height() - actualSourceBox.height())).isLessThanOrEqualTo(1.0);
 
         // The pinned macOS LGPL build has no WebP encoder; the Linux pins are GPL builds. Keep a
         // tiny deterministic WebP fixture generated locally with Pillow so the Java decoder path
@@ -280,6 +334,11 @@ class VisionNativeBoundedIT {
         assertBounded(run, 5, false);
         assertThat(run.exitCode()).isZero();
         return run.output();
+    }
+
+    private static String firstCsvField(String line) {
+        int separator = line.indexOf(',');
+        return (separator < 0 ? line : line.substring(0, separator)).trim();
     }
 
     private static NativeRun runNative(List<String> command, Duration timeout, long outputLimit) throws Exception {
@@ -488,17 +547,6 @@ class VisionNativeBoundedIT {
                     ? "libx264" : "libopenh264";
         }
         throw new IllegalStateException("No verified H.264 fixture encoder selected for " + platformKey());
-    }
-
-    private static void assertPathCommandResolvesTo(String name, Path expected) throws IOException {
-        for (String entry : System.getenv().getOrDefault("PATH", "").split(java.io.File.pathSeparator)) {
-            Path candidate = Path.of(entry).resolve(name);
-            if (Files.isExecutable(candidate)) {
-                assertThat(candidate.toRealPath()).isEqualTo(expected.toRealPath());
-                return;
-            }
-        }
-        throw new AssertionError(name + " is not available on PATH for VideoFrameExtractor integration");
     }
 
     private static byte[] pngHeader(int width, int height) {

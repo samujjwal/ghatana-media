@@ -1,8 +1,10 @@
 package com.ghatana.media.runtime;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ConsentDecision;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,11 @@ public final class MediaSpeechToTextAdmission {
         SOURCE_CLOCK_NOT_QUALIFIED,
         CONSENT_NOT_ADMITTED,
         RIGHTS_AUTHORITY_UNAVAILABLE,
+        RIGHTS_DECISION_DENIED,
+        RIGHTS_DECISION_REVOKED,
+        RIGHTS_DECISION_STALE,
+        RIGHTS_DECISION_MISMATCH,
+        POLICY_DECISION_UNAVAILABLE,
         TRANSCRIPT_VERSION_STORE_NOT_ADMITTED
     }
 
@@ -145,11 +152,10 @@ public final class MediaSpeechToTextAdmission {
     }
 
     /**
-     * Only the server-owned runtime composition may supply a truthful store-admission fact.
-     * The admission method itself performs no provider, database or remote effects.
-     * Before using ADMITTED, the runtime must revalidate source ownership, revocation,
-     * policy version and exact store availability at dispatch time.
+     * Legacy readiness booleans cannot authorize a provider effect. Kept as a source-compatible
+     * refusal path while callers migrate to the evidence-bearing overload below.
      */
+    @Deprecated
     public static Decision evaluate(
             Request request,
             MediaArtifact artifact,
@@ -158,13 +164,33 @@ public final class MediaSpeechToTextAdmission {
             boolean rightsAuthorityAvailable,
             boolean exactSourceClockMetadataAvailable,
             boolean transcriptVersionStoreReady) {
+        return evaluate(request, artifact, profile, null, null, null,
+                exactSourceClockMetadataAvailable, false, Clock.systemUTC());
+    }
+
+    /**
+     * Evaluates only facts returned by trusted runtime authorities. The caller must still revalidate
+     * source rights and Shared policy immediately before provider dispatch and every retry.
+     */
+    public static Decision evaluate(
+            Request request,
+            MediaArtifact artifact,
+            Profile profile,
+            ConsentDecision consentDecision,
+            MediaSourceAuthorizationContracts.Request authorizationRequest,
+            MediaSourceAuthorizationContracts.Decision sourceAuthorization,
+            boolean exactSourceClockMetadataAvailable,
+            boolean transcriptVersionStoreReady,
+            Clock clock) {
         Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(clock, "clock");
         List<Reason> reasons = new ArrayList<>();
+        Instant now = clock.instant();
         if (request.expectedArtifactVersion().isBlank()) {
             reasons.add(Reason.EXACT_SOURCE_VERSION_REQUIRED);
         } else if (artifact == null
                 || !request.expectedArtifactVersion().equals(artifact.version().value())
-                || !artifact.expiresAt().isAfter(Instant.now())) {
+                || !artifact.expiresAt().isAfter(now)) {
             reasons.add(Reason.SOURCE_VERSION_STALE_OR_NOT_FOUND);
         }
 
@@ -214,8 +240,37 @@ public final class MediaSpeechToTextAdmission {
                 || !exactSourceClockMetadataAvailable) {
             reasons.add(Reason.SOURCE_CLOCK_NOT_QUALIFIED);
         }
-        if (!consentVerified) reasons.add(Reason.CONSENT_NOT_ADMITTED);
-        if (!rightsAuthorityAvailable) reasons.add(Reason.RIGHTS_AUTHORITY_UNAVAILABLE);
+        MediaSourceAuthorizationContracts.Evidence evidence = null;
+        if (sourceAuthorization == null) {
+            reasons.add(Reason.RIGHTS_AUTHORITY_UNAVAILABLE);
+        } else if (sourceAuthorization.status() != MediaSourceAuthorizationContracts.Status.ALLOWED) {
+            switch (sourceAuthorization.status()) {
+                case DENIED -> reasons.add(Reason.RIGHTS_DECISION_DENIED);
+                case REVOKED -> reasons.add(Reason.RIGHTS_DECISION_REVOKED);
+                case STALE -> reasons.add(Reason.RIGHTS_DECISION_STALE);
+                case UNAVAILABLE -> reasons.add(Reason.RIGHTS_AUTHORITY_UNAVAILABLE);
+                case ALLOWED -> throw new IllegalStateException("ALLOWED source authorization has no evidence");
+            }
+        } else {
+            evidence = sourceAuthorization.evidence();
+            if (authorizationRequest == null || !evidence.matches(authorizationRequest)
+                    || artifact == null
+                    || !evidence.tenantId().equals(artifact.tenantId())
+                    || !evidence.principalId().equals(artifact.principalId())
+                    || !evidence.artifactId().equals(artifact.artifactId())
+                    || !evidence.sourceVersion().equals(artifact.version())
+                    || !evidence.sourceSha256().equals(artifact.sha256())) {
+                reasons.add(Reason.RIGHTS_DECISION_MISMATCH);
+            }
+            if (!evidence.currentAt(clock)) reasons.add(Reason.RIGHTS_DECISION_STALE);
+            if (evidence.policyDecisionId().isBlank() || evidence.policyVersion().isBlank()) {
+                reasons.add(Reason.POLICY_DECISION_UNAVAILABLE);
+            }
+        }
+
+        if (!consentAdmitted(consentDecision, evidence, now)) {
+            reasons.add(Reason.CONSENT_NOT_ADMITTED);
+        }
 
         if (!transcriptVersionStoreReady) {
             reasons.add(Reason.TRANSCRIPT_VERSION_STORE_NOT_ADMITTED);
@@ -224,6 +279,29 @@ public final class MediaSpeechToTextAdmission {
         return blockers.isEmpty()
                 ? new Decision(Disposition.ADMITTED, List.of())
                 : new Decision(Disposition.NOT_ADMITTED, blockers);
+    }
+
+    private static boolean consentAdmitted(
+            ConsentDecision consent,
+            MediaSourceAuthorizationContracts.Evidence evidence,
+            Instant now) {
+        if (evidence == null) return false;
+        boolean humanConsentRequired = evidence.humanConsentDisposition()
+                == MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED;
+        boolean external = evidence.processingBoundary()
+                == com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary.EXTERNAL;
+        if (!humanConsentRequired && !external) {
+            return evidence.sourceKind() == MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN
+                    && evidence.humanConsentDisposition()
+                    == MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT;
+        }
+        return consent != null
+                && consent.activeAt(now)
+                && (!humanConsentRequired || consent.consentId().equals(evidence.consentDecisionId()))
+                && consent.permitsPurpose(evidence.purpose())
+                && consent.permitsRegion(evidence.processingRegion())
+                && consent.permitsProviderRetention(evidence.providerRetention())
+                && (!external || consent.externalProcessingAllowed());
     }
 
     private static String required(String value, String name) {

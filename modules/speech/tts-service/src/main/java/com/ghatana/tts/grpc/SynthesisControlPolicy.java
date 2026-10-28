@@ -54,7 +54,34 @@ final class SynthesisControlPolicy {
 
     static void rejectUnqualifiedSsml(String text) {
         if (text.stripLeading().startsWith("<")) {
-            SsmlProcessor.create().parse(text);
+            for (SsmlProcessor.SsmlSegment segment : SsmlProcessor.create().parse(text)) {
+                if (segment instanceof SsmlProcessor.SsmlSegment.ProsodySegment prosody) {
+                    for (String control : new String[] {"rate", "pitch", "volume"}) {
+                        if (prosody.attributes().contains(control + "=\"")) {
+                            throw unsupported("prosody." + control);
+                        }
+                    }
+                    throw unsupported("prosody");
+                }
+                if (segment instanceof SsmlProcessor.SsmlSegment.PhonemeSegment) {
+                    throw unsupported("pronunciation");
+                }
+                if (segment instanceof SsmlProcessor.SsmlSegment.LanguageSegment) {
+                    throw unsupported("language");
+                }
+                if (segment instanceof SsmlProcessor.SsmlSegment.PauseSegment) {
+                    throw unsupported("pause");
+                }
+                if (segment instanceof SsmlProcessor.SsmlSegment.EmphasisSegment) {
+                    throw unsupported("emphasis");
+                }
+                if (segment instanceof SsmlProcessor.SsmlSegment.SubstitutionSegment) {
+                    throw unsupported("substitution");
+                }
+                if (segment instanceof SsmlProcessor.SsmlSegment.VoiceSegment) {
+                    throw unsupported("voice");
+                }
+            }
             throw unsupported("ssml");
         }
     }

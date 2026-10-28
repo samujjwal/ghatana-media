@@ -1719,13 +1719,13 @@ class TtsGrpcServiceTest {
             service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setOptions(unsupportedOptions).build(), unsupported);
             assertStatus(unsupported, Status.Code.UNIMPLEMENTED);
             assertThat(((StatusRuntimeException) unsupported.error).getStatus().getDescription())
-                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+                    .contains("TTS_NOT_ADMITTED: control", "has no qualified effect or mapping");
         }
         CapturingObserver<SynthesizeResponse> ssml = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.newBuilder().setText("<speak><prosody rate=\"150%\">hello</prosody></speak>").build(), ssml);
         assertStatus(ssml, Status.Code.UNIMPLEMENTED);
         assertThat(((StatusRuntimeException) ssml.error).getStatus().getDescription())
-                .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+                .isEqualTo("TTS_NOT_ADMITTED: control prosody.rate has no qualified effect or mapping for the admitted provider");
 
         CapturingObserver<SynthesizeResponse> malformedSsml = new CapturingObserver<>();
         service.synthesize(SynthesizeRequest.newBuilder().setText("<speak><prosody>").build(), malformedSsml);
@@ -1751,7 +1751,7 @@ class TtsGrpcServiceTest {
             service.synthesize(SynthesizeRequest.newBuilder().setText(markup).build(), observer);
             assertStatus(observer, Status.Code.UNIMPLEMENTED);
             assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
-                    .isEqualTo("TTS_NOT_ADMITTED: requested TTS capability is unsupported");
+                    .contains("TTS_NOT_ADMITTED: control", "has no qualified effect or mapping");
         }
 
         CapturingObserver<SynthesizeResponse> invalidUnits = new CapturingObserver<>();

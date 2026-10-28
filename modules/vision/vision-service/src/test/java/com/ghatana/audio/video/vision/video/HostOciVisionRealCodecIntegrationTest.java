@@ -17,9 +17,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Optional *real FFmpeg* acceptance boundary, distinct from the shell-based
- * OCI resource fixture. Use the pinned Linux ARM64 static FFmpeg/FFprobe image
- * produced from the exact R7 codec archive, in a dedicated JVM selection.
+ * Optional *real FFmpeg* qualification boundary, distinct from the shell-based
+ * OCI resource fixture. Use the pinned Linux ARM64 FFmpeg/FFprobe image produced
+ * from the exact source-pinned archive in a dedicated JVM selection. That
+ * archive disables PNG decode/encode, so the positive pixel-exact fixture uses
+ * Java's lossless BMP encoder and compares the decoded BMP pixels exactly.
  * No remote media, camera, copyrighted content or model weights are needed.
  */
 @EnabledIfEnvironmentVariable(named = "GHATANA_MEDIA_VISION_REAL_CODEC_TEST", matches = "RUN")
@@ -27,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         matches = "(?:[^\\s,@]+@)?sha256:[a-f0-9]{64}")
 class HostOciVisionRealCodecIntegrationTest {
     @Test
-    void pinnedRealFfmpegDecodesOriginalGeneratedPngUnderHostOciLimits() throws Exception {
+    void pinnedRealFfmpegDecodesOriginalGeneratedBmpUnderHostOciLimits() throws Exception {
         try (Fixture fixture = new Fixture()) {
             BufferedImage source = new BufferedImage(32, 24, BufferedImage.TYPE_INT_RGB);
             for (int y = 0; y < source.getHeight(); y++) {
@@ -35,11 +37,12 @@ class HostOciVisionRealCodecIntegrationTest {
                     source.setRGB(x, y, ((x * 3) << 16) | ((y * 5) << 8) | 17);
                 }
             }
-            Path input = fixture.createImage(source);
-            Path output = fixture.output.resolve("frame.png");
+            Path input = fixture.createBmp(source);
+            Path output = fixture.output.resolve("frame.bmp");
             var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-frames:v", "1", "-y", output.toString()),
+                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error", "-threads", "1",
+                    "-i", input.toString(), "-frames:v", "1", "-c:v", "bmp",
+                    "-y", output.toString()),
                     Duration.ofSeconds(30), 8192, fixture.output, 2_000_000L);
 
             assertThat(result.timedOut()).isFalse();
@@ -49,9 +52,14 @@ class HostOciVisionRealCodecIntegrationTest {
             assertThat(Files.isRegularFile(output)).isTrue();
             BufferedImage decoded = ImageIO.read(output.toFile());
             assertThat(decoded).isNotNull();
-            assertThat(decoded.getWidth()).isEqualTo(32);
-            assertThat(decoded.getHeight()).isEqualTo(24);
-            assertThat(decoded.getRGB(16, 12) & 0xffffff).isEqualTo(source.getRGB(16, 12) & 0xffffff);
+            assertThat(decoded.getWidth()).isEqualTo(source.getWidth());
+            assertThat(decoded.getHeight()).isEqualTo(source.getHeight());
+            for (int y = 0; y < source.getHeight(); y++) {
+                for (int x = 0; x < source.getWidth(); x++) {
+                    assertThat(decoded.getRGB(x, y) & 0xffffff)
+                            .isEqualTo(source.getRGB(x, y) & 0xffffff);
+                }
+            }
         }
     }
 
@@ -60,10 +68,11 @@ class HostOciVisionRealCodecIntegrationTest {
         try (Fixture fixture = new Fixture()) {
             Path input = fixture.createBytes("this-is-not-a-media-file".getBytes(java.nio.charset.StandardCharsets.UTF_8),
                     "input.mp4");
-            Path output = fixture.output.resolve("frame.png");
+            Path output = fixture.output.resolve("frame.bmp");
             var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-frames:v", "1", "-y", output.toString()),
+                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error", "-threads", "1",
+                    "-i", input.toString(), "-frames:v", "1", "-c:v", "bmp",
+                    "-y", output.toString()),
                     Duration.ofSeconds(30), 4096, fixture.output, 2_000_000L);
             assertThat(result.exitCode()).isNotZero();
             assertThat(result.timedOut()).isFalse();
@@ -78,11 +87,12 @@ class HostOciVisionRealCodecIntegrationTest {
             for (int y = 0; y < source.getHeight(); y++)
                 for (int x = 0; x < source.getWidth(); x++)
                     source.setRGB(x, y, ((x * 7 % 256) << 16) | ((y * 11 % 256) << 8) | ((x * y) % 256));
-            Path input = fixture.createImage(source);
-            Path output = fixture.output.resolve("frame.png");
+            Path input = fixture.createBmp(source);
+            Path output = fixture.output.resolve("frame.bmp");
             var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-frames:v", "1", "-y", output.toString()),
+                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error", "-threads", "1",
+                    "-i", input.toString(), "-frames:v", "1", "-c:v", "bmp",
+                    "-y", output.toString()),
                     Duration.ofSeconds(30), 4096, fixture.output, 64L);
             assertThat(result.outputExceeded()).as("Fast completion must not bypass output-byte ceiling").isTrue();
         }
@@ -101,10 +111,10 @@ class HostOciVisionRealCodecIntegrationTest {
             output = Files.createDirectory(root.resolve("output"));
             ownerOnly(output);
         }
-        Path createImage(BufferedImage value) throws IOException {
-            Path target = workspace.resolve("input.png");
-            if (!ImageIO.write(value, "png", target.toFile())) {
-                throw new IOException("Java PNG encoder unavailable");
+        Path createBmp(BufferedImage value) throws IOException {
+            Path target = workspace.resolve("input.bmp");
+            if (!ImageIO.write(value, "bmp", target.toFile())) {
+                throw new IOException("Java BMP encoder unavailable");
             }
             Files.setPosixFilePermissions(target, EnumSet.of(PosixFilePermission.OWNER_READ));
             return target;

@@ -980,6 +980,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             description = authorization.getMessage();
         } else if (exception instanceof LocalAdmissionException localAdmission) {
             description = localAdmission.getMessage();
+        } else if (exception instanceof SynthesisControlPolicy.UnsupportedControlException unsupportedControl) {
+            description = "TTS_NOT_ADMITTED: control " + unsupportedControl.control()
+                    + " has no qualified effect or mapping for the admitted provider";
         } else {
             description = switch (status.getCode()) {
             case UNAVAILABLE -> "TTS_NOT_ADMITTED: synthesis provider or capability is unavailable";

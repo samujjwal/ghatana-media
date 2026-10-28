@@ -313,6 +313,7 @@ class PostgresqlMediaTranscriptStoreTest {
             var first = store.appendFromSuccessfulAttempt(candidate, 0, 1, 17, fingerprint, versionRef);
             assertThat(first.admissionStatus()).isEqualTo("CANDIDATE");
             assertThat(store.productionEligible()).isFalse();
+            assertContentFreeTranscriptOutbox(state, "tenant-attempt", "transcript-attempt", "candidate words");
             assertThat(store.attemptBinding("tenant-attempt", "transcript-attempt", 1))
                     .satisfies(binding -> {
                         assertThat(binding.attemptNumber()).isEqualTo(1);
@@ -326,6 +327,7 @@ class PostgresqlMediaTranscriptStoreTest {
                     });
             assertThat(store.appendFromSuccessfulAttempt(candidate, 0, 1, 17, fingerprint, versionRef))
                     .isEqualTo(first);
+            assertContentFreeTranscriptOutbox(state, "tenant-attempt", "transcript-attempt", "candidate words");
 
             assertNoBoundRevision(store, candidate, 0, 1, 17, "b".repeat(64), versionRef);
             assertNoBoundRevision(store, candidate, 0, 1, 17, fingerprint, "urn:media:transcript-version:other");
@@ -641,6 +643,28 @@ class PostgresqlMediaTranscriptStoreTest {
         assertThatThrownBy(() -> store.appendFromSuccessfulAttempt(draft, expectedRevision, attempt, fence,
                 fingerprint, transcriptVersionRef)).isInstanceOf(RuntimeException.class);
         assertThat(store.revisions(draft.tenantId(), draft.principalId(), draft.transcriptId())).hasSize(before);
+    }
+
+    private static void assertContentFreeTranscriptOutbox(
+            MediaAwsPostgresqlRuntimeState state, String tenantId, String transcriptId, String forbiddenText)
+            throws Exception {
+        try (Connection connection = state.connection(); PreparedStatement query = connection.prepareStatement("""
+                SELECT event_id,event_type,payload_json FROM media_processing_lifecycle_outbox
+                 WHERE tenant_id=? AND aggregate_type='transcript' AND aggregate_id=?
+                 ORDER BY aggregate_version
+                """)) {
+            query.setString(1, tenantId);
+            query.setString(2, transcriptId);
+            try (var rows = query.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                assertThat(rows.getString("event_id")).startsWith("media:transcript-revision:");
+                assertThat(rows.getString("event_type")).isEqualTo("media.transcript.revision.created");
+                String payload = rows.getString("payload_json");
+                assertThat(payload).contains(transcriptId, "sourceArtifactVersion", "rightsDecisionId");
+                assertThat(payload).doesNotContain(forbiddenText);
+                assertThat(rows.next()).isFalse();
+            }
+        }
     }
 
     @Test

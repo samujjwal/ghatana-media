@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assumptions;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -11,6 +12,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class LinuxVisionWorkerSandboxTest {
+    @Test
+    void locatesCodecWorkspaceUnderCanonicalTemporaryDirectory() throws Exception {
+        Path workspace = VideoFrameExtractor.createPrivateWorkspace();
+        Path input = workspace.resolve("input.mp4");
+        try {
+            Files.writeString(input, "private fixture");
+            assertThat(LinuxVisionWorkerSandbox.workspaceFor(List.of("ffprobe", "-i", input.toString())))
+                    .isEqualTo(workspace);
+        } finally {
+            Files.deleteIfExists(input);
+            Files.deleteIfExists(workspace);
+        }
+    }
+
     @Test
     void onlyFfmpegAndFfprobeEnterTheNativeWorkerBoundary() {
         assertThat(LinuxVisionWorkerSandbox.isCodecCommand(List.of("ffmpeg", "-version"))).isTrue();

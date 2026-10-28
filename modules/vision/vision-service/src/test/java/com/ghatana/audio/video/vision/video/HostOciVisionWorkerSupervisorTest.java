@@ -36,11 +36,12 @@ class HostOciVisionWorkerSupervisorTest {
         assertThat(plan.imageDigest()).isEqualTo(IMAGE);
         assertThat(plan.createCommand()).contains(
                 "--pull=never", "--platform=linux/arm64", "--memory=1610612736",
-                "--memory-swap=1610612736", "--cpus=2", "--pids-limit=32", "--network=none",
+                "--memory-swap=1610612736", "--cpus=2", "--pids-limit=32", "--ulimit=nofile=64:64",
+                "--ulimit=fsize=536870912:536870912", "--network=none",
                 "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges:true",
-                "--tmpfs", "/tmp:rw,nosuid,nodev,exec,size=128m", "--user=" + uid + ":" + gid,
+                "--tmpfs", "/tmp:rw,nosuid,nodev,exec,size=128m,nr_inodes=4096", "--user=" + uid + ":" + gid,
                 "--mount", "type=bind,source=" + source + ",target=/source/input,readonly",
-                "type=bind,source=" + output + ",target=/output", "--entrypoint=/usr/bin/ffmpeg");
+                "--mount", "type=bind,source=" + output + ",target=/output", "--entrypoint=/usr/bin/ffmpeg");
         assertThat(plan.createCommand()).contains("/source/input", "/output/frame_%04d.jpg")
                 .doesNotContain(source.toString(), output.toString(), "/var/run/docker.sock");
         assertThat(plan.createCommand()).doesNotContain("AWS_SECRET_ACCESS_KEY", "MEDIA_POSTGRES_PASSWORD", "DOCKER_HOST");
@@ -72,19 +73,21 @@ class HostOciVisionWorkerSupervisorTest {
     @Test
     void preflightRejectsAnyChangedKernelLimitsOrUnexpectedSocketMount() {
         String host = "{\"Memory\":1610612736,\"MemorySwap\":1610612736,\"NanoCpus\":2000000000,"
-                + "\"PidsLimit\":32,\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Privileged\":false,"
+                + "\"PidsLimit\":32,\"Ulimits\":[{\"Name\":\"nofile\",\"Soft\":64,\"Hard\":64},"
+                + "{\"Name\":\"fsize\",\"Soft\":536870912,\"Hard\":536870912}],"
+                + "\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Privileged\":false,"
                 + "\"CapDrop\":[\"ALL\"],\"CapAdd\":null,\"Devices\":[],\"DeviceRequests\":null,"
                 + "\"SecurityOpt\":[\"no-new-privileges:true\"],"
-                + "\"Tmpfs\":{\"/tmp\":\"rw,nosuid,nodev,exec,size=128m\"},"
+                + "\"Tmpfs\":{\"/tmp\":\"rw,nosuid,nodev,exec,size=128m,nr_inodes=4096\"},"
                 + "\"PublishAllPorts\":false,\"Mounts\":["
                 + "{\"Type\":\"bind\",\"Source\":\"/tmp/input.mp4\",\"Target\":\"/source/input\",\"ReadOnly\":true},"
-                + "{\"Type\":\"bind\",\"Source\":\"/tmp/output\",\"Target\":\"/output\",\"ReadOnly\":false}]}";
+                + "{\"Type\":\"bind\",\"Source\":\"/tmp/output\",\"Target\":\"/output\"}]}";
         String config = "{\"User\":\"501:20\",\"Entrypoint\":[\"/usr/bin/ffmpeg\"],"
                 + "\"Image\":\"" + IMAGE + "\","
                 + "\"Env\":[\"HOME=/tmp\",\"TMPDIR=/tmp\",\"PATH=/usr/bin:/bin\","
                 + "\"LANG=C.UTF-8\",\"LC_ALL=C.UTF-8\"]}";
         String mounts = "[{\"Type\":\"bind\",\"Destination\":\"/source/input\",\"ReadOnly\":true,\"Source\":\"/tmp/input.mp4\",\"RW\":false},"
-                + "{\"Type\":\"bind\",\"Destination\":\"/output\",\"Source\":\"/tmp/output\",\"RW\":true}]";
+                + "{\"Type\":\"bind\",\"Destination\":\"/output\",\"ReadOnly\":false,\"Source\":\"/tmp/output\",\"RW\":true}]";
         host = host.replace("\"NetworkMode\":\"none\"", "\"NetworkMode\":\"none\",\"PortBindings\":{}");
 
         assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
@@ -95,6 +98,20 @@ class HostOciVisionWorkerSupervisorTest {
                 host.replace("\"Memory\":1610612736", "\"Memory\":1610612735") + "|" + config + "|" + mounts,
                 true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
                 Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
+                host.replace("\"Soft\":64", "\"Soft\":65") + "|" + config + "|" + mounts,
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
+                Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
+                host.replace("\"Soft\":536870912", "\"Soft\":536870911") + "|" + config + "|" + mounts,
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
+                Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
+                host.replace("\"Memory\":1610612736,\"MemorySwap\":1610612736",
+                                "\"MemorySwap\":1610612736, \"Memory\":1610612736")
+                        + "|" + config + "|" + mounts,
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
+                Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isTrue();
         assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
                 host + "|" + config + "|" + mounts.substring(0, mounts.length() - 1)
                         + ",{\"Destination\":\"/var/run/docker.sock\",\"RW\":true}]",
@@ -107,6 +124,11 @@ class HostOciVisionWorkerSupervisorTest {
         assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
                 host.replace("\"Target\":\"/source/input\",\"ReadOnly\":true",
                                 "\"Target\":\"/source/input\",\"ReadOnly\":false")
+                        + "|" + config + "|" + mounts,
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
+                Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
+                host.replace("\"Target\":\"/output\"", "\"Target\":\"/output\",\"ReadOnly\":true")
                         + "|" + config + "|" + mounts,
                 true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
                 Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isFalse();

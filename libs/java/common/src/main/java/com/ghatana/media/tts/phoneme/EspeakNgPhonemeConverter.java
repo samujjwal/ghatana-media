@@ -74,7 +74,7 @@ public class EspeakNgPhonemeConverter implements TextToPhonemeConverter {
     @Override
     public String convert(String text, Locale locale) {
         try {
-            String langCode = locale.getLanguage();  // "en", "fr", etc.
+            String langCode = locale.toLanguageTag().toLowerCase(Locale.ROOT); // preserve e.g. en-US voice selection
             return (String) textToPhonemes.invoke(espeakInstance, text, langCode);
         } catch (Exception e) {
             throw new TextToPhonemeConverter.PhonemeConversionException(

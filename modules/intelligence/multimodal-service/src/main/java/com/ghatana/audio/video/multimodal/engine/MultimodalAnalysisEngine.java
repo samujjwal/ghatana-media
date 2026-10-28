@@ -111,7 +111,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
             cancellation.preflight();
             acquireAdmission();
             admissionAcquired = true;
-            long startMs = System.currentTimeMillis();
+            long startedNanos = System.nanoTime();
             Future<AudioResult> audioFuture = request.hasAudio()
                     ? submit(children, cancellation, () -> transcribeAudio(request.getAudioData())) : null;
             Future<VisualResult> imageFuture = request.hasImage()
@@ -132,7 +132,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                     request.hasVideo(), video);
 
             String combined = fuse(audio, visual, request.getText());
-            long elapsed = System.currentTimeMillis() - startMs;
+            long elapsed = elapsedMillis(startedNanos);
 
             LOG.info("Multimodal analysis complete in {}ms (audio={}, image={}, video={}, text={})",
                     elapsed,
@@ -212,7 +212,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
             cancellation.preflight();
             acquireAdmission();
             admissionAcquired = true;
-            long startMs = System.currentTimeMillis();
+            long startedNanos = System.nanoTime();
             Future<AudioResult> audioFuture = extractAudio
                     ? submit(children, cancellation, () -> transcribeVideoAudio(videoData)) : null;
             Future<VisualResult> videoFuture = analyseFrames
@@ -223,7 +223,7 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
 
             List<TemporalAlignment> alignments = buildTemporalAlignments(audio, video);
             String narrative = buildNarrative(audio, video, alignments);
-            long elapsed = System.currentTimeMillis() - startMs;
+            long elapsed = elapsedMillis(startedNanos);
 
             VideoAudioResult result = VideoAudioResult.builder()
                     .audioResult(audio)
@@ -503,6 +503,11 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         long remaining = deadlineNanos - System.nanoTime();
         if (remaining <= 0) throw new TimeoutException();
         return future.get(remaining, TimeUnit.NANOSECONDS);
+    }
+
+    /** Measure processing duration on the monotonic clock; wall-clock adjustments must not alter it. */
+    private static long elapsedMillis(long startedNanos) {
+        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
     }
 
     private static void cancel(List<Future<?>> children) {

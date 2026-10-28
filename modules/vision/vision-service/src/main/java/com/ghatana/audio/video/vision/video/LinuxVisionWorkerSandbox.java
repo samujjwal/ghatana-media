@@ -132,7 +132,10 @@ final class LinuxVisionWorkerSandbox {
     }
 
     static Path workspaceFor(List<String> command) throws IOException {
-        Path temp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath(LinkOption.NOFOLLOW_LINKS);
+        // Match the canonical temp root used by media staging. On macOS the configured
+        // java.io.tmpdir is commonly /var/... while toRealPath() returns /private/var/...;
+        // comparing a canonical candidate to the unresolved alias rejects valid workspaces.
+        Path temp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath();
         for (String argument : command) {
             try {
                 Path candidate = Path.of(argument).toAbsolutePath().normalize()

@@ -144,7 +144,7 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
                 .asRuntimeException());
         } catch (UnsupportedOperationException e) {
             responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription("Requested TTS capability is not implemented")
+                .withDescription(unsupportedDescription(e))
                 .asRuntimeException());
         } catch (Exception e) {
             LOG.error("TTS synthesis failed (type={})", e.getClass().getSimpleName());
@@ -240,6 +240,9 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
                 && synthesis.reason() == TtsSynthesisEngine.FailureReason.NOT_ADMITTED) {
             return Status.UNAVAILABLE.withDescription("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
         }
+        if (cause instanceof SynthesisControlPolicy.UnsupportedControlException) {
+            return Status.UNIMPLEMENTED.withDescription(unsupportedDescription(cause));
+        }
         if (cause instanceof UnsupportedOperationException) {
             return Status.UNIMPLEMENTED.withDescription("Requested TTS capability is not implemented");
         }
@@ -251,6 +254,14 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
             return Status.DEADLINE_EXCEEDED.withDescription("TTS synthesis timed out");
         }
         return Status.INTERNAL.withDescription("TTS synthesis failed");
+    }
+
+    private static String unsupportedDescription(Throwable failure) {
+        if (failure instanceof SynthesisControlPolicy.UnsupportedControlException unsupported) {
+            return "TTS_NOT_ADMITTED: control " + unsupported.control()
+                    + " has no qualified effect or mapping for the admitted provider";
+        }
+        return "Requested TTS capability is not implemented";
     }
 
     private static Throwable rootCause(Throwable error) {

@@ -216,6 +216,9 @@ public final class MediaTranscriptContracts {
             return unavailableCapability(capability);
         }
 
+        /** True only when the durable transcript schema and storage connection are currently usable. */
+        default boolean ready() { return false; }
+
         boolean productionEligible();
         @Override void close();
     }

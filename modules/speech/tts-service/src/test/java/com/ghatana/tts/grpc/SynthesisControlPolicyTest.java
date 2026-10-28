@@ -3,7 +3,9 @@ package com.ghatana.tts.grpc;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesisOptions;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -139,16 +141,18 @@ class SynthesisControlPolicyTest {
     }
 
     @Test
-    void validProsodyAndPronunciationAreParsedButNeverReportedAsApplied() {
-        for (String ssml : new String[] {
-                "<speak><prosody rate=\"120%\" pitch=\"2st\" volume=\"3dB\">hello</prosody></speak>",
-                "<speak><phoneme alphabet=\"ipa\" ph=\"həˈloʊ\">hello</phoneme></speak>"
-        }) {
-            assertThatThrownBy(() -> SynthesisControlPolicy.rejectUnqualifiedSsml(ssml))
+    void validProsodyAndPronunciationReportTheirExactUnqualifiedControl() {
+        for (var testCase : List.of(
+                Map.entry("<speak><prosody rate=\"120%\">hello</prosody></speak>", "prosody.rate"),
+                Map.entry("<speak><prosody pitch=\"2st\">hello</prosody></speak>", "prosody.pitch"),
+                Map.entry("<speak><prosody volume=\"3dB\">hello</prosody></speak>", "prosody.volume"),
+                Map.entry("<speak><phoneme alphabet=\"ipa\" ph=\"həˈloʊ\">hello</phoneme></speak>",
+                        "pronunciation"))) {
+            assertThatThrownBy(() -> SynthesisControlPolicy.rejectUnqualifiedSsml(testCase.getKey()))
                     .isInstanceOf(SynthesisControlPolicy.UnsupportedControlException.class)
                     .satisfies(error -> assertThat(
                             ((SynthesisControlPolicy.UnsupportedControlException) error).control())
-                            .isEqualTo("ssml"))
+                            .isEqualTo(testCase.getValue()))
                     .hasMessageContaining("no qualified observable effect or mapping");
         }
     }

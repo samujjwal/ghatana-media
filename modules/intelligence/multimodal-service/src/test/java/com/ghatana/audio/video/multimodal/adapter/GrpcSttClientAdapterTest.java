@@ -8,7 +8,9 @@ import com.ghatana.audio.video.common.observability.TracingServerInterceptor;
 import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.stt.core.grpc.proto.ConfidenceCalibration;
 import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
+import com.ghatana.stt.core.grpc.proto.TimestampTimebase;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
+import com.ghatana.stt.core.grpc.proto.WordTiming;
 import io.grpc.Context;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -188,6 +190,159 @@ class GrpcSttClientAdapterTest {
             } finally {
                 server.shutdownNow();
             }
+        }
+    }
+
+    @Test
+    @DisplayName("Preserves explicitly source-zero word timing without sharing clocks across requests")
+    void preservesSourceZeroWordTimingOnAnIsolatedRequestClock() throws Exception {
+        Server server = ServerBuilder.forPort(0)
+                .addService(new STTServiceGrpc.STTServiceImplBase() {
+                    @Override
+                    public void transcribe(
+                            com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                            StreamObserver<TranscribeResponse> observer) {
+                        assertThat(request.getSampleRate()).isEqualTo(16_000);
+                        assertThat(request.getOptions().getEnableWordTimings()).isTrue();
+                        observer.onNext(TranscribeResponse.newBuilder().setText("hello world")
+                                .setWordTimingTimebase(TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO)
+                                .addWordTimings(WordTiming.newBuilder().setWord("hello")
+                                        .setStartMs(0).setEndMs(420))
+                                .addWordTimings(WordTiming.newBuilder().setWord("world")
+                                        .setStartMs(430).setEndMs(900))
+                                .build());
+                        observer.onCompleted();
+                    }
+                }).build().start();
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+            byte[] oneSecondPcm = new byte[32_000];
+            AudioResult first = adapter.transcribe(oneSecondPcm);
+            AudioResult second = adapter.transcribe(oneSecondPcm);
+
+            assertThat(first.getTimedSegments()).hasSize(2);
+            assertThat(first.getTimedSegments().get(0).getText()).isEqualTo("hello");
+            assertThat(first.getTimedSegments().get(0).getStartTime().ticks()).isZero();
+            assertThat(first.getTimedSegments().get(1).getStartTime()
+                    .sharesClock(first.getTimedSegments().get(0).getStartTime())).isTrue();
+            assertThat(first.getTimedSegments().get(0).getStartTime()
+                    .sharesClock(second.getTimedSegments().get(0).getStartTime())).isFalse();
+        } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    @DisplayName("Unknown STT word timing origin remains unassociated")
+    void ignoresWordTimingWhenProviderDoesNotDeclareItsClockOrigin() throws Exception {
+        Server server = ServerBuilder.forPort(0)
+                .addService(new STTServiceGrpc.STTServiceImplBase() {
+                    @Override
+                    public void transcribe(
+                            com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                            StreamObserver<TranscribeResponse> observer) {
+                        observer.onNext(TranscribeResponse.newBuilder().setText("fixture")
+                                .addWordTimings(WordTiming.newBuilder().setWord("fixture")
+                                        .setStartMs(0).setEndMs(500))
+                                .build());
+                        observer.onCompleted();
+                    }
+                }).build().start();
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+            AudioResult result = adapter.transcribe(new byte[] {1});
+            assertThat(result.getTranscription()).isEqualTo("fixture");
+            assertThat(result.getTimedSegments()).isEmpty();
+        } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    @DisplayName("Invalid source-relative word bounds fail the child result instead of being aligned")
+    void rejectsInvalidSourceRelativeWordBounds() throws Exception {
+        Server server = ServerBuilder.forPort(0)
+                .addService(new STTServiceGrpc.STTServiceImplBase() {
+                    @Override
+                    public void transcribe(
+                            com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                            StreamObserver<TranscribeResponse> observer) {
+                        observer.onNext(TranscribeResponse.newBuilder().setText("bad timing")
+                                .setWordTimingTimebase(TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO)
+                                .addWordTimings(WordTiming.newBuilder().setWord("bad")
+                                        .setStartMs(500).setEndMs(100))
+                                .build());
+                        observer.onCompleted();
+                    }
+                }).build().start();
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+            AudioResult result = adapter.transcribe(new byte[] {1});
+            assertThat(result.isError()).isTrue();
+            assertThat(result.getTimedSegments()).isEmpty();
+        } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    @DisplayName("Rejects source word timing beyond the submitted PCM duration")
+    void rejectsWordTimingBeyondSubmittedPcmDuration() throws Exception {
+        Server server = ServerBuilder.forPort(0)
+                .addService(new STTServiceGrpc.STTServiceImplBase() {
+                    @Override
+                    public void transcribe(
+                            com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                            StreamObserver<TranscribeResponse> observer) {
+                        observer.onNext(TranscribeResponse.newBuilder().setText("overlong timing")
+                                .setWordTimingTimebase(TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO)
+                                .addWordTimings(WordTiming.newBuilder().setWord("overlong")
+                                        .setStartMs(950).setEndMs(1001))
+                                .build());
+                        observer.onCompleted();
+                    }
+                }).build().start();
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+            AudioResult result = adapter.transcribe(new byte[32_000]);
+            assertThat(result.isError()).isTrue();
+            assertThat(result.getTimedSegments()).isEmpty();
+        } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    @DisplayName("Rejects source word timings that move backward across segments")
+    void rejectsBackwardWordTimingAcrossSegments() throws Exception {
+        Server server = ServerBuilder.forPort(0)
+                .addService(new STTServiceGrpc.STTServiceImplBase() {
+                    @Override
+                    public void transcribe(
+                            com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                            StreamObserver<TranscribeResponse> observer) {
+                        observer.onNext(TranscribeResponse.newBuilder().setText("backward timing")
+                                .setWordTimingTimebase(TimestampTimebase.TIMESTAMP_TIMEBASE_SOURCE_SAMPLE_ZERO)
+                                .addWordTimings(WordTiming.newBuilder().setWord("first")
+                                        .setStartMs(400).setEndMs(500))
+                                .addWordTimings(WordTiming.newBuilder().setWord("second")
+                                        .setStartMs(300).setEndMs(600))
+                                .build());
+                        observer.onCompleted();
+                    }
+                }).build().start();
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+            AudioResult result = adapter.transcribe(new byte[32_000]);
+            assertThat(result.isError()).isTrue();
+            assertThat(result.getTimedSegments()).isEmpty();
+        } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 
