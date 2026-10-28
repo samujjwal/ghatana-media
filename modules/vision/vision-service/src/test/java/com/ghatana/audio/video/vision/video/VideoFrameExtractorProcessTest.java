@@ -771,6 +771,19 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void duplicateShowinfoOrdinalDoesNotArbitrarilyChooseAFramePts() {
+        String diagnostics = "[Parsed_showinfo_0] config in time_base: 1/90000, frame_rate: 30/1\n"
+                + "[Parsed_showinfo_0] n: 0 pts: 90000 pts_time:1.0\n"
+                + "[Parsed_showinfo_0] n: 0 pts: 180000 pts_time:2.0\n";
+
+        var timestamp = VideoFrameExtractor.timestampForOutputFrame(diagnostics, 0, "1/90000");
+
+        assertThat(timestamp.status()).isEqualTo(SourceMediaTimestamp.Status.UNKNOWN);
+        assertThat(timestamp.timestampMs()).isNull();
+        assertThat(timestamp.reason()).isEqualTo("SOURCE_PTS_AMBIGUOUS");
+    }
+
+    @Test
     void rationalTimebaseConversionRoundsToNearestMillisecondWithoutFpsSynthesis() {
         var timestamp = SourceMediaTimestamp.fromPts("1001", "1/30000");
         assertThat(timestamp.status()).isEqualTo(SourceMediaTimestamp.Status.KNOWN);

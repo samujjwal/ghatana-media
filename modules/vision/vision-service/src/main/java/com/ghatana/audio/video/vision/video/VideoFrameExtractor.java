@@ -865,20 +865,29 @@ public class VideoFrameExtractor {
         }
         String effectiveTimeBase = ffmpegTimeBase == null ? timeBase : ffmpegTimeBase;
         Matcher matcher = SHOWINFO_PTS.matcher(source);
+        SourceMediaTimestamp matchedTimestamp = null;
         while (matcher.find()) {
             try {
                 int reportedFrame = Integer.parseInt(matcher.group(1));
                 if (reportedFrame == frameNumber) {
                     String rawPts = matcher.group(2);
-                    return "NOPTS".equalsIgnoreCase(rawPts)
+                    SourceMediaTimestamp candidate = "NOPTS".equalsIgnoreCase(rawPts)
                             ? SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING")
                             : SourceMediaTimestamp.fromPts(rawPts, effectiveTimeBase);
+                    // A frame ordinal must identify exactly one source timestamp. Repeated
+                    // showinfo records can arise from merged/truncated diagnostics; choosing
+                    // the first would silently attach an arbitrary PTS to the emitted image.
+                    if (matchedTimestamp != null) {
+                        return SourceMediaTimestamp.unknown("SOURCE_PTS_AMBIGUOUS");
+                    }
+                    matchedTimestamp = candidate;
                 }
             } catch (NumberFormatException invalidFrameNumber) {
                 return SourceMediaTimestamp.unknown("FRAME_SEQUENCE_INVALID");
             }
         }
-        return SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING");
+        return matchedTimestamp == null
+                ? SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING") : matchedTimestamp;
     }
 
     /**
