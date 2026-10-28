@@ -64,6 +64,22 @@ class CrossModalFusionEngineTest {
     }
 
     @Test
+    @DisplayName("visual bounding box metadata rejects non-finite coordinates")
+    void visualBoundingBoxesRejectNonFiniteCoordinates() {
+        assertThatThrownBy(() -> new VisualFeatures(new double[DIM],
+                new double[] {0.0, 1.0, Double.NaN, 4.0}, 0.5, "space"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Bounding boxes");
+        assertThatThrownBy(() -> new VisualFeatures(new double[DIM],
+                new double[] {0.0, Double.POSITIVE_INFINITY, 2.0, 4.0}, 0.5, "space"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Bounding boxes");
+
+        assertThat(new VisualFeatures(new double[DIM], new double[] {0.0, 1.0, 2.0, 4.0},
+                0.5, "space").boundingBoxes()).containsExactly(0.0, 1.0, 2.0, 4.0);
+    }
+
+    @Test
     @DisplayName("caller mutations cannot alter subsequent fusion")
     void featureArrayMutationsDoNotAlterFusion() {
         double[] audioInput = new double[DIM];

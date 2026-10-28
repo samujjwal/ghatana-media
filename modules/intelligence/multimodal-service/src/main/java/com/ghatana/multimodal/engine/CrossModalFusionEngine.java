@@ -35,6 +35,13 @@ public class CrossModalFusionEngine {
         public VisualFeatures {
             embeddings = copy(embeddings);
             boundingBoxes = copy(boundingBoxes);
+            if (boundingBoxes != null) {
+                for (double coordinate : boundingBoxes) {
+                    if (!Double.isFinite(coordinate)) {
+                        throw new IllegalArgumentException("Bounding boxes must contain only finite values");
+                    }
+                }
+            }
         }
         @Override public double[] embeddings() { return copy(embeddings); }
         @Override public double[] boundingBoxes() { return copy(boundingBoxes); }
