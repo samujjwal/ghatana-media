@@ -201,6 +201,64 @@ class SpeakerDiarizationServiceTest {
         }
 
         @Test
+        @DisplayName("overlapping turns never reuse an active anonymous speaker label")
+        void overlappingTurnsDoNotShareActiveSpeakerLabel() {
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> new float[] {1.0f, 0.0f})
+                    .admission(() -> true) // test fixture; no production rights authority is wired
+                    .maxSpeakers(2)
+                    .similarityThreshold(0.8)
+                    .build();
+
+            var turns = service.diarize(List.of(
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {1}, 0, 1000, "first"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {2}, 500, 1500, "overlap")));
+
+            assertThat(turns).extracting(SpeakerDiarizationService.SpeakerTurn::speakerId)
+                    .containsExactly("SPEAKER_0", "SPEAKER_1");
+        }
+
+        @Test
+        @DisplayName("chooses an available matching label when the closest label is still active")
+        void choosesAvailableSpeakerWhenClosestSpeakerOverlaps() {
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> switch (bytes[0]) {
+                        case 1 -> new float[] {1.0f, 0.0f};
+                        case 2 -> new float[] {0.8f, 0.6f};
+                        default -> new float[] {0.95f, 0.31225f};
+                    })
+                    .admission(() -> true) // test fixture; no production rights authority is wired
+                    .maxSpeakers(2)
+                    .similarityThreshold(0.9)
+                    .build();
+
+            var turns = service.diarize(List.of(
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {1}, 0, 2000, "first"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {2}, 500, 1000, "overlap"),
+                    new SpeakerDiarizationService.AudioSegment(new byte[] {3}, 1000, 1500, "available")));
+
+            assertThat(turns).extracting(SpeakerDiarizationService.SpeakerTurn::speakerId)
+                    .containsExactly("SPEAKER_0", "SPEAKER_1", "SPEAKER_1");
+        }
+
+        @Test
+        @DisplayName("overlapping matching turn fails closed when no anonymous label is available")
+        void overlappingTurnAtSpeakerCapFailsClosed() {
+            var service = SpeakerDiarizationService.builder()
+                    .embeddingExtractor(bytes -> new float[] {1.0f, 0.0f})
+                    .admission(() -> true) // test fixture; no production rights authority is wired
+                    .maxSpeakers(1)
+                    .similarityThreshold(0.8)
+                    .build();
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.diarize(List.of(
+                            new SpeakerDiarizationService.AudioSegment(new byte[] {1}, 0, 1000, "first"),
+                            new SpeakerDiarizationService.AudioSegment(new byte[] {2}, 500, 1500, "overlap"))))
+                    .isInstanceOf(SpeakerDiarizationService.DiarizationException.class)
+                    .hasMessageContaining("STT_DIARIZATION_SPEAKER_LIMIT_EXCEEDED");
+        }
+
+        @Test
         @DisplayName("inconsistent provider embedding dimensions fail with typed provider error")
         void inconsistentEmbeddingDimensionsFailBeforeReturningTurns() {
             var extractionCount = new java.util.concurrent.atomic.AtomicInteger();

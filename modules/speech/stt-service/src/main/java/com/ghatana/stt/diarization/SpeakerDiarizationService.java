@@ -115,6 +115,7 @@ public final class SpeakerDiarizationService {
 
         List<SpeakerTurn> result = new ArrayList<>(requestSegments.size());
         List<float[]> centroids = new ArrayList<>(); // per-speaker centroid embeddings
+        List<Long> latestTurnEndMs = new ArrayList<>();
         int embeddingDimensions = -1;
 
         for (AudioSegment segment : requestSegments) {
@@ -130,7 +131,8 @@ public final class SpeakerDiarizationService {
                 throw new DiarizationException(
                         "STT_DIARIZATION_PROVIDER_INVALID: embedding dimensions changed within the request");
             }
-            String speakerId = assignSpeaker(embedding, centroids);
+            String speakerId = assignSpeaker(embedding, centroids, latestTurnEndMs,
+                    segment.startMs(), segment.endMs());
 
             result.add(new SpeakerTurn(speakerId, segment.startMs(), segment.endMs(), segment.text()));
         }
@@ -230,11 +232,19 @@ public final class SpeakerDiarizationService {
 
     // ─── internal ─────────────────────────────────────────────────────────────
 
-    private String assignSpeaker(float[] embedding, List<float[]> centroids) {
+    private String assignSpeaker(
+            float[] embedding,
+            List<float[]> centroids,
+            List<Long> latestTurnEndMs,
+            long startMs,
+            long endMs) {
         double bestSim = -1.0;
         int bestIdx = -1;
 
         for (int i = 0; i < centroids.size(); i++) {
+            if (latestTurnEndMs.get(i) > startMs) {
+                continue;
+            }
             double sim = cosineSimilarity(embedding, centroids.get(i));
             if (sim > bestSim) {
                 bestSim = sim;
@@ -248,12 +258,14 @@ public final class SpeakerDiarizationService {
             for (int d = 0; d < centroid.length; d++) {
                 centroid[d] = 0.9f * centroid[d] + 0.1f * embedding[d];
             }
+            latestTurnEndMs.set(bestIdx, endMs);
             return "SPEAKER_" + bestIdx;
         }
 
         // New speaker (if under cap)
         if (centroids.size() < maxSpeakers) {
             centroids.add(embedding.clone());
+            latestTurnEndMs.add(endMs);
             return "SPEAKER_" + (centroids.size() - 1);
         }
 
