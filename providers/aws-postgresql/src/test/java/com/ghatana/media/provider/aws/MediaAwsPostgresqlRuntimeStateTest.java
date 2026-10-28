@@ -377,6 +377,21 @@ class MediaAwsPostgresqlRuntimeStateTest {
                         assertThat(interruptedUnknown.state()).isEqualTo(StreamState.FAILED);
                         assertThat(interruptedUnknown.finality()).isEqualTo(StreamFinality.UNKNOWN);
                         assertThat(interruptedUnknown.inFlightSequence()).isZero();
+                        assertThat(interruptedUnknown.inFlightAttemptId()).isEqualTo("attempt-interrupted-frame");
+                        assertThatThrownBy(() -> restartedStreams.connect(
+                                interruptedPending, tokenHash, Instant.now().plusSeconds(60)))
+                                .isInstanceOf(IllegalStateException.class)
+                                .hasMessageContaining("outcome is unknown");
+                        StreamSession interruptedUnknownAfterRetry = restartedStreams
+                                .find("tenant-a", "stream-interrupted").orElseThrow();
+                        assertThat(interruptedUnknownAfterRetry.state()).isEqualTo(StreamState.FAILED);
+                        assertThat(interruptedUnknownAfterRetry.finality()).isEqualTo(StreamFinality.UNKNOWN);
+                        assertThat(interruptedUnknownAfterRetry.inFlightSequence()).isZero();
+                        assertThat(interruptedUnknownAfterRetry.inFlightAttemptId())
+                                .isEqualTo("attempt-interrupted-frame");
+                        assertThat(interruptedUnknownAfterRetry.version()).isEqualTo(interruptedUnknown.version());
+                        assertThat(interruptedUnknownAfterRetry.acknowledgementRevision())
+                                .isEqualTo(interruptedUnknown.acknowledgementRevision());
                         assertThatThrownBy(() -> restartedStreams.connect(
                                 closed, tokenHash, Instant.now().plusSeconds(60)))
                                 .isInstanceOf(IllegalStateException.class)

@@ -91,7 +91,18 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
             throw new SecurityException("Invalid media stream connection token");
         }
         if (expected.inFlightSequence() != null) {
-            markFrameOutcomeUnknown(expected);
+            // A reconnect can be retried after the first recovery persisted UNKNOWN. Keep that
+            // durable observation and attempt identity stable; never rewrite UNKNOWN or replay.
+            if (expected.finality() == StreamFinality.NONE) {
+                try {
+                    markFrameOutcomeUnknown(expected);
+                } catch (IllegalStateException failure) {
+                    if (!"Media stream session version or ownership changed".equals(failure.getMessage())
+                            || !sameUnknownReservation(expected)) {
+                        throw failure;
+                    }
+                }
+            }
             throw new IllegalStateException("Media stream provider outcome is unknown; frame replay is blocked");
         }
         if (expected.state() != StreamState.OPEN
@@ -108,6 +119,16 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 null, ""));
         update(expected, updated, "connection_token_hash=?", statement -> statement.setString(1, tokenHash));
         return updated;
+    }
+
+    private boolean sameUnknownReservation(StreamSession expected) {
+        StreamSession current = find(expected.tenantId(), expected.sessionId()).orElse(null);
+        return current != null
+                && current.tenantId().equals(expected.tenantId())
+                && current.sessionId().equals(expected.sessionId())
+                && current.finality() == StreamFinality.UNKNOWN
+                && java.util.Objects.equals(current.inFlightSequence(), expected.inFlightSequence())
+                && current.inFlightAttemptId().equals(expected.inFlightAttemptId());
     }
 
     @Override
