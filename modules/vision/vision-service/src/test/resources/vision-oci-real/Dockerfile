@@ -1,10 +1,18 @@
-# Opt-in qualification image only. The build context contains independently
-# SHA-256-qualified Linux ARM64 FFmpeg and FFprobe from the existing R7 codec
-# provisioner. No binary is checked into Media or downloaded during build.
-FROM ubuntu@sha256:24737cef17f4e22b1977df7d9a05e77c4e28b7da5b8911f8d8ccda136bf3573c
+# Opt-in isolated Linux ARM64 FFmpeg development/qualification image ONLY.
+# Context: verified output of scripts/prepare-wave2-codecs.sh linux-arm64.
+# Its PROVISION.json pins the release archive, binary hashes and six native
+# runtime dependency packages. No model, codec binary or package is committed.
+FROM ubuntu:24.04@sha256:19cad59657037cffa0ac9a48107019b768900ff1071140965827513ac866bd5e
+
+COPY native-runtime-packages/ /tmp/codec-runtime/
+RUN cd /tmp/codec-runtime \
+    && sha256sum -c SHA256SUMS \
+    && dpkg -i ./*.deb \
+    && cd / \
+    && rm -rf /tmp/codec-runtime
 
 COPY --chmod=0555 ffmpeg /usr/bin/ffmpeg
 COPY --chmod=0555 ffprobe /usr/bin/ffprobe
 
-# The host OCI supervisor overrides the entrypoint and requires a local,
-# separately pinned image ID at each execution. No network listener.
+# The host OCI supervisor chooses the exact binary entrypoint, immutable
+# local sha256:image ID and strict sandbox. This image never runs privileged.
