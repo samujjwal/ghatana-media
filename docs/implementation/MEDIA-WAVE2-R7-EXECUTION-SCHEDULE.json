@@ -2091,5 +2091,118 @@
       "allOpenRowsTaskAccepted": false
     },
     "claims": "Current-cut implementation and execution evidence only. No owner/rights approval, task acceptance, PDP/gtool transition or closure, deployment, data cutover, or release is asserted."
+  },
+  "postR7CoordinatedFollowUp": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "72c86cb05ed816bb830ef759a820bce9288e7d37",
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "launcherTestsRanAfterMediaCommitsOnCleanWorktree": true,
+      "ttsTestSourceMatchesCommittedContent": true,
+      "sharedWorktreeCleanAtTestTime": true
+    },
+    "implementationCommits": [
+      {
+        "commit": "fbe184a0b294acf864019746ab5c567582c9c724",
+        "package": "X10",
+        "changedFiles": [
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaArtifactContentReadTest.java"
+        ],
+        "summary": "Atomically registers direct and provider source-copy reads against runtime close, prevents new copies after shutdown begins, waits through stage cleanup before closing the artifact store, rejects reentrant close from an active copy thread, and uses a runtime-specific staging filename prefix.",
+        "focusedTest": {
+          "selectors": [
+            "MediaArtifactContentReadTest",
+            "MediaRuntimeActiveTest",
+            "MediaRuntimeJobGovernanceTest"
+          ],
+          "tests": 45,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "suiteFiles": 3,
+          "runtime": "macOS ARM64, Temurin 27.0.1.0.2",
+          "reportFiles": [
+            "launcher/build/test-results/test/TEST-com.ghatana.media.launcher.MediaArtifactContentReadTest.xml",
+            "launcher/build/test-results/test/TEST-com.ghatana.media.launcher.MediaRuntimeActiveTest.xml",
+            "launcher/build/test-results/test/TEST-com.ghatana.media.launcher.MediaRuntimeJobGovernanceTest.xml"
+          ]
+        },
+        "independentCodeReview": "Luna review approved after fixing reentrant-close deadlock risk and making close-start and stage-cleanup assertions deterministic.",
+        "wholeTaskPromotion": false,
+        "remaining": "No crash scavenger or modality dispatch wiring; production source reads remain NOT_ADMITTED without X07 authority. STT-03, TTS-05, VIS-10 and MM-02 remain PARTIAL."
+      },
+      {
+        "commit": "72c86cb05ed816bb830ef759a820bce9288e7d37",
+        "package": "TTS-05 support invariant",
+        "changedFiles": [
+          "modules/speech/tts-service/src/main/java/com/ghatana/tts/security/EmbeddingEncryptionService.java",
+          "modules/speech/tts-service/src/test/java/com/ghatana/tts/security/EmbeddingEncryptionServiceTest.java"
+        ],
+        "summary": "Rejects NaN and positive or negative infinity in embedding input before encryption and in authenticated plaintext after decryption; documents the validation errors.",
+        "focusedTest": {
+          "selector": "EmbeddingEncryptionServiceTest",
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "suiteFiles": 4,
+          "runtime": "macOS ARM64, Temurin 27.0.1.0.2",
+          "reportDirectory": "modules/speech/tts-service/build/test-results/test/",
+          "reportPrefix": "TEST-com.ghatana.tts.security.EmbeddingEncryptionServiceTest"
+        },
+        "independentCodeReview": "Luna review approved the behavior and requested Javadoc clarification; the documentation change was applied before the focused run.",
+        "wholeTaskPromotion": false,
+        "remaining": "Voice identity, consent, purpose, expiry, revocation, profile storage and authorized dispatch remain open; TTS-05 remains PARTIAL."
+      }
+    ],
+    "independentLedgerReview": {
+      "reviewedDocsCut": "59b217a8bb1b195a35321ea945e7e8724436c4a3",
+      "currentCodeCutAfterBoundedCommits": "72c86cb05ed816bb830ef759a820bce9288e7d37",
+      "totalUniqueTaskIds": 58,
+      "missingExtraDuplicateIds": 0,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "sourceConflicts": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "rowsPromoted": 0,
+      "externalRightsAdmitted": false,
+      "ownerExternalTaskIds": ["STT-12", "TTS-07", "TTS-12", "VIS-02", "VIS-12", "MM-12"],
+      "reviewedQuestions": {
+        "VIS-04": "Retained LOCALLY_VERIFIED for bounded process/path behavior: later pinned native FFmpeg/FFprobe tests at Media 64c13346 execute real timeout, process-tree, output-cap, malformed-input and symlink cases; protocol allowlist and diagnostic-spam unit cases use the same process implementation.",
+        "VIS-08": "Retained LOCALLY_VERIFIED for exact NOT_ADMITTED coverage across all 22 advanced intent IDs and no-detector-substitution tests. Video RPCs still cannot select advanced capabilities, so no video feature reachability or provider-backed output is claimed."
+      },
+      "result": "The canonical task table and JSON partition reconcile. The two latest commits did not edit the ledger or promote any row; all 36 open rows remain unaccepted."
+    },
+    "independentRecordReview": {
+      "reviewer": "Independent Luna",
+      "reviewedMediaCodeCut": "72c86cb05ed816bb830ef759a820bce9288e7d37",
+      "result": "No factual mismatch found. JSON syntax, implementation commit IDs and changed paths, JUnit XML totals, 36 open-row statuses, six owner-external IDs, and no-promotion/no-approval caveats were checked.",
+      "validationOutputRetention": "Console output for plan, repository-hygiene and container-candidate checks is saved under the report paths listed in recordValidation."
+    },
+    "parallelModuleAudits": {
+      "STT": "No additional safe source-local patch identified; remaining criteria depend on rights authority, durable stream/transcript semantics and admitted providers.",
+      "Vision": "No additional safe patch identified; hard per-worker resource enforcement requires a trusted isolation adapter.",
+      "MultimodalObservability": "No additional safe patch identified; remaining criteria depend on authoritative clocks, canonical external APIs, provider signals and deployed alert evidence."
+    },
+    "aggregateDispositionUnchanged": {
+      "total": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "sourceConflicts": 0,
+      "rowsPromoted": 0,
+      "allOpenRowsTaskAccepted": false
+    },
+    "recordValidation": {
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS", "report": "/tmp/ghatana-media-wave2-r7-followup/backend-modality-wave2-plan.log"},
+      "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS", "report": "/tmp/ghatana-media-wave2-r7-followup/repository-hygiene.log"},
+      "containerCandidateHygiene": {"tests": 3, "failures": 0, "result": "PASS", "report": "/tmp/ghatana-media-wave2-r7-followup/container-candidate-hygiene.log"},
+      "jsonTaskPartition": {"uniqueTaskIds": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "sourceConflicts": 0},
+      "gitDiffCheck": "PASS"
+    },
+    "fullMatrixRerunAfterTheseCommits": false,
+    "claims": "Two bounded implementation improvements and focused macOS verification only. No row-wide acceptance, owner/rights approval, formal PDP/gtool status, closure, production cutover, deployment or release is asserted."
   }
 }
