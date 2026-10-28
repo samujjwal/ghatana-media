@@ -938,7 +938,12 @@ public final class WhisperOnnxEngine implements SttEngine {
                     decoderIds = new long[]{nextToken};
                     useCache = true;
                 }
-                return finishDecodedTranscript(generated, generatedCount, sumLogProbability, noSpeechProbability);
+                // Reaching the token ceiling without an EOT is not a complete
+                // transcription. Preserve failure instead of persisting a
+                // truncated, apparently successful provider result.
+                throw new InferenceError(
+                        "Whisper reference decoder reached the bounded token limit without end-of-text",
+                        null, false);
             } finally {
                 if (priorDecoderResult != null) priorDecoderResult.close();
             }
