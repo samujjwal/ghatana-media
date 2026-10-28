@@ -860,5 +860,64 @@
     "STT-04",
     "STT-09"
   ],
-  "sourceStatus": "PLAN_AND_CODE_PATCHES_NEED_CURRENT_JDK27_DOCKER_QUALIFICATION_NOT_TASK_ACCEPTANCE"
+  "sourceStatus": "PLAN_AND_CODE_PATCHES_NEED_CURRENT_JDK27_DOCKER_QUALIFICATION_NOT_TASK_ACCEPTANCE",
+  "approvedReferenceQualificationProfiles": {
+    "scope": "DEVELOPMENT_REFERENCE_PROFILES_ONLY_NOT_REPLACEMENT_PDP0_INTENT_OR_PRODUCTION_SLO",
+    "referenceEnvironment": {
+      "macOs": "macOS ARM64 JDK27 CPU",
+      "linuxOs": "Linux ARM64 JDK27 Docker-on-Mac CPU cgroup",
+      "cpuBudget": 4,
+      "ramGiB": 8,
+      "qualifier": "MODEL_AND_HOST_PER_CONSUMER",
+      "windows": "DEFERRED"
+    },
+    "stt": {
+      "referenceLocale": "en-US",
+      "hiNe": "EVALUATION_ONLY_UNTIL_REAL_CORPUS_PASS",
+      "maxDurationSeconds": 30,
+      "mechanicalGold": "Complete independently-authored normalized transcript exact match. A keyword is invalid.",
+      "qualityPilotClipsPerLocale": 24,
+      "qualityHoldoutMinimumPerLocale": 100,
+      "qualityGateProvisional": {
+        "enUsWerMax": 0.3,
+        "hiInWerMax": 0.45,
+        "neNpWerMax": 0.55,
+        "bootstrapIntervals": "REQUIRED",
+        "decision": "FREEZE_BEFORE_HOLDOUT; stronger normative requirements supersede; FAIL means choose more capable qualified model, not rewrite truth"
+      }
+    },
+    "tts": {
+      "referenceVoice": "en_US-ljspeech-medium",
+      "referenceLocale": "en-US",
+      "phonemes": "CANONICAL_ESPEAK_OR_VERIFIED_EQUIVALENT_ONLY_FOR_QUALIFIED",
+      "cloning": "NOT_ADMITTED_WITHOUT_ACTUAL_SPEAKER_CONSENT",
+      "qualityPilotUtterances": 20,
+      "intelligibility": "INDEPENDENT_LISTENING_AND_ASR_ROUNDTRIP_REQUIRED",
+      "license": "PER_VOICE_SPEAKER_MODEL_SIDECAR_DEPENDENCY"
+    },
+    "vision": {
+      "referenceClasses": "YOLOX Nano COCO80 subset, independently declared only",
+      "humanFaces": "NOT_IN_NONHUMAN_DEVELOPMENT_PROFILE",
+      "goldFirst": "FIRST_PARTY_ORIGINAL_CLASS_LABELED_OBJECT_PHOTO",
+      "pilotImages": 25,
+      "holdoutMinimumImages": 200,
+      "qualityGateProvisional": {
+        "map50Min": 0.35,
+        "map50ConfidenceInterval": "REPORT_REQUIRED",
+        "decision": "FREEZE_BEFORE_HOLDOUT; adapt model or detector if fails; source input rights remain independently proved"
+      }
+    },
+    "multimodal": {
+      "scope": "NONBIOMETRIC_REAL_STT_AND_VISION_CHILD_EFFECTS_WITH_SOURCE_CLOCKS",
+      "clockFixtureCountMinimum": 30,
+      "clockErrorTargetMsP95": 50,
+      "actualSynchronyProof": "MUST_USE_INDEPENDENTLY_OBSERVED_SIGNALS_NOT_METADATA_ONLY"
+    },
+    "capacity": {
+      "nominalReference": "Name CPU/JDK/OS/model/codec/image, 1/16/64 measured requests each, cap already pinned",
+      "expectedOverload": "Typed RESOURCE_EXHAUSTED before provider effect is acceptable to prove bounded capacity, not 64 successful requests",
+      "productionSlo": "NFR-DEC-SLO remains production-activation decision pending named deployed host and measured real load; do not invent a production SLO"
+    },
+    "ownerStatus": "ENGINEERING_APPROVED_TEST_SCOPE_AND_PROVISIONAL_THRESHOLDS; NONE_OF_THESE_VALUES_CERTIFY_RUNTIME_OR_LICENSE"
+  }
 }
