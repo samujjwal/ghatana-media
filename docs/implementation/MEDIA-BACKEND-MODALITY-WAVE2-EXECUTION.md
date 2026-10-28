@@ -2160,3 +2160,16 @@ This is a candidate persistence improvement only. The reference is not resolved 
 Fresh, read-only Luna surface audits found no additional safe local patch in the reviewed STT/TTS rows (6 LOCALLY_VERIFIED / 15 PARTIAL / 3 OWNER_EXTERNAL), Vision rows (4 / 6 / 2), or MM/observability rows (12 / 9 / 1). Their remaining partial/external criteria still require the previously identified provider/rights evidence, native worker enforcement, canonical runtime authority, owning public APIs, calibrated quality, or deployed measurements.
 
 The aggregate disposition remains **58 = 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**. All 36 open rows remain `taskAccepted=false`; the owner-external IDs remain STT-12, TTS-07, TTS-12, VIS-02, VIS-12, and MM-12. No product-owner/third-party approval, formal PDP/gtool acceptance, closure, cutover, deployment, or release is inferred. Platform matrix evidence remains tied to its earlier recorded source cut.
+
+### R7 Mac/Linux ARM64 native rerun — 2026-10-27
+
+**Exact source cut:** Media `ba75eb854f19861967b445fd8f5a93d7e65cd74a`, Shared `0b19e750bf3906e187e8d804c9313bd451a58667`; both checkouts were clean. The `mac-native` and `linux-arm64-native` platform-matrix lanes each passed **56/56**, with **0 failures, 0 errors, and 0 skips**. The selected suites were `VisionNativeBoundedIT` and `VideoFrameExtractorProcessTest`.
+
+| Host / execution | Tool and runtime provenance | Limits / result |
+| --- | --- | --- |
+| macOS ARM64, Temurin 27.0.1.0.2 | LGPL FFmpeg/FFprobe 8.1.2 archive SHA-256 `ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332`; binaries `5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33` / `b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f` | 56 tests; no skips |
+| macOS ARM64 host, Linux ARM64 execution, Temurin 27 image digest `a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c` | LGPL FFmpeg/FFprobe 8.1.2 archive SHA-256 `ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586`; binaries `020b113f52f1e44515538d965d143ea8bb38066d5893b8a3c502eece23bb3db0` / `c3a51d1aa8afa398a778192e67b26e94ddd541ce350d0a527dbcbba278c660be` | Outer container cap 8 GiB / 4 CPUs / 512 PIDs; 56 tests; no skips |
+
+The initial Linux codec directory lacked the locked native runtime package closure, so it failed preflight before Gradle. A fresh bundle was provisioned with `scripts/prepare-wave2-codecs.sh linux-arm64`; the runner then repaired the documented executable-bit issue for cached Linux `protoc` and retried once. The final native lane passed. Machine-readable reports are `/private/tmp/ghatana-wave2-current-11d4/mac-native.json` and `/private/tmp/ghatana-wave2-current-11d4/linux-arm64-native.json`.
+
+This establishes current-cut local native codec and process-path execution on both required architectures. The Linux outer-container cap is not a per-worker sandbox, and macOS sampled RSS is not hard enforcement. **X03 now has native execution evidence; X04 remains open, so VIS-03 remains PARTIAL.** The codec bundle is for approved development testing only, not product shipping. No Wave 2 task row was promoted by these native runs.

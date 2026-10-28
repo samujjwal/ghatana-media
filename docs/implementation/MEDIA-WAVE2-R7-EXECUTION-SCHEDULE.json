@@ -2651,5 +2651,24 @@
       "gitDiffCheck": "PASS"
     },
     "claims": "Candidate persistence improvement only. STT-08 remains PARTIAL. No Wave 2 row acceptance, external rights/owner approval, formal PDP/gtool status, closure, cutover, deployment or release is claimed."
+  },
+  "postR7NativeCurrentCut": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {"media": "ba75eb854f19861967b445fd8f5a93d7e65cd74a", "shared": "0b19e750bf3906e187e8d804c9313bd451a58667", "mediaWorkingTreeClean": true, "sharedWorkingTreeClean": true},
+    "selectors": ["VisionNativeBoundedIT", "VideoFrameExtractorProcessTest"],
+    "platformRuns": [
+      {"mode": "mac-native", "hostOS": "Darwin", "hostArchitecture": "arm64", "executionOS": "Darwin", "executionArchitecture": "arm64", "javaVersion": "Temurin 27.0.1.0.2", "tests": 56, "failures": 0, "errors": 0, "skipped": 0, "suiteFiles": 2, "result": "PASS", "report": "/private/tmp/ghatana-wave2-current-11d4/mac-native.json"},
+      {"mode": "linux-arm64-native", "hostOS": "Darwin", "hostArchitecture": "arm64", "executionOS": "Linux", "executionArchitecture": "arm64", "javaVersion": "Temurin 27 image, OpenJDK 27 (2026-09-15)", "dockerImageDigest": "sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c", "dockerLimits": {"memory": "8g", "cpus": "4", "pids": "512"}, "nativeRuntimeSidecarDigest": "sha256:19cad59657037cffa0ac9a48107019b768900ff1071140965827513ac866bd5e", "tests": 56, "failures": 0, "errors": 0, "skipped": 0, "suiteFiles": 2, "result": "PASS", "report": "/private/tmp/ghatana-wave2-current-11d4/linux-arm64-native.json"}
+    ],
+    "codecProvenance": {
+      "release": "serversideup/ffmpeg-lgpl-builds v8.1.2-27, development-test-only",
+      "macArm64": {"archiveSha256": "ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332", "ffmpegSha256": "5bea4e7be361c9557334f5ae50640c82944304eb5f97d8c248622cf8d1e9bb33", "ffprobeSha256": "b1065dd4a8d4a39b0617818117dadf0502c6bded4314bea3d74bd98b57fa5f7f"},
+      "linuxArm64": {"archiveSha256": "ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586", "ffmpegSha256": "020b113f52f1e44515538d965d143ea8bb38066d5893b8a3c502eece23bb3db0", "ffprobeSha256": "c3a51d1aa8afa398a778192e67b26e94ddd541ce350d0a527dbcbba278c660be"}
+    },
+    "linuxProvisioning": "The initial codec folder lacked the pinned native runtime package closure and failed preflight before Gradle. A fresh bundle was provisioned with scripts/prepare-wave2-codecs.sh linux-arm64. The first Gradle attempt hit the documented cached protoc executable-bit issue; the runner repaired permissions and retried once successfully.",
+    "claim": "Current-cut local native codec/process execution only; report claim remains EXECUTION_ONLY_NOT_TASK_ACCEPTANCE.",
+    "taskDisposition": {"X03":"NATIVE_EXECUTION_VERIFIED", "X04":"OPEN_PER_WORKER_CPU_RSS_PID_AND_SCRATCH_ENFORCEMENT", "VIS-03":"PARTIAL", "rowsPromoted": 0},
+    "aggregateDispositionUnchanged": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "sourceConflicts": 0, "all36OpenRowsTaskAccepted": false, "rowsPromoted": 0},
+    "remaining": "Linux outer cgroup limits do not establish a per-worker sandbox; macOS sampled RSS is not hard enforcement. Native codec use is approved for local qualification only, not shipment. No product rights, provider effect, task-wide VIS-03 acceptance, owner approval, lifecycle closure, cutover or release is established."
   }
 }
