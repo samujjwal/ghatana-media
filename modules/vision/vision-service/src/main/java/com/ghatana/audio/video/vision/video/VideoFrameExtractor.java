@@ -7,13 +7,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.LinkOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.FileVisitResult;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -238,18 +243,22 @@ public class VideoFrameExtractor {
         // `outputDir` is an exclusive per-invocation publication root. Its POSIX mode is
         // tightened to 0700, and every writable ancestor must be private or a sticky temp root.
         if (config == null) throw new IllegalArgumentException("Extraction config is required");
-        Path canonicalVideo = validateInput(videoPath);
-        Path canonicalOutput = prepareOutputDirectory(outputDir);
-        VideoMetadata metadata = getVideoMetadata(canonicalVideo);
-        Path staging = createIsolatedStagingDirectory(canonicalOutput);
-        List<String> command = buildFFmpegCommand(canonicalVideo, staging, config);
-
-        LOG.info("Extracting frames from video with fps={}, maxFrames={}",
-            config.getFps(), config.getMaxFrames());
-
-        int timestampDiagnosticBudget = (int) Math.min(MAX_FRAME_TIMESTAMP_DIAGNOSTIC_BYTES,
-                MAX_DIAGNOSTIC_BYTES + (long) config.getMaxFrames() * 512L);
+        ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
+        Path workspace = createPrivateWorkspace();
+        Path staging = null;
+        Throwable primaryFailure = null;
         try {
+            Path canonicalVideo = createInputSnapshot(validatedInput, workspace);
+            Path canonicalOutput = prepareOutputDirectory(outputDir);
+            VideoMetadata metadata = getVideoMetadataFromSnapshot(canonicalVideo);
+            staging = createIsolatedStagingDirectory(canonicalOutput);
+            List<String> command = buildFFmpegCommand(canonicalVideo, staging, config);
+
+            LOG.info("Extracting frames from video with fps={}, maxFrames={}",
+                    config.getFps(), config.getMaxFrames());
+
+            int timestampDiagnosticBudget = (int) Math.min(MAX_FRAME_TIMESTAMP_DIAGNOSTIC_BYTES,
+                    MAX_DIAGNOSTIC_BYTES + (long) config.getMaxFrames() * 512L);
             ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), timestampDiagnosticBudget,
                     staging, MAX_EXTRACTED_BYTES);
             if (result.timedOut()) throw new IOException("FFmpeg process timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
@@ -266,12 +275,13 @@ public class VideoFrameExtractor {
             List<ExtractedFrame> stagedFrames = collectExtractedFrames(
                     staging, config, metadata.getTimeBase(), result.output());
             List<ExtractedFrame> publishedFrames = publishStagedFrames(stagedFrames, canonicalOutput);
-            cleanupStagingDirectory(staging);
             LOG.info("Frame extraction completed successfully");
             return publishedFrames;
-        } catch (IOException | RuntimeException failure) {
-            cleanupStagingDirectory(staging, failure);
+        } catch (IOException | RuntimeException | Error failure) {
+            primaryFailure = failure;
             throw failure;
+        } finally {
+            cleanupWorkspace(staging, workspace, primaryFailure);
         }
     }
 
@@ -365,7 +375,7 @@ public class VideoFrameExtractor {
     private static Path createPrivateWorkspace() throws IOException {
         Path temp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath(LinkOption.NOFOLLOW_LINKS);
         requireSafeWritableAncestors(temp);
-        Path workspace = Files.createTempDirectory(temp, ".media-video-audio-");
+        Path workspace = Files.createTempDirectory(temp, ".media-video-codec-");
         try {
             enforceOwnerOnlyDirectory(workspace);
             return workspace.toRealPath(LinkOption.NOFOLLOW_LINKS);
@@ -483,7 +493,7 @@ public class VideoFrameExtractor {
             throws IOException {
 
         if (timestampMs < 0) throw new IllegalArgumentException("timestampMs must not be negative");
-        Path canonicalVideo = validateInput(videoPath);
+        ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
         for (Path component : outputPath) {
             if (component.toString().equals("..")) throw new IOException("Output traversal is not allowed");
         }
@@ -506,28 +516,32 @@ public class VideoFrameExtractor {
         requireOwnerOnlyDirectory(realOutputParent);
         Path canonicalOutput = realOutputParent.resolve(outputName);
         if (Files.exists(canonicalOutput, LinkOption.NOFOLLOW_LINKS)) throw new IOException("Output frame already exists");
-        Path staging = createIsolatedStagingDirectory(realOutputParent);
-        Path stagedOutput = staging.resolve("frame." + suffix);
-        double timestampSec = timestampMs / 1000.0;
-
-        List<String> command = List.of(
-            FFMPEG_COMMAND,
-            "-nostdin", "-v", "error", "-protocol_whitelist", "file",
-            "-f", inputFormat(canonicalVideo),
-            "-max_alloc", "268435456", "-max_pixels", Long.toString(MAX_PIXELS),
-            "-ss", String.format(Locale.ROOT, "%.3f", timestampSec),
-            "-i", canonicalVideo.toString(),
-            "-frames:v", "1",
-            "-vf", "scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
-            "-q:v", "2",
-            "-fs", Long.toString(MAX_SINGLE_FRAME_BYTES),
-            stagedOutput.toString(),
-            "-n"
-        );
-
-        LOG.info("Extracting frame at timestamp {}ms", timestampMs);
-
+        Path workspace = createPrivateWorkspace();
+        Path staging = null;
+        Throwable primaryFailure = null;
         try {
+            Path canonicalVideo = createInputSnapshot(validatedInput, workspace);
+            staging = createIsolatedStagingDirectory(realOutputParent);
+            Path stagedOutput = staging.resolve("frame." + suffix);
+            double timestampSec = timestampMs / 1000.0;
+
+            List<String> command = List.of(
+                    FFMPEG_COMMAND,
+                    "-nostdin", "-v", "error", "-protocol_whitelist", "file",
+                    "-f", inputFormat(canonicalVideo),
+                    "-max_alloc", "268435456", "-max_pixels", Long.toString(MAX_PIXELS),
+                    "-ss", String.format(Locale.ROOT, "%.3f", timestampSec),
+                    "-i", canonicalVideo.toString(),
+                    "-frames:v", "1",
+                    "-vf", "scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
+                    "-q:v", "2",
+                    "-fs", Long.toString(MAX_SINGLE_FRAME_BYTES),
+                    stagedOutput.toString(),
+                    "-n"
+            );
+
+            LOG.info("Extracting frame at timestamp {}ms", timestampMs);
+
             ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(30), MAX_DIAGNOSTIC_BYTES,
                     staging, MAX_SINGLE_FRAME_BYTES);
             if (result.timedOut()) throw new IOException("FFmpeg process timed out");
@@ -536,10 +550,155 @@ public class VideoFrameExtractor {
             if (result.exitCode() != 0) throw new IOException("FFmpeg failed with exit code: " + result.exitCode());
             validateSingleFrameOutput(stagedOutput, staging);
             Files.move(stagedOutput, canonicalOutput);
-            cleanupStagingDirectory(staging);
-        } catch (IOException | RuntimeException failure) {
-            cleanupStagingDirectory(staging, failure);
+        } catch (IOException | RuntimeException | Error failure) {
+            primaryFailure = failure;
             throw failure;
+        } finally {
+            cleanupWorkspace(staging, workspace, primaryFailure);
+        }
+    }
+
+    record ValidatedVideoInput(Path path, Object fileKey, long size,
+            java.nio.file.attribute.FileTime modifiedTime) { }
+
+    static ValidatedVideoInput captureValidatedInput(Path input) throws IOException {
+        Path canonical = validateInput(input);
+        BasicFileAttributes attributes = Files.readAttributes(
+                canonical, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+        if (!attributes.isRegularFile() || attributes.fileKey() == null
+                || attributes.size() <= 0 || attributes.size() > MAX_INPUT_BYTES) {
+            throw new IOException("Filesystem cannot establish a safe immutable video input identity");
+        }
+        return new ValidatedVideoInput(canonical, attributes.fileKey(), attributes.size(),
+                attributes.lastModifiedTime());
+    }
+
+    Path createInputSnapshot(ValidatedVideoInput input, Path workspace) throws IOException {
+        return snapshotValidatedInput(input, workspace, this::afterSnapshotCopyBeforeVerification);
+    }
+
+    void afterSnapshotCopyBeforeVerification(Path sourcePath) throws IOException { }
+
+    static Path snapshotValidatedInput(ValidatedVideoInput input, Path workspace) throws IOException {
+        return snapshotValidatedInput(input, workspace, ignored -> { });
+    }
+
+    @FunctionalInterface
+    interface SnapshotVerificationHook {
+        void afterCopy(Path sourcePath) throws IOException;
+    }
+
+    static Path snapshotValidatedInput(ValidatedVideoInput input, Path workspace,
+            SnapshotVerificationHook verificationHook) throws IOException {
+        verifyInputIdentity(input);
+        String filename = input.path().getFileName().toString();
+        String extension = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
+        Path snapshot = workspace.resolve("input." + extension);
+        long copied = 0;
+        MessageDigest copiedDigest = newSha256Digest();
+        try (FileChannel source = FileChannel.open(
+                     input.path(), StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
+             FileChannel target = FileChannel.open(
+                     snapshot, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+            ByteBuffer buffer = ByteBuffer.allocate(64 * 1024);
+            while (true) {
+                int read = source.read(buffer);
+                if (read < 0) break;
+                if (read == 0) continue;
+                copied = Math.addExact(copied, read);
+                if (copied > input.size() || copied > MAX_INPUT_BYTES) {
+                    throw new IOException("Video input changed or exceeded the supported snapshot size");
+                }
+                buffer.flip();
+                copiedDigest.update(buffer.asReadOnlyBuffer());
+                while (buffer.hasRemaining()) target.write(buffer);
+                buffer.clear();
+            }
+
+            verificationHook.afterCopy(input.path());
+            source.position(0);
+            MessageDigest verifiedDigest = newSha256Digest();
+            long verified = 0;
+            while (true) {
+                int read = source.read(buffer);
+                if (read < 0) break;
+                if (read == 0) continue;
+                verified = Math.addExact(verified, read);
+                if (verified > input.size() || verified > MAX_INPUT_BYTES) {
+                    throw new IOException("Video input changed or exceeded the supported verification size");
+                }
+                buffer.flip();
+                verifiedDigest.update(buffer.asReadOnlyBuffer());
+                buffer.clear();
+            }
+            if (verified != input.size() || !MessageDigest.isEqual(copiedDigest.digest(), verifiedDigest.digest())) {
+                throw new IOException("Video input content changed while its private snapshot was copied");
+            }
+        } catch (ArithmeticException overflow) {
+            throw new IOException("Video input snapshot size overflowed", overflow);
+        }
+        verifyInputIdentity(input);
+        if (copied != input.size()) {
+            throw new IOException("Video input changed while its private snapshot was copied");
+        }
+
+        java.nio.file.attribute.PosixFileAttributeView permissions = Files.getFileAttributeView(
+                snapshot, java.nio.file.attribute.PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+        if (permissions == null) throw new IOException("Filesystem cannot enforce private video snapshot permissions");
+        try {
+            permissions.setPermissions(java.util.EnumSet.of(
+                    java.nio.file.attribute.PosixFilePermission.OWNER_READ));
+        } catch (UnsupportedOperationException | SecurityException unsupported) {
+            throw new IOException("Filesystem cannot enforce private video snapshot permissions", unsupported);
+        }
+        BasicFileAttributes snapshotAttributes = Files.readAttributes(
+                snapshot, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+        java.util.Set<java.nio.file.attribute.PosixFilePermission> snapshotPermissions = permissions.readAttributes()
+                .permissions();
+        if (!snapshotAttributes.isRegularFile() || snapshotAttributes.fileKey() == null
+                || snapshotAttributes.size() != input.size() || Files.isSymbolicLink(snapshot)
+                || !snapshotPermissions.equals(java.util.EnumSet.of(
+                        java.nio.file.attribute.PosixFilePermission.OWNER_READ))) {
+            throw new IOException("Private video snapshot identity or size is unsafe");
+        }
+        return snapshot.toRealPath(LinkOption.NOFOLLOW_LINKS);
+    }
+
+    private static MessageDigest newSha256Digest() throws IOException {
+        try {
+            return MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException unavailable) {
+            throw new IOException("SHA-256 is unavailable for video snapshot verification", unavailable);
+        }
+    }
+
+    private static void verifyInputIdentity(ValidatedVideoInput input) throws IOException {
+        Path current = input.path().toRealPath(LinkOption.NOFOLLOW_LINKS);
+        BasicFileAttributes attributes = Files.readAttributes(
+                current, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+        if (!current.equals(input.path()) || !attributes.isRegularFile()
+                || !input.fileKey().equals(attributes.fileKey()) || attributes.size() != input.size()
+                || !input.modifiedTime().equals(attributes.lastModifiedTime())) {
+            throw new IOException("Video input identity or metadata changed during snapshot admission");
+        }
+    }
+
+    private static void cleanupWorkspace(Path outputStaging, Path inputWorkspace, Throwable primaryFailure)
+            throws IOException {
+        IOException cleanupFailure = null;
+        for (Path path : new Path[] {outputStaging, inputWorkspace}) {
+            if (path == null) continue;
+            try {
+                cleanupStagingDirectory(path);
+            } catch (IOException failure) {
+                if (cleanupFailure == null) cleanupFailure = failure;
+                else cleanupFailure.addSuppressed(failure);
+            }
+        }
+        if (cleanupFailure != null) {
+            IOException reported = new IOException("FFmpeg staging cleanup failed", cleanupFailure);
+            if (primaryFailure != null) primaryFailure.addSuppressed(reported);
+            else throw reported;
         }
     }
 
@@ -737,7 +896,22 @@ public class VideoFrameExtractor {
      * @throws IOException If metadata extraction fails
      */
     public VideoMetadata getVideoMetadata(Path videoPath) throws IOException {
-        Path canonicalVideo = validateInput(videoPath);
+        ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
+        Path workspace = createPrivateWorkspace();
+        Throwable primaryFailure = null;
+        try {
+            Path snapshot = createInputSnapshot(validatedInput, workspace);
+            return getVideoMetadataFromSnapshot(snapshot);
+        } catch (IOException | RuntimeException | Error failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            cleanupWorkspace(null, workspace, primaryFailure);
+        }
+    }
+
+    /** Probe only a private snapshot already created by this extractor's bounded admission path. */
+    VideoMetadata getVideoMetadataFromSnapshot(Path canonicalVideo) throws IOException {
         List<String> command = List.of(
             "ffprobe",
             "-v", "error", "-protocol_whitelist", "file",
@@ -749,7 +923,7 @@ public class VideoFrameExtractor {
             canonicalVideo.toString()
         );
 
-        ProcessResult result = runProcess(command, Duration.ofSeconds(10), MAX_DIAGNOSTIC_BYTES);
+        ProcessResult result = runProbeProcess(command, Duration.ofSeconds(10), MAX_DIAGNOSTIC_BYTES);
         return parseProbeResult(result);
     }
 

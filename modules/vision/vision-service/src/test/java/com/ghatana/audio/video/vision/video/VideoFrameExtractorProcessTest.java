@@ -104,6 +104,154 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void extractFramesUsesOwnerOnlySnapshotAfterOriginalIsReplaced() throws Exception {
+        Path input = Files.write(tempDir.resolve("snapshot-source.mp4"), new byte[] {1, 2, 3, 4});
+        byte[] original = Files.readAllBytes(input);
+        Path replacement = Files.write(tempDir.resolve("snapshot-replacement.mp4"), new byte[] {9, 8, 7, 6});
+        Path output = tempDir.resolve("snapshot-frames");
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            public VideoMetadata getVideoMetadataFromSnapshot(Path videoPath) throws java.io.IOException {
+                assertThat(videoPath).isNotEqualTo(input);
+                assertThat(Files.readAllBytes(videoPath)).containsExactly(original);
+                assertThat(Files.getPosixFilePermissions(videoPath)).containsExactly(
+                        java.nio.file.attribute.PosixFilePermission.OWNER_READ);
+                Files.move(replacement, input, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                return new VideoMetadata(16, 16, 1, 1, 1, "1/1000");
+            }
+
+            @Override
+            ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
+                    Path monitoredOutput, long maxOutputBytes) throws java.io.IOException {
+                Path stagedInput = Path.of(command.get(command.indexOf("-i") + 1));
+                assertThat(stagedInput).isNotEqualTo(input);
+                assertThat(Files.readAllBytes(stagedInput)).containsExactly(original);
+                Files.write(monitoredOutput.resolve("frame_0001.jpg"), new byte[] {5, 4, 3});
+                return new ProcessResult(0, false, "showinfo config in time_base: 1/1000 showinfo n: 0 pts: 0");
+            }
+        };
+
+        List<VideoFrameExtractor.ExtractedFrame> frames = extractor.extractFrames(input, output,
+                VideoFrameExtractor.ExtractionConfig.builder().maxFrames(2).build());
+
+        assertThat(frames).hasSize(1);
+        assertThat(Files.readAllBytes(output.resolve("frame_0001.jpg"))).containsExactly(5, 4, 3);
+        assertThat(Files.readAllBytes(input)).containsExactly(9, 8, 7, 6);
+        try (var children = Files.list(output)) {
+            assertThat(children.map(path -> path.getFileName().toString()).toList()).containsExactly("frame_0001.jpg");
+        }
+    }
+
+    @Test
+    void extractFrameAtTimestampUsesPrivateSnapshotForCodecInput() throws Exception {
+        Path input = Files.write(tempDir.resolve("single-snapshot-source.mp4"), new byte[] {1, 3, 5, 7});
+        byte[] original = Files.readAllBytes(input);
+        Path outputDir = Files.createDirectory(tempDir.resolve("single-snapshot-output"));
+        Files.setPosixFilePermissions(outputDir,
+                java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));
+        Path output = outputDir.resolve("frame.jpg");
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
+                    Path monitoredOutput, long maxOutputBytes) throws java.io.IOException {
+                Path stagedInput = Path.of(command.get(command.indexOf("-i") + 1));
+                assertThat(stagedInput).isNotEqualTo(input);
+                assertThat(Files.readAllBytes(stagedInput)).containsExactly(original);
+                Files.write(input, new byte[] {2, 4, 6, 8});
+                Path stagedOutput = Path.of(command.get(command.size() - 2));
+                Files.write(stagedOutput, new byte[] {11, 12});
+                return new ProcessResult(0, false, "");
+            }
+        };
+
+        extractor.extractFrameAtTimestamp(input, 0, output);
+
+        assertThat(Files.readAllBytes(output)).containsExactly(11, 12);
+        assertThat(Files.readAllBytes(input)).containsExactly(2, 4, 6, 8);
+        try (var children = Files.list(outputDir)) {
+            assertThat(children.map(path -> path.getFileName().toString()).toList()).containsExactly("frame.jpg");
+        }
+    }
+
+    @Test
+    void directMetadataProbeUsesOwnerOnlySnapshot() throws Exception {
+        Path input = Files.write(tempDir.resolve("metadata-snapshot-source.mp4"), new byte[] {2, 3, 5, 7});
+        byte[] original = Files.readAllBytes(input);
+        java.util.concurrent.atomic.AtomicReference<Path> stagedPath = new java.util.concurrent.atomic.AtomicReference<>();
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            ProcessResult runProbeProcess(List<String> command, Duration timeout, int maxDiagnosticBytes)
+                    throws java.io.IOException {
+                Path staged = Path.of(command.get(command.size() - 1));
+                stagedPath.set(staged);
+                assertThat(staged).isNotEqualTo(input);
+                assertThat(Files.readAllBytes(staged)).containsExactly(original);
+                assertThat(Files.getPosixFilePermissions(staged)).containsExactly(
+                        java.nio.file.attribute.PosixFilePermission.OWNER_READ);
+                Files.write(input, new byte[] {1, 1, 1, 1});
+                return new ProcessResult(0, false,
+                        "width=16\nheight=16\nduration=1\nnb_frames=1\nr_frame_rate=1/1\ntime_base=1/1000");
+            }
+        };
+
+        VideoFrameExtractor.VideoMetadata metadata = extractor.getVideoMetadata(input);
+
+        assertThat(metadata.getWidth()).isEqualTo(16);
+        assertThat(metadata.getHeight()).isEqualTo(16);
+        assertThat(Files.readAllBytes(input)).containsExactly(1, 1, 1, 1);
+        assertThat(stagedPath.get()).doesNotExist();
+    }
+
+    @Test
+    void snapshotAdmissionRejectsReplacementBeforeAnyCodecInvocation() throws Exception {
+        Path input = Files.write(tempDir.resolve("replaced-after-validation.mp4"), new byte[] {1, 2, 3});
+        Path replacement = Files.write(tempDir.resolve("replacement-after-validation.mp4"), new byte[] {4, 5, 6});
+        VideoFrameExtractor.ValidatedVideoInput validated = VideoFrameExtractor.captureValidatedInput(input);
+        Path workspace = Files.createDirectory(tempDir.resolve("private-snapshot-workspace"));
+        Files.setPosixFilePermissions(workspace,
+                java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));
+        Files.move(replacement, input, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+        assertThatThrownBy(() -> VideoFrameExtractor.snapshotValidatedInput(validated, workspace))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("identity or metadata changed");
+        try (var children = Files.list(workspace)) {
+            assertThat(children.toList()).isEmpty();
+        }
+    }
+
+    @Test
+    void extractFramesRejectsSameSizeMutationAfterCopyBeforeProbeOrOutput() throws Exception {
+        Path input = Files.write(tempDir.resolve("mutated-during-snapshot.mp4"), new byte[] {1, 2, 3, 4});
+        java.nio.file.attribute.FileTime originalModifiedTime = Files.getLastModifiedTime(input);
+        Path output = tempDir.resolve("mutation-must-not-publish");
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            void afterSnapshotCopyBeforeVerification(Path sourcePath) throws java.io.IOException {
+                Files.write(sourcePath, new byte[] {9, 8, 7, 6},
+                        java.nio.file.StandardOpenOption.TRUNCATE_EXISTING,
+                        java.nio.file.StandardOpenOption.WRITE);
+                Files.setLastModifiedTime(sourcePath, originalModifiedTime);
+            }
+
+            @Override
+            VideoMetadata getVideoMetadataFromSnapshot(Path videoPath) {
+                throw new AssertionError("a changed source must be rejected before ffprobe");
+            }
+
+            @Override
+            ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
+                    Path monitoredOutput, long maxOutputBytes) {
+                throw new AssertionError("a changed source must be rejected before ffmpeg");
+            }
+        };
+
+        assertThatThrownBy(() -> extractor.extractFrames(input, output,
+                VideoFrameExtractor.ExtractionConfig.builder().build()))
+                .isInstanceOf(java.io.IOException.class).hasMessageContaining("content changed");
+        assertThat(output).doesNotExist();
+    }
+
+    @Test
     void diagnosticSpamIsByteBoundedAndTerminatesChild() throws Exception {
         var result = VideoFrameExtractor.runProcess(childCommand("noise"), Duration.ofSeconds(5), 128);
 
@@ -408,7 +556,7 @@ class VideoFrameExtractorProcessTest {
     private static VideoFrameExtractor fakeExtractorThatCreatesCollision(Path collision) {
         return new VideoFrameExtractor() {
             @Override
-            public VideoMetadata getVideoMetadata(Path videoPath) {
+            public VideoMetadata getVideoMetadataFromSnapshot(Path videoPath) {
                 return new VideoMetadata(16, 16, 1.0, 1.0, 1, "1/1000");
             }
 
@@ -742,7 +890,7 @@ class VideoFrameExtractorProcessTest {
         Path output = Files.createDirectory(tempDir.resolve("cleanup-failure-output"));
         VideoFrameExtractor extractor = new VideoFrameExtractor() {
             @Override
-            public VideoMetadata getVideoMetadata(Path videoPath) {
+            public VideoMetadata getVideoMetadataFromSnapshot(Path videoPath) {
                 return new VideoMetadata(16, 16, 1.0, 1.0, 1, "1/1000");
             }
 
