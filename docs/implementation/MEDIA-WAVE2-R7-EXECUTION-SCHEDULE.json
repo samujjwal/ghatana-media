@@ -3668,7 +3668,16 @@
         "sourceAdapters": {"linux": "/proc/self/status VmRSS", "macOS": "/bin/ps rss"},
         "samplePeriodMillis": 250,
         "measurement": "sampled total process RSS in bytes; unavailable readings remain NOT_MEASURED",
-        "limitation": "not native-only memory, process-tree enforcement, or a guaranteed peak for workloads shorter than the sample interval"
+        "limitation": "not native-only memory, process-tree enforcement, or a guaranteed peak for workloads shorter than the sample interval",
+        "localFixtureReport": "audio-video-observability/build/reports/wave2-media-resource-profile.tsv",
+        "environment": {"os": "macOS 26.2", "architecture": "aarch64", "java": "Temurin 27.0.1.0.2+1", "processors": 10},
+        "fixture": "96 one-millisecond sleep operations per concurrency; no provider; each run completed before the in-workload RSS sample interval",
+        "observed": [
+          {"concurrency": 1, "rssBytes": 293617664, "p50Millis": 103.4995, "p95Millis": 180.520792, "p99Millis": 186.581459},
+          {"concurrency": 16, "rssBytes": 295845888, "p50Millis": 5.45025, "p95Millis": 11.063792, "p99Millis": 11.16125},
+          {"concurrency": 64, "rssBytes": 300892160, "p50Millis": 1.905, "p95Millis": 2.842084, "p99Millis": 3.032417}
+        ],
+        "unmeasured": ["GPU", "native-only memory", "connection pool", "network", "FFmpeg", "model", "Linux cgroup limits"]
       }
     },
     "independentReviews": {
