@@ -33,6 +33,8 @@ public final class LanguageDetectionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(LanguageDetectionService.class);
     static final int MAX_CANDIDATES = 16;
+    /** PDP-1 language-detection request bound; over-limit inputs must fail before model dispatch. */
+    static final int MAX_AUDIO_REQUEST_BYTES = 65_536;
 
     private final LanguageDetectionModel model;
     private final double confidenceThreshold;
@@ -97,12 +99,16 @@ public final class LanguageDetectionService {
      * @param audioBytes raw PCM audio bytes
      * @return a {@link DetectionResult} with ranked candidates
      * @throws NullPointerException     if audioBytes is null
-     * @throws IllegalArgumentException if audioBytes is empty
+     * @throws IllegalArgumentException if audioBytes is empty or exceeds the language-detection request bound
      */
     public DetectionResult detectFromAudio(byte[] audioBytes) {
         Objects.requireNonNull(audioBytes, "audioBytes must not be null");
         if (audioBytes.length == 0) {
             throw new IllegalArgumentException("audioBytes must not be empty");
+        }
+        if (audioBytes.length > MAX_AUDIO_REQUEST_BYTES) {
+            throw new IllegalArgumentException(
+                    "BOUNDS_EXCEEDED: audio exceeds the 65536-byte language-detection request limit");
         }
         DetectionResult result = resultFromModel(model.detectFromAudio(audioBytes));
         LOG.debug("Audio language detection: bytes={} top={}",

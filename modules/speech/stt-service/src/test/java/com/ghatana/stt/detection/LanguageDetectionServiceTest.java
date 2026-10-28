@@ -231,6 +231,34 @@ class LanguageDetectionServiceTest {
         }
 
         @Test
+        @DisplayName("audio request bound rejects overflow before model dispatch")
+        void detectFromAudio_enforcesRequestByteBoundBeforeDispatch() {
+            var providerCalls = new java.util.concurrent.atomic.AtomicInteger();
+            var model = new LanguageDetectionService.LanguageDetectionModel() {
+                @Override
+                public List<LanguageDetectionService.LanguageCandidate> detect(String textSample) {
+                    return List.of();
+                }
+
+                @Override
+                public List<LanguageDetectionService.LanguageCandidate> detectFromAudio(byte[] audioBytes) {
+                    providerCalls.incrementAndGet();
+                    return List.of();
+                }
+            };
+            var service = LanguageDetectionService.of(model);
+
+            service.detectFromAudio(new byte[LanguageDetectionService.MAX_AUDIO_REQUEST_BYTES]);
+            assertThat(providerCalls).hasValue(1);
+
+            assertThatThrownBy(() -> service.detectFromAudio(
+                            new byte[LanguageDetectionService.MAX_AUDIO_REQUEST_BYTES + 1]))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("BOUNDS_EXCEEDED: audio exceeds the 65536-byte language-detection request limit");
+            assertThat(providerCalls).hasValue(1);
+        }
+
+        @Test
         @DisplayName("null audio model result is rejected with a stable provider-result error")
         void detectFromAudio_nullModelResultIsRejected() {
             var model = new LanguageDetectionService.LanguageDetectionModel() {
