@@ -189,7 +189,8 @@ function speakerBootstrapWer(clips, predictions, locale) {
   }
   const clusters = [...bySpeaker.values()];
   assert(clusters.length >= 2, 'qualification requires distinct holdout speaker clusters');
-  let seed = (20261028 + [...locale].reduce((n, ch) => n + ch.codePointAt(0), 0)) >>> 0;
+  const initialSeed = (20261028 + [...locale].reduce((n, ch) => n + ch.codePointAt(0), 0)) >>> 0;
+  let seed = initialSeed;
   const draws = [];
   for (let replicate = 0; replicate < BOOTSTRAP_REPLICATES; replicate += 1) {
     let errors = 0;
@@ -208,7 +209,7 @@ function speakerBootstrapWer(clips, predictions, locale) {
   draws.sort((a, b) => a - b);
   return {
     method: 'SPEAKER_CLUSTER_PERCENTILE_BOOTSTRAP',
-    seed: 20261028,
+    seed: initialSeed,
     confidence: 0.95,
     replicates: BOOTSTRAP_REPLICATES,
     holdoutSpeakerClusters: clusters.length,
