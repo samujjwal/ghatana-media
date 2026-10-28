@@ -1,0 +1,602 @@
+{
+  "schemaVersion": "ghatana.media.wave2.evidence-task-crosswalk.v1",
+  "authority": "EVIDENCE_ACQUISITION_ROUTING_ONLY_NOT_ACCEPTANCE_OR_PDP_AUTHORITY",
+  "reviewDate": "2026-10-28",
+  "canonicalTaskAcceptance": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+  "originalRowExitMatrix": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json",
+  "counts": {
+    "total": 58,
+    "locallyVerified": 22,
+    "partial": 30,
+    "ownerExternal": 6,
+    "open": 36
+  },
+  "packetsAreNotRightsDecisions": true,
+  "workPackages": [
+    {
+      "id": "E01",
+      "description": "model provenance and rights",
+      "ownerRole": "Media model owner + independent rights reviewer",
+      "requiredArtifact": "Private signed model-weight/derivative license receipt and verified bytes",
+      "tasksAffected": [
+        "MM-12",
+        "STT-12",
+        "TTS-03",
+        "TTS-07",
+        "TTS-12",
+        "VIS-02",
+        "VIS-06",
+        "VIS-12"
+      ]
+    },
+    {
+      "id": "E02",
+      "description": "voice model and phonemizer",
+      "ownerRole": "Media TTS owner + voice/likeness rights reviewer",
+      "requiredArtifact": "Exact voice/sidecar rights and intelligible real output",
+      "tasksAffected": [
+        "TTS-02",
+        "TTS-03",
+        "TTS-06",
+        "TTS-07",
+        "TTS-08",
+        "TTS-09",
+        "TTS-10",
+        "TTS-12"
+      ]
+    },
+    {
+      "id": "E03",
+      "description": "source recording ownership",
+      "ownerRole": "Media security + content owner",
+      "requiredArtifact": "Source/version/purpose grants and fail-closed revocation at dispatch",
+      "tasksAffected": [
+        "MM-02",
+        "STT-03",
+        "STT-04",
+        "STT-05",
+        "STT-08",
+        "STT-09",
+        "TTS-05",
+        "TTS-09",
+        "VIS-09",
+        "VIS-10"
+      ]
+    },
+    {
+      "id": "E04",
+      "description": "adult biometric consent",
+      "ownerRole": "Independent privacy/legal owner + actual participant",
+      "requiredArtifact": "Individually signed private revocable consent for cloned voice and face/identity",
+      "tasksAffected": [
+        "MM-06",
+        "STT-07",
+        "TTS-05",
+        "VIS-10"
+      ]
+    },
+    {
+      "id": "E05",
+      "description": "licensed labeled corpora",
+      "ownerRole": "Evaluation lead + independent model-quality reviewer",
+      "requiredArtifact": "Source-pinned audio/image/clock golds and fixed splits/metric oracles",
+      "tasksAffected": [
+        "MM-06",
+        "MM-12",
+        "OBS-08",
+        "STT-06",
+        "STT-07",
+        "STT-10",
+        "STT-12",
+        "TTS-10",
+        "TTS-12",
+        "VIS-05",
+        "VIS-06",
+        "VIS-07",
+        "VIS-12"
+      ]
+    },
+    {
+      "id": "E06",
+      "description": "genuine provider inference",
+      "ownerRole": "Media model/engine owner",
+      "requiredArtifact": "Real Whisper/Piper/YOLOX output, no synthetic fallback or incompatible ONNX",
+      "tasksAffected": [
+        "MM-05",
+        "MM-12",
+        "OBS-07",
+        "STT-04",
+        "STT-05",
+        "STT-06",
+        "STT-07",
+        "STT-10",
+        "STT-12",
+        "TTS-02",
+        "TTS-06",
+        "TTS-07",
+        "TTS-08",
+        "TTS-10",
+        "TTS-12",
+        "VIS-02",
+        "VIS-05",
+        "VIS-06",
+        "VIS-07",
+        "VIS-12"
+      ]
+    },
+    {
+      "id": "E07",
+      "description": "canonical durable finality",
+      "ownerRole": "Media runtime + Postgres owner",
+      "requiredArtifact": "Fenced attempt/outbox, exact source lineage, restart readback and UNKNOWN",
+      "tasksAffected": [
+        "MM-02",
+        "MM-05",
+        "MM-08",
+        "MM-09",
+        "MM-12",
+        "STT-04",
+        "STT-05",
+        "STT-08",
+        "STT-09",
+        "STT-12",
+        "TTS-08",
+        "TTS-09"
+      ]
+    },
+    {
+      "id": "E08",
+      "description": "multimodal/public APIs",
+      "ownerRole": "Media MM + Ghatana Data Cloud and Document Intelligence owners",
+      "requiredArtifact": "Source-PTS child jobs, Data Cloud public read-model and OCR adapter",
+      "tasksAffected": [
+        "MM-03",
+        "MM-05",
+        "MM-06",
+        "MM-08",
+        "MM-09",
+        "MM-10",
+        "MM-12",
+        "VIS-07",
+        "VIS-09"
+      ]
+    },
+    {
+      "id": "E09",
+      "description": "native sandbox and measured capacity",
+      "ownerRole": "Media native/SRE lead",
+      "requiredArtifact": "Per-workload bounded isolation, real model 1/16/64 and Alertmanager delivery",
+      "tasksAffected": [
+        "MM-12",
+        "OBS-07",
+        "OBS-08",
+        "STT-12",
+        "TTS-12",
+        "VIS-03",
+        "VIS-05",
+        "VIS-12"
+      ]
+    },
+    {
+      "id": "E10",
+      "description": "independent review and individual acceptance",
+      "ownerRole": "Independent rights/model/security reviewer",
+      "requiredArtifact": "Originator/reviewer proof, exact source SHA and whole-row evidence",
+      "tasksAffected": [
+        "MM-12",
+        "STT-03",
+        "STT-10",
+        "STT-12",
+        "TTS-03",
+        "TTS-05",
+        "TTS-07",
+        "TTS-12",
+        "VIS-02",
+        "VIS-10",
+        "VIS-12"
+      ]
+    }
+  ],
+  "remainingTaskRouting": [
+    {
+      "taskId": "MM-02",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E07"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "MM-03",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E08"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "MM-05",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E06",
+        "E07",
+        "E08"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "MM-06",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E04",
+        "E05",
+        "E08"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "MM-08",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E07",
+        "E08"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "MM-09",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E07",
+        "E08"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "MM-10",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E08"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "MM-12",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "requiredEvidencePackages": [
+        "E01",
+        "E05",
+        "E06",
+        "E07",
+        "E08",
+        "E09",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "OBS-07",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E06",
+        "E09"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "OBS-08",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E05",
+        "E09"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-03",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-04",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E06",
+        "E07"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-05",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E06",
+        "E07"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-06",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E05",
+        "E06"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-07",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-08",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E07"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-09",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E07"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-10",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E05",
+        "E06",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "STT-12",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "requiredEvidencePackages": [
+        "E01",
+        "E05",
+        "E06",
+        "E07",
+        "E09",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-02",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E02",
+        "E06"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-03",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E01",
+        "E02",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-05",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E04",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-06",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E02",
+        "E06"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-07",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "requiredEvidencePackages": [
+        "E01",
+        "E02",
+        "E06",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-08",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E02",
+        "E06",
+        "E07"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-09",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E02",
+        "E03",
+        "E07"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-10",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E02",
+        "E05",
+        "E06"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "TTS-12",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "requiredEvidencePackages": [
+        "E01",
+        "E02",
+        "E05",
+        "E06",
+        "E09",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "VIS-02",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "requiredEvidencePackages": [
+        "E01",
+        "E06",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "VIS-03",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E09"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "VIS-05",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E05",
+        "E06",
+        "E09"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "VIS-06",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E01",
+        "E05",
+        "E06"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "VIS-07",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E05",
+        "E06",
+        "E08"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "VIS-09",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E08"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "VIS-10",
+      "currentDisposition": "PARTIAL",
+      "requiredEvidencePackages": [
+        "E03",
+        "E04",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    },
+    {
+      "taskId": "VIS-12",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "requiredEvidencePackages": [
+        "E01",
+        "E05",
+        "E06",
+        "E09",
+        "E10"
+      ],
+      "canPromoteAutomatically": false,
+      "nextSource": "docs/implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md"
+    }
+  ],
+  "residualProhibitions": [
+    "No invented third-party model license",
+    "No fabricated subject biometric/voice consent",
+    "No session-local caption drafts persisted as formal CaptionVersion",
+    "No synthetic model outputs counted as real quality",
+    "No model moved from candidate to ADMITTED by manifest boolean",
+    "No unverified named-host/worker sandbox capacity metrics",
+    "No promotion of an original row without exact acceptance"
+  ]
+}
