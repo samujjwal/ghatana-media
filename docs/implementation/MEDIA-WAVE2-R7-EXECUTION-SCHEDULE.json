@@ -2901,5 +2901,83 @@
     },
     "limitations": "STT remains NOT_ADMITTED. This change does not implement media.transcription-submission-fingerprint.v4; trusted delegation, rights/consent/policy/retention resolution and processing location are unavailable, and generic request construction may normalize values before admission.",
     "nextWork": "Do not infer canonical v4 fields from caller input. Obtain the owner-bound authority/source API and trusted profile/location values, then implement and verify the exact ordered fingerprint at the admitted STT boundary. Keep task dispositions unchanged."
+  },
+  "postR7OwningApiAuthorityAudit": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "a3f0ec61203dd23165d7fc650f5d18788be3d8f3",
+      "ghatana": "387bfc3eede86265aa8b42340d6a32f6e19ffeee",
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "kernel": "cd6fed02b4ab5871b070fac373b2c9a54e702fca",
+      "lifecycle": "6fba0bfa741aff5ab90dfa6294a0d6f53700aa62",
+      "mediaCleanAtSourceAuditStart": true,
+      "ghatanaWorkingTreeClean": true,
+      "sharedWorkingTreeClean": true,
+      "kernelWorkingTreeClean": true,
+      "lifecycleWorkingTreeClean": false,
+      "lifecycleEvidenceNote": "Lifecycle evidence was inspected from its current working tree, which contains uncommitted changes; those files are not represented by the HEAD pin alone."
+    },
+    "ownerEvidenceResponse": "Owner reported that no approved rights/consent, model/license/corpus, Data Cloud or Document Intelligence API, or trusted worker-isolation evidence is available yet.",
+    "independentReadOnlyAudits": [
+      "Luna owning-API audit of Ghatana Data Cloud and Document Intelligence",
+      "Luna owning-API audit of Shared/Kernel/Lifecycle rights, consent, identity, and worker-isolation surfaces"
+    ],
+    "findings": {
+      "dataCloud": {
+        "available": [
+          "OperationalSemanticContext is a typed value contract; OperationalSemanticContextService exposes resolve/summarize, and SemanticContextProvider exposes exact/relationship reads and a tenant context epoch.",
+          "MediaProcessorPort is a generic legacy processing port; the Ghatana Data Cloud Media service contract limits Data Cloud to tenant-scoped metadata/read-model/projection integration and keeps artifact, job, consent, provider, and lifecycle authority in Media."
+        ],
+        "missing": "No public Data Cloud semantic projection-write API was found. The current Media adapter path cannot establish governed publication; it remains explicitly unavailable/local-only."
+      },
+      "documentIntelligence": {
+        "available": "A frozen HTTP protocol defines provider catalog, parse/extract/embed, and generation-fenced cancellation. The implementation is a Python worker with a TypeScript client; no Java client or published Java contract was found.",
+        "missing": "The protocol does not define Media source-version, rights/consent, retention, or scene-text authorization mapping. It does not establish an admitted Media OCR call or provider qualification; VIS-09 stays fail-closed."
+      },
+      "rightsAndIdentity": "Kernel generic consent/policy and Shared identity/tenant-isolation primitives do not provide a Media artifact/version-bound source-rights decision, verified delegation, or live dispatch grant with purpose, provider, revocation/expiry, region, and retention semantics.",
+      "workerIsolation": "Kernel process-runtime assurances and Lifecycle profiles/evidence schemas do not provide an admitted executor enforcing and reading back per-worker CPU, RSS/memory, PID-tree, and scratch limits. Lifecycle was dirty during this source audit; no formal source-current claim is made for its uncommitted tree."
+    },
+    "sourceEvidence": {
+      "dataCloud": [
+        "ghatana/services/data-cloud/planes/shared-spi/src/main/java/com/ghatana/datacloud/semantic/OperationalSemanticContext.java",
+        "ghatana/services/data-cloud/planes/shared-spi/src/main/java/com/ghatana/datacloud/semantic/OperationalSemanticContextService.java",
+        "ghatana/services/data-cloud/planes/shared-spi/src/main/java/com/ghatana/datacloud/semantic/SemanticContextProvider.java",
+        "ghatana/services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaProcessorPort.java",
+        "ghatana/services/data-cloud/service-contract.yaml#DATA-CLOUD-MEDIA-BOUNDARY-001,DATA-CLOUD-MEDIA-PROJECTION-001"
+      ],
+      "documentIntelligence": [
+        "ghatana/services/document-intelligence/contracts/protocol-v1.md",
+        "ghatana/services/document-intelligence/clients/typescript/src/client.ts",
+        "ghatana/services/document-intelligence/src/document_intelligence/app.py",
+        "ghatana/services/document-intelligence/pyproject.toml"
+      ],
+      "rightsAndIdentity": [
+        "ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/identity/PrincipalIdentity.java",
+        "ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/identity/spi/IdentityResolver.java",
+        "ghatana-kernel/platform-kernel/kernel-core/src/main/java/com/ghatana/kernel/security/ConsentDecisionAuthority.java",
+        "ghatana-kernel/platform-kernel/kernel-product-runtime/src/main/java/com/ghatana/kernel/product/runtime/toolchain/ToolRuntimeAssurance.java",
+        "ghatana-kernel/platform-kernel/kernel-product-runtime/src/main/java/com/ghatana/kernel/product/runtime/toolchain/ProcessBackedGovernedToolRuntime.java"
+      ],
+      "mediaFailClosedBoundaries": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/VisionGrpcService.java#analyzeVideoFile:VIDEO_CODEC_SANDBOX_UNAVAILABLE",
+        "modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/grpc/ProductionVisionGrpcServiceRpcMatrixTest.java",
+        "adapters/data-cloud-media/src/main/java/com/ghatana/audio/video/multimodal/datacloud/DataCloudMultimodalAdapter.java",
+        "adapters/data-cloud-media/src/main/java/com/ghatana/audio/video/multimodal/datacloud/MediaSemanticObservationProjector.java"
+      ]
+    },
+    "disposition": {
+      "MM-10": "PARTIAL",
+      "VIS-09": "PARTIAL",
+      "STT-03": "PARTIAL",
+      "TTS-05": "PARTIAL",
+      "VIS-10": "PARTIAL",
+      "MM-02": "PARTIAL",
+      "VIS-03": "PARTIAL",
+      "rowsPromoted": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "currentCounts": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "verification": "Read-only source audit only; no external repository files were changed and no code tests were run for the audit. Media's production composition currently disables the test-only codec allowance because no trusted worker sandbox is composed; therefore analyzeVideoFile returns UNAVAILABLE with VIDEO_CODEC_SANDBOX_UNAVAILABLE before temp-file creation or FFprobe/FFmpeg dispatch. This does not claim a guard around direct VideoFrameExtractor calls. RSS polling would be diagnostic, not hard enforcement; no code change or task promotion is justified by the current evidence. Separate record checks: pnpm test:backend-modality-wave2-plan 7/7, pnpm test:repository-hygiene 19/19, schedule JSON parse and git diff --check passed.",
+    "nextWork": "Keep real rights-gated dispatch, OCR use, and semantic publication closed. For VIS-03, keep production analyzeVideoFile unavailable pending qualification and qualify a trusted executor that enforces the required limits on both required hosts; do not replace that gate with sampled RSS. Continue only a source-supported local code slice that is independently testable. Preserve all 58 rows and every current disposition."
   }
 }
