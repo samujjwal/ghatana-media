@@ -63,7 +63,7 @@ if [ "$mode" = "pid-limit" ]; then
   done < /sys/fs/cgroup/pids.events
   [ "$blocked" -gt 0 ] || fail pid-hard-limit-not-hit
   printf 'HOST_OCI_PID_LIMIT_HIT\n'
-  exit 0
+  exit 85
 fi
 
 printf 'host-oci-limits-and-mounts-verified\n' > "$output"
