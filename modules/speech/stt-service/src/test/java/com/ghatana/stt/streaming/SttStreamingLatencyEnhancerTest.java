@@ -75,15 +75,39 @@ class SttStreamingLatencyEnhancerTest {
     }
 
     @Test
-    @DisplayName("Back-pressure activates when buffer fills to 80%")
-    void backPressureAtHighWaterMark() { 
-        // Fill buffer to 16/20 = 80%
-        for (int i = 0; i < 16; i++) { 
-            enhancer.ingest(new byte[]{(byte) i}, i, i * 10L); 
+    @DisplayName("Back-pressure rejects over-capacity input and recovers after flush")
+    void backPressureAtHighWaterMark() {
+        List<SttStreamingLatencyEnhancer.AudioChunkBatch> boundedEmitted = new ArrayList<>();
+        SttStreamingLatencyEnhancer bounded = SttStreamingLatencyEnhancer.builder()
+                .maxBufferChunks(20)
+                .maxChunkBytes(4)
+                .maxBufferBytes(4)
+                .emitter(boundedEmitted::add)
+                .build();
+
+        for (int i = 0; i < 4; i++) {
+            assertThat(bounded.ingest(new byte[] {(byte) i}, i, i * 10L)).isTrue();
         }
-        // Back-pressure may or may not be active depending on flush triggering;
-        // main assertion: the enhancer did not throw and is reachable
-        assertThat(enhancer.stats().chunksReceived()).isGreaterThanOrEqualTo(1); 
+        assertThat(bounded.bufferSize()).isEqualTo(4);
+        assertThat(bounded.bufferedBytes()).isEqualTo(4);
+        assertThat(bounded.isBackPressureActive()).isTrue();
+        assertThat(bounded.stats().chunksReceived()).isEqualTo(4);
+
+        assertThat(bounded.ingest(new byte[] {5}, 4, 40L)).isFalse();
+        assertThat(bounded.bufferSize()).isEqualTo(4);
+        assertThat(bounded.bufferedBytes()).isEqualTo(4);
+        assertThat(bounded.stats().chunksReceived()).isEqualTo(4);
+
+        bounded.flush();
+        assertThat(bounded.bufferSize()).isZero();
+        assertThat(bounded.bufferedBytes()).isZero();
+        assertThat(bounded.isBackPressureActive()).isFalse();
+        assertThat(boundedEmitted).hasSize(1);
+        assertThat(boundedEmitted.get(0).chunkCount()).isEqualTo(4);
+
+        assertThat(bounded.ingest(new byte[] {6}, 5, 50L)).isTrue();
+        assertThat(bounded.bufferedBytes()).isEqualTo(1);
+        assertThat(bounded.stats().chunksReceived()).isEqualTo(5);
     }
 
     @Test
