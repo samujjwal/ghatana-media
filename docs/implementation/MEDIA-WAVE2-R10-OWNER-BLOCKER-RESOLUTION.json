@@ -919,5 +919,93 @@
       "productionSlo": "NFR-DEC-SLO remains production-activation decision pending named deployed host and measured real load; do not invent a production SLO"
     },
     "ownerStatus": "ENGINEERING_APPROVED_TEST_SCOPE_AND_PROVISIONAL_THRESHOLDS; NONE_OF_THESE_VALUES_CERTIFY_RUNTIME_OR_LICENSE"
+  },
+  "activeExecutionReadback": {
+    "asOf": "2026-10-28",
+    "activePlan": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md",
+    "reportedMediaHostOciBaseline": "4196698a7fae2d82df13dce17e2a6a7ca9ef0de0",
+    "verifiedObservationFromUser": {
+      "previousStubFixtureTestCount": 2,
+      "previousStubFixturePassed": 2,
+      "subsequentAdversarialAndRealCodecStatus": "COMMITTED_SOURCE_NOT_EXECUTED_ON_CURRENT_JDK27_DOCKER_HOST"
+    },
+    "currentOwnerRule": "All routine engineering work preapproved and executable; external-rights/actual-data gates remain genuine and scoped, never silently removed or treated as blanket development blockers.",
+    "noAdditionalWorkPackageIds": true,
+    "nextFullRowCandidate": "VIS-03",
+    "nextRealBusinessOutcome": "STT source-rights → authorized job → fenced result → immutable transcript readback after restart",
+    "gateStates": {
+      "G01": {
+        "implementationDisposition": "ENGINEERING_CODE_NOW",
+        "observedGap": "Whisper has a real but incomplete output on prior source; full independent gold and ORT 0/1/2/4 A/B current-source tests are pending",
+        "nextAction": "Run complete gold integration and compare decoder/parity; no keyword success",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G02": {
+        "implementationDisposition": "ENGINEERING_CODE_NOW_WITH_REAL_SOURCE_PROVENANCE",
+        "observedGap": "Media runtime lacks composed source-rights authority; first-party original fixture can exercise real verified ownership but not third-party rights",
+        "nextAction": "Wire authenticated immutable source/version/purpose rights + Shared PolicyEngine + Media consent decisions; no literal ALLOW",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G03": {
+        "implementationDisposition": "ENGINEERING_CODE_NOW_AFTER_G02",
+        "observedGap": "MediaRuntime STT pre-job admission unconditionally throws and PostgreSQL transcript store refuses production writes",
+        "nextAction": "Complete genuine source rights + qualified provider + actual CAS writer/receipt and restart readback",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G04": {
+        "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_VOICE_RIGHTS",
+        "observedGap": "Piper PCM actual output but canonical phonemizer heuristic and voice/speaker rights not qualified",
+        "nextAction": "Wire real qualified phonemes; verify exact model+sidecar voice/source and licensed output",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G05": {
+        "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_MODEL_IMAGE_RIGHTS",
+        "observedGap": "YOLOX real inference returned no detection on a synthetic glyph; no independent positive labeled photo/corpus",
+        "nextAction": "Use first-party original nonhuman photo with COCO positive, verify model weight/export lineage and mAP",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G06": {
+        "implementationDisposition": "CODED_SOURCE_WITH_NATIVE_VERIFICATION_PENDING",
+        "observedGap": "Host OCI resource fixture 2/2 reported passed; new kernel OOM, fork-limit and real FFmpeg positive/malformed/overflow source tests committed but not run",
+        "nextAction": "Run dedicated stub then real pinned-image suites with effective cgroup evidence; repeat original VIS-03 adversarial corpus",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G07": {
+        "implementationDisposition": "EXTERNAL_LICENSED_DATA_THEN_ENGINEERING_METRICS",
+        "observedGap": "FLEURS metadata-only, no actual audio clip hashes or held-out scores",
+        "nextAction": "Acquire bounded exact attributed clip bytes and independently authored gold; compute frozen WER/CER/CI",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G08": {
+        "implementationDisposition": "ENGINEERING_BENCHMARK_AFTER_REAL_MODEL",
+        "observedGap": "Real 1/16/64 observations available but CPU saturation and no qualified alerts/service profile",
+        "nextAction": "Run named-host A/B correctness, capacity/typed rejection and Prometheus→Alertmanager with real provider data",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G09": {
+        "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
+        "observedGap": "Ghatana Document Intelligence public Media ROI+source-rights API absent at reviewed Ghatana HEAD",
+        "nextAction": "Implement Ghatana issue #252 public contract+installed Java27 Media consumer",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G10": {
+        "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
+        "observedGap": "Ghatana Data Cloud versioned Media observation projection absent at reviewed Ghatana HEAD",
+        "nextAction": "Implement Ghatana issue #254 server Java21+source-free Media Java27 consumer",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G11": {
+        "implementationDisposition": "GENUINE_EXTERNAL_HUMAN_OR_RIGHTSHOLDER_RECORD_REQUIRED",
+        "observedGap": "Human biometric/voice consent and third-party redistribution rights not present; engineering cannot sign for holders",
+        "nextAction": "Acquire actual scoped rights/consent and independent reviewer trust; use nonhuman first-party dev data meanwhile",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      },
+      "G12": {
+        "implementationDisposition": "ENGINEERING_CODE_AFTER_G03_G05",
+        "observedGap": "No authorized real STT/Vision child result to fuse; old MM methods remain partial/unavailable",
+        "nextAction": "Compose real child attempts with separate rights/finality and restart/readback of source-grounded fusion",
+        "wholeRowAcceptance": "NOT_ACCEPTED"
+      }
+    }
   }
 }
