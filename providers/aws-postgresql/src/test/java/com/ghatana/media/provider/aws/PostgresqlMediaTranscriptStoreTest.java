@@ -225,6 +225,33 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void candidateAppendEnforcesThePdpTranscriptTextCodePointLimit() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "6".repeat(64);
+            seed(state, "tenant-text-bound", "principal-a", "source-text-bound", "job-text-bound",
+                    "consent-text-bound", digest, false);
+
+            String maximumText = "\uD83D\uDE42".repeat(1_000_000);
+            TranscriptDraft maximum = draft("tenant-text-bound", "principal-a", "transcript-at-limit",
+                    "source-text-bound", "job-text-bound", "consent-text-bound", digest, maximumText);
+            assertThat(maximum.text().codePointCount(0, maximum.text().length())).isEqualTo(1_000_000);
+            assertThat(store.append(maximum, 0).revision()).isEqualTo(1);
+            assertThat(store.revisions("tenant-text-bound", "principal-a", "transcript-at-limit"))
+                    .hasSize(1);
+
+            TranscriptDraft oversized = draft("tenant-text-bound", "principal-a", "transcript-over-limit",
+                    "source-text-bound", "job-text-bound", "consent-text-bound", digest, maximumText + "x");
+            assertThatThrownBy(() -> store.append(oversized, 0))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("maximum length");
+            assertThat(store.revisions("tenant-text-bound", "principal-a", "transcript-over-limit"))
+                    .isEmpty();
+        }
+    }
+
+    @Test
     void candidateRevisionReadsBackAfterRuntimeStateRecreationAndExactRetryIsIdempotent() throws Exception {
         try (Fixture fixture = openFixture()) {
             var originalState = fixture.state();

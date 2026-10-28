@@ -22,6 +22,7 @@ import tools.jackson.databind.JsonNode;
 
 /** PostgreSQL-backed append-only transcript revisions, with candidate-only authority provenance. */
 public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStore {
+    private static final int MAX_TRANSCRIPT_TEXT_CODE_POINTS = 1_000_000;
     private final MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
     private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -34,6 +35,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
     public TranscriptRevision append(TranscriptDraft draft, int expectedLatestRevision) {
         ensureOpen();
         java.util.Objects.requireNonNull(draft, "draft");
+        validateTranscriptText(draft);
         if (expectedLatestRevision < 0) {
             throw new IllegalArgumentException("expectedLatestRevision cannot be negative");
         }
@@ -98,6 +100,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             int attemptNumber, long fencingToken, String requestFingerprint, String transcriptVersionRef) {
         ensureOpen();
         java.util.Objects.requireNonNull(draft, "draft");
+        validateTranscriptText(draft);
         requireNonBlank(requestFingerprint, "requestFingerprint");
         requireNonBlank(transcriptVersionRef, "transcriptVersionRef");
         if (attemptNumber <= 0 || fencingToken <= 0 || expectedLatestRevision < 0
@@ -350,7 +353,13 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 && validOpaqueRef(version)
                 && ("APPLIED".equals(disposition) || "NOT_REQUESTED".equals(disposition))
                 && transcript != null && transcript.isString()
-                && transcript.stringValue().codePointCount(0, transcript.stringValue().length()) <= 1_000_000;
+                && transcript.stringValue().codePointCount(0, transcript.stringValue().length())
+                        <= MAX_TRANSCRIPT_TEXT_CODE_POINTS;
+    }
+    private static void validateTranscriptText(TranscriptDraft draft) {
+        if (draft.text().codePointCount(0, draft.text().length()) > MAX_TRANSCRIPT_TEXT_CODE_POINTS) {
+            throw new IllegalArgumentException("Transcript text exceeds the PDP maximum length");
+        }
     }
     private static boolean validOpaqueRef(String value) {
         return value != null && !value.isBlank() && value.codePointCount(0, value.length()) <= 384;
