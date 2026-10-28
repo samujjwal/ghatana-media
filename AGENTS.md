@@ -47,6 +47,19 @@ Assume that planned features belong to the product even if they are not fully fo
 
 **Historical source metadata:** `.product-experience/authority-map.yaml` and `.ghatana/repository.json` may still describe the original `ghatana/services/media` implementation binding, because operational/source migration has not completed. This is provenance, not an instruction to commit Media code there. Reconcile those source-bound projections using their owning migration/phase process after actual M01–M08 transfer proof; do not falsify the PDP or mutate historical pins merely to change a label.
 
+### Preserve prior candidate selections before adding or replacing a provider
+
+The canonical PDP-0 technology decisions remain in `.product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister`. **Always** consult [the consolidated Media-wide decision register](docs/implementation/MEDIA-CANDIDATE-DECISIONS-CONSOLIDATED-2026-10-28.md) and [the read-only source-linked crosswalk](docs/implementation/observations/media-candidate-decision-crosswalk-2026-10-28.json) before changing speech, voice, image/video generation, music, animation, simulation, recording, editing, delivery or quality integrations. Those records preserve 38 prior PDP-0 technology decisions, five prior research tables, six narrow R9 reference assets, nine conversation-only alternatives, all 22 capability families and the original 501-feature source-audit references. **Do not interpret an R9 six-item catalog as all products' technology choices.**
+
+An architectural `SELECTED` technology is not necessarily licensed, pinned, installed, model-qualified or available. A discussion-only proposal is not an approved source selection. Do not remove earlier candidate rows on a new review or silently replace an authoritative public service with a duplicate. Update the owning original source and its exact supersession reason, then reconcile the derived index and run:
+
+```bash
+pnpm check:candidate-decision-crosswalk
+pnpm test:candidate-decision-crosswalk
+```
+
+Do not use these source-history checks as acceptance evidence for unqualified model weights, user consent, voice likeness, worker isolation or production behavior. Current runtime provider/rights gates and canonical original acceptance remain separate.
+
 ## 4. Required backend development method
 
 - **Inspect before changing:** read the owning Media repository source, legacy code as a **read-only** source-difference reference, tests and shared/public dependencies. Classify reuse, extension, obsolete compatibility path and genuine gap. Prefer surgical change to broad rewrite.
