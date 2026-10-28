@@ -1,0 +1,742 @@
+{
+  "schemaVersion": "ghatana.media.wave2.r8-verification-exit-matrix.v1",
+  "reviewDate": "2026-10-28",
+  "canonical": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+  "authority": "NONCANONICAL_EXECUTION_SELECTION_ONLY",
+  "taskCount": {
+    "total": 58,
+    "locallyVerified": 22,
+    "partial": 30,
+    "ownerExternal": 6
+  },
+  "preservedVerifiedTaskIds": [
+    "STT-01",
+    "STT-02",
+    "STT-11",
+    "TTS-01",
+    "TTS-04",
+    "TTS-11",
+    "VIS-01",
+    "VIS-04",
+    "VIS-08",
+    "VIS-11",
+    "MM-01",
+    "MM-04",
+    "MM-07",
+    "MM-11",
+    "OBS-01",
+    "OBS-02",
+    "OBS-03",
+    "OBS-04",
+    "OBS-05",
+    "OBS-06",
+    "OBS-09",
+    "OBS-10"
+  ],
+  "originalSourceRowsParsed": 58,
+  "requiredPlatforms": [
+    "macOS ARM64 JDK27",
+    "Linux ARM64 JDK27 Docker on Mac"
+  ],
+  "windowsOSSpecific": "DEFERRED",
+  "approvedTestAssets": {
+    "generatedSyntheticFixtures": "ENGINEERING_APPROVED_FOR_NEGATIVE_FUNCTIONAL_TESTS_ONLY",
+    "officialWhisperTiny": "MIT_REFERENCE_CANDIDATE_NOT_MODEL_QUALITY_OR_RIGHTS_ADMISSION",
+    "piperVoice": "PRECISE_VOICE_RIGHTS_NOT_AVAILABLE",
+    "visionDetector": "WEIGHT_LICENSE_NOT_AVAILABLE",
+    "FLEURS": "CC_BY_4_0_CANDIDATE_REQUIRES_VERSION_AND_ATTRIBUTION"
+  },
+  "crossrepoOwnerIssues": [
+    "samujjwal/ghatana#252 Document Intelligence",
+    "samujjwal/ghatana#254 Data Cloud"
+  ],
+  "architectureGates": [
+    "AUTHENTICATED_VERIFIED_PRINCIPAL",
+    "SOURCE_VERSION_IMMUTABLE",
+    "RIGHTS_CONSENT_AND_POLICY_LIVE",
+    "QUALIFIED_MODEL_EXPORT_AND_LICENSE",
+    "CANONICAL_FENCED_JOB_OUTBOX",
+    "SOURCE_CLOCK_AND_ROI",
+    "CROSS_PLATFORM_NATIVE_SANDBOX",
+    "REAL_PROVIDER_CHAOS_QUALITY_LOAD"
+  ],
+  "promotionPolicy": "ALL_ORIGINAL_POSITIVE_NEGATIVE_RESTART_PRIVACY_QUALITY_ACCEPTANCE_MUST_PASS; no fixture-only or typed NOT_ADMITTED promotions",
+  "rows": [
+    {
+      "id": "VIS-03",
+      "stage": "A",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "VIS-01"
+      ],
+      "originalCapabilityScope": "`media.vision.classify; NFR-SEC-001`",
+      "originalImplementationRequirement": "`modules/vision/vision-service/video/VideoFrameExtractor.java; grpc/VisionGrpcService.java`: Reject oversize images/frames/pixels/decoded expansion, malformed codecs/containers, symlinks/traversal and unsafe media metadata before decoding; bound temp directory and native memory.",
+      "originalAcceptance": "Adversarial image/video and native parser corpus stays inside CPU/memory/frame/time bounds; quarantine unsupported formats.",
+      "requiredInputs": "native sandbox and adversarial codecs",
+      "firstUnblockingImplementation": "run single-workload cgroup-confined native worker on both OS hosts",
+      "independentAcceptanceProof": "hard memory/CPU/PIDs/disk/time bounds and zero leaked processes",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-03",
+      "stage": "B",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-01"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.speaker.identify-authorized; NFR-PRIV-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/grpc/PersistentSttGrpcService.java; grpc/SttGrpcServer.java; service/PersistentSttService.java`: Remove random UUID principal fallback; require trusted authenticated principal/tenant/purpose; verify ownership at direct service and gRPC; apply bounds and min-data audit on each request/retry.",
+      "originalAcceptance": "Missing caller identity is UNAUTHENTICATED with no file/DB/provider effect; impersonation and cross-tenant transcript tests green.",
+      "requiredInputs": "verified principal+source+purpose+Shared policy+Media rights",
+      "firstUnblockingImplementation": "wire production MediaRightsSourceResolver and purpose-bound identity",
+      "independentAcceptanceProof": "JWT wrong principal/tenant, revoked/stale, no provider/outbox effects",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-05",
+      "stage": "B",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-03"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.speaker.clone-authorized; NFR-PRIV-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/grpc/TtsGrpcService.java; security/EmbeddingEncryptionService.java; service/PersistentTtsService.java`: Enforce authenticated owner, voice identity, source consent, cloning/conditioning/biometrics, expiry and purpose; do not equate uploaded voice profile with legal authorization; encrypt retained embeddings.",
+      "originalAcceptance": "Unauthorized clone/profile access/no consent denies before external call; deletion/revocation disables subsequent dispatch; test data never leaked.",
+      "requiredInputs": "signed voice owner and explicit clone/biometric consent if enabled",
+      "firstUnblockingImplementation": "bind owner/revocation/retention and encrypted embeddings",
+      "independentAcceptanceProof": "clone denied before effect, revoke/delete later prohibits reuse",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "VIS-10",
+      "stage": "B",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "VIS-03",
+        "VIS-06"
+      ],
+      "originalCapabilityScope": "`media.vision.estimate.face-landmarks; media.vision.analyze.gaze; NFR-PRIV-001`",
+      "originalImplementationRequirement": "`modules/vision/vision-service/recognition/FacialRecognitionService.java; StructuredFacialRecognitionAuditSink.java`: Enforce biometric purpose/consent/region/retention before face-landmark/gaze/expression/identity; reject unsafe face identification, distinguish bounding boxes from identity assertions.",
+      "originalAcceptance": "Same-tenant/other-tenant, revoked consent and sensitive analytics negative fixtures dispatch zero restricted effects.",
+      "requiredInputs": "biometric-specific consent/region/retention authority",
+      "firstUnblockingImplementation": "gate sensitive faces/gaze/landmark effects and deletion/revocation",
+      "independentAcceptanceProof": "cross-tenant and revoked effect-free, real authorized capability if in scope",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "MM-02",
+      "stage": "B",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "MM-01",
+        "STT-03",
+        "VIS-03"
+      ],
+      "originalCapabilityScope": "`media.multimodal.observe.source-grounded; NFR-PRIV-001`",
+      "originalImplementationRequirement": "`modules/intelligence/multimodal-service/grpc/MultimodalGrpcService.java; engine/MultimodalRequest.java`: Authenticate tenant/principal and inspect rights for each modality and provider egress, source immutable artifact/versions, content size and purpose; no untrusted tenant header.",
+      "originalAcceptance": "Cross-tenant mixed input and revoked purpose deny before any call; signed content refs only and bounded bytes/frames.",
+      "requiredInputs": "source-scoped authorization for every selected modality",
+      "firstUnblockingImplementation": "bind trusted tenant/principal/artifact/source/version/purpose per child",
+      "independentAcceptanceProof": "deny mixed-tenant or revoked inputs before fanout",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-04",
+      "stage": "C",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-02",
+        "STT-03"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.file; NFR-SEC-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/service/PersistentSttService.java; grpc/SttGrpcService.java`: Consume governed artifact/version or bounded uploaded bytes; sniff codec/container, frame/channel/sample-rate/rational clock; reject decoded-size bombs; use bounded I/O rather than unbounded protobuf/byte-array copy.",
+      "originalAcceptance": "WAV/FLAC and explicitly admitted formats roundtrip; 0, oversize, broken header, bad timestamps and sample bounds fail with stable gRPC codes.",
+      "requiredInputs": "version-pinned lawful audio + admitted WAV/FLAC codec path",
+      "firstUnblockingImplementation": "wire authenticated source-byte reader to STT executor; qualify FLAC if declared supported",
+      "independentAcceptanceProof": "real source WAV/FLAC roundtrip and bounds, invalid header/timebase",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-08",
+      "stage": "C",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-06",
+        "STT-07"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.forced-align; media.speech.transcription.subtitle.generate; NFR-FIDELITY-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/service/PersistentSttService.java; job/AvJobLifecycleAdapter.java; transcript store SPI`: Persist immutable transcript/word-version, parent/source digest, CAS correction and caption draft vs approved version; forced alignment, translation and subtitle producer only when admitted and actually implemented.",
+      "originalAcceptance": "Exact source/word/caption lineage and CAS conflict tested; unsupported alignment/translate produce typed unmet-capability with no counterfeit caption version.",
+      "requiredInputs": "successful fenced STT output + immutable source lineage",
+      "firstUnblockingImplementation": "project only provider-result-matched immutable transcripts/captions into canonical CAS",
+      "independentAcceptanceProof": "CAS conflict, caption draft session-local, forced-align/translation capability proofs",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-09",
+      "stage": "C",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-03",
+        "STT-08"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.file; NFR-AUD-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/job/AvJobLifecycleAdapter.java; launcher Media job SPI`: Adopt foundation job idempotency, immutable artifact version, fenced provider attempt, truthful cancellation/UNKNOWN, bounded retry and secure audit; do not build another job store.",
+      "originalAcceptance": "Crash after request/dispatch/receipt and replay tested; shared job status projection does not convert UNKNOWN into running/success.",
+      "requiredInputs": "verified rights, admitted provider and durable job",
+      "firstUnblockingImplementation": "install STT-specific dispatcher/receipt/reconciliation on MediaRuntime",
+      "independentAcceptanceProof": "kill/restart before receipt, after receipt, UNKNOWN no duplicate",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-05",
+      "stage": "C2",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-02",
+        "STT-04"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.stream; NFR-RECOVERY-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/grpc/SttGrpcService.java; streaming/SttStreamingLatencyEnhancer.java`: Implement validated chunk/session identity, monotonic sequence/ack, bounded partial revisions, VAD framing, reconnect/resume, backpressure, timeout, cancel and final-result semantics; delegate transport mechanics to Media stream runtime.",
+      "originalAcceptance": "Out-of-order, repeat, gap, disconnect, dropped final and revoked consent tests prove no duplicate terminal transcript or fabricated finality.",
+      "requiredInputs": "real STT provider and stream final receipt",
+      "firstUnblockingImplementation": "route gRPC chunks into canonical stream reservations/VAD and durable ACK/reconnect",
+      "independentAcceptanceProof": "restart during frame, lost ACK, EOS without provider-final result",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-06",
+      "stage": "C2",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-04"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.word-timestamp.create; media.speech.transcription.confidence.provide; NFR-TIME-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/service/PersistentSttService.java; detection/LanguageDetectionService.java; proto adapter`: Bind source-PTS/sample clock, language/alternatives, VAD, words/phonemes and confidence to versioned typed segments; validate alignment and quality provenance; absent model support is a reasoned unavailability, not invented values.",
+      "originalAcceptance": "Impulse/boundary tests and gold transcript verify timebase, ordered nonoverlapping bounds and calibrated/not-calibrated confidence distinctions.",
+      "requiredInputs": "source clock+provider alignment/quality facts",
+      "firstUnblockingImplementation": "wire provider timing and alternative confidence to sample/PTS map",
+      "independentAcceptanceProof": "gold phoneme/word timing and explicit unknown confidence",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-07",
+      "stage": "C2",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-03",
+        "STT-06"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.speaker.diarize; media.speech.transcription.speaker.identify-authorized; NFR-PRIV-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/diarization/SpeakerDiarizationService.java; service/PersistentSttService.java`: Separate anonymous diarization from speaker identity, permission voice-biometric/diarization, overlap and speaker label stability; never infer real identity from clustering or training data.",
+      "originalAcceptance": "Overlapping/multi-speaker fixture preserves anonymous speaker IDs and no biometric identity without rights; speaker accuracy evaluated with declared corpus.",
+      "requiredInputs": "licensed speaker corpus + consented biometric identity if claimed",
+      "firstUnblockingImplementation": "wire anonymous diarization and separately gated identity, overlap",
+      "independentAcceptanceProof": "DER on licensed corpus, revocation and dimension drift",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-02",
+      "stage": "D",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-01"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.text-to-speech; NFR-FIDELITY-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/engine/TtsSynthesisEngine.java; grpc/TtsGrpcService.java`: Remove repeating-byte synth from any real provider result: isolate as explicitly named synthetic test fixture, or replace with real admitted synthesis SPI; forbid false PCM/MP3/OPUS claims.",
+      "originalAcceptance": "Production-like profile cannot receive 0x3C fabricated bytes or wrong codec; decoder + header + duration and real speech checks required.",
+      "requiredInputs": "real consented playable voice profile",
+      "firstUnblockingImplementation": "real PCM output through admitted provider, no silence/template",
+      "independentAcceptanceProof": "audio decodes; speech intelligibility/format/metadata crosschecked",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-03",
+      "stage": "D",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-01",
+        "TTS-02"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.speaker.condition; NFR-COST-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/grpc/ProductionTtsGrpcService.java; config/provider-manifest.json`: Bind actual voice model ID/version/digest/license, language, region, retention, hardware memory/compute, model health and prewarming; no implicit model download or synthetic fallback.",
+      "originalAcceptance": "Unknown/unavailable model/voice/license fails cleanly before mutation; only admitted and initialized provider may synthesize.",
+      "requiredInputs": "source-attested voice model, digest/license/phoneme map",
+      "firstUnblockingImplementation": "wire production TtsProviderAdmission resolver and asset identity",
+      "independentAcceptanceProof": "real model initializes, broken sidecar/license/rights precludes serving",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-06",
+      "stage": "D",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-03",
+        "TTS-04"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.control.phoneme; media.speech.synthesis.expressive; NFR-FIDELITY-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/ssml/SsmlProcessor.java; emotion/EmotionControlService.java; mixing/VoiceMixingService.java`: Map rate/pitch/prosody/pronunciation/SSML/emotion to provider-supported parameters; validate units and finite bounded values; opt out unsupported control rather than pretend it changed output.",
+      "originalAcceptance": "AB-style control fixtures prove observable effect where enabled; unsupported control returns truthful limitation; sample clocks and volume limits deterministic.",
+      "requiredInputs": "provider supports actual controls",
+      "firstUnblockingImplementation": "implement non-neutral SSML/rate/pitch/pronunciation mapping to engine",
+      "independentAcceptanceProof": "matched A/B audio proves each enabled control, unsupported typed",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-07",
+      "stage": "D",
+      "currentStatus": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-02",
+        "TTS-03",
+        "TTS-06"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.text-to-speech; NFR-TIME-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/engine/TtsSynthesisEngine.java; service/PersistentTtsService.java`: Generate real audio through admitted engine; encode declared PCM/encoded format, sample rate/channels/frame count and loudness, verify bytes can be decoded and duration matches sample count with rational rounding.",
+      "originalAcceptance": "Decoded non-empty speech on authorized reference model, playable output and exact format metadata; no label OPUS/MP3 for PCM bytes.",
+      "requiredInputs": "licensed model+voice+phonemizer approval",
+      "firstUnblockingImplementation": "run true TTS synthesis, playable byte/clock checks",
+      "independentAcceptanceProof": "decoded speech on named qualified model and exact sample duration",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-08",
+      "stage": "D",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-07"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.streaming; NFR-RECOVERY-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/grpc/TtsGrpcService.java; proto TTSService.StreamSynthesize`: Stream bounded ordered frames/chunks, backpressure and cancel semantics; preserve output version/finality and timeout/pause/resume where protocol permits; no inferred seek/resume if not in proto.",
+      "originalAcceptance": "Stream sequence/chunk count/size/cancel-after-output/partial errors tested, no duplicate final audio or unbounded buffering.",
+      "requiredInputs": "admitted TTS stream provider",
+      "firstUnblockingImplementation": "stream real bounded chunks, backpressure and finality/cancel",
+      "independentAcceptanceProof": "partial cancel, slow-reader and no false final under provider outage",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-09",
+      "stage": "D",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-05",
+        "TTS-07"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.text-to-speech; NFR-AUD-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/service/PersistentTtsService.java; Media artifact/job/outbox SPI`: Persist immutable authorized generated audio and provider/prosody/voice model lineage, rights and quality version; reuse foundation job engine idempotency, attempt fence and outbox.",
+      "originalAcceptance": "Replay same request preserves output, different digest conflicts, consent-revoked-before-effect blocked, failure never registers complete artifact.",
+      "requiredInputs": "real generated audio and owner/right references",
+      "firstUnblockingImplementation": "persist source-digest-provenance in Media fenced job/artifact/outbox",
+      "independentAcceptanceProof": "restart readback exact bytes and no duplicate finalized effect",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "VIS-02",
+      "stage": "D",
+      "currentStatus": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "VIS-01"
+      ],
+      "originalCapabilityScope": "`media.vision.detect; NFR-COST-001`",
+      "originalImplementationRequirement": "`modules/vision/vision-service/grpc/ProductionVisionGrpcService.java; yolo/YoloV8Adapter.java`: Qualify pinned signed/hashed YOLO/ONNX model file, classes/version/license, CPU/GPU native library, initialization and bounded model lifetime; handle missing OpenCV as typed unavailable without leaking stack/half-server.",
+      "originalAcceptance": "No service reports ready without initialized detector; invalid model/digest/native/lib/license profile fails before traffic, no silent noop.",
+      "requiredInputs": "license-cleared detector weight+ONNX signature+class names",
+      "firstUnblockingImplementation": "verify exact model tensor layout, metadata, runtime initialization",
+      "independentAcceptanceProof": "real detector ready, wrong digest/format model rejected",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "VIS-05",
+      "stage": "D",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "VIS-02",
+        "VIS-03"
+      ],
+      "originalCapabilityScope": "`media.vision.detect; NFR-TIME-001`",
+      "originalImplementationRequirement": "`modules/vision/vision-service/yolo/YoloV8Adapter.java; model/BoundingBox.java; analysis/VideoAnalysisService.java`: Preserve rotation/color/EXIF orientation and scale transforms, normalized ROI/bbox coordinate conventions, confidence units and content version. Manage all OpenCV Mat buffers and Net lifetime.",
+      "originalAcceptance": "Synthetic geometry fixtures roundtrip pixels→bbox and back within declared pixel tolerance; native leak stress bounded.",
+      "requiredInputs": "real detector and exact frame/ROI source version",
+      "firstUnblockingImplementation": "apply EXIF/crop letterbox inverse transforms to real frame detections",
+      "independentAcceptanceProof": "ROI pixel roundtrip, native stress and source-version readback",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "VIS-06",
+      "stage": "D",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "VIS-05"
+      ],
+      "originalCapabilityScope": "`media.vision.detect; media.vision.classify; NFR-FIDELITY-001`",
+      "originalImplementationRequirement": "`modules/vision/vision-service/yolo/YoloV8Adapter.java; detection/VisionDetector.java`: Test ONNX output layout, class mapping, threshold/NMS, invalid/NaN scores, overlapping classes, coordinate clipping and model version changes; no heuristic label as calibrated probability.",
+      "originalAcceptance": "Golden object fixture and mAP/PR metrics on licensed corpus, class list + confidence metadata reproducible; no out-of-range boxes.",
+      "requiredInputs": "real detector model+rights-cleared labeled corpus",
+      "firstUnblockingImplementation": "test ONNX output/NMS/classes and calculate true mAP/PR",
+      "independentAcceptanceProof": "gold detection output, mAP/PR, invalid boxes/nans rejected",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "VIS-07",
+      "stage": "D",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "VIS-04",
+        "VIS-06"
+      ],
+      "originalCapabilityScope": "`media.vision.track.object; media.vision.estimate.camera-motion; NFR-TIME-001`",
+      "originalImplementationRequirement": "`modules/vision/vision-service/analysis/VideoAnalysisService.java; video/VideoFrameExtractor.java`: Link detections to exact frame PTS, track IDs, shot boundaries and source clock; bounded temporal windows and missing frame semantics. Don't treat frame index as wall-time.",
+      "originalAcceptance": "Variable-frame-rate/reorder/scene-cut tests preserve frame timestamp, track version/identity, sample count and uncertainty.",
+      "requiredInputs": "verified video source PTS clock and detector",
+      "firstUnblockingImplementation": "frame source timebase, shot/track motion and object IDs",
+      "independentAcceptanceProof": "VFR, reordering, discontinuities and labeled tracking accuracy",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "MM-03",
+      "stage": "E",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "MM-02"
+      ],
+      "originalCapabilityScope": "`media.multimodal.relate.scene-audio; NFR-TIME-001`",
+      "originalImplementationRequirement": "`modules/intelligence/multimodal-service/engine/TemporalAlignment.java; engine/MultimodalAnalysisEngine.java`: Adopt rational source/media clocks, frame PTS/audio samples, feature-window alignment and time bounds; distinguish t_source/t_media/t_sim/t_wall; detect clock mismatch.",
+      "originalAcceptance": "Synthetic impulse/fps drift/variable frame rate test gives exact bounded offset and documented unresolvable outcome.",
+      "requiredInputs": "verified clock origin/discontinuity source",
+      "firstUnblockingImplementation": "propagate stream PTS/sample rates with epoch/timebase to production results",
+      "independentAcceptanceProof": "VFR and offset with bounded uncertainty and UNKNOWN when noncomparable",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "MM-05",
+      "stage": "E",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "MM-02",
+        "STT-09",
+        "VIS-06",
+        "VIS-07"
+      ],
+      "originalCapabilityScope": "`media.multimodal.analyze.cross-modal; NFR-RECOVERY-001`",
+      "originalImplementationRequirement": "`modules/intelligence/multimodal-service/engine/PlatformMultimodalAdapter.java; adapter/GrpcSttClientAdapter.java; service/PersistentMultimodalService.java`: Compose actual allowed STT/Vision service providers through public SPI, bounded concurrency/cancellation/deadlines, stable owner job and split retries; disallow null-engine success paths.",
+      "originalAcceptance": "Network partition/timeout/provider unavailable returns exact partial/unknown, not successful synthetic analysis. Cross-service context protected.",
+      "requiredInputs": "real STT/Vision client and owned job fanout",
+      "firstUnblockingImplementation": "install production per-operation executor, fenced children, deadlines",
+      "independentAcceptanceProof": "network loss and duplicate child replay preserve UNKNOWN",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "MM-06",
+      "stage": "E",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "MM-04",
+        "MM-05"
+      ],
+      "originalCapabilityScope": "`media.multimodal.associate.speaker-face; NFR-FIDELITY-001`",
+      "originalImplementationRequirement": "`modules/intelligence/multimodal-service/engine/CrossModalFusionEngine.java; MultimodalAnalysisEngine.java`: Validate equal finite embedding dims/coordinate frames, normalize weights and no Nans; distinguish heuristic similarity from measured calibrated confidence; gate speaker-face identity behind biometric rights.",
+      "originalAcceptance": "Dim mismatch, sparse embeddings, missing modalities and misleading confidence tests; no claimed scientifically validated association without labeled corpus.",
+      "requiredInputs": "labeled calibrated fusion dataset and allowed biometric matching",
+      "firstUnblockingImplementation": "source-bound embedding/ROI geometry and abstaining fusion",
+      "independentAcceptanceProof": "calibrated confidence or explicit heuristic, no speaker/face claim without authority",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "MM-08",
+      "stage": "E",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "MM-05",
+        "MM-06"
+      ],
+      "originalCapabilityScope": "`media.multimodal.observe.source-grounded; NFR-RECOVERY-001`",
+      "originalImplementationRequirement": "`modules/intelligence/multimodal-service/service/PersistentMultimodalService.java; engine/MultimodalAnalysisEngine.java`: Preserve result, quality, attempt identity and finality independently for each selected capability operation; cancellation and UNKNOWN remain scoped to the affected operation. Keep the legacy cross-modal family transport `NOT_ADMITTED` until its request/result is bound to canonical capability operations.",
+      "originalAcceptance": "No family-level aggregate result or PARTIAL is emitted. A failed/ambiguous selected operation retains its own typed outcome and exact attempt/provider identity; the independently submitted capability's result remains separate; no blind retry or false combined completion.",
+      "requiredInputs": "stable operation-specific request/response+source bindings",
+      "firstUnblockingImplementation": "bind each selected capability to own job+attempt and final result",
+      "independentAcceptanceProof": "no family aggregate false success, correct cancellation split",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "MM-09",
+      "stage": "E",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "MM-05",
+        "MM-08"
+      ],
+      "originalCapabilityScope": "`media.multimodal.observe.source-grounded; NFR-AUD-001`",
+      "originalImplementationRequirement": "`modules/intelligence/multimodal-service/service/PersistentMultimodalService.java; Media job/artifact/version outbox SPI`: Persist fusion result, source artifact references, selected provider/model, time mapping, provenance and privacy classification under CAS/fenced job attempt; replay only proved idempotent effects.",
+      "originalAcceptance": "Read exact result bytes/version; repeated request same identity stable; no generated output when grounded data missing.",
+      "requiredInputs": "real child results+canonical writer and provenance",
+      "firstUnblockingImplementation": "immutable multimodal result artifact/fence/outbox+principal scoped reread",
+      "independentAcceptanceProof": "restart exact result and idempotent compare-and-set",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "MM-10",
+      "stage": "E",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "MM-05",
+        "MM-07"
+      ],
+      "originalCapabilityScope": "`media.multimodal.extract.structured; NFR-PRIV-001`",
+      "originalImplementationRequirement": "`adapters/data-cloud-media/src/main/java/com/ghatana/audio/video/multimodal/datacloud/{DataCloudMultimodalAdapter,MediaSemanticObservationProjector}.java`: Publish only governed typed metadata and redacted source-grounded observations to public Data Cloud/AI Inference boundaries; no direct internal DB access or generic platform engine fork.",
+      "originalAcceptance": "Projection format/visibility/classification/version negative tests; disabled platform returns explicit integration unavailable but local Media result preserved.",
+      "requiredInputs": "Ghatana Data Cloud Java21 public projection endpoint (issue #254)",
+      "firstUnblockingImplementation": "consume versioned HTTP read-model projection, not in-process tenant SPI",
+      "independentAcceptanceProof": "202/pending/commit/UNKNOWN, source-free Java21/27 parity",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "VIS-09",
+      "stage": "E",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "VIS-04",
+        "VIS-07"
+      ],
+      "originalCapabilityScope": "`media.vision.scene-text.observation.create; NFR-PRIV-001`",
+      "originalImplementationRequirement": "`modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java; modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scene/SceneUnderstandingService.java; place any future Document Intelligence adapter under modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/ only after its public owner API contract is available (no adapter source currently exists)`: Replace legacy generic OCR execution with admitted Document Intelligence public API adapter only; keep Media temporal region tracking/scene annotations, bound text image/copy rights.",
+      "originalAcceptance": "Text box/time/region evidence tied to immutable frame; no Media-owned generic OCR engine or leakage of protected text; no fake extracted text.",
+      "requiredInputs": "Ghatana Document Intelligence versioned Media public OCR API",
+      "firstUnblockingImplementation": "consume source-frame ROI and rights-preserving OCR projection",
+      "independentAcceptanceProof": "source-provenant text/time/ROI and tenant/retention negative cases",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-10",
+      "stage": "F",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-06",
+        "STT-08"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.language.detect; NFR-LOC-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/src/test/java/.../functional; deterministic fixtures and benchmark corpus`: Validate recognized languages including Devanagari cases, silence/noise, accent/overlap, segmentation, punctuation, WER/CER/DER and fairness/unsupported language disclosure; separate model evaluation from code correctness.",
+      "originalAcceptance": "Golden corpus includes language/error distributions; thresholds/real model quality are observed with model+hardware, not claimed from fixtures.",
+      "requiredInputs": "licensed language-balanced evaluation data",
+      "firstUnblockingImplementation": "run genuine en/ne/hi WER/CER and diarization/quality scoring with thresholds",
+      "independentAcceptanceProof": "gold corpus, language/noise/accent distributions, reproducible scores",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "STT-12",
+      "stage": "F",
+      "currentStatus": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "STT-03..STT-11"
+      ],
+      "originalCapabilityScope": "`media.speech.transcription.file; NFR-PERF-001`",
+      "originalImplementationRequirement": "`modules/speech/stt-service/src/test; SttGrpcServiceInProcessIntegrationTest; dedicated STT runtime E2E`: Run in-process authenticated gRPC, real admitted engine isolated test, restarts, concurrent batches, 16/64 request load; record RTF/p50/p95/p99, memory, WER/CER, no cross-tenant data, budget caps.",
+      "originalAcceptance": "Source-bound 12-RPC and 16-capability matrix is current; all in-scope tests pass, no skips relabeled as PASS, real provider assertions only with actual model.",
+      "requiredInputs": "exact model weights, tokenizer, licensing and named host",
+      "firstUnblockingImplementation": "end-to-end 12 RPC/16 intent quality/recovery/load qualification",
+      "independentAcceptanceProof": "real model transcript, 1/16/64 bounded latency/load, privacy, restarts",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-10",
+      "stage": "F",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-05",
+        "TTS-06",
+        "TTS-07"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.multilingual; media.speech.synthesis.speech.translate; NFR-LOC-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/grpc/TtsGrpcService.java; voice manifest/qualification fixtures`: Classify supported voice-language/style combinations, cross-lingual, dubbing/voice-conversion/speech-to-speech as provider dependent with explicit output and rights; no unsupported language auto-substitute.",
+      "originalAcceptance": "Locale matrix for en/ne/hi and source-declared languages: authorized real provider effects pass, unadmitted variants fail with exact capability reason.",
+      "requiredInputs": "per-language licensed voice rights and supported model matrix",
+      "firstUnblockingImplementation": "bind en/hi/ne choices or accurately declared unsupported per source scope",
+      "independentAcceptanceProof": "no unsupported substitution, real measured supported locales",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "TTS-12",
+      "stage": "F",
+      "currentStatus": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "TTS-04..TTS-11"
+      ],
+      "originalCapabilityScope": "`media.speech.synthesis.text-to-speech; NFR-PERF-001`",
+      "originalImplementationRequirement": "`modules/speech/tts-service/src/test; TtsGrpcServiceInProcessIntegrationTest; TtsFunctionalCompletenessTest`: Real reference synthesis, SSML fuzz, sample/codec validity, stream cancellation, 16/64 concurrency, RTF/memory/latency; licensed/consent-ready voice only, no real clone needed for nonadmitted scope.",
+      "originalAcceptance": "All in-scope errors/positive outputs check decoded audio; voice privacy and model readiness verified; p50/p95/p99 and RTF recorded separately.",
+      "requiredInputs": "licensed voice/corpus and reference machine",
+      "firstUnblockingImplementation": "real model SSML, restart, stream, concurrency and output quality suite",
+      "independentAcceptanceProof": "p50/p95/p99, RTF and 1/16/64 model load with no fake audio",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=tts :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "VIS-12",
+      "stage": "F",
+      "currentStatus": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "VIS-01..VIS-11"
+      ],
+      "originalCapabilityScope": "`media.vision.detect; NFR-PERF-001`",
+      "originalImplementationRequirement": "`modules/vision/vision-service/src/test; VisionGrpcServiceInProcessIntegrationTest; VideoFrameExtractorProcessTest`: Real model/reference image tests plus bounded ffmpeg/OpenCV stress, mAP/latency/throughput and CPU/GPU/native-memory; fault/restart/hardware absent profile tested.",
+      "originalAcceptance": "All declared positive capabilities actually executable or openly NOT_ADMITTED; signed/model provenance + protected data + native resource tests pass.",
+      "requiredInputs": "licensed detector/corpus and named constrained host",
+      "firstUnblockingImplementation": "test real model + FFmpeg/OpenCV + restart and load",
+      "independentAcceptanceProof": "mAP/latency/native memory/fps/CPU/GPU and faults, exact receipts",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "MM-12",
+      "stage": "F",
+      "currentStatus": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "MM-01..MM-11"
+      ],
+      "originalCapabilityScope": "`media.multimodal.observe.source-grounded; NFR-PERF-001`",
+      "originalImplementationRequirement": "`modules/intelligence/multimodal-service/src/test; MultimodalGrpcServiceInProcessIntegrationTest; MultimodalAnalysisEngineTest`: Run real STT+Vision composed E2E with artifact provenance, offset gold corpus, calibrated/unknown result semantics, 16/64 concurrent requests, p50/p95/p99, backpressure and fanout limits.",
+      "originalAcceptance": "Actual source-grounded positive result and protected negative/unknown cases; no dummy frames or unqualified scientific confidence.",
+      "requiredInputs": "actual admitted STT+Vision and labeled sync corpus",
+      "firstUnblockingImplementation": "run composed E2E, clock quality and 1/16/64 bounded load",
+      "independentAcceptanceProof": "source-grounded fused result and latency/RTF/fps, fault/readback",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "OBS-07",
+      "stage": "F",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "OBS-02",
+        "OBS-05"
+      ],
+      "originalCapabilityScope": "`media.health.readiness.inspect; NFR-SEC-001`",
+      "originalImplementationRequirement": "`audio-video-observability/AudioVideoHealthService.java; alert rules; docs/OPERATIONS.md`: Define actionable provider-specific unavailable/quality/regression alerts, secure readiness dashboard and privacy redacted diagnostic; no operational deployment claim.",
+      "originalAcceptance": "Bounded no-content alert labels; false alarms evaluated on fixture; runbook lists safe operator controls without secret disclosure.",
+      "requiredInputs": "real provider health exporter and approved alert receiver",
+      "firstUnblockingImplementation": "run Media exporter through Prometheus to real Alertmanager with stale quality",
+      "independentAcceptanceProof": "real model health and quality regression delivery, redacted labels",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=observability :services:media:audio-video-observability:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    },
+    {
+      "id": "OBS-08",
+      "stage": "F",
+      "currentStatus": "PARTIAL",
+      "taskAccepted": false,
+      "dependencyIds": [
+        "OBS-05",
+        "OBS-06"
+      ],
+      "originalCapabilityScope": "`media.health.readiness.inspect; NFR-COST-001`",
+      "originalImplementationRequirement": "`audio-video-observability/src/test; MediaWorkflowMetricsTest.java; performance fixture harness`: Measure CPU/GPU/RAM/native memory/threads/connection pool/network cost for four modalities and native ffmpeg; establish hardware/model/corpus baseline, 1/16/64 concurrency, abort budgets.",
+      "originalAcceptance": "Baseline p50/p95/p99, RTF, frames/s and bounded resource profiles reproducible, no fake SLO achievement or ignored runaway load.",
+      "requiredInputs": "named Mac/Linux reference machine, true provider workload",
+      "firstUnblockingImplementation": "gather process/worker/native GPU/CPU/RAM/network and throughput",
+      "independentAcceptanceProof": "1/16/64 p50/p95/p99, bounded budget/abort, real provider RTF/fps",
+      "runnableBaseTestCommand": "./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=observability :services:media:audio-video-observability:test --no-daemon --no-parallel --max-workers=2 --console=plain",
+      "evidenceStatus": "NOT_YET_WHOLE_ROW_VERIFIED",
+      "ownerRightsAvailable": false
+    }
+  ]
+}
