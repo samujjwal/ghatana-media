@@ -2141,3 +2141,22 @@ Independent current-source audits reconciled the full 58-row denominator by surf
 Focused tests and independent code reviews establish only these local safety improvements. Full-row acceptance still depends on the original task criteria, including source/consent authority, admitted modality providers and qualified quality evidence, canonical durable attempts/results and restart readback, hard worker resource enforcement, authoritative clocks, external public APIs, and deployed quality/load evidence.
 
 Record validation after this follow-up: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse, and `git diff --check` passed. The full macOS/Linux platform matrix was not rerun on this source cut; prior matrix evidence remains tied to its recorded earlier commits.
+
+### R7 transcript purpose-binding follow-up — 2026-10-27
+
+**Media code cut:** `11d4cdd123b8ce0ddc30e515f8d5da64057458d3`; **Shared cut:** `0b19e750bf3906e187e8d804c9313bd451a58667`; **Ghatana cut:** `387bfc3eede86265aa8b42340d6a32f6e19ffeee`. The candidate PostgreSQL transcript store now persists `purposeRef` separately from the resolved `processingPurpose`. Additive migration V021 uses a 256-character reference and 255-character effective-purpose column; old revisions receive explicit unbound/unresolved sentinels. Appends reject those sentinels, compare the effective purpose against consent using the Shared contract's case-normalized exact-token or `*` semantics, and lock the consent row through commit so a concurrent revoke cannot race persistence. Contract bounds count Unicode code points to match PostgreSQL character limits.
+
+Focused verification on macOS ARM64 / Temurin 27.0.1.0.2 passed:
+
+| Selector | Result |
+| --- | --- |
+| `:services:media:runtime-contracts:test --tests 'com.ghatana.media.runtime.MediaTranscriptContractsTest'` | **3/3**, 0 failures, 0 errors, 0 skips |
+| `:services:media:providers:aws-postgresql:test --tests 'com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest'` | **8/8**, 0 failures, 0 errors, 0 skips; PostgreSQL and LocalStack Testcontainers |
+
+The coverage includes purpose round-trip and bounds, wrong-purpose and unbound rejection without writes, wildcard/case matching, CAS/idempotency, principal scoping, and a revoke-versus-append race. Independent Luna code review approved the final purpose semantics, migration bounds, Unicode checks, and regression coverage.
+
+This is a candidate persistence improvement only. The reference is not resolved by this change, caller values are not made authoritative, `productionEligible()` remains false, and no STT provider/job dispatch or real result readback was added. **STT-08 remains PARTIAL** and no task row was promoted.
+
+Fresh, read-only Luna surface audits found no additional safe local patch in the reviewed STT/TTS rows (6 LOCALLY_VERIFIED / 15 PARTIAL / 3 OWNER_EXTERNAL), Vision rows (4 / 6 / 2), or MM/observability rows (12 / 9 / 1). Their remaining partial/external criteria still require the previously identified provider/rights evidence, native worker enforcement, canonical runtime authority, owning public APIs, calibrated quality, or deployed measurements.
+
+The aggregate disposition remains **58 = 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**. All 36 open rows remain `taskAccepted=false`; the owner-external IDs remain STT-12, TTS-07, TTS-12, VIS-02, VIS-12, and MM-12. No product-owner/third-party approval, formal PDP/gtool acceptance, closure, cutover, deployment, or release is inferred. Platform matrix evidence remains tied to its earlier recorded source cut.

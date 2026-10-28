@@ -2609,5 +2609,47 @@
       "gitDiffCheck": "PASS"
     },
     "claims": "Two local STT safety corrections and focused regression tests only. STT-07 and STT-09 remain PARTIAL; no row-wide task acceptance, external rights, product-owner approval, formal PDP/gtool status, closure, deployment, or release is claimed."
+  },
+  "postR7TranscriptPurposeBinding": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {"media": "11d4cdd123b8ce0ddc30e515f8d5da64057458d3", "shared": "0b19e750bf3906e187e8d804c9313bd451a58667", "ghatana": "387bfc3eede86265aa8b42340d6a32f6e19ffeee"},
+    "implementation": {
+      "commit": "11d4cdd123b8ce0ddc30e515f8d5da64057458d3",
+      "taskSupport": ["STT-08"],
+      "changedFiles": [
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaTranscriptContracts.java",
+        "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaTranscriptContractsTest.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaTranscriptStore.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/PostgresqlMediaTranscriptStoreTest.java",
+        "providers/aws-postgresql/src/main/resources/db/media-runtime/V021__media_transcript_processing_purpose.sql"
+      ],
+      "summary": "Persists purposeRef separately from effective processingPurpose; rejects explicit unbound/unresolved sentinels; matches consent purposes by normalized exact token or wildcard; locks consent through append commit; enforces persisted character bounds using Unicode code points. Existing revisions migrate with explicit unbound defaults.",
+      "focusedTests": [
+        {"selector": ":services:media:runtime-contracts:test --tests 'com.ghatana.media.runtime.MediaTranscriptContractsTest'", "tests": 3, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS", "report": "runtime-contracts/build/test-results/test/TEST-com.ghatana.media.runtime.MediaTranscriptContractsTest.xml"},
+        {"selector": ":services:media:providers:aws-postgresql:test --tests 'com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest'", "tests": 8, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS", "report": "providers/aws-postgresql/build/test-results/test/TEST-com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest.xml", "integration": "PostgreSQL and LocalStack Testcontainers"}
+      ],
+      "runtime": "macOS ARM64, Temurin 27.0.1.0.2",
+      "independentCodeReview": "Luna approved the final consent parity, additive migration bounds, Unicode code-point checks and test coverage.",
+      "disposition": "PARTIAL",
+      "taskAccepted": false,
+      "wholeTaskPromotion": false,
+      "remaining": "The store does not resolve or authenticate purposeRef. Caller values remain non-authoritative; productionEligible is false; no authorized provider dispatch, canonical attempt/outbox wiring, or real result readback was added."
+    },
+    "freshReadOnlySurfaceAudits": {
+      "STT/TTS": {"rows": 24, "locallyVerified": 6, "partial": 15, "ownerExternal": 3, "additionalSafePatch": false},
+      "Vision": {"rows": 12, "locallyVerified": 4, "partial": 6, "ownerExternal": 2, "additionalSafePatch": false},
+      "MultimodalObservability": {"rows": 22, "locallyVerified": 12, "partial": 9, "ownerExternal": 1, "additionalSafePatch": false},
+      "result": "No task status changes. Remaining acceptance requires previously identified real provider/rights evidence, native worker enforcement, canonical runtime authority, owner public APIs, calibrated quality or deployed measurements."
+    },
+    "aggregateDispositionUnchanged": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "sourceConflicts": 0, "all36OpenRowsTaskAccepted": false, "rowsPromoted": 0, "externalRightsAdmitted": false, "ownerExternalTaskIds": ["STT-12", "TTS-07", "TTS-12", "VIS-02", "VIS-12", "MM-12"]},
+    "recordValidation": {
+      "transcriptPurposeContracts": {"tests": 3, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "transcriptPostgresqlIntegration": {"tests": 8, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+      "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
+      "jsonParse": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "claims": "Candidate persistence improvement only. STT-08 remains PARTIAL. No Wave 2 row acceptance, external rights/owner approval, formal PDP/gtool status, closure, cutover, deployment or release is claimed."
   }
 }
