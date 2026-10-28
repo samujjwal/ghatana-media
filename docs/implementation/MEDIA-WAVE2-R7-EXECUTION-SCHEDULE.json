@@ -3231,5 +3231,204 @@
       "scheduleJson": "PASS",
       "gitDiffCheck": "PASS"
     }
+  },
+  "postR7Oct28CoordinatorFollowUp": {
+    "verifiedAt": "2026-10-28",
+    "sourceCut": {
+      "media": "58f45dd411668627ff417734b0e213ca01dcce08",
+      "originMain": "1d528684ed24e8ba3fc75dbff369680505078eac",
+      "mediaAheadOfOrigin": 57,
+      "mediaWorkingTreeCleanBeforeRecord": true,
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "sharedWorkingTreeClean": true,
+      "kernel": "cd6fed02b4ab5871b070fac373b2c9a54e702fca",
+      "kernelWorkingTreeClean": true,
+      "ghatanaTools": "2bb5f359da0dd58d8dc2932c3740e9ee06b42938",
+      "ghatanaToolsWorkingTreeClean": false,
+      "ghatanaToolsNote": "Existing unrelated Tools worktree changes were preserved; no Tools test target ran and no Media source was written there."
+    },
+    "localIncrements": {
+      "STT-05": {
+        "commit": "179dc49ace009c4d7890dd1595669e2a15fb2552",
+        "changedFiles": [
+          "modules/speech/stt-service/src/main/java/com/ghatana/stt/streaming/SttStreamingLatencyEnhancer.java",
+          "modules/speech/stt-service/src/test/java/com/ghatana/stt/streaming/SttStreamingLatencyEnhancerTest.java"
+        ],
+        "summary": "Requires initial chunk sequence 1 and contiguous follow-ons with overflow-safe rejection; regression covers duplicate/zero/gap IDs and confirms a full-buffer rejection does not consume sequence 5 before retry.",
+        "verification": {
+          "command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.streaming.SttStreamingLatencyEnhancerTest' --tests 'com.ghatana.stt.diarization.SpeakerDiarizationServiceTest' --no-build-cache --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks",
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "report": "/private/tmp/ghatana-wave2-r7-speech-evidence-b2da0871/stt05/TEST-com.ghatana.stt.streaming.SttStreamingLatencyEnhancerTest.xml",
+          "runtime": "macOS arm64, Temurin OpenJDK 27.0.1.0.2+1"
+        },
+        "firstAttempt": {
+          "tests": 15,
+          "failures": 1,
+          "reason": "The backward-timestamp assertion supplied sequence 11 after the new contiguous-sequence rule, so sequence validation correctly failed first. The test was corrected to use sequence 2.",
+          "report": "/private/tmp/ghatana-wave2-r7-speech-evidence-b2da0871/stt05-first-run/TEST-com.ghatana.stt.streaming.SttStreamingLatencyEnhancerTest-failed-fixture.xml"
+        },
+        "independentReview": "Luna found no sequence or retry-state defect; the MAX_VALUE guard is present, though the boundary itself is not a separate test.",
+        "disposition": "PARTIAL",
+        "remaining": "The helper is not the canonical streaming RPC path; provider-backed stream finality, timing, rights, and authorized outcomes remain unverified."
+      },
+      "STT-07": {
+        "commit": "91ed889bcaec0d613cbe483c96c9ff385e447739",
+        "changedFiles": [
+          "modules/speech/stt-service/src/test/java/com/ghatana/stt/diarization/SpeakerDiarizationServiceTest.java"
+        ],
+        "summary": "Adds a same-embedding endpoint-adjacency regression: [0,1000] and [1000,1500] reuse anonymous SPEAKER_0 with maxSpeakers=1.",
+        "verification": {
+          "sameCommandAs": "STT-05",
+          "tests": 33,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "reports": [
+            "/private/tmp/ghatana-wave2-r7-speech-evidence-b2da0871/stt07/TEST-com.ghatana.stt.diarization.SpeakerDiarizationServiceTest$AudioSegmentTests.xml",
+            "/private/tmp/ghatana-wave2-r7-speech-evidence-b2da0871/stt07/TEST-com.ghatana.stt.diarization.SpeakerDiarizationServiceTest$BuilderValidation.xml",
+            "/private/tmp/ghatana-wave2-r7-speech-evidence-b2da0871/stt07/TEST-com.ghatana.stt.diarization.SpeakerDiarizationServiceTest$Diarize.xml"
+          ]
+        },
+        "independentReview": "Luna approved the half-open endpoint case; the test establishes only the local anonymous interval boundary.",
+        "disposition": "PARTIAL",
+        "remaining": "Qualified rights-cleared diarization, real provider, and declared-corpus DER evidence remain unavailable."
+      },
+      "MM-05": {
+        "commit": "58f45dd411668627ff417734b0e213ca01dcce08",
+        "changedFiles": [
+          "modules/intelligence/multimodal-service/src/main/java/com/ghatana/audio/video/multimodal/engine/MultimodalAnalysisEngine.java",
+          "modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/engine/MultimodalAnalysisEngineTest.java"
+        ],
+        "summary": "Bridges gRPC Context cancellation to the engine caller and child futures; serializes preflight, child dispatch, successful completion, and failure completion against cancellation. Capacity/timeout/provider failures deactivate the listener; cancellation-winning failures map to the existing interrupted result. Regressions cover cooperative child cancel, pre-cancel no-dispatch, completion race, saturated admission late cancel, and failure arbitration.",
+        "verification": {
+          "command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineTest' --no-build-cache --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks",
+          "tests": 40,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "report": "/private/tmp/ghatana-wave2-r7-speech-evidence-b2da0871/mm05/TEST-com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineTest.xml",
+          "runtime": "macOS arm64, Temurin OpenJDK 27.0.1.0.2+1"
+        },
+        "independentReview": "Luna reviewed the latest exceptional terminal arbitration, permit release, and race tests with no findings.",
+        "disposition": "PARTIAL",
+        "remaining": "Tests use in-process gRPC CancellableContext and cooperative fakes; a real admitted provider effect/readback and complete transported operation remain unverified."
+      }
+    },
+    "platformMatrix": {
+      "macNative": {
+        "report": "/private/tmp/ghatana-media-wave2-r7-oct28-matrix/mac-native/mac-native.json",
+        "execution": "macOS arm64, Temurin 27.0.1.0.2",
+        "media": "58f45dd411668627ff417734b0e213ca01dcce08",
+        "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+        "codecArchiveSha256": "ac0babf65798bf681da1dc81c4fe4ae049d0d26e161410174b0e120e3e783332",
+        "tests": 56,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "result": "PASS"
+      },
+      "linuxArm64Native": {
+        "report": "/private/tmp/ghatana-media-wave2-r7-oct28-matrix/linux-arm64-native/linux-arm64-native.json",
+        "execution": "Linux arm64 in Docker Desktop on macOS arm64",
+        "media": "58f45dd411668627ff417734b0e213ca01dcce08",
+        "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+        "javaImage": "eclipse-temurin:27-jdk@sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "outerContainerBounds": {
+          "memory": "8 GiB",
+          "cpus": 4,
+          "pids": 512
+        },
+        "nativeRuntimeImage": "ubuntu:24.04@sha256:19cad59657037cffa0ac9a48107019b768900ff1071140965827513ac866bd5e",
+        "codecArchiveSha256": "ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586",
+        "nativeTestImageId": "sha256:49b106b72d0a98424997a3652f5ee2c8e4f732b9ae15a2d23b5b535d283ffbbb",
+        "tests": 56,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "retry": "One documented retry after correcting the executable bit on the cached Linux protoc binary.",
+        "result": "PASS"
+      },
+      "macCore": {
+        "report": "/private/tmp/ghatana-media-wave2-r7-oct28-matrix/mac-core/mac-core.json",
+        "execution": "macOS arm64, Temurin 27.0.1.0.2",
+        "media": "58f45dd411668627ff417734b0e213ca01dcce08",
+        "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+        "counts": {
+          "tests": 1827,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3
+        },
+        "skippedTests": "Three opt-in VisionNativeBoundedIT tests; all three passed in mac-native on this exact source cut.",
+        "result": "PASS"
+      },
+      "linuxArm64Core": {
+        "report": "/private/tmp/ghatana-media-wave2-r7-oct28-matrix/linux-arm64-core/linux-arm64-core.json",
+        "execution": "Linux arm64 in Docker Desktop on macOS arm64, pinned Temurin 27",
+        "media": "58f45dd411668627ff417734b0e213ca01dcce08",
+        "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+        "javaImageDigest": "sha256:a9d807dc3dc7789c3931967d035c432399b9f8749465ed9f5d174d28e9e7745c",
+        "outerContainerBounds": {
+          "memory": "8 GiB",
+          "cpus": 4,
+          "pids": 512
+        },
+        "counts": {
+          "tests": 1827,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3
+        },
+        "skippedTests": "Three opt-in VisionNativeBoundedIT tests; all three passed in linux-arm64-native on this exact source cut.",
+        "result": "PASS"
+      }
+    },
+    "codecProvisioning": {
+      "command": "bash scripts/prepare-wave2-codecs.sh linux-arm64 /tmp/ghatana-media-codecs-r7-20261028",
+      "result": "Verified release archive and both ffmpeg/ffprobe binary hashes; pinned six-package Ubuntu arm64 runtime closure passed --verify-runtime.",
+      "path": "/private/tmp/ghatana-media-codecs-r7-20261028/v8.1.2-27-aarch64-unknown-linux-gnu",
+      "archiveSha256": "ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586",
+      "ffmpegSha256": "020b113f52f1e44515538d965d143ea8bb38066d5893b8a3c502eece23bb3db0",
+      "ffprobeSha256": "c3a51d1aa8afa398a778192e67b26e94ddd541ce350d0a527dbcbba278c660be",
+      "runtimePackageCount": 6
+    },
+    "parallelLunaReviewsAndAudits": {
+      "STT-05": "No findings on contiguous sequence and rejected retry behavior.",
+      "STT-07": "No findings on exact endpoint adjacency test; broader task remains partial.",
+      "MM-05": "No findings on cancellation/failure arbitration and admission release.",
+      "TTS-03_06_08_09": "No safe distinct local source-backed gap; remaining provider, rights, and durable artifact/job authority is external.",
+      "MM-03_06_08_09_10": "No safe distinct local gap without trusted clock, biometric, job/result SPI, or public Data Cloud/OCR APIs.",
+      "VIS-03": "Earlier current-cut audit found no safe resource enforcement change; hard per-worker CPU/RSS/PID/scratch limits require a trusted executor.",
+      "ownerEvidenceResponse": "Owner reports no approved rights/consent, model/license/corpus, Data Cloud or Document Intelligence API, or trusted worker-isolation evidence."
+    },
+    "aggregateDispositionUnchanged": {
+      "total": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "sourceConflicts": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "rowsPromoted": 0,
+      "externalRightsAdmitted": false,
+      "ownerExternalTaskIds": [
+        "STT-12",
+        "TTS-07",
+        "TTS-12",
+        "VIS-02",
+        "VIS-12",
+        "MM-12"
+      ]
+    },
+    "claims": "Three bounded local code/test increments plus a current-cut macOS/Linux ARM64 native and core matrix. Test execution improves evidence but does not satisfy full original per-row acceptance. No task row was promoted; no owner authority, real provider/model quality, hard per-worker isolation, formal PDP/gtool acceptance, closure, data/worker cutover, deployment, or release is claimed.",
+    "nextWork": "Maintain the 22/30/6 disposition. Continue only independent source-backed local correctness work; the remaining acceptance work depends on owner-approved rights/consent and model/license/corpus evidence, trusted worker isolation, qualified positive provider output plus canonical durable readback, source-clock/sync proof, and Data Cloud/Document Intelligence public APIs.",
+    "recordValidation": {
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+      "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    }
   }
 }
