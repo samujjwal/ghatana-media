@@ -71,8 +71,19 @@ class WhisperReferenceModelIntegrationTest {
                     .enableTimestamps(false)
                     .build();
             var result = engine.transcribe(speech, english);
-            String transcript = result.getText().toLowerCase(Locale.ROOT);
-            assertThat(transcript).isNotBlank().contains("weather");
+            // A keyword match accepted the earlier materially incomplete Whisper
+            // output. Opt-in real-model runs must now supply independently authored
+            // source-audio ground truth. Case/punctuation normalization only;
+            // missing words or invented content fail the test.
+            String gold = System.getenv("GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT");
+            assertThat(gold).as("Set independently reviewed audio ground truth in "
+                    + "GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT before real-model verification")
+                    .isNotBlank();
+            String transcript = result.getText();
+            assertThat(transcript).isNotBlank();
+            assertThat(normalizeSpokenText(transcript))
+                    .as("Whisper must reproduce all normalized ground-truth words, not just a keyword")
+                    .isEqualTo(normalizeSpokenText(gold));
             assertThat(result.words()).as("the pinned profile is explicitly configured without timestamps").isEmpty();
             System.out.println("WHISPER_REFERENCE_OUTPUT=" + result.getText());
             System.out.println("WHISPER_REFERENCE_OUTPUT_SHA256=" + sha256(result.getText().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
@@ -96,6 +107,14 @@ class WhisperReferenceModelIntegrationTest {
                     .isInstanceOf(ValidationError.class)
                     .hasMessageContaining("word timestamps");
         }
+    }
+
+    private static String normalizeSpokenText(String value) {
+        return java.text.Normalizer.normalize(value, java.text.Normalizer.Form.NFC)
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^\\p{L}\\p{N}\\s]", " ")
+                .trim()
+                .replaceAll("\\s+", " ");
     }
 
     private static AudioData readPcm16MonoWav(Path path) throws Exception {
