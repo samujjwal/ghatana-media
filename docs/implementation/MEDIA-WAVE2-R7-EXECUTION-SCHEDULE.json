@@ -2670,5 +2670,30 @@
     "taskDisposition": {"X03":"NATIVE_EXECUTION_VERIFIED", "X04":"OPEN_PER_WORKER_CPU_RSS_PID_AND_SCRATCH_ENFORCEMENT", "VIS-03":"PARTIAL", "rowsPromoted": 0},
     "aggregateDispositionUnchanged": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "sourceConflicts": 0, "all36OpenRowsTaskAccepted": false, "rowsPromoted": 0},
     "remaining": "Linux outer cgroup limits do not establish a per-worker sandbox; macOS sampled RSS is not hard enforcement. Native codec use is approved for local qualification only, not shipment. No product rights, provider effect, task-wide VIS-03 acceptance, owner approval, lifecycle closure, cutover or release is established."
+  },
+  "postR7FullMatrixCurrentCut": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {"media": "9b0be6e8771c95c47f4f18aea684ac4b0b345be2", "shared": "0b19e750bf3906e187e8d804c9313bd451a58667", "mediaWorkingTreeClean": true, "sharedWorkingTreeClean": true},
+    "runs": [
+      {"mode": "mac-core", "media": "260d391ee08d2be10cc55bd00a06786730af1e3e", "tests": 1817, "failures": 0, "errors": 0, "skipped": 3, "suiteFiles": 244, "result": "PASS", "skipReason": "Three opt-in native Vision cases; each passed in the separate 56-test mac-native lane.", "report": "/private/tmp/ghatana-wave2-current-11d4/mac-core.json"},
+      {"mode": "linux-arm64-core", "media": "260d391ee08d2be10cc55bd00a06786730af1e3e", "tests": 1817, "failures": 0, "errors": 0, "skipped": 3, "suiteFiles": 244, "result": "PASS", "skipReason": "Three opt-in native Vision cases; each passed in the separate 56-test linux-arm64-native lane.", "report": "/private/tmp/ghatana-wave2-current-11d4/linux-arm64-core.json"},
+      {"mode": "mac-native", "media": "ba75eb854f19861967b445fd8f5a93d7e65cd74a", "tests": 56, "failures": 0, "errors": 0, "skipped": 0, "suiteFiles": 2, "result": "PASS", "report": "/private/tmp/ghatana-wave2-current-11d4/mac-native.json"},
+      {"mode": "linux-arm64-native", "media": "ba75eb854f19861967b445fd8f5a93d7e65cd74a", "tests": 56, "failures": 0, "errors": 0, "skipped": 0, "suiteFiles": 2, "result": "PASS", "dockerLimits": {"memory": "8g", "cpus": "4", "pids": "512"}, "report": "/private/tmp/ghatana-wave2-current-11d4/linux-arm64-native.json"},
+      {"mode": "mac-integration", "media": "9b0be6e8771c95c47f4f18aea684ac4b0b345be2", "shared": "0b19e750bf3906e187e8d804c9313bd451a58667", "tests": 256, "failures": 0, "errors": 0, "skipped": 0, "suiteFiles": 53, "result": "PASS", "executedProjects": {"integration-tests": "EXECUTED", "launcher": "UP-TO-DATE", "providers/aws-postgresql": "EXECUTED"}, "allNineComposeImageTests": "PASSED", "report": "/private/tmp/ghatana-wave2-current-07900ca5/mac-integration.json"}
+    ],
+    "integrationImageProvenance": {
+      "distributionBuiltAtMediaCommit": "07900ca58024126feffd004f2c9f135b36beadd6",
+      "java": "Temurin 27.0.1.0.2",
+      "baseImage": "eclipse-temurin:27-jre",
+      "baseImageDigest": "sha256:51257b92f824d962d7e742ecd9bb326c0b0ddb34329f8ac5e905a0a8db245e14",
+      "stt": {"ref": "ghatana/stt-service:r7-local-07900ca5", "imageDigest": "sha256:b783163c1b52de8dbe60c424e78b2fceb74fb47b31703e5d96082448b84c0c50"},
+      "tts": {"ref": "ghatana/tts-service:r7-local-07900ca5", "imageDigest": "sha256:4020acd6f1dd7a1ca7cf4fa91be4f0ccd3b8c36d81cddbffdb40e494a94b8b3c"},
+      "claim": "Local development candidate images exercise typed refusal for unadmitted providers; no positive provider effect, model/voice rights, quality, or release qualification is established."
+    },
+    "integrationTaskFreshness": "integration-tests:test records AUDIO_VIDEO_STT_IMAGE and AUDIO_VIDEO_TTS_IMAGE as inputs, disables up-to-date reuse and build-cache reuse because the Docker daemon/tag state can change independently; current run executed integration-tests and providers/aws-postgresql, with unchanged launcher tests UP-TO-DATE.",
+    "sourceLineageNote": "This is a mixed-cut evidence set, with each report's exact SHA recorded per run: native lanes at ba75eb85; core lanes at 260d391e; integration at 9b0be6e8; candidate images built at 07900ca5. Changes from ba75 to 260 were docs-only; changes from 260 to 9b0 were test-fixture/reporting and integration-task freshness configuration, with no runtime implementation changes.",
+    "aggregateDispositionUnchanged": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "sourceConflicts": 0, "all36OpenRowsTaskAccepted": false, "rowsPromoted": 0, "externalRightsAdmitted": false, "ownerExternalTaskIds": ["STT-12", "TTS-07", "TTS-12", "VIS-02", "VIS-12", "MM-12"]},
+    "independentLedgerDeltaReview": {"reviewedMediaCut": "9b0be6e8771c95c47f4f18aea684ac4b0b345be2", "reviewer": "Luna independent full-ledger delta audit", "result": "58 IDs and all dispositions reconcile to 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL; all 36 open rows remain taskAccepted=false; no row promoted."},
+    "claim": "Current local platform and integration execution evidence only. No Wave 2 task row was promoted; this does not establish formal PDP/gtool acceptance, rights/provider admission, deployment, cutover or release."
   }
 }
