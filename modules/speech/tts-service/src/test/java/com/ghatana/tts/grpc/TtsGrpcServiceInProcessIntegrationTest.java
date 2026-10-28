@@ -98,7 +98,7 @@ class TtsGrpcServiceInProcessIntegrationTest {
         assertThatThrownBy(() -> stub.synthesize(SynthesizeRequest.newBuilder().setText("hello world").build()))
                 .isInstanceOf(StatusRuntimeException.class)
                 .matches(ex -> ((StatusRuntimeException) ex).getStatus().getCode() == Status.UNAVAILABLE.getCode())
-                .hasMessageContaining("TTS_NOT_ADMITTED");
+                .hasMessageContaining("TTS locale/voice NOT_ADMITTED");
     }
 
     @Test
@@ -193,7 +193,8 @@ class TtsGrpcServiceInProcessIntegrationTest {
             assertThat(chunks).isEmpty();
             assertThat(failure.get()).isInstanceOf(StatusRuntimeException.class);
             assertThat(Status.fromThrowable(failure.get()).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
-            assertThat(Status.fromThrowable(failure.get()).getDescription()).contains("TTS_NOT_ADMITTED");
+            assertThat(Status.fromThrowable(failure.get()).getDescription())
+                    .contains("TTS locale/voice NOT_ADMITTED");
 
             verifyNoInteractions(guardedLibrary);
         } finally {
@@ -372,7 +373,7 @@ class TtsGrpcServiceInProcessIntegrationTest {
                     .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
 
             assertRpcError(() -> stub.synthesize(SynthesizeRequest.newBuilder().setText("hello").build()),
-                    Status.Code.UNAVAILABLE, "TTS_NOT_ADMITTED");
+                    Status.Code.UNAVAILABLE, "TTS locale/voice NOT_ADMITTED");
             assertRpcError(() -> stub.getStatus(com.ghatana.tts.core.grpc.proto.StatusRequest.getDefaultInstance()),
                     Status.Code.UNIMPLEMENTED, "GetStatus is NOT_ADMITTED");
             assertRpcError(() -> stub.getMetrics(MetricsRequest.getDefaultInstance()),
@@ -395,7 +396,7 @@ class TtsGrpcServiceInProcessIntegrationTest {
 
             assertStreamErrorWithoutChunks(TTSServiceGrpc.newStub(guardedChannel).withInterceptors(
                     MetadataUtils.newAttachHeadersInterceptor(headers)), Status.Code.UNAVAILABLE,
-                    "TTS_NOT_ADMITTED");
+                    "TTS locale/voice NOT_ADMITTED");
 
             verify(guardedLibrary).getTtsEngine();
             verifyNoMoreInteractions(guardedLibrary);
