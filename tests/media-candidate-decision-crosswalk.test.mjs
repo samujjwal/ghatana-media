@@ -37,6 +37,14 @@ test('all 22 source feature families have valid candidate observation references
   assert.ok(domains.every((x) => x.candidateSourceRefs.length && x.sourceLine > 0));
 });
 
+test('all 501 original audit-local feature identities remain source-linked but not provider-qualified', () => {
+  const audit = index.auditFeatureCoverage;
+  assert.deepEqual([audit.base, audit.thirdPass, audit.total], [428, 73, 501]);
+  assert.equal(audit.recordClass, 'SOURCE_LINKS_ONLY_NOT_ATOMIC_FEATURE_ADMISSION');
+  assert.ok(audit.originalCombinedAudit.path.includes('ATTACHED-COMBINED-AUDIT'));
+  assert.ok(audit.existingFeatureToPdpReconciliation.path.includes('501-feature-reconciliation'));
+});
+
 test('Wave2 reference assets and unreconciled conversation alternatives remain in separate classes', () => {
   assert.equal(index.r9AssetCandidates.length,6);
   assert.equal(index.discussionOnlyCandidates.length,9);
