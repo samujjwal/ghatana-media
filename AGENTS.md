@@ -1,5 +1,8 @@
 # Ghatana Media — agent instructions for backend engineering
 
+> **ACTIVE IMMEDIATE WORK (2026-10-28):** Execute [MEDIA-WAVE2-ACTIVE-EXECUTION.md](docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md), which supersedes earlier R7–R10 **execution sequencing** without changing original source, test or rights authority. First attempt actual Docker OCI OOM/PID and real FFmpeg qualification, then authorized real STT job+transcript restart readback. Preserve nonhuman-only testing, third-party rights gates, source history and separate worktrees. Do not open another generic 58-row planning round as the next implementation task.
+
+
 **Applies to reviewers, implementers, test agents and coordinators.** This file intentionally separates **permission to perform useful engineering** from **formal lifecycle stage admission, PDP acceptance/closure, release and deployment**. It supersedes the former blanket prohibition on implementing a surface until all PDP status records and gtool phase gates are complete. Do not invent statuses or bypass real security, compatibility or deployment controls.
 
 ## 1. Owner direction and immediately permitted work
