@@ -120,6 +120,28 @@ function verify() {
   assert.deepEqual(index.historicalArchitectureDecisions.map((x) => x.id),
     history.decisionHistory.map((x) => x.id));
   assert.ok(index.discussionOnlyCandidates.every((x) => x.productionAdmitted === false));
+  // Existing 501-feature audits remain the feature-level authority;
+  // this index only cross-links them. Do not duplicate or auto-admit feature IDs.
+  const featureCoverage = index.auditFeatureCoverage;
+  assert.equal(featureCoverage.recordClass, 'SOURCE_LINKS_ONLY_NOT_ATOMIC_FEATURE_ADMISSION');
+  assert.deepEqual([featureCoverage.base, featureCoverage.thirdPass, featureCoverage.total],
+    [428, 73, 501]);
+  const sourceAuditBytes = read(featureCoverage.originalCombinedAudit.path);
+  const featureProjectionBytes = read(featureCoverage.existingFeatureToPdpReconciliation.path);
+  assert.equal(gitBlobSha(sourceAuditBytes),
+    featureCoverage.originalCombinedAudit.githubBlobSha,
+    'The 501-source feature audit changed: reconcile candidate references.');
+  assert.equal(gitBlobSha(featureProjectionBytes),
+    featureCoverage.existingFeatureToPdpReconciliation.githubBlobSha,
+    'The 501-feature existing-PDP reconciliation changed.');
+  const audit = JSON.parse(sourceAuditBytes);
+  const proposal = JSON.parse(featureProjectionBytes);
+  assert.deepEqual([audit.originalAudit.inventory.length, audit.thirdPassAdditions.length,
+    audit.combinedCount, proposal.auditCounts.totalUnique], [428, 73, 501, 501]);
+  const auditIds = [...audit.originalAudit.inventory, ...audit.thirdPassAdditions]
+    .map((row) => row.audit_id);
+  assert.equal(new Set(auditIds).size, 501,
+    'All 501 original audit-local identities must remain distinct.');
   const count = index.counts;
   assert.equal(count.pdp0TechDecisions, 38);
   for (const [field, key] of [
@@ -135,7 +157,7 @@ function verify() {
   assert.ok(index.explicitReconciliations.some((x) => x.key === 'recording' &&
     x.conflict.includes('superseded')));
   console.log('Candidate decision crosswalk PASS: 38 PDP-0 technologies, 5 historical tables, 6 R9 assets, ' +
-    history.unrecordedPastCandidates.length + ' conversation-only options and 22 capability families.');
+    history.unrecordedPastCandidates.length + ' conversation-only options, 22 capability families and 501 preserved audit-local feature IDs.');
 }
 
 try { verify(); } catch (error) {
