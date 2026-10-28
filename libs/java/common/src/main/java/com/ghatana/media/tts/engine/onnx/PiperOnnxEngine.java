@@ -91,39 +91,34 @@ public final class PiperOnnxEngine implements TtsEngine {
         validateText(text);
 
         requestCount.incrementAndGet();
-
+        if (!concurrencyLimiter.tryAcquire()) {
+            throw new ResourceExhaustedError("Piper request concurrency limit is saturated");
+        }
         try {
-            concurrencyLimiter.acquire();
-            try {
-                // Preprocess text to phonemes
-                String phonemes = textToPhonemes(text);
+            // Preprocess text to phonemes
+            String phonemes = textToPhonemes(text);
 
-                // Run ONNX inference
-                float[] audioSamples = runInference(phonemes, options);
+            // Run ONNX inference
+            float[] audioSamples = runInference(phonemes, options);
 
-                // Apply prosody modifications if enabled
-                if (config.enableProsody()) {
-                    audioSamples = applyProsody(audioSamples, options);
-                }
-
-                // Convert to bytes
-                byte[] audioBytes = floatsToBytes(audioSamples);
-
-                return AudioData.builder()
-                    .data(audioBytes)
-                    .sampleRate(options.sampleRate() > 0 ? options.sampleRate() : config.sampleRate())
-                    .channels(1)
-                    .bitsPerSample(16)
-                    .build();
-
-            } finally {
-                concurrencyLimiter.release();
+            // Apply prosody modifications if enabled
+            if (config.enableProsody()) {
+                audioSamples = applyProsody(audioSamples, options);
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new InferenceError("Synthesis interrupted", e, true);
+
+            // Convert to bytes
+            byte[] audioBytes = floatsToBytes(audioSamples);
+
+            return AudioData.builder()
+                .data(audioBytes)
+                .sampleRate(options.sampleRate() > 0 ? options.sampleRate() : config.sampleRate())
+                .channels(1)
+                .bitsPerSample(16)
+                .build();
         } catch (Exception e) {
             throw new InferenceError("Synthesis failed", e, false);
+        } finally {
+            concurrencyLimiter.release();
         }
     }
 
@@ -486,9 +481,9 @@ public final class PiperOnnxEngine implements TtsEngine {
      *   <li>{@code "input_lengths"} — int64[1]: sequence length</li>
      *   <li>{@code "scales"}     — float32[3]: noise_scale, length_scale, noise_w</li>
      * </ul>
-     * and produces:
+     * and produces a float32 audio tensor in one of the Piper-compatible forms:
      * <ul>
-     *   <li>{@code "output"} — float32[1, 1, N]: raw PCM samples (−1 … 1)</li>
+     *   <li>{@code "output"} — float32[1, 1, N] or float32[1, 1, 1, N]: raw PCM samples (−1 … 1)</li>
      * </ul>
      *
      * <p>Phoneme symbols are mapped using the voice-specific adjacent Piper JSON
@@ -531,9 +526,17 @@ public final class PiperOnnxEngine implements TtsEngine {
                 throw new InferenceError("Piper output must be a float32 tensor", null, false);
             }
             long[] shape = outTensor.getInfo().getShape();
-            if (shape.length != 3 || shape[0] != 1 || shape[1] != 1 || shape[2] < 1
-                    || shape[2] > config.maxMemoryBytes() / Float.BYTES) {
-                throw new InferenceError("Piper output must have bounded shape [1,1,samples]", null, false);
+            long samples;
+            if (shape.length == 3 && shape[0] == 1 && shape[1] == 1) {
+                samples = shape[2];
+            } else if (shape.length == 4 && shape[0] == 1 && shape[1] == 1 && shape[2] == 1) {
+                samples = shape[3];
+            } else {
+                throw new InferenceError(
+                        "Piper output must have shape [1,1,samples] or [1,1,1,samples]", null, false);
+            }
+            if (samples < 1 || samples > config.maxMemoryBytes() / Float.BYTES) {
+                throw new InferenceError("Piper output sample count must be positive and bounded", null, false);
             }
             return flattenAudioOutput(outTensor.getValue());
         } finally {
@@ -607,7 +610,7 @@ public final class PiperOnnxEngine implements TtsEngine {
         return ids;
     }
 
-    /** Validate and copy Piper's documented float32[1, 1, N] output tensor. */
+    /** Validate and copy a supported Piper float32 single-batch, single-channel output tensor. */
     static float[] flattenAudioOutput(Object raw) {
         if (raw instanceof float[][][] arr3) {
             if (arr3.length == 1 && arr3[0] != null && arr3[0].length == 1
@@ -621,7 +624,21 @@ public final class PiperOnnxEngine implements TtsEngine {
                 return samples;
             }
         }
-        throw new InferenceError("Piper output must have shape [1,1,samples]", null, false);
+        if (raw instanceof float[][][][] arr4) {
+            if (arr4.length == 1 && arr4[0] != null && arr4[0].length == 1
+                    && arr4[0][0] != null && arr4[0][0].length == 1
+                    && arr4[0][0][0] != null && arr4[0][0][0].length > 0) {
+                float[] samples = arr4[0][0][0].clone();
+                for (int index = 0; index < samples.length; index++) {
+                    if (!Float.isFinite(samples[index])) {
+                        throw new InferenceError("Piper output contains a non-finite sample", null, false);
+                    }
+                }
+                return samples;
+            }
+        }
+        throw new InferenceError(
+                "Piper output must have shape [1,1,samples] or [1,1,1,samples]", null, false);
     }
 
     // -------------------------------------------------------------------------

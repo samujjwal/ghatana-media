@@ -56,7 +56,10 @@ function verify() {
   const matches = [...selection.matchAll(/\bid:\s*(TECH-[A-Z0-9-]+)/gu)];
   const expected = matches.map((match, i) => {
     const segment = selection.slice(match.index, matches[i + 1]?.index ?? selection.length);
-    const field = (name) => segment.match(new RegExp('^\\s*' + name + ':\\s*(.+)$', 'm'))?.[1]?.trim() ?? null;
+    // These YAML values are plain scalars; prose commas are legal content, but
+    // the source's terminal comma is a list-style separator and not part of the
+    // decision/disposition value.
+    const field = (name) => segment.match(new RegExp('^\\s*' + name + ':\\s*(.+)$', 'm'))?.[1]?.trim().replace(/,$/u, '') ?? null;
     return {
       id: match[1], decision: field('decision'), qualificationStatus: field('qualificationStatus'),
       owner: field('owner'), purpose: field('purpose'), licenseClaim: field('licenseSPDX'),
@@ -98,8 +101,12 @@ function verify() {
   const domainRegex = new RegExp('^#### .([A-Z]+). — (.+)$','gm');
   const domains = [...blueprint.matchAll(domainRegex)].map((m) => ({id:m[1],title:m[2]}));
   assert.equal(domains.length, 22);
-  assert.deepEqual(index.sourceCapabilityFamilies.map((r) => ({id:r.domainId,
-    title:(blueprint.split('\n')[r.sourceLine-1] ?? '').split(' — ').slice(1).join(' — ')})),domains);
+  assert.deepEqual(index.sourceCapabilityFamilies.map((r) => ({id:r.domainId,title:r.title,
+    sourceLine:r.sourceLine})),domains.map((d) => {
+      const sourceLine = blueprint.split('\n').findIndex((line) =>
+        line.startsWith('#### ') && line.includes('`' + d.id + '` — ')) + 1;
+      return {...d,sourceLine};
+    }));
   const refs = new Set([
     ...index.pdp0ArchitecturalSelections.map((x) => 'P0:' + x.id),
     ...Object.values(index.preservedResearchSourceTables).flat().map((x) => 'REVIEW:' + x.id),

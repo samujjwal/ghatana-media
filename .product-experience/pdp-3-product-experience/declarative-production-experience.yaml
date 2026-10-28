@@ -22,7 +22,7 @@ semanticProjectBehavior:
   scenes: meaningful source-anchor-to-derived-output lineage and half-open rational time intervals
   finality: local preview, owner-confirmed model result, external product business finality and publish acknowledgment remain distinct
   humanEdits: all 52 Studio kinds remain reversible with CAS, lock/conflict handling and no silent AI override
-  failure: [DENIED, CONFLICT, OUTCOME_UNKNOWN, UNAVAILABLE, PARTIAL, REVIEW_REQUIRED] preserve authoritative source and typed reason
+  failure: "[DENIED, CONFLICT, OUTCOME_UNKNOWN, UNAVAILABLE, PARTIAL, REVIEW_REQUIRED] preserve authoritative source and typed reason"
 channelApplicability:
   media.surface.recorder-orchestrator: source-only-headless-config-and-CLI-API-with-machine-parity
   media.surface.capture-adapters: source-only-device-API-service-contract-probe-no-synthetic-product-interface

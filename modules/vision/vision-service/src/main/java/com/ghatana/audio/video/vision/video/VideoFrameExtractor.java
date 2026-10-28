@@ -379,7 +379,8 @@ public class VideoFrameExtractor {
     }
 
     private static Path createPrivateWorkspace() throws IOException {
-        Path temp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath(LinkOption.NOFOLLOW_LINKS);
+        Path configuredTemp = Path.of(System.getProperty("java.io.tmpdir"));
+        Path temp = configuredTemp.toRealPath(LinkOption.NOFOLLOW_LINKS);
         requireSafeWritableAncestors(temp);
         Path workspace = Files.createTempDirectory(temp, ".media-video-codec-");
         try {
@@ -988,7 +989,38 @@ public class VideoFrameExtractor {
         if (timeout.isNegative() || timeout.isZero()) throw new IllegalArgumentException("timeout must be positive");
         if (maxOutputChars < 0) throw new IllegalArgumentException("maxOutputChars must not be negative");
         try (ProcessAdmission ignored = acquireProcessAdmission()) {
-            Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+            LinuxVisionWorkerSandbox.Prepared sandbox = null;
+            Path sandboxWorkspace = null;
+            List<String> launchCommand = command;
+            if (LinuxVisionWorkerSandbox.isCodecCommand(command)) {
+                sandboxWorkspace = LinuxVisionWorkerSandbox.workspaceFor(command);
+                try {
+                    sandbox = LinuxVisionWorkerSandbox.prepare(command, sandboxWorkspace);
+                } catch (IOException | RuntimeException failure) {
+                    if (command.stream().skip(1).anyMatch("-version"::equals)
+                            && sandboxWorkspace.startsWith(Path.of("/dev/shm"))
+                            && sandboxWorkspace.getFileName().toString().startsWith(".media-video-codec-")) {
+                        try { Files.deleteIfExists(sandboxWorkspace); }
+                        catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+                    }
+                    throw failure;
+                }
+                launchCommand = sandbox.command();
+            }
+            Process process;
+            try {
+                ProcessBuilder processBuilder = new ProcessBuilder(launchCommand).redirectErrorStream(true);
+                if (sandbox != null) {
+                    processBuilder.environment().clear();
+                    processBuilder.environment().putAll(
+                            LinuxVisionWorkerSandbox.workerEnvironment(sandboxWorkspace));
+                }
+                process = processBuilder.start();
+            } catch (IOException | RuntimeException failure) {
+                if (sandbox != null) sandbox.close();
+                throw failure;
+            }
+            LinuxVisionWorkerSandbox.Prepared workerSandbox = sandbox;
             try {
                 ByteArrayOutputStream captured = new ByteArrayOutputStream(Math.min(maxOutputChars, 1024));
                 AtomicReference<IOException> drainFailure = new AtomicReference<>();
@@ -1022,9 +1054,11 @@ public class VideoFrameExtractor {
                 }
                 observeDescendants(process, observedDescendants);
                 if (!finished) {
+                    if (workerSandbox != null) workerSandbox.killAll();
                     terminateProcessTree(process, observedDescendants);
                     process.waitFor(2, TimeUnit.SECONDS);
                 } else if (!observedDescendants.isEmpty()) {
+                    if (workerSandbox != null) workerSandbox.killAll();
                     terminateProcessTree(process, observedDescendants);
                 }
                 drain.join(2_000);
@@ -1043,11 +1077,16 @@ public class VideoFrameExtractor {
                 return new ProcessResult(finished ? process.exitValue() : -1,
                         !finished && !outputExceeded && !diagnosticsExceeded, output, outputExceeded, diagnosticsExceeded);
             } catch (InterruptedException interrupted) {
+                if (workerSandbox != null) workerSandbox.killAll();
                 terminateProcessTree(process);
                 Thread.currentThread().interrupt();
                 throw new IOException("Media child process interrupted", interrupted);
             } finally {
-                if (process.isAlive()) terminateProcessTree(process);
+                if (process.isAlive()) {
+                    if (workerSandbox != null) workerSandbox.killAll();
+                    terminateProcessTree(process);
+                }
+                if (workerSandbox != null) workerSandbox.close();
             }
         }
     }

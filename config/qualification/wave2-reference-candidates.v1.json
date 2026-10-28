@@ -33,13 +33,13 @@
       "status": "REVIEW_ONLY",
       "proposedUse": "LOCAL_EVALUATION",
       "upstreamUrl": "https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt",
-      "authorityUrl": "https://github.com/openai/whisper/blob/main/whisper/__init__.py",
-      "licenseEvidenceUrl": "https://github.com/openai/whisper/blob/main/LICENSE",
-      "licenseObservation": "MIT source and weights according to official Whisper README",
+      "authorityUrl": "https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/whisper/__init__.py",
+      "licenseEvidenceUrl": "https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/LICENSE",
+      "licenseObservation": "Pinned OpenAI source repository declares MIT; independent model-rights disposition remains outstanding.",
       "sourceType": "PYTORCH_CHECKPOINT_NOT_ONNX",
       "artifactSha256": "65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9",
       "maxBytes": 100000000,
-      "expectedRuntimeInputs": "EXACT_ONNX_EXPORT_OR_NATIVE_REVIEW_PENDING",
+      "expectedRuntimeInputs": "REVIEW_ONLY_SPLIT_QUANTIZED_ONNX_ENCODER_DECODER_WITH_PINNED_MULTILINGUAL_TOKENIZER_AND_MEL",
       "supportedLocalesCandidate": [
         "en",
         "hi",
@@ -47,16 +47,121 @@
       ],
       "missing": [
         "independent model-rights disposition",
-        "compatible ONNX export and its own SHA-256",
-        "Mel frontend and decode parity",
-        "real nonempty provider output",
-        "holdout evaluation and hardware"
+        "independent ONNX-export license and checkpoint-lineage disposition",
+        "quantized encoder/decoder parity against the pinned PyTorch checkpoint",
+        "nonzero-silence false-positive and language quality evaluation",
+        "holdout evaluation and hardware",
+        "authorized multilingual quality corpus and threshold evidence"
       ],
       "requiredProofTypes": [
         "MODEL_WEIGHTS_LICENSE",
         "MODEL_LINEAGE",
         "PROVIDER_QUALITY"
-      ]
+      ],
+      "compatibleOnnxExport": {
+        "repository": "onnx-community/whisper-tiny",
+        "revision": "ff4177021cc41f7db950912b73ea4fdf7d01d8e7",
+        "baseModel": "openai/whisper-tiny",
+        "sourceUrl": "https://huggingface.co/onnx-community/whisper-tiny/tree/ff4177021cc41f7db950912b73ea4fdf7d01d8e7/onnx",
+        "status": "REVIEW_ONLY",
+        "proposedUse": "LOCAL_EVALUATION",
+        "artifacts": [
+          {
+            "role": "encoder",
+            "file": "encoder_model_quantized.onnx",
+            "upstreamUrl": "https://huggingface.co/onnx-community/whisper-tiny/resolve/ff4177021cc41f7db950912b73ea4fdf7d01d8e7/onnx/encoder_model_quantized.onnx",
+            "sizeBytes": 10124990,
+            "sha256": "2af4a414ca47aa30f61246017e5fe82b0a8d229281d1255ba666a2a7f6b84d19"
+          },
+          {
+            "role": "decoder_merged",
+            "file": "decoder_model_merged_quantized.onnx",
+            "upstreamUrl": "https://huggingface.co/onnx-community/whisper-tiny/resolve/ff4177021cc41f7db950912b73ea4fdf7d01d8e7/onnx/decoder_model_merged_quantized.onnx",
+            "sizeBytes": 30719241,
+            "sha256": "25e807a962b6349356d0ea5d0dfe530b7e5bf0e2a484aeca0359d03143faddd3"
+          }
+        ],
+        "licenseObservation": "The base OpenAI Whisper tiny checkpoint is MIT-licensed per the official upstream repository. The ONNX repository identifies openai/whisper-tiny as its base model; separate export-repository licensing and conversion provenance still require independent review.",
+        "qualificationMissing": [
+          "quantized encoder/decoder output parity against official PyTorch checkpoint",
+          "independent ONNX-export license and lineage review",
+          "nonzero-silence false-positive and multilingual output quality on authorized corpus/hardware"
+        ],
+        "localEvaluation": {
+          "status": "MODEL_BACKED_LOCAL_OUTPUT_QUALITY_NOT_QUALIFIED",
+          "host": "macOS ARM64",
+          "runtime": "JDK 27.0.1; Microsoft ONNX Runtime Java 1.29.0 CPU",
+          "inputPcmSha256": "9dfb1b2f033873cc08266bb0ffb2754a52e6c23b3c071e55969ad1c6d8af4c26",
+          "inputWavSha256": "3a4b3edcd1b2bd6b9237434f92d9225c2907cfbb85054348a03d4341c235be75",
+          "inputFormat": "mono signed PCM16 little-endian 16000 Hz; locally synthesized development fixture",
+          "referenceText": "The weather is clear today. This is a local model check.",
+          "observedText": "The weather is so good.",
+          "observedTextSha256": "49b20e308438f68028e65102a1d3181856ccaa12f604fad6003fd3658eb2860c",
+          "qualityObservation": "Nonempty genuine model output, but materially incomplete recognition; no acceptance threshold was present and no task is promoted.",
+          "silenceObservation": "Exact all-zero PCM is explicitly returned blank before inference. The raw model previously produced `you` for exact-zero features; nonzero-silence behavior remains unqualified."
+        },
+        "frontendAsset": {
+          "file": "mel_filters.npz",
+          "upstreamUrl": "https://raw.githubusercontent.com/openai/whisper/86098128c0b4f24f0e2aa2994de830614b474227/whisper/assets/mel_filters.npz",
+          "sizeBytes": 4271,
+          "sha256": "7450ae70723a5ef9d341e3cee628c7cb0177f36ce42c44b7ed2bf3325f0f6d4c"
+        },
+        "localPerformance": {
+          "status": "LOCAL_CPU_LOAD_EVIDENCE_NOT_PROVIDER_QUALIFICATION",
+          "host": "macOS ARM64; 10 processors",
+          "runtime": "JDK 27.0.1.0.2; Microsoft ONNX Runtime Java 1.29.0 CPU",
+          "inputWavSha256": "3a4b3edcd1b2bd6b9237434f92d9225c2907cfbb85054348a03d4341c235be75",
+          "inputPcmSha256": "9dfb1b2f033873cc08266bb0ffb2754a52e6c23b3c071e55969ad1c6d8af4c26",
+          "audioSeconds": 3.181625,
+          "modelLoadMs": 1272,
+          "requestsPerConcurrencyLevel": 64,
+          "processRssPeakBytes": 3416391680,
+          "processRssAvailable": true,
+          "overloadRejection": "PASS_TYPED_RESOURCE_EXHAUSTED_WITH_ALL_PERMITS_HELD",
+          "levels": [
+            {
+              "concurrency": 1,
+              "requests": 64,
+              "elapsedSeconds": 67.25524,
+              "requestsPerSecond": 0.951599,
+              "latencyP50Ms": 1025.7,
+              "latencyP95Ms": 1254.259,
+              "latencyP99Ms": 1321.757,
+              "aggregateRealTimeFactor": 0.330291,
+              "processCpuSeconds": 110.34981,
+              "cpuPercentOfHost": 16.408,
+              "distinctTranscriptDigests": 1
+            },
+            {
+              "concurrency": 16,
+              "requests": 64,
+              "elapsedSeconds": 31.037947,
+              "requestsPerSecond": 2.061992,
+              "latencyP50Ms": 4087.245,
+              "latencyP95Ms": 5328.168,
+              "latencyP99Ms": 5431.531,
+              "aggregateRealTimeFactor": 0.152428,
+              "processCpuSeconds": 184.271739,
+              "cpuPercentOfHost": 59.37,
+              "distinctTranscriptDigests": 1
+            },
+            {
+              "concurrency": 64,
+              "requests": 64,
+              "elapsedSeconds": 30.742089,
+              "requestsPerSecond": 2.081836,
+              "latencyP50Ms": 4580.921,
+              "latencyP95Ms": 5114.599,
+              "latencyP99Ms": 5249.7,
+              "aggregateRealTimeFactor": 0.150975,
+              "processCpuSeconds": 205.144331,
+              "cpuPercentOfHost": 66.731,
+              "distinctTranscriptDigests": 1
+            }
+          ],
+          "qualificationNote": "Synthetic locally produced speech fixture; transcript quality was materially incomplete in single-request inference and no authorized holdout, parity, privacy, or acceptance threshold is established."
+        }
+      }
     },
     {
       "id": "stt-whisper-multilingual-tokenizer",
@@ -67,14 +172,33 @@
       "upstreamUrl": "https://raw.githubusercontent.com/openai/whisper/86098128c0b4f24f0e2aa2994de830614b474227/whisper/assets/multilingual.tiktoken",
       "authorityUrl": "https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/whisper/tokenizer.py",
       "licenseEvidenceUrl": "https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/LICENSE",
-      "licenseObservation": "MIT in official repository; exact multilingual.tiktoken asset is not yet installed in current runtime",
+      "licenseObservation": "MIT in the pinned official repository; exact tokenizer is loaded only from the private local-evaluation profile and is not bundled in the repository.",
       "artifactSha256": "b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126",
       "maxBytes": 2000000,
       "expectedRuntimeInputs": "VOCAB_AND_SPECIAL_TOKEN_PARITY",
       "missing": [
-        "asset and vocabulary provenance pinned in a combined model profile",
-        "end-to-end token decoding of real inference"
+        "independent token-ID parity review against the quantized ONNX exporter",
+        "approved multilingual transcript-quality evaluation"
       ],
+      "localEvaluation": {
+        "status": "PINNED_TOKENIZER_LOADED_AND_REAL_OUTPUT_DECODED",
+        "sha256": "b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126",
+        "sizeBytes": 816730,
+        "languagePromptIdsCoveredByTests": [
+          {
+            "language": "en",
+            "tokenId": 50259
+          },
+          {
+            "language": "hi",
+            "tokenId": 50276
+          },
+          {
+            "language": "ne",
+            "tokenId": 50313
+          }
+        ]
+      },
       "requiredProofTypes": [
         "MODEL_LINEAGE"
       ]
@@ -87,20 +211,40 @@
       "proposedUse": "LOCAL_EVALUATION",
       "voiceId": "en_US-ljspeech-medium",
       "language": "en-US",
-      "upstreamUrl": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx",
-      "modelCardUrl": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ljspeech/medium/MODEL_CARD",
-      "sidecarUrl": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx.json",
+      "upstreamUrl": "https://huggingface.co/rhasspy/piper-voices/resolve/5041a7a49ae5b3a0f30e6837769eb03fdbb231bd/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx",
+      "modelCardUrl": "https://huggingface.co/rhasspy/piper-voices/blob/5041a7a49ae5b3a0f30e6837769eb03fdbb231bd/en/en_US/ljspeech/medium/MODEL_CARD",
+      "sidecarUrl": "https://huggingface.co/rhasspy/piper-voices/resolve/5041a7a49ae5b3a0f30e6837769eb03fdbb231bd/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx.json",
       "licenseEvidenceUrl": "https://keithito.com/LJ-Speech-Dataset/",
-      "licenseObservation": "Model card claims scratch training on public-domain LJSpeech; repository-wide MIT tag alone does not grant voice/model likeness rights",
+      "licenseObservation": "Pinned model card claims scratch training on the public-domain LJSpeech dataset; this does not establish model distribution or speaker-likeness rights. Independent review remains outstanding.",
       "artifactSha256": "6f52a751e2349abe7a76735eb09dc1875298c77ea2342ffd2fef79ff81b87f22",
+      "expectedSizeBytes": 63531379,
+      "sidecarSha256": "141d612cc0a95ed7efc1ca936b845c2364967f2e9217c5dbfcf69fc4d6c65860",
+      "sidecarSizeBytes": 4972,
+      "modelCardSha256": "fbee1529c89d36b3fe76d7e9f3f832dce17f44900a52d76a9bda735654766b4d",
       "maxBytes": 80000000,
       "expectedRuntimeInputs": "PIPER_ESPEAK_PHONEME_IDS_SIDECAR",
       "missing": [
-        "immutable HF repo revision and sidecar digest",
         "independent voice likeness/distribution rights review",
-        "eSpeak/voice phoneme-ID compatibility",
-        "real intelligible PCM and authorized production profile"
+        "production-compatible pinned eSpeak-ng runtime and phoneme-ID wiring",
+        "independent human intelligibility/pronunciation and cancellation review",
+        "authorized production profile"
       ],
+      "localEvaluation": {
+        "status": "MODEL_BACKED_AUDIO_GENERATED_LOCAL_QUALITY_NOT_QUALIFIED",
+        "host": "Piper ONNX inference on macOS ARM64; phoneme mapping check in an ephemeral Debian Bookworm Linux ARM64 container",
+        "inputText": "Hello, this is a Piper voice inference check.",
+        "sampleRateHz": 22050,
+        "channels": 1,
+        "sampleFormat": "signed PCM16 little-endian",
+        "decodedWavSha256": "2c378cf7a12e7c92318e8b5467d024481de904d54eab6a25bbf34212caed8155",
+        "rawPcmSha256": "b009e7f834b80c68071dd2cd62a13e283734c80b2496727c13d16f6f86110f96",
+        "sampleCount": 59648,
+        "durationSeconds": 2.7051,
+        "rms": 0.086401,
+        "peak": 0.581116,
+        "nonzeroSamples": 59590,
+        "phonemizerObservation": "eSpeak-ng 1.51 (`--ipa=3 -v en-us`) produced `həlˈoʊ ðɪs ɪz ɐ pˈaɪpɚ vˈɔɪs ˈɪnfɚɹəns tʃˈɛk`; normalized symbols mapped to the sidecar with zero unmapped. A private harness converter override supplied the phoneme string to Media PiperOnnxEngine; canonical runtime wiring still uses a heuristic converter."
+      },
       "rejectedAlternativeIds": [
         "tts-piper-lessac-medium",
         "tts-piper-ryan-low"
@@ -110,7 +254,69 @@
         "MODEL_LINEAGE",
         "VOICE_LIKENESS_RIGHTS",
         "PROVIDER_QUALITY"
-      ]
+      ],
+      "localPerformance": {
+        "status": "LOCAL_CPU_LOAD_EVIDENCE_NOT_PROVIDER_QUALIFICATION",
+        "host": "macOS ARM64; 10 processors",
+        "runtime": "JDK 27.0.1.0.2; Microsoft ONNX Runtime Java 1.29.0 CPU",
+        "modelLoadMs": 2189,
+        "sampleRateHz": 22050,
+        "measuredRequestsPerLevel": 64,
+        "maxConcurrentRequests": 64,
+        "phonemizer": "HeuristicPhonemeConverter",
+        "phonemizerQualityTier": 1,
+        "processRssPeakBytes": 1702395904,
+        "processRssAvailable": true,
+        "overloadRejection": "PASS_TYPED_RESOURCE_EXHAUSTED_WITH_ALL_PERMITS_HELD",
+        "levels": [
+          {
+            "concurrency": 1,
+            "requests": 64,
+            "elapsedSeconds": 8.417513,
+            "requestsPerSecond": 7.603196,
+            "latencyP50Ms": 119.197,
+            "latencyP95Ms": 145.267,
+            "latencyP99Ms": 894.141,
+            "aggregateRealTimeFactor": 0.043645,
+            "processCpuSeconds": 36.694354,
+            "cpuPercentOfHost": 43.593,
+            "totalAudioSeconds": 192.864943,
+            "minimumSamplesPerResponse": 54784,
+            "maximumSamplesPerResponse": 76288
+          },
+          {
+            "concurrency": 16,
+            "requests": 64,
+            "elapsedSeconds": 4.317859,
+            "requestsPerSecond": 14.82216,
+            "latencyP50Ms": 596.605,
+            "latencyP95Ms": 761.618,
+            "latencyP99Ms": 809.646,
+            "aggregateRealTimeFactor": 0.02251,
+            "processCpuSeconds": 30.203799,
+            "cpuPercentOfHost": 69.951,
+            "totalAudioSeconds": 191.820045,
+            "minimumSamplesPerResponse": 58112,
+            "maximumSamplesPerResponse": 73216
+          },
+          {
+            "concurrency": 64,
+            "requests": 64,
+            "elapsedSeconds": 4.644975,
+            "requestsPerSecond": 13.77833,
+            "latencyP50Ms": 687.61,
+            "latencyP95Ms": 859.44,
+            "latencyP99Ms": 890.174,
+            "aggregateRealTimeFactor": 0.023984,
+            "processCpuSeconds": 30.14237,
+            "cpuPercentOfHost": 64.892,
+            "totalAudioSeconds": 193.666032,
+            "minimumSamplesPerResponse": 58624,
+            "maximumSamplesPerResponse": 77824
+          }
+        ],
+        "qualificationNote": "The benchmark exercises real pinned model inference but uses the runtime heuristic converter; eSpeak phoneme mapping was separately verified through a private harness and is not wired as the canonical runtime converter. No voice likeness or pronunciation acceptance is established."
+      }
     },
     {
       "id": "vision-yolox-nano-onnx",
@@ -120,23 +326,86 @@
       "proposedUse": "LOCAL_EVALUATION",
       "upstreamUrl": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.onnx",
       "authorityUrl": "https://github.com/Megvii-BaseDetection/YOLOX/releases/tag/0.1.1rc0",
-      "licenseEvidenceUrl": "https://github.com/Megvii-BaseDetection/YOLOX/blob/main/LICENSE",
-      "licenseObservation": "Official project Apache-2.0, independently verify weight and COCO derivative notices",
-      "artifactSha256": null,
+      "licenseEvidenceUrl": "https://github.com/Megvii-BaseDetection/YOLOX/blob/0.1.1rc0/LICENSE",
+      "licenseObservation": "The YOLOX source tag is Apache-2.0. The GitHub release asset uploader is FateScript, and the official model zoo documents separate .pth weights rather than this ONNX export; export lineage, model-weight rights and COCO derivative notices remain unverified.",
+      "artifactSha256": "c789161ed43c8269fcd4e67c67eeeb4e80c622da2eb296a20bc6007bd18a0b7d",
       "expectedSizeBytes": 3659407,
       "maxBytes": 10000000,
       "expectedRuntimeInputs": "FLOAT32_1_3_416_416_OUTPUT_FLOAT32_1_3549_85",
       "missing": [
-        "source-derived file SHA-256 before trust",
-        "new YOLOX-specific parser; YOLOv8 [1,84,N] parser incompatible",
-        "model weight provenance and source-data license review",
-        "real detection and mAP on rights-cleared imagery"
+        "ONNX release-asset uploader/export/weight lineage disposition",
+        "COCO training-data and model-weight rights review",
+        "no detections were observed on the single original synthetic glyph; a rights-cleared labeled positive image and mAP corpus remain unavailable",
+        "provider admission and real model-quality evidence"
       ],
+      "localEvaluation": {
+        "status": "REAL_ONNX_NEGATIVE_SMOKE_NOT_QUALITY_EVIDENCE",
+        "runtime": "OpenCV DNN CPU in Linux ARM64 container",
+        "inputShape": "[1,3,416,416] float32",
+        "outputShape": "[1,3549,85] float32",
+        "confidenceThreshold": 0.01,
+        "observedDetectionCount": 0,
+        "maximumPersonIntersectionOverUnion": 0,
+        "result": "No detection on an original synthetic person glyph with a source-owned box; not a licensed real-world quality corpus and does not establish detector accuracy.",
+        "inputFixture": "synthetic-person-glyph; local OpenCV primitives; source-owned approximate person box x=120,y=66,w=176,h=300",
+        "inputRawPixelsSha256": "4bbcd93e971d3ba0c5237b0a4996aae50f2ee6934e6539ef0197ed43f665912e",
+        "inputFormat": "416x416_BGR8",
+        "runtimeVersion": "OpenCV 4.9.0 DNN CPU; Linux ARM64 container",
+        "minimumConfidenceThreshold": 0.01,
+        "nmsThreshold": 0.45,
+        "modelBytes": 3659407,
+        "releaseAssetUploader": "FateScript",
+        "releaseAssetCreatedAt": "2021-08-18T12:34:05Z"
+      },
       "requiredProofTypes": [
         "MODEL_WEIGHTS_LICENSE",
         "MODEL_LINEAGE",
         "PROVIDER_QUALITY"
-      ]
+      ],
+      "localPerformance": {
+        "status": "LOCAL_CPU_LOAD_EVIDENCE_NEGATIVE_SMOKE_NOT_QUALITY_ADMISSION",
+        "host": "macOS ARM64; JDK 27.0.1.0.2; 10 processors",
+        "runtime": "OpenCV 4.9.0 DNN CPU",
+        "inputFixture": "synthetic-person-glyph; 416x416 BGR8; raw pixel SHA-256 4bbcd93e971d3ba0c5237b0a4996aae50f2ee6934e6539ef0197ed43f665912e",
+        "modelSha256": "c789161ed43c8269fcd4e67c67eeeb4e80c622da2eb296a20bc6007bd18a0b7d",
+        "framesPerLevel": 64,
+        "networkConcurrency": "one mutable OpenCV Net; setInput/forward serialized like adapter; preprocessing/parser/postprocessor execute per request",
+        "rssMeasurement": "sampled process RSS every 250 ms; not a hard resource bound",
+        "overloadRejection": "NOT_MEASURED; test stayed at configured tiers 1, 16 and 64",
+        "levels": [
+          {
+            "concurrency": 1,
+            "wallSeconds": 7.759,
+            "latencyP50Ms": 102.272,
+            "latencyP95Ms": 241.108,
+            "latencyP99Ms": 371.569,
+            "framesPerSecond": 8.248,
+            "processCpuSeconds": 6.9425,
+            "sampledProcessPeakRssBytes": 352845824
+          },
+          {
+            "concurrency": 16,
+            "wallSeconds": 6.182,
+            "latencyP50Ms": 1511.84,
+            "latencyP95Ms": 1808.611,
+            "latencyP99Ms": 1828.675,
+            "framesPerSecond": 10.353,
+            "processCpuSeconds": 6.911469,
+            "sampledProcessPeakRssBytes": 232423424
+          },
+          {
+            "concurrency": 64,
+            "wallSeconds": 4.784,
+            "latencyP50Ms": 2597.422,
+            "latencyP95Ms": 4538.826,
+            "latencyP99Ms": 4740.525,
+            "framesPerSecond": 13.377,
+            "processCpuSeconds": 6.838364,
+            "sampledProcessPeakRssBytes": 322256896
+          }
+        ],
+        "result": "Zero detections on the synthetic glyph at 0.01 confidence; these numbers measure execution only and establish neither mAP nor real-world quality."
+      }
     },
     {
       "id": "stt-fleurs-en-hi-ne",

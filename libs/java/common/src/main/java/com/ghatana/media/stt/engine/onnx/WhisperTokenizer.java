@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Locale;
 
 /** Decoder for the token strings emitted by a Whisper GPT-2 BPE decoder head. */
 final class WhisperTokenizer {
@@ -30,6 +31,21 @@ final class WhisperTokenizer {
     private static final String TIKTOKEN_ASSET_SHA256 = "b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126";
     private static final long FIRST_WHISPER_SPECIAL_ID = 50_257L;
     private static final long LAST_WHISPER_SPECIAL_ID = 51_864L;
+    private static final long END_OF_TEXT = 50_257L;
+    private static final long START_OF_TRANSCRIPT = 50_258L;
+    private static final long TRANSCRIBE = 50_359L;
+    private static final long NO_SPEECH = 50_362L;
+    private static final long NO_TIMESTAMPS = 50_363L;
+    // Keep this order in sync with OpenAI Whisper's LANGUAGES map at the pinned tokenizer source.
+    private static final List<String> MULTILINGUAL_LANGUAGES = List.of(
+            "en", "zh", "de", "es", "ru", "ko", "fr", "ja", "pt", "tr", "pl", "ca", "nl", "ar",
+            "sv", "it", "id", "hi", "fi", "vi", "he", "uk", "el", "ms", "cs", "ro", "da", "hu",
+            "ta", "no", "th", "ur", "hr", "bg", "lt", "la", "mi", "ml", "cy", "sk", "te", "fa",
+            "lv", "bn", "sr", "az", "sl", "kn", "et", "mk", "br", "eu", "is", "hy", "ne", "mn",
+            "bs", "kk", "sq", "sw", "gl", "mr", "pa", "si", "km", "sn", "yo", "so", "af", "oc",
+            "ka", "be", "tg", "sd", "gu", "am", "yi", "lo", "uz", "fo", "ht", "ps", "tk", "nn",
+            "mt", "sa", "lb", "my", "bo", "tl", "mg", "as", "tt", "haw", "ln", "ha", "ba", "jw",
+            "su");
 
     private final Map<Long, String> tokens;
     private final Map<Integer, Character> byteDecoder;
@@ -86,6 +102,11 @@ final class WhisperTokenizer {
         } catch (RuntimeException e) {
             throw new ModelLoadingError("Unable to parse Whisper tokenizer profile", e);
         }
+    }
+
+    /** Loads only the pinned multilingual Whisper tokenizer; the profile must not fall back to legacy BPE files. */
+    static WhisperTokenizer loadPinnedTiktoken(Path asset) {
+        return loadTiktoken(asset, TIKTOKEN_ASSET_BYTES, TIKTOKEN_ASSET_SHA256);
     }
 
     static WhisperTokenizer loadTiktoken(Path asset, long expectedBytes, String expectedSha256) {
@@ -233,6 +254,19 @@ final class WhisperTokenizer {
             throw new IllegalArgumentException("Whisper token sequence contains malformed UTF-8 bytes", e);
         }
     }
+
+    static long[] transcriptionPrompt(Locale locale) {
+        String language = locale == null ? "" : locale.getLanguage().toLowerCase(Locale.ROOT);
+        int languageIndex = MULTILINGUAL_LANGUAGES.indexOf(language);
+        if (languageIndex < 0) {
+            throw new IllegalArgumentException("Whisper multilingual model does not support language: " + language);
+        }
+        return new long[]{START_OF_TRANSCRIPT, START_OF_TRANSCRIPT + 1 + languageIndex, TRANSCRIBE, NO_TIMESTAMPS};
+    }
+
+    static long endOfTextToken() { return END_OF_TEXT; }
+    static long noSpeechToken() { return NO_SPEECH; }
+    static long blankTokenId() { return 220L; }
 
     private static Set<Long> legacySpecialIds(Map<Long, String> tokens) {
         Set<Long> specials = new HashSet<>();

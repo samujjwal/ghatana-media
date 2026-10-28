@@ -14,6 +14,13 @@ import com.ghatana.media.stt.api.*;
 import io.activej.promise.Promise;
 
 import java.nio.FloatBuffer;
+import java.nio.LongBuffer;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -39,10 +46,26 @@ public final class WhisperOnnxEngine implements SttEngine {
     private static final int HOP_LENGTH = 160;
     private static final int CHUNK_LENGTH = 30; // seconds
     private static final int N_SAMPLES = CHUNK_LENGTH * SAMPLE_RATE;
+    private static final String REFERENCE_ENCODER = "encoder_model_quantized.onnx";
+    private static final String REFERENCE_DECODER = "decoder_model_merged_quantized.onnx";
+    private static final String REFERENCE_MEL_FILTERS = "mel_filters.npz";
+    private static final long REFERENCE_ENCODER_BYTES = 10_124_990L;
+    private static final String REFERENCE_ENCODER_SHA256 = "2af4a414ca47aa30f61246017e5fe82b0a8d229281d1255ba666a2a7f6b84d19";
+    private static final long REFERENCE_DECODER_BYTES = 30_719_241L;
+    private static final String REFERENCE_DECODER_SHA256 = "25e807a962b6349356d0ea5d0dfe530b7e5bf0e2a484aeca0359d03143faddd3";
+    private static final int MAX_GENERATED_TOKENS = 444;
+    private static final double[][] DFT_COS = referenceDftCos();
+    private static final double[][] DFT_SIN = referenceDftSin();
+    private static final double[] REFERENCE_HANN_WINDOW = referenceHannWindow();
 
     private final SttConfig config;
     private final OrtEnvironment environment;
+    /** Single-graph compatibility path. The pinned Whisper reference uses the split sessions below. */
     private final OrtSession session;
+    private final OrtSession encoderSession;
+    private final OrtSession decoderSession;
+    private final float[][] pinnedMelFilters;
+    private final boolean splitWhisperProfile;
     private final WhisperTokenizer tokenizer;
     private final Semaphore concurrencyLimiter;
     private final ExecutorService executor;
@@ -62,30 +85,57 @@ public final class WhisperOnnxEngine implements SttEngine {
 
             this.environment = OrtEnvironment.getEnvironment();
 
-            OrtSession.SessionOptions options = new OrtSession.SessionOptions();
-            options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
+            try (OrtSession.SessionOptions options = new OrtSession.SessionOptions()) {
+                options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
 
-            // Configure GPU if enabled
-            if (config.useGpu()) {
-                try {
-                    options.addCUDA(0);
-                    LOG.info("CUDA execution provider enabled");
-                } catch (OrtException e) {
-                    LOG.warning("CUDA not available, falling back to CPU: " + e.getMessage());
+                // Configure GPU if enabled
+                if (config.useGpu()) {
+                    try {
+                        options.addCUDA(0);
+                        LOG.info("CUDA execution provider enabled");
+                    } catch (OrtException e) {
+                        LOG.warning("CUDA not available, falling back to CPU: " + e.getMessage());
+                    }
+                }
+
+                boolean pinnedReference = config.modelPath() != null && config.modelPath().getFileName() != null
+                        && REFERENCE_ENCODER.equals(config.modelPath().getFileName().toString());
+                if (pinnedReference) {
+                    this.tokenizer = WhisperTokenizer.loadPinnedTiktoken(
+                            config.modelPath().toAbsolutePath().getParent().resolve("multilingual.tiktoken"));
+                    Path profileDirectory = config.modelPath().toAbsolutePath().getParent();
+                    Path decoderPath = profileDirectory.resolve(REFERENCE_DECODER);
+                    Path melPath = profileDirectory.resolve(REFERENCE_MEL_FILTERS);
+                    verifyPinnedAsset(config.modelPath(), REFERENCE_ENCODER_BYTES, REFERENCE_ENCODER_SHA256, "encoder");
+                    verifyPinnedAsset(decoderPath, REFERENCE_DECODER_BYTES, REFERENCE_DECODER_SHA256, "decoder");
+                    this.pinnedMelFilters = WhisperMelFilterBank.load(melPath);
+                    this.encoderSession = environment.createSession(config.modelPath().toString(), options);
+                    this.decoderSession = environment.createSession(decoderPath.toString(), options);
+                    this.session = null;
+                    this.splitWhisperProfile = true;
+                    verifySplitSessionContract();
+                    LOG.info("Pinned multilingual Whisper ONNX profile loaded. Encoder input: "
+                            + encoderSession.getInputNames() + ", decoder inputs: " + decoderSession.getInputNames());
+                } else {
+                    this.tokenizer = WhisperTokenizer.load(config.modelPath());
+                    this.session = environment.createSession(config.modelPath().toString(), options);
+                    this.encoderSession = null;
+                    this.decoderSession = null;
+                    this.pinnedMelFilters = null;
+                    this.splitWhisperProfile = false;
+                    LOG.info("Whisper model loaded successfully. Input: " + session.getInputNames() +
+                             ", Output: " + session.getOutputNames());
                 }
             }
-
-            this.tokenizer = WhisperTokenizer.load(config.modelPath());
-            this.session = environment.createSession(config.modelPath().toString(), options);
-
-            LOG.info("Whisper model loaded successfully. Input: " + session.getInputNames() +
-                     ", Output: " + session.getOutputNames());
 
             state.set(EngineStatus.State.READY);
 
         } catch (OrtException e) {
             state.set(EngineStatus.State.ERROR);
             throw new ModelLoadingError("Failed to load Whisper ONNX model", e);
+        } catch (java.io.IOException e) {
+            state.set(EngineStatus.State.ERROR);
+            throw new ModelLoadingError("Failed to verify pinned Whisper ONNX profile", e);
         }
     }
 
@@ -93,45 +143,39 @@ public final class WhisperOnnxEngine implements SttEngine {
     public TranscriptionResult transcribe(AudioData audio, TranscriptionOptions options) {
         ensureReady();
         validateAudio(audio);
+        if (splitWhisperProfile && options.enableTimestamps()) {
+            throw new ValidationError("Pinned Whisper reference profile does not provide qualified word timestamps");
+        }
 
         long startTime = System.currentTimeMillis();
         requestCount.incrementAndGet();
-
-        try {
-            concurrencyLimiter.acquire();
-            try {
-                // Preprocess audio to mel spectrogram
-                float[][] melSpectrogram = preprocess(audio);
-
-                // Run inference
-                String text = runInference(melSpectrogram, options);
-
-                long latency = System.currentTimeMillis() - startTime;
-                totalLatency.addAndGet(latency);
-
-                // This inference path does not expose provider word alignment. Do not
-                // synthesize equal-duration words and present them as timing observations.
-                List<WordTiming> words = List.of();
-
-                return resultWithoutConfidence(
-                    text,
-                    words,
-                    List.of(), // alternatives
-                    java.time.Duration.ofMillis(latency),
-                    options.language().toLanguageTag(),
-                    config.modelId()
-                );
-
-            } finally {
-                concurrencyLimiter.release();
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        if (!concurrencyLimiter.tryAcquire()) {
             errorCount.incrementAndGet();
-            throw new InferenceError("Transcription interrupted", e, true);
+            throw new ResourceExhaustedError("Whisper request concurrency limit is saturated");
+        }
+        try {
+            String text = runAudioInference(audio, options);
+
+            long latency = System.currentTimeMillis() - startTime;
+            totalLatency.addAndGet(latency);
+
+            // This inference path does not expose provider word alignment. Do not
+            // synthesize equal-duration words and present them as timing observations.
+            List<WordTiming> words = List.of();
+
+            return resultWithoutConfidence(
+                text,
+                words,
+                List.of(), // alternatives
+                java.time.Duration.ofMillis(latency),
+                options.language().toLanguageTag(),
+                config.modelId()
+            );
         } catch (Exception e) {
             errorCount.incrementAndGet();
             throw new InferenceError("Transcription failed", e, false);
+        } finally {
+            concurrencyLimiter.release();
         }
     }
 
@@ -237,7 +281,9 @@ public final class WhisperOnnxEngine implements SttEngine {
         state.set(EngineStatus.State.CLOSED);
 
         try {
-            session.close();
+            if (session != null) session.close();
+            if (encoderSession != null) encoderSession.close();
+            if (decoderSession != null) decoderSession.close();
             environment.close();
         } catch (OrtException e) {
             LOG.warning("Error closing ONNX session: " + e.getMessage());
@@ -286,11 +332,26 @@ public final class WhisperOnnxEngine implements SttEngine {
         if (audio == null) {
             throw new ValidationError("Audio data cannot be null");
         }
+        if (audio.data() == null || audio.data().length == 0) {
+            throw new ValidationError("Audio data cannot be empty");
+        }
         if (audio.sampleRate() != SAMPLE_RATE) {
             throw new ValidationError("Audio must be 16kHz, got: " + audio.sampleRate());
         }
+        if (audio.channels() != 1) {
+            throw new ValidationError("Whisper ONNX requires mono audio, got: " + audio.channels() + " channels");
+        }
+        if (audio.bitsPerSample() != 16 || audio.data().length % Short.BYTES != 0) {
+            throw new ValidationError("Whisper ONNX requires complete signed 16-bit PCM samples");
+        }
         if (audio.duration() != null && audio.duration().getSeconds() > config.maxAudioLengthSeconds()) {
             throw new ValidationError("Audio too long: " + audio.duration().getSeconds() + "s > " + config.maxAudioLengthSeconds() + "s");
+        }
+        long maximumSamples = (long) config.maxAudioLengthSeconds() * SAMPLE_RATE;
+        long samples = audio.data().length / Math.max(1, audio.bitsPerSample() / 8);
+        if (samples > maximumSamples) {
+            throw new ValidationError("Audio exceeds configured maximum duration of "
+                    + config.maxAudioLengthSeconds() + " seconds");
         }
     }
 
@@ -308,8 +369,34 @@ public final class WhisperOnnxEngine implements SttEngine {
             samples = Arrays.copyOf(samples, N_SAMPLES); // Zero-pad
         }
 
-        // Compute mel spectrogram
+        if (splitWhisperProfile) return computeReferenceMelSpectrogram(samples, pinnedMelFilters);
+        // Compute mel spectrogram for the legacy single-graph compatibility profile.
         return computeMelSpectrogram(samples, SAMPLE_RATE, N_MELS, N_FFT, HOP_LENGTH);
+    }
+
+    private String runAudioInference(AudioData audio, TranscriptionOptions options) throws OrtException {
+        float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample());
+        if (isExactlySilent(samples)) return "";
+        if (!splitWhisperProfile) return runInference(preprocess(audio), options);
+
+        StringBuilder result = new StringBuilder();
+        for (int offset = 0; offset < samples.length; offset += N_SAMPLES) {
+            int length = Math.min(N_SAMPLES, samples.length - offset);
+            float[] chunk = Arrays.copyOfRange(samples, offset, offset + length);
+            if (isExactlySilent(chunk)) continue;
+            float[][] melSpectrogram = computeReferenceMelSpectrogram(chunk, pinnedMelFilters);
+            String chunkText = runSplitWhisperInference(melSpectrogram, options);
+            if (!chunkText.isBlank()) {
+                if (!result.isEmpty()) result.append(' ');
+                result.append(chunkText.trim());
+            }
+        }
+        return result.toString();
+    }
+
+    private static boolean isExactlySilent(float[] values) {
+        for (float value : values) if (value != 0.0f) return false;
+        return true;
     }
 
     private float[] bytesToFloats(byte[] data, int bitsPerSample) {
@@ -375,6 +462,197 @@ public final class WhisperOnnxEngine implements SttEngine {
         }
 
         return logMelSpec;
+    }
+
+    /**
+     * Reproduces the pinned OpenAI Whisper frontend: 30 second input, centered 400 point periodic-Hann
+     * STFT, power spectrum, the source mel matrix, log10 floor, dynamic range clipping and scaling.
+     */
+    static float[][] computeReferenceMelSpectrogram(float[] input, float[][] filters) {
+        if (input == null || filters == null || filters.length != N_MELS) {
+            throw new IllegalArgumentException("Whisper frontend requires audio and the pinned 80-band filter bank");
+        }
+        for (float[] filter : filters) {
+            if (filter == null || filter.length != N_FFT / 2 + 1) {
+                throw new IllegalArgumentException("Whisper mel filter bank dimensions are invalid");
+            }
+        }
+
+        float[] samples = Arrays.copyOf(input, N_SAMPLES);
+        for (float sample : samples) {
+            if (!Float.isFinite(sample) || Math.abs(sample) > 1.0f) {
+                throw new IllegalArgumentException("Whisper frontend samples must be finite and normalized to [-1,1]");
+            }
+        }
+        float[][] logMel = new float[N_SAMPLES / HOP_LENGTH][N_MELS];
+        for (float[] row : logMel) Arrays.fill(row, -10.0f);
+
+        int framesWithInput = Math.min(logMel.length,
+                Math.max(1, (samples.length + N_FFT / 2 + HOP_LENGTH - 1) / HOP_LENGTH));
+        double[] power = new double[N_FFT / 2 + 1];
+        for (int frame = 0; frame < framesWithInput; frame++) {
+            int frameStart = frame * HOP_LENGTH - N_FFT / 2;
+            Arrays.fill(power, 0.0d);
+            for (int bin = 0; bin < power.length; bin++) {
+                double real = 0.0d;
+                double imaginary = 0.0d;
+                for (int sample = 0; sample < N_FFT; sample++) {
+                    int sampleIndex = reflectIndex(frameStart + sample, N_SAMPLES);
+                    double value = samples[sampleIndex] * REFERENCE_HANN_WINDOW[sample];
+                    real += value * DFT_COS[bin][sample];
+                    imaginary += value * DFT_SIN[bin][sample];
+                }
+                power[bin] = real * real + imaginary * imaginary;
+            }
+            for (int mel = 0; mel < N_MELS; mel++) {
+                double energy = 0.0d;
+                for (int bin = 0; bin < power.length; bin++) energy += filters[mel][bin] * power[bin];
+                logMel[frame][mel] = (float) Math.log10(Math.max(energy, 1.0e-10d));
+            }
+        }
+
+        float maximum = -10.0f;
+        for (float[] row : logMel) {
+            for (float value : row) maximum = Math.max(maximum, value);
+        }
+        float floor = maximum - 8.0f;
+        for (float[] row : logMel) {
+            for (int mel = 0; mel < row.length; mel++) {
+                row[mel] = (Math.max(row[mel], floor) + 4.0f) / 4.0f;
+            }
+        }
+        return logMel;
+    }
+
+    private static int reflectIndex(int index, int length) {
+        if (length < 2) return 0;
+        int reflected = index;
+        while (reflected < 0 || reflected >= length) {
+            if (reflected < 0) reflected = -reflected;
+            if (reflected >= length) reflected = 2 * length - 2 - reflected;
+        }
+        return reflected;
+    }
+
+    private static double[][] referenceDftCos() {
+        double[][] values = new double[N_FFT / 2 + 1][N_FFT];
+        for (int bin = 0; bin < values.length; bin++) {
+            for (int sample = 0; sample < N_FFT; sample++) {
+                values[bin][sample] = Math.cos(2.0d * Math.PI * bin * sample / N_FFT);
+            }
+        }
+        return values;
+    }
+
+    private static double[][] referenceDftSin() {
+        double[][] values = new double[N_FFT / 2 + 1][N_FFT];
+        for (int bin = 0; bin < values.length; bin++) {
+            for (int sample = 0; sample < N_FFT; sample++) {
+                values[bin][sample] = -Math.sin(2.0d * Math.PI * bin * sample / N_FFT);
+            }
+        }
+        return values;
+    }
+
+    private static double[] referenceHannWindow() {
+        double[] values = new double[N_FFT];
+        for (int sample = 0; sample < N_FFT; sample++) {
+            values[sample] = 0.5d * (1.0d - Math.cos(2.0d * Math.PI * sample / N_FFT));
+        }
+        return values;
+    }
+
+    private void verifySplitSessionContract() throws OrtException {
+        if (!encoderSession.getInputNames().contains("input_features")
+                || !encoderSession.getOutputNames().contains("last_hidden_state")
+                || !decoderSession.getInputNames().contains("input_ids")
+                || !decoderSession.getInputNames().contains("encoder_hidden_states")
+                || !decoderSession.getInputNames().contains("use_cache_branch")
+                || !decoderSession.getOutputNames().contains("logits")) {
+            throw new ModelLoadingError("Pinned Whisper ONNX graphs do not expose the expected encoder/decoder interface");
+        }
+        verifyTensorContract(encoderSession.getInputInfo(), "input_features", OnnxJavaType.FLOAT,
+                new long[]{1, N_MELS, N_SAMPLES / HOP_LENGTH});
+        verifyTensorContract(encoderSession.getOutputInfo(), "last_hidden_state", OnnxJavaType.FLOAT,
+                new long[]{1, 1_500, 384});
+        verifyTensorContract(decoderSession.getInputInfo(), "input_ids", OnnxJavaType.INT64,
+                new long[]{1, -1});
+        verifyTensorContract(decoderSession.getInputInfo(), "encoder_hidden_states", OnnxJavaType.FLOAT,
+                new long[]{1, 1_500, 384});
+        verifyTensorContract(decoderSession.getInputInfo(), "use_cache_branch", OnnxJavaType.BOOL,
+                new long[]{1});
+        verifyTensorContract(decoderSession.getOutputInfo(), "logits", OnnxJavaType.FLOAT,
+                new long[]{1, -1, 51_865});
+        for (int layer = 0; layer < 4; layer++) {
+            for (String attention : List.of("decoder", "encoder")) {
+                for (String dimension : List.of("key", "value")) {
+                    String suffix = layer + "." + attention + "." + dimension;
+                    String input = "past_key_values." + suffix;
+                    String output = "present." + suffix;
+                    if (!decoderSession.getInputNames().contains(input)
+                            || !decoderSession.getOutputNames().contains(output)) {
+                        throw new ModelLoadingError("Pinned Whisper decoder cache interface is incomplete");
+                    }
+                    verifyTensorContract(decoderSession.getInputInfo(), input, OnnxJavaType.FLOAT,
+                            new long[]{1, 6, -1, 64});
+                    verifyTensorContract(decoderSession.getOutputInfo(), output, OnnxJavaType.FLOAT,
+                            new long[]{1, 6, -1, 64});
+                }
+            }
+        }
+    }
+
+    private static void verifyTensorContract(
+            Map<String, NodeInfo> nodes, String name, OnnxJavaType expectedType, long[] expectedShape) {
+        NodeInfo node = nodes.get(name);
+        if (node == null || !(node.getInfo() instanceof TensorInfo tensor)) {
+            throw new ModelLoadingError("Pinned Whisper ONNX graph omitted tensor metadata for " + name);
+        }
+        if (tensor.type != expectedType) {
+            throw new ModelLoadingError("Pinned Whisper ONNX tensor " + name + " has an unexpected element type");
+        }
+        long[] actualShape = tensor.getShape();
+        if (actualShape.length != expectedShape.length) {
+            throw new ModelLoadingError("Pinned Whisper ONNX tensor " + name + " has an unexpected rank");
+        }
+        for (int axis = 0; axis < expectedShape.length; axis++) {
+            long expected = expectedShape[axis];
+            long actual = actualShape[axis];
+            if (expected >= 0 && actual >= 0 && expected != actual) {
+                throw new ModelLoadingError("Pinned Whisper ONNX tensor " + name + " has an unexpected shape");
+            }
+        }
+    }
+
+    private static void verifyPinnedAsset(Path path, long expectedSize, String expectedSha256, String label)
+            throws java.io.IOException {
+        if (path == null || Files.isSymbolicLink(path)
+                || !Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)
+                || Files.size(path) != expectedSize) {
+            throw new ModelLoadingError("Pinned Whisper " + label + " asset is missing or has an unexpected size");
+        }
+        final MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("JDK does not provide SHA-256", impossible);
+        }
+        long readBytes = 0;
+        try (java.io.InputStream input = Files.newInputStream(path, LinkOption.NOFOLLOW_LINKS)) {
+            byte[] buffer = new byte[64 * 1024];
+            int read;
+            while ((read = input.read(buffer)) >= 0) {
+                readBytes += read;
+                if (readBytes > expectedSize) {
+                    throw new ModelLoadingError("Pinned Whisper " + label + " asset changed while reading");
+                }
+                digest.update(buffer, 0, read);
+            }
+        }
+        String actual = HexFormat.of().formatHex(digest.digest());
+        if (readBytes != expectedSize || !expectedSha256.equals(actual)) {
+            throw new ModelLoadingError("Pinned Whisper " + label + " asset SHA-256 does not match the qualification pin");
+        }
     }
 
     /** Compute a Hann window of length {@code n}. */
@@ -523,6 +801,7 @@ public final class WhisperOnnxEngine implements SttEngine {
      * to the configured model. A missing profile is a model-loading failure.
      */
     private String runInference(float[][] melSpectrogram, TranscriptionOptions options) throws OrtException {
+        if (splitWhisperProfile) return runSplitWhisperInference(melSpectrogram, options);
         int nFrames = melSpectrogram.length;
 
         // Flatten [nFrames × N_MELS] → float[1 × N_MELS × nFrames] (batch=1)
@@ -574,6 +853,198 @@ public final class WhisperOnnxEngine implements SttEngine {
 
         return "";
     }
+
+    private String runSplitWhisperInference(float[][] melSpectrogram, TranscriptionOptions options)
+            throws OrtException {
+        int frames = melSpectrogram.length;
+        float[] flatInput = new float[N_MELS * frames];
+        for (int mel = 0; mel < N_MELS; mel++) {
+            for (int frame = 0; frame < frames; frame++) flatInput[mel * frames + frame] = melSpectrogram[frame][mel];
+        }
+        OnnxTensor features = OnnxTensor.createTensor(environment, FloatBuffer.wrap(flatInput),
+                new long[]{1L, N_MELS, frames});
+        try (OrtSession.Result encoded = encoderSession.run(Map.of("input_features", features))) {
+            OnnxTensor hiddenStates = findTensor(encoded, "last_hidden_state");
+            long[] decoderIds = WhisperTokenizer.transcriptionPrompt(options.language());
+            long[] generated = new long[MAX_GENERATED_TOKENS];
+            int generatedCount = 0;
+            double sumLogProbability = 0.0d;
+            double noSpeechProbability = Double.NaN;
+            boolean useCache = false;
+            OrtSession.Result priorDecoderResult = null;
+            try {
+                for (int step = 0; step < MAX_GENERATED_TOKENS; step++) {
+                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    List<OnnxTensor> temporary = new ArrayList<>();
+                    OnnxTensor tokenTensor = OnnxTensor.createTensor(environment, LongBuffer.wrap(decoderIds),
+                            new long[]{1L, decoderIds.length});
+                    ByteBuffer cacheBranchValue = ByteBuffer.allocateDirect(1);
+                    cacheBranchValue.put((byte) (useCache ? 1 : 0)).flip();
+                    OnnxTensor cacheBranch = OnnxTensor.createTensor(environment,
+                            cacheBranchValue, new long[]{1L}, OnnxJavaType.BOOL);
+                    temporary.add(tokenTensor);
+                    temporary.add(cacheBranch);
+                    inputs.put("input_ids", tokenTensor);
+                    inputs.put("encoder_hidden_states", hiddenStates);
+                    inputs.put("use_cache_branch", cacheBranch);
+                    for (String inputName : decoderSession.getInputNames()) {
+                        if (!inputName.startsWith("past_key_values.")) continue;
+                        String outputName = inputName.replaceFirst("^past_key_values\\.", "present.");
+                        if (priorDecoderResult == null) {
+                            OnnxTensor emptyCache = OnnxTensor.createTensor(environment, FloatBuffer.allocate(0),
+                                    new long[]{1L, 6L, 0L, 64L});
+                            temporary.add(emptyCache);
+                            inputs.put(inputName, emptyCache);
+                        } else {
+                            inputs.put(inputName, findTensor(priorDecoderResult, outputName));
+                        }
+                    }
+
+                    OrtSession.Result current = null;
+                    try {
+                        current = decoderSession.run(inputs);
+                    } finally {
+                        for (OnnxTensor tensor : temporary) tensor.close();
+                    }
+                    DecoderStep decoderStep;
+                    try {
+                        decoderStep = selectDecoderStep(findTensor(current, "logits"), step == 0);
+                    } catch (RuntimeException | OrtException failure) {
+                        current.close();
+                        throw failure;
+                    }
+                    if (step == 0) noSpeechProbability = decoderStep.noSpeechProbability();
+                    sumLogProbability += decoderStep.logProbability();
+                    long nextToken = decoderStep.tokenId();
+                    if (nextToken == WhisperTokenizer.endOfTextToken()) {
+                        current.close();
+                        return finishDecodedTranscript(generated, generatedCount, sumLogProbability, noSpeechProbability);
+                    }
+                    generated[generatedCount++] = nextToken;
+                    if (priorDecoderResult != null) priorDecoderResult.close();
+                    priorDecoderResult = current;
+                    decoderIds = new long[]{nextToken};
+                    useCache = true;
+                }
+                return finishDecodedTranscript(generated, generatedCount, sumLogProbability, noSpeechProbability);
+            } finally {
+                if (priorDecoderResult != null) priorDecoderResult.close();
+            }
+        } finally {
+            features.close();
+        }
+    }
+
+    private static OnnxTensor findTensor(OrtSession.Result result, String name) throws OrtException {
+        for (Map.Entry<String, OnnxValue> entry : result) {
+            if (name.equals(entry.getKey()) && entry.getValue() instanceof OnnxTensor tensor) return tensor;
+        }
+        throw new IllegalArgumentException("Whisper ONNX graph omitted required tensor: " + name);
+    }
+
+    private String finishDecodedTranscript(long[] generated, int generatedCount,
+            double sumLogProbability, double noSpeechProbability) {
+        double averageLogProbability = sumLogProbability / (generatedCount + 1.0d);
+        if (shouldSuppressAsNoSpeech(noSpeechProbability, averageLogProbability)) return "";
+        return tokenizer.decode(Arrays.copyOf(generated, generatedCount));
+    }
+
+    static boolean shouldSuppressAsNoSpeech(double noSpeechProbability, double averageLogProbability) {
+        return Double.isFinite(noSpeechProbability) && noSpeechProbability > 0.6d
+                && Double.isFinite(averageLogProbability) && averageLogProbability < -1.0d;
+    }
+
+    private static DecoderStep selectDecoderStep(OnnxTensor logits, boolean firstGeneratedToken) throws OrtException {
+        if (logits.getInfo().type != OnnxJavaType.FLOAT) {
+            throw new IllegalArgumentException("Whisper decoder logits must be float32");
+        }
+        Object value = logits.getValue();
+        if (value instanceof float[][][] batch) {
+            return selectDecoderStep(batch, firstGeneratedToken);
+        } else if (value instanceof float[][] rows) {
+            return selectDecoderStep(rows, firstGeneratedToken);
+        }
+        throw new IllegalArgumentException("Whisper decoder logits have an unsupported shape");
+    }
+
+    static DecoderStep selectDecoderStep(float[][][] batch, boolean firstGeneratedToken) {
+        if (batch == null || batch.length != 1 || batch[0] == null || batch[0].length == 0) {
+            throw new IllegalArgumentException("Whisper decoder logits must have a non-empty single-item batch");
+        }
+        return selectDecoderStep(batch[0][batch[0].length - 1], firstGeneratedToken);
+    }
+
+    static DecoderStep selectDecoderStep(float[][] rows, boolean firstGeneratedToken) {
+        if (rows == null || rows.length == 0) {
+            throw new IllegalArgumentException("Whisper decoder logits must contain at least one token position");
+        }
+        return selectDecoderStep(rows[rows.length - 1], firstGeneratedToken);
+    }
+
+    static DecoderStep selectDecoderStep(float[] tokenScores, boolean firstGeneratedToken) {
+        if (tokenScores == null || tokenScores.length != 51_865) {
+            throw new IllegalArgumentException("Whisper decoder logits must match the pinned 51865-token vocabulary");
+        }
+        double noSpeechProbability = firstGeneratedToken
+                ? softmaxProbability(tokenScores, (int) WhisperTokenizer.noSpeechToken())
+                : Double.NaN;
+        int bestIndex = -1;
+        float bestScore = Float.NEGATIVE_INFINITY;
+        for (int token = 0; token < tokenScores.length; token++) {
+            float score = tokenScores[token];
+            if (isSuppressedDecoderToken(token, firstGeneratedToken)) continue;
+            if (Float.isFinite(score) && score > bestScore) {
+                bestScore = score;
+                bestIndex = token;
+            }
+        }
+        if (bestIndex < 0) throw new IllegalArgumentException("Whisper decoder emitted no finite token score");
+        return new DecoderStep(bestIndex, bestScore - logSumExp(tokenScores, firstGeneratedToken), noSpeechProbability);
+    }
+
+    private static boolean isSuppressedDecoderToken(int tokenId, boolean firstGeneratedToken) {
+        if (tokenId >= WhisperTokenizer.endOfTextToken() + 1 && tokenId <= 51_864) return true;
+        if (firstGeneratedToken && tokenId == WhisperTokenizer.blankTokenId()) return true;
+        return firstGeneratedToken && tokenId == WhisperTokenizer.endOfTextToken();
+    }
+
+    private static double softmaxProbability(float[] logits, int tokenId) {
+        if (tokenId < 0 || tokenId >= logits.length) {
+            throw new IllegalArgumentException("Whisper no-speech token is outside decoder vocabulary");
+        }
+        double logNormalizer = rawLogSumExp(logits);
+        float tokenScore = logits[tokenId];
+        if (!Float.isFinite(tokenScore) || !Double.isFinite(logNormalizer)) return 0.0d;
+        return Math.exp(tokenScore - logNormalizer);
+    }
+
+    private static double rawLogSumExp(float[] logits) {
+        double maximum = Double.NEGATIVE_INFINITY;
+        for (float score : logits) if (Float.isFinite(score)) maximum = Math.max(maximum, score);
+        if (!Double.isFinite(maximum)) return Double.NEGATIVE_INFINITY;
+        double sum = 0.0d;
+        for (float score : logits) if (Float.isFinite(score)) sum += Math.exp(score - maximum);
+        return maximum + Math.log(sum);
+    }
+
+    private static double logSumExp(float[] logits, boolean firstGeneratedToken) {
+        double maximum = Double.NEGATIVE_INFINITY;
+        for (int token = 0; token < logits.length; token++) {
+            if (isSuppressedDecoderToken(token, firstGeneratedToken)) continue;
+            float score = logits[token];
+            if (Float.isFinite(score)) maximum = Math.max(maximum, score);
+        }
+        if (!Double.isFinite(maximum)) return Double.NEGATIVE_INFINITY;
+        double sum = 0.0d;
+        for (int token = 0; token < logits.length; token++) {
+            if (isSuppressedDecoderToken(token, firstGeneratedToken)) continue;
+            float score = logits[token];
+            if (Float.isFinite(score)) sum += Math.exp(score - maximum);
+        }
+        return maximum + Math.log(sum);
+    }
+
+    record DecoderStep(int tokenId, double logProbability, double noSpeechProbability) { }
 
     /**
      * Decode token IDs through the configured Whisper tokenizer profile.

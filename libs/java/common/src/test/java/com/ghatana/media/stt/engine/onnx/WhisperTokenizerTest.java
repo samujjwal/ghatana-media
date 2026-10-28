@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -111,6 +112,24 @@ class WhisperTokenizerTest {
     }
 
     @Test
+    void pinnedProfileLoaderRequiresItsTiktokenAssetAndNeverUsesLegacyFallback() throws Exception {
+        Path directory = Files.createTempDirectory("whisper-pinned-tokenizer-");
+        try {
+            Path vocabulary = directory.resolve("vocab.json");
+            Path merges = directory.resolve("merges.txt");
+            Files.writeString(vocabulary, "{\"hello\": 0}");
+            Files.writeString(merges, "#version: 0.2\n");
+            assertThatThrownBy(() -> WhisperTokenizer.loadPinnedTiktoken(directory.resolve("multilingual.tiktoken")))
+                    .isInstanceOf(ModelLoadingError.class)
+                    .hasMessageContaining("Unable to read Whisper tiktoken asset");
+        } finally {
+            Files.deleteIfExists(directory.resolve("vocab.json"));
+            Files.deleteIfExists(directory.resolve("merges.txt"));
+            Files.deleteIfExists(directory);
+        }
+    }
+
+    @Test
     void rejectsUnknownSpecialRangeIdsInLegacyProfile() {
         WhisperTokenizer tokenizer = WhisperTokenizer.forTokens(Map.of(0L, "hello"));
         assertThatThrownBy(() -> tokenizer.decode(new long[]{50_258}))
@@ -124,6 +143,19 @@ class WhisperTokenizerTest {
                 50_256L, "ordinary", 50_257L, "<|startoftranscript|>"));
 
         assertThat(tokenizer.decode(new long[]{50_256, 50_257})).isEqualTo("ordinary");
+    }
+
+    @Test
+    void transcriptionPromptUsesPinnedMultilingualLanguageAndTaskTokenIds() {
+        assertThat(WhisperTokenizer.transcriptionPrompt(Locale.US))
+                .containsExactly(50_258L, 50_259L, 50_359L, 50_363L);
+        assertThat(WhisperTokenizer.transcriptionPrompt(Locale.forLanguageTag("hi-IN")))
+                .containsExactly(50_258L, 50_276L, 50_359L, 50_363L);
+        assertThat(WhisperTokenizer.transcriptionPrompt(Locale.forLanguageTag("ne-NP")))
+                .containsExactly(50_258L, 50_313L, 50_359L, 50_363L);
+        assertThatThrownBy(() -> WhisperTokenizer.transcriptionPrompt(Locale.forLanguageTag("zz-ZZ")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not support language");
     }
 
     @Test

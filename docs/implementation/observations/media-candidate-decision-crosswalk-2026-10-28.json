@@ -28,7 +28,7 @@
     {
       "id": "r9",
       "path": "config/qualification/wave2-reference-candidates.v1.json",
-      "githubBlobSha": "efef7f2d34f31df1e23bf5006c49daa5646467d2"
+      "githubBlobSha": "5e0e99f4648ea3ad6688af37626bf1bdc243efd5"
     },
     {
       "id": "history",
@@ -215,253 +215,253 @@
     },
     {
       "id": "TECH-WAVESURFER",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "WaveSurfer.js project,",
-      "purpose": "waveform-region-navigation-and-playback-adapter,",
-      "licenseClaim": "BSD-3-Clause,",
+      "owner": "WaveSurfer.js project",
+      "purpose": "waveform-region-navigation-and-playback-adapter",
+      "licenseClaim": "BSD-3-Clause",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-WAVESURFER",
       "sourceLine": 472,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-OPENTIMELINEIO",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "OpenTimelineIO project,",
-      "purpose": "editorial-timeline-import-export-and-loss-reporting,",
-      "licenseClaim": "Apache-2.0,",
+      "owner": "OpenTimelineIO project",
+      "purpose": "editorial-timeline-import-export-and-loss-reporting",
+      "licenseClaim": "Apache-2.0",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-OPENTIMELINEIO",
       "sourceLine": 487,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-OPENCOLORIO",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "OpenColorIO project,",
-      "purpose": "color-space-and-transformation-adapter,",
-      "licenseClaim": "BSD-3-Clause,",
+      "owner": "OpenColorIO project",
+      "purpose": "color-space-and-transformation-adapter",
+      "licenseClaim": "BSD-3-Clause",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-OPENCOLORIO",
       "sourceLine": 502,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-OPENIMAGEIO",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "OpenImageIO project,",
-      "purpose": "advanced-image-format-I-O-only-if-Ghatana-gap-is-proven,",
-      "licenseClaim": "NOASSERTION,",
+      "owner": "OpenImageIO project",
+      "purpose": "advanced-image-format-I-O-only-if-Ghatana-gap-is-proven",
+      "licenseClaim": "NOASSERTION",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-OPENIMAGEIO",
       "sourceLine": 517,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-C2PA-RS",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "Content Authenticity Initiative; c2pa-rs maintainers,",
-      "purpose": "governed-content-provenance-adapter-with-managed-keys,",
-      "licenseClaim": "MIT OR Apache-2.0,",
+      "owner": "Content Authenticity Initiative; c2pa-rs maintainers",
+      "purpose": "governed-content-provenance-adapter-with-managed-keys",
+      "licenseClaim": "MIT OR Apache-2.0",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-C2PA-RS",
       "sourceLine": 534,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-THREEJS",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "Three.js project,",
-      "purpose": "browser-scene-preview-and-inspection,",
-      "licenseClaim": "MIT,",
+      "owner": "Three.js project",
+      "purpose": "browser-scene-preview-and-inspection",
+      "licenseClaim": "MIT",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-THREEJS",
       "sourceLine": 550,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-GLTF-TRANSFORM",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "glTF Transform project,",
-      "purpose": "versioned-glTF-GLB-read-transform-optimize-write-adapter,",
-      "licenseClaim": "MIT,",
+      "owner": "glTF Transform project",
+      "purpose": "versioned-glTF-GLB-read-transform-optimize-write-adapter",
+      "licenseClaim": "MIT",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-GLTF-TRANSFORM",
       "sourceLine": 565,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-SHAKA-PACKAGER",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "Shaka Project,",
-      "purpose": "approved-HLS-DASH-packaging-only,",
-      "licenseClaim": "BSD-3-Clause,",
+      "owner": "Shaka Project",
+      "purpose": "approved-HLS-DASH-packaging-only",
+      "licenseClaim": "BSD-3-Clause",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-SHAKA-PACKAGER",
       "sourceLine": 580,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-SHAKA-PLAYER",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "Shaka Project,",
-      "purpose": "unified-adaptive-player-only-if-requirements-need-it,",
-      "licenseClaim": "Apache-2.0,",
+      "owner": "Shaka Project",
+      "purpose": "unified-adaptive-player-only-if-requirements-need-it",
+      "licenseClaim": "Apache-2.0",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-SHAKA-PLAYER",
       "sourceLine": 595,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-LIBEBUR128",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "libebur128 project,",
-      "purpose": "reference-grade-EBU-R128-measurement-when-contract-requires,",
-      "licenseClaim": "MIT,",
+      "owner": "libebur128 project",
+      "purpose": "reference-grade-EBU-R128-measurement-when-contract-requires",
+      "licenseClaim": "MIT",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-LIBEBUR128",
       "sourceLine": 610,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-VMAF",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "Netflix VMAF project,",
-      "purpose": "reference-based-quality-domain-only,",
-      "licenseClaim": "NOASSERTION,",
+      "owner": "Netflix VMAF project",
+      "purpose": "reference-based-quality-domain-only",
+      "licenseClaim": "NOASSERTION",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-VMAF",
       "sourceLine": 625,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-RAPIER",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "Rapier project,",
-      "purpose": "fallback-only-if-TutorPutor-neutral-simulation-contract-is-unavailable,",
-      "licenseClaim": "Apache-2.0,",
+      "owner": "Rapier project",
+      "purpose": "fallback-only-if-TutorPutor-neutral-simulation-contract-is-unavailable",
+      "licenseClaim": "Apache-2.0",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-RAPIER",
       "sourceLine": 642,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-LIVEKIT-SERVER",
-      "decision": "NOT_REQUIRED,",
+      "decision": "NOT_REQUIRED",
       "qualificationStatus": "NOT_SELECTED",
-      "owner": "LiveKit project,",
-      "purpose": "reserve-for-accepted-SFU-multiparty-requirement; not-installed,",
-      "licenseClaim": "Apache-2.0,",
+      "owner": "LiveKit project",
+      "purpose": "reserve-for-accepted-SFU-multiparty-requirement; not-installed",
+      "licenseClaim": "Apache-2.0",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-LIVEKIT-SERVER",
       "sourceLine": 657,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-ONNX-RUNTIME",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "ONNX Runtime project; AI Inference or specialized provider owner,",
-      "purpose": "general-ONNX-model-execution-outside-a-new-Media-router,",
-      "licenseClaim": "MIT,",
+      "owner": "ONNX Runtime project; AI Inference or specialized provider owner",
+      "purpose": "general-ONNX-model-execution-outside-a-new-Media-router",
+      "licenseClaim": "MIT",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-ONNX-RUNTIME",
       "sourceLine": 672,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-SVT-AV1",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "SVT-AV1 project,",
-      "purpose": "preferred-AV1-encoder-candidate-for-permissive-codec-profile,",
-      "licenseClaim": "BSD-3-Clause,",
+      "owner": "SVT-AV1 project",
+      "purpose": "preferred-AV1-encoder-candidate-for-permissive-codec-profile",
+      "licenseClaim": "BSD-3-Clause",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-SVT-AV1",
       "sourceLine": 687,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-DAV1D",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "VideoLAN,",
-      "purpose": "preferred-AV1-software-decoder-candidate,",
-      "licenseClaim": "BSD-2-Clause,",
+      "owner": "VideoLAN",
+      "purpose": "preferred-AV1-software-decoder-candidate",
+      "licenseClaim": "BSD-2-Clause",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-DAV1D",
       "sourceLine": 702,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-LIBVPX",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "libvpx project,",
-      "purpose": "accepted-VP8-VP9-interoperability-profiles-only,",
-      "licenseClaim": "BSD-3-Clause,",
+      "owner": "libvpx project",
+      "purpose": "accepted-VP8-VP9-interoperability-profiles-only",
+      "licenseClaim": "BSD-3-Clause",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-LIBVPX",
       "sourceLine": 717,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-LIBOPUS",
-      "decision": "SELECTED,",
+      "decision": "SELECTED",
       "qualificationStatus": "SELECTED_NOT_QUALIFIED",
-      "owner": "Opus Codec project,",
-      "purpose": "preferred-speech-realtime-audio-codec-candidate,",
-      "licenseClaim": "BSD-3-Clause,",
+      "owner": "Opus Codec project",
+      "purpose": "preferred-speech-realtime-audio-codec-candidate",
+      "licenseClaim": "BSD-3-Clause",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-LIBOPUS",
       "sourceLine": 732,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-OPENCV",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "OpenCV project,",
-      "purpose": "demonstrated-CV-or-frame-processing-gaps-only,",
-      "licenseClaim": "Apache-2.0,",
+      "owner": "OpenCV project",
+      "purpose": "demonstrated-CV-or-frame-processing-gaps-only",
+      "licenseClaim": "Apache-2.0",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-OPENCV",
       "sourceLine": 747,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-WHISPER-CPP",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "whisper.cpp project,",
-      "purpose": "retain-existing-fit; do-not-add-duplicate-STT-engine,",
-      "licenseClaim": "MIT,",
+      "owner": "whisper.cpp project",
+      "purpose": "retain-existing-fit; do-not-add-duplicate-STT-engine",
+      "licenseClaim": "MIT",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-WHISPER-CPP",
       "sourceLine": 762,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-SHERPA-ONNX",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "sherpa-onnx project,",
-      "purpose": "reserve-for-verified-streaming-speech-capability-gaps,",
-      "licenseClaim": "Apache-2.0,",
+      "owner": "sherpa-onnx project",
+      "purpose": "reserve-for-verified-streaming-speech-capability-gaps",
+      "licenseClaim": "Apache-2.0",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-SHERPA-ONNX",
       "sourceLine": 777,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-DIFFUSERS",
-      "decision": "CONDITIONAL,",
+      "decision": "CONDITIONAL",
       "qualificationStatus": "CONDITIONAL_NOT_QUALIFIED",
-      "owner": "Hugging Face Diffusers project,",
-      "purpose": "generative-pipeline-integration-only-at-owning-provider-boundary,",
-      "licenseClaim": "Apache-2.0,",
+      "owner": "Hugging Face Diffusers project",
+      "purpose": "generative-pipeline-integration-only-at-owning-provider-boundary",
+      "licenseClaim": "Apache-2.0",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-DIFFUSERS",
       "sourceLine": 792,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
     },
     {
       "id": "TECH-FFMPEG",
-      "decision": "REJECTED,",
+      "decision": "REJECTED",
       "qualificationStatus": "REJECTED",
-      "owner": "FFmpeg project,",
-      "purpose": "core-bundled-media-framework-rejected-under-permissive-only-policy,",
-      "licenseClaim": "NOASSERTION,",
+      "owner": "FFmpeg project",
+      "purpose": "core-bundled-media-framework-rejected-under-permissive-only-policy",
+      "licenseClaim": "NOASSERTION",
       "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/TECH-FFMPEG",
       "sourceLine": 807,
       "authority": "PDP0_OWNER_ARCHITECTURE_SELECTION_NOT_ARTIFACT_ADMISSION"
@@ -2141,7 +2141,9 @@
         "REVIEW:B13-03"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Declarative specification and creative orchestration",
+      "sourceLine": 323
     },
     {
       "domainId": "CAP",
@@ -2150,7 +2152,9 @@
         "REVIEW:B13-02"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Capture, software demonstrations and live sources",
+      "sourceLine": 348
     },
     {
       "domainId": "ASSET",
@@ -2164,7 +2168,9 @@
         "REVIEW:MIG-30"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Assets, library and project organization",
+      "sourceLine": 381
     },
     {
       "domainId": "EDIT",
@@ -2182,7 +2188,9 @@
         "REVIEW:MIG-31"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Professional multitrack timeline and manual editing",
+      "sourceLine": 405
     },
     {
       "domainId": "COLOR",
@@ -2195,7 +2203,9 @@
         "REVIEW:MIG-05"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Color management and professional picture finishing",
+      "sourceLine": 438
     },
     {
       "domainId": "ASR",
@@ -2213,7 +2223,9 @@
         "HIST:HIST-007"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Speech recognition, dictation and understanding",
+      "sourceLine": 460
     },
     {
       "domainId": "TTS",
@@ -2230,7 +2242,9 @@
         "HIST:HIST-004"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Speech synthesis and expressive voice production",
+      "sourceLine": 485
     },
     {
       "domainId": "CLONE",
@@ -2246,7 +2260,9 @@
         "HIST:HIST-001"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Rights-governed voice identity, cloning and watermark",
+      "sourceLine": 514
     },
     {
       "domainId": "DUB",
@@ -2263,7 +2279,9 @@
         "HIST:HIST-008"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Multilingual localization and speaker-consistent dubbing",
+      "sourceLine": 536
     },
     {
       "domainId": "DSP",
@@ -2276,7 +2294,9 @@
         "REVIEW:MIG-24"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Audio editing, DSP, cleanup and spatial sound",
+      "sourceLine": 558
     },
     {
       "domainId": "MUSIC",
@@ -2286,7 +2306,9 @@
         "REVIEW:B13-27"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Music and sound-effect creation/selection",
+      "sourceLine": 583
     },
     {
       "domainId": "GEN",
@@ -2306,7 +2328,9 @@
         "REVIEW:MIG-21"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Image/video multimodal generative studio",
+      "sourceLine": 603
     },
     {
       "domainId": "VISION",
@@ -2320,7 +2344,9 @@
         "R9:vision-yolox-nano-onnx"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Video intelligence, spatial analysis and auto-composition",
+      "sourceLine": 636
     },
     {
       "domainId": "MOTION",
@@ -2338,7 +2364,9 @@
         "REVIEW:MIG-12"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Motion graphics, graphics, 3D and interactive animation",
+      "sourceLine": 659
     },
     {
       "domainId": "DIRECT",
@@ -2351,7 +2379,9 @@
         "REVIEW:B13-07"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Agent-driven creative direction and automated editing",
+      "sourceLine": 680
     },
     {
       "domainId": "SOCIAL",
@@ -2364,7 +2394,9 @@
         "REVIEW:B13-07"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Marketing, creator distribution and derivative formats",
+      "sourceLine": 706
     },
     {
       "domainId": "INTER",
@@ -2380,7 +2412,9 @@
         "REVIEW:MIG-11"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Interactive video, education and access",
+      "sourceLine": 725
     },
     {
       "domainId": "COLLAB",
@@ -2389,7 +2423,9 @@
         "P0:TECH-GHATANA-SHARED-FOUNDATIONS"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Collaborative editing, approval and organizational workflows",
+      "sourceLine": 741
     },
     {
       "domainId": "DELIV",
@@ -2409,7 +2445,9 @@
         "REVIEW:MIG-28"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Rendering, encoding, packaging, and media interoperability",
+      "sourceLine": 759
     },
     {
       "domainId": "QA",
@@ -2420,7 +2458,9 @@
         "REVIEW:B3-23"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Professional media quality evaluation and acceptance",
+      "sourceLine": 788
     },
     {
       "domainId": "TRUST",
@@ -2431,7 +2471,9 @@
         "HIST:HIST-009"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Rights, provenance, identity, privacy and responsible media",
+      "sourceLine": 810
     },
     {
       "domainId": "OPS",
@@ -2445,7 +2487,9 @@
         "REVIEW:MIG-21"
       ],
       "governingSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#12.4",
-      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY"
+      "policy": "SOURCE_CANDIDATES_ONLY_CANONICAL_MEDIA_PDP_AND_OWNERSHIP_APPLY",
+      "title": "Local-first model/resource management and runtime operations",
+      "sourceLine": 834
     }
   ],
   "historicalArchitectureDecisions": [

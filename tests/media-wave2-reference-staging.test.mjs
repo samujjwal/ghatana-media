@@ -22,6 +22,22 @@ test('source download exact digest can stage review-only bytes in private direct
   assert.equal(JSON.parse(readFileSync(join(result.folder,'SOURCE-RECEIPT.json'))).status,
     'BYTE_INTEGRITY_VERIFIED_ONLY_RIGHTS_NOT_ADMITTED');
 }));
+test('transparent content decoding does not compare decoded bytes with encoded Content-Length',async()=>withTmp(async folder=>{
+  const encodedLength=Math.max(1,bytes.length-3);
+  const encodedResponse={...response(),headers:new Headers({
+    'content-length':String(encodedLength),'content-encoding':'gzip'})};
+  const result=await stagePinnedCandidate({id:candidate.id,destination:folder,catalog,
+    fetcher:async()=>encodedResponse});
+  assert.equal(result.sha256,digest);
+  assert.equal(readFileSync(join(result.folder,'verified-source.onnx')).toString(),bytes.toString());
+}));
+test('identity-encoded truncated transfer remains rejected',async()=>withTmp(async folder=>{
+  const truncated=response();
+  truncated.headers=new Headers({'content-length':String(bytes.length+1)});
+  await assert.rejects(stagePinnedCandidate({id:candidate.id,destination:folder,catalog,
+    fetcher:async()=>truncated}),/MODEL_TRUNCATED_TRANSFER/);
+  assert.deepEqual(readdirSync(folder),[]);
+}));
 test('wrong artifact digest cannot publish a staged model',async()=>withTmp(async folder=>{
   await assert.rejects(stagePinnedCandidate({id:candidate.id,destination:folder,catalog,fetcher:async()=>response(Buffer.from('wrong'))}),/MODEL_SOURCE_DIGEST_MISMATCH/);
   assert.deepEqual(readdirSync(folder),[]);

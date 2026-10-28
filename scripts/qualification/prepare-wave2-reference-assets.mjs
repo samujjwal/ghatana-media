@@ -12,6 +12,7 @@ const shaPattern = /^[0-9a-f]{64}$/u;
 const acceptedHosts = ['openaipublic.azureedge.net','huggingface.co','raw.githubusercontent.com'];
 const allowedFinalHosts = ['openaipublic.azureedge.net','huggingface.co','raw.githubusercontent.com',
     'cdn-lfs.huggingface.co','cdn-lfs-us-1.hf.co','cas-bridge.xethub.hf.co'];
+const allowedHuggingFaceStorageHost = host => host.endsWith('.aws.cdn.hf.co') && host.length < 100;
 function error(code) {const e=new Error(code);e.code=code;return e;}
 const isInRepo = target => {const r=relative(repoRoot,target);return r==='' || (!r.startsWith('..'+sep)&&r!=='..'&&!isAbsolute(r));};
 function checkDestination(destination) {
@@ -46,9 +47,10 @@ export async function stagePinnedCandidate({id, destination, fetcher=fetch, cata
     if(!response?.ok || !response.body)throw error('MODEL_DOWNLOAD_UNAVAILABLE');
     const finalUrl=new URL(response.url||url.toString());
     const host=finalUrl.hostname;
-    if(finalUrl.protocol!=='https:' || (!allowedFinalHosts.includes(host)
+    if(finalUrl.protocol!=='https:' || (!allowedFinalHosts.includes(host) && !allowedHuggingFaceStorageHost(host)
       && !(host.endsWith('.xethub.hf.co') && host.length<100)))throw error('MODEL_REDIRECT_NOT_ALLOWLISTED');
     const lenHeader=response.headers?.get('content-length');
+    const contentEncoding=response.headers?.get('content-encoding');
     if(lenHeader && (!/^\d+$/u.test(lenHeader) || Number(lenHeader)>candidate.maxBytes))
       throw error('MODEL_DOWNLOAD_OVERSIZE');
     handle=await open(temp,'wx',0o600);
@@ -61,7 +63,10 @@ export async function stagePinnedCandidate({id, destination, fetcher=fetch, cata
     }
     const digest=hash.digest('hex');
     if(size===0 || digest!==candidate.artifactSha256)throw error('MODEL_SOURCE_DIGEST_MISMATCH');
-    if(lenHeader && size!==Number(lenHeader))throw error('MODEL_TRUNCATED_TRANSFER');
+    // Fetch implementations may transparently decompress a gzip/br response body while
+    // retaining the wire Content-Length header. The pinned digest and streamed byte cap
+    // validate the decoded artifact; compare lengths only for identity-encoded bodies.
+    if(lenHeader && !contentEncoding && size!==Number(lenHeader))throw error('MODEL_TRUNCATED_TRANSFER');
     await handle.sync();await handle.close();handle=null;
     const extension=extname(url.pathname) || '.bin';
     const finalName='verified-source'+extension;

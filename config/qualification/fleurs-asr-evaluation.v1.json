@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "METADATA_ONLY_NOT_FROZEN",
+  "dataset": {
+    "name": "google/fleurs",
+    "sourceRevision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+    "license": "CC-BY-4.0",
+    "sourceUrl": "https://huggingface.co/datasets/google/fleurs/tree/70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "evaluationScope": "ASR evaluation only; no human identity or biometric claim",
+    "locales": {
+      "eng": { "datasetConfig": "en_us", "speakerDisjointSplitEvidence": "FLEURS dataset card states train speakers differ from dev/test speakers." },
+      "hin": { "datasetConfig": "hi_in", "speakerDisjointSplitEvidence": "FLEURS dataset card states train speakers differ from dev/test speakers." },
+      "npi": { "datasetConfig": "ne_np", "speakerDisjointSplitEvidence": "FLEURS dataset card states train speakers differ from dev/test speakers." }
+    }
+  },
+  "selectionLimits": {
+    "maxClipsPerLocale": 24,
+    "maxDurationSecondsPerClip": 30,
+    "maxTotalDownloadBytes": 125829120,
+    "downloadPolicy": "selected clips only; no split/archive download"
+  },
+  "metricProtocol": {
+    "status": "PLUMBING_ONLY_THRESHOLDS_UNSPECIFIED",
+    "wer": "word edit distance divided by reference word count; NFC, lowercase, trim/collapse whitespace; punctuation preserved",
+    "cer": "Unicode codepoint edit distance divided by reference codepoint count; NFC, lowercase; whitespace and punctuation preserved",
+    "thresholds": null,
+    "confidenceIntervals": null
+  },
+  "selection": {
+    "holdoutSplit": "dev",
+    "trainingSplit": "train",
+    "sourceMetadataObservation": "Pinned-revision TSV rows provide row id, filename, transcript, normalized transcript, character form, num_samples, and gender; at 16 kHz, duration can be derived as num_samples/16000. They do not provide a speaker identifier or per-audio digest. The dataset-server first-rows endpoint returned HTTP 500/501 during preparation. Audio is stored in split-level tar.gz archives, so obtaining per-clip hashes requires selected audio extraction; no archive or audio was downloaded. No row is selected until exact clip digest and speaker identity/source reference can be recorded.",
+    "clips": []
+  }
+}
