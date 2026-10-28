@@ -2233,3 +2233,22 @@ Independent Luna review approved the additive schema and package-private readbac
 The separate TTS-06 policy test change in commit `5834dbecbabe34ca01760ad7ef79b34260382142` adds cases showing that well-formed bounded prosody/IPA is parsed and returned as typed `NOT_ADMITTED`, while malformed units and out-of-range controls remain invalid requests. The JUnit report records **11 tests, 0 failures, 0 errors, 0 skips**. No provider control effect was added or qualified, so **TTS-06 remains PARTIAL**.
 
 The ledger remains **58 = 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**. All 36 open rows remain `taskAccepted=false`; the owner-external rows remain STT-12, TTS-07, TTS-12, VIS-02, VIS-12, and MM-12. The plan integrity check passed **7/7**, repository hygiene passed **19/19**, and the schedule JSON and `git diff --check` passed. No owner/provider rights evidence, formal PDP/gtool acceptance, lifecycle closure, deployment, cutover, or release is inferred.
+
+### R7 bounded STT request-snapshot follow-up — 2026-10-27
+
+**Media implementation cut:** `f88a9c3bf5d967c6d4ce1652e023748c39d74311`, based on `a799b2599889d860118ce084c76fbf67f9f5d704`. The additive `V023__media_stt_request_snapshot.sql` migration stores a nullable, versioned `media.stt-request-snapshot.v1` containing only the exact optional `customGlossaryRef` (up to 384 Unicode code points) and presence-preserving `fillerRetakeCandidates` Boolean. Caller-supplied nulls, wrong types, blank or oversized refs are rejected before persistence. New STT jobs require a snapshot; non-STT jobs cannot carry one. The job and outbox write remains atomic.
+
+The snapshot is passed through the internal `MediaJobStore.create(job, digest, snapshot)` path and is absent from `ProcessingJob`, job read APIs, and `MediaJobView`. Transcript candidate binding reads it under the existing job/attempt locks and checks tenant, principal, job type, provider, source, attempt fingerprint, result digest, and fencing token. A legacy NULL snapshot means unknown and fails closed. Stored JSON is capped at 4 KiB before parsing, then checked for the exact versioned shape and types. `APPLIED` must name the exact requested glossary; `NOT_REQUESTED` must have no glossary reference. Filler observations remain rejected until their request-relative and source-time rules can be enforced.
+
+On macOS ARM64 with Temurin 27.0.1.0.2, the combined focused Gradle run passed **19/19 tests, 0 failures, 0 errors, 0 skips** with PostgreSQL and LocalStack Testcontainers:
+
+| Selector | Result |
+| --- | --- |
+| `:services:media:runtime-contracts:test --tests 'com.ghatana.media.runtime.SttSubmissionSnapshotTest'` | **2/2** |
+| `:services:media:providers:aws-postgresql:test --tests 'com.ghatana.media.provider.aws.MediaAwsPostgresqlRuntimeStateTest' --tests 'com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest'` | **17/17** |
+
+The record checks passed after the update: Wave 2 plan integrity **7/7**, repository hygiene **19/19**, schedule JSON parse, and `git diff --check`.
+
+Coverage includes absent versus explicit false/true, exact glossary preservation, invalid type/null/size rejection, snapshot persistence with the job/outbox, tenant isolation, exact/mismatched glossary observation, malformed and oversized persisted snapshots, legacy-unknown rejection, CAS/idempotency, and readback after runtime-state recreation. Independent Luna review approved the persistence boundary, validation and fail-closed behavior after two review iterations.
+
+The runtime still rejects STT before job creation because rights/consent authority and qualified provider/result-readback gates are unavailable. The owner reported that no approved rights/consent, model/license/corpus, Data Cloud/Document Intelligence API, or trusted worker-isolation evidence is available yet. The existing generic request fingerprint remains `media.job-request-fingerprint.v1`; the PDP `media.transcription-submission-fingerprint.v4` is not implemented or admitted as a distinct canonical STT path. This increment supports Phase C only: **STT-04, STT-08, and STT-09 remain PARTIAL; no task was promoted or accepted.** The aggregate remains **58 = 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**, with all 36 open rows unaccepted.

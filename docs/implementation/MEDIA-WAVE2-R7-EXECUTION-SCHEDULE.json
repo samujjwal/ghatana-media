@@ -2790,5 +2790,59 @@
     },
     "nextLocalWork": "Persist a bounded exact accepted request snapshot atomically with the canonical job/attempt, with legacy rows remaining unknown, then enforce presence-sensitive glossary and filler request/result invariants. STT dispatch, owner/provider rights, an admitted model and authorized result readback remain separately required.",
     "claims": "Fixture-backed candidate persistence and focused control-policy boundary evidence only. No row-wide acceptance, real provider effect, owner approval, external rights, formal PDP/gtool status, closure, cutover, deployment or release is established."
+  },
+  "postR7SttRequestSnapshot": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "f88a9c3bf5d967c6d4ce1652e023748c39d74311",
+      "baseCommit": "a799b2599889d860118ce084c76fbf67f9f5d704"
+    },
+    "implementation": {
+      "commit": "f88a9c3bf5d967c6d4ce1652e023748c39d74311",
+      "taskSupport": ["STT-04", "STT-08", "STT-09"],
+      "changedFiles": [
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+        "runtime-contracts/src/test/java/com/ghatana/media/runtime/SttSubmissionSnapshotTest.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaTranscriptStore.java",
+        "providers/aws-postgresql/src/main/resources/db/media-runtime/V023__media_stt_request_snapshot.sql",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/PostgresqlMediaTranscriptStoreTest.java"
+      ],
+      "summary": "Adds an additive nullable V023 column and a bounded versioned STT request snapshot for exact customGlossaryRef and presence-preserving fillerRetakeCandidates. Snapshot persists atomically with the accepted job/outbox through an internal MediaJobStore overload, stays out of ProcessingJob and public job read APIs, and is read only by fenced transcript-attempt binding. New STT jobs require a snapshot; non-STT jobs reject one. Legacy NULL means unknown and fails closed. Transcript binding verifies SPEECH_TO_TEXT job type, tenant/principal/source/provider/attempt fingerprint/result digest/fence, exact APPLIED glossary ref or NOT_REQUESTED omission, strict snapshot shape/types, and 4 KiB raw JSON ceiling before parsing. Filler observations remain rejected pending source-time validation.",
+      "independentReview": "Luna approved after review fixes for contradictory NOT_REQUESTED refs, strict bounded persisted JSON validation, canonical SPEECH_TO_TEXT fixture values, and job-type fencing."
+    },
+    "verification": {
+      "command": "env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:runtime-contracts:test --tests 'com.ghatana.media.runtime.SttSubmissionSnapshotTest' :services:media:providers:aws-postgresql:test --tests 'com.ghatana.media.provider.aws.MediaAwsPostgresqlRuntimeStateTest' --tests 'com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest' --no-build-cache --no-parallel --max-workers=2 --console=plain",
+      "runtime": "macOS ARM64, Temurin 27.0.1.0.2, PostgreSQL and LocalStack Testcontainers",
+      "junitXml": [
+        "runtime-contracts/build/test-results/test/TEST-com.ghatana.media.runtime.SttSubmissionSnapshotTest.xml",
+        "providers/aws-postgresql/build/test-results/test/TEST-com.ghatana.media.provider.aws.MediaAwsPostgresqlRuntimeStateTest.xml",
+        "providers/aws-postgresql/build/test-results/test/TEST-com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest.xml"
+      ],
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "gradleResult": "BUILD SUCCESSFUL",
+      "gitDiffCheck": "PASS",
+      "recordValidation": {
+        "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+        "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
+        "scheduleJson": "PASS"
+      }
+    },
+    "ownerEvidenceResponse": "Owner reported no approved rights/consent, model/license/corpus, Data Cloud/Document Intelligence API, or trusted worker-isolation evidence available yet.",
+    "disposition": {
+      "STT-04": "PARTIAL",
+      "STT-08": "PARTIAL",
+      "STT-09": "PARTIAL",
+      "rowsPromoted": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "currentCounts": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "limitations": "STT submit remains NOT_ADMITTED before job creation, so the canonical submit-to-provider path and authorized result readback are not proven. The generic media.job-request-fingerprint.v1 remains; media.transcription-submission-fingerprint.v4 is not separately implemented or admitted. No owner rights, provider/license/model quality, source-clock, formal lifecycle acceptance, closure, cutover, deployment, or release is established.",
+    "nextWork": "Continue Phase C only after owner/source rights and qualified provider inputs permit canonical STT admission; then verify an authorized result through durable attempt/outbox and principal-scoped readback after process restart. Keep the 58-row denominator and all six owner/external gates open."
   }
 }
