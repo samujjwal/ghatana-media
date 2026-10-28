@@ -169,6 +169,68 @@ class SttAudioInputDecoderTest {
     }
 
     @Test
+    void rejectsDeclaredCompressedFormatWhenBytesDoNotSniffAsThatContainer() {
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(
+                new byte[44], AudioFormat.MP3, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
+                });
+
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(
+                pcmWav(16_000, 1, 16, new byte[] {1, 2}), AudioFormat.MP3, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
+                });
+
+        assertThatThrownBy(() -> SttAudioInputDecoder.inspectDuration(
+                new byte[44], AudioFormat.MP3, 16_000, 300))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
+                });
+
+        assertThatThrownBy(() -> SttAudioInputDecoder.inspectDuration(
+                pcmWav(16_000, 1, 16, new byte[] {1, 2}), AudioFormat.MP3, 16_000, 300))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
+                });
+
+        byte[] mp3 = new byte[44];
+        mp3[0] = (byte) 0xff;
+        mp3[1] = (byte) 0xfb;
+        for (byte[] mismatched : new byte[][] {
+                pcmWav(16_000, 1, 16, new byte[] {1, 2}), mp3
+        }) {
+            assertThatThrownBy(() -> SttAudioInputDecoder.decode(mismatched, AudioFormat.AAC, 16_000))
+                    .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                        assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                        assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
+                    });
+            assertThatThrownBy(() -> SttAudioInputDecoder.inspectDuration(
+                    mismatched, AudioFormat.AAC, 16_000, 300))
+                    .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                        assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                        assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
+                    });
+        }
+
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(new byte[44], AudioFormat.AAC, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.NOT_ADMITTED);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_FORMAT_NOT_ADMITTED");
+                });
+        assertThatThrownBy(() -> SttAudioInputDecoder.inspectDuration(
+                new byte[44], AudioFormat.AAC, 16_000, 300))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.NOT_ADMITTED);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_FORMAT_NOT_ADMITTED");
+                });
+    }
+
+    @Test
     void rejectsContainerSampleRateMismatchAndUnsupportedChannelOrSampleShapes() {
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
                 pcmWav(16_000, 1, 16, new byte[] {1, 2}), AudioFormat.WAV, 48_000))

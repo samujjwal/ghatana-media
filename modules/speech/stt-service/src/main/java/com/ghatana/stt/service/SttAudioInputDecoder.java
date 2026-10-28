@@ -87,6 +87,12 @@ public final class SttAudioInputDecoder {
         }
 
         String format = declaredFormat == null ? detected : declaredFormat.name();
+        if (declaredFormat != null && isCompressedFormat(declaredFormat)
+                && !declaredFormat.name().equals(detected)
+                && (!"UNKNOWN".equals(detected) || requiresSniffedSignature(declaredFormat))) {
+            throw invalid("STT_AUDIO_INVALID_HEADER: declared " + declaredFormat
+                    + " does not match the detected audio container");
+        }
         if ("FLAC".equalsIgnoreCase(format)) validateFlacStreamInfoHeader(input);
         if ("UNKNOWN".equals(format)) throw invalid("STT_AUDIO_INVALID_HEADER: unable to identify audio container");
         throw new InputException(FailureKind.NOT_ADMITTED,
@@ -141,6 +147,12 @@ public final class SttAudioInputDecoder {
         }
 
         String format = declaredFormat == null ? detected : declaredFormat.name();
+        if (declaredFormat != null && isCompressedFormat(declaredFormat)
+                && !declaredFormat.name().equals(detected)
+                && (!"UNKNOWN".equals(detected) || requiresSniffedSignature(declaredFormat))) {
+            throw invalid("STT_AUDIO_INVALID_HEADER: declared " + declaredFormat
+                    + " does not match the detected audio container");
+        }
         if ("UNKNOWN".equals(format)) {
             throw invalid("STT_AUDIO_INVALID_HEADER: unable to identify audio container");
         }
@@ -261,6 +273,17 @@ public final class SttAudioInputDecoder {
     private static boolean startsWithRiff(byte[] bytes) {
         return bytes.length >= 4 && bytes[0] == 'R' && bytes[1] == 'I'
                 && bytes[2] == 'F' && bytes[3] == 'F';
+    }
+
+    private static boolean isCompressedFormat(AudioFormat format) {
+        return format == AudioFormat.MP3 || format == AudioFormat.OGG
+                || format == AudioFormat.FLAC || format == AudioFormat.AAC;
+    }
+
+    private static boolean requiresSniffedSignature(AudioFormat format) {
+        // AAC has no magic signature in the common detector (ADTS and MP4 AAC
+        // require separate parsers); retain NOT_ADMITTED for unidentifiable AAC bytes.
+        return format != AudioFormat.AAC;
     }
 
     private static InputException invalid(String message) {
