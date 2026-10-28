@@ -2335,3 +2335,23 @@ JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Con
 ```
 
 The three default Vision skips are the existing opt-in native-bounded cases; the separate FFmpeg/FFprobe fixture run recorded earlier passed 56/56. These tests validate fixture process cleanup, not hard per-worker CPU/RSS/PID or aggregate scratch enforcement. No task was promoted: STT-04 and VIS-10 remain PARTIAL pending their independent source/authority and qualification requirements, and the aggregate stays **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL**.
+
+### R7 STT-08/09 durable-boundary increments and STT-05 review — 2026-10-28
+
+At code cut `8533cb02`, STT-08 enforces PDP-1's `transcriptResponse.transcriptText.maxLength: 1000000` using Unicode code-point counting before database work on both candidate append paths. The provider-result projection retains the same bound. A PostgreSQL 16 / LocalStack 3.8 Testcontainers run passed **17/17** in `PostgresqlMediaTranscriptStoreTest`, including the exact one-million-code-point emoji boundary, overflow with no revision, existing CAS/concurrent-writer checks, and runtime-state recreation/readback. Fixtures are synthetic `CANDIDATE` drafts and do not establish rights authority or a real provider result.
+
+```sh
+env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:providers:aws-postgresql:test --tests com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+STT-09 now refuses to reverse-map a shared canonical job unless `jobType` is exactly `media.transcribe`, before consulting adapter metadata or generic status. This prevents a foreign job from being projected into an STT lifecycle state. Two regressions cover a foreign job carrying a forged `mediaCanonicalState` marker and a foreign legacy record without one. The focused `AvJobLifecycleAdapterTest` passed **13/13** on macOS ARM64 / Temurin 27.0.1.0.2; an independent Luna review confirmed compatibility with Shared's unconstrained string `CanonicalJobRecord.jobType` contract.
+
+```sh
+env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.job.AvJobLifecycleAdapterTest' --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+The STT-05 review found no remaining safe validator-only change: sequence/session mode, bounds, monotonic timestamp, overflow, and rejected-state immutability are already covered. `StreamTranscribe` still fails closed before session creation because the durable session store, ACK/resume epoch, provider session, and trusted per-stream purpose/consent composition are absent; reconnect, VAD, backpressure, cancellation, and finality remain incomplete.
+
+These increments improve isolated persistence and projection boundaries only. **STT-08, STT-09, and STT-05 remain PARTIAL** because canonical source/rights admission, actual authorized provider result readback, and end-to-end streaming are not established. No row was promoted; all 36 open rows remain unaccepted.
+
+An independent Luna current-cut reread at `8533cb023a60833d92c37179f294c3ff09e64d44` reconfirmed that the Markdown inventory and schedule contain the same **58 unique task IDs**, with no missing or duplicate rows. The partition remains **22 locally verified / 30 partial / 6 owner-external**; every one of the 36 open rows remains `taskAccepted=false`. The STT-08/09 increments do not satisfy their remaining row-level acceptance criteria.

@@ -3905,5 +3905,51 @@
       "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
     },
     "claim": "Complete current affected service module suites passed; the three Vision native skips and all owner/provider acceptance gates remain separate."
+  },
+  "postR7Oct28Stt08Stt09AndStt05Review": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {"media": "8533cb023a60833d92c37179f294c3ff09e64d44", "branch": "main"},
+    "STT-08": {
+      "change": "PostgresqlMediaTranscriptStore enforces the PDP-1 transcriptResponse.transcriptText maxLength 1000000 in Unicode code points before database work on append and appendFromSuccessfulAttempt; provider projection retains the same limit.",
+      "test": {"PostgresqlMediaTranscriptStoreTest": 17, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "environment": "Temurin 27.0.1.0.2, PostgreSQL 16 and LocalStack 3.8 Testcontainers",
+      "coverage": "Exact 1,000,000 supplementary-code-point candidate, 1,000,001 overflow/no revision, CAS/concurrent writer and runtime-state recreation/readback. Synthetic candidate fixture only.",
+      "disposition": "PARTIAL",
+      "remaining": "Authorized source/version and rights binding, runtime integration, qualified provider output, and authorized durable result readback remain absent."
+    },
+    "STT-09": {
+      "change": "AvJobLifecycleAdapter.fromCanonical now accepts only jobType media.transcribe before reading adapter metadata or generic status, preventing cross-service canonical-job projection.",
+      "test": {"AvJobLifecycleAdapterTest": 13, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS", "freshlyExecuted": true},
+      "independentReview": "Luna confirmed Shared CanonicalJobRecord.jobType is an unconstrained string, media.transcribe is the unchanged emitted value, and both foreign-marker and legacy foreign-job cases are covered.",
+      "disposition": "PARTIAL",
+      "remaining": "No STT-specific submit/attempt/reconcile binding, provider receipt, or post-crash authorized result readback is wired."
+    },
+    "STT-05": {
+      "review": "No safe validator-only gap found: session/sequence mode, bounded chunks/duration, sample-rate and timestamp bounds, overflow, and rejected-state nonmutation are covered.",
+      "remaining": "StreamTranscribe fails closed before session creation; durable session store, ACK/resume epoch, trusted per-stream authority, provider stream, VAD, backpressure, cancellation, reconnect, and finality remain incomplete."
+    },
+    "currentCutAudit": {
+      "media": "8533cb023a60833d92c37179f294c3ff09e64d44",
+      "reviewer": "Independent Luna current-cut audit",
+      "markdownTaskRows": 58,
+      "scheduleRows": 58,
+      "uniqueIds": 58,
+      "missingOrDuplicateIds": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "aggregate": {"locallyVerified": 22, "partial": 30, "ownerExternal": 6},
+      "STT-08": "PARTIAL",
+      "STT-09": "PARTIAL",
+      "rowsPromoted": 0,
+      "result": "PASS"
+    },
+    "disposition": {
+      "rowsPromoted": 0,
+      "STT-05": "PARTIAL",
+      "STT-08": "PARTIAL",
+      "STT-09": "PARTIAL",
+      "all36OpenRowsTaskAccepted": false,
+      "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "claim": "Local persistence bounds and cross-service job projection are stronger and verified, but no STT task is complete or accepted without its remaining canonical bindings and authorized provider evidence."
   }
 }
