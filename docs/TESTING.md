@@ -4,6 +4,17 @@
 
 > This guide describes test practices and does not report current PDP status or product meaning. Consult the [PDP source index](../.product-experience/README.md) for phase-owned definitions and live source-pinned status. No Media application has been released.
 
+## Candidate decision/source currentness
+
+Before a model, engine, editor, recorder, generator, animation or simulation candidate is selected/changed, inspect the [consolidated Media decision record](implementation/MEDIA-CANDIDATE-DECISIONS-CONSOLIDATED-2026-10-28.md) and preserve the original PDP-0 choice, the research-only alternative, the exact R9 reference asset and any supersession reason as separate statuses. The source index covers all 22 Media capability families and records source SHA/lineage without admitting binaries, rights or workloads.
+
+```bash
+pnpm check:candidate-decision-crosswalk
+pnpm test:candidate-decision-crosswalk
+```
+
+These checks intentionally fail on changed source selections or lost researched candidates; reconcile the source first, then refresh the read-only index under owner review. They do not execute or approve any model.
+
 ## Next five-surface backend conformance (implementation Wave 2)
 
 See [the five-modality/observability execution plan](implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md) for exact STT/TTS/Vision/Multimodal/observability module test commands, 43 RPCs, 99 PDP-0 capability memberships and 12 real/fault/quality scenarios. For source-only plan parity, run `pnpm test:backend-modality-wave2-plan`. Gradle in-process module tests and deterministic negative assertions run independently of the external Docker Compose images.
