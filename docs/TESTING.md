@@ -1,5 +1,8 @@
 # Media testing
 
+> **Native G06 execution:** [One active Wave 2 implementation/test plan](implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md). On the trusted Docker Desktop ARM64 host run `bash scripts/qualification/run-wave2-vision-oci-checks.sh stub` (real OOM/PID + fixture) and separately `bash scripts/qualification/run-wave2-vision-oci-checks.sh real "$MEDIA_LINUX_CODECS_DIR"` (genuine pinned FFmpeg). They must never share the same worker-image variable in one JVM; these tests are committed but not yet executed on the current source cut. No real-model rights or VIS-03 task acceptance is inferred from an image build.
+
+
 **Media-only implementation decision (2026-10-24):** Run all new Media runtime/contract/provider/security/messaging tests from this repository's standalone Gradle build. Legacy `ghatana/services/media` source and tests are read-only comparison inputs; they do not prove current Media implementation. Do not run both runtimes/migration runners against one database or outbox. Local source composites may consume separate platform public APIs. All legacy-only tests must be reconciled into Media under M01–M06 before claiming full backend readiness.
 
 > This guide describes test practices and does not report current PDP status or product meaning. Consult the [PDP source index](../.product-experience/README.md) for phase-owned definitions and live source-pinned status. No Media application has been released.
