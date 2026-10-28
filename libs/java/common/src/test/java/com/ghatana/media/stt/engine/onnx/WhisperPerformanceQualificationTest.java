@@ -46,7 +46,9 @@ class WhisperPerformanceQualificationTest {
     private static final int MEASURED_REQUESTS_PER_LEVEL = 64;
     private static final long DEFAULT_TIMEOUT_SECONDS = 900;
     private static final long MAX_TIMEOUT_SECONDS = 1800;
-    private static final long START_BARRIER_TIMEOUT_SECONDS = 30;
+    // Linux ARM64 containers can be heavily CPU-constrained while bringing up 64 virtual workers.
+    // Keep the barrier bounded, but allow the coordinator to be rescheduled before workers time out.
+    private static final long START_BARRIER_TIMEOUT_SECONDS = 120;
     private static final String INPUT_PCM_SHA256 =
             "9dfb1b2f033873cc08266bb0ffb2754a52e6c23b3c071e55969ad1c6d8af4c26";
     private static final String INPUT_WAV_SHA256 =

@@ -64,7 +64,9 @@ class PiperPerformanceQualificationTest {
     private static final long DEFAULT_TIMEOUT_SECONDS = 300;
     private static final long MAX_TIMEOUT_SECONDS = 900;
     private static final long OUTPUT_MEMORY_LIMIT_BYTES = 32L * 1024 * 1024;
-    private static final long START_BARRIER_TIMEOUT_SECONDS = 15;
+    // A CPU-capped Linux ARM64 container may reschedule the benchmark coordinator late at 64 workers.
+    // Keep startup bounded while avoiding false performance failures from that scheduling delay.
+    private static final long START_BARRIER_TIMEOUT_SECONDS = 120;
 
     @Test
     void measuresPinnedPiperCpuInferenceAtBoundedConcurrency() throws Exception {
