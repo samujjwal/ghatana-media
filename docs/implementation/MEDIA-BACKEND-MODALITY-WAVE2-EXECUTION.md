@@ -2197,3 +2197,19 @@ JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Con
 ```
 
 Result: **9 tests, 0 failures, 0 errors, 0 skips** with PostgreSQL and LocalStack Testcontainers. This proves in-process runtime-state reconstruction and candidate database readback; it does not simulate an OS process or host restart, provider dispatch, production eligibility, or authorized final-result readback. **STT-08 remains PARTIAL** and no task was promoted. The aggregate remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**; all 36 open rows remain unaccepted.
+
+### R7 STT response-mapper overflow verification — 2026-10-27
+
+At Media code cut `37d2839f4afdca2c8444c9e572d916d6ab632195`, the focused `SttTranscriptionResponseMapperTest` selector passed **16/16 tests, 0 failures, 0 errors, 0 skips** on macOS ARM64 / Temurin 27.0.1.0.2. This includes the previously-added `Duration.ofSeconds(Long.MAX_VALUE)` processing-time overflow regression, source sample-count/rate bounds, nanosecond duration boundaries, ordered/non-overlapping word bounds, and explicit UNKNOWN timebase/calibration when provider provenance is absent.
+
+```sh
+env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.grpc.SttTranscriptionResponseMapperTest' --no-build-cache --no-daemon --console=plain
+```
+
+This verifies the mapper boundary slice only. **STT-06 remains PARTIAL:** the provider contract still lacks source-clock origin/provenance and calibrated alignment/confidence evidence; no model quality or task acceptance is inferred. The 58-row ledger remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**, with all 36 open rows unaccepted and no disposition promoted.
+
+### R7 MM-03 negative sample-index guard — 2026-10-27
+
+`MediaClockTimestamp.audioSamples(...)` now rejects negative sample indices at construction, matching the existing `SourceClockAssociation` invalid-index result while leaving signed video PTS values valid. `MediaClockMappingTest` adds the negative-index regression. On macOS ARM64 / Temurin 27.0.1.0.2, `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.engine.MediaClockMappingTest` passed **13/13 tests, 0 failures, 0 errors, 0 skips**. The JUnit XML reports 13 tests and zero skips/failures/errors.
+
+This is a source-local clock-input invariant only. **MM-03 remains PARTIAL:** authoritative audio-sample-to-video-PTS mapping and signal-grounded A/V synchronization evidence are unavailable. No capability or task status was promoted; the 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**.

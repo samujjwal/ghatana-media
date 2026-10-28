@@ -120,6 +120,8 @@ class MediaClockMappingTest {
 
     @Test
     void rejectsInvalidAudioSampleClockDeclarations() {
+        assertThatThrownBy(() -> MediaClockTimestamp.audioSamples(-1, 48_000, "audio-a"))
+                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> MediaClockTimestamp.audioSamples(1, 0, "audio-a"))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> MediaClockTimestamp.audioSamples(1, 48_000, " "))

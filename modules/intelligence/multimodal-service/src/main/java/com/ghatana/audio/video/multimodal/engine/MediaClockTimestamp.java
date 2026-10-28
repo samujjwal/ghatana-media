@@ -48,6 +48,9 @@ public record MediaClockTimestamp(
      */
     public static MediaClockTimestamp audioSamples(long sampleIndex, long samplesPerSecond,
                                                    String sourceClockId) {
+        if (sampleIndex < 0) {
+            throw new IllegalArgumentException("Audio sample index must not be negative");
+        }
         if (samplesPerSecond <= 0) {
             throw new IllegalArgumentException("Audio sample rate must be positive");
         }
