@@ -766,6 +766,100 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("gRPC request cancellation interrupts the caller and cancels provider children")
+    void grpcCancellationCancelsAllChildren() throws Exception {
+        CountDownLatch childStarted = new CountDownLatch(1);
+        CountDownLatch childInterrupted = new CountDownLatch(1);
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"),
+                VisualResult.error("unused"), VisualResult.error("unused")) {
+            @Override public AudioResult transcribe(byte[] input) {
+                childStarted.countDown();
+                try {
+                    new CountDownLatch(1).await();
+                    return AudioResult.builder().build();
+                } catch (InterruptedException cancelled) {
+                    childInterrupted.countDown();
+                    throw new CancellationException("child cancelled");
+                }
+            }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults(), TimeUnit.SECONDS.toNanos(5))) {
+            io.grpc.Context.CancellableContext requestContext = io.grpc.Context.current().withCancellation();
+            AtomicReference<MultimodalException> failure = new AtomicReference<>();
+            AtomicBoolean interruptRestored = new AtomicBoolean();
+            Thread caller = new Thread(() -> requestContext.run(() -> {
+                try {
+                    engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1}).build());
+                } catch (MultimodalException interrupted) {
+                    failure.set(interrupted);
+                    interruptRestored.set(Thread.currentThread().isInterrupted());
+                }
+            }), "multimodal-grpc-cancellation-test-caller");
+
+            caller.start();
+            assertTrue(childStarted.await(2, TimeUnit.SECONDS));
+            requestContext.cancel(null);
+            caller.join(2_000);
+
+            assertFalse(caller.isAlive());
+            assertEquals("Analysis interrupted", failure.get().getMessage());
+            assertTrue(interruptRestored.get());
+            assertTrue(childInterrupted.await(2, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    @DisplayName("Already-cancelled gRPC context does not dispatch modality children")
+    void preCancelledGrpcContextDoesNotDispatchChildren() throws Exception {
+        AtomicInteger providerCalls = new AtomicInteger();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"),
+                VisualResult.error("unused"), VisualResult.error("unused")) {
+            @Override public AudioResult transcribe(byte[] input) {
+                providerCalls.incrementAndGet();
+                return AudioResult.builder().build();
+            }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            io.grpc.Context.CancellableContext requestContext = io.grpc.Context.current().withCancellation();
+            requestContext.cancel(null);
+            AtomicReference<MultimodalException> failure = new AtomicReference<>();
+            Thread caller = new Thread(() -> requestContext.run(() -> {
+                try {
+                    engine.analyse(MultimodalRequest.builder().audioData(new byte[] {1}).build());
+                } catch (MultimodalException interrupted) {
+                    failure.set(interrupted);
+                }
+            }), "multimodal-pre-cancelled-test-caller");
+
+            caller.start();
+            caller.join(2_000);
+
+            assertFalse(caller.isAlive());
+            assertEquals("Analysis interrupted", failure.get().getMessage());
+            assertEquals(0, providerCalls.get());
+        }
+    }
+
+    @Test
+    @DisplayName("Cancellation after normal completion does not interrupt the caller")
+    void cancellationAfterNormalCompletionDoesNotLeakInterrupt() throws Exception {
+        assertFalse(Thread.currentThread().isInterrupted());
+        io.grpc.Context.CancellableContext requestContext = io.grpc.Context.current().withCancellation();
+        MultimodalAnalysisEngine.RequestCancellation cancellation =
+                new MultimodalAnalysisEngine.RequestCancellation(requestContext, Thread.currentThread());
+        try {
+            cancellation.finishNormally();
+            requestContext.cancel(null);
+            assertFalse(Thread.currentThread().isInterrupted());
+        } finally {
+            cancellation.close();
+        }
+        assertFalse(Thread.currentThread().isInterrupted());
+    }
+
+    @Test
     @DisplayName("Caller interruption cancels queued modality work before provider dispatch")
     void callerInterruptionCancelsQueuedChildBeforeDispatch() throws Exception {
         CountDownLatch activeChildrenStarted = new CountDownLatch(2);
@@ -879,15 +973,37 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             Thread caller = new Thread(first, "multimodal-capacity-test-caller");
             caller.start();
             assertTrue(audioStarted.await(1, TimeUnit.SECONDS));
+            io.grpc.Context.CancellableContext excessRequest = io.grpc.Context.current().withCancellation();
             MultimodalException rejected = assertThrows(MultimodalException.class,
-                    () -> engine.analyse(MultimodalRequest.builder()
-                            .audioData(new byte[] {2}).build()));
+                    () -> excessRequest.run(() -> engine.analyse(MultimodalRequest.builder()
+                            .audioData(new byte[] {2}).build())));
             assertEquals("Analysis capacity unavailable", rejected.getMessage());
+            // The capacity error has already won. A later transport cancellation must not
+            // interrupt this caller or replace the terminal failure.
+            excessRequest.cancel(null);
+            assertFalse(Thread.currentThread().isInterrupted());
             releaseAudio.countDown();
             assertTrue(first.get(1, TimeUnit.SECONDS).getAudioResult() != null);
         } finally {
             releaseAudio.countDown();
         }
+    }
+
+    @Test
+    @DisplayName("Cancellation wins terminal failure arbitration and is classified as interruption")
+    void cancellationWinsFailureArbitration() {
+        io.grpc.Context.CancellableContext requestContext = io.grpc.Context.current().withCancellation();
+        MultimodalAnalysisEngine.RequestCancellation cancellation =
+                new MultimodalAnalysisEngine.RequestCancellation(requestContext, Thread.currentThread());
+        try {
+            requestContext.cancel(null);
+            assertTrue(cancellation.finishFailure());
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            cancellation.close();
+            Thread.interrupted();
+        }
+        assertFalse(Thread.currentThread().isInterrupted());
     }
 
     @Test

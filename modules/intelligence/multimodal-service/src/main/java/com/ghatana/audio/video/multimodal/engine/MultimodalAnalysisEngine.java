@@ -2,6 +2,7 @@ package com.ghatana.audio.video.multimodal.engine;
 
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import io.opentelemetry.context.Context;
+import io.grpc.Context.CancellationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,17 +102,22 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
      */
     public MultimodalResult analyse(MultimodalRequest request) {
         java.util.Objects.requireNonNull(request, "request");
-        acquireAdmission();
-        long startMs = System.currentTimeMillis();
         List<Future<?>> children = new ArrayList<>();
+        RequestCancellation cancellation = null;
+        boolean admissionAcquired = false;
 
         try {
+            cancellation = new RequestCancellation(io.grpc.Context.current(), Thread.currentThread());
+            cancellation.preflight();
+            acquireAdmission();
+            admissionAcquired = true;
+            long startMs = System.currentTimeMillis();
             Future<AudioResult> audioFuture = request.hasAudio()
-                    ? submit(children, () -> transcribeAudio(request.getAudioData())) : null;
+                    ? submit(children, cancellation, () -> transcribeAudio(request.getAudioData())) : null;
             Future<VisualResult> imageFuture = request.hasImage()
-                    ? submit(children, () -> analyseImage(request.getImageData())) : null;
+                    ? submit(children, cancellation, () -> analyseImage(request.getImageData())) : null;
             Future<VisualResult> videoFuture = request.hasVideo()
-                    ? submit(children, () -> analyseVideo(request.getVideoData(),
+                    ? submit(children, cancellation, () -> analyseVideo(request.getVideoData(),
                             request.getVideoSampleFps(), request.getVideoMaxFrames())) : null;
             long deadline = System.nanoTime() + analysisTimeoutNanos;
             AudioResult audio = await(audioFuture, deadline);
@@ -133,29 +139,48 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                     request.hasAudio(), request.hasImage(), request.hasVideo(),
                     !request.getText().isEmpty());
 
-            return MultimodalResult.builder()
+            MultimodalResult result = MultimodalResult.builder()
                     .audioResult(audio)
                     .visualResult(visual)
                     .combinedAnalysis(combined)
                     .processingTimeMs(elapsed)
                     .outcome(outcome)
                     .build();
+            cancellation.finishNormally();
+            return result;
 
         } catch (InterruptedException e) {
+            if (cancellation != null) cancellation.finishFailure();
             cancel(children);
             Thread.currentThread().interrupt();
             throw new MultimodalException("Analysis interrupted");
         } catch (TimeoutException e) {
+            boolean cancellationWon = cancellation != null && cancellation.finishFailure();
             cancel(children);
+            if (cancellationWon) {
+                Thread.currentThread().interrupt();
+                throw new MultimodalException("Analysis interrupted");
+            }
             throw new MultimodalException("Analysis outcome unavailable: deadline exceeded");
         } catch (ExecutionException | RejectedExecutionException e) {
+            boolean cancellationWon = cancellation != null && cancellation.finishFailure();
             cancel(children);
+            if (cancellationWon) {
+                Thread.currentThread().interrupt();
+                throw new MultimodalException("Analysis interrupted");
+            }
             throw new MultimodalException("Analysis outcome unavailable");
         } catch (RuntimeException e) {
+            boolean cancellationWon = cancellation != null && cancellation.finishFailure();
             cancel(children);
+            if (cancellationWon) {
+                Thread.currentThread().interrupt();
+                throw new MultimodalException("Analysis interrupted");
+            }
             throw e;
         } finally {
-            admissions.release();
+            if (cancellation != null) cancellation.close();
+            if (admissionAcquired) admissions.release();
         }
     }
 
@@ -178,15 +203,20 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         if (sampleFps < 0 || sampleFps > 60) {
             throw new IllegalArgumentException("sampleFps must be between 0 and 60");
         }
-        acquireAdmission();
-        long startMs = System.currentTimeMillis();
         List<Future<?>> children = new ArrayList<>();
+        RequestCancellation cancellation = null;
+        boolean admissionAcquired = false;
 
         try {
+            cancellation = new RequestCancellation(io.grpc.Context.current(), Thread.currentThread());
+            cancellation.preflight();
+            acquireAdmission();
+            admissionAcquired = true;
+            long startMs = System.currentTimeMillis();
             Future<AudioResult> audioFuture = extractAudio
-                    ? submit(children, () -> transcribeVideoAudio(videoData)) : null;
+                    ? submit(children, cancellation, () -> transcribeVideoAudio(videoData)) : null;
             Future<VisualResult> videoFuture = analyseFrames
-                    ? submit(children, () -> analyseVideo(videoData, sampleFps, 100)) : null;
+                    ? submit(children, cancellation, () -> analyseVideo(videoData, sampleFps, 100)) : null;
             long deadline = System.nanoTime() + analysisTimeoutNanos;
             AudioResult audio = await(audioFuture, deadline);
             VisualResult video = await(videoFuture, deadline);
@@ -195,29 +225,48 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
             String narrative = buildNarrative(audio, video, alignments);
             long elapsed = System.currentTimeMillis() - startMs;
 
-            return VideoAudioResult.builder()
+            VideoAudioResult result = VideoAudioResult.builder()
                     .audioResult(audio)
                     .videoResult(video)
                     .temporalAlignments(alignments)
                     .combinedNarrative(narrative)
                     .processingTimeMs(elapsed)
                     .build();
+            cancellation.finishNormally();
+            return result;
 
         } catch (InterruptedException e) {
+            if (cancellation != null) cancellation.finishFailure();
             cancel(children);
             Thread.currentThread().interrupt();
             throw new MultimodalException("Video-audio analysis interrupted");
         } catch (TimeoutException e) {
+            boolean cancellationWon = cancellation != null && cancellation.finishFailure();
             cancel(children);
+            if (cancellationWon) {
+                Thread.currentThread().interrupt();
+                throw new MultimodalException("Video-audio analysis interrupted");
+            }
             throw new MultimodalException("Video-audio analysis outcome unavailable: deadline exceeded");
         } catch (ExecutionException | RejectedExecutionException e) {
+            boolean cancellationWon = cancellation != null && cancellation.finishFailure();
             cancel(children);
+            if (cancellationWon) {
+                Thread.currentThread().interrupt();
+                throw new MultimodalException("Video-audio analysis interrupted");
+            }
             throw new MultimodalException("Video-audio analysis outcome unavailable");
         } catch (RuntimeException e) {
+            boolean cancellationWon = cancellation != null && cancellation.finishFailure();
             cancel(children);
+            if (cancellationWon) {
+                Thread.currentThread().interrupt();
+                throw new MultimodalException("Video-audio analysis interrupted");
+            }
             throw e;
         } finally {
-            admissions.release();
+            if (cancellation != null) cancellation.close();
+            if (admissionAcquired) admissions.release();
         }
     }
 
@@ -363,10 +412,89 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         }
     }
 
-    private <T> Future<T> submit(List<Future<?>> children, java.util.concurrent.Callable<T> task) {
-        Future<T> child = executor.submit(Context.current().wrap(task));
-        children.add(child);
-        return child;
+    private <T> Future<T> submit(List<Future<?>> children, RequestCancellation cancellation,
+                                 java.util.concurrent.Callable<T> task) throws InterruptedException {
+        return cancellation.submit(() -> {
+            Future<T> child = executor.submit(Context.current().wrap(task));
+            children.add(child);
+            return child;
+        });
+    }
+
+    /** Serializes request cancellation with child dispatch and successful completion. */
+    static final class RequestCancellation implements AutoCloseable {
+        private final io.grpc.Context context;
+        private final Thread caller;
+        private final Object lock = new Object();
+        private final CancellationListener listener;
+        private boolean active = true;
+        private boolean cancelled;
+
+        RequestCancellation(io.grpc.Context context, Thread caller) {
+            this.context = java.util.Objects.requireNonNull(context, "context");
+            this.caller = java.util.Objects.requireNonNull(caller, "caller");
+            this.listener = ignored -> {
+                synchronized (lock) {
+                    if (active) {
+                        cancelled = true;
+                        caller.interrupt();
+                    }
+                }
+            };
+            context.addListener(listener, Runnable::run);
+        }
+
+        void preflight() throws InterruptedException {
+            synchronized (lock) {
+                rejectIfCancelled();
+            }
+        }
+
+        <T> T submit(java.util.concurrent.Callable<T> dispatch) throws InterruptedException {
+            synchronized (lock) {
+                rejectIfCancelled();
+                try {
+                    return dispatch.call();
+                } catch (InterruptedException interrupted) {
+                    throw interrupted;
+                } catch (RuntimeException | Error failure) {
+                    throw failure;
+                } catch (Exception failure) {
+                    throw new java.util.concurrent.RejectedExecutionException(failure);
+                }
+            }
+        }
+
+        void finishNormally() throws InterruptedException {
+            synchronized (lock) {
+                rejectIfCancelled();
+                active = false;
+            }
+        }
+
+        /** Return true when cancellation won against an exceptional terminal result. */
+        boolean finishFailure() {
+            synchronized (lock) {
+                boolean cancellationWon = cancelled || context.isCancelled();
+                active = false;
+                return cancellationWon;
+            }
+        }
+
+        private void rejectIfCancelled() throws InterruptedException {
+            if (cancelled || context.isCancelled()) {
+                cancelled = true;
+                throw new InterruptedException("gRPC request cancelled");
+            }
+        }
+
+        @Override
+        public void close() {
+            synchronized (lock) {
+                active = false;
+            }
+            context.removeListener(listener);
+        }
     }
 
     private static <T> T await(Future<T> future, long deadlineNanos)
