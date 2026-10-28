@@ -100,7 +100,11 @@ class MediaResourceProfileHarnessTest {
                 1, 1, Duration.ofSeconds(1), index -> { });
 
         assertThat(report.environment().javaVersion()).isEqualTo(Runtime.version().toString());
+        assertThat(report.environment().javaVendor()).isEqualTo(System.getProperty("java.vendor", "unknown"));
+        assertThat(report.environment().runtimeName()).isEqualTo(
+                java.lang.management.ManagementFactory.getRuntimeMXBean().getVmName());
         assertThat(report.environment().operatingSystem()).isEqualTo(System.getProperty("os.name", "unknown"));
+        assertThat(report.environment().operatingSystemVersion()).isEqualTo(System.getProperty("os.version", "unknown"));
         assertThat(report.environment().architecture()).isEqualTo(System.getProperty("os.arch", "unknown"));
         assertThat(report.environment().availableProcessors()).isEqualTo(Runtime.getRuntime().availableProcessors());
         assertThat(report.environment().modelProfile()).isEqualTo("NOT_CONFIGURED");
@@ -117,7 +121,8 @@ class MediaResourceProfileHarnessTest {
     @Test
     void tsvRuntimeIdentityCannotInjectColumnsOrRows() {
         var environment = new MediaResourceProfileHarness.Environment(
-                "JDK 27", "macOS\tforged\nrow", "arm64\rforged", 10,
+                "JDK 27", "Vendor\tforged", "runtime\nforged", "macOS\tforged\nrow",
+                "version\rforged", "arm64\rforged", 10,
                 "NOT_CONFIGURED\tinjected", "NOT_CONFIGURED\nsecond-row");
         var report = new MediaResourceProfileHarness.Report(
                 1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
@@ -126,10 +131,13 @@ class MediaResourceProfileHarnessTest {
         String[] fields = report.toTsv().split("\\t", -1);
 
         assertThat(fields).hasSize(MediaResourceProfileHarness.Report.tsvHeader().split("\\t", -1).length);
-        assertThat(fields[29]).isEqualTo("macOS forged row");
-        assertThat(fields[30]).isEqualTo("arm64 forged");
-        assertThat(fields[32]).isEqualTo("NOT_CONFIGURED injected");
-        assertThat(fields[33]).isEqualTo("NOT_CONFIGURED second-row");
+        assertThat(fields[29]).isEqualTo("Vendor forged");
+        assertThat(fields[30]).isEqualTo("runtime forged");
+        assertThat(fields[31]).isEqualTo("macOS forged row");
+        assertThat(fields[32]).isEqualTo("version forged");
+        assertThat(fields[33]).isEqualTo("arm64 forged");
+        assertThat(fields[35]).isEqualTo("NOT_CONFIGURED injected");
+        assertThat(fields[36]).isEqualTo("NOT_CONFIGURED second-row");
         assertThat(report.toTsv()).doesNotContain("\n", "\r");
     }
 
@@ -172,7 +180,8 @@ class MediaResourceProfileHarnessTest {
         var report = new MediaResourceProfileHarness.Report(
                 1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
                 1_000_000, 1_000_000, 1.0, 1.0, 1.0, 1.0,
-                new MediaResourceProfileHarness.Environment("JDK 27", "macOS", "arm64", 1,
+                new MediaResourceProfileHarness.Environment("JDK 27", "Vendor", "runtime", "macOS", "version",
+                        "arm64", 1,
                         "NOT_CONFIGURED", "NOT_CONFIGURED"), resources);
 
         String[] fields = report.toTsv().split("\\t", -1);

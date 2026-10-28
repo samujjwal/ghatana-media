@@ -95,7 +95,8 @@ public final class MediaResourceProfileHarness {
         }
     }
 
-    public record Environment(String javaVersion, String operatingSystem, String architecture,
+    public record Environment(String javaVersion, String javaVendor, String runtimeName,
+                              String operatingSystem, String operatingSystemVersion, String architecture,
                               int availableProcessors, String modelProfile, String corpusProfile) {}
 
     public record Report(
@@ -152,7 +153,10 @@ public final class MediaResourceProfileHarness {
                     render(resources.get(Resource.CONTAINER_CPU_LIMIT_CORES)),
                     render(resources.get(Resource.CONTAINER_PROCESS_LIMIT)),
                     tsvField(environment.javaVersion()),
+                    tsvField(environment.javaVendor()),
+                    tsvField(environment.runtimeName()),
                     tsvField(environment.operatingSystem()),
+                    tsvField(environment.operatingSystemVersion()),
                     tsvField(environment.architecture()),
                     Integer.toString(environment.availableProcessors()),
                     tsvField(environment.modelProfile()),
@@ -167,8 +171,9 @@ public final class MediaResourceProfileHarness {
                     "process_cpu_time_nanos", "heap_peak_bytes", "thread_peak", "gpu_memory_bytes",
                     "native_memory_bytes", "connection_pool_size", "network_bytes", "ffmpeg_child_processes",
                     "model_real_time_factor", "video_frames_per_second", "container_memory_limit_bytes",
-                    "container_cpu_limit_cores", "container_process_limit", "java_version", "os",
-                    "architecture", "available_processors", "model_profile", "corpus_profile");
+                    "container_cpu_limit_cores", "container_process_limit", "java_version", "java_vendor",
+                    "runtime_name", "os", "os_version", "architecture", "available_processors",
+                    "model_profile", "corpus_profile");
         }
     }
 
@@ -357,8 +362,10 @@ public final class MediaResourceProfileHarness {
     }
 
     private static Environment environment() {
-        return new Environment(Runtime.version().toString(), System.getProperty("os.name", "unknown"),
-                System.getProperty("os.arch", "unknown"), Runtime.getRuntime().availableProcessors(),
+        return new Environment(Runtime.version().toString(), System.getProperty("java.vendor", "unknown"),
+                ManagementFactory.getRuntimeMXBean().getVmName(), System.getProperty("os.name", "unknown"),
+                System.getProperty("os.version", "unknown"), System.getProperty("os.arch", "unknown"),
+                Runtime.getRuntime().availableProcessors(),
                 "NOT_CONFIGURED", "NOT_CONFIGURED");
     }
 
