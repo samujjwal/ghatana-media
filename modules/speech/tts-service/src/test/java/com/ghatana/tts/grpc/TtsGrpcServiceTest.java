@@ -895,7 +895,8 @@ class TtsGrpcServiceTest {
     void admittedStreamWaitsForObserverReadinessAndPreservesProviderFinalChunk() throws Exception {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         @SuppressWarnings("unchecked")
-        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
         AtomicReference<Runnable> readyHandler = new AtomicReference<>();
         AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
         AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
@@ -933,6 +934,78 @@ class TtsGrpcServiceTest {
                 chunk.getAudioData().toByteArray()[0] == 3
                         && chunk.getTimestampMs() == 7 && chunk.getIsFinal()));
         verify(observer, org.mockito.Mockito.timeout(1_000)).onCompleted();
+    }
+
+    @Test
+    void admittedStreamDeadlineUnblocksBackpressuredChunkAndCancelsSession() throws Exception {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofSeconds(5));
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
+        CountDownLatch readinessChecked = new CountDownLatch(1);
+        AtomicBoolean downstreamReady = new AtomicBoolean();
+        AtomicReference<Runnable> readyHandler = new AtomicReference<>();
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        when(observer.isReady()).thenAnswer(invocation -> {
+            readinessChecked.countDown();
+            return downstreamReady.get();
+        });
+        when(observer.isCancelled()).thenReturn(false);
+        doAnswer(invocation -> { readyHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnReadyHandler(any(Runnable.class));
+        doAnswer(invocation -> { cancelHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnCancelHandler(any(Runnable.class));
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicInteger sessionCancelCalls = new AtomicInteger();
+        CountDownLatch errorReceived = new CountDownLatch(1);
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        doAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            return new TtsStreamingSession() {
+                @Override public boolean cancel() { return sessionCancelCalls.incrementAndGet() == 1; }
+                @Override public boolean isCancelled() { return sessionCancelCalls.get() > 0; }
+                @Override public CompletableFuture<Void> completion() { return completion; }
+            };
+        }).when(engine).startStreaming(anyString(), any(), any());
+        doAnswer(invocation -> {
+            error.set(invocation.getArgument(0));
+            errorReceived.countDown();
+            return null;
+        }).when(observer).onError(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        TtsStreamSink sink = sinkRef.get();
+        assertThat(sink).isNotNull();
+        sink.onAudioFormat(monoPcm16Format());
+        CountDownLatch producerEntered = new CountDownLatch(1);
+        Thread producer = Thread.startVirtualThread(() -> {
+            producerEntered.countDown();
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 1));
+        });
+
+        try {
+            assertThat(producerEntered.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(readinessChecked.await(1, TimeUnit.SECONDS)).isTrue();
+            long waitDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (producer.getState() != Thread.State.WAITING && System.nanoTime() < waitDeadline) {
+                Thread.onSpinWait();
+            }
+            assertThat(producer.getState()).isEqualTo(Thread.State.WAITING);
+            assertThat(errorReceived.await(10, TimeUnit.SECONDS)).isTrue();
+            producer.join(1_000);
+
+            assertThat(producer.isAlive()).isFalse();
+            assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+            assertThat(sessionCancelCalls).hasValue(1);
+            verify(observer, never()).onNext(any());
+            verify(observer, never()).onCompleted();
+        } finally {
+            if (cancelHandler.get() != null) cancelHandler.get().run();
+            downstreamReady.set(true);
+            if (readyHandler.get() != null) readyHandler.get().run();
+            producer.join(10_000);
+            assertThat(producer.isAlive()).isFalse();
+        }
     }
 
     @Test
