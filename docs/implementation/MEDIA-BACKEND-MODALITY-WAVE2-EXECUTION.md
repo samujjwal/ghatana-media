@@ -2210,6 +2210,10 @@ This verifies the mapper boundary slice only. **STT-06 remains PARTIAL:** the pr
 
 ### R7 MM-03 negative sample-index guard — 2026-10-27
 
-`MediaClockTimestamp.audioSamples(...)` now rejects negative sample indices at construction, matching the existing `SourceClockAssociation` invalid-index result while leaving signed video PTS values valid. `MediaClockMappingTest` adds the negative-index regression. On macOS ARM64 / Temurin 27.0.1.0.2, `./gradlew :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.engine.MediaClockMappingTest` passed **13/13 tests, 0 failures, 0 errors, 0 skips**. The JUnit XML reports 13 tests and zero skips/failures/errors.
+`MediaClockTimestamp.audioSamples(...)` now rejects negative sample indices at construction, matching the existing `SourceClockAssociation` invalid-index result while leaving signed video PTS values valid. `MediaClockMappingTest` adds the negative-index regression. On macOS ARM64 / Temurin 27.0.1.0.2, the focused `MediaClockMappingTest` passed **13/13 tests, 0 failures, 0 errors, 0 skips**; the full `:services:media:modules:intelligence:multimodal-service:test` suite then passed **312 tests across 33 suites, 0 failures, 0 errors, 0 skips**. JUnit XML records both totals.
+
+```sh
+env JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:modules:intelligence:multimodal-service:test --no-build-cache --no-daemon --no-parallel --max-workers=2 --console=plain
+```
 
 This is a source-local clock-input invariant only. **MM-03 remains PARTIAL:** authoritative audio-sample-to-video-PTS mapping and signal-grounded A/V synchronization evidence are unavailable. No capability or task status was promoted; the 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**.
