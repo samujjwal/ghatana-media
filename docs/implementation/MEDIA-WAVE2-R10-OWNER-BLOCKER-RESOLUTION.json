@@ -12,7 +12,11 @@
   "sourceReview": {
     "mediaBaseline": "53f9b355e4e9979c2f259c499ccd7269fb6e653f",
     "sharedCurrentAtReview": "607989541754097814a7c91611dea18ececaa970",
-    "ghatanaCurrentAtReview": "a0df4bdf8282b27051bf625331651e92925fdc70"
+    "ghatanaCurrentAtReview": "a0df4bdf8282b27051bf625331651e92925fdc70",
+    "mediaLatestInspected": "ef823571b1dbbed2c1ea38fa291657cb04855103",
+    "sharedLatestInspected": "d15b2ce353839ee3bf666be7c0737aa7192994f5",
+    "ghatanaLatestInspected": "875108953b069ba65803b8b99b713896bf9476f0",
+    "reviewScope": "remote main source and user-reported focused host tests; not a fresh local execution"
   },
   "notASecondPdpOrAdmittedProvider": true,
   "technicalApprovals": [
@@ -239,7 +243,15 @@
       ],
       "firstCodeAction": "run single-workload cgroup-confined native worker on both OS hosts",
       "independentProof": "hard memory/CPU/PIDs/disk/time bounds and zero leaked processes",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-03",
@@ -254,7 +266,15 @@
       ],
       "firstCodeAction": "wire production MediaRightsSourceResolver and purpose-bound identity",
       "independentProof": "JWT wrong principal/tenant, revoked/stale, no provider/outbox effects",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-05",
@@ -271,7 +291,15 @@
       ],
       "firstCodeAction": "bind owner/revocation/retention and encrypted embeddings",
       "independentProof": "clone denied before effect, revoke/delete later prohibits reuse",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "VIS-10",
@@ -288,7 +316,15 @@
       ],
       "firstCodeAction": "gate sensitive faces/gaze/landmark effects and deletion/revocation",
       "independentProof": "cross-tenant and revoked effect-free, real authorized capability if in scope",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "MM-02",
@@ -305,7 +341,15 @@
       ],
       "firstCodeAction": "bind trusted tenant/principal/artifact/source/version/purpose per child",
       "independentProof": "deny mixed-tenant or revoked inputs before fanout",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-04",
@@ -323,7 +367,15 @@
       ],
       "firstCodeAction": "wire authenticated source-byte reader to STT executor; qualify FLAC if declared supported",
       "independentProof": "real source WAV/FLAC roundtrip and bounds, invalid header/timebase",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-08",
@@ -339,7 +391,15 @@
       ],
       "firstCodeAction": "project only provider-result-matched immutable transcripts/captions into canonical CAS",
       "independentProof": "CAS conflict, caption draft session-local, forced-align/translation capability proofs",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-09",
@@ -355,7 +415,15 @@
       ],
       "firstCodeAction": "install STT-specific dispatcher/receipt/reconciliation on MediaRuntime",
       "independentProof": "kill/restart before receipt, after receipt, UNKNOWN no duplicate",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-05",
@@ -372,7 +440,15 @@
       ],
       "firstCodeAction": "route gRPC chunks into canonical stream reservations/VAD and durable ACK/reconnect",
       "independentProof": "restart during frame, lost ACK, EOS without provider-final result",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-06",
@@ -388,7 +464,15 @@
       ],
       "firstCodeAction": "wire provider timing and alternative confidence to sample/PTS map",
       "independentProof": "gold phoneme/word timing and explicit unknown confidence",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-07",
@@ -405,7 +489,15 @@
       ],
       "firstCodeAction": "wire anonymous diarization and separately gated identity, overlap",
       "independentProof": "DER on licensed corpus, revocation and dimension drift",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-02",
@@ -420,7 +512,15 @@
       ],
       "firstCodeAction": "real PCM output through admitted provider, no silence/template",
       "independentProof": "audio decodes; speech intelligibility/format/metadata crosschecked",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-03",
@@ -437,7 +537,15 @@
       ],
       "firstCodeAction": "wire production TtsProviderAdmission resolver and asset identity",
       "independentProof": "real model initializes, broken sidecar/license/rights precludes serving",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-06",
@@ -453,7 +561,15 @@
       ],
       "firstCodeAction": "implement non-neutral SSML/rate/pitch/pronunciation mapping to engine",
       "independentProof": "matched A/B audio proves each enabled control, unsupported typed",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-07",
@@ -471,7 +587,15 @@
       ],
       "firstCodeAction": "run true TTS synthesis, playable byte/clock checks",
       "independentProof": "decoded speech on named qualified model and exact sample duration",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": true,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-08",
@@ -486,7 +610,15 @@
       ],
       "firstCodeAction": "stream real bounded chunks, backpressure and finality/cancel",
       "independentProof": "partial cancel, slow-reader and no false final under provider outage",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-09",
@@ -503,7 +635,15 @@
       ],
       "firstCodeAction": "persist source-digest-provenance in Media fenced job/artifact/outbox",
       "independentProof": "restart readback exact bytes and no duplicate finalized effect",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "VIS-02",
@@ -519,7 +659,15 @@
       ],
       "firstCodeAction": "verify exact model tensor layout, metadata, runtime initialization",
       "independentProof": "real detector ready, wrong digest/format model rejected",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": true,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "VIS-05",
@@ -536,7 +684,15 @@
       ],
       "firstCodeAction": "apply EXIF/crop letterbox inverse transforms to real frame detections",
       "independentProof": "ROI pixel roundtrip, native stress and source-version readback",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "VIS-06",
@@ -552,7 +708,15 @@
       ],
       "firstCodeAction": "test ONNX output/NMS/classes and calculate true mAP/PR",
       "independentProof": "gold detection output, mAP/PR, invalid boxes/nans rejected",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "VIS-07",
@@ -569,7 +733,15 @@
       ],
       "firstCodeAction": "frame source timebase, shot/track motion and object IDs",
       "independentProof": "VFR, reordering, discontinuities and labeled tracking accuracy",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "MM-03",
@@ -584,7 +756,15 @@
       ],
       "firstCodeAction": "propagate stream PTS/sample rates with epoch/timebase to production results",
       "independentProof": "VFR and offset with bounded uncertainty and UNKNOWN when noncomparable",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "MM-05",
@@ -603,7 +783,15 @@
       ],
       "firstCodeAction": "install production per-operation executor, fenced children, deadlines",
       "independentProof": "network loss and duplicate child replay preserve UNKNOWN",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "MM-06",
@@ -620,7 +808,15 @@
       ],
       "firstCodeAction": "source-bound embedding/ROI geometry and abstaining fusion",
       "independentProof": "calibrated confidence or explicit heuristic, no speaker/face claim without authority",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "MM-08",
@@ -636,7 +832,15 @@
       ],
       "firstCodeAction": "bind each selected capability to own job+attempt and final result",
       "independentProof": "no family aggregate false success, correct cancellation split",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "MM-09",
@@ -653,7 +857,15 @@
       ],
       "firstCodeAction": "immutable multimodal result artifact/fence/outbox+principal scoped reread",
       "independentProof": "restart exact result and idempotent compare-and-set",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "MM-10",
@@ -669,7 +881,15 @@
       ],
       "firstCodeAction": "consume versioned HTTP read-model projection, not in-process tenant SPI",
       "independentProof": "202/pending/commit/UNKNOWN, source-free Java21/27 parity",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": "Ghatana Data Cloud projection interface; Media Multimodal installed client",
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "VIS-09",
@@ -685,7 +905,15 @@
       ],
       "firstCodeAction": "consume source-frame ROI and rights-preserving OCR projection",
       "independentProof": "source-provenant text/time/ROI and tenant/retention negative cases",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": "Ghatana Document Intelligence public interface; Media Vision installed client",
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-10",
@@ -702,7 +930,15 @@
       ],
       "firstCodeAction": "run genuine en/ne/hi WER/CER and diarization/quality scoring with thresholds",
       "independentProof": "gold corpus, language/noise/accent distributions, reproducible scores",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "STT-12",
@@ -722,7 +958,15 @@
       ],
       "firstCodeAction": "end-to-end 12 RPC/16 intent quality/recovery/load qualification",
       "independentProof": "real model transcript, 1/16/64 bounded latency/load, privacy, restarts",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": true,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-10",
@@ -740,7 +984,15 @@
       ],
       "firstCodeAction": "bind en/hi/ne choices or accurately declared unsupported per source scope",
       "independentProof": "no unsupported substitution, real measured supported locales",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "TTS-12",
@@ -758,7 +1010,15 @@
       ],
       "firstCodeAction": "real model SSML, restart, stream, concurrency and output quality suite",
       "independentProof": "p50/p95/p99, RTF and 1/16/64 model load with no fake audio",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": true,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "VIS-12",
@@ -777,7 +1037,15 @@
       ],
       "firstCodeAction": "test real model + FFmpeg/OpenCV + restart and load",
       "independentProof": "mAP/latency/native memory/fps/CPU/GPU and faults, exact receipts",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": true,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "MM-12",
@@ -798,7 +1066,15 @@
       ],
       "firstCodeAction": "run composed E2E, clock quality and 1/16/64 bounded load",
       "independentProof": "source-grounded fused result and latency/RTF/fps, fault/readback",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": true,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "OBS-07",
@@ -814,7 +1090,15 @@
       ],
       "firstCodeAction": "run Media exporter through Prometheus to real Alertmanager with stale quality",
       "independentProof": "real model health and quality regression delivery, redacted labels",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Observability and Performance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     },
     {
       "taskId": "OBS-08",
@@ -831,7 +1115,15 @@
       ],
       "firstCodeAction": "gather process/worker/native GPU/CPU/RAM/network and throughput",
       "independentProof": "1/16/64 p50/p95/p99, bounded budget/abort, real provider RTF/fps",
-      "qualifiedResult": null
+      "qualifiedResult": null,
+      "executionOwnership": {
+        "accountableMediaRole": "Media Observability and Performance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "platformHandoff": null,
+        "exogenousProofRequired": false,
+        "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
+        "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      }
     }
   ],
   "criticalPath": [
@@ -921,13 +1213,35 @@
     "ownerStatus": "ENGINEERING_APPROVED_TEST_SCOPE_AND_PROVISIONAL_THRESHOLDS; NONE_OF_THESE_VALUES_CERTIFY_RUNTIME_OR_LICENSE"
   },
   "activeExecutionReadback": {
-    "asOf": "2026-10-28",
+    "asOf": "2026-10-28T16:38:00-07:00",
     "activePlan": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md",
-    "reportedMediaHostOciBaseline": "4196698a7fae2d82df13dce17e2a6a7ca9ef0de0",
+    "reportedMediaHostOciBaseline": "ef823571b1dbbed2c1ea38fa291657cb04855103",
     "verifiedObservationFromUser": {
-      "previousStubFixtureTestCount": 2,
-      "previousStubFixturePassed": 2,
-      "subsequentAdversarialAndRealCodecStatus": "COMMITTED_SOURCE_NOT_EXECUTED_ON_CURRENT_JDK27_DOCKER_HOST"
+      "reportSource": "implementer handoff; focused results reported, not rerun by this GitHub review",
+      "visionStubOci": {
+        "passed": 4,
+        "total": 4
+      },
+      "visionRealFfmpeg": {
+        "passed": 3,
+        "total": 3,
+        "positiveCodec": "BMP",
+        "pngPositive": "NOT_VERIFIED"
+      },
+      "nativeVfr": {
+        "passed": 3,
+        "total": 3
+      },
+      "extractorAdversarial": {
+        "passed": 54,
+        "total": 54
+      },
+      "delegatedCgroup": {
+        "skipped": 1,
+        "reason": "host lacks delegated writable cgroup; not a positive Linux cgroup test"
+      },
+      "runtimeLauncherPostgresqlTtsMultimodal": "FOCUSED_TESTS_USER_REPORTED_PASS; task whole-row verification still pending",
+      "noAcceptedRowsPromoted": true
     },
     "currentOwnerRule": "All routine engineering work preapproved and executable; external-rights/actual-data gates remain genuine and scoped, never silently removed or treated as blanket development blockers.",
     "noAdditionalWorkPackageIds": true,
@@ -936,77 +1250,191 @@
     "gateStates": {
       "G01": {
         "implementationDisposition": "ENGINEERING_CODE_NOW",
-        "observedGap": "Whisper has a real but incomplete output on prior source; full independent gold and ORT 0/1/2/4 A/B current-source tests are pending",
-        "nextAction": "Run complete gold integration and compare decoder/parity; no keyword success",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "Whisper split ONNX candidate remains incompatible/unsuitable for complete independent-gold recognition; a qualifying exact export and full source-authored transcript are unavailable.",
+        "nextAction": "Repair model/export/tokenizer parity with complete independent gold. If unsuccessful, try pinned official reference Whisper through the existing Media processing SPI, subject to real license and profile review; never count partial text.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
       "G02": {
         "implementationDisposition": "ENGINEERING_CODE_NOW_WITH_REAL_SOURCE_PROVENANCE",
-        "observedGap": "Media runtime lacks composed source-rights authority; first-party original fixture can exercise real verified ownership but not third-party rights",
-        "nextAction": "Wire authenticated immutable source/version/purpose rights + Shared PolicyEngine + Media consent decisions; no literal ALLOW",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "MediaSourceAuthorizationContracts and fail-closed runtime admission now exist, but no actual production source-owner/revocation Authority, trusted Shared ALLOW composition or legal speech-source record is installed.",
+        "nextAction": "Implement a PostgreSQL-backed versioned owner-rights/revocation resolver and real Shared PolicyEngine binding; ingest genuine first-party producer records through authenticated ingress; test positive and revoke-before-provider/commit, wrong principal/tenant and stale policy; no caller-self-approval.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "SOURCE_IMPLEMENTED_FAIL_CLOSED_NO_REAL_POSITIVE"
       },
       "G03": {
         "implementationDisposition": "ENGINEERING_CODE_NOW_AFTER_G02",
-        "observedGap": "MediaRuntime STT pre-job admission unconditionally throws and PostgreSQL transcript store refuses production writes",
-        "nextAction": "Complete genuine source rights + qualified provider + actual CAS writer/receipt and restart readback",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "PostgreSQL candidate fenced-attempt CAS and content-free outbox are implemented in source and focused tests reportedly pass; production writes remain deliberately gated and no authorized real STT/job->restart outcome exists.",
+        "nextAction": "After actual G02 + G01 admission, reconcile provider result/fence, recheck commit-time rights/policy in the canonical transaction or fail closed; append ADMITTED revision only with qualified proof; verify exact restart readback, duplicate and UNKNOWN recovery.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "SOURCE_IMPLEMENTED_FAIL_CLOSED_NO_REAL_POSITIVE"
       },
       "G04": {
         "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_VOICE_RIGHTS",
-        "observedGap": "Piper PCM actual output but canonical phonemizer heuristic and voice/speaker rights not qualified",
-        "nextAction": "Wire real qualified phonemes; verify exact model+sidecar voice/source and licensed output",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "TTS locale/phoneme/sidecar hardening and focused tests reportedly pass; eSpeak-NG and a rights-qualified voice/quality pack remain unavailable.",
+        "nextAction": "Integrate license-reviewed eSpeak-NG equivalent or independently validated phonemizer behind current Piper adapter; acquire exact voice/sidecar rights, independently check audible output and revoke-before-effect. Heuristic stays NOT_ADMITTED.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
       "G05": {
         "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_MODEL_IMAGE_RIGHTS",
-        "observedGap": "YOLOX real inference returned no detection on a synthetic glyph; no independent positive labeled photo/corpus",
-        "nextAction": "Use first-party original nonhuman photo with COCO positive, verify model weight/export lineage and mAP",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "YOLOX source parser and tests hardened; no legitimate held-out positive nonhuman-object photo with independent boxes or model/export rights qualification.",
+        "nextAction": "Create owner-authenticated nonhuman object photograph and independent COCO boxes; pin/review actual YOLOX weights/export, qualify positive and negative and held-out mAP/PR. If rights unavailable use another already-selected lawful detector.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
       "G06": {
         "implementationDisposition": "CODED_SOURCE_WITH_NATIVE_VERIFICATION_PENDING",
-        "observedGap": "Host OCI resource fixture 2/2 reported passed; new kernel OOM, fork-limit and real FFmpeg positive/malformed/overflow source tests committed but not run",
-        "nextAction": "Run four existing/stub OOM/PID OCI tests and three genuine pinned FFmpeg tests; implement authenticated separate Docker/CRI host broker before production deployment",
+        "observedGap": "Reported current cut: OCI stub 4/4, real pinned BMP FFmpeg 3/3, VFR 3/3, extractor adversarial 54/54; delegated-cgroup test skipped; PNG pixel-exact case untested because pinned codec image lacks PNG; direct-JVM Docker privilege still exists.",
+        "nextAction": "Keep BMP results but separately provision/verify a PNG-capable pinned licensed codec image and exact PNG oracle; test full original parser/resource corpus including actual kernel OOM/PID/CPU/scratch. Implement authenticated separate OCI host broker before production, remove service Docker CLI authority. Only whole-row VIS-03 original acceptance promotes.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "productionPrivilegeBoundary": "DEVELOPMENT_ONLY_CURRENT_DIRECT_JVM_DOCKER_CLI; PRODUCTION_REQUIRES_SEPARATE_AUTHENTICATED_LEAST_PRIVILEGE_BROKER_AND_SOURCE_OWNER_PROTOCOL"
+        "productionPrivilegeBoundary": "DEVELOPMENT_ONLY_CURRENT_DIRECT_JVM_DOCKER_CLI; PRODUCTION_REQUIRES_SEPARATE_AUTHENTICATED_LEAST_PRIVILEGE_BROKER_AND_SOURCE_OWNER_PROTOCOL",
+        "verificationClass": "USER_REPORTED_FOCUSED_PASS_PLUS_UNVERIFIED_REQUIRED_ORACLES"
       },
       "G07": {
         "implementationDisposition": "EXTERNAL_LICENSED_DATA_THEN_ENGINEERING_METRICS",
-        "observedGap": "FLEURS metadata-only, no actual audio clip hashes or held-out scores",
-        "nextAction": "Acquire bounded exact attributed clip bytes and independently authored gold; compute frozen WER/CER/CI",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "FLEURS pinned manifest is metadata only; no selected per-clip licensed audio digest, independently frozen gold or metric threshold.",
+        "nextAction": "Download at most selected lawful per-clip audio under source-pinned rights and bounded quota, freeze hashes/speaker-disjoint splits/annotation BEFORE inference, compute per-locale WER/CER and uncertainty; otherwise use smaller lawful alternate corpus without relaxing 58 rows.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
       "G08": {
         "implementationDisposition": "ENGINEERING_BENCHMARK_AFTER_REAL_MODEL",
-        "observedGap": "Real 1/16/64 observations available but CPU saturation and no qualified alerts/service profile",
-        "nextAction": "Run named-host A/B correctness, capacity/typed rejection and Prometheus→Alertmanager with real provider data",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "No qualified real provider quality/capacity/receiver-alert effect on a named reference host; existing model CPU saturation cannot imply 64 successes.",
+        "nextAction": "After G01/G04/G05 qualify, run 1/16/64 with admitted/completed/rejected/unknown counts and host p50/p95/p99 CPU/RSS/RTF; inject actual provider fault through Prometheus to named Alertmanager receiver. Typed saturation is not latency SLO.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
       "G09": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
-        "observedGap": "Ghatana Document Intelligence public Media ROI+source-rights API absent at reviewed Ghatana HEAD",
-        "nextAction": "Implement Ghatana issue #252 public contract+installed Java27 Media consumer",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "Ghatana #252 remains open: no published source-free Media-specific Document Intelligence frame/ROI rights OCR public contract is confirmed.",
+        "nextAction": "Ghatana owner ships versioned authenticated ROI/clock/rights OCR contract and service, installed source-free Java27 Media consumer and wrong-tenant/stale/UNKNOWN tests; preserve Media-only frame/time/ROI semantics.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
       "G10": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
-        "observedGap": "Ghatana Data Cloud versioned Media observation projection absent at reviewed Ghatana HEAD",
-        "nextAction": "Implement Ghatana issue #254 server Java21+source-free Media Java27 consumer",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "Ghatana #254 remains open: no published governed Media observation projection/readback public contract is confirmed.",
+        "nextAction": "Ghatana Data Cloud owner ships versioned Java21 public projection with exact 202-acceptance vs finality and lookup, idempotency/UNKNOWN/revocation tests; Media Java27 source-free installed consumer. No second canonical Media writer.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
       "G11": {
         "implementationDisposition": "GENUINE_EXTERNAL_HUMAN_OR_RIGHTSHOLDER_RECORD_REQUIRED",
-        "observedGap": "Human biometric/voice consent and third-party redistribution rights not present; engineering cannot sign for holders",
-        "nextAction": "Acquire actual scoped rights/consent and independent reviewer trust; use nonhuman first-party dev data meanwhile",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "No human/voice/biometric grants, third-party weights/corpus rights determination or independent trusted reviewer key installed.",
+        "nextAction": "Use first-party nonhuman source-owned development cases only where lawful; obtain actual private rights-holder/person grants and independent reviewed trust anchor for restricted effects. Missing grant prohibits that effect, not unrelated engineering.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
       "G12": {
         "implementationDisposition": "ENGINEERING_CODE_AFTER_G03_G05",
-        "observedGap": "No authorized real STT/Vision child result to fuse; old MM methods remain partial/unavailable",
-        "nextAction": "Compose real child attempts with separate rights/finality and restart/readback of source-grounded fusion",
-        "wholeRowAcceptance": "NOT_ACCEPTED"
+        "observedGap": "MM STT timing guards now validate declared PCM sample-zero clocks and bounds; no real authorized STT/Vision child outcome or grounded fused observation/alert exists.",
+        "nextAction": "Finish actual G01-G03 STT and G05 Vision child attempts, independently recheck each rights/finality/clock, then durable fused observation/restart and fault/UNKNOWN tests; otherwise typed not-admitted response without synthetic success.",
+        "wholeRowAcceptance": "NOT_ACCEPTED",
+        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       }
     }
+  },
+  "latestOwnerResolution": {
+    "asOf": "2026-10-28",
+    "scope": "ENGINEERING_EXECUTION_AND_DOCUMENTED_POLICY; NOT_RIGHTSHOLDER_APPROVAL_OR_RUNTIME_QUALIFICATION",
+    "approvalSource": "existing owner-approved R8/R10 engineering decisions, reaffirmed for post-ef823571 source",
+    "policyAuthority": "docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#13-wave-2-source-rights-model-admission-and-independent-acceptance-policy",
+    "singleActiveQueue": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md",
+    "decisions": [
+      {
+        "id": "OD-C01",
+        "disposition": "APPROVED_ENGINEERING_NOW",
+        "owner": "Media",
+        "action": "Implement source-rights/revocation adapter using actual immutable Media artifact and Shared PolicyEngine; no duplicate governance engine"
+      },
+      {
+        "id": "OD-C02",
+        "disposition": "APPROVED_CONDITIONAL_ENGINEERING_POSITIVE",
+        "owner": "Media/rights holder",
+        "action": "Use original nonhuman fixtures; any synthetic speech requires a genuine separately licensed voice and independent script; real human recording requires consent"
+      },
+      {
+        "id": "OD-C03",
+        "disposition": "APPROVED_MODEL_FALLBACK",
+        "owner": "Media STT",
+        "action": "Fix exact Whisper ONNX parity first; if unavailable, pinned official reference inference through existing processing port after real model/voice/source rights"
+      },
+      {
+        "id": "OD-C04",
+        "disposition": "APPROVED_CODEC_FALLBACK_BUT_PNG_REQUIRED",
+        "owner": "Media Vision",
+        "action": "Accept BMP as genuine BMP-only worker proof; separately prove PNG in a source-pinned PNG-capable licensed image; no VIS-03 promotion yet"
+      },
+      {
+        "id": "OD-C05",
+        "disposition": "APPROVED_HOST_FALLBACK",
+        "owner": "Media Vision",
+        "action": "Use dedicated Docker OCI worker for host without delegated cgroups; production separate authenticated broker still mandatory"
+      },
+      {
+        "id": "OD-C06",
+        "disposition": "APPROVED_TTS_FALLBACK",
+        "owner": "Media TTS",
+        "action": "License-reviewed eSpeak-NG adapter or independently validated alternative; heuristic never production-ready"
+      },
+      {
+        "id": "OD-C07",
+        "disposition": "APPROVED_VISION_TEST_INPUT",
+        "owner": "Media Vision",
+        "action": "Original nonhuman photograph and independent labels for functional positive; independent held-out rightscleared evaluation for accuracy"
+      },
+      {
+        "id": "OD-C08",
+        "disposition": "APPROVED_BOUNDED_EVALUATION",
+        "owner": "Media STT Evaluation",
+        "action": "Freeze selected attributed FLEURS en/hi/ne clips and gold before inference; alternate lawful small corpus if retrieval fails"
+      },
+      {
+        "id": "OD-C09",
+        "disposition": "APPROVED_EXISTING_CANONICAL_WRITER",
+        "owner": "Media Runtime",
+        "action": "Do not add shadow stores; production transcript admission and outbox require commit-time trusted evidence, CAS, fence and restart"
+      },
+      {
+        "id": "OD-C10",
+        "disposition": "OWNER_CODE_NOW",
+        "owner": "Ghatana Document Intelligence",
+        "issue": "samujjwal/ghatana#252",
+        "action": "Implement versioned ROI/rights/finality public OCR and installed Media consumer"
+      },
+      {
+        "id": "OD-C11",
+        "disposition": "OWNER_CODE_NOW",
+        "owner": "Ghatana Data Cloud",
+        "issue": "samujjwal/ghatana#254",
+        "action": "Implement versioned governed observation projection/lookup and source-free Media consumer"
+      },
+      {
+        "id": "OD-C12",
+        "disposition": "EXTERNAL_EVIDENCE_NEEDED_NOT_APPROVABLE",
+        "owner": "real rightsholders and independent reviewers",
+        "action": "Obtain authentic voice/biometric/recording/model/dataset grants; no self-signed or fixture approval"
+      },
+      {
+        "id": "OD-C13",
+        "disposition": "NONBLOCKING_TRACK_SEPARATION",
+        "owner": "Media and Lifecycle",
+        "action": "Continue Build source/tests independently of gtool/PDP closure, legacy writer cutover, deployment and release"
+      }
+    ],
+    "unwaivable": [
+      "Third-party rights, actual voice/biometric consent, signed independent reviewer trust, tested runtime authority, real model outputs, full original task acceptance"
+    ],
+    "protectedLedger": {
+      "total": 58,
+      "verified": 22,
+      "partial": 30,
+      "external": 6,
+      "change": 0
+    },
+    "currentReviewedSource": "samujjwal/ghatana-media@ef823571b1dbbed2c1ea38fa291657cb04855103",
+    "sourcePushedLocally": "UNKNOWN_NOT_OBSERVED_GITHUB_REMOTE_ONLY",
+    "pulses": "90 minutes implementation pulses, 4 hour full-row checkpoint; after 2 pulses without row completion fix first missing executable input instead of more planning"
   }
 }
