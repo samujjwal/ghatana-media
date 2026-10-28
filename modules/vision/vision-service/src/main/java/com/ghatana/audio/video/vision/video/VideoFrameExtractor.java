@@ -75,6 +75,8 @@ public class VideoFrameExtractor {
     /** Bound aggregate codec/probe processes so per-child limits cannot multiply without bound. */
     private static final java.util.concurrent.Semaphore MEDIA_PROCESS_SLOTS =
             new java.util.concurrent.Semaphore(2, true);
+    /** A public operation holds one slot across snapshotting, all child calls, and cleanup. */
+    private static final ThreadLocal<ProcessAdmissionState> PROCESS_ADMISSION = new ThreadLocal<>();
     /** Bound cleanup bookkeeping even if a compromised child creates a large process tree. */
     private static final int MAX_OBSERVED_CHILD_PROCESSES = 256;
     private static final java.util.Set<String> ALLOWED_VIDEO_EXTENSIONS =
@@ -243,45 +245,47 @@ public class VideoFrameExtractor {
         // `outputDir` is an exclusive per-invocation publication root. Its POSIX mode is
         // tightened to 0700, and every writable ancestor must be private or a sticky temp root.
         if (config == null) throw new IllegalArgumentException("Extraction config is required");
-        ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
-        Path workspace = createPrivateWorkspace();
-        Path staging = null;
-        Throwable primaryFailure = null;
-        try {
-            Path canonicalVideo = createInputSnapshot(validatedInput, workspace);
-            Path canonicalOutput = prepareOutputDirectory(outputDir);
-            VideoMetadata metadata = getVideoMetadataFromSnapshot(canonicalVideo);
-            staging = createIsolatedStagingDirectory(canonicalOutput);
-            List<String> command = buildFFmpegCommand(canonicalVideo, staging, config);
+        try (ProcessAdmission ignored = acquireProcessAdmission()) {
+            ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
+            Path workspace = createPrivateWorkspace();
+            Path staging = null;
+            Throwable primaryFailure = null;
+            try {
+                Path canonicalVideo = createInputSnapshot(validatedInput, workspace);
+                Path canonicalOutput = prepareOutputDirectory(outputDir);
+                VideoMetadata metadata = getVideoMetadataFromSnapshot(canonicalVideo);
+                staging = createIsolatedStagingDirectory(canonicalOutput);
+                List<String> command = buildFFmpegCommand(canonicalVideo, staging, config);
 
-            LOG.info("Extracting frames from video with fps={}, maxFrames={}",
-                    config.getFps(), config.getMaxFrames());
+                LOG.info("Extracting frames from video with fps={}, maxFrames={}",
+                        config.getFps(), config.getMaxFrames());
 
-            int timestampDiagnosticBudget = (int) Math.min(MAX_FRAME_TIMESTAMP_DIAGNOSTIC_BYTES,
-                    MAX_DIAGNOSTIC_BYTES + (long) config.getMaxFrames() * 512L);
-            ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), timestampDiagnosticBudget,
-                    staging, MAX_EXTRACTED_BYTES);
-            if (result.timedOut()) throw new IOException("FFmpeg process timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
-            if (result.outputExceeded()) throw new IOException("FFmpeg exceeded the extracted-output byte limit");
-            if (result.diagnosticExceeded()) throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
-            int exitCode = result.exitCode();
-            if (exitCode != 0) {
-                // Child output is untrusted and may include source paths or attacker-controlled
-                // media metadata. Keep only a bounded diagnostic length and never log it verbatim.
-                LOG.error("FFmpeg frame extraction failed (exitCode={}, diagnosticChars={})",
-                    exitCode, result.output().length());
-                throw new IOException("FFmpeg failed with exit code: " + exitCode);
+                int timestampDiagnosticBudget = (int) Math.min(MAX_FRAME_TIMESTAMP_DIAGNOSTIC_BYTES,
+                        MAX_DIAGNOSTIC_BYTES + (long) config.getMaxFrames() * 512L);
+                ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), timestampDiagnosticBudget,
+                        staging, MAX_EXTRACTED_BYTES);
+                if (result.timedOut()) throw new IOException("FFmpeg process timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
+                if (result.outputExceeded()) throw new IOException("FFmpeg exceeded the extracted-output byte limit");
+                if (result.diagnosticExceeded()) throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
+                int exitCode = result.exitCode();
+                if (exitCode != 0) {
+                    // Child output is untrusted and may include source paths or attacker-controlled
+                    // media metadata. Keep only a bounded diagnostic length and never log it verbatim.
+                    LOG.error("FFmpeg frame extraction failed (exitCode={}, diagnosticChars={})",
+                        exitCode, result.output().length());
+                    throw new IOException("FFmpeg failed with exit code: " + exitCode);
+                }
+                List<ExtractedFrame> stagedFrames = collectExtractedFrames(
+                        staging, config, metadata.getTimeBase(), result.output());
+                List<ExtractedFrame> publishedFrames = publishStagedFrames(stagedFrames, canonicalOutput);
+                LOG.info("Frame extraction completed successfully");
+                return publishedFrames;
+            } catch (IOException | RuntimeException | Error failure) {
+                primaryFailure = failure;
+                throw failure;
+            } finally {
+                cleanupWorkspace(staging, workspace, primaryFailure);
             }
-            List<ExtractedFrame> stagedFrames = collectExtractedFrames(
-                    staging, config, metadata.getTimeBase(), result.output());
-            List<ExtractedFrame> publishedFrames = publishStagedFrames(stagedFrames, canonicalOutput);
-            LOG.info("Frame extraction completed successfully");
-            return publishedFrames;
-        } catch (IOException | RuntimeException | Error failure) {
-            primaryFailure = failure;
-            throw failure;
-        } finally {
-            cleanupWorkspace(staging, workspace, primaryFailure);
         }
     }
 
@@ -297,63 +301,65 @@ public class VideoFrameExtractor {
             throw new IOException("Video input size is outside the supported audio-demux bounds");
         }
         String extension = sniffVideoExtension(videoData);
-        Path workspace = createPrivateWorkspace();
-        Path staging = null;
-        IOException failure = null;
-        try {
-            Path source = workspace.resolve("source." + extension);
-            writeOwnerOnlyInput(source, videoData);
-            Path canonicalSource = validateInput(source);
-            String format = inputFormat(canonicalSource);
-            AudioStreamMetadata metadata = probeFirstAudioStream(canonicalSource, format);
-            if (metadata == null) throw new IOException("VIDEO_AUDIO_TRACK_UNAVAILABLE: no audio stream exists");
-            if (!durationWithinLimit(metadata)) {
-                throw new IOException("VIDEO_AUDIO_DURATION_NOT_ADMITTED: audio duration is missing or exceeds 300 seconds");
-            }
-
-            staging = createIsolatedStagingDirectory(workspace);
-            Path decoded = staging.resolve("audio.pcm");
-            List<String> command = List.of(
-                    FFMPEG_COMMAND, "-nostdin", "-v", "error", "-protocol_whitelist", "file",
-                    "-max_alloc", "268435456", "-i", canonicalSource.toString(),
-                    "-map", "0:" + metadata.streamIndex(), "-vn", "-sn", "-dn",
-                    "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", "-f", "s16le",
-                    "-fs", Long.toString(MAX_DEMUXED_AUDIO_BYTES), decoded.toString(), "-n");
-            ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(120), MAX_DIAGNOSTIC_BYTES,
-                    staging, MAX_DEMUXED_AUDIO_BYTES);
-            if (result.timedOut()) throw new IOException("FFmpeg audio demux timed out");
-            if (result.outputExceeded()) throw new IOException("FFmpeg audio output exceeded its byte limit");
-            if (result.diagnosticExceeded()) throw new IOException("FFmpeg audio diagnostics exceeded their byte limit");
-            if (result.exitCode() != 0) throw new IOException("FFmpeg audio demux failed with exit code: " + result.exitCode());
-            validateAudioOutput(decoded, staging);
-            byte[] pcm = Files.readAllBytes(decoded);
-            return new ExtractedAudioTrack(pcm, 16_000, 1, metadata.streamIndex(), metadata.startPts(),
-                    metadata.timeBaseNumerator(), metadata.timeBaseDenominator(), metadata.startKnown());
-        } catch (IOException | RuntimeException caught) {
-            if (caught instanceof IOException io) {
-                failure = io;
-            } else {
-                failure = new IOException("Video audio demux failed within configured limits", caught);
-            }
-            throw failure;
-        } finally {
-            IOException cleanupFailure = null;
-            if (staging != null) {
-                try {
-                    cleanupStagingDirectory(staging);
-                } catch (IOException cleanup) {
-                    cleanupFailure = cleanup;
-                }
-            }
+        try (ProcessAdmission ignored = acquireProcessAdmission()) {
+            Path workspace = createPrivateWorkspace();
+            Path staging = null;
+            IOException failure = null;
             try {
-                cleanupStagingDirectory(workspace);
-            } catch (IOException cleanup) {
-                if (cleanupFailure == null) cleanupFailure = cleanup;
-                else cleanupFailure.addSuppressed(cleanup);
-            }
-            if (cleanupFailure != null) {
-                if (failure != null) failure.addSuppressed(cleanupFailure);
-                else throw cleanupFailure;
+                Path source = workspace.resolve("source." + extension);
+                writeOwnerOnlyInput(source, videoData);
+                Path canonicalSource = validateInput(source);
+                String format = inputFormat(canonicalSource);
+                AudioStreamMetadata metadata = probeFirstAudioStream(canonicalSource, format);
+                if (metadata == null) throw new IOException("VIDEO_AUDIO_TRACK_UNAVAILABLE: no audio stream exists");
+                if (!durationWithinLimit(metadata)) {
+                    throw new IOException("VIDEO_AUDIO_DURATION_NOT_ADMITTED: audio duration is missing or exceeds 300 seconds");
+                }
+
+                staging = createIsolatedStagingDirectory(workspace);
+                Path decoded = staging.resolve("audio.pcm");
+                List<String> command = List.of(
+                        FFMPEG_COMMAND, "-nostdin", "-v", "error", "-protocol_whitelist", "file",
+                        "-max_alloc", "268435456", "-i", canonicalSource.toString(),
+                        "-map", "0:" + metadata.streamIndex(), "-vn", "-sn", "-dn",
+                        "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", "-f", "s16le",
+                        "-fs", Long.toString(MAX_DEMUXED_AUDIO_BYTES), decoded.toString(), "-n");
+                ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(120), MAX_DIAGNOSTIC_BYTES,
+                        staging, MAX_DEMUXED_AUDIO_BYTES);
+                if (result.timedOut()) throw new IOException("FFmpeg audio demux timed out");
+                if (result.outputExceeded()) throw new IOException("FFmpeg audio output exceeded its byte limit");
+                if (result.diagnosticExceeded()) throw new IOException("FFmpeg audio diagnostics exceeded their byte limit");
+                if (result.exitCode() != 0) throw new IOException("FFmpeg audio demux failed with exit code: " + result.exitCode());
+                validateAudioOutput(decoded, staging);
+                byte[] pcm = Files.readAllBytes(decoded);
+                return new ExtractedAudioTrack(pcm, 16_000, 1, metadata.streamIndex(), metadata.startPts(),
+                        metadata.timeBaseNumerator(), metadata.timeBaseDenominator(), metadata.startKnown());
+            } catch (IOException | RuntimeException caught) {
+                if (caught instanceof IOException io) {
+                    failure = io;
+                } else {
+                    failure = new IOException("Video audio demux failed within configured limits", caught);
+                }
+                throw failure;
+            } finally {
+                IOException cleanupFailure = null;
+                if (staging != null) {
+                    try {
+                        cleanupStagingDirectory(staging);
+                    } catch (IOException cleanup) {
+                        cleanupFailure = cleanup;
+                    }
+                }
+                try {
+                    cleanupStagingDirectory(workspace);
+                } catch (IOException cleanup) {
+                    if (cleanupFailure == null) cleanupFailure = cleanup;
+                    else cleanupFailure.addSuppressed(cleanup);
+                }
+                if (cleanupFailure != null) {
+                    if (failure != null) failure.addSuppressed(cleanupFailure);
+                    else throw cleanupFailure;
+                }
             }
         }
     }
@@ -493,68 +499,70 @@ public class VideoFrameExtractor {
             throws IOException {
 
         if (timestampMs < 0) throw new IllegalArgumentException("timestampMs must not be negative");
-        ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
-        for (Path component : outputPath) {
-            if (component.toString().equals("..")) throw new IOException("Output traversal is not allowed");
-        }
-        Path requestedOutput = outputPath.toAbsolutePath().normalize();
-        Path outputParent = requestedOutput.getParent();
-        String outputName = requestedOutput.getFileName() == null ? "" : requestedOutput.getFileName().toString();
-        String suffix = outputName.contains(".") ? outputName.substring(outputName.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT) : "";
-        if (!java.util.Set.of("jpg", "jpeg", "png", "bmp", "tiff").contains(suffix)
-                || outputName.startsWith("-") || outputName.contains(":")) {
-            throw new IOException("Output image format or name is not allow-listed");
-        }
-        if (outputParent == null) {
-            throw new IOException("Output frame path is unsafe");
-        }
-        rejectSymlinkComponents(requestedOutput, "Output frame path is unsafe");
-        requireSafeWritableAncestors(outputParent);
-        Files.createDirectories(outputParent);
-        Path realOutputParent = outputParent.toRealPath();
-        requireSafeWritableAncestors(realOutputParent);
-        requireOwnerOnlyDirectory(realOutputParent);
-        Path canonicalOutput = realOutputParent.resolve(outputName);
-        if (Files.exists(canonicalOutput, LinkOption.NOFOLLOW_LINKS)) throw new IOException("Output frame already exists");
-        Path workspace = createPrivateWorkspace();
-        Path staging = null;
-        Throwable primaryFailure = null;
-        try {
-            Path canonicalVideo = createInputSnapshot(validatedInput, workspace);
-            staging = createIsolatedStagingDirectory(realOutputParent);
-            Path stagedOutput = staging.resolve("frame." + suffix);
-            double timestampSec = timestampMs / 1000.0;
+        try (ProcessAdmission ignored = acquireProcessAdmission()) {
+            ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
+            for (Path component : outputPath) {
+                if (component.toString().equals("..")) throw new IOException("Output traversal is not allowed");
+            }
+            Path requestedOutput = outputPath.toAbsolutePath().normalize();
+            Path outputParent = requestedOutput.getParent();
+            String outputName = requestedOutput.getFileName() == null ? "" : requestedOutput.getFileName().toString();
+            String suffix = outputName.contains(".") ? outputName.substring(outputName.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT) : "";
+            if (!java.util.Set.of("jpg", "jpeg", "png", "bmp", "tiff").contains(suffix)
+                    || outputName.startsWith("-") || outputName.contains(":")) {
+                throw new IOException("Output image format or name is not allow-listed");
+            }
+            if (outputParent == null) {
+                throw new IOException("Output frame path is unsafe");
+            }
+            rejectSymlinkComponents(requestedOutput, "Output frame path is unsafe");
+            requireSafeWritableAncestors(outputParent);
+            Files.createDirectories(outputParent);
+            Path realOutputParent = outputParent.toRealPath();
+            requireSafeWritableAncestors(realOutputParent);
+            requireOwnerOnlyDirectory(realOutputParent);
+            Path canonicalOutput = realOutputParent.resolve(outputName);
+            if (Files.exists(canonicalOutput, LinkOption.NOFOLLOW_LINKS)) throw new IOException("Output frame already exists");
+            Path workspace = createPrivateWorkspace();
+            Path staging = null;
+            Throwable primaryFailure = null;
+            try {
+                Path canonicalVideo = createInputSnapshot(validatedInput, workspace);
+                staging = createIsolatedStagingDirectory(realOutputParent);
+                Path stagedOutput = staging.resolve("frame." + suffix);
+                double timestampSec = timestampMs / 1000.0;
 
-            List<String> command = List.of(
-                    FFMPEG_COMMAND,
-                    "-nostdin", "-v", "error", "-protocol_whitelist", "file",
-                    "-f", inputFormat(canonicalVideo),
-                    "-max_alloc", "268435456", "-max_pixels", Long.toString(MAX_PIXELS),
-                    "-ss", String.format(Locale.ROOT, "%.3f", timestampSec),
-                    "-i", canonicalVideo.toString(),
-                    "-frames:v", "1",
-                    "-vf", "scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
-                    "-q:v", "2",
-                    "-fs", Long.toString(MAX_SINGLE_FRAME_BYTES),
-                    stagedOutput.toString(),
-                    "-n"
-            );
+                List<String> command = List.of(
+                        FFMPEG_COMMAND,
+                        "-nostdin", "-v", "error", "-protocol_whitelist", "file",
+                        "-f", inputFormat(canonicalVideo),
+                        "-max_alloc", "268435456", "-max_pixels", Long.toString(MAX_PIXELS),
+                        "-ss", String.format(Locale.ROOT, "%.3f", timestampSec),
+                        "-i", canonicalVideo.toString(),
+                        "-frames:v", "1",
+                        "-vf", "scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
+                        "-q:v", "2",
+                        "-fs", Long.toString(MAX_SINGLE_FRAME_BYTES),
+                        stagedOutput.toString(),
+                        "-n"
+                );
 
-            LOG.info("Extracting frame at timestamp {}ms", timestampMs);
+                LOG.info("Extracting frame at timestamp {}ms", timestampMs);
 
-            ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(30), MAX_DIAGNOSTIC_BYTES,
-                    staging, MAX_SINGLE_FRAME_BYTES);
-            if (result.timedOut()) throw new IOException("FFmpeg process timed out");
-            if (result.diagnosticExceeded()) throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
-            if (result.outputExceeded()) throw new IOException("FFmpeg output exceeded its byte budget");
-            if (result.exitCode() != 0) throw new IOException("FFmpeg failed with exit code: " + result.exitCode());
-            validateSingleFrameOutput(stagedOutput, staging);
-            Files.move(stagedOutput, canonicalOutput);
-        } catch (IOException | RuntimeException | Error failure) {
-            primaryFailure = failure;
-            throw failure;
-        } finally {
-            cleanupWorkspace(staging, workspace, primaryFailure);
+                ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(30), MAX_DIAGNOSTIC_BYTES,
+                        staging, MAX_SINGLE_FRAME_BYTES);
+                if (result.timedOut()) throw new IOException("FFmpeg process timed out");
+                if (result.diagnosticExceeded()) throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
+                if (result.outputExceeded()) throw new IOException("FFmpeg output exceeded its byte budget");
+                if (result.exitCode() != 0) throw new IOException("FFmpeg failed with exit code: " + result.exitCode());
+                validateSingleFrameOutput(stagedOutput, staging);
+                Files.move(stagedOutput, canonicalOutput);
+            } catch (IOException | RuntimeException | Error failure) {
+                primaryFailure = failure;
+                throw failure;
+            } finally {
+                cleanupWorkspace(staging, workspace, primaryFailure);
+            }
         }
     }
 
@@ -896,17 +904,19 @@ public class VideoFrameExtractor {
      * @throws IOException If metadata extraction fails
      */
     public VideoMetadata getVideoMetadata(Path videoPath) throws IOException {
-        ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
-        Path workspace = createPrivateWorkspace();
-        Throwable primaryFailure = null;
-        try {
-            Path snapshot = createInputSnapshot(validatedInput, workspace);
-            return getVideoMetadataFromSnapshot(snapshot);
-        } catch (IOException | RuntimeException | Error failure) {
-            primaryFailure = failure;
-            throw failure;
-        } finally {
-            cleanupWorkspace(null, workspace, primaryFailure);
+        try (ProcessAdmission ignored = acquireProcessAdmission()) {
+            ValidatedVideoInput validatedInput = captureValidatedInput(videoPath);
+            Path workspace = createPrivateWorkspace();
+            Throwable primaryFailure = null;
+            try {
+                Path snapshot = createInputSnapshot(validatedInput, workspace);
+                return getVideoMetadataFromSnapshot(snapshot);
+            } catch (IOException | RuntimeException | Error failure) {
+                primaryFailure = failure;
+                throw failure;
+            } finally {
+                cleanupWorkspace(null, workspace, primaryFailure);
+            }
         }
     }
 
@@ -968,76 +978,119 @@ public class VideoFrameExtractor {
             Path monitoredOutput, long maxOutputBytes) throws IOException {
         if (timeout.isNegative() || timeout.isZero()) throw new IllegalArgumentException("timeout must be positive");
         if (maxOutputChars < 0) throw new IllegalArgumentException("maxOutputChars must not be negative");
-        if (!MEDIA_PROCESS_SLOTS.tryAcquire()) {
-            throw new IOException("Media process capacity is exhausted");
-        }
-        Process process;
-        try {
-            process = new ProcessBuilder(command).redirectErrorStream(true).start();
-        } catch (IOException | RuntimeException | Error failure) {
-            MEDIA_PROCESS_SLOTS.release();
-            throw failure;
-        }
-        try {
-            ByteArrayOutputStream captured = new ByteArrayOutputStream(Math.min(maxOutputChars, 1024));
-            AtomicReference<IOException> drainFailure = new AtomicReference<>();
-            java.util.concurrent.atomic.AtomicBoolean diagnosticExceeded = new java.util.concurrent.atomic.AtomicBoolean();
-            Thread drain = new Thread(() -> drainBounded(process.getInputStream(), captured, maxOutputChars,
-                    diagnosticExceeded, process, drainFailure),
-                "media-child-output-drain");
-            drain.setDaemon(true);
-            drain.start();
-            java.util.Set<ProcessHandle> observedDescendants = java.util.concurrent.ConcurrentHashMap.newKeySet();
-            long deadline = System.nanoTime() + timeout.toNanos();
-            boolean finished = false;
-            boolean outputExceeded = false;
-            while (!finished && System.nanoTime() < deadline) {
-                observeDescendants(process, observedDescendants);
-                finished = process.waitFor(Math.min(100L, Math.max(1L,
-                        TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime()))), TimeUnit.MILLISECONDS);
-                if (!finished) {
-                    if (diagnosticExceeded.get()) break;
-                    if (monitoredOutput != null && directoryBytes(monitoredOutput) > maxOutputBytes) {
-                        outputExceeded = true;
-                        break;
+        try (ProcessAdmission ignored = acquireProcessAdmission()) {
+            Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+            try {
+                ByteArrayOutputStream captured = new ByteArrayOutputStream(Math.min(maxOutputChars, 1024));
+                AtomicReference<IOException> drainFailure = new AtomicReference<>();
+                java.util.concurrent.atomic.AtomicBoolean diagnosticExceeded = new java.util.concurrent.atomic.AtomicBoolean();
+                Thread drain = new Thread(() -> drainBounded(process.getInputStream(), captured, maxOutputChars,
+                        diagnosticExceeded, process, drainFailure),
+                    "media-child-output-drain");
+                drain.setDaemon(true);
+                drain.start();
+                java.util.Set<ProcessHandle> observedDescendants = java.util.concurrent.ConcurrentHashMap.newKeySet();
+                long deadline = System.nanoTime() + timeout.toNanos();
+                boolean finished = false;
+                boolean outputExceeded = false;
+                while (!finished && System.nanoTime() < deadline) {
+                    observeDescendants(process, observedDescendants);
+                    finished = process.waitFor(Math.min(100L, Math.max(1L,
+                            TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime()))), TimeUnit.MILLISECONDS);
+                    if (!finished) {
+                        if (diagnosticExceeded.get()) break;
+                        if (monitoredOutput != null && directoryBytes(monitoredOutput) > maxOutputBytes) {
+                            outputExceeded = true;
+                            break;
+                        }
                     }
                 }
+                // A short-lived child can finish and exit after producing more than the budget
+                // between polling intervals. Check once after exit so that fast overflow cannot
+                // be mistaken for a successful bounded extraction.
+                if (finished && monitoredOutput != null && directoryBytes(monitoredOutput) > maxOutputBytes) {
+                    outputExceeded = true;
+                }
+                observeDescendants(process, observedDescendants);
+                if (!finished) {
+                    terminateProcessTree(process, observedDescendants);
+                    process.waitFor(2, TimeUnit.SECONDS);
+                } else if (!observedDescendants.isEmpty()) {
+                    terminateProcessTree(process, observedDescendants);
+                }
+                drain.join(2_000);
+                if (drain.isAlive()) {
+                    process.getInputStream().close();
+                    drain.join(250);
+                }
+                // Closing the pipe while terminating a timed-out child may interrupt the drain;
+                // that expected cleanup error does not replace the timeout result.
+                if (finished && !diagnosticExceeded.get() && drainFailure.get() != null) throw drainFailure.get();
+                String output;
+                synchronized (captured) {
+                    output = captured.toString(StandardCharsets.UTF_8);
+                }
+                boolean diagnosticsExceeded = diagnosticExceeded.get();
+                return new ProcessResult(finished ? process.exitValue() : -1,
+                        !finished && !outputExceeded && !diagnosticsExceeded, output, outputExceeded, diagnosticsExceeded);
+            } catch (InterruptedException interrupted) {
+                terminateProcessTree(process);
+                Thread.currentThread().interrupt();
+                throw new IOException("Media child process interrupted", interrupted);
+            } finally {
+                if (process.isAlive()) terminateProcessTree(process);
             }
-            // A short-lived child can finish and exit after producing more than the budget
-            // between polling intervals. Check once after exit so that fast overflow cannot
-            // be mistaken for a successful bounded extraction.
-            if (finished && monitoredOutput != null && directoryBytes(monitoredOutput) > maxOutputBytes) {
-                outputExceeded = true;
+        }
+    }
+
+    /** Acquire a fair aggregate slot, reusing the current operation's slot for nested probes/codecs. */
+    private static ProcessAdmission acquireProcessAdmission() throws IOException {
+        ProcessAdmissionState state = PROCESS_ADMISSION.get();
+        if (state == null) {
+            boolean acquired;
+            try {
+                // The zero-time timed form observes Semaphore's fairness setting; untimed
+                // tryAcquire() intentionally barges even on a fair semaphore.
+                acquired = MEDIA_PROCESS_SLOTS.tryAcquire(0, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Media process admission was interrupted", interrupted);
             }
-            observeDescendants(process, observedDescendants);
-            if (!finished) {
-                terminateProcessTree(process, observedDescendants);
-                process.waitFor(2, TimeUnit.SECONDS);
-            } else if (!observedDescendants.isEmpty()) {
-                terminateProcessTree(process, observedDescendants);
+            if (!acquired) {
+                throw new IOException("Media process capacity is exhausted");
             }
-            drain.join(2_000);
-            if (drain.isAlive()) {
-                process.getInputStream().close();
-                drain.join(250);
+            state = new ProcessAdmissionState();
+            try {
+                PROCESS_ADMISSION.set(state);
+            } catch (RuntimeException | Error failure) {
+                MEDIA_PROCESS_SLOTS.release();
+                throw failure;
             }
-            // Closing the pipe while terminating a timed-out child may interrupt the drain;
-            // that expected cleanup error does not replace the timeout result.
-            if (finished && !diagnosticExceeded.get() && drainFailure.get() != null) throw drainFailure.get();
-            String output;
-            synchronized (captured) {
-                output = captured.toString(StandardCharsets.UTF_8);
+        }
+        state.depth++;
+        return new ProcessAdmission(state);
+    }
+
+    private static final class ProcessAdmissionState {
+        private int depth;
+    }
+
+    private static final class ProcessAdmission implements AutoCloseable {
+        private final ProcessAdmissionState state;
+        private boolean closed;
+
+        private ProcessAdmission(ProcessAdmissionState state) {
+            this.state = state;
+        }
+
+        @Override
+        public void close() {
+            if (closed) return;
+            closed = true;
+            if (--state.depth == 0) {
+                PROCESS_ADMISSION.remove();
+                MEDIA_PROCESS_SLOTS.release();
             }
-            boolean diagnosticsExceeded = diagnosticExceeded.get();
-            return new ProcessResult(finished ? process.exitValue() : -1,
-                    !finished && !outputExceeded && !diagnosticsExceeded, output, outputExceeded, diagnosticsExceeded);
-        } catch (InterruptedException interrupted) {
-            terminateProcessTree(process);
-            Thread.currentThread().interrupt();
-            throw new IOException("Media child process interrupted", interrupted);
-        } finally {
-            if (process.isAlive()) terminateProcessTree(process);
-            MEDIA_PROCESS_SLOTS.release();
         }
     }
 

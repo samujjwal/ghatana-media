@@ -2,12 +2,18 @@ package com.ghatana.audio.video.vision.video;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,6 +22,68 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 class VideoFrameExtractorProcessTest {
     @TempDir Path tempDir;
+
+    @Test
+    @ResourceLock(Resources.SYSTEM_PROPERTIES)
+    void overCapacityMetadataCallFailsBeforeCreatingWorkspaceOrSnapshot() throws Exception {
+        Path input = tempDir.resolve("admission.mp4");
+        Files.write(input, new byte[] {0, 0, 0, 8, 'f', 't', 'y', 'p', 'i', 's', 'o', 'm'});
+        String previousTmp = System.getProperty("java.io.tmpdir");
+        System.setProperty("java.io.tmpdir", tempDir.toString());
+        CountDownLatch snapshotsEntered = new CountDownLatch(2);
+        CountDownLatch releaseSnapshots = new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicInteger snapshotCalls = new java.util.concurrent.atomic.AtomicInteger();
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            Path createInputSnapshot(ValidatedVideoInput validated, Path workspace) throws java.io.IOException {
+                snapshotCalls.incrementAndGet();
+                snapshotsEntered.countDown();
+                try {
+                    if (!releaseSnapshots.await(5, TimeUnit.SECONDS)) {
+                        throw new java.io.IOException("test snapshot gate timed out");
+                    }
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new java.io.IOException("test snapshot gate interrupted", interrupted);
+                }
+                return workspace.resolve("input.mp4");
+            }
+
+            @Override
+            VideoMetadata getVideoMetadataFromSnapshot(Path snapshot) {
+                return new VideoMetadata(1, 1, 1, 1, 1);
+            }
+        };
+        ExecutorService workers = Executors.newFixedThreadPool(2);
+        try {
+            var first = workers.submit(() -> extractor.getVideoMetadata(input));
+            var second = workers.submit(() -> extractor.getVideoMetadata(input));
+            assertThat(snapshotsEntered.await(5, TimeUnit.SECONDS)).isTrue();
+            assertThat(workspaceCount(tempDir)).isEqualTo(2);
+
+            assertThatThrownBy(() -> extractor.getVideoMetadata(input))
+                    .isInstanceOf(java.io.IOException.class)
+                    .hasMessage("Media process capacity is exhausted");
+            assertThat(snapshotCalls).hasValue(2);
+            assertThat(workspaceCount(tempDir)).isEqualTo(2);
+
+            releaseSnapshots.countDown();
+            first.get(5, TimeUnit.SECONDS);
+            second.get(5, TimeUnit.SECONDS);
+            assertThat(workspaceCount(tempDir)).isZero();
+        } finally {
+            releaseSnapshots.countDown();
+            workers.shutdownNow();
+            if (previousTmp == null) System.clearProperty("java.io.tmpdir");
+            else System.setProperty("java.io.tmpdir", previousTmp);
+        }
+    }
+
+    private static long workspaceCount(Path directory) throws java.io.IOException {
+        try (var entries = Files.list(directory)) {
+            return entries.filter(path -> path.getFileName().toString().startsWith(".media-video-codec-")).count();
+        }
+    }
 
     @Test
     void audioDemuxSelectsOneBoundedAudioStreamAndReturnsDefensivePcm() throws Exception {
