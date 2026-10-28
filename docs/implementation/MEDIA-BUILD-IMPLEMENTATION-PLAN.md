@@ -1,5 +1,8 @@
 # Ghatana Media — canonical BUILD / Plan Implementation
 
+> **One active Media modality implementation queue:** [Wave 2 active work plan](MEDIA-WAVE2-ACTIVE-EXECUTION.md) combines the latest host OCI native qualification, first genuinely authorized STT job→transcript restart path, TTS/Vision reference quality, existing Ghatana owner API work and all 36 original open task dispositions. Preserve this Build source's 50 work packages; never infer formal PDP/gtool closure.
+
+
 > **Active real-modality unblock:** [Wave 2 R10 owner execution](MEDIA-WAVE2-R10-OWNER-UNBLOCKED-EXECUTION.md), with exactly 36 open tasks and 12 owned implementation gates. The source-owned 50-package Build plan is otherwise unchanged. Do not mistake local model output, Docker wrapper syntax or reviewer signatures for licensed and durable customer effects.
 
 
