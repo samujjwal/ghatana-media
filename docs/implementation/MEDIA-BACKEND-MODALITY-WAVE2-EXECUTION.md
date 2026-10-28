@@ -2616,3 +2616,36 @@ they do not supply the owner-required contracts; **VIS-09 and MM-10 remain
 PARTIAL**, and no adapter/status promotion is justified by these APIs. The
 user's “Nothing available yet” remains the authority for absent owner-approved
 API/rights/model/isolation material.
+
+### Fresh current-HEAD 58-row re-audit — 2026-10-28
+
+Three independent read-only Luna reviews rechecked the task criteria, source,
+and recorded evidence in STT/TTS, Vision, and Multimodal/Observability against
+Media `4de0c9566004c22b1f01e7723e016b1d3d4e3015` (`main`, clean, 95 commits
+ahead of `origin/main`). Since the last runtime test cut `fb087be4`, the only
+test-source change is the V023 migration-lineage fixture correction at
+`aba8369a`; the other commits update this plan and its schedule. No runtime
+source changed after `fb087be4`. The audit did not rerun tests; retain the
+recorded test cuts and their limits as the evidence for test execution.
+
+The partition reviews reconcile exactly to 58 rows: STT/TTS has 6 locally
+verified, 15 partial, and 3 owner-external; Vision has 4 locally verified, 6
+partial, and 2 owner-external; Multimodal/Observability has 12 locally
+verified, 9 partial, and 1 owner-external. In aggregate, **22/58 are locally
+verified, 30/58 remain partial, and 6/58 remain owner-external**. The six
+owner-external rows are **STT-12, TTS-07, TTS-12, VIS-02, VIS-12, and MM-12**.
+Every open row remains `taskAccepted=false`; no row was promoted.
+
+The reviews found no additional safe Track A implementation action with the
+available inputs. The outstanding criteria require trusted rights/consent and
+model/license/corpus approvals, trusted worker isolation, the owner-required
+public Data Cloud observation and Document Intelligence Media OCR contracts,
+and row-specific provider-quality, finality/readback, process-restart, or
+named-host measurement evidence. The owner confirmed “Nothing available yet.”
+The exact owner API gap remains recorded above and in the schedule's
+`currentExternalApiAudit` and `postR7Oct28CurrentHeadFreshAudit` records.
+
+This current-HEAD disposition review does not rerun every row's historical
+acceptance tests or establish owner acceptance, formal PDP/gtool closure,
+deployment, or release. Resume implementation when owner artifacts or a new
+independently verifiable local defect supplies a safe next action.
