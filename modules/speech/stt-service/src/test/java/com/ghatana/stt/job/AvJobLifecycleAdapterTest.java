@@ -183,7 +183,7 @@ class AvJobLifecycleAdapterTest {
         AvTranscriptionJob processing = created.withStatus(AvTranscriptionJob.JobStatus.PROCESSING);
         assertThat(assertThrows(IllegalStateException.class,
                 () -> processing.withStatus(AvTranscriptionJob.JobStatus.RETRY_PENDING)))
-                .hasMessageStartingWith("STT_JOB_RETRY_SCHEDULE_REQUIRED:");
+                .hasMessageStartingWith("STT_JOB_RETRY_NOT_ADMITTED:");
         assertThat(assertThrows(IllegalArgumentException.class, () -> processing.withCompletedResult(" ")))
                 .hasMessageStartingWith("STT_JOB_RESULT_VERSION_REQUIRED:");
         AvTranscriptionJob completed = processing.withCompletedResult("transcript-version-1");
@@ -198,17 +198,31 @@ class AvJobLifecycleAdapterTest {
     }
 
     @Test
-    void retrySchedulingIncrementsAndEnforcesTheDeclaredBudget() {
-        AvTranscriptionJob job = jobAt(AvTranscriptionJob.JobStatus.PROCESSING);
-        String stableJobId = job.jobId();
-        for (int attempt = 0; attempt < 3; attempt++) {
-            job = job.scheduleRetry().withStatus(AvTranscriptionJob.JobStatus.PROCESSING);
-            assertThat(job.jobId()).as("retry %s preserves stable job identity", attempt + 1)
-                    .isEqualTo(stableJobId);
+    void retrySchedulingFailsClosedWithoutDurableNoEffectEvidenceAndAttemptFence() {
+        for (AvTranscriptionJob.JobStatus status : java.util.List.of(
+                AvTranscriptionJob.JobStatus.PROCESSING,
+                AvTranscriptionJob.JobStatus.RECONCILING)) {
+            AvTranscriptionJob job = jobAt(status);
+
+            assertThat(assertThrows(IllegalStateException.class, job::scheduleRetry))
+                    .as("%s cannot authorize replay without durable no-effect evidence and attempt fencing", status)
+                    .hasMessageStartingWith("STT_JOB_RETRY_NOT_ADMITTED:");
         }
-        assertThat(job.retryCount()).isEqualTo(job.maxRetries());
-        assertThat(assertThrows(IllegalStateException.class, job::scheduleRetry))
-                .hasMessageStartingWith("STT_JOB_RETRY_BUDGET_EXCEEDED:");
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void retryStatesCannotTransitionBackToProcessingWithoutReplaySafetyEvidence() {
+        for (AvTranscriptionJob.JobStatus status : java.util.List.of(
+                AvTranscriptionJob.JobStatus.RETRY_PENDING,
+                AvTranscriptionJob.JobStatus.RETRYING)) {
+            AvTranscriptionJob retryState = jobAt(status);
+
+            assertThat(assertThrows(IllegalStateException.class,
+                    () -> retryState.withStatus(AvTranscriptionJob.JobStatus.PROCESSING)))
+                    .as("%s cannot authorize another provider dispatch", status)
+                    .hasMessageStartingWith("STT_JOB_TRANSITION_INVALID:");
+        }
     }
 
     @Test
@@ -216,16 +230,12 @@ class AvJobLifecycleAdapterTest {
         AvTranscriptionJob unknown = jobAt(AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN);
 
         assertThat(assertThrows(IllegalStateException.class, unknown::scheduleRetry))
-                .hasMessageStartingWith("STT_JOB_TRANSITION_INVALID:");
+                .hasMessageStartingWith("STT_JOB_RETRY_NOT_ADMITTED:");
 
         AvTranscriptionJob reconciling = unknown.withStatus(AvTranscriptionJob.JobStatus.RECONCILING);
-        AvTranscriptionJob retry = reconciling.scheduleRetry();
-        assertThat(retry.jobId()).isEqualTo(unknown.jobId());
-        assertThat(retry.artifactId()).isEqualTo(unknown.artifactId());
-        assertThat(retry.tenantId()).isEqualTo(unknown.tenantId());
-        assertThat(retry.requestId()).isEqualTo(unknown.requestId());
-        assertThat(retry.status()).isEqualTo(AvTranscriptionJob.JobStatus.RETRY_PENDING);
-        assertThat(retry.retryCount()).isEqualTo(unknown.retryCount() + 1);
+        assertThat(assertThrows(IllegalStateException.class, reconciling::scheduleRetry))
+                .as("entering reconciliation is not evidence that replay is safe")
+                .hasMessageStartingWith("STT_JOB_RETRY_NOT_ADMITTED:");
     }
 
     @SuppressWarnings("deprecation")
@@ -236,8 +246,8 @@ class AvJobLifecycleAdapterTest {
             case CREATED -> job;
             case QUEUED -> job.withStatus(AvTranscriptionJob.JobStatus.QUEUED);
             case PROCESSING -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING);
-            case RETRY_PENDING -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING).scheduleRetry();
-            case RETRYING -> legacyRetrying(job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING).scheduleRetry());
+            case RETRY_PENDING -> retryPending(job);
+            case RETRYING -> legacyRetrying(retryPending(job));
             case OUTCOME_UNKNOWN -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING)
                     .withStatus(AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN);
             case RECONCILING -> job.withStatus(AvTranscriptionJob.JobStatus.PROCESSING)
@@ -249,6 +259,14 @@ class AvJobLifecycleAdapterTest {
                     .withStatus(AvTranscriptionJob.JobStatus.FAILED);
             case CANCELLED -> job.withStatus(AvTranscriptionJob.JobStatus.CANCELLED);
         };
+    }
+
+    private static AvTranscriptionJob retryPending(AvTranscriptionJob job) {
+        return new AvTranscriptionJob(
+                job.jobId(), job.artifactId(), job.tenantId(), job.languageCode(),
+                AvTranscriptionJob.JobStatus.RETRY_PENDING, job.parameters(), job.resultId(),
+                job.errorMessage(), job.progressPercent(), job.createdAt(), job.startedAt(),
+                job.completedAt(), 1, job.maxRetries(), job.traceId(), job.requestId(), job.processorVersion());
     }
 
     @SuppressWarnings("deprecation")

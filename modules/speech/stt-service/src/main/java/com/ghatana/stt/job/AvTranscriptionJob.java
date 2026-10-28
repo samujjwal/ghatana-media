@@ -112,7 +112,7 @@ public record AvTranscriptionJob(
         }
         if (newStatus == JobStatus.RETRY_PENDING || newStatus == JobStatus.RETRYING) {
             throw new IllegalStateException(
-                    "STT_JOB_RETRY_SCHEDULE_REQUIRED: use scheduleRetry to enforce the retry budget");
+                    "STT_JOB_RETRY_NOT_ADMITTED: durable replay-safety evidence and attempt fencing are unavailable");
         }
         if (!transitionAllowed(status, newStatus)) {
             throw new IllegalStateException("STT_JOB_TRANSITION_INVALID: " + status + " cannot transition to " + newStatus);
@@ -138,18 +138,16 @@ public record AvTranscriptionJob(
                 retryCount, maxRetries, traceId, requestId, processorVersion);
     }
 
-    /** Schedules one bounded retry after a failed or reconciled attempt. */
+    /**
+     * Rejects retries until the owning durable job integration establishes replay safety.
+     *
+     * <p>This local job value has no durable no-effect evidence or attempt idempotency
+     * fence, so neither an active attempt nor an in-progress reconciliation can authorize
+     * another provider dispatch. Retry metadata remains for compatibility.</p>
+     */
     public AvTranscriptionJob scheduleRetry() {
-        if (status != JobStatus.PROCESSING && status != JobStatus.RECONCILING) {
-            throw new IllegalStateException("STT_JOB_TRANSITION_INVALID: " + status + " cannot schedule a retry");
-        }
-        if (retryCount >= maxRetries) {
-            throw new IllegalStateException("STT_JOB_RETRY_BUDGET_EXCEEDED: retry budget is exhausted");
-        }
-        return new AvTranscriptionJob(
-                jobId, artifactId, tenantId, languageCode, JobStatus.RETRY_PENDING, parameters,
-                resultId, errorMessage, progressPercent, createdAt, startedAt, completedAt,
-                retryCount + 1, maxRetries, traceId, requestId, processorVersion);
+        throw new IllegalStateException("STT_JOB_RETRY_NOT_ADMITTED: durable no-effect evidence and an attempt "
+                + "idempotency fence are unavailable");
     }
 
     /** Completes an active or reconciling job with the immutable transcript version that was persisted. */
@@ -179,8 +177,9 @@ public record AvTranscriptionJob(
             case QUEUED -> to == JobStatus.PROCESSING || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
             case PROCESSING -> to == JobStatus.OUTCOME_UNKNOWN || to == JobStatus.RECONCILING
                     || to == JobStatus.COMPLETED || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
-            case RETRY_PENDING, RETRYING -> to == JobStatus.PROCESSING
-                    || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
+            // Retry states remain readable/projectable for compatibility, but this local
+            // value has no durable replay-safety evidence to authorize another dispatch.
+            case RETRY_PENDING, RETRYING -> to == JobStatus.FAILED || to == JobStatus.CANCELLED;
             case OUTCOME_UNKNOWN -> to == JobStatus.RECONCILING;
             case RECONCILING -> to == JobStatus.COMPLETED
                     || to == JobStatus.FAILED || to == JobStatus.CANCELLED;
