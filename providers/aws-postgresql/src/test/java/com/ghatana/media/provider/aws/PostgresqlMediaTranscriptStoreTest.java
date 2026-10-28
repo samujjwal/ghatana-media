@@ -225,19 +225,25 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
-    void candidateRevisionReadsBackAfterStoreRecreationAndExactRetryIsIdempotent() throws Exception {
+    void candidateRevisionReadsBackAfterRuntimeStateRecreationAndExactRetryIsIdempotent() throws Exception {
         try (Fixture fixture = openFixture()) {
-            var state = fixture.state();
+            var originalState = fixture.state();
+            String bucket = originalState.bucket();
             String digest = "7".repeat(64);
-            seed(state, "tenant-reopen", "principal-a", "source-reopen", "job-reopen",
+            seed(originalState, "tenant-reopen", "principal-a", "source-reopen", "job-reopen",
                     "consent-reopen", digest, false);
             TranscriptDraft original = draft("tenant-reopen", "principal-a", "transcript-reopen",
                     "source-reopen", "job-reopen", "consent-reopen", digest, "candidate result");
 
             var first = fixture.store().append(original, 0);
             fixture.store().close();
+            originalState.release();
+            fixture.installed().close();
 
-            try (PostgresqlMediaTranscriptStore reopened = new PostgresqlMediaTranscriptStore()) {
+            AutoCloseable restartedInstallation =
+                    MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket));
+            try (restartedInstallation;
+                 PostgresqlMediaTranscriptStore reopened = new PostgresqlMediaTranscriptStore()) {
                 assertThat(reopened.productionEligible()).isFalse();
                 assertThat(reopened.revisions("tenant-reopen", "principal-a", "transcript-reopen"))
                         .containsExactly(first);
