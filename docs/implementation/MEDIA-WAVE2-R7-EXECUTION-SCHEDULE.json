@@ -2707,5 +2707,24 @@
     "independentMatrixEvidenceReview": "Luna reviewer matched core/native/integration counts, per-run SHAs, skip classification, image digests, task execution states, and no-promotion caveats; confirmed the mixed-cut source lineage and found no record discrepancy.",
     "recordValidation": {"backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"}, "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"}, "containerCandidateHygiene": {"tests": 3, "failures": 0, "result": "PASS"}, "jsonParse": "PASS", "gitDiffCheck": "PASS", "ledgerIntegrity": {"uniqueTaskIds": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6, "allOpenRowsUnaccepted": true}, "nextEngineeringActionCoverage": {"openTaskIds": 36, "coveredExactlyOnce": true, "canonicalPhaseIds": true}},
     "claim": "Current local platform and integration execution evidence only. No Wave 2 task row was promoted; this does not establish formal PDP/gtool acceptance, rights/provider admission, deployment, cutover or release."
+  },
+  "postR7TranscriptStoreRecreation": {
+    "verifiedAt": "2026-10-27",
+    "mediaTestCommit": "d3ad31008a0349e9f33b326ee280352ab4bad986",
+    "taskIdsSupported": ["STT-08"],
+    "change": "Adds a PostgreSQL integration test that reopens PostgresqlMediaTranscriptStore, reads the persisted candidate revision, verifies exact-draft retry idempotency, and rejects a changed draft at stale expected revision without mutation. It also asserts productionEligible remains false.",
+    "test": {
+      "command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:providers:aws-postgresql:test --tests com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest --no-build-cache --no-parallel --max-workers=2 --console=plain",
+      "runtime": "macOS ARM64, Temurin 27.0.1.0.2, PostgreSQL and LocalStack Testcontainers",
+      "junitXml": "providers/aws-postgresql/build/test-results/test/TEST-com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest.xml",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "gradleResult": "BUILD SUCCESSFUL"
+    },
+    "independentReview": "Luna approved fixture lifecycle, persisted candidate readback, same-process exact retry idempotency, and stale-CAS no-mutation coverage. The test retains the fixture runtime state; it does not prove process/runtime restart.",
+    "disposition": {"STT-08": "PARTIAL", "rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "currentCounts": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}},
+    "limitations": "Store-object recreation only. No provider dispatch, production eligibility, authoritative source/purpose resolution, process restart, or authorized final transcript readback is established."
   }
 }

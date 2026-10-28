@@ -2185,3 +2185,15 @@ The platform records are a mixed-cut evidence set; each report's exact Media SHA
 The local-only STT/TTS candidates were built from Media `07900ca58024126feffd004f2c9f135b36beadd6` using `docker/Dockerfile.stt-service` and `docker/Dockerfile.tts-service`, after both `installDist` tasks passed. They use `eclipse-temurin:27-jre` digest `sha256:51257b92f824d962d7e742ecd9bb326c0b0ddb34329f8ac5e905a0a8db245e14`. STT image `ghatana/stt-service:r7-local-07900ca5` digest: `sha256:b783163c1b52de8dbe60c424e78b2fceb74fb47b31703e5d96082448b84c0c50`; TTS image `ghatana/tts-service:r7-local-07900ca5` digest: `sha256:4020acd6f1dd7a1ca7cf4fa91be4f0ccd3b8c36d81cddbffdb40e494a94b8b3c`. Both are development candidate images, not qualified releases. Their tests prove typed refusal for unadmitted providers and do not establish positive provider effects, model/voice rights, output quality, or release admission.
 
 The integration test task now records `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE` as inputs and disables up-to-date and build-cache reuse, since Docker daemon state and mutable tags can change without Gradle source changes. This run therefore reevaluated the image condition instead of reusing a previous skip result. The full ledger remains **58 = 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**; all 36 open rows remain `taskAccepted=false`, no row was promoted, and no external rights were admitted.
+
+### R7 transcript candidate store-recreation readback — 2026-10-27
+
+Media test-only commit `d3ad31008a0349e9f33b326ee280352ab4bad986` adds a PostgreSQL integration regression for candidate transcript readback after closing and recreating `PostgresqlMediaTranscriptStore`. The reopened store reads the exact persisted candidate revision, an exact retry returns that revision without adding another row, and a changed draft at stale expected revision zero returns a typed CAS conflict without mutation. The test also asserts `productionEligible()` remains false. A Luna reviewer approved the fixture lifecycle and the narrow test claim.
+
+Focused command on macOS ARM64 / Temurin 27.0.1.0.2:
+
+```sh
+JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:providers:aws-postgresql:test --tests com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStoreTest --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+Result: **9 tests, 0 failures, 0 errors, 0 skips** with PostgreSQL and LocalStack Testcontainers. This proves store-object recreation against the same live test runtime and database; it is not process/runtime restart, provider dispatch, production eligibility, or durable authorized result readback. **STT-08 remains PARTIAL** and no task was promoted. The aggregate remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**; all 36 open rows remain unaccepted.
