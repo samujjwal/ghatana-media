@@ -2387,3 +2387,54 @@ Parallel bounded reviews found no additional safe source-backed increment in TTS
 An independent current-cut audit at `19cf8897899f56b32f95db36bcc22ebc54baaa7` verified exact agreement between the Markdown task inventory and schedule JSON: **58 unique IDs**, no missing/duplicate rows, 22 locally verified, 30 partial, and 6 owner-external. All 36 open rows remain `taskAccepted=false`; no row was promoted. The six owner-external rows are **TTS-07, VIS-02, STT-12, TTS-12, VIS-12, and MM-12**. The user confirmed that owner-approved rights/consent, model/license/corpus, Data Cloud/Document Intelligence API, and trusted worker-isolation evidence is not available yet. The audit verifies current-cut identity/disposition consistency; it does not rerun every task's acceptance tests or provide formal PDP/gtool acceptance.
 
 The updated plan validator passed **7/7**, repository hygiene passed **19/19**, schedule JSON parsing passed, and `git diff --check` passed. These checks validate the record and repository hygiene; they do not promote any task.
+
+### R7 durable attempt-lineage readback and verified artifact staging — 2026-10-28
+
+At code cut `600a271c`, the PostgreSQL job-store SPI can read one exact
+tenant/job/attempt record, including request fingerprint, fence, provider
+operation/receipt, finality, digests, and observation time. The PostgreSQL
+transcript SPI now exposes the existing successful-attempt candidate append
+and principal-scoped lineage readback. Readback checks the persisted binding
+against its transcript revision and the exact successful attempt, including
+provider, operation, receipt, fingerprint, fence, result digest, job, and
+source version. The transcript remains `CANDIDATE` and `productionEligible`
+remains false.
+
+`S3PostgresqlMediaArtifactStore.copyContent` now stages object bytes in a
+private temporary file, checks immutable size and SHA-256 before exposing any
+bytes to the caller, and removes staging files on ordinary success and failure.
+Adversarial tests cover same-size corruption and oversized objects with an
+empty caller output on failure.
+
+The JDK 27 runtime-contract suite passed **85/85** (0 failures, errors, or
+skips). Focused PostgreSQL provider tests passed **11/11** (artifact admission
+8/8; attempt readback 2/2; transcript attempt binding 1/1; 0 failures,
+errors, or skips) with PostgreSQL 16 and LocalStack 3.8 Testcontainers.
+The Wave 2 plan validator passed **7/7**, repository hygiene passed **19/19**,
+schedule JSON parsing passed, and `git diff --check` passed.
+The processing-attempt suite covers successful, failed, no-effect-proven,
+dispatch-intended, and unknown finality; transcript coverage includes
+restart/replay, wrong principal/tenant/revision, a legacy unbound revision,
+and a schema-valid but inconsistent persisted digest. A Luna review caught
+and corrected the initial schema-invalid digest-tamper fixture before this
+passing run; follow-up review found no further must-fix from the recorded
+query/schema constraints.
+
+These are local storage and lineage increments only. The bounded exact STT
+request snapshot and presence-sensitive glossary checks were already added at
+`f88a9c3b`; transcript binding rejects unknown legacy snapshots and rejects
+filler observations. The PDP source defines a typed filler-result shape and
+requires the exact source version and an in-range millisecond interval. The
+current Media path has no trusted source-duration/timebase binding to validate
+that interval, so no positive filler path is inferred. **STT-08 and
+STT-09 remain PARTIAL**: runtime integration, an authorized real provider
+result, and process-level restart/replay proof are not established.
+Temporary-file cleanup after abrupt process or host failure is also not
+proven. No task was promoted; the aggregate remains
+**58 = 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL**, and all 36 open
+rows remain unaccepted. The owner has not supplied the required rights,
+model/license/corpus, Data Cloud/Document Intelligence API, or worker
+isolation evidence. A parallel Luna reread found no additional safe,
+source-backed code increment among the remaining partial rows; continue with
+new nonblocked implementation where its existing source semantics are
+complete, and keep the named owner/external evidence gates open.

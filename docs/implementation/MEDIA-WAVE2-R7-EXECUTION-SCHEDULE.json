@@ -638,7 +638,7 @@
   "nextEngineeringActions": [
     {"phase": "A", "taskIds": ["VIS-03"], "action": "Qualify a trusted worker-isolation boundary with enforced per-worker CPU, RSS, PID-tree and scratch limits on the required hosts; until then, return UNAVAILABLE for workloads whose required limits cannot be enforced and keep VIS-03 PARTIAL."},
     {"phase": "B", "taskIds": ["STT-03", "TTS-05", "VIS-10", "MM-02"], "action": "Continue Shared policy and Media principal/source-version/consent integration using authenticated bounded bytes from the existing canonical artifact-store/runtime path for recording, voice and biometric purposes; re-evaluate authority on every effect and retry, including expiry, revocation, region and retention. Any EXCEPTION, DENIED, REVOKED, STALE or UNAVAILABLE decision must have zero provider/outbox effects; never create an authoritative ALLOW from caller input or add a second source store."},
-    {"phase": "C", "taskIds": ["STT-04", "STT-08", "STT-09"], "action": "Continue isolated-store implementation of canonical durable job/attempt/outbox, transcript CAS and restart readback now. Keep positive provider dispatch NOT_ADMITTED until Phase B authority and exact rights-cleared model/license/consent artifacts are verified; promote only after an actual authorized result reads back after restart."},
+    {"phase": "C", "taskIds": ["STT-04", "STT-08", "STT-09"], "action": "The V023 bounded STT request snapshot, presence-sensitive glossary checks, exact durable attempt readback, and principal-scoped transcript attempt binding now have local focused tests. Keep positive provider dispatch NOT_ADMITTED until Phase B authority and exact rights-cleared model/license/consent artifacts are verified. Do not infer process-level restart proof from store/runtime reconstruction; promote only after an actual authorized result reads back after process restart. Filler candidate observations remain rejected until trusted source-duration/timebase validation and qualified detector output are available."},
     {"phase": "C2", "taskIds": ["STT-05", "STT-06", "STT-07"], "action": "After Phase C, complete real streaming finality, timed segments and anonymous diarization; biometric operations still require independently authorized rights and qualified evidence."},
     {"phase": "D", "taskIds": ["TTS-02", "TTS-03", "TTS-06", "TTS-07", "TTS-08", "TTS-09", "VIS-02", "VIS-05", "VIS-06", "VIS-07"], "action": "After B, qualify exact model/voice/license/rights artifacts and source/ROI clocks under X08/X09/X11/X12; then verify rights-cleared playable speech and source-provenant detector outputs persisted under fenced attempts. TTS-07 and VIS-02 require owner/external decisions."},
     {"phase": "E", "taskIds": ["MM-03", "MM-05", "MM-06", "MM-08", "MM-09", "MM-10", "VIS-09"], "action": "After C and D, require real per-child STT/Vision operations, trusted source clocks, immutable finality/readback, and the owning teams' public Data Cloud and Document Intelligence APIs before claiming MM-10 or VIS-09 completion."},
@@ -4039,5 +4039,37 @@
       "gitDiffCheck": "PASS"
     },
     "claim": "MM-06 gained a tested local numeric guard. The 58-row inventory and disposition are consistent at this cut; the campaign remains 22 locally verified, 30 partial, and 6 owner-external with no new acceptance or formal lifecycle claim."
+  },
+  "postR7Oct28AttemptLineageAndArtifactReadback": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {"media": "600a271cd6c2cd89b71b7da1afc7460c93b6171b", "branch": "main"},
+    "taskSupport": ["STT-08", "STT-09"],
+    "implementation": {
+      "changedFiles": [
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaTranscriptContracts.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaTranscriptStore.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/PostgresqlMediaProcessingAttemptReadTest.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/PostgresqlMediaTranscriptAttemptBindingSpiTest.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactAdmissionTest.java"
+      ],
+      "summary": "Stages S3 artifact bytes and verifies immutable size/SHA-256 before exposing content; adds fail-closed MediaJobStore attempt readback and a PostgreSQL exact tenant/job/attempt implementation; exposes the existing successful-attempt transcript append through the SPI and adds principal-scoped binding readback cross-checked against the transcript revision and exact SUCCEEDED attempt. The transcript remains CANDIDATE and provider dispatch remains NOT_ADMITTED.",
+      "priorSnapshotNote": "The older postR7TranscriptAttemptBinding nextLocalWork is superseded by postR7SttRequestSnapshot at f88a9c3b: bounded V023 snapshot persistence and exact glossary/presence checks are already implemented. PDP defines the typed filler-result shape and source-version/range invariants; current Media lacks trusted source-duration/timebase validation and qualified detector output, so filler results remain rejected."
+    },
+    "verification": {
+      "runtimeContracts": {"command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:runtime-contracts:test --no-build-cache --no-daemon --no-parallel --max-workers=2 --console=plain", "tests": 85, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "providerTests": {"command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home PATH=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home/bin:$PATH ./gradlew :services:media:providers:aws-postgresql:test --tests com.ghatana.media.provider.aws.S3PostgresqlMediaArtifactAdmissionTest --tests com.ghatana.media.provider.aws.PostgresqlMediaProcessingAttemptReadTest --tests com.ghatana.media.provider.aws.PostgresqlMediaTranscriptAttemptBindingSpiTest --no-build-cache --no-daemon --no-parallel --max-workers=2 --console=plain", "tests": 11, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS", "runtime": "Temurin 27.0.1.0.2; PostgreSQL 16 and LocalStack 3.8 Testcontainers on Docker"},
+      "backendModalityWave2Plan": {"tests": 7, "failures": 0, "result": "PASS"},
+      "repositoryHygiene": {"tests": 19, "failures": 0, "result": "PASS"},
+      "scheduleJson": "PASS",
+      "gitDiffCheck": "PASS"
+    },
+    "review": "Independent Luna review found an initial schema-invalid digest-tamper fixture; it was changed to a length-valid inconsistent digest, and transcript readback now refuses a binding that does not match its exact successful attempt. Follow-up logic review found no further must-fix from the provided schema/query constraints.",
+    "disposition": {"rowsPromoted": 0, "all36OpenRowsTaskAccepted": false, "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}},
+    "ownerEvidenceAvailability": {"confirmedByUser": "Nothing available yet", "missing": ["rights/consent", "model/license/corpus approvals", "Data Cloud or Document Intelligence APIs", "trusted worker isolation"]},
+    "limitations": ["No STT runtime wiring or positive provider admission was added.", "Store/runtime-state reconstruction does not establish process-level restart/replay.", "Temporary-file cleanup after abrupt process or host failure is not proven.", "The V023 bounded request snapshot and glossary presence checks are already implemented; filler observations remain rejected until trusted source-duration/timebase validation and qualified detector output are available.", "No task acceptance, formal PDP/gtool status, closure, cutover, deployment, or release is claimed."],
+    "nextWork": "No additional safe source-backed STT-08/STT-09 store-only slice was identified after this increment. Continue other nonblocked implementation whose source meaning is complete; obtain the owner-bound rights/model/API/worker evidence and trusted source-duration/timebase validation plus qualified filler detector output before enabling dependent positive paths. Preserve all 58 rows and current dispositions."
   }
 }
