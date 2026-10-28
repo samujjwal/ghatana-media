@@ -165,6 +165,16 @@ for project in planned_projects:
 counts = dict(tests=0, failures=0, errors=0, skipped=0, suiteFiles=0)
 failures = []
 skips = []
+known_class_skip_reasons = {
+    'com.ghatana.audio.video.integration.AudioVideoIntegrationTest': (
+        'GH-90000: IntegrationImagesCondition disabled this class because at least one configured '
+        'STT/TTS image did not pass local docker image inspect; Gradle JUnit XML omits the '
+        'condition detail.'),
+    'com.ghatana.audio.video.integration.FullWorkflowIntegrationTest': (
+        'GH-90000: IntegrationImagesCondition disabled this class because at least one configured '
+        'STT/TTS image did not pass local docker image inspect; Gradle JUnit XML omits the '
+        'condition detail.'),
+}
 for project in executed_tasks:
   test_results = root / project / 'build/test-results/test'
   for path in test_results.glob('TEST-*.xml'):
@@ -176,12 +186,18 @@ for project in executed_tasks:
             counts[key] += int(xml.attrib.get(key, 0))
         counts['suiteFiles'] += 1
         for case in xml.iter('testcase'):
-            name = (case.attrib.get('classname') or '')+'.'+(case.attrib.get('name') or '')
+            class_name = case.attrib.get('classname') or ''
+            name = class_name+'.'+(case.attrib.get('name') or '')
             if case.find('failure') is not None or case.find('error') is not None:
                 failures.append(name)
             skipped = case.find('skipped')
             if skipped is not None:
-                skips.append(dict(test=name, reason=(skipped.attrib.get('message') or '')[:300]))
+                reason = skipped.attrib.get('message') or ''
+                reason_source = 'junit_xml' if reason else None
+                if not reason and class_name in known_class_skip_reasons:
+                    reason = known_class_skip_reasons[class_name]
+                    reason_source = 'known_class_execution_condition'
+                skips.append(dict(test=name, reason=reason[:300], reasonSource=reason_source))
     except (OSError, ET.ParseError, ValueError) as ex:
         failures.append('INVALID_XML:'+str(path)+':'+str(ex))
 def digest(path):
