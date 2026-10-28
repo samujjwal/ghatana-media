@@ -2082,3 +2082,23 @@ This is upstream PyTorch Whisper evidence only. The checkpoint is incompatible w
 The 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**. All 36 open rows remain `taskAccepted=false`; this follow-up promotes none and makes no owner/security approval, formal PDP/gtool, closure, runtime cutover, deployment, or release claim.
 
 Record validation on this cut: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse and `git diff --check` passed. An independent Luna record review matched the corrected Media commit ID, decoder JUnit totals, Whisper report/hash, dataset counts/metrics, and unchanged 58-row disposition; no mismatch or unsupported acceptance claim remained.
+
+### R7 parallel module continuation — 2026-10-27
+
+**Media code cut:** `f4ae048e3a0e906cffca13e854baf012c6a3a953`; **Shared cut:** `0b19e750bf3906e187e8d804c9313bd451a58667`. This update records two independent, bounded code increments and five parallel source reviews. It does not change any Wave 2 row-wide acceptance criterion.
+
+| Commit / scope | Change and verification | Remaining disposition |
+| --- | --- | --- |
+| `a60f68540a5ffc10b1b182fb2cf0bd8260c36044` — MM-06/MM-07 result validation | `MultimodalResult` rejects negative processing duration and explicit null combined analysis while preserving its empty-string and zero-time defaults. `MultimodalAnalysisEngineTest` passed **36/36, 0 failures, 0 errors, 0 skips** on macOS ARM64 / Temurin 27.0.1.0.2. Independent review confirmed current callers and gRPC mapping remain compatible. | MM-06/MM-07 remain PARTIAL: no calibrated confidence, provider quality, or biometric authorization is established. |
+| `f4ae048e3a0e906cffca13e854baf012c6a3a953` — OBS-08 harness provenance | The test-only resource report now records Java vendor, JVM name, and OS version in addition to Java version, OS, architecture, and processor count; values pass through the existing TSV sanitizer. `MediaResourceProfileHarnessTest` passed **8/8, 0 failures, 0 errors, 0 skips** on macOS ARM64 / Temurin 27.0.1.0.2. Independent review checked TSV field order and injected-control-character handling. | OBS-08 remains PARTIAL: the synthetic fixture still has no native-memory/RSS adapter or GPU, FFmpeg, network, pool, or actual modality-provider measurements. |
+
+#### Parallel source reviews with no safe independent patch
+
+- **TTS-06:** wire controls already have finite bounded units and non-neutral unsupported effects return `NOT_ADMITTED`; no provider mapping or audible-effect fixture exists. No edit or test rerun was needed.
+- **STT-08:** correction is rejected before engine lookup when immutable revision storage/CAS is absent; alignment, translation, and subtitle output are not fabricated. Canonical transcript-store/source binding and actual admitted producers remain absent. No edit was warranted.
+- **MM-03/MM-04:** same-clock rational comparisons are exact and cross-clock synchronization remains `SYNC_UNDETERMINED`; no dummy-frame sync implementation was found. Production source-clock mapping, real signal features, and qualified sync/ground-truth evidence remain absent.
+- **VIS-05/VIS-06:** current preprocessing, EXIF/letterbox transforms, bounds, NMS, and uncalibrated raw scores have focused source tests. Exact ONNX qualification, licensed mAP/PR evidence, source-version/ROI provenance, and native leak-rate evidence remain missing.
+
+The focused suites run for the two changes were `:services:media:audio-video-observability:test --tests 'com.ghatana.audiovideo.observability.performance.MediaResourceProfileHarnessTest'` (**8/8**) and `:services:media:modules:intelligence:multimodal-service:test --tests 'com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngineTest'` (**36/36**), serialized on Temurin 27.0.1.0.2. The 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**; all 36 open rows remain unaccepted and none is promoted. These code reviews are not owner/product approval or formal PDP/gtool closure.
+
+Record validation after these commits: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse and `git diff --check` passed. The plan test reconciled all 58 rows, 99 capability memberships and 43 RPC identities; all 36 open tasks remain unaccepted.
