@@ -88,6 +88,18 @@ public final class WhisperOnnxEngine implements SttEngine {
             try (OrtSession.SessionOptions options = new OrtSession.SessionOptions()) {
                 options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
 
+                // An explicit, bounded CPU tuning profile applies to both the encoder and
+                // decoder sessions. The unset profile preserves ORT defaults; changing it
+                // requires a measured same-model/same-source A/B result, not a guessed
+                // global default. Request text/audio cannot alter this value.
+                int intraOpThreads = WhisperOnnxThreadPolicy.intraOpThreads(
+                        System.getenv(), Runtime.getRuntime().availableProcessors());
+                if (intraOpThreads > 0) {
+                    options.setIntraOpNumThreads(intraOpThreads);
+                }
+                LOG.info("Whisper ONNX CPU intra-op threads: "
+                        + (intraOpThreads == 0 ? "ORT_DEFAULT_UNQUALIFIED" : intraOpThreads));
+
                 // Configure GPU if enabled
                 if (config.useGpu()) {
                     try {
