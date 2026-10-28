@@ -24,6 +24,39 @@ existing `:installDist` tasks using the appropriate FOCUSED graph, then
 use the existing `docker/Dockerfile.*` and explicit image tags. Test image
 construction/startup separately from provider effect/quality qualification.
 
+## R9 — model/reference asset integrity and rights evidence
+
+The [R9 consolidated acquisition plan](implementation/MEDIA-WAVE2-R9-EVIDENCE-ACQUISITION-AND-QUALIFICATION.md)
+is the implementation handoff for the six external-owner tasks and all
+rights/model/corpus/performance prerequisites of the 36 unfinished Wave 2 rows.
+The [source catalog](../config/qualification/wave2-reference-candidates.v1.json)
+lists exact upstream models and rights limitations without admission claims.
+The [evidence crosswalk](../config/qualification/wave2-evidence-to-task-map.v1.json)
+covers all 36 open task IDs and leaves the original R8 acceptance authority intact.
+
+```bash
+pnpm test:wave2-evidence-intake
+pnpm test:wave2-reference-staging
+pnpm check:wave2-reference-sources
+
+# Optional model byte staging, explicitly enabled by the operator, off-repo:
+node scripts/qualification/prepare-wave2-reference-assets.mjs \
+  --candidate stt-whisper-tiny-multilingual \
+  --private-destination "$MEDIA_QUALIFICATION_HOME/assets" \
+  --acknowledge-review-only
+```
+
+These checks verify **only local source metadata and cryptographic/file integrity**.
+The tests use synthetic keys and test file bytes; no actual licenses or subject
+consent are generated. A verified model file does not make a provider ready.
+Real voice/biometric and recording rights require separately authenticated,
+purpose/version-scoped and revocable private records; only Shared policy and
+Media source/consent authority can admit a dispatch. The checked-in trusted
+reviewer list is intentionally empty until genuine independent reviewers
+register their keys. A private signed packet that passes this tool still
+requires independent legal/runtime/quality decisions. Neither no-key
+negative tests nor candidate-source checks close a Wave 2 task.
+
 ## Scope and intent
 
 The active Media test surface covers runtime contracts, artifact upload and
