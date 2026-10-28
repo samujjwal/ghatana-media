@@ -70,6 +70,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 if (existing != null) {
                     verifyRequestIdentity(existing, persistable,
                             submissionDigest(connection, persistable.tenantId(), persistable.requestId()), submissionDigest);
+                    verifySttRequestSnapshot(connection, persistable, sttSnapshot);
                     connection.commit();
                     return existing;
                 }
@@ -102,6 +103,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                     if (existing != null) {
                         verifyRequestIdentity(existing, persistable,
                                 findSubmissionDigest(persistable.tenantId(), persistable.requestId()), submissionDigest);
+                        verifySttRequestSnapshot(persistable, sttSnapshot);
                         return existing;
                     }
                 }
@@ -1303,6 +1305,33 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 || existing.jobType() != requested.jobType()
                 || !java.util.Objects.equals(existingDigest, requestedDigest)) {
             throw new IllegalStateException("Media request ID was reused for a different submission");
+        }
+    }
+
+    private void verifySttRequestSnapshot(ProcessingJob requested, SttSubmissionSnapshot requestedSnapshot) {
+        try (Connection connection = state.connection()) {
+            verifySttRequestSnapshot(connection, requested, requestedSnapshot);
+        } catch (SQLException failure) {
+            throw databaseFailure("verify replayed STT request snapshot", failure);
+        }
+    }
+
+    private void verifySttRequestSnapshot(
+            Connection connection, ProcessingJob requested, SttSubmissionSnapshot requestedSnapshot) throws SQLException {
+        String sql = "SELECT stt_request_snapshot FROM media_processing_jobs WHERE tenant_id=? AND request_id=?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, requested.tenantId());
+            statement.setString(2, requested.requestId());
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    throw new MediaJobStoreConflictException("Media request disappeared while checking its STT snapshot");
+                }
+                String retained = result.getString(1);
+                String replayed = encodeSttSnapshot(requestedSnapshot);
+                if (!java.util.Objects.equals(retained, replayed)) {
+                    throw new IllegalStateException("Media request ID was reused with a different STT request snapshot");
+                }
+            }
         }
     }
 

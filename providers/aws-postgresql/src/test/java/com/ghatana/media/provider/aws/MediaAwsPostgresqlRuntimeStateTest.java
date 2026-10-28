@@ -220,8 +220,22 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     assertThatThrownBy(() -> jobs.create(stt, stt.requestFingerprint()))
                             .isInstanceOf(IllegalArgumentException.class)
                             .hasMessageContaining("require a retained request snapshot");
-                    jobs.create(stt, stt.requestFingerprint(), new SttSubmissionSnapshot(
-                            SttSubmissionSnapshot.VERSION, "glossary:en:v3", false));
+                    SttSubmissionSnapshot acceptedSttSnapshot = new SttSubmissionSnapshot(
+                            SttSubmissionSnapshot.VERSION, "glossary:en:v3", false);
+                    jobs.create(stt, stt.requestFingerprint(), acceptedSttSnapshot);
+                    ProcessingJob sttReplay = new ProcessingJob(
+                            "job-stt-snapshot-replay", stt.requestId(), stt.tenantId(), stt.principalId(),
+                            stt.artifactId(), stt.jobType(), stt.providerId(), JobStatus.ACCEPTED,
+                            stt.createdAt(), null, null, Map.of(), "", 1, "", stt.requestFingerprint());
+                    assertThat(jobs.create(sttReplay, stt.requestFingerprint(), acceptedSttSnapshot)).isEqualTo(stt);
+                    assertThatThrownBy(() -> jobs.create(sttReplay, stt.requestFingerprint(),
+                            new SttSubmissionSnapshot(SttSubmissionSnapshot.VERSION, "glossary:en:other", false)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("different STT request snapshot");
+                    assertThatThrownBy(() -> jobs.create(sttReplay, stt.requestFingerprint(),
+                            new SttSubmissionSnapshot(SttSubmissionSnapshot.VERSION, "glossary:en:v3", null)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("different STT request snapshot");
                     try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
                          var query = connection.prepareStatement(
                                  "SELECT stt_request_snapshot FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
