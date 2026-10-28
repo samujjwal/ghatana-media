@@ -2112,3 +2112,13 @@ This parser safeguard is a narrow VIS-07 improvement. **VIS-07 remains PARTIAL:*
 The 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**. All 36 open rows remain unaccepted; no row was promoted and no owner or lifecycle approval is inferred.
 
 Record validation: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse and `git diff --check` passed. The plan test reconfirmed the 58-row denominator, 99 capability memberships, and 43 gRPC RPC identities.
+
+### R7 TTS profile-language validation follow-up — 2026-10-27
+
+**Media code cut:** `3bba87a08caea03d89ac7f666f24b04b0fab1665`. TTS provider profile loading now requires a well-formed BCP 47 `TTS_MODEL_LANGUAGE` with a defined language subtag before model-path validation, hashing, or trusted provider admission. It rejects malformed separators/underscores, private-use-only tags, and `und` language subtags such as `und-US`; the focused regression confirms the admission resolver receives zero calls. `ProductionTtsGrpcServiceConfigTest` passed **19/19, 0 failures, 0 errors, 0 skips** on macOS ARM64 / Temurin 27.0.1.0.2. Independent review first identified `und-US` as an edge case; the corrected language-subtag check was approved and tested. **TTS-03 remains PARTIAL:** no real model/license/rights/provider admission or initialized production profile is established.
+
+Two additional parallel source reviews found no safe independent patch: **STT-06** already bounds word timings/confidence and marks source timebase unknown; provider-relative clock origin, calibrated confidence, and VAD provenance remain absent. **MM-05/MM-08** already preserve cancellation/deadline and unknown outcomes, while per-operation finality still requires admitted service clients plus canonical job/attempt/result binding. No tests were rerun for those no-change reviews.
+
+The 58-row disposition remains **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL, 0 SOURCE_CONFLICT**. All 36 open rows remain unaccepted; no row was promoted and no owner or lifecycle approval is inferred.
+
+Record validation: `pnpm test:backend-modality-wave2-plan` **7/7**, `pnpm test:repository-hygiene` **19/19**, JSON parse and `git diff --check` passed. All 58 rows and the existing 22/30/6 disposition partition remain unchanged.
