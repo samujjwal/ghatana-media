@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -66,12 +67,19 @@ class PostgresqlMediaTranscriptStoreTest {
             var revision1 = store.append(first);
             assertThat(revision1.revision()).isEqualTo(1);
             assertThat(revision1.admissionStatus()).isEqualTo("CANDIDATE");
+            assertThat(revision1.draft().purposeRef()).isEqualTo("urn:media:purpose:transcription");
+            assertThat(revision1.draft().processingPurpose()).isEqualTo("transcription");
             assertThat(store.append(first)).isEqualTo(revision1); // retry is idempotent
 
             var revision2 = store.append(draft("tenant-a", "principal-a", "transcript-a", "source-a", "job-a", "consent-a", digest, "hello again"), 1);
             assertThat(revision2.revision()).isEqualTo(2);
             assertThat(store.revisions("tenant-a", "principal-a", "transcript-a")).extracting(r -> r.draft().text())
                     .containsExactly("hello", "hello again");
+            assertThat(store.revisions("tenant-a", "principal-a", "transcript-a"))
+                    .allSatisfy(revision -> {
+                        assertThat(revision.draft().purposeRef()).isEqualTo("urn:media:purpose:transcription");
+                        assertThat(revision.draft().processingPurpose()).isEqualTo("transcription");
+                    });
 
             TranscriptDraft stalePin = draft("tenant-a", "principal-a", "transcript-stale", "source-a", "job-a", "consent-a", "b".repeat(64), "not stored");
             assertThatThrownBy(() -> store.append(stalePin)).isInstanceOf(IllegalStateException.class);
@@ -88,6 +96,95 @@ class PostgresqlMediaTranscriptStoreTest {
             TranscriptDraft foreign = draft("tenant-b", "principal-b", "transcript-foreign", "source-a", "job-a", "consent-a", digest, "denied");
             assertThatThrownBy(() -> store.append(foreign)).isInstanceOf(IllegalStateException.class);
             assertThat(store.revisions("tenant-b", "principal-b", "transcript-foreign")).isEmpty();
+        }
+    }
+
+    @Test
+    void rejectsUnboundAndConsentMismatchedPurposesWithoutPersisting() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "b".repeat(64);
+            seed(state, "tenant-purpose", "principal-a", "source-purpose", "job-purpose", "consent-purpose", digest, false);
+
+            TranscriptDraft wrongPurpose = draft("tenant-purpose", "principal-a", "transcript-wrong-purpose",
+                    "source-purpose", "job-purpose", "consent-purpose", digest, "denied", "summarization");
+            assertThatThrownBy(() -> store.append(wrongPurpose))
+                    .isInstanceOf(IllegalStateException.class).hasMessageContaining("purpose");
+            assertThat(store.revisions("tenant-purpose", "principal-a", "transcript-wrong-purpose")).isEmpty();
+
+            TranscriptDraft bound = draft("tenant-purpose", "principal-a", "transcript-unbound-purpose",
+                    "source-purpose", "job-purpose", "consent-purpose", digest, "denied");
+            TranscriptDraft unbound = new TranscriptDraft(bound.tenantId(), bound.principalId(), bound.transcriptId(),
+                    bound.sourceArtifactId(), bound.sourceVersion(), bound.sourceSha256(), bound.jobId(),
+                    bound.profileId(), bound.providerId(), bound.modelId(), bound.language(), bound.timebase(),
+                    bound.text(), bound.consentDecisionId(), bound.rightsDecisionId(), bound.policyVersion());
+            assertThat(unbound.purposeRef()).isEqualTo(
+                    com.ghatana.media.runtime.MediaTranscriptContracts.UNBOUND_PURPOSE_REF);
+            assertThat(unbound.processingPurpose()).isEqualTo(
+                    com.ghatana.media.runtime.MediaTranscriptContracts.UNRESOLVED_PROCESSING_PURPOSE);
+            assertThatThrownBy(() -> store.append(unbound))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("purpose");
+            assertThat(store.revisions("tenant-purpose", "principal-a", "transcript-unbound-purpose")).isEmpty();
+        }
+    }
+
+    @Test
+    void consentPurposeMatchingUsesCanonicalCaseAndWildcardSemantics() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "c".repeat(64);
+            seed(state, "tenant-purpose-wildcard", "principal-a", "source-purpose-wildcard",
+                    "job-purpose-wildcard", "consent-purpose-wildcard", digest, false, "*");
+
+            TranscriptDraft candidate = draft("tenant-purpose-wildcard", "principal-a", "transcript-purpose-wildcard",
+                    "source-purpose-wildcard", "job-purpose-wildcard", "consent-purpose-wildcard",
+                    digest, "candidate", "Transcription");
+            assertThat(store.append(candidate).draft().processingPurpose()).isEqualTo("Transcription");
+        }
+    }
+
+    @Test
+    void consentRowLockSerializesAppendAgainstConcurrentRevocation() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "9".repeat(64);
+            seed(state, "tenant-revoke-race", "principal-a", "source-revoke-race", "job-revoke-race",
+                    "consent-revoke-race", digest, false);
+            TranscriptDraft candidate = draft("tenant-revoke-race", "principal-a", "transcript-revoke-race",
+                    "source-revoke-race", "job-revoke-race", "consent-revoke-race", digest, "must not persist");
+
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            try (Connection revoker = state.connection()) {
+                revoker.setAutoCommit(false);
+                try (PreparedStatement lock = revoker.prepareStatement(
+                        "SELECT consent_id FROM media_consents WHERE tenant_id=? AND consent_id=? FOR UPDATE")) {
+                    lock.setString(1, "tenant-revoke-race");
+                    lock.setString(2, "consent-revoke-race");
+                    try (var rows = lock.executeQuery()) { assertThat(rows.next()).isTrue(); }
+                }
+
+                Future<?> append = executor.submit(() -> store.append(candidate));
+                Thread.sleep(250);
+                assertThat(append.isDone()).as("append must wait for the consent row lock").isFalse();
+                try (PreparedStatement revoke = revoker.prepareStatement(
+                        "UPDATE media_consents SET revoked_at=?,version=version+1 WHERE tenant_id=? AND consent_id=?")) {
+                    revoke.setLong(1, System.currentTimeMillis());
+                    revoke.setString(2, "tenant-revoke-race");
+                    revoke.setString(3, "consent-revoke-race");
+                    assertThat(revoke.executeUpdate()).isEqualTo(1);
+                }
+                revoker.commit();
+                assertThatThrownBy(() -> append.get(10, TimeUnit.SECONDS))
+                        .isInstanceOf(ExecutionException.class)
+                        .hasRootCauseInstanceOf(IllegalStateException.class)
+                        .hasRootCauseMessage("Transcript consent is missing, revoked, or expired");
+                assertThat(store.revisions("tenant-revoke-race", "principal-a", "transcript-revoke-race")).isEmpty();
+            } finally {
+                executor.shutdownNow();
+            }
         }
     }
 
@@ -258,6 +355,12 @@ class PostgresqlMediaTranscriptStoreTest {
 
     private static void seed(MediaAwsPostgresqlRuntimeState state, String tenant, String principal,
                              String artifact, String job, String consent, String digest, boolean revoked) throws Exception {
+        seed(state, tenant, principal, artifact, job, consent, digest, revoked, "transcription");
+    }
+
+    private static void seed(MediaAwsPostgresqlRuntimeState state, String tenant, String principal,
+                             String artifact, String job, String consent, String digest, boolean revoked,
+                             String allowedPurposes) throws Exception {
         try (Connection c = state.connection()) {
             String artifactSql = "INSERT INTO media_artifacts (tenant_id,artifact_id,principal_id,file_name,content_type,size_bytes,sha256,object_reference,classification,created_at,expires_at,metadata_json,scan_status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
             try (PreparedStatement s = c.prepareStatement(artifactSql)) {
@@ -274,7 +377,7 @@ class PostgresqlMediaTranscriptStoreTest {
                 s.setString(13,"sha256:"+digest); s.executeUpdate();
             }
             try (PreparedStatement s = c.prepareStatement("INSERT INTO media_consents (tenant_id,consent_id,principal_id,purposes_csv,allowed_regions_csv,external_processing_allowed,biometric_processing_allowed,granted_at,revoked_at,version) VALUES (?,?,?,?,?,?,?,?,?,?)")) {
-                s.setString(1,tenant); s.setString(2,consent); s.setString(3,principal); s.setString(4,"transcription");
+                s.setString(1,tenant); s.setString(2,consent); s.setString(3,principal); s.setString(4,allowedPurposes);
                 s.setString(5,"local"); s.setBoolean(6,false); s.setBoolean(7,false); s.setLong(8,System.currentTimeMillis());
                 if (revoked) s.setLong(9,System.currentTimeMillis()); else s.setNull(9, java.sql.Types.BIGINT);
                 s.setLong(10,1); s.executeUpdate();
@@ -296,9 +399,14 @@ class PostgresqlMediaTranscriptStoreTest {
 
     private static TranscriptDraft draft(String tenant, String principal, String transcript, String artifact,
                                          String job, String consent, String digest, String text) {
+        return draft(tenant, principal, transcript, artifact, job, consent, digest, text, "transcription");
+    }
+
+    private static TranscriptDraft draft(String tenant, String principal, String transcript, String artifact,
+                                         String job, String consent, String digest, String text, String purpose) {
         return new TranscriptDraft(tenant,principal,transcript,artifact,"sha256:"+digest,digest,job,
                 "profile-candidate","provider-a","model-a","en-US","milliseconds",text,
-                consent,"rights-candidate","policy-candidate");
+                consent,"rights-candidate","policy-candidate","urn:media:purpose:" + purpose,purpose);
     }
 
     private static Map<String,String> environment(String bucket) {

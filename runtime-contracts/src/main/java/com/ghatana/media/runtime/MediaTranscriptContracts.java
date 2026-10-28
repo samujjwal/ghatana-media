@@ -7,13 +7,34 @@ import java.util.Objects;
 public final class MediaTranscriptContracts {
     private MediaTranscriptContracts() { }
 
+    /** Legacy constructor value; stores must reject it because no purpose was bound. */
+    public static final String UNBOUND_PURPOSE_REF = "__UNBOUND_PURPOSE_REF__";
+    /** Legacy constructor value; stores must reject it because no effective purpose was resolved. */
+    public static final String UNRESOLVED_PROCESSING_PURPOSE = "__UNRESOLVED_PROCESSING_PURPOSE__";
+
     /** Draft contains provider supplied transcript data; this contract never creates STT output. */
     public record TranscriptDraft(
             String tenantId, String principalId, String transcriptId,
             String sourceArtifactId, String sourceVersion, String sourceSha256,
             String jobId, String profileId, String providerId, String modelId,
             String language, String timebase, String text,
-            String consentDecisionId, String rightsDecisionId, String policyVersion) {
+            String consentDecisionId, String rightsDecisionId, String policyVersion,
+            String purposeRef, String processingPurpose) {
+        /**
+         * Source-compatible constructor for existing callers. The resulting draft is deliberately
+         * unbound and persistence implementations must reject it until callers provide a purpose.
+         */
+        public TranscriptDraft(String tenantId, String principalId, String transcriptId,
+                String sourceArtifactId, String sourceVersion, String sourceSha256,
+                String jobId, String profileId, String providerId, String modelId,
+                String language, String timebase, String text,
+                String consentDecisionId, String rightsDecisionId, String policyVersion) {
+            this(tenantId, principalId, transcriptId, sourceArtifactId, sourceVersion, sourceSha256,
+                    jobId, profileId, providerId, modelId, language, timebase, text,
+                    consentDecisionId, rightsDecisionId, policyVersion,
+                    UNBOUND_PURPOSE_REF, UNRESOLVED_PROCESSING_PURPOSE);
+        }
+
         public TranscriptDraft {
             tenantId = required(tenantId, "tenantId");
             principalId = required(principalId, "principalId");
@@ -34,6 +55,14 @@ public final class MediaTranscriptContracts {
             consentDecisionId = required(consentDecisionId, "consentDecisionId");
             rightsDecisionId = required(rightsDecisionId, "rightsDecisionId");
             policyVersion = required(policyVersion, "policyVersion");
+            purposeRef = required(purposeRef, "purposeRef");
+            processingPurpose = required(processingPurpose, "processingPurpose");
+            if (purposeRef.codePointCount(0, purposeRef.length()) > 256) {
+                throw new IllegalArgumentException("purposeRef exceeds 256 characters");
+            }
+            if (processingPurpose.codePointCount(0, processingPurpose.length()) > 255) {
+                throw new IllegalArgumentException("processingPurpose exceeds 255 characters");
+            }
         }
     }
 

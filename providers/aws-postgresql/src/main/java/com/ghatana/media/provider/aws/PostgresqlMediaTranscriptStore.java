@@ -38,6 +38,10 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         if (state.productionEligible()) {
             throw new UnsupportedOperationException("Transcript rights and profile admission is pending");
         }
+        if (MediaTranscriptContracts.UNBOUND_PURPOSE_REF.equals(draft.purposeRef())
+                || MediaTranscriptContracts.UNRESOLVED_PROCESSING_PURPOSE.equals(draft.processingPurpose())) {
+            throw new IllegalArgumentException("Transcript purpose reference and effective processing purpose must be bound");
+        }
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
@@ -60,9 +64,10 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                         INSERT INTO media_transcript_revisions
                           (tenant_id,transcript_id,revision,principal_id,source_artifact_id,
                            source_artifact_version,source_sha256,job_id,profile_id,provider_id,model_id,
-                           language,timebase,transcript_text,consent_decision_id,rights_decision_id,
+                           language,timebase,transcript_text,consent_decision_id,purpose_ref,processing_purpose,
+                           rights_decision_id,
                            policy_version,admission_status,created_at)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'CANDIDATE',?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'CANDIDATE',?)
                         """)) {
                     bind(insert, draft, revision, now);
                     insert.executeUpdate();
@@ -108,16 +113,33 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             }
         }
         try (PreparedStatement consent = connection.prepareStatement("""
-                SELECT 1 FROM media_consents
-                 WHERE tenant_id=? AND consent_id=? AND principal_id=? AND revoked_at IS NULL
-                   AND (expires_at IS NULL OR expires_at>?)
+                SELECT purposes_csv,revoked_at,expires_at FROM media_consents
+                 WHERE tenant_id=? AND consent_id=? AND principal_id=? FOR UPDATE
                 """)) {
             consent.setString(1, draft.tenantId()); consent.setString(2, draft.consentDecisionId());
-            consent.setString(3, draft.principalId()); consent.setLong(4, System.currentTimeMillis());
+            consent.setString(3, draft.principalId());
             try (ResultSet result = consent.executeQuery()) {
-                if (!result.next()) throw new IllegalStateException("Transcript consent is missing, revoked, or expired");
+                if (!result.next() || result.getObject("revoked_at") != null
+                        || (result.getObject("expires_at") != null
+                        && result.getLong("expires_at") <= System.currentTimeMillis())) {
+                    throw new IllegalStateException("Transcript consent is missing, revoked, or expired");
+                }
+                if (!csvContains(result.getString("purposes_csv"), draft.processingPurpose())) {
+                    throw new IllegalStateException("Transcript processing purpose is not permitted by consent");
+                }
             }
         }
+    }
+
+    private static boolean csvContains(String csv, String expected) {
+        if (csv == null || expected == null) return false;
+        String normalized = expected.trim().toLowerCase(java.util.Locale.ROOT);
+        if (normalized.isEmpty()) return false;
+        for (String value : csv.split(",", -1)) {
+            String allowed = value.trim().toLowerCase(java.util.Locale.ROOT);
+            if ("*".equals(allowed) || normalized.equals(allowed)) return true;
+        }
+        return false;
     }
 
     @Override
@@ -193,7 +215,8 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 row.getString("source_artifact_version"), row.getString("source_sha256"), row.getString("job_id"),
                 row.getString("profile_id"), row.getString("provider_id"), row.getString("model_id"),
                 row.getString("language"), row.getString("timebase"), row.getString("transcript_text"),
-                row.getString("consent_decision_id"), row.getString("rights_decision_id"), row.getString("policy_version"));
+                row.getString("consent_decision_id"), row.getString("rights_decision_id"), row.getString("policy_version"),
+                row.getString("purpose_ref"), row.getString("processing_purpose"));
         return new TranscriptRevision(draft, row.getInt("revision"), row.getLong("created_at"),
                 row.getString("admission_status"));
     }
@@ -211,8 +234,9 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         s.setString(5,d.sourceArtifactId()); s.setString(6,d.sourceVersion()); s.setString(7,d.sourceSha256());
         s.setString(8,d.jobId()); s.setString(9,d.profileId()); s.setString(10,d.providerId()); s.setString(11,d.modelId());
         s.setString(12,d.language()); s.setString(13,d.timebase()); s.setString(14,d.text());
-        s.setString(15,d.consentDecisionId()); s.setString(16,d.rightsDecisionId()); s.setString(17,d.policyVersion());
-        s.setLong(18,now);
+        s.setString(15,d.consentDecisionId()); s.setString(16,d.purposeRef());
+        s.setString(17,d.processingPurpose()); s.setString(18,d.rightsDecisionId());
+        s.setString(19,d.policyVersion()); s.setLong(20,now);
     }
 
     private static void rollback(Connection c, Throwable failure) {
