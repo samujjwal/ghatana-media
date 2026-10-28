@@ -225,6 +225,37 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void candidateRevisionReadsBackAfterStoreRecreationAndExactRetryIsIdempotent() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var state = fixture.state();
+            String digest = "7".repeat(64);
+            seed(state, "tenant-reopen", "principal-a", "source-reopen", "job-reopen",
+                    "consent-reopen", digest, false);
+            TranscriptDraft original = draft("tenant-reopen", "principal-a", "transcript-reopen",
+                    "source-reopen", "job-reopen", "consent-reopen", digest, "candidate result");
+
+            var first = fixture.store().append(original, 0);
+            fixture.store().close();
+
+            try (PostgresqlMediaTranscriptStore reopened = new PostgresqlMediaTranscriptStore()) {
+                assertThat(reopened.productionEligible()).isFalse();
+                assertThat(reopened.revisions("tenant-reopen", "principal-a", "transcript-reopen"))
+                        .containsExactly(first);
+                assertThat(reopened.append(original, 0)).isEqualTo(first);
+                assertThat(reopened.revisions("tenant-reopen", "principal-a", "transcript-reopen"))
+                        .containsExactly(first);
+
+                TranscriptDraft changed = draft("tenant-reopen", "principal-a", "transcript-reopen",
+                        "source-reopen", "job-reopen", "consent-reopen", digest, "changed candidate result");
+                assertThatThrownBy(() -> reopened.append(changed, 0))
+                        .isInstanceOf(TranscriptRevisionConflictException.class);
+                assertThat(reopened.revisions("tenant-reopen", "principal-a", "transcript-reopen"))
+                        .containsExactly(first);
+            }
+        }
+    }
+
+    @Test
     void concurrentInitialWritersCommitOneRevisionAndReportTypedConflicts() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store();
