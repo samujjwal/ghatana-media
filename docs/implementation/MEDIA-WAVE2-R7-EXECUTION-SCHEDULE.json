@@ -3885,5 +3885,25 @@
       "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
     },
     "claim": "The reviewed guards and missing owner/external inputs were recorded; no row was promoted and no external authority was inferred."
+  },
+  "postR7Oct28CurrentSttVisionModuleSuites": {
+    "verifiedAt": "2026-10-28",
+    "codeCut": {"media": "dc96d52d1a752f61a9e14dfbde5fda7d7ae9c89a", "branch": "main"},
+    "command": "JAVA_HOME=<Temurin-27> ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:modules:speech:stt-service:test :services:media:modules:vision:vision-service:test --no-build-cache --no-parallel --max-workers=2 --console=plain",
+    "fullModuleResults": {
+      "STT": {"tests": 347, "failures": 0, "errors": 0, "skipped": 0, "result": "PASS"},
+      "Vision": {"tests": 441, "failures": 0, "errors": 0, "skipped": 3, "result": "PASS_WITH_OPT_IN_NATIVE_SKIPS"},
+      "aggregate": {"tests": 788, "failures": 0, "errors": 0, "skipped": 3, "result": "PASS_WITH_OPT_IN_NATIVE_SKIPS"}
+    },
+    "gradleExecution": {"tasks": 71, "executed": 3, "upToDate": 68, "result": "BUILD_SUCCESSFUL"},
+    "visionNativeSkipDisposition": "The 3 skips are opt-in native-bounded cases. The separate pinned FFmpeg/FFprobe fixture run previously passed 56/56, but does not enforce per-worker CPU/RSS/PID or aggregate scratch ceilings.",
+    "disposition": {
+      "rowsPromoted": 0,
+      "STT-04": "PARTIAL",
+      "VIS-10": "PARTIAL",
+      "all36OpenRowsTaskAccepted": false,
+      "aggregate": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "claim": "Complete current affected service module suites passed; the three Vision native skips and all owner/provider acceptance gates remain separate."
   }
 }

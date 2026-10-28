@@ -2325,3 +2325,13 @@ Additional parallel Luna reviews found no safe local acceptance increment for **
 One explicit STT-10 semantics handoff remains: `LanguageDetectionService.of(model)` supplies a local default 0.70 confidence threshold, while PDP-0 `media.speech.transcription.language.detect` defines no product confidence threshold or parameter. The helper has no production caller in this module. Its threshold must remain non-product evidence until the meaning owner decides whether it is an opt-in heuristic or a supported qualification parameter; no threshold or quality claim is inferred from the helper or its fixtures. This is recorded as an owner-of-semantics question in this task execution record, not as a new competing product contract.
 
 These reviews did not change code or dispositions for the listed rows. No owner-approved external evidence was supplied, so all 36 open rows remain unaccepted and the aggregate remains **58 = 22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL**.
+
+### R7 complete affected STT and Vision module suites — 2026-10-28
+
+After commits `8a23de06` and `dc96d52d`, the full STT and Vision service module suites passed on macOS ARM64 / Temurin 27.0.1.0.2. STT reported **347 tests, 0 failures, 0 errors, 0 skips**. Vision reported **441 tests, 0 failures, 0 errors, 3 opt-in native skips**. The single added Vision test accounts for the count increase from the earlier 440-test cut. Gradle completed successfully with 71 selected-graph tasks (3 executed, 68 up-to-date).
+
+```sh
+JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=runtime-integration :services:media:modules:speech:stt-service:test :services:media:modules:vision:vision-service:test --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+The three default Vision skips are the existing opt-in native-bounded cases; the separate FFmpeg/FFprobe fixture run recorded earlier passed 56/56. These tests validate fixture process cleanup, not hard per-worker CPU/RSS/PID or aggregate scratch enforcement. No task was promoted: STT-04 and VIS-10 remain PARTIAL pending their independent source/authority and qualification requirements, and the aggregate stays **22 LOCALLY_VERIFIED, 30 PARTIAL, 6 OWNER_EXTERNAL**.
