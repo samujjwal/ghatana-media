@@ -27,9 +27,13 @@ public final class MultimodalResult {
     private final Outcome outcome;
 
     private MultimodalResult(Builder builder) {
+        if (builder.processingTimeMs < 0) {
+            throw new IllegalArgumentException("Processing time must not be negative");
+        }
         this.audioResult = builder.audioResult;
         this.visualResult = builder.visualResult;
-        this.combinedAnalysis = builder.combinedAnalysis;
+        this.combinedAnalysis = java.util.Objects.requireNonNull(
+                builder.combinedAnalysis, "combinedAnalysis must not be null");
         this.processingTimeMs = builder.processingTimeMs;
         this.outcome = builder.outcome == null
                 ? deriveOutcome(builder.audioResult, builder.visualResult)

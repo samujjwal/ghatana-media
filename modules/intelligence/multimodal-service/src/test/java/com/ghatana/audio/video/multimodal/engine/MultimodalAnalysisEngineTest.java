@@ -215,6 +215,15 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Result builder rejects invalid processing time and missing analysis text")
+    void resultBuilderValidatesBasicResultFields() {
+        assertThrows(IllegalArgumentException.class,
+                () -> MultimodalResult.builder().processingTimeMs(-1).build());
+        assertThrows(NullPointerException.class,
+                () -> MultimodalResult.builder().combinedAnalysis(null).build());
+    }
+
+    @Test
     @DisplayName("Should abstain from fusion when source references are unavailable")
     void shouldAbstainFromFusionWithoutSourceReferences() {
         AudioResult audio = AudioResult.builder() 
