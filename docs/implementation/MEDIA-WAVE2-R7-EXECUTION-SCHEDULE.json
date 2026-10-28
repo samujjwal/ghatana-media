@@ -2979,5 +2979,83 @@
     },
     "verification": "Read-only source audit only; no external repository files were changed and no code tests were run for the audit. Media's production composition currently disables the test-only codec allowance because no trusted worker sandbox is composed; therefore analyzeVideoFile returns UNAVAILABLE with VIDEO_CODEC_SANDBOX_UNAVAILABLE before temp-file creation or FFprobe/FFmpeg dispatch. This does not claim a guard around direct VideoFrameExtractor calls. RSS polling would be diagnostic, not hard enforcement; no code change or task promotion is justified by the current evidence. Separate record checks: pnpm test:backend-modality-wave2-plan 7/7, pnpm test:repository-hygiene 19/19, schedule JSON parse and git diff --check passed.",
     "nextWork": "Keep real rights-gated dispatch, OCR use, and semantic publication closed. For VIS-03, keep production analyzeVideoFile unavailable pending qualification and qualify a trusted executor that enforces the required limits on both required hosts; do not replace that gate with sampled RSS. Continue only a source-supported local code slice that is independently testable. Preserve all 58 rows and every current disposition."
+  },
+  "postR7ParallelLocalAudit": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "media": "92b5dbdb6bf2092870fdf964885442ef19436bc3",
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "kernel": "cd6fed02b4ab5871b070fac373b2c9a54e702fca",
+      "ghatanaTools": "2bb5f359da0dd58d8dc2932c3740e9ee06b42938",
+      "mediaCodeWorkingTreeCleanAtSourceCut": true,
+      "mediaRecordWorkingTreeNote": "The implementation/test files match the pinned Media code commit; this schedule JSON is the only current Media worktree modification while recording the audit.",
+      "sharedWorkingTreeClean": true,
+      "kernelWorkingTreeClean": true,
+      "ghatanaToolsWorkingTreeClean": false,
+      "ghatanaToolsNote": "The Gradle build included the Tools composite, whose checkout was dirty; the selected Vision test target has no direct Tools runtime dependency, so this is retained as test-environment provenance."
+    },
+    "implementation": {
+      "commit": "92b5dbdb6bf2092870fdf964885442ef19436bc3",
+      "taskIdsSupported": ["VIS-05"],
+      "changedFiles": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/yolo/LetterboxTransform.java",
+        "modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/yolo/LetterboxTransformTest.java"
+      ],
+      "summary": "Rejects otherwise-finite XYWH boxes when computing the right or bottom edge overflows to infinity; adds positive-path-independent boundary cases for both axes.",
+      "independentReview": "Luna reviewed the edge arithmetic and current call sites; no compatibility issue was found. The review did not claim whole-row completion.",
+      "verification": {
+        "command": "./gradlew --no-daemon -Dorg.gradle.java.home=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home :services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.yolo.LetterboxTransformTest --tests com.ghatana.audio.video.vision.analysis.VideoAnalysisServiceTest --tests com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest --no-build-cache --no-parallel --max-workers=2 --console=plain",
+        "runtime": "macOS ARM64, Temurin 27.0.1.0.2",
+        "tests": {"LetterboxTransformTest": 9, "VideoAnalysisServiceTest": 22, "VideoFrameExtractorProcessTest": 53},
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "gradleResult": "BUILD SUCCESSFUL",
+        "gitDiffCheck": "PASS"
+      },
+      "residual": "VIS-05 remains PARTIAL: source content version is not bound by the request contract, and native leak/resource stress evidence is not established."
+    },
+    "parallelRowAudits": {
+      "MM-03": {
+        "result": "No code change; exact-rational sample/PTS association, variable-rate conversion, ambiguity/discontinuity, and explicit unresolved clock cases are covered by SourceClockAssociationTest, MediaClockMappingTest, and MultimodalAnalysisEngineTest.",
+        "residual": "Authoritative cross-stream clock mapping and measured A/V synchronization evidence remain absent; PARTIAL retained."
+      },
+      "MM-08": {
+        "result": "No code change; production rejects the legacy family transport before provider dispatch, and post-handoff executor failure is operation-scoped UNKNOWN with no-resubmit guidance.",
+        "residual": "Canonical per-capability job, attempt, provider identity, durable result, and readback remain unwired; PARTIAL retained."
+      },
+      "VIS-06": {
+        "result": "No code change; existing tests cover channel-major output parsing, class mapping/tie behavior, inclusive thresholds, invalid scores, clipping, NMS, and model digest/version provenance without a calibrated-probability claim.",
+        "verification": {
+          "command": "./gradlew --no-daemon -Dorg.gradle.java.home=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home :services:media:modules:vision:vision-service:test --tests '*YoloOutputParserTest' --tests '*YoloDetectionPostProcessorTest' --tests '*YoloV8AdapterOptionsTest' --tests '*YoloV8AdapterAdmissionTest' --no-build-cache --no-parallel --max-workers=2 --console=plain",
+          "runtime": "macOS ARM64, Temurin 27.0.1.0.2",
+          "tests": {"YoloOutputParserTest": 7, "YoloDetectionPostProcessorTest": 12, "YoloV8AdapterOptionsTest": 3, "YoloV8AdapterAdmissionTest": 1},
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "gradleResult": "BUILD SUCCESSFUL"
+        },
+        "residual": "VIS-06 remains PARTIAL: a qualified real model, reproducible class-list/profile evidence, and licensed-corpus golden/mAP/PR results are unavailable."
+      },
+      "STT-09": {
+        "result": "No code change; foundation job idempotency, fenced attempt/outbox, UNKNOWN, reconciliation, and restart/crash tests exist, while STT production remains gated before job creation.",
+        "residual": "STT-specific canonical submit/attempt binding and authorized post-crash provider-result readback need the missing source-rights and provider admission; PARTIAL retained."
+      },
+      "VIS-07": {
+        "result": "No code change; existing tests cover variable/reordered PTS, missing timestamps and ordinals, ambiguous PTS matches, and heuristic track resets across gaps/candidate cuts. Fresh VideoAnalysisServiceTest and VideoFrameExtractorProcessTest selectors passed 22/22 and 53/53 on this source cut.",
+        "residual": "Canonical source-clock/version provenance and qualified tracking/shot/camera-motion corpus evidence remain absent; PARTIAL retained."
+      }
+    },
+    "disposition": {
+      "VIS-05": "PARTIAL",
+      "MM-03": "PARTIAL",
+      "MM-08": "PARTIAL",
+      "STT-09": "PARTIAL",
+      "VIS-07": "PARTIAL",
+      "rowsPromoted": 0,
+      "all36OpenRowsTaskAccepted": false,
+      "currentCounts": {"total": 58, "locallyVerified": 22, "partial": 30, "ownerExternal": 6}
+    },
+    "nextWork": "Continue with independently testable source-defined subcriteria while preserving row-level acceptance gates. Keep the complete 58-task inventory; do not promote rows without their complete positive, negative, durability, resource, provenance, and owner evidence."
   }
 }
