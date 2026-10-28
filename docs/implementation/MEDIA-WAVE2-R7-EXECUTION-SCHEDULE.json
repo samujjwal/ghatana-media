@@ -1922,5 +1922,49 @@
       "taskAcceptanceUnchanged": true
     },
     "claim": "CURRENT_CUT_LOCAL_IMPLEMENTATION_AND_EXECUTION_EVIDENCE_ONLY_NOT_WAVE2_TASK_ACCEPTANCE_PDP_GTOOL_CLOSURE_PRODUCTION_ADMISSION_CUTOVER_DEPLOYMENT_OR_RELEASE"
+  },
+  "stt05BackpressureTestFollowUp": {
+    "verifiedAt": "2026-10-27",
+    "sourceCut": {
+      "mediaBaseCommit": "2e5c8f509d9e649168f2de799c8d887e6fc822ea",
+      "mediaDiffCommittedAs": "69822631f7dc717ef89fce2edd46f6bbe63548d6",
+      "mediaWorkingTreeAtTest": "Only the assigned test file was modified; the focused selector ran against that same diff, later committed unchanged.",
+      "shared": "0b19e750bf3906e187e8d804c9313bd451a58667",
+      "sharedWorkingTreeCleanAtTest": true
+    },
+    "taskId": "STT-05",
+    "changedFiles": [
+      "modules/speech/stt-service/src/test/java/com/ghatana/stt/streaming/SttStreamingLatencyEnhancerTest.java"
+    ],
+    "summary": "Replaced the back-pressure reachability assertion with deterministic configured-byte-cap activation, over-capacity rejection with unchanged accounting, flush recovery, and successful subsequent ingest. No production code/RPC semantics changed.",
+    "initialAttempt": {
+      "java": "Host Java 21",
+      "result": "Stopped at Shared minimum-Java-version check before test execution; no test result."
+    },
+    "successfulRun": {
+      "java": "Temurin 27.0.1.0.2",
+      "command": "JAVA_HOME=/Users/samujjwal/Library/Java/JavaVirtualMachines/jdk-27.0.1.0.2+1/Contents/Home ./gradlew --no-daemon -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.streaming.SttStreamingLatencyEnhancerTest --no-parallel --max-workers=2 --console=plain",
+      "counts": {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junitXml": "modules/speech/stt-service/build/test-results/test/TEST-com.ghatana.stt.streaming.SttStreamingLatencyEnhancerTest.xml"
+    },
+    "independentReview": "Luna review confirmed deterministic capacity rejection, pressure activation, unchanged accounting, flush recovery, and subsequent ingest; no behavior/test was weakened.",
+    "disposition": {
+      "taskAccepted": false,
+      "rowDisposition": "PARTIAL",
+      "remaining": "RPC-level session/resume, durable ACKs, provider streaming, VAD, partial/final semantics, disconnect recovery, and revoked-consent behavior remain unimplemented or unverified."
+    },
+    "aggregateDispositionUnchanged": {
+      "total": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "sourceConflicts": 0,
+      "rowsPromoted": 0
+    }
   }
 }
