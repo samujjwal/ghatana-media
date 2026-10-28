@@ -785,10 +785,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             admissionBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
             String requestedVoice = voiceId == null || voiceId.isBlank() ? "default" : "explicit";
             String requestedLanguage = language == null ? "unspecified" : language.toLanguageTag();
-            throw new TtsSynthesisEngine.SynthesisException(
+            throw new LocalAdmissionException(
                     "TTS locale/voice NOT_ADMITTED: no exact admitted voice-language-rights profile "
-                            + "for requested voice=" + requestedVoice + ", language=" + requestedLanguage,
-                    TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+                            + "for requested voice=" + requestedVoice + ", language=" + requestedLanguage);
         }
     }
 
@@ -801,9 +800,8 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 return;
             }
             admissionBoundary.complete(MediaWorkflowMetrics.Outcome.FAILURE);
-            throw new TtsSynthesisEngine.SynthesisException(
-                    "TTS streaming is NOT_ADMITTED: no provider has verified mono PCM S16LE framing, sample rate, cancellation and finality",
-                    TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+            throw new LocalAdmissionException(
+                    "TTS streaming is NOT_ADMITTED: no provider has verified mono PCM S16LE framing, sample rate, cancellation and finality");
         }
     }
 
@@ -977,17 +975,29 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             status = Status.INTERNAL;
         }
         LOG.error("TTS {} failed (type={})", operation, exception.getClass().getSimpleName());
-        String description = exception instanceof TtsRequestAuthorization.AuthorizationException authorization
-                ? authorization.getMessage()
-                : switch (status.getCode()) {
+        String description;
+        if (exception instanceof TtsRequestAuthorization.AuthorizationException authorization) {
+            description = authorization.getMessage();
+        } else if (exception instanceof LocalAdmissionException localAdmission) {
+            description = localAdmission.getMessage();
+        } else {
+            description = switch (status.getCode()) {
             case UNAVAILABLE -> "TTS_NOT_ADMITTED: synthesis provider or capability is unavailable";
             case INVALID_ARGUMENT -> "Invalid TTS synthesis request";
             case UNIMPLEMENTED -> "TTS_NOT_ADMITTED: requested TTS capability is unsupported";
             case FAILED_PRECONDITION -> "TTS synthesis preconditions are not met";
             case DEADLINE_EXCEEDED -> "TTS streaming deadline exceeded";
             default -> "TTS synthesis failed";
-        };
+            };
+        }
         responseObserver.onError(status.withDescription(description).asRuntimeException());
+    }
+
+    /** Unforgeable service-side marker for locally authored admission explanations. */
+    private static final class LocalAdmissionException extends TtsSynthesisEngine.SynthesisException {
+        private LocalAdmissionException(String message) {
+            super(message, TtsSynthesisEngine.FailureReason.NOT_ADMITTED);
+        }
     }
 
     private static final class TtsStreamTimeoutException extends RuntimeException {

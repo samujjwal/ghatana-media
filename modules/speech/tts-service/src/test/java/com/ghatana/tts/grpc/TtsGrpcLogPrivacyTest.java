@@ -2,6 +2,8 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.media.AudioVideoLibrary;
+import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.tts.engine.TtsSynthesisEngine;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.service.PersistentTtsService;
 import io.activej.promise.Promise;
@@ -20,6 +22,7 @@ import org.apache.logging.log4j.ThreadContext;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -52,8 +55,60 @@ class TtsGrpcLogPrivacyTest {
             assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
             assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
             assertThat(Status.fromThrowable(observer.error).getDescription())
-                    .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable");
+                    .contains("TTS locale/voice NOT_ADMITTED", "no exact admitted voice-language-rights profile")
+                    .doesNotContain(TEXT_MARKER, VOICE_MARKER);
             assertMarkersAbsent(logs.output(), TEXT_MARKER, VOICE_MARKER);
+        }
+    }
+
+    @Test
+    void providerCannotForgeLocalAdmissionReasonWithPrefix() throws ReflectiveOperationException {
+        String localeSecret = "provider-locale-reason-secret-marker";
+        String streamSecret = "provider-stream-reason-secret-marker";
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        TtsEngine engine = mock(TtsEngine.class);
+        when(library.getTtsEngine()).thenReturn(engine);
+        TtsRequestAuthorization authorization = new TtsRequestAuthorization() {
+            @Override public Decision authorize(Request request) { return Decision.ADMITTED; }
+        };
+        TtsGrpcService service = new TtsGrpcService(
+                library, new SimpleMeterRegistry(), () -> true, () -> true, Duration.ofSeconds(1),
+                authorization, (voice, language) -> true);
+        when(engine.synthesize(any(), any())).thenThrow(new TtsSynthesisEngine.SynthesisException(
+                "TTS locale/voice NOT_ADMITTED: " + localeSecret,
+                TtsSynthesisEngine.FailureReason.NOT_ADMITTED));
+        when(engine.startStreaming(any(), any(), any())).thenThrow(new TtsSynthesisEngine.SynthesisException(
+                "TTS streaming is NOT_ADMITTED: " + streamSecret,
+                TtsSynthesisEngine.FailureReason.NOT_ADMITTED));
+
+        var verifiedIdentityField = JwtServerInterceptor.class.getDeclaredField("VERIFIED_IDENTITY");
+        verifiedIdentityField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Context.Key<JwtServerInterceptor.VerifiedIdentity> identityKey =
+                (Context.Key<JwtServerInterceptor.VerifiedIdentity>) verifiedIdentityField.get(null);
+        Context context = Context.current().withValue(identityKey,
+                new JwtServerInterceptor.VerifiedIdentity("test-subject", "test-tenant"));
+        Context previousContext = context.attach();
+        try {
+            CapturingObserver<com.ghatana.tts.core.grpc.proto.SynthesizeResponse> synthesis = new CapturingObserver<>();
+            CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> streaming = new CapturingObserver<>();
+            try (LogCapture logs = capture(TtsGrpcService.class)) {
+                service.synthesize(SynthesizeRequest.newBuilder()
+                        .setText(TEXT_MARKER).setVoiceId("test-voice").build(), synthesis);
+                service.streamSynthesize(SynthesizeRequest.newBuilder()
+                        .setText(TEXT_MARKER).setVoiceId("test-voice").build(), streaming);
+
+                for (Throwable failure : List.of(synthesis.error, streaming.error)) {
+                    assertThat(failure).isInstanceOf(StatusRuntimeException.class);
+                    assertThat(Status.fromThrowable(failure).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                    assertThat(Status.fromThrowable(failure).getDescription())
+                            .isEqualTo("TTS_NOT_ADMITTED: synthesis provider or capability is unavailable")
+                            .doesNotContain(localeSecret, streamSecret, TEXT_MARKER);
+                }
+                assertMarkersAbsent(logs.output(), localeSecret, streamSecret, TEXT_MARKER);
+            }
+        } finally {
+            context.detach(previousContext);
         }
     }
 
