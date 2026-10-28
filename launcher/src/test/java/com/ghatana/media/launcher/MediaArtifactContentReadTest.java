@@ -2,12 +2,15 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
-import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
@@ -16,12 +19,16 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -65,6 +72,140 @@ class MediaArtifactContentReadTest {
                 .hasMessageContaining("MEDIA_ARTIFACT_READ_LIMIT");
         assertThat(tooSmall.size()).isZero();
         store.close();
+    }
+
+
+    @Test
+    void closeWaitsForRegisteredArtifactCopyAndReadRemovesItsStage() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-close-read-");
+        var tempDirectory = Path.of(System.getProperty("java.io.tmpdir"));
+        byte[] source = "close-race-source".getBytes(StandardCharsets.UTF_8);
+        var delegate = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+        var upload = delegate.begin(new UploadRequest("tenant-a", "principal-a", "source.bin",
+                "application/octet-stream", source.length, sha256(source), "CONFIDENTIAL",
+                Duration.ofMinutes(5), Map.of()), "close-race-upload");
+        delegate.append("tenant-a", "principal-a", upload.uploadId(), 0, source);
+        var artifact = delegate.complete("tenant-a", "principal-a", upload.uploadId());
+        CountDownLatch copyEntered = new CountDownLatch(1);
+        CountDownLatch releaseCopy = new CountDownLatch(1);
+        CountDownLatch storeClosed = new CountDownLatch(1);
+        AtomicBoolean runtimeClosed = new AtomicBoolean();
+        MediaArtifactStore blockingStore = new MediaArtifactStore() {
+            @Override public String storeId() { return delegate.storeId(); }
+            @Override public UploadSession begin(UploadRequest request, String key) { return delegate.begin(request, key); }
+            @Override public UploadSession append(String tenant, String principal, String id, int index, byte[] bytes) {
+                return delegate.append(tenant, principal, id, index, bytes);
+            }
+            @Override public MediaArtifact complete(String tenant, String principal, String id) {
+                return delegate.complete(tenant, principal, id);
+            }
+            @Override public java.util.Optional<UploadSession> upload(String tenant, String id) {
+                return delegate.upload(tenant, id);
+            }
+            @Override public java.util.Optional<MediaArtifact> artifact(String tenant, String id) {
+                return delegate.artifact(tenant, id);
+            }
+            @Override public java.util.Optional<ArtifactContentReadReceipt> copyContent(
+                    String tenant, String principal, String id, ArtifactVersion version,
+                    java.io.OutputStream target, long maxBytes) throws java.io.IOException {
+                copyEntered.countDown();
+                try {
+                    if (!releaseCopy.await(3, TimeUnit.SECONDS)) throw new java.io.IOException("test copy timed out");
+                } catch (InterruptedException interruption) {
+                    Thread.currentThread().interrupt();
+                    throw new java.io.IOException("test copy interrupted", interruption);
+                }
+                return delegate.copyContent(tenant, principal, id, version, target, maxBytes);
+            }
+            @Override public boolean durable() { return delegate.durable(); }
+            @Override public boolean productionEligible() { return delegate.productionEligible(); }
+            @Override public boolean ready() { return delegate.ready(); }
+            @Override public void close() { delegate.close(); storeClosed.countDown(); }
+        };
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                blockingStore, new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null, List.of(),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        var output = new ByteArrayOutputStream();
+        var read = CompletableFuture.supplyAsync(() -> {
+            try {
+                return runtime.copyArtifactContent("tenant-a", "principal-a", artifact.artifactId(),
+                        artifact.version(), output, source.length);
+            } catch (Exception failure) {
+                throw new java.util.concurrent.CompletionException(failure);
+            }
+        });
+        assertThat(copyEntered.await(2, TimeUnit.SECONDS)).isTrue();
+        var close = CompletableFuture.runAsync(() -> {
+            runtime.close();
+            runtimeClosed.set(true);
+        });
+        try {
+            long deadline = System.nanoTime() + Duration.ofSeconds(2).toNanos();
+            boolean closeStarted = false;
+            while (!closeStarted && System.nanoTime() < deadline) {
+                try {
+                    runtime.copyArtifactContent("tenant-a", "principal-a", artifact.artifactId(),
+                            artifact.version(), new ByteArrayOutputStream(), 0);
+                    throw new AssertionError("zero-byte read unexpectedly succeeded");
+                } catch (IllegalStateException closing) {
+                    closeStarted = true;
+                } catch (IllegalArgumentException stillOpen) {
+                    Thread.yield();
+                }
+            }
+            assertThat(closeStarted).isTrue();
+            assertThat(runtimeClosed).isFalse();
+            assertThat(storeClosed.getCount()).isEqualTo(1);
+            try (var staged = Files.list(tempDirectory)) {
+                assertThat(staged.filter(path -> path.getFileName().toString()
+                        .startsWith(runtime.artifactReadStagingPrefixForTests())).count()).isEqualTo(1);
+            }
+        } finally {
+            releaseCopy.countDown();
+        }
+        assertThat(read.get(3, TimeUnit.SECONDS)).isPresent();
+        close.get(3, TimeUnit.SECONDS);
+        assertThat(output.toByteArray()).containsExactly(source);
+        assertThat(storeClosed.getCount()).isZero();
+        try (var staged = Files.list(tempDirectory)) {
+            assertThat(staged.filter(path -> path.getFileName().toString()
+                    .startsWith(runtime.artifactReadStagingPrefixForTests())).count()).isZero();
+        }
+    }
+
+    @Test
+    void closeFromAnActiveCopyCallbackFailsFastWithoutClosingRuntime() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-reentrant-close-");
+        byte[] source = "reentrant-close-source".getBytes(StandardCharsets.UTF_8);
+        var store = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+        var upload = store.begin(new UploadRequest("tenant-a", "principal-a", "source.bin",
+                "application/octet-stream", source.length, sha256(source), "CONFIDENTIAL",
+                Duration.ofMinutes(5), Map.of()), "reentrant-close-upload");
+        store.append("tenant-a", "principal-a", upload.uploadId(), 0, source);
+        var artifact = store.complete("tenant-a", "principal-a", upload.uploadId());
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                store, new LocalMediaRuntimeSupport.JobStore(), new LocalMediaRuntimeSupport.StreamStore(),
+                null, List.of(), List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        java.io.OutputStream reentrantTarget = new java.io.ByteArrayOutputStream() {
+            @Override public void write(byte[] bytes, int offset, int length) {
+                runtime.close();
+            }
+        };
+        assertThatThrownBy(() -> runtime.copyArtifactContent("tenant-a", "principal-a", artifact.artifactId(),
+                artifact.version(), reentrantTarget, source.length))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("active artifact copy");
+
+        var recoveredOutput = new ByteArrayOutputStream();
+        assertThat(runtime.copyArtifactContent("tenant-a", "principal-a", artifact.artifactId(),
+                artifact.version(), recoveredOutput, source.length)).isPresent();
+        assertThat(recoveredOutput.toByteArray()).containsExactly(source);
+        runtime.close();
     }
 
     @Test

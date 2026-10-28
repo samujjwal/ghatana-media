@@ -153,6 +153,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private final ConcurrentMap<String, Semaphore> tenantConcurrency = new ConcurrentHashMap<>();
     private final String workerId = "media-worker-" + UUID.randomUUID();
     private final AtomicBoolean closed = new AtomicBoolean(false);
+    /** Coordinates verified artifact copies with shutdown of the underlying artifact store. */
+    private final Object artifactReadLifecycle = new Object();
+    private final String artifactReadStagingPrefix = "media-source-read-" + UUID.randomUUID() + "-";
+    private final ThreadLocal<Integer> artifactCopyDepth = new ThreadLocal<>();
+    private int activeArtifactCopies;
     private final ScheduledExecutorService recoveryScheduler = Executors.newSingleThreadScheduledExecutor(task -> {
         Thread thread = new Thread(task, "media-job-recovery");
         thread.setDaemon(true);
@@ -460,6 +465,18 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private Optional<ArtifactContentReadReceipt> copyVerifiedArtifactContent(
             String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
             java.io.OutputStream target, long maxBytes, Runnable beforeExposure) throws java.io.IOException {
+        beginArtifactCopy();
+        try {
+            return copyVerifiedArtifactContentRegistered(tenantId, principalId, artifactId, expectedVersion,
+                    target, maxBytes, beforeExposure);
+        } finally {
+            endArtifactCopy();
+        }
+    }
+
+    private Optional<ArtifactContentReadReceipt> copyVerifiedArtifactContentRegistered(
+            String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+            java.io.OutputStream target, long maxBytes, Runnable beforeExposure) throws java.io.IOException {
         long effectiveMaxBytes = Math.min(maxBytes, config.maximumArtifactBytes());
         java.nio.file.Path staging = privateStagingFile();
         try (java.nio.channels.FileChannel stagedFile = java.nio.channels.FileChannel.open(staging,
@@ -489,14 +506,37 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
     }
 
-    private static java.nio.file.Path privateStagingFile() throws java.io.IOException {
+    private void beginArtifactCopy() {
+        synchronized (artifactReadLifecycle) {
+            ensureOpen();
+            activeArtifactCopies++;
+            Integer depth = artifactCopyDepth.get();
+            artifactCopyDepth.set(depth == null ? 1 : depth + 1);
+        }
+    }
+
+    private void endArtifactCopy() {
+        synchronized (artifactReadLifecycle) {
+            Integer depth = artifactCopyDepth.get();
+            if (depth == null || depth <= 1) artifactCopyDepth.remove();
+            else artifactCopyDepth.set(depth - 1);
+            activeArtifactCopies--;
+            if (activeArtifactCopies == 0) artifactReadLifecycle.notifyAll();
+        }
+    }
+
+    private java.nio.file.Path privateStagingFile() throws java.io.IOException {
         try {
-            return java.nio.file.Files.createTempFile("media-source-read-", ".stage",
+            return java.nio.file.Files.createTempFile(artifactReadStagingPrefix, ".stage",
                     java.nio.file.attribute.PosixFilePermissions.asFileAttribute(
                             java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")));
         } catch (UnsupportedOperationException unsupportedPosixPermissions) {
-            return java.nio.file.Files.createTempFile("media-source-read-", ".stage");
+            return java.nio.file.Files.createTempFile(artifactReadStagingPrefix, ".stage");
         }
+    }
+
+    String artifactReadStagingPrefixForTests() {
+        return artifactReadStagingPrefix;
     }
 
     private static String sha256File(java.nio.channels.FileChannel stagedFile) throws java.io.IOException {
@@ -1626,7 +1666,22 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     @Override
     public void close() {
-        if (!closed.compareAndSet(false, true)) return;
+        Integer copyDepth = artifactCopyDepth.get();
+        if (copyDepth != null && copyDepth > 0) {
+            throw new IllegalStateException("Cannot close MediaRuntime from an active artifact copy");
+        }
+        boolean interrupted = false;
+        synchronized (artifactReadLifecycle) {
+            if (closed.get()) return;
+            closed.set(true);
+            while (activeArtifactCopies != 0) {
+                try {
+                    artifactReadLifecycle.wait();
+                } catch (InterruptedException interruption) {
+                    interrupted = true;
+                }
+            }
+        }
         recoveryScheduler.shutdownNow();
         activeJobs.values().forEach(control -> {
             control.cancellation().cancel();
@@ -1653,6 +1708,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         failure = close(jobStore, failure);
         failure = close(artifactStore, failure);
         metricsRegistry.close();
+        if (interrupted) Thread.currentThread().interrupt();
         if (failure != null) throw failure;
     }
 
