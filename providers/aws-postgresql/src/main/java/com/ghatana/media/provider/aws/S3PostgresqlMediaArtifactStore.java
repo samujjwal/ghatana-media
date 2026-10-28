@@ -33,7 +33,11 @@ import software.amazon.awssdk.services.s3.model.UploadPartRequest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.sql.Connection;
@@ -650,34 +654,60 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         } catch (java.security.NoSuchAlgorithmException impossible) {
             throw new IllegalStateException("SHA-256 is unavailable", impossible);
         }
-        long copied = 0;
-        byte[] buffer = new byte[64 * 1024];
-        try (ResponseInputStream<GetObjectResponse> object = state.s3().getObject(GetObjectRequest.builder()
-                .bucket(state.bucket()).key(objectKey).build())) {
-            int read;
-            while ((read = object.read(buffer)) != -1) {
-                copied = Math.addExact(copied, read);
-                if (copied > maxBytes || copied > artifact.sizeBytes()) {
-                    throw new IOException("Stored Media artifact exceeded its immutable byte ceiling");
+        Path staged = privateStagingFile();
+        try {
+            long copied = 0;
+            byte[] buffer = new byte[64 * 1024];
+            try (ResponseInputStream<GetObjectResponse> object = state.s3().getObject(GetObjectRequest.builder()
+                    .bucket(state.bucket()).key(objectKey).build());
+                 OutputStream staging = Files.newOutputStream(staged, StandardOpenOption.WRITE,
+                         StandardOpenOption.TRUNCATE_EXISTING)) {
+                int read;
+                while ((read = object.read(buffer)) != -1) {
+                    copied = Math.addExact(copied, read);
+                    if (copied > maxBytes || copied > artifact.sizeBytes()) {
+                        throw new IOException("Stored Media artifact exceeded its immutable byte ceiling");
+                    }
+                    digest.update(buffer, 0, read);
+                    staging.write(buffer, 0, read);
                 }
-                digest.update(buffer, 0, read);
-                target.write(buffer, 0, read);
+            } catch (ArithmeticException overflow) {
+                throw new IOException("Media artifact byte count overflow", overflow);
+            } catch (RuntimeException failure) {
+                throw new IOException("Unable to read exact Media artifact source bytes", failure);
             }
-        } catch (ArithmeticException overflow) {
-            throw new IOException("Media artifact byte count overflow", overflow);
-        } catch (RuntimeException failure) {
-            throw new IOException("Unable to read exact Media artifact source bytes", failure);
+            String actualSha256 = HexFormat.of().formatHex(digest.digest());
+            if (copied != artifact.sizeBytes() || !actualSha256.equals(artifact.sha256())) {
+                throw new SecurityException("Artifact object bytes do not match the requested immutable version");
+            }
+
+            // Only verified bytes are published to the caller. The private staging file also
+            // prevents an S3 mutation during the read from leaking an unverified prefix.
+            try (InputStream verified = Files.newInputStream(staged)) {
+                int read;
+                while ((read = verified.read(buffer)) != -1) {
+                    target.write(buffer, 0, read);
+                }
+            }
+            return Optional.of(new ArtifactContentReadReceipt(expectedVersion, actualSha256, copied));
+        } finally {
+            Files.deleteIfExists(staged);
         }
-        String actualSha256 = HexFormat.of().formatHex(digest.digest());
-        if (copied != artifact.sizeBytes() || !actualSha256.equals(artifact.sha256())) {
-            throw new SecurityException("Artifact object bytes do not match the requested immutable version");
-        }
-        return Optional.of(new ArtifactContentReadReceipt(expectedVersion, actualSha256, copied));
     }
 
     @Override public boolean durable() { return true; }
     @Override public boolean productionEligible() { return state.productionEligible(); }
     @Override public boolean ready() { return !closed.get() && state.ready(); }
+
+    private static Path privateStagingFile() throws IOException {
+        try {
+            return Files.createTempFile("media-artifact-read-", ".tmp",
+                    java.nio.file.attribute.PosixFilePermissions.asFileAttribute(
+                            java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")));
+        } catch (UnsupportedOperationException unsupportedPosixPermissions) {
+            return Files.createTempFile("media-artifact-read-", ".tmp");
+        }
+    }
 
     @Override
     public void close() {

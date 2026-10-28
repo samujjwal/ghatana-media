@@ -75,6 +75,32 @@ public final class MediaTranscriptContracts {
         }
     }
 
+    /** Durable lineage for one candidate transcript revision; contains identifiers and digests only. */
+    public record TranscriptAttemptBinding(
+            String jobId, int attemptNumber, long fencingToken, String providerId,
+            String providerOperationId, String providerReceiptId, String requestFingerprint,
+            String sourceArtifactVersionRef, String transcriptVersionRef, String resultDigest) {
+        public TranscriptAttemptBinding {
+            jobId = required(jobId, "jobId");
+            if (attemptNumber <= 0 || fencingToken <= 0) {
+                throw new IllegalArgumentException("attempt number and fencing token must be positive");
+            }
+            providerId = required(providerId, "providerId");
+            providerOperationId = required(providerOperationId, "providerOperationId");
+            providerReceiptId = required(providerReceiptId, "providerReceiptId");
+            requestFingerprint = digest(requestFingerprint, "requestFingerprint");
+            sourceArtifactVersionRef = required(sourceArtifactVersionRef, "sourceArtifactVersionRef");
+            transcriptVersionRef = required(transcriptVersionRef, "transcriptVersionRef");
+            resultDigest = digest(resultDigest, "resultDigest");
+        }
+
+        private static String digest(String value, String name) {
+            String normalized = required(value, name).toLowerCase(java.util.Locale.ROOT);
+            if (!normalized.matches("[0-9a-f]{64}")) throw new IllegalArgumentException(name + " must be SHA-256");
+            return normalized;
+        }
+    }
+
     /** Derived operations that must remain fail-closed until their owning evidence exists. */
     public enum TranscriptDerivedCapability {
         FORCED_ALIGNMENT,
@@ -153,6 +179,15 @@ public final class MediaTranscriptContracts {
             throw new UnsupportedOperationException("Expected-revision append is not supported by this store");
         }
 
+        /**
+         * Append only when the draft is an exact projection of the named successful durable attempt.
+         * Compatibility implementations fail closed until they can validate and persist that binding.
+         */
+        default TranscriptRevision appendFromSuccessfulAttempt(TranscriptDraft draft, int expectedLatestRevision,
+                int attemptNumber, long fencingToken, String requestFingerprint, String transcriptVersionRef) {
+            throw new UnsupportedOperationException("Successful-attempt transcript append is not supported by this store");
+        }
+
         /** Existing implementations retain their original tenant/transcript read contract. */
         List<TranscriptRevision> revisions(String tenantId, String transcriptId);
 
@@ -162,6 +197,15 @@ public final class MediaTranscriptContracts {
          */
         default List<TranscriptRevision> revisions(String tenantId, String principalId, String transcriptId) {
             throw new UnsupportedOperationException("Principal-scoped transcript readback is not supported by this store");
+        }
+
+        /**
+         * Read exact persisted provider-attempt lineage for a principal-owned transcript revision.
+         * Implementations must fail closed for another principal, tenant, or unknown revision.
+         */
+        default TranscriptAttemptBinding readAttemptBinding(
+                String tenantId, String principalId, String transcriptId, int revision) {
+            throw new UnsupportedOperationException("Scoped transcript attempt-binding readback is not supported by this store");
         }
 
         /**

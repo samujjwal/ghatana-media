@@ -18,6 +18,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.sql.DriverManager;
 import java.time.Duration;
@@ -109,10 +111,26 @@ class S3PostgresqlMediaArtifactAdmissionTest {
                             .contentLength((long) altered.length).build(), RequestBody.fromBytes(altered));
 
             ByteArrayOutputStream corrupted = new ByteArrayOutputStream();
+            long stagedBeforeCorruptRead = stagedReadFileCount();
             assertThatThrownBy(() -> store.copyContent("tenant-a", "principal-a", artifact.artifactId(),
                     artifact.version(), corrupted, bytes.length))
                     .isInstanceOf(SecurityException.class)
                     .hasMessageContaining("immutable version");
+            assertThat(corrupted.size()).isZero();
+            assertThat(stagedReadFileCount()).isEqualTo(stagedBeforeCorruptRead);
+
+            byte[] oversized = Arrays.copyOf(bytes, bytes.length + 1);
+            admin.putObject(PutObjectRequest.builder().bucket(bucket)
+                            .key(objectReference.substring(prefix.length()))
+                            .contentLength((long) oversized.length).build(), RequestBody.fromBytes(oversized));
+            ByteArrayOutputStream inconsistent = new ByteArrayOutputStream();
+            long stagedBeforeOversizedRead = stagedReadFileCount();
+            assertThatThrownBy(() -> store.copyContent("tenant-a", "principal-a", artifact.artifactId(),
+                    artifact.version(), inconsistent, bytes.length + 1L))
+                    .isInstanceOf(java.io.IOException.class)
+                    .hasMessageContaining("immutable byte ceiling");
+            assertThat(inconsistent.size()).isZero();
+            assertThat(stagedReadFileCount()).isEqualTo(stagedBeforeOversizedRead);
         });
     }
 
@@ -333,6 +351,13 @@ class S3PostgresqlMediaArtifactAdmissionTest {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
         } catch (Exception failure) {
             throw new IllegalStateException(failure);
+        }
+    }
+
+    private static long stagedReadFileCount() throws Exception {
+        try (var files = Files.list(Path.of(System.getProperty("java.io.tmpdir")))) {
+            return files.filter(path -> path.getFileName().toString().startsWith("media-artifact-read-"))
+                    .count();
         }
     }
 

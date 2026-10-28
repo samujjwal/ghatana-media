@@ -1077,6 +1077,11 @@ public final class MediaRuntimeContracts {
         /** Update a worker-owned job only while the supplied lease fence is current and unexpired. */
         ProcessingJob update(JobLease lease, ProcessingJob expected, ProcessingJob updated);
         Optional<ProcessingJob> find(String tenantId, String jobId);
+        /** Reads one durable provider attempt by its complete tenant/job/attempt identity. */
+        default Optional<ProcessingAttempt> findProcessingAttempt(
+                String tenantId, String jobId, int attemptNumber) {
+            throw new UnsupportedOperationException("durable processing attempt readback is not supported");
+        }
         List<ProcessingJob> list(String tenantId, int limit);
         JobLease claim(ProcessingJob expected, String ownerId, Instant expiresAt);
         boolean leaseValid(JobLease lease);

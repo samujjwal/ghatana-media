@@ -5,6 +5,7 @@ import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptPrincipalConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevisionConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptAttemptBinding;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDerivedCapability;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptCapabilityResult;
 import com.ghatana.media.runtime.MediaTranscriptContracts;
@@ -96,7 +97,8 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
      * Persists a candidate only when its content is an exact projection of the named durable,
      * successful provider attempt. Rights/provider admission remains candidate-only.
      */
-    TranscriptRevision appendFromSuccessfulAttempt(TranscriptDraft draft, int expectedLatestRevision,
+    @Override
+    public TranscriptRevision appendFromSuccessfulAttempt(TranscriptDraft draft, int expectedLatestRevision,
             int attemptNumber, long fencingToken, String requestFingerprint, String transcriptVersionRef) {
         ensureOpen();
         java.util.Objects.requireNonNull(draft, "draft");
@@ -194,6 +196,52 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
     public record AttemptBinding(String jobId, int attemptNumber, long fencingToken, String providerId,
             String providerOperationId, String providerReceiptId, String requestFingerprint,
             String sourceArtifactVersionRef, String transcriptVersionRef, String resultDigest) { }
+
+    @Override
+    public TranscriptAttemptBinding readAttemptBinding(String tenantId, String principalId,
+            String transcriptId, int revision) {
+        ensureOpen();
+        requireNonBlank(tenantId, "tenantId");
+        requireNonBlank(principalId, "principalId");
+        requireNonBlank(transcriptId, "transcriptId");
+        if (revision <= 0) throw new IllegalArgumentException("revision must be positive");
+        try (Connection connection = state.connection(); PreparedStatement query = connection.prepareStatement("""
+                SELECT b.job_id,b.attempt_number,b.fencing_token,b.provider_id,b.provider_operation_id,
+                       b.provider_receipt_id,b.request_fingerprint,b.source_artifact_version_ref,
+                       b.transcript_version_ref,b.result_digest
+                  FROM media_transcript_attempt_bindings b
+                  JOIN media_transcript_revisions r
+                    ON r.tenant_id=b.tenant_id AND r.transcript_id=b.transcript_id
+                   AND r.revision=b.transcript_revision
+                  JOIN media_processing_attempts a
+                    ON a.tenant_id=b.tenant_id AND a.job_id=b.job_id
+                   AND a.attempt_number=b.attempt_number
+                 WHERE b.tenant_id=? AND r.principal_id=? AND b.transcript_id=? AND b.transcript_revision=?
+                   AND r.job_id=b.job_id AND r.provider_id=b.provider_id
+                   AND r.source_artifact_version=b.source_artifact_version_ref
+                   AND a.state='SUCCEEDED' AND a.fencing_token=b.fencing_token
+                   AND a.provider_id=b.provider_id AND a.provider_operation_id=b.provider_operation_id
+                   AND a.provider_receipt_id=b.provider_receipt_id
+                   AND a.request_fingerprint=b.request_fingerprint AND a.result_digest=b.result_digest
+                """)) {
+            query.setString(1, tenantId);
+            query.setString(2, principalId);
+            query.setString(3, transcriptId);
+            query.setInt(4, revision);
+            try (ResultSet row = query.executeQuery()) {
+                if (!row.next()) {
+                    throw new IllegalStateException("Transcript attempt binding is unavailable for requested identity or revision");
+                }
+                return new TranscriptAttemptBinding(row.getString("job_id"), row.getInt("attempt_number"),
+                        row.getLong("fencing_token"), row.getString("provider_id"),
+                        row.getString("provider_operation_id"), row.getString("provider_receipt_id"),
+                        row.getString("request_fingerprint"), row.getString("source_artifact_version_ref"),
+                        row.getString("transcript_version_ref"), row.getString("result_digest"));
+            }
+        } catch (SQLException failure) {
+            throw dbFailure("read scoped transcript attempt binding", failure);
+        }
+    }
 
     private AttemptBinding validateAttempt(Connection connection, TranscriptDraft draft, int attemptNumber,
             long fencingToken, String requestFingerprint, String transcriptVersionRef) throws SQLException {

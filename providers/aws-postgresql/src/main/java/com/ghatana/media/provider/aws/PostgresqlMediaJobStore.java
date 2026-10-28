@@ -249,6 +249,46 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     }
 
     @Override
+    public Optional<ProcessingAttempt> findProcessingAttempt(String tenantId, String jobId, int attemptNumber) {
+        ensureOpen();
+        if (tenantId == null || tenantId.isBlank() || jobId == null || jobId.isBlank() || attemptNumber < 1) {
+            throw new IllegalArgumentException("tenant, job, and positive attempt number are required");
+        }
+        String sql = "SELECT request_id,attempt_number,fencing_token,request_fingerprint,provider_id,"
+                + "provider_operation_id,provider_receipt_id,state,result_digest,provenance_json,observed_at "
+                + "FROM media_processing_attempts WHERE tenant_id=? AND job_id=? AND attempt_number=?";
+        try (Connection connection = state.connection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, tenantId);
+            statement.setString(2, jobId);
+            statement.setInt(3, attemptNumber);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) return Optional.empty();
+                String stateName = result.getString("state");
+                AttemptFinality finality = switch (stateName) {
+                    case "SUCCEEDED" -> AttemptFinality.SUCCEEDED;
+                    case "FAILED" -> AttemptFinality.FAILED;
+                    case "NO_EFFECT_PROVEN" -> AttemptFinality.NO_EFFECT_PROVEN;
+                    case "DISPATCH_INTENDED", "OUTCOME_UNKNOWN" -> AttemptFinality.UNKNOWN;
+                    default -> throw new IllegalStateException("Stored Media attempt has an unknown finality state");
+                };
+                Map<String, Object> provenance = objectMap(result.getString("provenance_json"));
+                Object provenanceValue = provenance.get("provenanceDigest");
+                String provenanceDigest = provenanceValue instanceof String value ? value : "";
+                Long observedAtMillis = result.getObject("observed_at") == null
+                        ? null : result.getLong("observed_at");
+                return Optional.of(new ProcessingAttempt(tenantId, jobId, result.getString("request_id"),
+                        result.getInt("attempt_number"), result.getLong("fencing_token"),
+                        result.getString("request_fingerprint"), result.getString("provider_id"),
+                        result.getString("provider_operation_id"), result.getString("provider_receipt_id"),
+                        finality, result.getString("result_digest"), provenanceDigest,
+                        observedAtMillis == null ? null : Instant.ofEpochMilli(observedAtMillis)));
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("read exact Media processing attempt", failure);
+        }
+    }
+
+    @Override
     public List<ProcessingJob> list(String tenantId, int limit) {
         ensureOpen();
         if (limit < 1 || limit > 1_000) throw new IllegalArgumentException("limit must be between 1 and 1000");
