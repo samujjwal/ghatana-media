@@ -1,0 +1,864 @@
+{
+  "schemaVersion": "media.wave2.r10.engineering-owner-resolution.v1",
+  "date": "2026-10-28",
+  "intent": "NO_PROSE_DECISIONS_AS_ACCEPTANCE; ENGINEERING_APPROVED_ACTIONS_DO_NOT_CREATE_EXTERNAL_RIGHTS",
+  "canonicalRequirements": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+  "currentDenominator": {
+    "total": 58,
+    "locallyVerified": 22,
+    "partial": 30,
+    "ownerExternal": 6
+  },
+  "sourceReview": {
+    "mediaBaseline": "53f9b355e4e9979c2f259c499ccd7269fb6e653f",
+    "sharedCurrentAtReview": "607989541754097814a7c91611dea18ececaa970",
+    "ghatanaCurrentAtReview": "a0df4bdf8282b27051bf625331651e92925fdc70"
+  },
+  "notASecondPdpOrAdmittedProvider": true,
+  "technicalApprovals": [
+    "FIRST_PARTY_ORIGINAL_NONBIOMETRIC_TEST_MEDIA",
+    "BOUNDED_REFERENCE_MODEL_EVALUATION",
+    "TRUSTED_HOST_OCI_SUPERVISOR_FOR_NATIVE_CODE",
+    "STT_CODE_PATH_PLUS_GOLD_TEST_CORRECTION",
+    "ORT_INTRA_OP_THREADS_OPT_IN_AB",
+    "CANONICAL_WRITER_ONLY",
+    "GHATANA_OWNER_PUBLIC_API_ONLY",
+    "REAL_PROVIDER_QUALITY_OBSERVABILITY"
+  ],
+  "hardExternalGates": [
+    "REAL_THIRD_PARTY_MODEL_DISTRIBUTION_RIGHTS",
+    "HUMAN_VOICE_OR_BIOMETRIC_IDENTITY_CONSENT",
+    "RECORDING_COPYRIGHT_ORIGINAL_SOURCE",
+    "SIGNED_QUALIFICATION_REVIEWER_AUTHORITY",
+    "Genuine independent labeled evaluation corpus",
+    "OWNER_PUBLISHED_PUBLIC_API_CONSUMER",
+    "HOST_MEASURED_REAL_PROVIDER_PERFORMANCE"
+  ],
+  "decisionRules": {
+    "authz": "Only actual existing Shared/Media source authority, not prompt/flag self-assertion, can admit production",
+    "status": "All 36 taskAccepted=false until original whole-row positive+negative+recovery+rights+quality evidence exists",
+    "noScopeDeletion": "Preserve 58 task IDs, 99 capability memberships, 43 RPCs, 12 scenarios; existing 38 PDP0 tech selections and 501 audit rows remain",
+    "windows": "Windows-only native/install tasks deferred; Mac ARM64 and Linux ARM64-on-Mac required",
+    "lostProvider": "Never claim synthetic/empty/unsupported effects as successful outcome",
+    "capacity": "Saturation as typed result qualifies bounded behavior but not 64 simultaneous completed request performance"
+  },
+  "implementationGates": [
+    {
+      "id": "G01",
+      "name": "Gold-aligned Whisper inference and bounded CPU A/B",
+      "ownerRepo": "ghatana-media",
+      "code": [
+        "libs/java/common/src/main/java/com/ghatana/media/stt/engine/onnx/WhisperOnnxEngine.java",
+        "libs/java/common/src/main/java/com/ghatana/media/stt/engine/onnx/WhisperOnnxThreadPolicy.java",
+        "libs/java/common/src/test/java/com/ghatana/media/stt/engine/onnx/WhisperReferenceModelIntegrationTest.java",
+        "libs/java/common/src/test/java/com/ghatana/media/stt/engine/onnx/WhisperPerformanceQualificationTest.java"
+      ],
+      "engineeringDecision": "APPROVED_TARGETED_CODE_AND_OPT_IN_A_B; do not change default ORT threads without measured comparison",
+      "input": "Independently authored exact transcript tied to rights-cleared, immutable WAV source and same ONNX encoder/decoder/tokenizer hashes",
+      "action": "Run strict full-transcript test (not substring); if different, inspect encoder/cache/token/EOT and align against original Whisper; run ORT intra-op 0,1,2,4 sequential host A/B at 1/16/64 requests",
+      "pass": "Full normalized transcript or real typed incomplete error, no EOT-limit success, CPU/RSS/RTF/p50-p95-p99 and output semantics measured, no regression",
+      "fallback": "Candidate fails evaluation: retain REVIEW_ONLY; test official Whisper original/whisper.cpp or a legal base/small checkpoint without changing canonical API"
+    },
+    {
+      "id": "G02",
+      "name": "Authenticated source rights and consent for true Media dispatch",
+      "ownerRepo": "ghatana-shared + ghatana-media",
+      "code": [
+        "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SharedPolicySttRequestAuthorization.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaSpeechToTextAdmission.java"
+      ],
+      "engineeringDecision": "APPROVED_FIRST_PARTY_NON_BIOMETRIC_FIXTURES_FOR_DEVELOPMENT; production rights require verified real Media source owner; boolean flags are not authority",
+      "input": "Verified principal, source artifact and version/digest, purpose, classification, recording rights, current consent and revocation from actual source authorities",
+      "action": "Implement Media-owned source resolver behind Shared PolicyEngine and MediaConsentAuthority. Emit verifiable decision reference, repeat the same check before any provider egress/retry; for original synthesized nonhuman test data use a provenance-bound creator/owner record only",
+      "pass": "Wrong tenant, stale version, expired consent, missing signed owner, revoked rights produce zero job/provider/outbox; approved source allows version-bound dispatch",
+      "fallback": "Keep test-only original-media fixture lane separate; production/source-specific request stays NOT_ADMITTED, do not fake reviewer or consent"
+    },
+    {
+      "id": "G03",
+      "name": "Real provider to canonical job/attempt/outbox/transcript",
+      "ownerRepo": "ghatana-media",
+      "code": [
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+        "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/ProductionSttGrpcService.java",
+        "providers/aws-postgresql/",
+        "runtime-contracts/"
+      ],
+      "engineeringDecision": "APPROVE_REUSE_CANONICAL_MEDIA_PERSISTENCE; no new transcript store, dual writer or synthetic output as complete",
+      "input": "Successful qualified provider receipt + G02 rights profile + immutable Media artifact bytes + live transaction store",
+      "action": "Wire specialized STT adapter into existing job/attempt, include fenced provider operation ID, result digest and finality; transactional CAS transcript append, durable outbox, exact same-principal readback across kill/restart",
+      "pass": "One true source audio -> actual model -> verified provider receipt -> immutable transcript revision after restart; UNKNOWN and replay do not double-write",
+      "fallback": "If provider receipt ambiguous, retain UNKNOWN and query exact operation receipt; do not mark succeeded or re-dispatch"
+    },
+    {
+      "id": "G04",
+      "name": "Production phonemizer, voice and likeness rights",
+      "ownerRepo": "ghatana-media",
+      "code": [
+        "libs/java/common/src/main/java/com/ghatana/media/tts/engine/onnx/PiperOnnxEngine.java",
+        "libs/java/common/src/main/java/com/ghatana/media/tts/phoneme/",
+        "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/ProductionTtsGrpcService.java"
+      ],
+      "engineeringDecision": "APPROVE_REVIEW_ONLY_ESPEAK_REFERENCE; HEURISTIC_PHONEMIZER_NOT_PRODUCTION_QUALIFIED; do not infer cloning rights",
+      "input": "Exact Piper model+sidecar, independently cleared voice likeness/distribution terms, production-compatible phonemization implementation and license closure",
+      "action": "Bind canonical eSpeak-NG phonemization through a rights-reviewed process/adapter or independently implemented validated equivalent; test exact symbols/IDs/PCM and voice locale; add current consent and encrypted profile for cloning",
+      "pass": "Genuine decodable speech, corrected pronunciations and actual output rights/locale/model hash; revoked voice/generic clone denied before model",
+      "fallback": "Use another truly licensed voice with compatible phonemizer or keep synthesis/clone NOT_ADMITTED; test-only eSpeak cannot be bundled silently"
+    },
+    {
+      "id": "G05",
+      "name": "YOLOX model provenance and real positive Vision",
+      "ownerRepo": "ghatana-media",
+      "code": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/yolo/YoloXNanoAdapter.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/yolo/YoloXNanoOutputParser.java"
+      ],
+      "engineeringDecision": "APPROVE_NONHUMAN_ORIGINAL_CAMERA_IMAGES_FOR_POSITIVE_TESTS; synthetic glyph no-detection is not a defect by itself",
+      "input": "Exact ONNX hash/model/export lineage/license, at least one independently labeled rights-cleared real image; larger frozen holdout for mAP",
+      "action": "Verify actual release model provenance, select object photo with known COCO class and manually annotated bbox, run real model and inspect letterbox/decode/class/NMS; then rights-cleared heldout set",
+      "pass": "Nonzero source-correct detections on true positive and correct negative/no-box test; mAP/PR and native memory later measured",
+      "fallback": "If legal source cannot be established, switch to a legitimately licensed detector without changing Media public Vision semantics"
+    },
+    {
+      "id": "G06",
+      "name": "Host-owned per-invocation OCI Vision isolation",
+      "ownerRepo": "ghatana-media",
+      "code": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/LinuxVisionWorkerSandbox.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java",
+        "scripts/test-media-wave2-platform-matrix.sh"
+      ],
+      "engineeringDecision": "APPROVE_HOST_SUPERVISOR_OVER_UNAVAILABLE_DELEGATED_IN_CONTAINER_CGROUP; never expose docker socket to untrusted codec",
+      "input": "Docker Desktop Linux VM/host daemon authorized for launcher, digest-pinned worker+codec image, no-network read-only image/mounted source",
+      "action": "Implement trusted host-only OCI supervisor and Media ProcessRunner public seam; one request per container, --memory=1536m --memory-swap=1536m --cpus=2 --pids-limit=32 --network none --read-only --cap-drop ALL --security-opt no-new-privileges, private 128m tmpfs, explicit timeout and cleanup; read cgroup effective limits and test OOM/PID/time attacks",
+      "pass": "Adversarial request dies inside hard per-worker CPU/RAM/PID/tmp bounds on Docker Desktop and Linux; no service socket, process leak, output overrun, partial success or hidden global privileged access",
+      "fallback": "Current in-container cgroup/bwrap backend remains supported ONLY if delegated writable cgroups are proven; otherwise require host OCI adapter and fail closed"
+    },
+    {
+      "id": "G07",
+      "name": "Evaluation corpus and frozen gold",
+      "ownerRepo": "ghatana-media",
+      "code": [
+        "config/qualification/fleurs-asr-evaluation.v1.json",
+        "scripts/qualification/evaluate-fleurs-asr.mjs",
+        "review/r02-model-quality-observations.yaml"
+      ],
+      "engineeringDecision": "APPROVE_SMALL_LICENSED_SAMPLES_AND_PRE_REGISTERED_THRESHOLDS; no bulk archive or biometric speaker inference",
+      "input": "Exact attributed per-clip bytes, transcript/labels, holdout disjoint from tuning data, source-specific rights and source SHA for English/Hindi/Nepali",
+      "action": "Obtain FLEURS rows through per-clip or bounded cache, or use independently rights-cleared fallback; pin 24/locale development pilots then larger holdout before final quality claims; compute WER/CER with bootstrap intervals and source-defined threshold fixed prior to final test",
+      "pass": "Nonempty per-clip hashes, attribution, frozen splits, real model text, reproducible WER/CER, domain/locale limitations and threshold outcome",
+      "fallback": "If archive-only exceeds cap, do not inflate storage; source-own small true recordings for integration and obtain a separately licensed held-out corpus for quality; status remains METADATA_ONLY until clips exist"
+    },
+    {
+      "id": "G08",
+      "name": "True provider capacities and measured quality alerts",
+      "ownerRepo": "ghatana-media",
+      "code": [
+        "audio-video-observability/",
+        "docs/OPERATIONS.md",
+        "modules/speech/stt-service/",
+        "modules/speech/tts-service/",
+        "modules/vision/vision-service/"
+      ],
+      "engineeringDecision": "APPROVE_PER_PROFILE_MAX_READY_CONCURRENCY; saturation rejection is valid measured behavior, not false c64 quality success",
+      "input": "Pinned host JDK/model/native image, true provider requests, declared CPU/RSS/quality/locale thresholds and alert receiver",
+      "action": "Measure c1/c16/c64 with response digests and exact abort, log 0/1/2/4 ORT threads; measure Piper sample/phonemizer, YOLOX actual detector and multichild MM; send true provider/quality metrics via exporter-Prometheus-Alertmanager",
+      "pass": "Bounded p50/p95/p99, throughput/RTF/fps/RSS/CPU and real alert delivery; unadmitted overload reports typed RESOURCE_EXHAUSTED",
+      "fallback": "Qualify a lower honest throughput tier; do not fabricate 64 successful requests on a 4CPU Mac"
+    },
+    {
+      "id": "G09",
+      "name": "Document Intelligence public OCR integration",
+      "ownerRepo": "ghatana",
+      "issue": "samujjwal/ghatana#252",
+      "code": [
+        "services/document-intelligence/",
+        "modules/vision/vision-service/ocr/"
+      ],
+      "engineeringDecision": "APPROVE_EXISTING_GHATANA_OCR_OWNER_API_EXTENSION; no Media OCR fork",
+      "input": "Published versioned source-version/ROI/rights/provenance public contract and installed Media consumer",
+      "action": "Owner implements public bounded frame ROI endpoint over existing worker, negative rights/tenant/version and exact operation results; Media adapter consumes it source-free",
+      "pass": "Grounded OCR box/text/time/source/version with denied/stale/retry/UNKNOWN and Java27 installed consumer",
+      "fallback": "Keep VIS-09 typed NOT_ADMITTED; do not create a second generic OCR worker"
+    },
+    {
+      "id": "G10",
+      "name": "Data Cloud public governed Media projection",
+      "ownerRepo": "ghatana",
+      "issue": "samujjwal/ghatana#254",
+      "code": [
+        "services/data-cloud/",
+        "adapters/data-cloud-media/"
+      ],
+      "engineeringDecision": "APPROVE_EXISTING_DATA_CLOUD_OWNER_PROJECTION_EXTENSION; Media remains unique writer",
+      "input": "Ghatana-authenticated Java21-compatible versioned HTTP/REST projection API and Java27 Media installed consumer",
+      "action": "Implement POST observation projection + exact GET readback, origin ID/job/fence/rights/digest/idempotency; status distinguishes queued/committed/UNKNOWN; no tenant-only MediaProcessorPort escalation",
+      "pass": "Successful real source-bound observation readback, duplicate/revoked/false receipt tests, source-free Java21 server/Java27 Media client",
+      "fallback": "Media canonical result preserved; MM-10 remains integration-unavailable, no duplicate Data Cloud"
+    },
+    {
+      "id": "G11",
+      "name": "Genuine voice/biometric and third-party licenses",
+      "ownerRepo": "actual rights-holder + media governance",
+      "code": [
+        "docs/implementation/MEDIA-WAVE2-PRIVATE-CONSENT-RECORDING-TEMPLATE.md",
+        "config/qualification/wave2-trusted-reviewers.v1.json"
+      ],
+      "engineeringDecision": "ENGINEERING_APPROVAL_FOR_CONTROL_IMPLEMENTATION_ONLY; no AI/user-delegated invented third-party license or person consent",
+      "input": "Actual rights-holder copyright/license, original human voice/face subject revocable purpose-scoped consent, independent reviewer key and provider/region/deletion constraints",
+      "action": "Collect signed documents in private vault, authenticate review key, independently examine model checkpoint/voice/dataset rights, bind MediaConsentAuthority to current revocation before provider effects",
+      "pass": "Signed provenance+review, authentic subject agreement for identity/clone processing, valid nonexpired permissions and negative revocation tests",
+      "fallback": "Use nonhuman original media or properly licensed alternate model for development; restricted human identity and distribution remain NOT_ADMITTED"
+    },
+    {
+      "id": "G12",
+      "name": "Real multimodal child execution and separate finality",
+      "ownerRepo": "ghatana-media",
+      "code": [
+        "modules/intelligence/multimodal-service/",
+        "runtime-contracts/"
+      ],
+      "engineeringDecision": "APPROVE_REUSE_STT_AND_VISION_ACTUAL_CHILD_JOBS; never use dummy frames or aggregate synthetic completion",
+      "input": "One rights-cleared actual STT and Vision effect, shared source and exact rational clocks, fenced child jobs",
+      "action": "Compose independently authorized child operations, bind source version/time and ROI, abstain on missing modality, persist operation-specific outcome/finality through crash",
+      "pass": "Readback of each real child and fused observation, truthful drift/UNKNOWN and exact source provenance under cancellation",
+      "fallback": "Only affected operation returns typed unavailable; do not report fake synchronized result"
+    }
+  ],
+  "remainingTasks": [
+    {
+      "taskId": "VIS-03",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-03",
+      "originalDependencyIds": [
+        "VIS-01"
+      ],
+      "unblockingGateIds": [
+        "G06"
+      ],
+      "firstCodeAction": "run single-workload cgroup-confined native worker on both OS hosts",
+      "independentProof": "hard memory/CPU/PIDs/disk/time bounds and zero leaked processes",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-03",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-03",
+      "originalDependencyIds": [
+        "STT-01"
+      ],
+      "unblockingGateIds": [
+        "G02"
+      ],
+      "firstCodeAction": "wire production MediaRightsSourceResolver and purpose-bound identity",
+      "independentProof": "JWT wrong principal/tenant, revoked/stale, no provider/outbox effects",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-05",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-05",
+      "originalDependencyIds": [
+        "TTS-03"
+      ],
+      "unblockingGateIds": [
+        "G02",
+        "G04",
+        "G11"
+      ],
+      "firstCodeAction": "bind owner/revocation/retention and encrypted embeddings",
+      "independentProof": "clone denied before effect, revoke/delete later prohibits reuse",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "VIS-10",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-10",
+      "originalDependencyIds": [
+        "VIS-03",
+        "VIS-06"
+      ],
+      "unblockingGateIds": [
+        "G02",
+        "G11"
+      ],
+      "firstCodeAction": "gate sensitive faces/gaze/landmark effects and deletion/revocation",
+      "independentProof": "cross-tenant and revoked effect-free, real authorized capability if in scope",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "MM-02",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-02",
+      "originalDependencyIds": [
+        "MM-01",
+        "STT-03",
+        "VIS-03"
+      ],
+      "unblockingGateIds": [
+        "G02"
+      ],
+      "firstCodeAction": "bind trusted tenant/principal/artifact/source/version/purpose per child",
+      "independentProof": "deny mixed-tenant or revoked inputs before fanout",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-04",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-04",
+      "originalDependencyIds": [
+        "STT-02",
+        "STT-03"
+      ],
+      "unblockingGateIds": [
+        "G01",
+        "G02",
+        "G03"
+      ],
+      "firstCodeAction": "wire authenticated source-byte reader to STT executor; qualify FLAC if declared supported",
+      "independentProof": "real source WAV/FLAC roundtrip and bounds, invalid header/timebase",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-08",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-08",
+      "originalDependencyIds": [
+        "STT-06",
+        "STT-07"
+      ],
+      "unblockingGateIds": [
+        "G03"
+      ],
+      "firstCodeAction": "project only provider-result-matched immutable transcripts/captions into canonical CAS",
+      "independentProof": "CAS conflict, caption draft session-local, forced-align/translation capability proofs",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-09",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-09",
+      "originalDependencyIds": [
+        "STT-03",
+        "STT-08"
+      ],
+      "unblockingGateIds": [
+        "G03"
+      ],
+      "firstCodeAction": "install STT-specific dispatcher/receipt/reconciliation on MediaRuntime",
+      "independentProof": "kill/restart before receipt, after receipt, UNKNOWN no duplicate",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-05",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-05",
+      "originalDependencyIds": [
+        "STT-02",
+        "STT-04"
+      ],
+      "unblockingGateIds": [
+        "G01",
+        "G03"
+      ],
+      "firstCodeAction": "route gRPC chunks into canonical stream reservations/VAD and durable ACK/reconnect",
+      "independentProof": "restart during frame, lost ACK, EOS without provider-final result",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-06",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-06",
+      "originalDependencyIds": [
+        "STT-04"
+      ],
+      "unblockingGateIds": [
+        "G01",
+        "G07"
+      ],
+      "firstCodeAction": "wire provider timing and alternative confidence to sample/PTS map",
+      "independentProof": "gold phoneme/word timing and explicit unknown confidence",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-07",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-07",
+      "originalDependencyIds": [
+        "STT-03",
+        "STT-06"
+      ],
+      "unblockingGateIds": [
+        "G07",
+        "G11"
+      ],
+      "firstCodeAction": "wire anonymous diarization and separately gated identity, overlap",
+      "independentProof": "DER on licensed corpus, revocation and dimension drift",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-02",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-02",
+      "originalDependencyIds": [
+        "TTS-01"
+      ],
+      "unblockingGateIds": [
+        "G04"
+      ],
+      "firstCodeAction": "real PCM output through admitted provider, no silence/template",
+      "independentProof": "audio decodes; speech intelligibility/format/metadata crosschecked",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-03",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-03",
+      "originalDependencyIds": [
+        "TTS-01",
+        "TTS-02"
+      ],
+      "unblockingGateIds": [
+        "G04",
+        "G11"
+      ],
+      "firstCodeAction": "wire production TtsProviderAdmission resolver and asset identity",
+      "independentProof": "real model initializes, broken sidecar/license/rights precludes serving",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-06",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-06",
+      "originalDependencyIds": [
+        "TTS-03",
+        "TTS-04"
+      ],
+      "unblockingGateIds": [
+        "G04"
+      ],
+      "firstCodeAction": "implement non-neutral SSML/rate/pitch/pronunciation mapping to engine",
+      "independentProof": "matched A/B audio proves each enabled control, unsupported typed",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-07",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-07",
+      "originalDependencyIds": [
+        "TTS-02",
+        "TTS-03",
+        "TTS-06"
+      ],
+      "unblockingGateIds": [
+        "G04",
+        "G11"
+      ],
+      "firstCodeAction": "run true TTS synthesis, playable byte/clock checks",
+      "independentProof": "decoded speech on named qualified model and exact sample duration",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-08",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-08",
+      "originalDependencyIds": [
+        "TTS-07"
+      ],
+      "unblockingGateIds": [
+        "G04"
+      ],
+      "firstCodeAction": "stream real bounded chunks, backpressure and finality/cancel",
+      "independentProof": "partial cancel, slow-reader and no false final under provider outage",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-09",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-09",
+      "originalDependencyIds": [
+        "TTS-05",
+        "TTS-07"
+      ],
+      "unblockingGateIds": [
+        "G03",
+        "G04"
+      ],
+      "firstCodeAction": "persist source-digest-provenance in Media fenced job/artifact/outbox",
+      "independentProof": "restart readback exact bytes and no duplicate finalized effect",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "VIS-02",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-02",
+      "originalDependencyIds": [
+        "VIS-01"
+      ],
+      "unblockingGateIds": [
+        "G05",
+        "G11"
+      ],
+      "firstCodeAction": "verify exact model tensor layout, metadata, runtime initialization",
+      "independentProof": "real detector ready, wrong digest/format model rejected",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "VIS-05",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-05",
+      "originalDependencyIds": [
+        "VIS-02",
+        "VIS-03"
+      ],
+      "unblockingGateIds": [
+        "G05",
+        "G06"
+      ],
+      "firstCodeAction": "apply EXIF/crop letterbox inverse transforms to real frame detections",
+      "independentProof": "ROI pixel roundtrip, native stress and source-version readback",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "VIS-06",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-06",
+      "originalDependencyIds": [
+        "VIS-05"
+      ],
+      "unblockingGateIds": [
+        "G05",
+        "G07"
+      ],
+      "firstCodeAction": "test ONNX output/NMS/classes and calculate true mAP/PR",
+      "independentProof": "gold detection output, mAP/PR, invalid boxes/nans rejected",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "VIS-07",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-07",
+      "originalDependencyIds": [
+        "VIS-04",
+        "VIS-06"
+      ],
+      "unblockingGateIds": [
+        "G05",
+        "G06"
+      ],
+      "firstCodeAction": "frame source timebase, shot/track motion and object IDs",
+      "independentProof": "VFR, reordering, discontinuities and labeled tracking accuracy",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "MM-03",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-03",
+      "originalDependencyIds": [
+        "MM-02"
+      ],
+      "unblockingGateIds": [
+        "G12"
+      ],
+      "firstCodeAction": "propagate stream PTS/sample rates with epoch/timebase to production results",
+      "independentProof": "VFR and offset with bounded uncertainty and UNKNOWN when noncomparable",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "MM-05",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-05",
+      "originalDependencyIds": [
+        "MM-02",
+        "STT-09",
+        "VIS-06",
+        "VIS-07"
+      ],
+      "unblockingGateIds": [
+        "G03",
+        "G12"
+      ],
+      "firstCodeAction": "install production per-operation executor, fenced children, deadlines",
+      "independentProof": "network loss and duplicate child replay preserve UNKNOWN",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "MM-06",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-06",
+      "originalDependencyIds": [
+        "MM-04",
+        "MM-05"
+      ],
+      "unblockingGateIds": [
+        "G11",
+        "G12"
+      ],
+      "firstCodeAction": "source-bound embedding/ROI geometry and abstaining fusion",
+      "independentProof": "calibrated confidence or explicit heuristic, no speaker/face claim without authority",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "MM-08",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-08",
+      "originalDependencyIds": [
+        "MM-05",
+        "MM-06"
+      ],
+      "unblockingGateIds": [
+        "G12"
+      ],
+      "firstCodeAction": "bind each selected capability to own job+attempt and final result",
+      "independentProof": "no family aggregate false success, correct cancellation split",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "MM-09",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-09",
+      "originalDependencyIds": [
+        "MM-05",
+        "MM-08"
+      ],
+      "unblockingGateIds": [
+        "G03",
+        "G12"
+      ],
+      "firstCodeAction": "immutable multimodal result artifact/fence/outbox+principal scoped reread",
+      "independentProof": "restart exact result and idempotent compare-and-set",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "MM-10",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-10",
+      "originalDependencyIds": [
+        "MM-05",
+        "MM-07"
+      ],
+      "unblockingGateIds": [
+        "G10"
+      ],
+      "firstCodeAction": "consume versioned HTTP read-model projection, not in-process tenant SPI",
+      "independentProof": "202/pending/commit/UNKNOWN, source-free Java21/27 parity",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "VIS-09",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-09",
+      "originalDependencyIds": [
+        "VIS-04",
+        "VIS-07"
+      ],
+      "unblockingGateIds": [
+        "G09"
+      ],
+      "firstCodeAction": "consume source-frame ROI and rights-preserving OCR projection",
+      "independentProof": "source-provenant text/time/ROI and tenant/retention negative cases",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-10",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-10",
+      "originalDependencyIds": [
+        "STT-06",
+        "STT-08"
+      ],
+      "unblockingGateIds": [
+        "G07",
+        "G08"
+      ],
+      "firstCodeAction": "run genuine en/ne/hi WER/CER and diarization/quality scoring with thresholds",
+      "independentProof": "gold corpus, language/noise/accent distributions, reproducible scores",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "STT-12",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-12",
+      "originalDependencyIds": [
+        "STT-03..STT-11"
+      ],
+      "unblockingGateIds": [
+        "G01",
+        "G02",
+        "G03",
+        "G07",
+        "G08",
+        "G11"
+      ],
+      "firstCodeAction": "end-to-end 12 RPC/16 intent quality/recovery/load qualification",
+      "independentProof": "real model transcript, 1/16/64 bounded latency/load, privacy, restarts",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-10",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-10",
+      "originalDependencyIds": [
+        "TTS-05",
+        "TTS-06",
+        "TTS-07"
+      ],
+      "unblockingGateIds": [
+        "G04",
+        "G07"
+      ],
+      "firstCodeAction": "bind en/hi/ne choices or accurately declared unsupported per source scope",
+      "independentProof": "no unsupported substitution, real measured supported locales",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "TTS-12",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-12",
+      "originalDependencyIds": [
+        "TTS-04..TTS-11"
+      ],
+      "unblockingGateIds": [
+        "G04",
+        "G07",
+        "G08",
+        "G11"
+      ],
+      "firstCodeAction": "real model SSML, restart, stream, concurrency and output quality suite",
+      "independentProof": "p50/p95/p99, RTF and 1/16/64 model load with no fake audio",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "VIS-12",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-12",
+      "originalDependencyIds": [
+        "VIS-01..VIS-11"
+      ],
+      "unblockingGateIds": [
+        "G05",
+        "G06",
+        "G07",
+        "G08",
+        "G11"
+      ],
+      "firstCodeAction": "test real model + FFmpeg/OpenCV + restart and load",
+      "independentProof": "mAP/latency/native memory/fps/CPU/GPU and faults, exact receipts",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "MM-12",
+      "currentDisposition": "OWNER_EXTERNAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-12",
+      "originalDependencyIds": [
+        "MM-01..MM-11"
+      ],
+      "unblockingGateIds": [
+        "G03",
+        "G05",
+        "G07",
+        "G08",
+        "G10",
+        "G11",
+        "G12"
+      ],
+      "firstCodeAction": "run composed E2E, clock quality and 1/16/64 bounded load",
+      "independentProof": "source-grounded fused result and latency/RTF/fps, fault/readback",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "OBS-07",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#OBS-07",
+      "originalDependencyIds": [
+        "OBS-02",
+        "OBS-05"
+      ],
+      "unblockingGateIds": [
+        "G08"
+      ],
+      "firstCodeAction": "run Media exporter through Prometheus to real Alertmanager with stale quality",
+      "independentProof": "real model health and quality regression delivery, redacted labels",
+      "qualifiedResult": null
+    },
+    {
+      "taskId": "OBS-08",
+      "currentDisposition": "PARTIAL",
+      "taskAccepted": false,
+      "canonicalAcceptanceRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#OBS-08",
+      "originalDependencyIds": [
+        "OBS-05",
+        "OBS-06"
+      ],
+      "unblockingGateIds": [
+        "G06",
+        "G08"
+      ],
+      "firstCodeAction": "gather process/worker/native GPU/CPU/RAM/network and throughput",
+      "independentProof": "1/16/64 p50/p95/p99, bounded budget/abort, real provider RTF/fps",
+      "qualifiedResult": null
+    }
+  ],
+  "criticalPath": [
+    "G01",
+    "G02",
+    "G03",
+    "G07",
+    "G05",
+    "G12",
+    "G08"
+  ],
+  "independentNativePath": [
+    "G06"
+  ],
+  "independentGhatanaOwnerPath": [
+    "G09",
+    "G10"
+  ],
+  "ttsPath": [
+    "G04",
+    "G11"
+  ],
+  "targetFirstRows": [
+    "VIS-03",
+    "STT-03",
+    "STT-04",
+    "STT-09"
+  ],
+  "sourceStatus": "PLAN_AND_CODE_PATCHES_NEED_CURRENT_JDK27_DOCKER_QUALIFICATION_NOT_TASK_ACCEPTANCE"
+}
