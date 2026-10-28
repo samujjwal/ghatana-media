@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "ghatana.media.wave2.reference-candidates.v1",
+  "classification": "SOURCE_RESEARCH_CANDIDATES_NOT_LICENSE_OR_RUNTIME_ADMISSION",
+  "reviewDate": "2026-10-28",
+  "currentTrust": "NO_EXTERNAL_APPROVAL_RECEIVED",
+  "operationalPolicy": {
+    "noImplicitDownload": true,
+    "noCandidateIsAdmitted": true,
+    "noVoiceOrBiometricIdentityInference": true,
+    "noAutoPromotionOf58TaskLedger": true,
+    "keepMediaConsentAndSharedPolicyCanonical": true,
+    "dataStaging": "PRIVATE_OFF_REPO_OWNER_SCOPED",
+    "assetBudgetBytes": 230000000,
+    "evaluationBudgetBytes": 120000000,
+    "maxClipSeconds": 30,
+    "allowedResearchUses": [
+      "LOCAL_EVALUATION",
+      "BENCHMARK_WITH_USAGE_RIGHTS"
+    ],
+    "prohibitedAutomaticUses": [
+      "PRODUCTION",
+      "VOICE_CLONING",
+      "SPEAKER_IDENTIFICATION",
+      "FACE_IDENTIFICATION",
+      "REDISTRIBUTION"
+    ]
+  },
+  "candidates": [
+    {
+      "id": "stt-whisper-tiny-multilingual",
+      "modality": "STT",
+      "kind": "MODEL_CHECKPOINT",
+      "status": "REVIEW_ONLY",
+      "proposedUse": "LOCAL_EVALUATION",
+      "upstreamUrl": "https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt",
+      "authorityUrl": "https://github.com/openai/whisper/blob/main/whisper/__init__.py",
+      "licenseEvidenceUrl": "https://github.com/openai/whisper/blob/main/LICENSE",
+      "licenseObservation": "MIT source and weights according to official Whisper README",
+      "sourceType": "PYTORCH_CHECKPOINT_NOT_ONNX",
+      "artifactSha256": "65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9",
+      "maxBytes": 100000000,
+      "expectedRuntimeInputs": "EXACT_ONNX_EXPORT_OR_NATIVE_REVIEW_PENDING",
+      "supportedLocalesCandidate": [
+        "en",
+        "hi",
+        "ne"
+      ],
+      "missing": [
+        "independent model-rights disposition",
+        "compatible ONNX export and its own SHA-256",
+        "Mel frontend and decode parity",
+        "real nonempty provider output",
+        "holdout evaluation and hardware"
+      ],
+      "requiredProofTypes": [
+        "MODEL_WEIGHTS_LICENSE",
+        "MODEL_LINEAGE",
+        "PROVIDER_QUALITY"
+      ]
+    },
+    {
+      "id": "stt-whisper-multilingual-tokenizer",
+      "modality": "STT",
+      "kind": "TOKENIZER",
+      "status": "REVIEW_ONLY",
+      "proposedUse": "LOCAL_EVALUATION",
+      "upstreamUrl": "https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/whisper/tokenizer.py",
+      "authorityUrl": "https://github.com/openai/whisper",
+      "licenseEvidenceUrl": "https://github.com/openai/whisper/blob/main/LICENSE",
+      "licenseObservation": "MIT in official repository; exact multilingual.tiktoken asset is not yet installed in current runtime",
+      "artifactSha256": "b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126",
+      "maxBytes": 2000000,
+      "expectedRuntimeInputs": "VOCAB_AND_SPECIAL_TOKEN_PARITY",
+      "missing": [
+        "asset and vocabulary provenance pinned in a combined model profile",
+        "end-to-end token decoding of real inference"
+      ],
+      "requiredProofTypes": [
+        "MODEL_LINEAGE"
+      ]
+    },
+    {
+      "id": "tts-piper-ljspeech-medium",
+      "modality": "TTS",
+      "kind": "VOICE_MODEL",
+      "status": "REVIEW_ONLY",
+      "proposedUse": "LOCAL_EVALUATION",
+      "voiceId": "en_US-ljspeech-medium",
+      "language": "en-US",
+      "upstreamUrl": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx",
+      "modelCardUrl": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ljspeech/medium/MODEL_CARD",
+      "sidecarUrl": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx.json",
+      "licenseEvidenceUrl": "https://keithito.com/LJ-Speech-Dataset/",
+      "licenseObservation": "Model card claims scratch training on public-domain LJSpeech; repository-wide MIT tag alone does not grant voice/model likeness rights",
+      "artifactSha256": "6f52a751e2349abe7a76735eb09dc1875298c77ea2342ffd2fef79ff81b87f22",
+      "maxBytes": 80000000,
+      "expectedRuntimeInputs": "PIPER_ESPEAK_PHONEME_IDS_SIDECAR",
+      "missing": [
+        "immutable HF repo revision and sidecar digest",
+        "independent voice likeness/distribution rights review",
+        "eSpeak/voice phoneme-ID compatibility",
+        "real intelligible PCM and authorized production profile"
+      ],
+      "rejectedAlternativeIds": [
+        "tts-piper-lessac-medium",
+        "tts-piper-ryan-low"
+      ],
+      "requiredProofTypes": [
+        "MODEL_WEIGHTS_LICENSE",
+        "MODEL_LINEAGE",
+        "VOICE_LIKENESS_RIGHTS",
+        "PROVIDER_QUALITY"
+      ]
+    },
+    {
+      "id": "vision-yolox-nano-onnx",
+      "modality": "VISION",
+      "kind": "MODEL_ONNX",
+      "status": "REVIEW_ONLY",
+      "proposedUse": "LOCAL_EVALUATION",
+      "upstreamUrl": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.onnx",
+      "authorityUrl": "https://github.com/Megvii-BaseDetection/YOLOX/releases/tag/0.1.1rc0",
+      "licenseEvidenceUrl": "https://github.com/Megvii-BaseDetection/YOLOX/blob/main/LICENSE",
+      "licenseObservation": "Official project Apache-2.0, independently verify weight and COCO derivative notices",
+      "artifactSha256": null,
+      "expectedSizeBytes": 3659407,
+      "maxBytes": 10000000,
+      "expectedRuntimeInputs": "FLOAT32_1_3_416_416_OUTPUT_FLOAT32_1_3549_85",
+      "missing": [
+        "source-derived file SHA-256 before trust",
+        "new YOLOX-specific parser; YOLOv8 [1,84,N] parser incompatible",
+        "model weight provenance and source-data license review",
+        "real detection and mAP on rights-cleared imagery"
+      ],
+      "requiredProofTypes": [
+        "MODEL_WEIGHTS_LICENSE",
+        "MODEL_LINEAGE",
+        "PROVIDER_QUALITY"
+      ]
+    },
+    {
+      "id": "stt-fleurs-en-hi-ne",
+      "modality": "STT",
+      "kind": "EVALUATION_CORPUS",
+      "status": "REVIEW_ONLY",
+      "proposedUse": "LOCAL_EVALUATION",
+      "languageSubsets": [
+        "eng",
+        "hin",
+        "npi"
+      ],
+      "upstreamUrl": "https://huggingface.co/datasets/google/fleurs",
+      "authorityUrl": "https://huggingface.co/api/datasets/google/fleurs",
+      "sourceRevision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "licenseEvidenceUrl": "https://huggingface.co/datasets/google/fleurs/blob/main/README.md",
+      "licenseObservation": "CC-BY-4.0 (attribution required); speaker identity testing not authorized by this entry",
+      "artifactSha256": null,
+      "maxBytes": 120000000,
+      "missing": [
+        "per-clip allowlisted hashes/attribution",
+        "fixed pre-registered holdout and split speaker checks",
+        "licensed corpus selection receipts",
+        "WER/CER quality results per language"
+      ],
+      "requiredProofTypes": [
+        "DATASET_USE_RIGHTS",
+        "CORPUS_SPLIT_AND_GOLD",
+        "PROVIDER_QUALITY"
+      ]
+    },
+    {
+      "id": "mm-original-sync-signals",
+      "modality": "MULTIMODAL",
+      "kind": "ORIGINAL_SYNTHETIC_TIMING_CORPUS",
+      "status": "REVIEW_ONLY",
+      "proposedUse": "DEVELOPMENT_TEST_ONLY",
+      "upstreamUrl": null,
+      "recipeAuthority": "ghatana-media first-party timestamped tone / flash / VFR deterministic generator",
+      "licenseObservation": "New original deterministic audiovisual test signals without a real person or third-party content",
+      "artifactSha256": null,
+      "maxBytes": 12000000,
+      "missing": [
+        "versioned generator commit/seed/digest",
+        "real child-model grounded outputs",
+        "measured offset and uncertainty on named host"
+      ],
+      "requiredProofTypes": [
+        "SOURCE_GENERATION_PROVENANCE",
+        "CLOCK_ORACLE_REPRODUCIBLE"
+      ]
+    }
+  ],
+  "excludedCandidates": [
+    {
+      "id": "tts-piper-lessac-medium",
+      "disposition": "DO_NOT_SELECT_COMMERCIAL_REFERENCE",
+      "reason": "Upstream Lessac Blizzard 2013 research-only dataset terms explicitly exclude commercial purposes",
+      "primarySource": "https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html"
+    },
+    {
+      "id": "tts-piper-ryan-low",
+      "disposition": "DO_NOT_SELECT_COMMERCIAL_REFERENCE",
+      "reason": "Source RyanSpeech model card lists CC BY-NC-SA 4.0",
+      "primarySource": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ryan/low/MODEL_CARD"
+    },
+    {
+      "id": "vision-yolov8n",
+      "disposition": "DO_NOT_SELECT_AS_UNCONDITIONAL_COMMERCIAL_REFERENCE",
+      "reason": "Ultralytics offers AGPL-3.0/Enterprise terms; exact licensing decision is mandatory",
+      "primarySource": "https://docs.ultralytics.com/models/yolov8"
+    },
+    {
+      "id": "cv-commonvoice-ne-v27",
+      "disposition": "OPTIONAL_ASR_EVALUATION_ONLY",
+      "reason": "CC0 rights paired with separate Common Voice prohibition on speaker identification and rehosting; never use for biometric or voice cloning",
+      "primarySource": "https://mozilladatacollective.com/datasets/cmu61478v00j9o107alzuue1z"
+    }
+  ]
+}
