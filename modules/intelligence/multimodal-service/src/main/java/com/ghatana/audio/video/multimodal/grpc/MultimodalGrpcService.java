@@ -865,9 +865,25 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     private Status safeFailureStatus(Exception exception, String context) {
-        if (exception instanceof OperationOutcomeUnknownException) {
+        if (exception instanceof CanonicalOperationFailedException failed) {
+            if (failed.status() == com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus.CANCELLED) {
+                return Status.CANCELLED.withDescription(
+                        "MULTIMODAL_OPERATION_CANCELLED jobId=" + failed.jobId());
+            }
+            return Status.UNAVAILABLE.withDescription(
+                    "MULTIMODAL_OPERATION_FAILED jobId=" + failed.jobId()
+                            + " failureCode=" + (failed.failureCode().isBlank()
+                            ? "UNSPECIFIED" : failed.failureCode()));
+        }
+        if (exception instanceof com.ghatana.media.runtime.MediaCapabilityNotAdmittedException) {
+            return Status.FAILED_PRECONDITION
+                    .withDescription("MULTIMODAL_OPERATION_NOT_ADMITTED");
+        }
+        if (exception instanceof OperationOutcomeUnknownException unknown) {
             return Status.UNKNOWN.withDescription(
-                    "MULTIMODAL_OPERATION_OUTCOME_UNKNOWN: do not resubmit without authoritative operation status");
+                    "MULTIMODAL_OPERATION_OUTCOME_UNKNOWN jobId="
+                            + (unknown.jobId == null ? "unestablished" : unknown.jobId)
+                            + ": do not resubmit without authoritative operation status");
         }
         Status classified = toStatus(exception, context);
         String message = exception instanceof IllegalArgumentException
@@ -877,8 +893,13 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     private static final class OperationOutcomeUnknownException extends Exception {
+        private final String jobId;
         private OperationOutcomeUnknownException(Exception cause) {
+            this(cause, null);
+        }
+        private OperationOutcomeUnknownException(Exception cause, String jobId) {
             super("Multimodal executor outcome is unknown", cause);
+            this.jobId = jobId;
         }
     }
 
@@ -958,7 +979,13 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         } catch (OperationOutcomeUnknownException unknown) {
             throw unknown;
         } catch (CanonicalOperationUnknownException unknown) {
-            throw new OperationOutcomeUnknownException(unknown);
+            throw new OperationOutcomeUnknownException(unknown, unknown.jobId());
+        } catch (CanonicalOperationFailedException
+                 | com.ghatana.media.runtime.MediaCapabilityNotAdmittedException
+                 | IllegalArgumentException terminal) {
+            // Durable terminal outcomes, admission refusals and pre-dispatch validation are
+            // known facts, not unknowns: they keep their own typed status.
+            throw terminal;
         } catch (Exception executorFailure) {
             // After handoff, Media cannot tell a pre-dispatch failure from a completed effect
             // whose response was lost. Preserve that uncertainty instead of inviting a retry.

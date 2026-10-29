@@ -2774,7 +2774,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         synthetic, artifact, provider.providerId(), provider.providerVersion(),
                         provider.modelVersion(job.jobType()),
                         com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
-                                .fusedResult(children),
+                                .fusedResult(spec, children),
                         ConsentDecision.unverified(), ProcessingBoundary.LOCAL,
                         com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE);
                 terminal = transition(job, provider.providerId(), JobStatus.COMPLETED, governed, "");

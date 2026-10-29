@@ -86,6 +86,112 @@ class MultimodalOperationSpecTest {
         assertThat(spec.matchesRequest(matching, artifact("other", SHA_A))).isFalse();
     }
 
+    @Test
+    void sourceClockBindingRoundTripsWithOptionalFields() {
+        var binding = new MultimodalOperationSpec.SourceClockBinding(
+                "evidence-1", 48_000, 0, "clock-1", 96_000);
+        var spec = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1,
+                "src", "sha256:" + SHA_A, SHA_A, List.of(child("stt")), binding, Map.of());
+        var decoded = MultimodalOperationSpec.fromParameterValue(spec.toParametersValue());
+        assertThat(decoded.sourceClock()).isEqualTo(binding);
+        // Bindings without identity/duration stay verifiable-undetermined, not invented.
+        var unscoped = new MultimodalOperationSpec.SourceClockBinding("ev", 1_000, 0);
+        assertThat(unscoped.clockId()).isEmpty();
+        assertThat(unscoped.durationTicks()).isZero();
+        assertThatThrownBy(() -> new MultimodalOperationSpec.SourceClockBinding(
+                "ev", 0, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MultimodalOperationSpec.SourceClockBinding(
+                "ev", 1_000, 0, "clk\u0007x", 0)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void fusedResultGroundsTimedObservationsOnTheBoundSourceClock() {
+        var binding = new MultimodalOperationSpec.SourceClockBinding(
+                "ev-1", 48_000, 9_600, "src-clock", 96_000);
+        var spec = clockedSpec(binding);
+        var stt = completedChild("job-stt", JobType.SPEECH_TO_TEXT,
+                Map.of("text", "hello",
+                        "timedObservations", List.of(
+                                Map.of("startTick", 9_600L, "endTick", 14_400L,
+                                        "sourceClockId", "src-clock", "label", "seg-1"))));
+        var vision = completedChild("job-vis", JobType.VISION,
+                Map.of("caption", "a cat",
+                        "timedObservations", List.of(
+                                Map.of("startTick", 24_000L, "endTick", 28_800L,
+                                        "sourceClockId", "src-clock"))));
+        Map<String, Object> fused = MultimodalOperationSpec.fusedResult(
+                spec, List.of(stt, vision));
+        assertThat(fused.get("clockComparability")).isEqualTo("SOURCE_CLOCK_SHARED");
+        assertThat(((Map<?, ?>) fused.get("sourceClock")).get("clockId")).isEqualTo("src-clock");
+        List<?> observations = (List<?>) fused.get("observations");
+        Map<?, ?> sttTiming = (Map<?, ?>) ((Map<?, ?>) observations.get(0)).get("timing");
+        assertThat(sttTiming.get("status")).isEqualTo("TIMESTAMP_ALIGNED");
+        Map<?, ?> entry = (Map<?, ?>) ((List<?>) sttTiming.get("entries")).get(0);
+        assertThat(entry.get("startTick")).isEqualTo(9_600L);
+        assertThat(entry.get("mediaStartTick")).isEqualTo(0L);
+        assertThat(entry.get("mediaStartMs")).isEqualTo(0L);
+        assertThat(entry.get("mediaEndMs")).isEqualTo(100L);
+        Map<?, ?> visTiming = (Map<?, ?>) ((Map<?, ?>) observations.get(1)).get("timing");
+        Map<?, ?> visEntry = (Map<?, ?>) ((List<?>) visTiming.get("entries")).get(0);
+        assertThat(visEntry.get("mediaStartTick")).isEqualTo(14_400L);
+        assertThat(visEntry.get("mediaStartMs")).isEqualTo(300L);
+        // Restart parity: the same durable inputs fuse to byte-identical output.
+        assertThat(MultimodalOperationSpec.fusedResult(spec, List.of(stt, vision)))
+                .isEqualTo(fused);
+    }
+
+    @Test
+    void fusedResultReportsUndeterminedForNoncomparableOrMissingClocks() {
+        var binding = new MultimodalOperationSpec.SourceClockBinding(
+                "ev-1", 48_000, 0, "src-clock", 48_000);
+        var spec = clockedSpec(binding);
+        var wrongClock = completedChild("job-a", JobType.SPEECH_TO_TEXT,
+                Map.of("timedObservations", List.of(
+                        Map.of("startTick", 0L, "endTick", 1_000L, "sourceClockId", "other-clock"))));
+        var outOfDuration = completedChild("job-b", JobType.VISION,
+                Map.of("timedObservations", List.of(
+                        Map.of("startTick", 0L, "endTick", 96_000L, "sourceClockId", "src-clock"))));
+        var malformed = completedChild("job-c", JobType.SPEECH_TO_TEXT,
+                Map.of("timedObservations", List.of(Map.of("startTick", "oops"))));
+        Map<String, Object> fused = MultimodalOperationSpec.fusedResult(
+                spec, List.of(wrongClock, outOfDuration, malformed));
+        List<?> observations = (List<?>) fused.get("observations");
+        assertThat(undetermined(observations, 0)).isEqualTo("SOURCE_CLOCK_MISMATCH");
+        assertThat(undetermined(observations, 1)).isEqualTo("SOURCE_TICKS_OUT_OF_DURATION");
+        assertThat(undetermined(observations, 2)).isEqualTo("TIMED_OBSERVATION_MALFORMED");
+        assertThat(fused.get("clockComparability")).isEqualTo("SYNC_UNDETERMINED");
+        // No binding at all: nothing is claimed comparable.
+        var unbound = clockedSpec(null);
+        var noBinding = MultimodalOperationSpec.fusedResult(unbound, List.of(wrongClock));
+        assertThat(undetermined((List<?>) noBinding.get("observations"), 0))
+                .isEqualTo("SOURCE_CLOCK_NOT_DECLARED");
+        assertThat(noBinding).doesNotContainKey("sourceClock");
+    }
+
+    private static String undetermined(List<?> observations, int index) {
+        Map<?, ?> entry = (Map<?, ?>) ((List<?>) ((Map<?, ?>) ((Map<?, ?>) observations.get(index))
+                .get("timing")).get("entries")).get(0);
+        assertThat(entry.get("status")).isEqualTo("SYNC_UNDETERMINED");
+        return String.valueOf(entry.get("reason"));
+    }
+
+    private static MultimodalOperationSpec clockedSpec(
+            MultimodalOperationSpec.SourceClockBinding binding) {
+        return new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1,
+                "src", "sha256:" + SHA_A, SHA_A, List.of(child("stt")), binding, Map.of());
+    }
+
+    private static com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob completedChild(
+            String jobId, JobType type, Map<String, Object> result) {
+        return new com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob(
+                jobId, "req:" + jobId, "tenant-a", "principal-a", "art-" + jobId, type,
+                "provider", com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus.COMPLETED,
+                Instant.now(), Instant.now(), Instant.now(), result, "", 1,
+                "sha256:" + SHA_B, "sha256:" + SHA_B);
+    }
+
     private static MultimodalOperationSpec spec() {
         return new MultimodalOperationSpec(
                 MultimodalOperationSpec.SPEC_VERSION,

@@ -762,6 +762,12 @@ public final class MediaRuntimeContracts {
                 clock.put("evidenceRef", sourceClock.evidenceRef());
                 clock.put("ticksPerSecond", sourceClock.ticksPerSecond());
                 clock.put("epochOffsetTicks", sourceClock.epochOffsetTicks());
+                if (!sourceClock.clockId().isBlank()) {
+                    clock.put("clockId", sourceClock.clockId());
+                }
+                if (sourceClock.durationTicks() > 0) {
+                    clock.put("durationTicks", sourceClock.durationTicks());
+                }
                 encoded.put("sourceClock", Map.copyOf(clock));
             }
             if (!plan.isEmpty()) encoded.put("plan", plan);
@@ -864,8 +870,29 @@ public final class MediaRuntimeContracts {
          * the live attempt would have committed.
          */
         public static Map<String, Object> fusedResult(List<ProcessingJob> children) {
+            return fusedResult(null, children);
+        }
+
+        /**
+         * Fused result grounded on the operation's declared {@link SourceClockBinding}.
+         * Each child may declare {@code timedObservations} — bounded {@code startTick}/
+         * {@code endTick} pairs on a named source clock. When the operation carries an
+         * admitted source clock binding, entries that match the bound clock identity and
+         * tick rate are mapped to media-timeline positions exactly (source ticks are
+         * preserved verbatim; millisecond positions are derived through the bound
+         * rational mapping). Entries that cannot be verified — a missing binding, an
+         * unidentifiable or different clock, out-of-duration ticks, or malformed input —
+         * produce {@code SYNC_UNDETERMINED} with an explicit reason, never an estimated
+         * position. {@code TIMESTAMP_ALIGNED} means comparable source-clock coordinates
+         * only; it is not a measured A/V synchronization claim.
+         */
+        public static Map<String, Object> fusedResult(
+                MultimodalOperationSpec spec, List<ProcessingJob> children) {
             Map<String, Object> fused = new LinkedHashMap<>();
             List<Object> observations = new ArrayList<>(children.size());
+            int entryBudget = MAX_GROUNDED_TIMED_ENTRIES;
+            boolean anyAligned = false;
+            boolean anyUndetermined = false;
             for (ProcessingJob child : children) {
                 Map<String, Object> entry = new LinkedHashMap<>();
                 entry.put("childJobId", child.jobId());
@@ -873,12 +900,173 @@ public final class MediaRuntimeContracts {
                 entry.put("childJobType", child.jobType().name());
                 entry.put("childStatus", child.status().name());
                 entry.put("childResultDigest", childResultDigest(child.result()));
-                entry.put("observations", boundedChildResult(child.result()));
+                Map<String, Object> childResult = boundedChildResult(child.result());
+                entry.put("observations", childResult);
+                Map<String, Object> timing = groundChildTiming(spec, childResult, entryBudget);
+                entryBudget -= ((Number) timing.get("groundedTimedObservations")).intValue();
+                entry.put("timing", timing);
+                anyAligned |= "TIMESTAMP_ALIGNED".equals(timing.get("status"));
+                anyUndetermined |= "SYNC_UNDETERMINED".equals(timing.get("status"));
                 observations.add(Map.copyOf(entry));
             }
             fused.put("observations", List.copyOf(observations));
             fused.put("childCount", children.size());
+            if (spec != null && spec.sourceClock() != null) {
+                Map<String, Object> clock = new LinkedHashMap<>();
+                clock.put("clockId", spec.sourceClock().clockId());
+                clock.put("evidenceRef", spec.sourceClock().evidenceRef());
+                clock.put("ticksPerSecond", spec.sourceClock().ticksPerSecond());
+                clock.put("epochOffsetTicks", spec.sourceClock().epochOffsetTicks());
+                clock.put("durationTicks", spec.sourceClock().durationTicks());
+                fused.put("sourceClock", Map.copyOf(clock));
+            }
+            // A shared source clock means every declared timed observation grounded on
+            // the same admitted binding; it is timestamp comparability, not measured sync.
+            fused.put("clockComparability", anyAligned && !anyUndetermined
+                    ? "SOURCE_CLOCK_SHARED" : "SYNC_UNDETERMINED");
             return Map.copyOf(fused);
+        }
+
+        private static final int MAX_TIMED_OBSERVATIONS_PER_CHILD = 16;
+        private static final int MAX_GROUNDED_TIMED_ENTRIES = 24;
+        private static final String TIMING_ALIGNED = "TIMESTAMP_ALIGNED";
+        private static final String TIMING_UNDETERMINED = "SYNC_UNDETERMINED";
+
+        private static Map<String, Object> groundChildTiming(
+                MultimodalOperationSpec spec, Map<String, Object> childResult, int entryBudget) {
+            Map<String, Object> timing = new LinkedHashMap<>();
+            Object raw = childResult.get("timedObservations");
+            List<?> declared = raw instanceof List<?> list ? list : List.of();
+            int processed = 0;
+            String firstUndetermined = null;
+            boolean budgetTruncated = declared.size() > Math.min(entryBudget, MAX_TIMED_OBSERVATIONS_PER_CHILD);
+            List<Object> entries = new ArrayList<>();
+            for (Object item : declared) {
+                if (processed >= MAX_TIMED_OBSERVATIONS_PER_CHILD || processed >= entryBudget) break;
+                Map<String, Object> grounded = groundTimedObservation(spec, item);
+                entries.add(Map.copyOf(grounded));
+                processed++;
+                if (!TIMING_ALIGNED.equals(grounded.get("status")) && firstUndetermined == null) {
+                    firstUndetermined = String.valueOf(grounded.get("reason"));
+                }
+            }
+            boolean aligned = processed > 0 && firstUndetermined == null
+                    && declared.size() == processed;
+            if (aligned) {
+                timing.put("status", TIMING_ALIGNED);
+            } else {
+                timing.put("status", TIMING_UNDETERMINED);
+                timing.put("reason", firstUndetermined != null ? firstUndetermined
+                        : budgetTruncated || declared.size() > processed
+                                ? "TIMED_OBSERVATION_BUDGET_EXCEEDED"
+                                : "TIMED_OBSERVATIONS_ABSENT");
+            }
+            timing.put("declaredTimedObservations", declared.size());
+            timing.put("groundedTimedObservations", processed);
+            timing.put("entries", List.copyOf(entries));
+            return Map.copyOf(timing);
+        }
+
+        /**
+         * Maps one child-declared {@code startTick}/{@code endTick} pair onto the operation's
+         * bound source clock. Grounding verifies the declared clock identity and tick rate
+         * against the persisted binding; it never estimates or converts across clocks.
+         */
+        private static Map<String, Object> groundTimedObservation(
+                MultimodalOperationSpec spec, Object item) {
+            Map<String, Object> entry = new LinkedHashMap<>();
+            if (!(item instanceof Map<?, ?> map)) {
+                entry.put("status", TIMING_UNDETERMINED);
+                entry.put("reason", "TIMED_OBSERVATION_MALFORMED");
+                return entry;
+            }
+            Object label = map.get("label");
+            String boundedLabel = label instanceof String text && !text.isBlank()
+                    && text.length() <= 256 ? text : null;
+            SourceClockBinding binding = spec == null ? null : spec.sourceClock();
+            Long startTick = integralTicks(map.get("startTick"));
+            Long endTick = integralTicks(map.get("endTick"));
+            Object declaredClock = map.get("sourceClockId");
+            String declaredClockId = declaredClock instanceof String text ? text : "";
+            Long declaredTps = map.get("ticksPerSecond") == null
+                    ? null : integralTicks(map.get("ticksPerSecond"));
+            String reason = null;
+            if (startTick == null || endTick == null
+                    || (map.get("ticksPerSecond") != null && declaredTps == null)) {
+                reason = "TIMED_OBSERVATION_MALFORMED";
+            } else if (startTick < 0 || endTick <= startTick) {
+                reason = "SOURCE_TICKS_INVALID";
+            } else if (binding == null) {
+                reason = "SOURCE_CLOCK_NOT_DECLARED";
+            } else if (binding.clockId().isBlank() || declaredClockId.isBlank()) {
+                reason = "SOURCE_CLOCK_ID_UNAVAILABLE";
+            } else if (!declaredClockId.equals(binding.clockId())
+                    || (declaredTps != null && declaredTps != binding.ticksPerSecond())) {
+                reason = "SOURCE_CLOCK_MISMATCH";
+            } else if (binding.durationTicks() > 0 && endTick > binding.durationTicks()) {
+                reason = "SOURCE_TICKS_OUT_OF_DURATION";
+            }
+            if (boundedLabel != null) entry.put("label", boundedLabel);
+            if (reason != null) {
+                entry.put("status", TIMING_UNDETERMINED);
+                entry.put("reason", reason);
+                if (startTick != null && endTick != null) {
+                    entry.put("declaredStartTick", startTick);
+                    entry.put("declaredEndTick", endTick);
+                }
+                if (!declaredClockId.isBlank()) entry.put("declaredSourceClockId", declaredClockId);
+                return entry;
+            }
+            long mediaStartTick;
+            long mediaEndTick;
+            long mediaStartMs;
+            long mediaEndMs;
+            try {
+                mediaStartTick = Math.subtractExact(startTick, binding.epochOffsetTicks());
+                mediaEndTick = Math.subtractExact(endTick, binding.epochOffsetTicks());
+                mediaStartMs = ticksToMillis(mediaStartTick, binding.ticksPerSecond());
+                mediaEndMs = ticksToMillis(mediaEndTick, binding.ticksPerSecond());
+            } catch (ArithmeticException overflow) {
+                entry.put("status", TIMING_UNDETERMINED);
+                entry.put("reason", "MAPPED_TIMESTAMP_OUT_OF_RANGE");
+                entry.put("declaredStartTick", startTick);
+                entry.put("declaredEndTick", endTick);
+                return entry;
+            }
+            entry.put("status", TIMING_ALIGNED);
+            entry.put("sourceClockId", binding.clockId());
+            entry.put("startTick", startTick);
+            entry.put("endTick", endTick);
+            entry.put("mediaStartTick", mediaStartTick);
+            entry.put("mediaEndTick", mediaEndTick);
+            entry.put("mediaStartMs", mediaStartMs);
+            entry.put("mediaEndMs", mediaEndMs);
+            return entry;
+        }
+
+        /** Exact rational ticks→milliseconds conversion; ties round away from zero. */
+        private static long ticksToMillis(long ticks, long ticksPerSecond) {
+            java.math.BigInteger numerator = java.math.BigInteger.valueOf(ticks)
+                    .multiply(java.math.BigInteger.valueOf(1000));
+            java.math.BigInteger denominator = java.math.BigInteger.valueOf(ticksPerSecond);
+            java.math.BigInteger[] division = numerator.divideAndRemainder(denominator);
+            java.math.BigInteger rounded = division[0];
+            if (division[1].abs().shiftLeft(1).compareTo(denominator.abs()) >= 0) {
+                rounded = rounded.add(java.math.BigInteger.valueOf(numerator.signum()));
+            }
+            return rounded.longValueExact();
+        }
+
+        private static Long integralTicks(Object value) {
+            if (!(value instanceof Number number)) return null;
+            if (value instanceof Double || value instanceof Float) {
+                double d = number.doubleValue();
+                if (!Double.isFinite(d) || d != Math.rint(d)
+                        || Math.abs(d) > 9_007_199_254_740_991d) {
+                    return null;
+                }
+            }
+            return number.longValue();
         }
 
         private static Map<String, Object> boundedChildResult(Map<String, Object> result) {
@@ -954,19 +1142,36 @@ public final class MediaRuntimeContracts {
             }
         }
 
-        /** Source-owned clock declaration; never derived from provider-reported timestamps. */
+        /**
+         * Source-owned clock declaration; never derived from provider-reported timestamps.
+         * {@code clockId} names the admitted source clock children must declare their
+         * timed observations on; {@code durationTicks} bounds {@code endTick} when
+         * authoritatively known. Blank/zero values are honest "unverifiable" states:
+         * grounding degrades to {@code SYNC_UNDETERMINED} rather than guessing.
+         */
         public record SourceClockBinding(
                 String evidenceRef,
                 long ticksPerSecond,
-                long epochOffsetTicks) {
+                long epochOffsetTicks,
+                String clockId,
+                long durationTicks) {
             public SourceClockBinding {
                 evidenceRef = required(evidenceRef, "sourceClock evidenceRef");
                 if (evidenceRef.length() > 512) {
                     throw new IllegalArgumentException("sourceClock evidenceRef is too long");
                 }
-                if (ticksPerSecond < 1 || epochOffsetTicks < 0) {
+                clockId = clockId == null ? "" : clockId.trim();
+                if (clockId.length() > 512 || clockId.chars().anyMatch(Character::isISOControl)) {
+                    throw new IllegalArgumentException("sourceClock clockId is malformed");
+                }
+                if (ticksPerSecond < 1 || epochOffsetTicks < 0 || durationTicks < 0) {
                     throw new IllegalArgumentException("sourceClock fields are out of bounds");
                 }
+            }
+
+            /** Binding without an admitted clock identity or duration bound. */
+            public SourceClockBinding(String evidenceRef, long ticksPerSecond, long epochOffsetTicks) {
+                this(evidenceRef, ticksPerSecond, epochOffsetTicks, "", 0);
             }
 
             static SourceClockBinding fromParameterValue(Map<?, ?> value) {
@@ -976,9 +1181,19 @@ public final class MediaRuntimeContracts {
                         || !(offset instanceof Number offsetNumber)) {
                     throw new IllegalArgumentException("sourceClock fields must be numeric");
                 }
+                Object clockId = value.get("clockId");
+                if (clockId != null && !(clockId instanceof String)) {
+                    throw new IllegalArgumentException("sourceClock clockId must be a string");
+                }
+                Object duration = value.get("durationTicks");
+                if (duration != null && !(duration instanceof Number)) {
+                    throw new IllegalArgumentException("sourceClock durationTicks must be numeric");
+                }
                 return new SourceClockBinding(
                         stringField(value, "evidenceRef"),
-                        ticksNumber.longValue(), offsetNumber.longValue());
+                        ticksNumber.longValue(), offsetNumber.longValue(),
+                        clockId == null ? "" : (String) clockId,
+                        duration == null ? 0 : ((Number) duration).longValue());
             }
         }
 

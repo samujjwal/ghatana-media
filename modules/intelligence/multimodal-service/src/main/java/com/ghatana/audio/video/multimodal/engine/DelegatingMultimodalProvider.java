@@ -277,7 +277,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         }
         if (anyUnknown) return OperationOutcome.unknown();
         if (anyFailed) return OperationOutcome.failed("CHILD_FAILED");
-        return OperationOutcome.succeeded(MultimodalOperationSpec.fusedResult(children));
+        return OperationOutcome.succeeded(MultimodalOperationSpec.fusedResult(spec, children));
     }
 
     private ProviderSubmission submissionFor(

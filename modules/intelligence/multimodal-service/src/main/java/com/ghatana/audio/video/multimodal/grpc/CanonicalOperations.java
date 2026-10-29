@@ -4,6 +4,7 @@ import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.audio.video.multimodal.engine.MultimodalResult;
 import com.ghatana.audio.video.multimodal.engine.VideoAudioResult;
 import com.ghatana.audio.video.multimodal.engine.VisualResult;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 
 import java.util.ArrayList;
@@ -65,6 +66,10 @@ final class CanonicalOperations {
     /** Requires one grounded observation per declared child job type. */
     static Map<JobType, Map<String, Object>> requireGroundedChildren(
             CanonicalOperationOutcome outcome) throws Exception {
+        if (outcome.status() == JobStatus.FAILED || outcome.status() == JobStatus.CANCELLED) {
+            throw new CanonicalOperationFailedException(
+                    outcome.jobId(), outcome.status(), outcome.failureCode());
+        }
         Object raw = outcome.result().get("observations");
         if (!(raw instanceof List<?> list) || list.isEmpty()) {
             throw new IllegalStateException(
@@ -153,4 +158,21 @@ final class CanonicalOperations {
         }
         return child;
     }
+}
+
+/** The durable parent operation reached a terminal FAILED or CANCELLED state. */
+final class CanonicalOperationFailedException extends Exception {
+    private final String jobId;
+    private final JobStatus status;
+    private final String failureCode;
+    CanonicalOperationFailedException(String jobId, JobStatus status, String failureCode) {
+        super("MULTIMODAL_OPERATION_" + status + " jobId=" + jobId
+                + (failureCode == null || failureCode.isBlank() ? "" : " " + failureCode));
+        this.jobId = java.util.Objects.requireNonNull(jobId, "jobId");
+        this.status = java.util.Objects.requireNonNull(status, "status");
+        this.failureCode = failureCode == null ? "" : failureCode;
+    }
+    String jobId() { return jobId; }
+    JobStatus status() { return status; }
+    String failureCode() { return failureCode; }
 }

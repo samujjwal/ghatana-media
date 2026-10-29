@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.multimodal.grpc;
 
 import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
+import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
@@ -91,6 +92,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         }
         List<MultimodalOperationSpec.ChildOperationSpec> children =
                 resolveChildren(plan, authenticated);
+        MediaArtifact source = sourceArtifact(binding, authenticated);
         MultimodalOperationSpec spec = new MultimodalOperationSpec(
                 MultimodalOperationSpec.SPEC_VERSION,
                 plan.capabilityRef(),
@@ -98,9 +100,9 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                 Math.max(1, binding.getOperationVersion()),
                 binding.getSourceArtifactId(),
                 binding.getSourceVersionId(),
-                sourceSha256(binding, authenticated),
+                source.sha256(),
                 children,
-                plan.sourceClock(),
+                sourceClockBinding(plan, source),
                 Map.of("purpose", binding.getPurpose()));
         Map<String, Object> parameters = new LinkedHashMap<>();
         parameters.put(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue());
@@ -115,11 +117,28 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                 "",
                 parameters,
                 governanceFor(binding));
-        ProcessingJob submitted = port.submit(jobRequest, authenticated);
+        // Pre-submit validation/admission failures are provably effect-free and surface
+        // as typed failures; once the durable parent exists every later failure is UNKNOWN.
+        final ProcessingJob submitted;
+        try {
+            submitted = port.submit(jobRequest, authenticated);
+        } catch (MediaCapabilityNotAdmittedException | IllegalArgumentException provenNoEffect) {
+            throw provenNoEffect;
+        } catch (RuntimeException ambiguous) {
+            throw new CanonicalOperationUnknownException(null, ambiguous);
+        }
         LOG.debug("Multimodal operation submitted jobId={} requestId={}",
                 submitted.jobId(), submitted.requestId());
-        CanonicalOperationOutcome outcome = awaitTerminal(
-                authenticated, submitted.jobId(), clock.instant().plus(operationDeadline));
+        final CanonicalOperationOutcome outcome;
+        try {
+            outcome = awaitTerminal(
+                    authenticated, submitted.jobId(), clock.instant().plus(operationDeadline));
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new CanonicalOperationUnknownException(submitted.jobId(), interrupted);
+        } catch (RuntimeException postSubmit) {
+            throw new CanonicalOperationUnknownException(submitted.jobId(), postSubmit);
+        }
         if (outcome.status() == JobStatus.OUTCOME_UNKNOWN) {
             throw new CanonicalOperationUnknownException(submitted.jobId());
         }
@@ -176,7 +195,8 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         return port.completeUpload(authenticated, session.uploadId());
     }
 
-    private String sourceSha256(CanonicalOperationBinding binding, AuthenticatedPrincipal authenticated) {
+    private MediaArtifact sourceArtifact(
+            CanonicalOperationBinding binding, AuthenticatedPrincipal authenticated) {
         MediaArtifact source = port.artifact(
                         authenticated.tenantId(), authenticated.principalId(),
                         binding.getSourceArtifactId())
@@ -186,7 +206,55 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             throw new IllegalArgumentException(
                     "multimodal source artifact version does not match the operation binding");
         }
-        return source.sha256();
+        return source;
+    }
+
+    /**
+     * Binds the operation to the source clock declared by the immutable artifact's own
+     * metadata — never to caller-supplied fields. A declared but malformed clock fails
+     * closed; an artifact without a declared clock leaves the binding to the plan seam
+     * (null in production) and grounding stays {@code SYNC_UNDETERMINED}.
+     */
+    private static MultimodalOperationSpec.SourceClockBinding sourceClockBinding(
+            CanonicalOperationPlan plan, MediaArtifact source) {
+        Map<String, Object> metadata = source.metadata();
+        Object evidenceRef = metadata.get("sourceClockMappingEvidenceRef");
+        Object ticksPerSecond = metadata.get("sourceClockTicksPerSecond");
+        if (evidenceRef == null && ticksPerSecond == null) {
+            return plan.sourceClock();
+        }
+        if (!(evidenceRef instanceof String ref) || ref.isBlank()) {
+            throw new IllegalArgumentException(
+                    "source artifact clock mapping evidence is missing or malformed");
+        }
+        long ticks = positiveMetadataLong(ticksPerSecond, "sourceClockTicksPerSecond");
+        String clockId = metadata.get("sourceClockId") instanceof String id ? id : "";
+        long epochOffset = metadata.get("sourceClockEpochOffsetTicks") == null
+                ? 0 : nonnegativeMetadataLong(
+                        metadata.get("sourceClockEpochOffsetTicks"), "sourceClockEpochOffsetTicks");
+        long duration = metadata.get("sourceDurationTicks") == null
+                ? 0 : nonnegativeMetadataLong(
+                        metadata.get("sourceDurationTicks"), "sourceDurationTicks");
+        return new MultimodalOperationSpec.SourceClockBinding(
+                ref, ticks, epochOffset, clockId, duration);
+    }
+
+    private static long positiveMetadataLong(Object value, String field) {
+        long parsed = nonnegativeMetadataLong(value, field);
+        if (parsed < 1) {
+            throw new IllegalArgumentException("source artifact " + field + " is malformed");
+        }
+        return parsed;
+    }
+
+    private static long nonnegativeMetadataLong(Object value, String field) {
+        if (!(value instanceof Number number) || !Double.isFinite(number.doubleValue())
+                || number.doubleValue() != Math.rint(number.doubleValue())
+                || number.doubleValue() < 0
+                || number.doubleValue() > 9_007_199_254_740_991d) {
+            throw new IllegalArgumentException("source artifact " + field + " is malformed");
+        }
+        return number.longValue();
     }
 
     /**
@@ -245,8 +313,12 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
 final class CanonicalOperationUnknownException extends Exception {
     private final String jobId;
     CanonicalOperationUnknownException(String jobId) {
-        super("MULTIMODAL_OPERATION_OUTCOME_UNKNOWN jobId=" + jobId
-                + ": reconcile by exact job identity, do not resubmit");
+        this(jobId, null);
+    }
+    CanonicalOperationUnknownException(String jobId, Throwable cause) {
+        super("MULTIMODAL_OPERATION_OUTCOME_UNKNOWN"
+                + (jobId == null ? "" : " jobId=" + jobId)
+                + ": reconcile by exact job identity, do not resubmit", cause);
         this.jobId = jobId;
     }
     String jobId() { return jobId; }

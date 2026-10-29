@@ -39,7 +39,10 @@ class MediaRuntimeMultimodalRestartTest {
         var submitted = new CountDownLatch(1);
         var runtime1 = runtime(root, jobStore,
                 blockingMmProvider(submitted, Map.of("text", "grounded")),
-                sttProvider(Map.of("text", "grounded")));
+                sttProvider(Map.of("text", "grounded",
+                        "timedObservations", List.of(Map.of(
+                                "startTick", 0L, "endTick", 48_000L,
+                                "sourceClockId", "src-clock")))));
         var source = artifact(runtime1);
         var childArtifact = artifact(runtime1);
         runtime1.submit(mmRequest(source, spec(source, childArtifact)));
@@ -57,6 +60,12 @@ class MediaRuntimeMultimodalRestartTest {
             assertThat(parent.result()).containsKey("observations");
             // Exact readback: fused result rebuilt solely from the durable spec + children.
             assertThat(String.valueOf(parent.result().get("observations"))).contains("stt");
+            // Restart grounding parity: the durable spec's source clock bound the child's
+            // declared ticks into the identical TIMESTAMP_ALIGNED entry a live attempt emits.
+            assertThat(String.valueOf(parent.result().get("observations")))
+                    .contains("TIMESTAMP_ALIGNED");
+            assertThat(parent.result().get("clockComparability"))
+                    .isEqualTo("SOURCE_CLOCK_SHARED");
         } finally {
             runtime2.close();
         }
@@ -256,7 +265,9 @@ class MediaRuntimeMultimodalRestartTest {
                 List.of(new MultimodalOperationSpec.ChildOperationSpec("stt",
                         JobType.SPEECH_TO_TEXT, child.artifactId(), child.version().value(),
                         child.sha256(), "", sttParameters())),
-                null, Map.of("purpose", "mm-observe"));
+                new MultimodalOperationSpec.SourceClockBinding(
+                        "fixture-clock-evidence", 48_000, 0, "src-clock", 96_000),
+                Map.of("purpose", "mm-observe"));
     }
 
     private static ProcessingJobRequest mmRequest(

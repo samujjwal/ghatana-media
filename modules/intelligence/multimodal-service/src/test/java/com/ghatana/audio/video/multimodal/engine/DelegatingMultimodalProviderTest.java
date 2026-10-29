@@ -85,6 +85,32 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void fusedResultGroundsChildTimedObservationsOnTheBoundSourceClock() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobStatus.COMPLETED, Map.of("text", "grounded",
+                            "timedObservations", List.of(Map.of(
+                                    "startTick", 0L, "endTick", 48_000L,
+                                    "sourceClockId", "src-clock"))));
+            var submission = provider.processAttempt(clockedContext(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+            List<?> observations = (List<?>) submission.result().get("observations");
+            Map<?, ?> timing = (Map<?, ?>) ((Map<?, ?>) observations.get(0)).get("timing");
+            assertThat(timing.get("status")).isEqualTo("TIMESTAMP_ALIGNED");
+            Map<?, ?> entry = (Map<?, ?>) ((List<?>) timing.get("entries")).get(0);
+            assertThat(entry.get("mediaEndMs")).isEqualTo(1_000L);
+            assertThat(submission.result().get("clockComparability"))
+                    .isEqualTo("SOURCE_CLOCK_SHARED");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void missingDispatcherProducesNoEffectProven() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {
@@ -106,6 +132,23 @@ class DelegatingMultimodalProviderTest {
 
     private static ProcessingContext context(FixtureDispatcher dispatcher) {
         return new ProcessingContext(request(), artifact(), new Cancellation(), null,
+                null, null, dispatcher);
+    }
+
+    private static ProcessingContext clockedContext(FixtureDispatcher dispatcher) {
+        var spec = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                "cap", "op", 1, "src", "sha256:" + SHA, SHA,
+                List.of(new MultimodalOperationSpec.ChildOperationSpec(
+                        "stt", JobType.SPEECH_TO_TEXT, "child-art",
+                        "sha256:" + SHA, SHA, "", Map.of())),
+                new MultimodalOperationSpec.SourceClockBinding(
+                        "ev-1", 48_000, 0, "src-clock", 96_000),
+                Map.of());
+        var request = new ProcessingJobRequest("req-1", "tenant-a", "principal-a", "corr-1",
+                "src", "sha256:" + SHA, JobType.MULTIMODAL, "",
+                Map.of(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue()));
+        return new ProcessingContext(request, artifact(), new Cancellation(), null,
                 null, null, dispatcher);
     }
 
