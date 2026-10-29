@@ -352,7 +352,7 @@ The rows below map **exact original R8 identities**. Their current R8 status is 
 | `VIS-07` | B03 | Real VFR/reorder/discontinuity/shot tracking/source PTS with uncertainty |
 | `VIS-09` | E01 | Real Ghatana public OCR ROI text/box/time/source and revoked/wrong tenant/UNKNOWN |
 | `VIS-10` | B03 | Face/gaze/landmark identity/sensitive purpose denied before effect without appropriate consent |
-| `VIS-12` | B03/F02 | All 11 Vision RPCs as applicable, real reference image/model, 1/16/64 native load and restart |
+| `VIS-12` | B03/F02 | All 10 source-declared Vision RPCs as applicable, real reference image/model, 1/16/64 native load and restart |
 | `MM-02` | D01 | Every child tenant/principal/source/version/rights intersection verified before fanout |
 | `MM-03` | D02 | Source rational clock vs measured sync, variable frame rate and honest `SYNC_UNDETERMINED` |
 | `MM-05` | D01/D04 | Real STT/Vision child execution, bounded parallel timeouts/UNKNOWN without synthetic result |
