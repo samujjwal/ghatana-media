@@ -750,6 +750,8 @@ public final class LocalMediaRuntimeSupport {
         private final ConcurrentMap<String, String> requests = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, String> submissionDigests = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, SttSubmissionSnapshot> sttSubmissionSnapshots = new ConcurrentHashMap<>();
+        private final ConcurrentMap<String, com.ghatana.media.runtime.MediaRuntimeContracts
+                .MultimodalOperationSnapshot> multimodalSnapshots = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, JobLease> leases = new ConcurrentHashMap<>();
         private final boolean clearStateOnClose;
 
@@ -792,6 +794,42 @@ public final class LocalMediaRuntimeSupport {
                 if (snapshot != null) sttSubmissionSnapshots.putIfAbsent(requestKey, snapshot);
                 return stored;
             }
+        }
+        @Override public ProcessingJob create(
+                ProcessingJob job, String submissionDigest,
+                SttSubmissionSnapshot sttSnapshot,
+                com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot mmSnapshot) {
+            if (job.jobType() == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL
+                    && mmSnapshot == null) {
+                throw new IllegalArgumentException(
+                        "Multimodal jobs require a retained operation snapshot");
+            }
+            if (job.jobType() != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL
+                    && mmSnapshot != null) {
+                throw new IllegalArgumentException(
+                        "Multimodal operation snapshot is only valid for multimodal jobs");
+            }
+            String requestKey = key(job.tenantId(), job.requestId());
+            synchronized (requestKey.intern()) {
+                ProcessingJob stored = create(job, submissionDigest, sttSnapshot);
+                var existing = multimodalSnapshots.get(requestKey);
+                if (existing != null && !existing.equals(mmSnapshot)) {
+                    throw new IllegalStateException(
+                            "Media request ID was reused with a different multimodal operation spec");
+                }
+                if (mmSnapshot != null) multimodalSnapshots.putIfAbsent(requestKey, mmSnapshot);
+                return stored;
+            }
+        }
+        @Override public Optional<ProcessingJob> findByRequest(String tenantId, String requestId) {
+            String jobId = requests.get(key(tenantId, requestId));
+            return jobId == null ? Optional.empty() : find(tenantId, jobId);
+        }
+        @Override public Optional<com.ghatana.media.runtime.MediaRuntimeContracts
+                .MultimodalOperationSnapshot> findMultimodalOperationSnapshot(
+                String tenantId, String jobId) {
+            return find(tenantId, jobId)
+                    .map(job -> multimodalSnapshots.get(key(tenantId, job.requestId())));
         }
         @Override public ProcessingJob create(ProcessingJob job, String submissionDigest) {
             if (submissionDigest == null || !submissionDigest.isBlank()
@@ -947,6 +985,7 @@ public final class LocalMediaRuntimeSupport {
                 requests.clear();
                 submissionDigests.clear();
                 sttSubmissionSnapshots.clear();
+                multimodalSnapshots.clear();
                 leases.clear();
             }
         }

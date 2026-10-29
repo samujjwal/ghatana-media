@@ -661,6 +661,425 @@ public final class MediaRuntimeContracts {
         }
     }
 
+    /**
+     * Durable, serializable multimodal operation specification. This is the storage
+     * representation of an existing PDP-1 operation, not a new user-facing contract: it
+     * binds the canonical immutable source, the source-owned child artifact references,
+     * the source clock, and the selected per-capability child processing plan so a parent
+     * operation can be reconstructed and safely reconciled after a process restart. It is
+     * persisted inside {@link ProcessingJobRequest#parameters} under {@link #PARAMETERS_KEY}
+     * (and therefore inside the request fingerprint and submission digest) and mirrored into
+     * the job-row {@link MultimodalOperationSnapshot}. Java closures and mutable process
+     * memory are never part of the operation definition.
+     */
+    public record MultimodalOperationSpec(
+            String specVersion,
+            String capabilityRef,
+            String operationRef,
+            int operationVersion,
+            String sourceArtifactId,
+            String sourceVersion,
+            String sourceSha256,
+            List<ChildOperationSpec> children,
+            SourceClockBinding sourceClock,
+            Map<String, Object> plan) {
+        public static final String SPEC_VERSION = "media.multimodal-operation-spec.v1";
+        public static final String PARAMETERS_KEY = "multimodalOperation";
+        public static final int MAX_CHILDREN = 8;
+        private static final int MAX_SERIALIZED_CHILD_PARAMETERS = 8_192;
+        private static final int MAX_SERIALIZED_PLAN = 8_192;
+        private static final java.util.Set<JobType> ADMITTED_CHILD_JOB_TYPES =
+                java.util.Set.of(JobType.SPEECH_TO_TEXT, JobType.VISION);
+
+        public MultimodalOperationSpec {
+            if (!SPEC_VERSION.equals(specVersion)) {
+                throw new IllegalArgumentException(
+                        "unsupported multimodal operation spec version: " + specVersion);
+            }
+            capabilityRef = boundedToken(capabilityRef, "capabilityRef");
+            operationRef = boundedToken(operationRef, "operationRef");
+            if (operationVersion < 1) {
+                throw new IllegalArgumentException("operationVersion must be positive");
+            }
+            sourceArtifactId = required(sourceArtifactId, "sourceArtifactId");
+            if (sourceArtifactId.length() > 128) {
+                throw new IllegalArgumentException("sourceArtifactId is too long");
+            }
+            sourceVersion = required(sourceVersion, "sourceVersion");
+            new ArtifactVersion(sourceVersion);
+            sourceSha256 = requireSha256(sourceSha256);
+            if (!sourceVersion.equals("sha256:" + sourceSha256)) {
+                throw new IllegalArgumentException(
+                        "source version and digest must identify the same bytes");
+            }
+            children = List.copyOf(java.util.Objects.requireNonNull(children, "children"));
+            if (children.isEmpty() || children.size() > MAX_CHILDREN) {
+                throw new IllegalArgumentException(
+                        "multimodal operation requires between 1 and " + MAX_CHILDREN + " children");
+            }
+            java.util.Set<String> childKeys = new java.util.HashSet<>();
+            java.util.Set<JobType> seenTypes = new java.util.HashSet<>();
+            for (ChildOperationSpec child : children) {
+                if (child == null || !childKeys.add(child.childKey())) {
+                    throw new IllegalArgumentException("multimodal child keys must be unique");
+                }
+                if (!seenTypes.add(child.jobType())) {
+                    throw new IllegalArgumentException(
+                            "multimodal operation admits at most one child per capability");
+                }
+            }
+            plan = immutableJsonObject(plan == null ? Map.of() : plan);
+            if (MediaJobRequestFingerprint.canonicalJson(plan).length() > MAX_SERIALIZED_PLAN) {
+                throw new IllegalArgumentException("multimodal operation plan exceeds its bound");
+            }
+        }
+
+        /** JSON-safe form persisted inside {@link ProcessingJobRequest#parameters}. */
+        public Map<String, Object> toParametersValue() {
+            Map<String, Object> encoded = new LinkedHashMap<>();
+            encoded.put("specVersion", specVersion);
+            encoded.put("capabilityRef", capabilityRef);
+            encoded.put("operationRef", operationRef);
+            encoded.put("operationVersion", operationVersion);
+            encoded.put("sourceArtifactId", sourceArtifactId);
+            encoded.put("sourceVersion", sourceVersion);
+            encoded.put("sourceSha256", sourceSha256);
+            List<Object> encodedChildren = new ArrayList<>(children.size());
+            for (ChildOperationSpec child : children) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("childKey", child.childKey());
+                item.put("jobType", child.jobType().name());
+                item.put("artifactId", child.artifactId());
+                item.put("artifactVersion", child.artifactVersion());
+                item.put("artifactSha256", child.artifactSha256());
+                if (!child.providerHint().isBlank()) item.put("providerHint", child.providerHint());
+                if (!child.parameters().isEmpty()) item.put("parameters", child.parameters());
+                encodedChildren.add(Map.copyOf(item));
+            }
+            encoded.put("children", List.copyOf(encodedChildren));
+            if (sourceClock != null) {
+                Map<String, Object> clock = new LinkedHashMap<>();
+                clock.put("evidenceRef", sourceClock.evidenceRef());
+                clock.put("ticksPerSecond", sourceClock.ticksPerSecond());
+                clock.put("epochOffsetTicks", sourceClock.epochOffsetTicks());
+                encoded.put("sourceClock", Map.copyOf(clock));
+            }
+            if (!plan.isEmpty()) encoded.put("plan", plan);
+            return Map.copyOf(encoded);
+        }
+
+        /** Exact reconstruction from the persisted parameters form; malformed input fails closed. */
+        public static MultimodalOperationSpec fromParameterValue(Map<String, Object> value) {
+            if (value == null) {
+                throw new IllegalArgumentException("multimodal operation specification is required");
+            }
+            List<ChildOperationSpec> parsedChildren = new ArrayList<>();
+            Object rawChildren = value.get("children");
+            if (!(rawChildren instanceof List<?> list)) {
+                throw new IllegalArgumentException("multimodal operation spec requires a children list");
+            }
+            for (Object raw : list) {
+                if (!(raw instanceof Map<?, ?> childMap)) {
+                    throw new IllegalArgumentException("multimodal child entry must be an object");
+                }
+                parsedChildren.add(ChildOperationSpec.fromParameterValue(childMap));
+            }
+            SourceClockBinding clock = null;
+            Object rawClock = value.get("sourceClock");
+            if (rawClock != null) {
+                if (!(rawClock instanceof Map<?, ?> clockMap)) {
+                    throw new IllegalArgumentException("multimodal source clock must be an object");
+                }
+                clock = SourceClockBinding.fromParameterValue(clockMap);
+            }
+            Object rawPlan = value.get("plan");
+            Map<String, Object> parsedPlan = rawPlan == null ? Map.of() : stringMap(rawPlan, "plan");
+            Object rawVersion = value.get("operationVersion");
+            if (!(rawVersion instanceof Number version)) {
+                throw new IllegalArgumentException("operationVersion must be a positive integer");
+            }
+            return new MultimodalOperationSpec(
+                    stringField(value, "specVersion"),
+                    stringField(value, "capabilityRef"),
+                    stringField(value, "operationRef"),
+                    version.intValue(),
+                    stringField(value, "sourceArtifactId"),
+                    stringField(value, "sourceVersion"),
+                    stringField(value, "sourceSha256"),
+                    parsedChildren, clock, parsedPlan);
+        }
+
+        /** Parses the durable spec bound to a multimodal job request; absent input fails closed. */
+        public static MultimodalOperationSpec from(ProcessingJobRequest request) {
+            if (request == null || request.jobType() != JobType.MULTIMODAL) return null;
+            Object raw = request.parameters().get(PARAMETERS_KEY);
+            if (!(raw instanceof Map<?, ?> map)) {
+                throw new IllegalArgumentException(
+                        "MULTIMODAL job requires a durable " + PARAMETERS_KEY + " specification");
+            }
+            return fromParameterValue(stringMap(map, PARAMETERS_KEY));
+        }
+
+        /** Canonical digest of the persisted spec form used for replay/conflict comparison. */
+        public String specDigest() {
+            return sha256Hex(MediaJobRequestFingerprint.canonicalJson(toParametersValue()));
+        }
+
+        /** Validates this spec against the exact job request and resolved artifact. */
+        public boolean matchesRequest(ProcessingJobRequest request, MediaArtifact artifact) {
+            return request != null && artifact != null
+                    && request.jobType() == JobType.MULTIMODAL
+                    && request.artifactId().equals(sourceArtifactId)
+                    && artifact.artifactId().equals(sourceArtifactId)
+                    && artifact.version().value().equals(sourceVersion)
+                    && artifact.sha256().equals(sourceSha256);
+        }
+
+        /** Deterministic per-child idempotency key derived from the parent request identity. */
+        public static String childRequestId(String parentRequestId, String childKey) {
+            String normalized = required(parentRequestId, "parentRequestId");
+            String key = boundedToken(childKey, "childKey");
+            String requestId = normalized + ":" + key;
+            if (requestId.length() > 512) {
+                throw new IllegalArgumentException(
+                        "multimodal child request identity exceeds the request id bound");
+            }
+            return requestId;
+        }
+
+        /** The child entry selected by its stable key; absent keys fail closed. */
+        public ChildOperationSpec child(String childKey) {
+            return children.stream()
+                    .filter(child -> child.childKey().equals(childKey))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "multimodal child is not declared: " + childKey));
+        }
+
+        public record ChildOperationSpec(
+                String childKey,
+                JobType jobType,
+                String artifactId,
+                String artifactVersion,
+                String artifactSha256,
+                String providerHint,
+                Map<String, Object> parameters) {
+            public ChildOperationSpec {
+                childKey = boundedToken(childKey, "childKey");
+                if (childKey.length() > 32) {
+                    throw new IllegalArgumentException("childKey is too long");
+                }
+                jobType = java.util.Objects.requireNonNull(jobType, "jobType");
+                if (!ADMITTED_CHILD_JOB_TYPES.contains(jobType)) {
+                    throw new IllegalArgumentException(
+                            "multimodal child type is not admitted: " + jobType);
+                }
+                artifactId = required(artifactId, "child artifactId");
+                if (artifactId.length() > 128) {
+                    throw new IllegalArgumentException("child artifactId is too long");
+                }
+                artifactVersion = required(artifactVersion, "child artifactVersion");
+                new ArtifactVersion(artifactVersion);
+                artifactSha256 = requireSha256(artifactSha256);
+                if (!artifactVersion.equals("sha256:" + artifactSha256)) {
+                    throw new IllegalArgumentException(
+                            "child artifact version and digest must identify the same bytes");
+                }
+                providerHint = optional(providerHint);
+                parameters = immutableJsonObject(parameters == null ? Map.of() : parameters);
+                if (MediaJobRequestFingerprint.canonicalJson(parameters).length()
+                        > MAX_SERIALIZED_CHILD_PARAMETERS) {
+                    throw new IllegalArgumentException(
+                            "multimodal child parameters exceed their bound");
+                }
+            }
+
+            static ChildOperationSpec fromParameterValue(Map<?, ?> value) {
+                JobType type;
+                try {
+                    type = JobType.valueOf(stringField(value, "jobType"));
+                } catch (IllegalArgumentException failure) {
+                    throw new IllegalArgumentException("multimodal child jobType is unsupported", failure);
+                }
+                return new ChildOperationSpec(
+                        stringField(value, "childKey"), type,
+                        stringField(value, "artifactId"),
+                        stringField(value, "artifactVersion"),
+                        stringField(value, "artifactSha256"),
+                        value.get("providerHint") instanceof String hint ? hint : "",
+                        value.get("parameters") == null
+                                ? Map.of() : stringMap(value.get("parameters"), "child parameters"));
+            }
+        }
+
+        /** Source-owned clock declaration; never derived from provider-reported timestamps. */
+        public record SourceClockBinding(
+                String evidenceRef,
+                long ticksPerSecond,
+                long epochOffsetTicks) {
+            public SourceClockBinding {
+                evidenceRef = required(evidenceRef, "sourceClock evidenceRef");
+                if (evidenceRef.length() > 512) {
+                    throw new IllegalArgumentException("sourceClock evidenceRef is too long");
+                }
+                if (ticksPerSecond < 1 || epochOffsetTicks < 0) {
+                    throw new IllegalArgumentException("sourceClock fields are out of bounds");
+                }
+            }
+
+            static SourceClockBinding fromParameterValue(Map<?, ?> value) {
+                Object ticks = value.get("ticksPerSecond");
+                Object offset = value.get("epochOffsetTicks");
+                if (!(ticks instanceof Number ticksNumber)
+                        || !(offset instanceof Number offsetNumber)) {
+                    throw new IllegalArgumentException("sourceClock fields must be numeric");
+                }
+                return new SourceClockBinding(
+                        stringField(value, "evidenceRef"),
+                        ticksNumber.longValue(), offsetNumber.longValue());
+            }
+        }
+
+        private static String boundedToken(String value, String field) {
+            String normalized = required(value, field);
+            if (normalized.length() > 512
+                    || !normalized.matches("[A-Za-z][A-Za-z0-9_.:-]{0,511}")) {
+                throw new IllegalArgumentException(field + " must be a bounded opaque token");
+            }
+            return normalized;
+        }
+
+        private static String stringField(Map<?, ?> map, String key) {
+            Object value = map.get(key);
+            if (!(value instanceof String text)) {
+                throw new IllegalArgumentException("multimodal spec field is required: " + key);
+            }
+            return text;
+        }
+
+        @SuppressWarnings("unchecked")
+        private static Map<String, Object> stringMap(Object value, String field) {
+            if (!(value instanceof Map<?, ?> map)) {
+                throw new IllegalArgumentException(field + " must be a JSON object");
+            }
+            Map<String, Object> copy = new LinkedHashMap<>();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                if (!(entry.getKey() instanceof String key)) {
+                    throw new IllegalArgumentException(field + " keys must be strings");
+                }
+                copy.put(key, entry.getValue());
+            }
+            return copy;
+        }
+
+        private static String sha256Hex(String value) {
+            try {
+                return java.util.HexFormat.of().formatHex(
+                        java.security.MessageDigest.getInstance("SHA-256")
+                                .digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            } catch (java.security.NoSuchAlgorithmException impossible) {
+                throw new IllegalStateException("SHA-256 is unavailable", impossible);
+            }
+        }
+    }
+
+    /**
+     * Durable multimodal operation row persisted with the parent job create. The spec column
+     * is the reconstruction authority for restart recovery; the authorization references bind
+     * the exact rights/policy/consent decisions and revocation epoch admitted at submission.
+     */
+    public record MultimodalOperationSnapshot(
+            String version,
+            Map<String, Object> spec,
+            String rightsDecisionId,
+            String policyDecisionId,
+            String policyVersion,
+            String consentDecisionId,
+            String sourceClockEvidenceRef,
+            Long revocationEpoch) {
+        public static final String AUTHORIZED_VERSION = "media.multimodal-operation-snapshot.v1";
+        public MultimodalOperationSnapshot {
+            if (!AUTHORIZED_VERSION.equals(version)) {
+                throw new IllegalArgumentException("unsupported multimodal snapshot version");
+            }
+            spec = immutableJsonObject(java.util.Objects.requireNonNull(spec, "spec"));
+            if (spec.isEmpty()) {
+                throw new IllegalArgumentException("multimodal snapshot requires an operation spec");
+            }
+            rightsDecisionId = optionalSnapshotRef(rightsDecisionId, "rightsDecisionId");
+            policyDecisionId = optionalSnapshotRef(policyDecisionId, "policyDecisionId");
+            policyVersion = optionalSnapshotRef(policyVersion, "policyVersion");
+            consentDecisionId = optionalSnapshotRef(consentDecisionId, "consentDecisionId");
+            sourceClockEvidenceRef = optionalSnapshotRef(
+                    sourceClockEvidenceRef, "sourceClockEvidenceRef");
+            if (rightsDecisionId.isBlank() || policyDecisionId.isBlank() || policyVersion.isBlank()
+                    || consentDecisionId.isBlank() || sourceClockEvidenceRef.isBlank()) {
+                throw new IllegalArgumentException(
+                        "authorized multimodal snapshot requires exact authority references");
+            }
+            if (revocationEpoch == null || revocationEpoch < 0) {
+                throw new IllegalArgumentException("authorized multimodal snapshot requires a revocation epoch");
+            }
+        }
+
+        /** Authorized snapshot bound to the exact admitted spec and source-rights evidence. */
+        public static MultimodalOperationSnapshot from(
+                ProcessingJobRequest request,
+                MediaSourceAuthorizationContracts.Evidence authorization) {
+            if (request == null || request.jobType() != JobType.MULTIMODAL) return null;
+            MultimodalOperationSpec spec = MultimodalOperationSpec.from(request);
+            if (authorization == null) return null;
+            String consentId = authorization.consentDecisionId().isBlank()
+                    ? "NOT_APPLICABLE_HUMAN_CONSENT" : authorization.consentDecisionId();
+            return new MultimodalOperationSnapshot(AUTHORIZED_VERSION, spec.toParametersValue(),
+                    authorization.rightsDecisionId(), authorization.policyDecisionId(),
+                    authorization.policyVersion(), consentId, authorization.sourceClockEvidenceRef(),
+                    authorization.revocationEpoch());
+        }
+
+        /** Reconstructs the operation spec exactly as persisted at job creation. */
+        public MultimodalOperationSpec operationSpec() {
+            return MultimodalOperationSpec.fromParameterValue(spec);
+        }
+
+        private static String optionalSnapshotRef(String value, String name) {
+            if (value == null) return "";
+            String normalized = value.trim();
+            if (normalized.length() > 512 || normalized.chars().anyMatch(Character::isISOControl)) {
+                throw new IllegalArgumentException(name + " is malformed");
+            }
+            return normalized;
+        }
+    }
+
+    /**
+     * Typed child-dispatch boundary handed to an admitted multimodal provider inside its
+     * fenced attempt. The runtime implements this over the canonical job store and the
+     * verified ingress credential; a provider never receives the credential itself and can
+     * only submit children bound to the exact authenticated parent principal. Child
+     * submissions run through the complete per-child admission, idempotency, lease fencing
+     * and outbox path — identical to a direct authenticated job submission.
+     */
+    public interface MediaChildJobDispatcher {
+        /**
+         * Submits one child job bound to the authenticated parent principal. The same
+         * requestId with the same normalized submission resolves to the same durable job;
+         * a mismatched resubmission conflicts rather than duplicating an effect.
+         */
+        ProcessingJob submitChild(ProcessingJobRequest childRequest);
+
+        /** Principal-scoped child job readback by its durable job id. */
+        Optional<ProcessingJob> findJob(String jobId);
+
+        /** Principal-scoped child job readback by its deterministic request id. */
+        Optional<ProcessingJob> findJobByRequest(String requestId);
+
+        /** Reconstructs the durable multimodal operation spec for the parent job. */
+        default Optional<MultimodalOperationSnapshot> operationSnapshot(String jobId) {
+            return Optional.empty();
+        }
+    }
+
     public record ProcessingJob(
             String jobId,
             String requestId,
@@ -1125,6 +1544,30 @@ public final class MediaRuntimeContracts {
                 throw new UnsupportedOperationException("STT request snapshot persistence is not supported");
             return create(job, submissionDigest);
         }
+        /**
+         * Creates a job while atomically retaining its durable snapshots. A MULTIMODAL job
+         * requires a {@link MultimodalOperationSnapshot} so its operation can be reconstructed
+         * after restart; other job types must not carry one. Stores without multimodal
+         * persistence fail closed for multimodal jobs only.
+         */
+        default ProcessingJob create(ProcessingJob job, String submissionDigest,
+                SttSubmissionSnapshot sttSnapshot, MultimodalOperationSnapshot multimodalSnapshot) {
+            if (multimodalSnapshot != null || job.jobType() == JobType.MULTIMODAL)
+                throw new UnsupportedOperationException(
+                        "Multimodal operation snapshot persistence is not supported");
+            return create(job, submissionDigest, sttSnapshot);
+        }
+        /** Reads one job by its tenant-scoped idempotent request identity. */
+        default Optional<ProcessingJob> findByRequest(String tenantId, String requestId) {
+            return list(tenantId, 1_000).stream()
+                    .filter(job -> job.requestId().equals(requestId))
+                    .findFirst();
+        }
+        /** Reconstructs the durable multimodal operation snapshot for one parent job. */
+        default Optional<MultimodalOperationSnapshot> findMultimodalOperationSnapshot(
+                String tenantId, String jobId) {
+            return Optional.empty();
+        }
         ProcessingJob update(ProcessingJob expected, ProcessingJob updated);
         /** Update a worker-owned job only while the supplied lease fence is current and unexpired. */
         ProcessingJob update(JobLease lease, ProcessingJob expected, ProcessingJob updated);
@@ -1424,7 +1867,8 @@ public final class MediaRuntimeContracts {
             Cancellation cancellation,
             ConsentDecision consentDecision,
             MediaArtifactContentReader sourceContentReader,
-            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
+            MediaChildJobDispatcher childDispatcher) {
         public ProcessingContext {
             java.util.Objects.requireNonNull(request, "request");
             java.util.Objects.requireNonNull(artifact, "artifact");
@@ -1434,15 +1878,22 @@ public final class MediaRuntimeContracts {
         public ProcessingContext(
                 ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
                 ConsentDecision consentDecision) {
-            this(request, artifact, cancellation, consentDecision, null, null);
+            this(request, artifact, cancellation, consentDecision, null, null, null);
         }
         public ProcessingContext(
                 ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
                 ConsentDecision consentDecision, MediaArtifactContentReader sourceContentReader) {
-            this(request, artifact, cancellation, consentDecision, sourceContentReader, null);
+            this(request, artifact, cancellation, consentDecision, sourceContentReader, null, null);
+        }
+        public ProcessingContext(
+                ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
+                ConsentDecision consentDecision, MediaArtifactContentReader sourceContentReader,
+                MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
+            this(request, artifact, cancellation, consentDecision, sourceContentReader,
+                    sourceAuthorization, null);
         }
         public ProcessingContext(ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation) {
-            this(request, artifact, cancellation, ConsentDecision.unverified(), null, null);
+            this(request, artifact, cancellation, ConsentDecision.unverified(), null, null, null);
         }
 
         /** Copy verified source bytes to bounded staging; contexts without an admitted reader fail closed. */
@@ -1452,6 +1903,15 @@ public final class MediaRuntimeContracts {
                 throw new IllegalStateException("MEDIA_SOURCE_CONTENT_NOT_ADMITTED: verified source reader is unavailable");
             }
             return sourceContentReader.copyTo(target, maxBytes);
+        }
+
+        /** Exact child-dispatch boundary; contexts without an admitted dispatcher fail closed. */
+        public MediaChildJobDispatcher requireChildDispatcher() {
+            if (childDispatcher == null) {
+                throw new IllegalStateException(
+                        "MEDIA_CHILD_DISPATCH_NOT_ADMITTED: canonical child job dispatch is unavailable");
+            }
+            return childDispatcher;
         }
     }
 

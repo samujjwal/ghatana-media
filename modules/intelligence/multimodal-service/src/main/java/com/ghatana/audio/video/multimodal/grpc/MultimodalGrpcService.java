@@ -109,7 +109,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
         this.mediaRuntimePort = mediaRuntimePort;
-        this.canonicalOperationExecutor = null;
+        // The production runtime port binds the durable canonical executor; when no port
+        // is composed the service remains fail-closed (executor == null).
+        this.canonicalOperationExecutor = mediaRuntimePort == null
+                ? null : new MediaCanonicalOperationExecutor(mediaRuntimePort);
         LOG.info("Multimodal service initialized with backend={}", platformAdapter.backendName());
     }
 
@@ -157,7 +160,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
         this.mediaRuntimePort = mediaRuntimePort;
-        this.canonicalOperationExecutor = null;
+        this.canonicalOperationExecutor = mediaRuntimePort == null
+                ? null : new MediaCanonicalOperationExecutor(mediaRuntimePort);
     }
 
     /** Test-only executor seam; production constructors remain unbound and fail closed. */
@@ -256,9 +260,32 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                             .build();
 
             MultimodalResult result;
+            List<CanonicalChildSelection> observeChildren = new ArrayList<>(2);
+            if (!request.getAudioData().isEmpty() || !request.getArtifactId().isBlank()) {
+                observeChildren.add(CanonicalOperations.childSource("stt",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
+                        request.getAudioData().isEmpty() ? null : request.getAudioData().toByteArray(),
+                        "audio/wav", request.getOperationBinding().getSourceArtifactId()));
+            }
+            byte[] visualBytes = !request.getVideoData().isEmpty()
+                    ? request.getVideoData().toByteArray()
+                    : (!request.getImageData().isEmpty() ? request.getImageData().toByteArray() : null);
+            if (visualBytes != null || (observeChildren.isEmpty() && !request.getArtifactId().isBlank())) {
+                observeChildren.add(CanonicalOperations.childSource("vision",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION,
+                        visualBytes,
+                        !request.getVideoData().isEmpty() ? "video/mp4" : "image/png",
+                        request.getOperationBinding().getSourceArtifactId()));
+            }
+            boolean wantAudio = !request.getAudioData().isEmpty();
+            boolean wantVisual = visualBytes != null;
             try (Scope ignored = trace.makeCurrent()) {
-                result = executeCanonical(request.getOperationBinding(), OP_OBSERVE,
-                        () -> engine.analyse(engineRequest));
+                result = executeCanonical(identity, request.getOperationBinding(), OP_OBSERVE,
+                        CanonicalOperations.of(
+                                CanonicalOperations.plan(CAP_OBSERVE, observeChildren),
+                                () -> engine.analyse(engineRequest),
+                                outcome -> CanonicalOperations.toMultimodalResult(
+                                        outcome, wantAudio, wantVisual)));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();
@@ -376,13 +403,30 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             LOG.debug("Analyzing video with audio extraction: {}", request.getExtractAudio());
 
             VideoAudioResult result;
+            List<CanonicalChildSelection> relateChildren = new ArrayList<>(2);
+            if (request.getExtractAudio()) {
+                relateChildren.add(CanonicalOperations.childSource("stt",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
+                        request.getVideoData().isEmpty() ? null : request.getVideoData().toByteArray(),
+                        "video/mp4", request.getOperationBinding().getSourceArtifactId()));
+            }
+            if (request.getAnalyzeFrames()) {
+                relateChildren.add(CanonicalOperations.childSource("vision",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION,
+                        request.getVideoData().isEmpty() ? null : request.getVideoData().toByteArray(),
+                        "video/mp4", request.getOperationBinding().getSourceArtifactId()));
+            }
             try (Scope ignored = trace.makeCurrent()) {
-                result = executeCanonical(request.getOperationBinding(), OP_RELATE, () ->
-                        engine.analyseVideoWithAudio(
-                        request.getVideoData().toByteArray(),
-                        request.getExtractAudio(),
-                        request.getAnalyzeFrames(),
-                        request.getFrameSampleRate() > 0 ? request.getFrameSampleRate() : 1));
+                result = executeCanonical(identity, request.getOperationBinding(), OP_RELATE,
+                        CanonicalOperations.of(
+                                CanonicalOperations.plan(CAP_RELATE, relateChildren),
+                                () -> engine.analyseVideoWithAudio(
+                                        request.getVideoData().toByteArray(),
+                                        request.getExtractAudio(),
+                                        request.getAnalyzeFrames(),
+                                        request.getFrameSampleRate() > 0
+                                                ? request.getFrameSampleRate() : 1),
+                                CanonicalOperations::toVideoAudioResult));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();
@@ -492,9 +536,28 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                             .build();
 
             MultimodalResult analysis;
+            List<CanonicalChildSelection> describeChildren = new ArrayList<>(2);
+            if (!request.getAudioData().isEmpty()) {
+                describeChildren.add(CanonicalOperations.childSource("stt",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
+                        request.getAudioData().toByteArray(), "audio/wav",
+                        request.getOperationBinding().getSourceArtifactId()));
+            }
+            if (!request.getImageData().isEmpty()) {
+                describeChildren.add(CanonicalOperations.childSource("vision",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION,
+                        request.getImageData().toByteArray(), "image/png",
+                        request.getOperationBinding().getSourceArtifactId()));
+            }
+            boolean wantAudioDescribe = !request.getAudioData().isEmpty();
+            boolean wantVisualDescribe = !request.getImageData().isEmpty();
             try (Scope ignored = trace.makeCurrent()) {
-                analysis = executeCanonical(request.getOperationBinding(), OP_DESCRIBE,
-                        () -> engine.analyse(engineRequest));
+                analysis = executeCanonical(identity, request.getOperationBinding(), OP_DESCRIBE,
+                        CanonicalOperations.of(
+                                CanonicalOperations.plan(CAP_DESCRIBE, describeChildren),
+                                () -> engine.analyse(engineRequest),
+                                outcome -> CanonicalOperations.toMultimodalResult(
+                                        outcome, wantAudioDescribe, wantVisualDescribe)));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();
@@ -591,9 +654,22 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .build();
 
             MultimodalResult result;
+            List<CanonicalChildSelection> crossChildren = List.of(
+                    CanonicalOperations.childSource("stt",
+                            com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
+                            request.getAudioData().isEmpty() ? null : request.getAudioData().toByteArray(),
+                            "audio/wav", request.getOperationBinding().getSourceArtifactId()),
+                    CanonicalOperations.childSource("vision",
+                            com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION,
+                            request.getVideoData().isEmpty() ? null : request.getVideoData().toByteArray(),
+                            "video/mp4", request.getOperationBinding().getSourceArtifactId()));
             try (Scope ignored = trace.makeCurrent()) {
-                result = executeCanonical(request.getOperationBinding(), OP_CROSS_MODAL,
-                        () -> engine.analyse(engineRequest));
+                result = executeCanonical(identity, request.getOperationBinding(), OP_CROSS_MODAL,
+                        CanonicalOperations.of(
+                                CanonicalOperations.plan(CAP_CROSS_MODAL, crossChildren),
+                                () -> engine.analyse(engineRequest),
+                                outcome -> CanonicalOperations.toMultimodalResult(
+                                        outcome, true, true)));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();
@@ -869,19 +945,36 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         return canonicalOperationExecutor != null;
     }
 
-    private <T> T executeCanonical(CanonicalOperationBinding binding, String operationRef,
-                                   Callable<T> action) throws Exception {
+    private <T> T executeCanonical(Identity identity, CanonicalOperationBinding binding,
+                                   String operationRef, CanonicalOperation<T> operation)
+            throws Exception {
         if (canonicalOperationExecutor == null) throw multimodalFamilyNotAdmitted();
         try {
-            return canonicalOperationExecutor.execute(binding, operationRef, action);
+            return canonicalOperationExecutor.execute(
+                    binding, operationRef, operation, authenticated(identity));
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             throw new OperationOutcomeUnknownException(interrupted);
+        } catch (OperationOutcomeUnknownException unknown) {
+            throw unknown;
+        } catch (CanonicalOperationUnknownException unknown) {
+            throw new OperationOutcomeUnknownException(unknown);
         } catch (Exception executorFailure) {
             // After handoff, Media cannot tell a pre-dispatch failure from a completed effect
             // whose response was lost. Preserve that uncertainty instead of inviting a retry.
             throw new OperationOutcomeUnknownException(executorFailure);
         }
+    }
+
+    /**
+     * Binds the verified JWT ingress identity to the canonical runtime credential. The
+     * authenticator timestamp is the instant this ingress boundary observed the verified
+     * credential — never a value taken from request fields.
+     */
+    private static com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal
+            authenticated(Identity identity) {
+        return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                identity.tenantId(), identity.principalId().toString(), java.time.Instant.now());
     }
 
     private static RuntimeException multimodalFamilyNotAdmitted() {

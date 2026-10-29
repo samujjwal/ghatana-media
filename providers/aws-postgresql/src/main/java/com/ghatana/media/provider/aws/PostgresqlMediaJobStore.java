@@ -12,6 +12,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptStart;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
@@ -51,6 +52,12 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
 
     @Override
     public ProcessingJob create(ProcessingJob job, String submissionDigest, SttSubmissionSnapshot sttSnapshot) {
+        return create(job, submissionDigest, sttSnapshot, null);
+    }
+
+    @Override
+    public ProcessingJob create(ProcessingJob job, String submissionDigest,
+            SttSubmissionSnapshot sttSnapshot, MultimodalOperationSnapshot mmSnapshot) {
         ensureOpen();
         java.util.Objects.requireNonNull(job, "job");
         if (submissionDigest == null || !submissionDigest.isBlank()
@@ -63,6 +70,13 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         }
         if (persistable.jobType() != JobType.SPEECH_TO_TEXT && sttSnapshot != null)
             throw new IllegalArgumentException("STT request snapshot is only valid for speech-to-text jobs");
+        if (persistable.jobType() == JobType.MULTIMODAL && mmSnapshot == null) {
+            throw new IllegalArgumentException("New multimodal jobs require a retained operation snapshot");
+        }
+        if (persistable.jobType() != JobType.MULTIMODAL && mmSnapshot != null) {
+            throw new IllegalArgumentException(
+                    "Multimodal operation snapshot is only valid for multimodal jobs");
+        }
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
@@ -71,6 +85,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                     verifyRequestIdentity(existing, persistable,
                             submissionDigest(connection, persistable.tenantId(), persistable.requestId()), submissionDigest);
                     verifySttRequestSnapshot(connection, persistable, sttSnapshot);
+                    verifyMmOperationSnapshot(connection, persistable, mmSnapshot);
                     connection.commit();
                     return existing;
                 }
@@ -78,12 +93,14 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                         "INSERT INTO media_processing_jobs "
                                 + "(tenant_id,job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,"
                                 + "started_at,completed_at,result_json,failure_code,version,expected_artifact_version,"
-                                + "submission_digest,request_fingerprint,stt_request_snapshot) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                                + "submission_digest,request_fingerprint,stt_request_snapshot,mm_operation_snapshot) "
+                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
                     bind(statement, persistable);
                     statement.setString(16, submissionDigest.isBlank()
                             ? persistable.requestFingerprint() : submissionDigest);
                     statement.setString(17, persistable.requestFingerprint());
                     statement.setString(18, encodeSttSnapshot(sttSnapshot));
+                    statement.setString(19, encodeMmSnapshot(mmSnapshot));
                     statement.executeUpdate();
                 }
                 PostgresqlMediaOutboxPublicationSource.append(connection,
@@ -99,11 +116,12 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             } catch (RuntimeException | SQLException failure) {
                 rollback(connection, failure);
                 if (failure instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
-                    ProcessingJob existing = findByRequest(persistable.tenantId(), persistable.requestId());
+                    ProcessingJob existing = findByRequestInternal(persistable.tenantId(), persistable.requestId());
                     if (existing != null) {
                         verifyRequestIdentity(existing, persistable,
                                 findSubmissionDigest(persistable.tenantId(), persistable.requestId()), submissionDigest);
                         verifySttRequestSnapshot(persistable, sttSnapshot);
+                        verifyMmOperationSnapshot(persistable, mmSnapshot);
                         return existing;
                     }
                 }
@@ -1181,7 +1199,97 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         }
     }
 
-    private ProcessingJob findByRequest(String tenantId, String requestId) {
+    @Override
+    public Optional<ProcessingJob> findByRequest(String tenantId, String requestId) {
+        ensureOpen();
+        return Optional.ofNullable(findByRequestInternal(tenantId, requestId));
+    }
+
+    @Override
+    public Optional<MultimodalOperationSnapshot> findMultimodalOperationSnapshot(
+            String tenantId, String jobId) {
+        ensureOpen();
+        String sql = "SELECT mm_operation_snapshot FROM media_processing_jobs WHERE tenant_id=? AND job_id=?";
+        try (Connection connection = state.connection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, tenantId);
+            statement.setString(2, jobId);
+            try (ResultSet row = statement.executeQuery()) {
+                if (!row.next()) return Optional.empty();
+                return Optional.ofNullable(decodeMmSnapshot(row.getString(1)));
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("read Media multimodal operation snapshot", failure);
+        }
+    }
+
+    private void verifyMmOperationSnapshot(
+            ProcessingJob requested, MultimodalOperationSnapshot requestedSnapshot) {
+        try (Connection connection = state.connection()) {
+            verifyMmOperationSnapshot(connection, requested, requestedSnapshot);
+        } catch (SQLException failure) {
+            throw databaseFailure("verify replayed multimodal operation snapshot", failure);
+        }
+    }
+
+    private void verifyMmOperationSnapshot(
+            Connection connection, ProcessingJob requested,
+            MultimodalOperationSnapshot requestedSnapshot) throws SQLException {
+        String sql = "SELECT mm_operation_snapshot FROM media_processing_jobs WHERE tenant_id=? AND request_id=?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, requested.tenantId());
+            statement.setString(2, requested.requestId());
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    throw new MediaJobStoreConflictException(
+                            "Media request disappeared while checking its multimodal operation snapshot");
+                }
+                String retained = result.getString(1);
+                String replayed = encodeMmSnapshot(requestedSnapshot);
+                if (!java.util.Objects.equals(retained, replayed)) {
+                    throw new IllegalStateException(
+                            "Media request ID was reused with a different multimodal operation spec");
+                }
+            }
+        }
+    }
+
+    private String encodeMmSnapshot(MultimodalOperationSnapshot snapshot) {
+        if (snapshot == null) return null;
+        Map<String, Object> encoded = new java.util.LinkedHashMap<>();
+        encoded.put("version", snapshot.version());
+        encoded.put("spec", snapshot.spec());
+        encoded.put("rightsDecisionId", snapshot.rightsDecisionId());
+        encoded.put("policyDecisionId", snapshot.policyDecisionId());
+        encoded.put("policyVersion", snapshot.policyVersion());
+        encoded.put("consentDecisionId", snapshot.consentDecisionId());
+        encoded.put("sourceClockEvidenceRef", snapshot.sourceClockEvidenceRef());
+        encoded.put("revocationEpoch", snapshot.revocationEpoch());
+        return json(encoded);
+    }
+
+    @SuppressWarnings("unchecked")
+    private MultimodalOperationSnapshot decodeMmSnapshot(String value) {
+        if (value == null) return null;
+        Map<String, Object> decoded = objectMap(value);
+        Object spec = decoded.get("spec");
+        if (!(spec instanceof Map<?, ?> specMap)) {
+            throw new IllegalStateException("Stored Media multimodal snapshot is malformed");
+        }
+        Map<String, Object> specTyped = new java.util.LinkedHashMap<>();
+        specMap.forEach((key, item) -> specTyped.put(String.valueOf(key), item));
+        Object epoch = decoded.get("revocationEpoch");
+        return new MultimodalOperationSnapshot(
+                String.valueOf(decoded.get("version")), specTyped,
+                String.valueOf(decoded.get("rightsDecisionId")),
+                String.valueOf(decoded.get("policyDecisionId")),
+                String.valueOf(decoded.get("policyVersion")),
+                String.valueOf(decoded.get("consentDecisionId")),
+                String.valueOf(decoded.get("sourceClockEvidenceRef")),
+                epoch instanceof Number number ? number.longValue() : null);
+    }
+
+    private ProcessingJob findByRequestInternal(String tenantId, String requestId) {
         try (Connection connection = state.connection()) {
             return byRequest(connection, tenantId, requestId, false);
         } catch (SQLException failure) {

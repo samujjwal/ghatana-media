@@ -72,6 +72,11 @@ public final class MediaJobRequestFingerprint {
         return map;
     }
 
+    /** Canonical JSON form used by durable Media operation specs for exact digest comparison. */
+    public static String canonicalJson(Object value) {
+        return canonical(value);
+    }
+
     private static String canonical(Object value) {
         if (value == null) return "null";
         if (value instanceof String string) return quote(string);

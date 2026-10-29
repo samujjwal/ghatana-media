@@ -5,6 +5,9 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceip
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 
 import java.util.Optional;
 import java.io.IOException;
@@ -19,6 +22,48 @@ import java.io.OutputStream;
  */
 public interface MediaProcessingRuntimePort {
     ProcessingJob submit(ProcessingJobRequest request);
+
+    /**
+     * Submits a job bound to the principal established at the authenticated ingress
+     * boundary. The request's tenant/principal must match the credential exactly; request
+     * identity fields are lookup inputs and never authority on their own. Production
+     * transports that authenticate ingress separately must use this overload so the
+     * downstream verified policy context derives from the real credential.
+     *
+     * <p>The default fails closed: a port that cannot bind a verified credential has no
+     * authenticated submission path.</p>
+     */
+    default ProcessingJob submit(ProcessingJobRequest request, AuthenticatedPrincipal authenticated) {
+        throw new MediaCapabilityNotAdmittedException(
+                MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "RUNTIME_PORT",
+                "authenticated Media job submission is not supported by this runtime port");
+    }
+
+    /**
+     * Begins a canonical artifact upload bound to the authenticated ingress identity.
+     * The request's tenant/principal must match the credential. The default fails closed.
+     */
+    default UploadSession beginUpload(
+            UploadRequest request, String idempotencyKey, AuthenticatedPrincipal authenticated) {
+        throw new MediaCapabilityNotAdmittedException(
+                MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "RUNTIME_PORT",
+                "authenticated Media upload is not supported by this runtime port");
+    }
+
+    /** Appends one upload chunk under the authenticated identity. The default fails closed. */
+    default UploadSession appendUploadChunk(
+            AuthenticatedPrincipal authenticated, String uploadId, int chunkIndex, byte[] bytes) {
+        throw new MediaCapabilityNotAdmittedException(
+                MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "RUNTIME_PORT",
+                "authenticated Media upload is not supported by this runtime port");
+    }
+
+    /** Finalizes an owned upload under the authenticated identity. The default fails closed. */
+    default MediaArtifact completeUpload(AuthenticatedPrincipal authenticated, String uploadId) {
+        throw new MediaCapabilityNotAdmittedException(
+                MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "RUNTIME_PORT",
+                "authenticated Media upload is not supported by this runtime port");
+    }
 
     Optional<ProcessingJob> job(String tenantId, String principalId, String jobId);
 

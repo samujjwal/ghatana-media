@@ -134,6 +134,12 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private static final String META_CONSENT_EXTERNAL_ALLOWED = "governance.consentExternalProcessingAllowed";
     private static final String META_CONSENT_BIOMETRIC_ALLOWED = "governance.consentBiometricProcessingAllowed";
     private static final String META_CONSENT_ALLOWED_PROVIDER_RETENTION = "governance.consentAllowedProviderRetention";
+    /** Wave-2 job types with an evidence-bearing source-rights dispatch path. */
+    private static final Set<com.ghatana.media.runtime.MediaRuntimeContracts.JobType>
+            WAVE2_SOURCE_RIGHTS_JOB_TYPES = Set.of(
+                    com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL);
 
     private final MediaRuntimeConfig config;
     private final MediaArtifactStore artifactStore;
@@ -465,6 +471,32 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         throw new SecurityException("Authenticated principal is required to finalize an upload");
     }
 
+    @Override
+    public UploadSession beginUpload(
+            UploadRequest request, String idempotencyKey,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+        if (!authenticated.tenantId().equals(request.tenantId())
+                || !authenticated.principalId().equals(request.principalId())) {
+            throw new SecurityException(
+                    "Media upload request does not match the authenticated principal");
+        }
+        return beginUpload(request, idempotencyKey);
+    }
+
+    @Override
+    public UploadSession appendUploadChunk(
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
+            String uploadId, int chunkIndex, byte[] bytes) {
+        return appendChunk(authenticated.tenantId(), authenticated.principalId(), uploadId,
+                chunkIndex, bytes);
+    }
+
+    @Override
+    public MediaArtifact completeUpload(
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated, String uploadId) {
+        return completeUpload(authenticated.tenantId(), authenticated.principalId(), uploadId);
+    }
+
     /** @deprecated A tenant-scoped upload read is insufficient where sessions belong to principals. */
     @Deprecated
     public Optional<UploadSession> upload(String tenantId, String uploadId) {
@@ -667,6 +699,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
      * The request's tenant/principal must match the credential exactly; request identity
      * fields are lookup inputs and never authority on their own.
      */
+    @Override
     public ProcessingJob submit(
             ProcessingJobRequest request,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
@@ -695,6 +728,19 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             // The authorization evidence is bound to the exact provider/profile. STT must not
             // silently fall back to a provider with a different model or processing boundary.
             providers = List.of(provider);
+        } else if (WAVE2_SOURCE_RIGHTS_JOB_TYPES.contains(request.jobType())) {
+            // A multimodal operation always requires evidence-bearing admission — there is
+            // no legacy development path for it. Vision keeps the earlier development
+            // behavior unless production or a rights authority is composed.
+            if (request.jobType()
+                            == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL
+                    || config.productionLike() || sourceAuthorizationAuthority != null) {
+                sourceAuthorization = admitWave2SourceOperationOrThrow(
+                        request, artifact, provider, authenticated);
+                // The authorization evidence is bound to the exact provider. Vision and
+                // multimodal operations must not silently fall back to a different provider.
+                providers = List.of(provider);
+            }
         }
         requireWave2SourceRightsAdmission(request.jobType(), sourceAuthorization);
         if (MediaSemanticRedactionRuntime.promotionRequested(request) && !semanticRedaction.available()) {
@@ -716,6 +762,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     Map.of(), "", 1, artifact.version().value(), requestFingerprint),
                     MediaSubmissionDigest.compute(request, artifact.version().value(), providers),
                     com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.from(
+                            request, sourceAuthorization),
+                    com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot.from(
                             request, sourceAuthorization));
         } finally {
             workflowMetrics.stopTimer(jobSample, MediaWorkflowMetrics.Stage.JOB);
@@ -812,13 +860,148 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         return evidence;
     }
 
-    /** Source rights are separate from consent; only STT currently has an evidence-bearing path. */
+    /**
+     * Evidence-bearing source-rights admission for the Wave-2 VISION and MULTIMODAL job
+     * types. Authorization, evidence binding, consent evaluation and the immutable source
+     * check reuse the exact STT machinery; the operation scope is the job type token a
+     * source-owner must have registered. A multimodal request additionally requires a
+     * durable operation spec bound to the exact artifact, request and principal.
+     */
+    private MediaSourceAuthorizationContracts.Evidence admitWave2SourceOperationOrThrow(
+            ProcessingJobRequest request,
+            MediaArtifact artifact,
+            MediaProcessingProvider provider,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+        if (request.requestedArtifactVersion().isEmpty()
+                && (config.productionLike() || sourceAuthorizationAuthority != null)) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.SOURCE_VERSION_STALE,
+                    request.jobType().name());
+        }
+        MediaSourceAuthorizationContracts.Request authorizationRequest =
+                sourceAuthorizationRequest(request, artifact, provider);
+        MediaSourceAuthorizationContracts.Decision authorizationDecision;
+        try {
+            authorizationDecision = sourceAuthorizationAuthority != null
+                    && sourceAuthorizationAuthority.ready()
+                    ? sourceAuthorizationAuthority.resolve(authorizationRequest, authenticated)
+                    : new MediaSourceAuthorizationContracts.Decision(
+                            MediaSourceAuthorizationContracts.Status.UNAVAILABLE, null);
+        } catch (RuntimeException unavailable) {
+            authorizationDecision = new MediaSourceAuthorizationContracts.Decision(
+                    MediaSourceAuthorizationContracts.Status.UNAVAILABLE, null);
+        }
+        if (authorizationDecision == null
+                || authorizationDecision.status() != MediaSourceAuthorizationContracts.Status.ALLOWED
+                || authorizationDecision.evidence() == null) {
+            throw wave2NotAdmitted(request.jobType(), authorizationDecision);
+        }
+        MediaSourceAuthorizationContracts.Evidence evidence = authorizationDecision.evidence();
+        if (!evidence.matches(authorizationRequest) || !evidence.currentAt(clock)
+                || !evidence.tenantId().equals(artifact.tenantId())
+                || !evidence.principalId().equals(artifact.principalId())
+                || !evidence.artifactId().equals(artifact.artifactId())
+                || !evidence.sourceVersion().equals(artifact.version())
+                || !evidence.sourceSha256().equals(artifact.sha256())) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
+                    request.jobType().name(),
+                    "source rights evidence does not match the exact immutable request");
+        }
+        ConsentDecision consent = consentForSourceAuthorization(request, provider, evidence);
+        boolean consentRequired = evidence.humanConsentDisposition()
+                == MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED
+                || provider.processingBoundary() == ProcessingBoundary.EXTERNAL;
+        if (consentRequired && !sourceConsentCurrent(consent, evidence)) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
+                    request.jobType().name(),
+                    "source-bound consent is missing, stale, or revoked");
+        }
+        if (config.productionLike() && (sourceAuthorizationAuthority == null
+                || !sourceAuthorizationAuthority.productionEligible())) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
+                    request.jobType().name(),
+                    "source rights authority is not eligible for production admission");
+        }
+        if (request.jobType()
+                == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL) {
+            validateMultimodalOperationSpec(request, artifact);
+        }
+        return evidence;
+    }
+
+    /**
+     * Validates the durable multimodal operation spec before any parent or child effect:
+     * the spec must bind the exact request and immutable artifact, and every declared
+     * child source must resolve to an unexpired principal-owned artifact at its pinned
+     * version. Child processing rights are re-admitted independently inside each child job.
+     */
+    private void validateMultimodalOperationSpec(
+            ProcessingJobRequest request, MediaArtifact artifact) {
+        com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec spec;
+        try {
+            spec = com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
+                    .from(request);
+        } catch (IllegalArgumentException malformed) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "MULTIMODAL",
+                    "multimodal operation spec is missing or malformed: "
+                            + malformed.getMessage());
+        }
+        if (spec == null || !spec.matchesRequest(request, artifact)) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "MULTIMODAL",
+                    "multimodal operation spec does not bind the exact immutable source");
+        }
+        for (var child : spec.children()) {
+            MediaArtifact childArtifact = artifactStore.artifact(
+                            request.tenantId(), child.artifactId(),
+                            new ArtifactVersion(child.artifactVersion()))
+                    .orElseThrow(() -> new MediaCapabilityNotAdmittedException(
+                            MediaCapabilityNotAdmittedException.Reason.SOURCE_VERSION_STALE,
+                            "MULTIMODAL"));
+            if (!childArtifact.principalId().equals(request.principalId())
+                    || !childArtifact.sha256().equals(child.artifactSha256())
+                    || !childArtifact.expiresAt().isAfter(clock.instant())) {
+                throw new MediaCapabilityNotAdmittedException(
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "MULTIMODAL",
+                        "multimodal child source is stale or not owned by the request principal");
+            }
+        }
+    }
+
+    private static MediaCapabilityNotAdmittedException wave2NotAdmitted(
+            com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType,
+            MediaSourceAuthorizationContracts.Decision decision) {
+        MediaSourceAuthorizationContracts.Status status = decision == null
+                ? MediaSourceAuthorizationContracts.Status.UNAVAILABLE : decision.status();
+        return switch (status) {
+            case DENIED -> new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED, jobType.name(),
+                    "source rights denied this operation");
+            case REVOKED -> new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
+                    "source rights were revoked for this operation");
+            case STALE -> new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
+                    "source rights decision is stale for this operation");
+            case UNAVAILABLE -> new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
+                    "authoritative source rights resolver is unavailable");
+            case ALLOWED -> new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
+                    "source rights evidence is missing");
+        };
+    }
+
+    /** Source rights are separate from consent; Wave-2 types require evidence-bearing admission. */
     private void requireWave2SourceRightsAdmission(
             com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType,
             MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
         if (!config.productionLike()) return;
-        if (jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
-                && sourceAuthorization != null) return;
+        if (WAVE2_SOURCE_RIGHTS_JOB_TYPES.contains(jobType) && sourceAuthorization != null) return;
         if (jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
                 || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.TEXT_TO_SPEECH
                 || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION
@@ -835,7 +1018,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             MediaProcessingProvider provider) {
         return new MediaSourceAuthorizationContracts.Request(
                 request.tenantId(), request.principalId(), artifact.artifactId(), artifact.version(),
-                artifact.sha256(), "SPEECH_TO_TEXT", request.governanceContext().purpose(),
+                artifact.sha256(), request.jobType().name(), request.governanceContext().purpose(),
                 provider.providerId(), provider.providerVersion(), provider.processingBoundary(),
                 provider.processingRegion(), provider.providerDataRetention());
     }
@@ -853,7 +1036,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         try {
             ConsentDecision decision = consentAuthority.verify(
                     request.tenantId(), request.principalId(), request.governanceContext(),
-                    "job:SPEECH_TO_TEXT");
+                    "job:" + request.jobType().name());
             Instant now = clock.instant();
             if (decision == null || !decision.activeAt(now)
                     || decision.verifiedAt().isAfter(now.plusSeconds(1))
@@ -869,25 +1052,31 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
     }
 
-    /** Re-reads the exact source and current source/policy decision at every STT effect boundary. */
+    /** Re-reads the exact source and current source/policy decision at every effect boundary. */
     private void requireCurrentSourceAuthorization(
             ProcessingJobRequest request,
             MediaArtifact artifact,
             MediaProcessingProvider provider,
             MediaSourceAuthorizationContracts.Evidence expectedEvidence,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
-        if (request.jobType()
-                != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) return;
+        if (!WAVE2_SOURCE_RIGHTS_JOB_TYPES.contains(request.jobType())) return;
+        String operation = request.jobType().name();
+        // A development runtime without a rights authority admits no evidence-bearing
+        // job; preserve the earlier non-enforcing source-read behavior for those types.
+        if (expectedEvidence == null && !config.productionLike()
+                && request.jobType()
+                        != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
+                && sourceAuthorizationAuthority == null) return;
         if (expectedEvidence == null || sourceAuthorizationAuthority == null) {
             throw new MediaCapabilityNotAdmittedException(
-                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, operation,
                     "source rights authority is unavailable at the provider effect boundary");
         }
         try {
             if (!sourceAuthorizationAuthority.ready()
                     || (config.productionLike() && !sourceAuthorizationAuthority.productionEligible())) {
                 throw new MediaCapabilityNotAdmittedException(
-                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, operation,
                         "source rights authority is not currently eligible");
             }
             MediaArtifact current = artifactStore.artifact(
@@ -897,13 +1086,13 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     .filter(value -> value.expiresAt().isAfter(clock.instant()))
                     .orElseThrow(() -> new MediaCapabilityNotAdmittedException(
                             MediaCapabilityNotAdmittedException.Reason.SOURCE_VERSION_STALE,
-                            "SPEECH_TO_TEXT"));
+                            operation));
             MediaSourceAuthorizationContracts.Request authorizationRequest =
                     sourceAuthorizationRequest(request, current, provider);
             if (!expectedEvidence.matches(authorizationRequest)
                     || !expectedEvidence.currentAt(clock)) {
                 throw new MediaCapabilityNotAdmittedException(
-                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, operation,
                         "source rights evidence is mismatched or expired");
             }
             MediaSourceAuthorizationContracts.Decision refreshed =
@@ -914,7 +1103,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     || !sameAuthorityBinding(expectedEvidence, refreshed.evidence())
                     || !refreshed.evidence().currentAt(clock)) {
                 throw new MediaCapabilityNotAdmittedException(
-                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, operation,
                         "source rights or Shared policy changed, expired, or was revoked");
             }
             boolean consentRequired = expectedEvidence.humanConsentDisposition()
@@ -923,14 +1112,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (consentRequired && !sourceConsentCurrent(
                     consentForSourceAuthorization(request, provider, expectedEvidence), expectedEvidence)) {
                 throw new MediaCapabilityNotAdmittedException(
-                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, operation,
                         "source-bound consent is missing, stale, or revoked");
             }
         } catch (MediaCapabilityNotAdmittedException denied) {
             throw denied;
         } catch (RuntimeException unavailable) {
             throw new MediaCapabilityNotAdmittedException(
-                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SPEECH_TO_TEXT",
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, operation,
                     "source rights revalidation is unavailable");
         }
     }
@@ -2284,8 +2473,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         artifact.classification(), requestsBiometricProcessing(request.parameters()));
             }
             MediaArtifactContentReader sourceContentReader = (target, maxBytes) -> {
-                if (request.jobType()
-                        == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
+                if (WAVE2_SOURCE_RIGHTS_JOB_TYPES.contains(request.jobType())) {
                     requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
                             authenticated);
                 } else if (config.productionLike()) {
@@ -2321,7 +2509,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                 "SOURCE_ARTIFACT"));
             };
             ProcessingContext context = new ProcessingContext(
-                    request, artifact, cancellation, consent, sourceContentReader, sourceAuthorization);
+                    request, artifact, cancellation, consent, sourceContentReader, sourceAuthorization,
+                    new RuntimeChildJobDispatcher(request, authenticated));
             // Rights, Shared policy, source digest, and provider binding are refreshed at the
             // effect boundary. The source reader repeats this check before each content copy.
             requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
@@ -2388,6 +2577,65 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
         });
         return result;
+    }
+
+    /**
+     * Child-dispatch boundary bound to the exact authenticated parent principal. Children
+     * run through the identical authenticated submission path — per-child admission,
+     * idempotency, fencing and outbox — and can never escape the verified credential or
+     * dispatch a nested multimodal operation.
+     */
+    private final class RuntimeChildJobDispatcher
+            implements com.ghatana.media.runtime.MediaRuntimeContracts.MediaChildJobDispatcher {
+        private final ProcessingJobRequest parent;
+        private final MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated;
+
+        private RuntimeChildJobDispatcher(
+                ProcessingJobRequest parent,
+                MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+            this.parent = java.util.Objects.requireNonNull(parent, "parent");
+            this.authenticated = java.util.Objects.requireNonNull(authenticated, "authenticated");
+        }
+
+        @Override
+        public ProcessingJob submitChild(ProcessingJobRequest childRequest) {
+            ensureOpen();
+            java.util.Objects.requireNonNull(childRequest, "childRequest");
+            if (!childRequest.tenantId().equals(authenticated.tenantId())
+                    || !childRequest.principalId().equals(authenticated.principalId())
+                    || !childRequest.tenantId().equals(parent.tenantId())
+                    || !childRequest.principalId().equals(parent.principalId())) {
+                throw new SecurityException(
+                        "Media child job does not match the authenticated parent principal");
+            }
+            if (childRequest.jobType()
+                    == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL) {
+                throw new MediaCapabilityNotAdmittedException(
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "MULTIMODAL",
+                        "nested multimodal child operations are not admitted");
+            }
+            return submit(childRequest, authenticated);
+        }
+
+        @Override
+        public Optional<ProcessingJob> findJob(String jobId) {
+            ensureOpen();
+            return job(parent.tenantId(), parent.principalId(), jobId);
+        }
+
+        @Override
+        public Optional<ProcessingJob> findJobByRequest(String requestId) {
+            ensureOpen();
+            return jobStore.findByRequest(parent.tenantId(), requestId)
+                    .filter(job -> job.principalId().equals(parent.principalId()));
+        }
+
+        @Override
+        public Optional<com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot>
+                operationSnapshot(String jobId) {
+            ensureOpen();
+            return jobStore.findMultimodalOperationSnapshot(parent.tenantId(), jobId);
+        }
     }
 
     private CompletableFuture<ProcessingOutcome> fallbackOrFail(
