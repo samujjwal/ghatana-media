@@ -71,7 +71,7 @@ test('current source owner dispositions never silently admit a provider or task'
   assert.equal(plan.latestOwnerResolution.protectedLedger.external, 6);
   assert.equal(plan.latestOwnerResolution.protectedLedger.change, 0);
   assert.equal(plan.latestOwnerResolution.currentReviewedSource,
-    'samujjwal/ghatana-media@dd82099af004917fb04662e9ccc9b2d84b7cec7a');
+    'samujjwal/ghatana-media@4fa88ca9f70887f5e801af6d7d92c2a70aa5a158');
   const ownerDecisions = plan.latestOwnerResolution.decisions;
   assert.equal(ownerDecisions.length, 13);
   assert.equal(new Set(ownerDecisions.map((row) => row.id)).size, ownerDecisions.length);
@@ -100,10 +100,10 @@ test('prior BMP-only results do not certify newer pushed PNG or production broke
   assert.equal(latest.verifiedObservationFromUser.delegatedCgroup.skipped, 1);
   assert.ok(latest.verifiedObservationFromUser.noAcceptedRowsPromoted);
   assert.ok(Object.values(latest.gateStates).every((gate) => gate.wholeRowAcceptance === 'NOT_ACCEPTED'));
-  assert.match(latest.gateStates.G06.nextAction, /nonce across daemon restart/);
-  assert.match(latest.gateStates.G06.nextAction, /strict codec AST/);
-  assert.match(latest.gateStates.G02.observedGap, /STT authenticated source-bound ingress/);
-  assert.match(latest.gateStates.G03.observedGap, /Real STT provider ADMITTED transcript/);
+  assert.match(latest.gateStates.G06.nextAction, /source\/peer\/TOCTOU\/native fault/);
+  assert.match(latest.gateStates.G06.observedGap, /Server-pinned OCI image and nonce policy/);
+  assert.match(latest.gateStates.G02.observedGap, /Authenticated source-rights STT and MM child admission/);
+  assert.match(latest.gateStates.G03.observedGap, /3\/3 late-policy\/abandoned-UNKNOWN and 2\/2 effect-denial UNKNOWN/);
 });
 
 test('the authoritative Media privacy policy distinguishes engineering from legal admission', () => {
@@ -170,8 +170,8 @@ test('pushed seven commits are explicitly accessible while runtime acceptance st
     assert.ok(pulse.blockerCorrections.some((x) => x.id === id), id + ' is not dispositioned');
   }
   const gate = plan.activeExecutionReadback.gateStates;
-  assert.match(gate.G01.observedGap, /Whisper tiny retains actual reported/);
-  assert.match(gate.G12.observedGap, /Production MM executor null/);
+  assert.match(gate.G01.observedGap, /Whisper tiny retains failed true FLEURS WER/);
+  assert.match(gate.G12.observedGap, /M1-M7 durable MM descriptor\/provider\/executor/);
   assert.equal(plan.latestOwnerResolution.protectedLedger.change, 0);
   assert.ok(plan.remainingTasks.every((x) => !x.taskAccepted && x.qualifiedResult === null));
 });
@@ -185,7 +185,7 @@ test('single active 2026-10-29 plan preserves each of the 36 original R8 depende
   assert.equal(plan.currentCompletionExecution.taskRows, 36);
   assert.equal(plan.currentCompletionExecution.lastAcceptedLedger.changed, 0);
   assert.equal(plan.currentCompletionExecution.sourceReviewed,
-    'dd82099af004917fb04662e9ccc9b2d84b7cec7a');
+    '4fa88ca9f70887f5e801af6d7d92c2a70aa5a158');
   const lines = markdown.split('\n').filter((line) =>
     /^\| (?:STT|TTS|VIS|MM|OBS)-\d{2} \|/u.test(line));
   const entries = lines.map((line) => {
@@ -214,4 +214,34 @@ test('single active 2026-10-29 plan preserves each of the 36 original R8 depende
     'docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md'), 'utf8');
   assert.match(old, /EXECUTION SUPERSEDED 2026-10-29/u);
   assert.match(old, /MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29\.md/u);
+});
+
+
+test('current V027 and M1-M7 review preserves 5/5 reported host proof without claiming original acceptance', () => {
+  const reviewed = plan.currentCompletionExecution.latestImplementationReview;
+  assert.equal(reviewed.currentPlanSection,
+    'docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md#8-current-2026-10-29-m7v0275-of-5-postgres-remaining-work-lock');
+  assert.equal(reviewed.implementerReportedLiveTests.totalPassed, 5);
+  assert.equal(reviewed.implementerReportedLiveTests.totalDiscovered, 5);
+  assert.equal(reviewed.implementerReportedLiveTests.independentlyReexecutedByThisReview, false);
+  assert.deepEqual(reviewed.implementerReportedLiveTests.suites.map((x) => [x.className, x.passed]),
+    [['MediaSttTranscriptCommitFenceIT', 3], ['MediaProviderPolicyDeniedFinalityPostgresIT', 2]]);
+  assert.match(reviewed.implementerReportedLiveTests.ranAfterMigration, /V027__/);
+  assert.equal(reviewed.lastWholeRowLedger.changed, 0);
+  assert.equal(reviewed.sourcePresent.length, 7);
+  assert.ok(reviewed.currentEngineeringBlockers.some((row) => row.id === 'MM_STANDALONE_BOOTSTRAP'));
+  assert.ok(reviewed.currentEngineeringBlockers.some((row) => row.id === 'MM_REAL_CHILD_VISION'));
+  assert.ok(reviewed.currentEngineeringBlockers.some((row) => row.id === 'STT_V027_SEGMENT_VALUES'));
+  const mapped = plan.remainingTasks.map((row) => row.currentCutAfterV027?.primaryWorkPackage);
+  assert.ok(mapped.every((value) => /^R(?:0[1-9]|10)$/.test(value)));
+  assert.equal(plan.remainingTasks.every((row) => !row.taskAccepted && row.qualifiedResult === null),
+    true);
+  assert.match(plan.activeExecutionReadback.gateStates.G12.nextAction,
+    /connect real runtime, qualified child providers and Postgres parent/);
+  const doc = readFileSync(resolve(root,
+    'docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md'), 'utf8');
+  assert.match(doc, /## 8\. Current 2026-10-29 M7\/V027\/5-of-5 Postgres remaining-work lock/);
+  assert.match(doc, /W2-R01 — MM standalone production bootstrap/);
+  assert.match(doc, /W2-R11 — all original 43 RPCs/);
+  assert.match(doc, /two PostgreSQL integration suites passing 3\/3 and 2\/2/);
 });
