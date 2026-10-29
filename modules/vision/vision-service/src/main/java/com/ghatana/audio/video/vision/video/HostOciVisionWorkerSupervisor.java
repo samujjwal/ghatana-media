@@ -37,7 +37,59 @@ final class HostOciVisionWorkerSupervisor {
     private static final Pattern CONTAINER_ID = Pattern.compile("[a-f0-9]{64}");
     private static final int AUXILIARY_OUTPUT_LIMIT = 8192;
 
+    static final String BROKER_SOCKET_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_SOCKET";
+    static final String BROKER_TOKEN_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TOKEN_FILE";
+
     private HostOciVisionWorkerSupervisor() { }
+
+    /**
+     * True when the authenticated host/CRI broker is configured. Production Media
+     * JVMs never touch the Docker socket or CLI directly — the broker owns the
+     * engine relationship and enforces the sandbox server-side.
+     */
+    static boolean brokerConfigured() {
+        String socket = System.getenv(BROKER_SOCKET_ENV);
+        String token = System.getenv(BROKER_TOKEN_ENV);
+        return socket != null && !socket.isBlank() && token != null && !token.isBlank();
+    }
+
+    /**
+     * Runs one bounded codec worker entirely through the authenticated OCI broker.
+     * The Media JVM neither invokes a Docker CLI nor holds an engine socket: it
+     * describes the pinned-image worker launch and receives a truthful result.
+     */
+    static VideoFrameExtractor.ProcessResult runViaBroker(
+            List<String> command, Path workspace, Path outputDirectory,
+            Duration timeout, long maximumOutputBytes, int maxOutputChars) throws IOException {
+        String image = System.getenv(IMAGE_ENV);
+        if (image == null || image.isBlank()) {
+            throw new IOException("Vision native media processing is unavailable: digest-pinned host OCI worker image is not configured");
+        }
+        LaunchPlan plan = plan(command, workspace, outputDirectory, image, "docker",
+                null, null, UUID.randomUUID().toString(), Math.max(1L, Math.min(
+                        maximumOutputBytes, DEFAULT_OUTPUT_FILE_LIMIT)));
+        int imageIndex = plan.createCommand().indexOf(plan.imageDigest());
+        List<String> workerArgs = imageIndex >= 0 && imageIndex + 1 < plan.createCommand().size()
+                ? plan.createCommand().subList(imageIndex + 1, plan.createCommand().size())
+                : List.of();
+        String executable = Path.of(command.getFirst()).getFileName()
+                .toString().toLowerCase(Locale.ROOT);
+        MediaOciBrokerClient client = new MediaOciBrokerClient(
+                Path.of(System.getenv(BROKER_SOCKET_ENV)),
+                Path.of(System.getenv(BROKER_TOKEN_ENV)));
+        MediaOciBroker.WorkerResult result = client.execute(new MediaOciBroker.WorkerLaunch(
+                plan.imageDigest(), plan.containerName(), executable, workerArgs,
+                plan.source() == null ? null : plan.source().toString(),
+                plan.output() == null ? null : plan.output().toString(),
+                plan.uid(), plan.gid(), plan.outputFileLimit(), timeout));
+        String output = result.outputTail();
+        if (maxOutputChars >= 0 && output.length() > maxOutputChars) {
+            output = output.substring(output.length() - maxOutputChars);
+        }
+        return new VideoFrameExtractor.ProcessResult(
+                result.timedOut() ? -1 : result.exitCode(), result.timedOut(),
+                output, result.outputExceeded(), false);
+    }
 
     static Prepared prepare(List<String> command, Path workspace, Path outputDirectory) throws IOException {
         return prepare(command, workspace, outputDirectory, DEFAULT_OUTPUT_FILE_LIMIT);

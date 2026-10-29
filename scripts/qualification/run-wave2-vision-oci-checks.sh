@@ -3,7 +3,7 @@
 # Reusing one globally set worker image across both suites is invalid.
 set -euo pipefail
 if [[ $# -lt 1 || $# -gt 2 ]]; then
-  echo "Usage: bash scripts/qualification/run-wave2-vision-oci-checks.sh stub | real MEDIA_LINUX_CODECS_DIR | png MEDIA_LINUX_PNG_CODECS_DIR" >&2
+  echo "Usage: bash scripts/qualification/run-wave2-vision-oci-checks.sh stub | real MEDIA_LINUX_CODECS_DIR | png MEDIA_LINUX_PNG_CODECS_DIR | broker" >&2
   exit 2
 fi
 mode="$1"
@@ -40,6 +40,22 @@ elif [[ "$mode" == "png" ]]; then
   export GHATANA_MEDIA_VISION_WORKER_IMAGE="$image"
   export GHATANA_MEDIA_VISION_PNG_CODEC_TEST=RUN
   selection="com.ghatana.audio.video.vision.video.HostOciVisionPngCodecIntegrationTest"
+elif [[ "$mode" == "broker" ]]; then
+  [[ $# -eq 1 ]] || { echo "Broker mode takes no codec directory" >&2; exit 2; }
+  docker build --platform linux/arm64 --network none -f "$test_dir/Dockerfile" \
+    -t ghatana-media-vision-oci-fixture:local-test "$test_dir"
+  image="$(docker image inspect --format '{{.Id}}' ghatana-media-vision-oci-fixture:local-test)"
+  [[ "$image" =~ ^sha256:[a-f0-9]{64}$ ]] || { echo "Pinned OCI fixture image unavailable" >&2; exit 4; }
+  export GHATANA_MEDIA_VISION_WORKER_IMAGE="$image"
+  broker_dir="$(mktemp -d /tmp/ghatana-media-oci-broker.XXXXXXXX)"
+  token_file="$broker_dir/broker.token"
+  python3 -c "import secrets; print(secrets.token_hex(32))" > "$token_file"
+  chmod 0600 "$token_file"
+  export GHATANA_MEDIA_VISION_OCI_BROKER_SOCKET="$broker_dir/broker.sock"
+  export GHATANA_MEDIA_VISION_OCI_BROKER_TOKEN_FILE="$token_file"
+  # Deliberately unusable: any direct Docker access from the Media JVM fails.
+  export GHATANA_MEDIA_VISION_DOCKER_CLI="/nonexistent-media-jvm-must-not-exec-docker"
+  selection="com.ghatana.audio.video.vision.video.HostOciVisionBrokerIntegrationTest"
 else
   echo "Unknown mode, use stub or real" >&2
   exit 2

@@ -1010,6 +1010,11 @@ public class VideoFrameExtractor {
                 if (!command.stream().skip(1).anyMatch("-version"::equals)) {
                     sandboxWorkspace = LinuxVisionWorkerSandbox.workspaceFor(command);
                 }
+                if (HostOciVisionWorkerSupervisor.brokerConfigured()) {
+                    return HostOciVisionWorkerSupervisor.runViaBroker(
+                            command, sandboxWorkspace, monitoredOutput, timeout,
+                            maxOutputBytes, maxOutputChars);
+                }
                 hostOciWorker = HostOciVisionWorkerSupervisor.prepare(
                         command, sandboxWorkspace, monitoredOutput, maxOutputBytes);
                 launchCommand = hostOciWorker.command();
