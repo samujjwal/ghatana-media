@@ -1,6 +1,6 @@
 # Ghatana Media — ACTIVE Wave 2 implementation and blocker-elimination execution
 
-**LATEST PULSE REVIEW — 2026-10-28 22:37 PT:** [§7 post-pulse source review and executable all-36-task completion plan](#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28) supersedes the *execution order* in earlier dated §5/§6 notes, not the original R8 acceptance. The implementer reports local `992f77e1` with seven commits, but connected GitHub lacks those SHA refs; verified remote runtime source at review was `e28c755f` and documentation has subsequently advanced. Whisper tiny's **reported** real FLEURS WER upper bounds fail every approved locale, even though exact single-clip decoding reportedly works. The 36 unfinished R8 rows retain their status. Preserve nine existing dirty paths; reconcile and test a single merged implementation SHA before promoting any row. Detailed owner/wave selection is in the [same existing R10 JSON](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json#latestPulseReview).
+**CURRENT REVIEW — pushed source verified on GitHub (2026-10-28 PT):** All seven commits `c7969aa7` through `992f77e1` are merged into `main@fea2aae5d7d144fb7993e69c3075f669fd70c7f9`; newer focused FLEURS export fixes follow. **Source-recovery blocker RESOLVED.** This document's §7 task mapping remains operative; §7.6 below records corrected post-push implementation priorities and security review. Earlier source-baseline and recovery text is historical, not current execution work. Original 58-row R8 acceptance remains unchanged at last accepted 22/30/6 ledger; no new native/JDK27/Docker/model result was rerun by this remote source review.
 
 **CURRENT-CUT EXECUTION CONTROL — 2026-10-28 16:38 PT:** Media `ef823571b1dbbed2c1ea38fa291657cb04855103`, Shared `d15b2ce353839ee3bf666be7c0737aa7192994f5`, Ghatana `875108953b069ba65803b8b99b713896bf9476f0` inspected through connected GitHub. Source changes include STT source-authorization contracts and candidate transcript outbox, TTS readiness guard, Vision resource/PTS hardening and Multimodal clock checks. Reported focused passes are not new whole-row acceptance. The **current 12-gate/36-task owner decisions** now reside in the existing [R10 machine-readable map](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json), with binding privacy/rights policy in [Media Privacy](../MEDIA_PRIVACY_AND_RETENTION_POLICY.md#13-wave-2-source-rights-model-admission-and-independent-acceptance-policy). Follow §6 of this same file as the latest executable sequence; older dated cut descriptions are evidence history, not fresh status.
 
@@ -247,7 +247,7 @@ pnpm test:wave2-r10-owner-resolution
 
 ## 7. Post-pulse 992f77e1 — implementation review and all remaining Wave 2 tasks (2026-10-28)
 
-> **Source-access qualification:** The implementer reports seven local commits ending `992f77e1` and nine unrelated dirty worktree paths. As of this inspection, connected GitHub `main` is `e28c755fbaf88ac1cf2f35e8c48b4ef8bc5ddbdd`; GitHub does **not** resolve `992f77e1`, `c7969aa7`, `b03d35ca`, `2180a067`, `54471fad`, `80ade36f`, or `5207bb8b`. This review inspects the publicly available remote source and separately adjudicates the **user-reported** native tests. It neither fabricates review of inaccessible code nor overwrites local changes. **Before acceptance or test reproduction, recover/integrate the local commits and re-pin the exact implementation SHA.** The current R8 ledger remains 22 locally verified, 30 partial, 6 external-owner; 36 original nonverified rows retain `taskAccepted=false`.
+> **Current source verified:** Seven reported commits ending `992f77e1` were fetched individually on GitHub `main`. The later `2b396ea` push contains separate definition/topology/OpenAPI work. Source recovery/cherry-picking is **no longer required**; start at a pinned current checkout, preserve any unrelated local changes, and rerun opt-in native/model tests. The 36 original unfinished tasks still require whole-row proof; reading commit source does not execute its tests.
 
 ### 7.1 Decisions and findings at this pulse
 
@@ -263,9 +263,9 @@ pnpm test:wave2-r10-owner-resolution
 
 ### 7.2 Recovery and baseline preflight — P0, first engineering pulse
 
-**R00-SOURCE (Media owner, Git / worktree only):** On the local host, preserve all nine pre-existing dirty paths **without reset/stash/checkout replacement**. Record `git status --porcelain=v1 -uall`, `git rev-parse HEAD origin/main`, `git merge-base HEAD origin/main`, `git rev-list --left-right --count HEAD...origin/main`, `git log --oneline --left-right HEAD...origin/main`, `git cat-file -t 992f77e1`. Do not conflate this remote documentation HEAD with local implementation HEAD. Test the local commit in a **separate detached Git worktree** sharing Git objects; if remote and local diverge, use an **integration branch/worktree** based on latest `origin/main` and apply only the seven locally owned commits in order after reviewing diffs/overlap. Never force-push. On a real merge conflict, stop and record exact file+owner; do not discard the nine dirty entries or merge unreconciled contract changes. **Exit:** a single source cut containing both latest remote authorizations and all seven reported commits, with diff and merge-base attested; all nine preserved local modifications remain untouched.
+**R00-SOURCE (Media owner, current-cut verification only):** Run `git fetch origin main`, `git status --porcelain=v1 -uall`, `git rev-parse HEAD origin/main`, and `git merge-base --is-ancestor 992f77e1 HEAD`. All seven SHAs are already on GitHub `main`; no recovery branch, cherry-pick, reset, force-push or stash is authorized by this step. Inspect relevant `2b396ea` definition/OpenAPI changes separately from the backend Wave 2 acceptance. **Exit:** one pinned actual checkout/source SHA, known dirty paths and independent test prerequisites.
 
-**R01-EXECUTION (Media QA + modality owners):** Re-run exact JDK27 local-focused tests, real OCI/BMP/PNG/broker cases, PostgreSQL with real containers, actual Whisper/TTS/Vision model cases and FLEURS frozen-manifest checker **against the reconciled SHA**. Capture Gradle test totals, skip names/reasons, Docker image/FFmpeg, model/export/tokenizer/phonemizer hashes, GPU/CPU/OS/profile, host cgroup, 380 source manifest counts, per-clip cap events and observed outputs. Distinguish test-only SQL-seeded `ADMITTED` from real source→job→attempt→transcript. **Exit:** every previously reported local positive reproducible at the actual SHA; otherwise first failed command and owner are recorded and repaired before row acceptance.
+**R01-EXECUTION (Media QA + modality owners):** Re-run exact JDK27 local-focused tests, real OCI/BMP/PNG/broker cases, PostgreSQL with real containers, actual Whisper/TTS/Vision model cases and FLEURS frozen-manifest checker **against the pinned pushed implementation SHA**. Capture Gradle test totals, skip names/reasons, Docker image/FFmpeg, model/export/tokenizer/phonemizer hashes, GPU/CPU/OS/profile, host cgroup, 380 source manifest counts, per-clip cap events and observed outputs. Distinguish test-only SQL-seeded `ADMITTED` from real source→job→attempt→transcript. **Exit:** every previously reported local positive reproducible at the actual SHA; otherwise first failed command and owner are recorded and repaired before row acceptance.
 
 **R02-ACCOUNTING (Media task owner):** Keep existing R8 58-task source and R10 36-task/12-gate mapping. For every originally unfinished row record `CODE_PRESENT`, `REAL_EFFECT_OBSERVED`, `NEGATIVE_AND_CHAOS_PROVED`, `LEGAL_MODEL_INPUTS_VERIFIED`, `NAMED_HOST_QUALIFIED` and `WHOLE_ROW_ACCEPTED` as independent **reporting observations**, never new runtime statuses. Do not update the 22/30/6 denominator until each original acceptance condition is actually met on the reconciled source; immediately promote only specific whole rows whose tests and rights can be independently reviewed.
 
@@ -370,7 +370,7 @@ The rows below map **exact original R8 identities**. Their current R8 status is 
 
 ```mermaid
 flowchart LR
-  R[Recover local 992f77e1 and merge remote e28] --> V[Run current cut real native tests]
+  R[Verify pushed main source and current test prerequisites] --> V[Run current cut real native tests]
   R --> A[Audit real identity/rights and STT CAS]
   A --> S[Real STT negative/restart]
   V --> Q[Model and corpus quality triage]
@@ -391,7 +391,7 @@ flowchart LR
 
 This is a *dependency order*, not a request to serialize independent B/C/E/F coding. Source rights and the tested provider profile are prerequisites only for the **affected live dispatch**, not generic implementation, negative tests or seeded functional contract tests.
 
-Use the existing 90-minute engineering pulse and 4-hour acceptance checkpoint. A pulse must produce changed code, executable test result or exact first failure; after two pulses without an original row accepted, fix the first bounded missing executable artifact/contract or switch to an already-approved lawful alternative. **Never** replace genuinely unavailable voice consent, source ownership or model-license records with fixture-author signatures. The local-only seven commits must not be counted as independently source-reviewed until safely integrated. Each whole-row promotion needs exact original R8 acceptance, named `repo@SHA`, host/JDK/model/codec SHA, authentic input/rights IDs, actual positive/negative/fault receipts and no unexamined skip.
+Use the existing 90-minute engineering pulse and 4-hour acceptance checkpoint. A pulse must produce changed code, executable test result or exact first failure; after two pulses without an original row accepted, fix the first bounded missing executable artifact/contract or switch to an already-approved lawful alternative. **Never** replace genuinely unavailable voice consent, source ownership or model-license records with fixture-author signatures. The seven commits are now independently inspectable on GitHub; their opt-in native/real-model tests and whole-row acceptance still need actual execution. Each whole-row promotion needs exact original R8 acceptance, named `repo@SHA`, host/JDK/model/codec SHA, authentic input/rights IDs, actual positive/negative/fault receipts and no unexamined skip.
 
 **Execution commands from a clean worktree pinned to the integrated SHA:**
 
@@ -417,8 +417,12 @@ pnpm check:candidate-decision-crosswalk
 
 # Opt-in native images are verified independently in dedicated JVMs:
 bash scripts/qualification/run-wave2-vision-oci-checks.sh stub
-# real-codec requires the actual provisioned MEDIA_LINUX_CODECS_DIR:
+bash scripts/qualification/run-wave2-vision-oci-checks.sh broker
+# Dedicated, opt-in, separately pinned codec test JVMs:
+# bash scripts/qualification/run-wave2-vision-oci-checks.sh png "$MEDIA_LINUX_PNG_CODECS_DIR"
 # bash scripts/qualification/run-wave2-vision-oci-checks.sh real "$MEDIA_LINUX_CODECS_DIR"
+# Execute real STT only with private rights-safe WAV, independent gold and Testcontainers:
+# ./gradlew :services:media:integration-tests:test --tests '*MediaAuthorizedSttTranscriptRestartIT' --no-daemon --max-workers=2
 ```
 
 Use the existing [W2-E01 through W2-E12](MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#integrated-backend-effect-quality-and-fault-oracles) oracles as the final end-to-end test population; do not invent new acceptance IDs, stage enums or close gtool/PDP as a side effect. GH-90000 nine compose skips, legacy M08 writer cutover, warn-level Checkstyle and unrelated Shared build logic remain distinct operational handoffs. For the new OCI broker and source-rights implementation, full license/security/source review is required before deployment even if a local developer-host fixture passes.
