@@ -292,6 +292,29 @@ class MediaRuntimeMultimodalAdmissionTest {
         }
     }
 
+    @Test
+    void foreignPrincipalChildArtifactIsRejectedBeforeFanout() throws Exception {
+        var root = Files.createTempDirectory("media-mm-foreign-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        var calls = new AtomicInteger();
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(mmProvider(calls)),
+                allowAllAuthority());
+        try {
+            var source = artifact(runtime, "tenant-a", "principal-a");
+            var foreign = artifact(runtime, "tenant-a", "principal-b");
+            var spec = spec(source, List.of(
+                    new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT,
+                            foreign.artifactId(), foreign.version().value(), foreign.sha256(), "",
+                            sttParameters())));
+            assertThatThrownBy(() -> runtime.submit(mmRequest(source, spec)))
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class);
+            assertThat(jobStore.list("tenant-a", 100)).isEmpty();
+            assertThat(calls.get()).isEqualTo(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
     // ── Fixtures ────────────────────────────────────────────────────────────
 
     private static MediaRuntime runtime(
