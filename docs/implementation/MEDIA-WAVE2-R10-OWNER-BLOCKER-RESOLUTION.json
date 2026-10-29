@@ -251,6 +251,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "B",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -274,6 +280,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -299,6 +311,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -324,6 +342,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "B",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -349,6 +373,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "D",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -375,6 +405,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -399,6 +435,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -423,6 +465,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -448,6 +496,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -472,6 +526,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -497,6 +557,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -520,6 +586,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -545,6 +617,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -569,6 +647,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -595,6 +679,12 @@
         "exogenousProofRequired": true,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -618,6 +708,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -643,6 +739,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -667,6 +769,12 @@
         "exogenousProofRequired": true,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "B",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -692,6 +800,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "B",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -716,6 +830,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "B",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -741,6 +861,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "B",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -764,6 +890,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "D",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -791,6 +923,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "D",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -816,6 +954,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "D",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -840,6 +984,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "D",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -865,6 +1015,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "D",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -889,6 +1045,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "E",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -913,6 +1075,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "E",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -938,6 +1106,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -966,6 +1140,12 @@
         "exogenousProofRequired": true,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "A",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -992,6 +1172,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -1018,6 +1204,12 @@
         "exogenousProofRequired": true,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "C",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -1045,6 +1237,12 @@
         "exogenousProofRequired": true,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "B",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -1074,6 +1272,12 @@
         "exogenousProofRequired": true,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "D",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -1098,6 +1302,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "F",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     },
     {
@@ -1123,6 +1333,12 @@
         "exogenousProofRequired": false,
         "engineeringPermission": "APPROVED_SCOPED_CODE_AND_TESTS_NO_FURTHER_OWNER_MEETING",
         "taskAcceptance": "UNCHANGED_FULL_ORIGINAL_ROW"
+      },
+      "pulse992Selection": {
+        "wave": "F",
+        "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
+        "reportedProgressNotWholeRowAcceptance": true,
+        "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
       }
     }
   ],
@@ -1246,12 +1462,12 @@
     "currentOwnerRule": "All routine engineering work preapproved and executable; external-rights/actual-data gates remain genuine and scoped, never silently removed or treated as blanket development blockers.",
     "noAdditionalWorkPackageIds": true,
     "nextFullRowCandidate": "VIS-03",
-    "nextRealBusinessOutcome": "STT source-rights → authorized job → fenced result → immutable transcript readback after restart",
+    "nextRealBusinessOutcome": "Independently audit reported authorized STT E2E at reconciled source + qualified replacement multilingual model; then real MM, alerts and capacity",
     "gateStates": {
       "G01": {
         "implementationDisposition": "ENGINEERING_CODE_NOW",
-        "observedGap": "Whisper split ONNX candidate remains incompatible/unsuitable for complete independent-gold recognition; a qualifying exact export and full source-authored transcript are unavailable.",
-        "nextAction": "Repair model/export/tokenizer parity with complete independent gold. If unsuccessful, try pinned official reference Whisper through the existing Media processing SPI, subject to real license and profile review; never count partial text.",
+        "observedGap": "Implementer reports exact gold/EOT Whisper merged-decoder fix for a single clip, but quantized tiny FLEURS on 380 clips FAILED all three locale WER thresholds; 89 decoder token caps (empty scoring). Seven local commits not on connected GitHub source.",
+        "nextAction": "Reconcile local 992f77e1; inspect KV/EOT fix and complete gold, categorize capped clip failures, evaluate rights-cleared previously selected larger/offical reference model on tuning set only; fresh blinded holdout for promotion; keep tiny REVIEW_ONLY.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
@@ -1293,15 +1509,15 @@
       },
       "G07": {
         "implementationDisposition": "EXTERNAL_LICENSED_DATA_THEN_ENGINEERING_METRICS",
-        "observedGap": "Source-pinned qualification evaluator now supports separate <=24 pilot and >=100 holdout per locale with 120MiB cap and 1000 speaker-cluster bootstrap; provisional R10 en/hi/ne WER thresholds are pre-registered. Real FLEURS per-clip audio/ground truth/speaker/rights are still absent, and no native Node on-repo run is claimed.",
-        "nextAction": "Execute pnpm test:wave2-r10-owner-resolution and node --test tests/media-fleurs-asr-evaluation.test.mjs on the current checkout; acquire selected lawful source bytes/hashes/authentic speaker IDs, freeze 100/locale independent holdout, run genuine model predictions and independent reviewer/rights gate. Keep METADATA_ONLY_NOT_FROZEN until actual data.",
+        "observedGap": "Local report has frozen 380 lawful FLEURS clips and true failed multilingual WER. Source manifest and seven local commits not visible on remote; prior evaluator max 372 across three locales means need exact population reconciliation. Quality qualification failed.",
+        "nextAction": "Reconcile 380 total vs prior max selected 372, confirm per-locale scored holdout and original audio SHA/rights/speaker IDs, inspect 89 token caps, freeze new independent blind promotion holdout; no threshold lowering.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "verificationClass": "CODE_UPDATED_IN_MEMORY_FUNCTIONAL_CHECKS_PASS_NODE_ON_REPO_NOT_RUN_REAL_CORPUS_ABSENT"
       },
       "G08": {
         "implementationDisposition": "ENGINEERING_BENCHMARK_AFTER_REAL_MODEL",
-        "observedGap": "No qualified real provider quality/capacity/receiver-alert effect on a named reference host; existing model CPU saturation cannot imply 64 successes.",
-        "nextAction": "After G01/G04/G05 qualify, run 1/16/64 with admitted/completed/rejected/unknown counts and host p50/p95/p99 CPU/RSS/RTF; inject actual provider fault through Prometheus to named Alertmanager receiver. Typed saturation is not latency SLO.",
+        "observedGap": "OBS still fixture-only alerts/capacity at remote source; real provider profile quality regression, exporter -> Prometheus -> Alertmanager named receiver and actual c1/c16/c64 four-modal provider measurements not demonstrated.",
+        "nextAction": "Implement real low-cardinality model health/quality observer, full monitoring delivery, and bounded four-modality and native host measurements; no synthetic PASS.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       },
@@ -1328,8 +1544,8 @@
       },
       "G12": {
         "implementationDisposition": "ENGINEERING_CODE_AFTER_G03_G05",
-        "observedGap": "MM STT timing guards now validate declared PCM sample-zero clocks and bounds; no real authorized STT/Vision child outcome or grounded fused observation/alert exists.",
-        "nextAction": "Finish actual G01-G03 STT and G05 Vision child attempts, independently recheck each rights/finality/clock, then durable fused observation/restart and fault/UNKNOWN tests; otherwise typed not-admitted response without synthetic success.",
+        "observedGap": "Real STT, YOLOX and TTS isolated positive results reported locally, but MM default grpc still unavailable on inspectable remote, per-operation durable fusion and actual source clock not established.",
+        "nextAction": "Implement source-authorized production MM CanonicalOperationExecutor and individual child attempts; produce real STT+Vision grounded fused readback then optional separately authorized TTS narration, test UNKNOWN and c1/c16/c64.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
       }
@@ -1450,5 +1666,155 @@
     "currentReviewedSource": "samujjwal/ghatana-media@ef823571b1dbbed2c1ea38fa291657cb04855103",
     "sourcePushedLocally": "UNKNOWN_NOT_OBSERVED_GITHUB_REMOTE_ONLY",
     "pulses": "90 minutes implementation pulses, 4 hour full-row checkpoint; after 2 pulses without row completion fix first missing executable input instead of more planning"
+  },
+  "latestPulseReview": {
+    "reviewDate": "2026-10-28",
+    "reviewScope": "Connected GitHub remote main source inspection + implementer local report; no direct access to reported local commits or native test environment",
+    "reportedLocalHead": "992f77e1",
+    "reportedCommits": [
+      "c7969aa7",
+      "b03d35ca",
+      "2180a067",
+      "54471fad",
+      "80ade36f",
+      "5207bb8b",
+      "992f77e1"
+    ],
+    "localShasGitHubAccessible": false,
+    "remoteBaselineAtReview": "e28c755fbaf88ac1cf2f35e8c48b4ef8bc5ddbdd",
+    "activeImplementationPlan": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28",
+    "sourceReconciliation": "Required before independently reviewing the seven local commits. Preserve nine unrelated dirty paths. No force-push/reset; integrate via separate worktree and review remote differences.",
+    "reportedOutcomes": {
+      "stt": "Real source-authorized STT to fenced attempt to ADMITTED transcript with actual PostgreSQL process restart readback reported; independent original-row proof not reviewed",
+      "codec": "PNG pixel oracle 4/4 reported, prior BMP-only image remains separately dispositioned",
+      "ociBroker": "Authenticated host/CRI service and kernel PID/timeout 3/3 reported; full original adversarial/deployment rights proof outstanding",
+      "visionDetector": "Official BGR YOLOX dog positive confidence 0.80 and blank negative; no licensed held-out mAP/PR result",
+      "tts": "Pinned espeak/piper_phonemize pipeline real 0.755-second, 22.05-kHz PCM LibriTTS-R synthesis; voice/likeness/quality rights separate",
+      "fleurs": {
+        "totalReportedClips": 380,
+        "decoderCapEmptyPredictions": 89,
+        "manifestVerifiedByThisReview": false,
+        "locales": {
+          "eng": {
+            "wer": 0.3996,
+            "upper95": 0.454,
+            "limit": 0.3,
+            "pass": false
+          },
+          "hin": {
+            "wer": 1.0938,
+            "upper95": 1.267,
+            "limit": 0.45,
+            "pass": false
+          },
+          "npi": {
+            "wer": 1.0448,
+            "upper95": 1.072,
+            "limit": 0.55,
+            "pass": false
+          }
+        },
+        "allReferenceThresholdsMet": false,
+        "candidateDisposition": "REVIEW_ONLY_FAILED_MULTILINGUAL_REFERENCE_REPORTED_NOT_INDEPENDENTLY_REPRODUCED",
+        "accountingRisk": "Previous frozen evaluator allowed up to 124 selected clips/locale * 3 = 372, local report says 380 clips. Determine exact scoring-vs-cached population and local cap changes before promotion."
+      }
+    },
+    "remoteSourceFindings": [
+      "MM gRPC production default source authorization and operation executor unavailable; fixed false STT/Vision readiness",
+      "MM aggregate COMPLETE/PARTIAL semantics incompatible with original per-operation independent result/finality",
+      "Shared PolicyEngine verified context constructed from Media request tenant/principal, requires trusted credential binding review",
+      "PostgreSQL production admission SQL fixture validates durable rights snapshot, not independent real inference end-to-end",
+      "Observation alert delivery exporter is fixture-only; no real provider/quality receiver proof",
+      "Data Cloud in-process adapter is not an authorized public HTTP projection and Ghatana #252/#254 remain open"
+    ],
+    "taskStatusAccounting": {
+      "originalTotal": 58,
+      "previouslyVerified": 22,
+      "stillPartial": 30,
+      "stillExternalOwner": 6,
+      "promotedByThisUpdate": 0
+    },
+    "engineeringDecision": "APPROVE_FOCUSED_IMPLEMENTATION_AND_PRIOR_SELECTED_MODEL_FALLBACK; TINY_QUANTIZED_NOT_ELIGIBLE_AS_UNRESTRICTED_MULTILINGUAL_PROFILE; PRESERVE_ALL_RIGHTS_AND_QUALITY_GATES",
+    "requiredNextProof": "Reconcile local source, reproduce reported real tests on merged SHA, evaluate fresh blind quality holdout and execute canonical W2-E01..E12 oracles",
+    "lanes": [
+      {
+        "wave": "A",
+        "owner": "Media STT Runtime/Provider and Security",
+        "tasks": [
+          "STT-03",
+          "STT-04",
+          "STT-05",
+          "STT-06",
+          "STT-07",
+          "STT-08",
+          "STT-09",
+          "STT-10",
+          "STT-12"
+        ],
+        "originalTaskIdsUnchanged": true
+      },
+      {
+        "wave": "B",
+        "owner": "Media Vision and Native Broker",
+        "tasks": [
+          "VIS-02",
+          "VIS-03",
+          "VIS-05",
+          "VIS-06",
+          "VIS-07",
+          "VIS-10",
+          "VIS-12"
+        ],
+        "originalTaskIdsUnchanged": true
+      },
+      {
+        "wave": "C",
+        "owner": "Media TTS Voice/Provider",
+        "tasks": [
+          "TTS-02",
+          "TTS-03",
+          "TTS-05",
+          "TTS-06",
+          "TTS-07",
+          "TTS-08",
+          "TTS-09",
+          "TTS-10",
+          "TTS-12"
+        ],
+        "originalTaskIdsUnchanged": true
+      },
+      {
+        "wave": "D",
+        "owner": "Media Multimodal Integrations",
+        "tasks": [
+          "MM-02",
+          "MM-03",
+          "MM-05",
+          "MM-06",
+          "MM-08",
+          "MM-09",
+          "MM-12"
+        ],
+        "originalTaskIdsUnchanged": true
+      },
+      {
+        "wave": "E",
+        "owner": "Ghatana Document Intelligence / Data Cloud owners plus Media adapters",
+        "tasks": [
+          "VIS-09",
+          "MM-10"
+        ],
+        "originalTaskIdsUnchanged": true
+      },
+      {
+        "wave": "F",
+        "owner": "Media Observability and QA",
+        "tasks": [
+          "OBS-07",
+          "OBS-08"
+        ],
+        "originalTaskIdsUnchanged": true
+      }
+    ]
   }
 }
