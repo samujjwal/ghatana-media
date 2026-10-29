@@ -1,5 +1,7 @@
 # Media Privacy, Consent, and Retention Policy
 
+> **Current backend execution plan:** [2026-10-29 remaining BUILD implementation](implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md). This policy is normative for source/consent/biometric/provider rights. The new plan cannot grant external approvals and cannot bypass this document; prior Wave 2 execution directions are historical.
+
 **Status:** Authoritative requirements + executable implementation map  
 **Last Updated:** 2026-10-28  
 **Owner:** Media Engineering  
