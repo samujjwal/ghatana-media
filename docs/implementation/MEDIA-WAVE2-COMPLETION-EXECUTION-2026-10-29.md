@@ -1,5 +1,8 @@
 # Ghatana Media — Wave 2 remaining BUILD implementation (single active successor)
 
+**LATEST ACTIVE EXECUTION — 2026-10-29 16:02 PDT:** Follow [`8 below](#8-current-2026-10-29-m7v0275-of-5-postgres-remaining-work-lock), derived from inspected GitHub source `4fa88ca9f70887f5e801af6d7d92c2a70aa5a158`. Earlier `1–`7 are retained only for source history, original R8 36-row identity/proof crosswalk and prior decisions. **MM M1–M6 source work and V027 schema are already committed; do not implement them again.** The implementer reports two actual PostgreSQL integration suites passing 3/3 and 2/2 after V027; these are positive focused evidence, **not** a fresh whole-row acceptance. Current 58-task accepted ledger remains 22 locally verified, 30 partial, 6 external-owner. No other active plan.
+
+
 **Effective 2026-10-29 (America/Los_Angeles). Inspected remote:** `samujjwal/ghatana-media@dd82099af004917fb04662e9ccc9b2d84b7cec7a`. **Status:** ENGINEERING_PLAN_APPROVED; IMPLEMENTATION_INCOMPLETE; R8 WHOLE-ROW ACCEPTANCE UNCHANGED. This **replaces the execution instructions** in [the earlier Wave 2 active working plan](MEDIA-WAVE2-ACTIVE-EXECUTION.md), which remains review history. It does **not** replace the original [58-task semantics and 12 end-to-end scenarios](MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md), the [exact 36 open original R8 task criteria](MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json), [R10 12-gate/36-row selection map](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json), PDP-0..3, canonical [50-package Build plan](MEDIA-BUILD-IMPLEMENTATION-PLAN.md), Shared governance, provider admission contracts, or gtool. They retain their specific ownership. **No parallel requirement ledger or V2 contracts.**
 
 ## 1. Current factual readback and honest terminal criteria
@@ -29,7 +32,7 @@
 | OD-29-09 | **Ghatana platform owners: work authorized, outcomes not invented** | #252 must publish a real ROI/OCR source-free client; #254 a governed 202/pending/committed projection+lookup API. Media consumes installed public APIs, never internal classes or a duplicate Data Cloud Media writer. |
 | OD-29-10 | **Review/rights and lifecycle separation** | Third-party weight/voice/recording rights, genuine biometric consent and independently trusted review cannot be self-approved. Track B PDP closure/release/cutover/gtool may progress separately; no Track B condition blocks Build source development. |
 
-## 3. First executable vertical: Multimodal, dependency ordered
+## 3. HISTORICAL M0–M7 design orders (source now substantially implemented; current work is §8)
 
 **M0 — isolate file ownership and compile current source (Media MM owner; first 90-minute pulse).** Read and pin the actual gRPC/PDP-1 binding, Gradle profile, `MediaRuntime`, `MediaProcessingRuntimePort`, `MediaRuntimeContracts`, `MediaModalityContracts.governedResult` and provider selection. Record whether any MM provider is installed and verify current `FAILED_PRECONDITION` for missing executor is truthful. Do not edit `MediaRuntime.java` concurrently with STT owner.
 
@@ -49,7 +52,7 @@
 
 **MM design failure matrix, tests are REQUIRED:** caller spoofed principal; MM source present but child source stale; MM parent admitted but VISION denied; parent callback evicted before attempt; process crash loses all in-memory work; child completed but response lost; parent result validation/sanitization fails; parent and child share a one-thread pool; repeated request hash changes; expired policy during commit; missing real timebase; gRPC timeout with no discoverable job ID. No in-memory fixture may create an apparent durable successful result.
 
-## 4. Parallel non-MM implementation lanes (never reopen completed basics)
+## 4. HISTORICAL parallel non-MM orders (superseded by §8; original requirements unchanged)
 
 **A — STT Runtime/Provider/Science.** Inspect `cbd06f87` credential and source-authority binding and `MediaSttTranscriptCommitFenceIT`; test real auth/Shared policy denied/revoked at submission, retry and transcript commit; eliminate direct production use of request-derived identity and prove real process crash (not just store reopening). Keep exact WER failure, identify 89 token-cap/nonlanguage causes, reconcile 380 total with 372 earlier selected bound and full clip/split/digest/gold provenance. Java holdout-only locale output fixes must pass actual Node scoring. Evaluate lawful previously selected larger Whisper/reference model(s) on **development** set and a *new blinded speaker-disjoint* holdout, with never-invented license/model performance. Complete WAV/FLAC (as advertised), stream finality, timing, diarization and captions; assess STT-03..10/12 against unchanged R8.
 
@@ -144,3 +147,83 @@ pnpm check:candidate-decision-crosswalk
 Native Docker PNG/BMP/broker, actual private Whisper/Piper/YOLOX/FLEURS, PostgreSQL and installed Ghatana server/client tests are **separate opt-in jobs**; run with their exact SHA-bound environment on the named host, retaining skipped reason. Use `bash scripts/qualification/run-wave2-vision-oci-checks.sh stub`, `broker`, `png "$MEDIA_LINUX_PNG_CODECS_DIR"` and `real "$MEDIA_LINUX_CODECS_DIR"` only with provisioned exact assets and separate JVMs. The STT actual qualified case uses `MediaAuthorizedSttTranscriptRestartIT` but its test-authority fixture alone is not production proof. Run final [W2-E01..W2-E12](MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#integrated-backend-effect-quality-and-fault-oracles) and the 43 registered RPC original method cases; no fabricated metric, skipped compose stack, forged audit receipt or blanket lifecycle closure.
 
 **Explicitly independent Track B and operations:** PDP/gtool formal receipts, release, current live-writer M08 cutover, GH-90000 nine service-image skips, warn-only Checkstyle and upstream Shared sourceless-module build-logic bug. These do **not** block Build code or unit/adversarial tests. They retain their own operational acceptance and authorization gates. End state is a real product outcome plus original whole-row tests—not another blueprint.
+
+
+## 8. Current 2026-10-29 M7/V027/5-of-5 Postgres remaining-work lock
+
+**Source authority:** GitHub `main@4fa88ca9f70887f5e801af6d7d92c2a70aa5a158`. Seven new M1–M7 source commits now include `cf5ac0fe` MM durable operation descriptor/provider/executor with V026, `6f4fb5de` parent restart reconciliation, `07fbbeb3` source-clock fusion/gRPC finality, `e21ad948` source-tick STT/MM readback, `a7519e7c` cancel/fanout, `fa20a8c7` foreign-principal pre-fanout denial and `4fa88ca9` V027 tagged transcript segment persistence. These are **implemented code**, not all original acceptance rows. Do not repeat M1–M6 implementation from the historical section above.
+
+### 8.1 Proof readback and outstanding boundary
+
+| Verified/observed input | Disposition | Next action |
+|---|---|---|
+| Implementer reported live `MediaSttTranscriptCommitFenceIT` **3/3** after V027: admitted fenced revision, after-provider policy refusal leaves no transcript, abandoned attempt → UNKNOWN and no row after runtime reconstruction | **FOCUSED_HOST_PASS_REPORTED**; code inspected; no new host rerun in this review | Retain exact XML/SHA; source-dependent rerun only. This contributes STT-09-class fault evidence, not whole STT-09. |
+| Implementer reported live `MediaProviderPolicyDeniedFinalityPostgresIT` **2/2**, synchronous and asynchronous denial after provider effect → durable UNKNOWN through runtime restart | **FOCUSED_HOST_PASS_REPORTED**; not whole-row accepted | Retain exact XML/host and the recorded attempt/outbox proof. No fake terminal success or unqualified fallback. |
+| `V027__media_transcript_segment_timing.sql` and `PostgresqlMediaTranscriptStoreTest.persistsExactSegmentTimingUnionAndDerivesHonestAggregate` are present | Schema/default-column compatibility demonstrated by the 5/5 reported runs; **nonempty tagged union and actual gold not established by those two suite results** | Run focused segment timing store test after V027, plus real `appendFromSuccessfulAttempt` with nonempty/mixed tags and exact restart readback. |
+| `MediaRuntimeMultimodalAdmissionTest`, `MediaRuntimeMultimodalRestartTest` and `DelegatingMultimodalProviderTest` implement durable descriptor, rights, cancellation, source clock and in-process restart oracles | **SOURCE_PRESENT / FIXTURE_TESTS**; not actual live PostgreSQL parent+child or real model-derived STT+Vision | Implement host Postgres MM parent/child kill/fence and an actual qualified fused business outcome, not another mock. |
+| Source `MultimodalGrpcServer.main` still calls `createRuntime(null)`; `MultimodalGrpcService` default authorization is unavailable; `DelegatingMultimodalProvider.productionEligible()` returns false | **LOCAL REAL INTEGRATION BLOCKER**, distinct from missing model/rights | Wire actual runtime, authenticated policy and child readiness through production composition; keep not-admitted until genuinely eligible. |
+| Whisper tiny FLEURS (reported 380 clips, 89 cap outcomes) failed en/hi/ne WER 0.3996/1.0938/1.0448 vs 0.30/0.45/0.55 | **REFERENCE QUALITY FAIL**; no tiny promotion | Reconcile 380 total vs prior 372 selection cap, freeze lawful audio SHA/gold/speaker split and qualify stronger rights-cleared candidate on a fresh blind holdout. |
+| Pinned FFmpeg real/PNG requires private `MEDIA_LINUX_CODECS_DIR` / `MEDIA_LINUX_PNG_CODECS_DIR`; TTS voice/speech and genuine Ghatana #252/#254 APIs absent | **EXTERNAL INPUT / OWNER ACCEPTANCE**, but independently safe code/tests may proceed | Do not issue false grants or block MM fault tests, TTS-05 denials, OBS export plumbing or JVM unit coverage. |
+
+### 8.2 Next exact executable packages; do not reopen implemented foundations
+
+**W2-R01 — MM standalone production bootstrap, first local owner batch.** **Where:** `MultimodalGrpcServer.createRuntime`, `MultimodalGrpcService`, existing `MediaProcessingRuntimePort` and `SourceAuthorization`. **What:** compose the real runtime and authenticator through the server entrypoint, not only test constructors; fail startup/readiness when backend/rights/child profiles absent. `DelegatingMultimodalProvider` must become production-eligible **only** under independently qualified source/model/provider health and actual owner policy, never by unconditional `true`. **How/proof:** source-free installed standalone gRPC negative tests for absent runtime, wrong tenant, revoked parent/child, unauthenticated identity, invalid source version, and no provider effect; admitted positive only when real credentials+provider exist. **Task targets:** MM-02, MM-05, MM-12, OBS readiness.
+
+**W2-R02 — real canonical Vision child and fused MM effect.** **Where:** existing `HttpMediaProcessingProvider`, Vision service public port/installed provider SPI, `MediaRuntime` provider registration, `DelegatingMultimodalProvider` and `MultimodalOperationSpec`. **What:** prove actual YOLOX Vision and real STT jobs (not fixture child providers) are independently rights-checked, bound to immutable source version and qualified profile, and return exact final attempt/receipt to one MM parent. Reuse existing producer adapter if it truly implements those rules; otherwise implement one narrow `MediaProcessingProvider` Vision bridge, not a second Vision engine. **Proof:** real source-owned audio/image → successful independently admitted child jobs → grounded fused parent, no invented clock/quality; unqualified tiny multilingual remains NOT_ADMITTED. **Targets:** VIS-02, MM-05, MM-09, MM-12.
+
+**W2-R03 — real PostgreSQL MM parent and child crash/finality.** **Where:** `PostgresqlMediaJobStore` + V026 snapshot, `MediaRuntime` recovery, existing MM provider. Current MM restart suite uses in-memory `LocalMediaRuntimeSupport.JobStore`, whereas Postgres snapshot tests prove descriptor readback alone. **How:** introduce one Docker Testcontainers path with real source/child jobs and durable outbox. Kill before/after child receipt, after parent CAS/before gRPC ACK, and parent with one UNKNOWN child; restart with an empty callback registry and verify exact identity/digest, child state separation, no duplicate effect, no implicit retry. Verify partial-fanout cancellation does not imply `NO_EFFECT_PROVEN` for an already-dispatched child. **Targets:** MM-08, MM-09 and STT-09 fault intersection.
+
+**W2-R04 — V027 nonempty segment timing and word timing truth.** **Where:** `PostgresqlMediaTranscriptStoreTest`, `PostgresqlMediaTranscriptStore`, `MediaTranscriptContracts`, `WhisperOnnxSttProvider`. **How:** run persisted segment union positive/negative after V027; add an authorized fenced attempt with a nonempty SOURCE_TICKS tag, then mixed/unknown tags, wrong clock/tick bound, revocation, duplicate same/different segment and process/store restart. Current pinned Whisper declares a **whole decoded span only**, not aligned words/phonemes; don't label STT-06 word alignment satisfied until actual model per-word gold. **Targets:** STT-06, STT-08, STT-09.
+
+**W2-R05 — STT negative depth and genuinely qualified alternate model.** **Where:** `MediaRuntimeSpeechAdmissionTest`, `MediaAuthorizedSttTranscriptRestartIT`, FLEURS Java/Node evaluator and STT provider. **Immediate no-private-model work:** wrong tenant/principal, revoke/stale source/consent, zero provider/attempt/outbox, live stream lost ACK/EOS/timeout, codec guards, anonymous diarization denial. **Conditional:** exact private `GHATANA_MEDIA_WHISPER_PROFILE` / `_AUDIO` / `_GOLD_TRANSCRIPT`, FLEURS audio/gold/rights, actual 380-vs-372 split and 89 caps, a newly blinded speaker-disjoint held-out dataset after selecting a lawful Whisper base/small/reference. Preserve tiny FAIL. **Targets:** STT-03/04/05/07/10/12.
+
+**W2-R06 — TTS-05 consent negative first, then real TTS effect.** **Where:** `ProductionTtsGrpcService`, voice policy, `PiperOnnxEngine` and `PiperPhonemizeProcessConverter`. **Immediate:** unit test wrong principal/tenant/purpose, clone denied, revoked voice before any synthesis/output/outbox; no voice model needed. Reuse `1293724a` total deadline/cleanup code, only fix new demonstrable output-cap, sensitive temp, exit race or OS dylib bug. **Conditional:** legal voice model+phonemizer pins, audible PCM quality, exact codec/SSML control, streaming backpressure/cancel, durable output artifact/restart, per-locale support and c1/16/64. Human likeness/clone remains separately consent-gated. **Targets:** TTS-02/03/05/06/07/08/09/10/12.
+
+**W2-R07 — Vision codec, broker and heldout detector proof.** **Where:** `MediaOciBrokerPolicy/Daemon`, `VideoFrameExtractor`, `YoloXNanoAdapter`, codec scripts. **Immediate:** source-owner/Unix peer identity, replay across broker restart, SHA/mount TOCTOU, strict worker grammar and malformed codec/native budget tests; no privileged Docker bypass. **Conditional:** provision only rights-verified pinned `MEDIA_LINUX_CODECS_DIR` and `MEDIA_LINUX_PNG_CODECS_DIR` for separate real/png native suites, real OOM/PID/FD/CPU/disk/timeout/cleanup, licensed multi-object heldout mAP/PR, VFR tracking with exact PTS, restricted biometric denial. **Targets:** VIS-03/05/06/07/10/12.
+
+**W2-R08 — independent MM-03/MM-06 quality rather than just equal clocks.** **Where:** `MultimodalOperationSpec.fusedResult`, `SourceClockAssociation`, `MediaClockMapping` and gRPC result/metrics. A declared shared timebase enables `TIMESTAMP_ALIGNED` **comparability**, but not real acoustic/visual sync or calibrated semantic fusion. Test independently measured offset/drift/epoch and real word/frame gold, and explicit `SYNC_UNDETERMINED` on noncomparable sources; forbid speaker-face identity without consent. **Targets:** MM-03, MM-06, MM-12.
+
+**W2-R09 — actual OBS provider metrics/receiver and bounded host capacity.** **Where:** `MediaWorkflowMetrics`, existing Prometheus rules/Alertmanager configuration and `MediaResourceProfileHarness`. Feed a *real* measured provider/model quality observation, including the failed tiny WER as an attributed review-only result, not a fabricated healthy profile. Export → scrape → alert fire/clear → named test receiver with no private cardinality. Run real STT/TTS/Vision/MM/OCI c1/c16/c64 with admitted, queued, completed, rejected, timeout and UNKNOWN plus p50/p95/p99, RTF/fps, CPU/RSS/FD/PID, and automatic budget abort. **Targets:** OBS-07, OBS-08.
+
+**W2-R10 — platform owner APIs, parallel, no global Build freeze.** Ghatana [#252](https://github.com/samujjwal/ghatana/issues/252) owns real bounded authenticated source/frame/ROI/PTS rights OCR public interface + Java27 source-free Media consumer (VIS-09). Ghatana [#254](https://github.com/samujjwal/ghatana/issues/254) owns Data Cloud governed versioned projection/lookup, real 202 acceptance distinct from COMMITTED/UNKNOWN, Java21 server/Java27 source-free consumer (MM-10). No duplicate Media job writer or private Ghatana DTO imports. Issues remain open until authentic owner implementation/tests.
+
+**W2-R11 — all original 43 RPCs / 12 W2-E scenarios and row review.** Run changed tests first; only after qualified inputs, execute original per-method valid/invalid/auth/provider and W2-E01..E12 positive/negative/fault/load/restart oracles. Independent per-row acceptance uses original R8 proof, not these new package names. Last accepted 22/30/6 stays until a full-row receipt, then promote **only** those verified original IDs.
+
+### 8.3 First three bounded pulses, ownership and authorization
+
+- **Pulse 1:** Media MM + Runtime owns `W2-R01` (standalone gRPC readiness/authority, source-free negative). Parallel Media TTS owns `W2-R06` restricted voice TTS-05 tests. Neither needs a private model.
+- **Pulse 2:** Media DB + MM owns `W2-R03` (live V026 parent/child crash/readback). Parallel STT/DB owns `W2-R04` (V027 nonempty segment union). Do not repeat the already-passed 5/5 Postgres suites without changed code or missing exact proof.
+- **Pulse 3:** Media Vision owns `W2-R02` real Vision job-adapter structure and `W2-R07` source security negatives; Media OBS owns `W2-R09` actual exporter path. Ghatana owners #252/#254 may work independently during all three pulses.
+
+**Serialized shared-owner files:** `MediaRuntime.java`, `MediaProcessingRuntimePort.java`, canonical `MediaRuntimeContracts.java` and ordered PostgreSQL migrations; no parallel conflicting edits. Disjoint files may use parallel agents/branches and focused tests. **Owner engineering permissions are already approved**; only actual third-party model/voice/biometric/recording rights, independent quality reviewer and release/deployment approval need real external evidence. Missing restricted positive does not block safe negatives or unrelated code. **No new V2 contracts, gtool/PDP closure, dummy fixture success or assumed live model result.**
+
+Each 90-minute pulse outputs `repo@SHA`, actual original R8 task ID, code/test action, exact command/pass/fail/skip, host/image/model/source SHA, first failing assertion, receipt and next action. Four-hour review records only changed whole-row accepted IDs and authentic missing external inputs. After two pulses without a concrete source/test outcome, fix the first runnable failure rather than write another proposal.
+
+### 8.4 Ready-to-run scoped verification (not a claim of execution)
+
+```bash
+git fetch origin main
+git status --porcelain=v1 -uall
+git rev-parse HEAD origin/main
+
+pnpm test:wave2-r10-owner-resolution
+pnpm test:backend-modality-wave2-plan
+node --test tests/media-fleurs-asr-evaluation.test.mjs
+
+# In-process current MM / clock tests (source only, no private model):
+./gradlew :services:media:launcher:test --tests '*MediaRuntimeMultimodalAdmissionTest' --tests '*MediaRuntimeMultimodalRestartTest' --no-daemon --max-workers=2
+./gradlew :services:media:modules:intelligence:multimodal-service:test --tests '*DelegatingMultimodalProviderTest' --tests '*MultimodalGrpcFinalitySurfaceTest' --no-daemon --max-workers=2
+./gradlew :services:media:runtime-contracts:test --tests '*TranscriptSegmentTimingTest' --tests '*MultimodalOperationSpecTest' --no-daemon --max-workers=2
+
+# Real Postgres/LocalStack on the approved host (different tests from prior 5/5):
+./gradlew :services:media:providers:aws-postgresql:test --tests '*PostgresqlMediaTranscriptStoreTest' --tests '*PostgresqlMediaMultimodalSnapshotTest' --no-daemon --max-workers=2
+# Already user-reported PASSED; re-run only if source/evidence changes:
+# ./gradlew :services:media:integration-tests:test --tests '*MediaSttTranscriptCommitFenceIT' --tests '*MediaProviderPolicyDeniedFinalityPostgresIT' --no-daemon --max-workers=2
+# Requires private pinned rights-safe WAV/model/gold:
+# ./gradlew :services:media:integration-tests:test --tests '*MediaAuthorizedSttTranscriptRestartIT' --no-daemon --max-workers=2
+# Requires source-licensed pinned codec directories and separate JVMs:
+# bash scripts/qualification/run-wave2-vision-oci-checks.sh real "$MEDIA_LINUX_CODECS_DIR"
+# bash scripts/qualification/run-wave2-vision-oci-checks.sh png "$MEDIA_LINUX_PNG_CODECS_DIR"
+```
+
+**Actual source/data receipts are the completion standard.** Keep FLEURS local cache bounded to selected lawful clips, do not download full archives or use hundreds of GB. Operational Track B (GH-90000 compose service-image skips, legacy writer cutover, warnings, formal PDP/gtool and release) remains separately owned and cannot manufacture Wave 2 Build completion. All 36 original unfinished tasks remain in `5 with their exact R8 dependencies/proof columns.
