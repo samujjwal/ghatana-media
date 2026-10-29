@@ -138,8 +138,14 @@ final class LinuxVisionWorkerSandbox {
         Path temp = Path.of(System.getProperty("java.io.tmpdir")).toRealPath();
         for (String argument : command) {
             try {
-                Path candidate = Path.of(argument).toAbsolutePath().normalize()
-                        .toRealPath(LinkOption.NOFOLLOW_LINKS);
+                Path absolute = Path.of(argument).toAbsolutePath().normalize();
+                Path parent = absolute.getParent();
+                // Canonicalize the parent chain so macOS /var -> /private/var aliases compare
+                // equal to the resolved temp root, while an unresolvable or symlinked leaf
+                // cannot smuggle a path outside the checked workspace.
+                Path candidate = parent == null
+                        ? absolute
+                        : parent.toRealPath().resolve(absolute.getFileName());
                 if (!candidate.startsWith(temp)) continue;
                 for (Path cursor = candidate; cursor != null && cursor.startsWith(temp); cursor = cursor.getParent()) {
                     if (cursor.getFileName() != null && cursor.getFileName().toString().startsWith(".media-video-codec-")) {

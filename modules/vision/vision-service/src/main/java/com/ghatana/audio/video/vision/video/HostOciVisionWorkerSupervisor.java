@@ -202,10 +202,10 @@ final class HostOciVisionWorkerSupervisor {
     private static Path locateSource(List<String> command, Path workspace, Path outputDirectory) throws IOException {
         if (isVersionProbe(command)) return null;
         if (workspace == null) throw new IOException("Vision worker source workspace is unavailable");
-        Path root = workspace.toRealPath(LinkOption.NOFOLLOW_LINKS);
-        if (Files.isSymbolicLink(root) || !Files.isDirectory(root, LinkOption.NOFOLLOW_LINKS)) {
+        if (Files.isSymbolicLink(workspace) || !Files.isDirectory(workspace, LinkOption.NOFOLLOW_LINKS)) {
             throw new IOException("Vision worker source workspace is unsafe");
         }
+        Path root = workspace.toRealPath();
         Path expected = null;
         for (int i = 1; i < command.size(); i++) {
             if (command.get(i).equals("-i")) {
@@ -218,7 +218,7 @@ final class HostOciVisionWorkerSupervisor {
         if (expected == null) {
             List<Path> candidates = new ArrayList<>();
             Path outputRoot = outputDirectory == null ? null
-                    : outputDirectory.toRealPath(LinkOption.NOFOLLOW_LINKS);
+                    : outputDirectory.toRealPath();
             for (String argument : command) {
                 Path candidate = parseStagedPath(argument);
                 if (candidate == null || !candidate.isAbsolute() || Files.isSymbolicLink(candidate)) continue;
@@ -277,12 +277,15 @@ final class HostOciVisionWorkerSupervisor {
 
     private static Path commandPath(Path path) throws IOException {
         Path absolute = path.toAbsolutePath().normalize();
-        if (Files.exists(absolute, LinkOption.NOFOLLOW_LINKS)) {
-            return absolute.toRealPath(LinkOption.NOFOLLOW_LINKS);
-        }
         Path parent = absolute.getParent();
+        // Resolve the parent chain so platform directory aliases (for example macOS
+        // /var -> /private/var) compare equal to canonical workspace and output roots,
+        // while an unresolvable or symlinked leaf keeps its own path identity.
         if (parent != null && Files.isDirectory(parent, LinkOption.NOFOLLOW_LINKS)) {
-            return parent.toRealPath(LinkOption.NOFOLLOW_LINKS).resolve(absolute.getFileName()).normalize();
+            return parent.toRealPath().resolve(absolute.getFileName()).normalize();
+        }
+        if (Files.exists(absolute, LinkOption.NOFOLLOW_LINKS)) {
+            return absolute.toRealPath();
         }
         return absolute;
     }
@@ -302,7 +305,7 @@ final class HostOciVisionWorkerSupervisor {
         if (Files.isSymbolicLink(absolute) || !Files.isDirectory(absolute, LinkOption.NOFOLLOW_LINKS)) {
             throw new IOException(description + " is unsafe");
         }
-        Path real = absolute.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        Path real = absolute.toRealPath();
         long mode = ((Number) Files.getAttribute(real, "unix:mode", LinkOption.NOFOLLOW_LINKS)).longValue();
         if ((mode & 0077) != 0 || (mode & 0100) == 0 || (mode & 0200) == 0) {
             throw new IOException(description + " must be owner-only and writable");
